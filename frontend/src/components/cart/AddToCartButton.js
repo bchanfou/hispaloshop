@@ -19,6 +19,7 @@ const AddToCartButton = ({
   const [state, setState] = useState('idle'); // idle, loading, success
   const [quantity, setQuantity] = useState(1);
   const mountedRef = useRef(true);
+  const addingRef = useRef(false); // Debounce guard against double-adds
   useEffect(() => () => { mountedRef.current = false; }, []);
   const productId = getProductId(product);
 
@@ -34,8 +35,9 @@ const AddToCartButton = ({
   const inCartQuantity = existingItem?.quantity || 0;
 
   const handleAdd = async () => {
-    if (state === 'loading' || !productId) return false;
+    if (state === 'loading' || addingRef.current || !productId) return false;
 
+    addingRef.current = true;
     setState('loading');
 
     try {
@@ -46,11 +48,13 @@ const AddToCartButton = ({
         if (mountedRef.current) {
           setState('idle');
           setQuantity(1);
+          addingRef.current = false;
         }
       }, 2000);
       return true;
     } catch (error) {
       if (mountedRef.current) setState('idle');
+      addingRef.current = false;
       toast.error('Error al añadir el producto al carrito');
       return false;
     }

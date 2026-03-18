@@ -307,13 +307,21 @@ export default function CartPage() {
   };
 
   const handleUpdateQuantity = async (item, newQuantity) => {
-    await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
-    await refetchPricing();
+    try {
+      await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
+      await refetchPricing();
+    } catch (error) {
+      toast.error(error?.message || 'No se pudo actualizar la cantidad');
+    }
   };
 
   const handleRemoveItem = async (item) => {
-    await removeFromCart(item.product_id, item.variant_id, item.pack_id);
-    await refetchPricing();
+    try {
+      await removeFromCart(item.product_id, item.variant_id, item.pack_id);
+      await refetchPricing();
+    } catch (error) {
+      toast.error(error?.message || 'No se pudo eliminar el producto');
+    }
   };
 
   const groupedItems = useMemo(() => {

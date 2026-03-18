@@ -19,6 +19,7 @@ import {
   Package,
   Star,
   ShoppingBag,
+  UserPlus,
 } from 'lucide-react';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
@@ -89,6 +90,37 @@ function SocialIcon({ href, label, children }) {
     <a href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-600 transition-colors hover:bg-stone-200">
       {children}
     </a>
+  );
+}
+
+/* ── Instagram‑style story ring gradient ─────────────────────────── */
+
+const STORY_RING_GRADIENT = 'conic-gradient(from 180deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #8a3ab9, #4c68d7, #6dc993, #f09433)';
+
+/* ── blue verified badge SVG (Instagram style) ───────────────────── */
+
+function VerifiedBadge({ size = 14 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      className="ml-1 inline-block align-middle"
+      aria-label="Cuenta verificada"
+    >
+      <path
+        d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67 2.63 13.43 1.75 12 1.75S9.33 2.63 8.66 3.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z"
+        fill="#3897f0"
+      />
+      <path
+        d="M9.5 12.5l2 2 4-4.5"
+        stroke="#fff"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -315,16 +347,22 @@ export default function ProfileHeader({
         )}
       </AnimatePresence>
 
-      {/* ── 3. AVATAR + STATS ROW ────────────────────────────────── */}
-      <div className="flex items-center gap-5 p-4">
-        {/* avatar */}
-        <div className="relative h-[84px] w-[84px] shrink-0">
+      {/* ── 3. AVATAR + STATS ROW (Instagram layout) ──────────────── */}
+      <div className="flex items-center gap-5 px-4 pt-4 pb-2">
+        {/* avatar with gradient story ring */}
+        <div className="relative h-[86px] w-[86px] shrink-0">
+          {user?.has_active_story && (
+            <div
+              className="absolute -inset-[3px] rounded-full"
+              style={{ background: STORY_RING_GRADIENT }}
+            />
+          )}
           <img
             src={user?.profile_image || user?.avatar_url || '/default-avatar.png'}
             alt={user?.name}
             onClick={!isOwn && user?.has_active_story ? () => navigate(`/stories/${user?.user_id}`) : undefined}
-            className={`h-[84px] w-[84px] rounded-full object-cover ring-2 ${
-              user?.has_active_story ? 'ring-stone-950 cursor-pointer' : 'ring-stone-200'
+            className={`relative h-[86px] w-[86px] rounded-full border-[3px] border-white object-cover ${
+              user?.has_active_story ? 'cursor-pointer' : 'ring-1 ring-stone-200'
             }`}
           />
           {isOwn && (
@@ -339,22 +377,20 @@ export default function ProfileHeader({
               <button
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Cambiar foto de perfil"
-                className="absolute -bottom-1.5 -right-1.5 flex h-11 w-11 items-center justify-center rounded-full"
+                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#0095f6] shadow-sm"
               >
-                <span className="flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-white bg-stone-950">
-                  <Camera size={12} className="text-white" />
-                </span>
+                <Plus size={14} className="text-white" strokeWidth={3} />
               </button>
             </>
           )}
         </div>
 
-        {/* stats */}
+        {/* stats (Instagram: bold number, light label) */}
         <div className="flex flex-1 justify-around text-center">
           {[
-            { value: user?.posts_count, label: 'Publicaciones', link: null },
-            { value: user?.followers_count, label: 'Seguidores', link: `/${user?.username}/followers` },
-            { value: user?.following_count, label: 'Seguidos', link: `/${user?.username}/following` },
+            { value: user?.posts_count, label: 'publicaciones', link: null },
+            { value: user?.followers_count, label: 'seguidores', link: `/${user?.username}/followers` },
+            { value: user?.following_count, label: 'seguidos', link: `/${user?.username}/following` },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -364,8 +400,8 @@ export default function ProfileHeader({
               onKeyDown={stat.link ? (e) => { if (e.key === 'Enter') navigate(stat.link); } : undefined}
               className={stat.link ? 'cursor-pointer' : ''}
             >
-              <div className="text-lg font-semibold text-stone-950">{formatCount(stat.value)}</div>
-              <div className="text-[10px] uppercase tracking-wide text-stone-500">{stat.label}</div>
+              <div className="text-[17px] font-bold text-stone-950 leading-tight">{formatCount(stat.value)}</div>
+              <div className="text-[13px] text-stone-500 mt-0.5">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -373,21 +409,17 @@ export default function ProfileHeader({
 
       {/* ── 4. INFO SECTION ──────────────────────────────────────── */}
       <div className="px-4 pb-3">
-        {/* name + badges */}
+        {/* name + badges (Instagram: name bold, verified blue check) */}
         <div className="mb-0.5 flex flex-wrap items-center">
-          <span className="text-[15px] font-semibold text-stone-950">{user?.name}</span>
+          <span className="text-[14px] font-semibold text-stone-950">{user?.name}</span>
+          {user?.is_verified && <VerifiedBadge size={16} />}
           {roleLabel && (
-            <span className={`ml-1.5 rounded-full px-2.5 py-[3px] text-[10px] font-bold uppercase tracking-wide ${
+            <span className={`ml-1.5 rounded-full px-2 py-[2px] text-[10px] font-bold uppercase tracking-wide ${
               user?.role === 'influencer'
                 ? 'bg-stone-950 text-white'
                 : 'bg-stone-100 text-stone-500'
             }`}>
               {roleLabel}
-            </span>
-          )}
-          {user?.is_verified && (
-            <span className="ml-1 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-950">
-              ✓ Verificado
             </span>
           )}
         </div>
@@ -399,9 +431,9 @@ export default function ProfileHeader({
             {user.bio.length > 150 && !bioExpanded && (
               <button
                 onClick={() => setBioExpanded(true)}
-                className="ml-0.5 text-sm font-medium text-stone-500"
+                className="ml-0.5 text-[14px] text-stone-400"
               >
-                Ver más
+                más
               </button>
             )}
           </div>
@@ -486,15 +518,22 @@ export default function ProfileHeader({
         )}
       </div>
 
-      {/* ── 5. ACTION BUTTONS ────────────────────────────────────── */}
-      <div className="flex gap-2 px-4 pb-4">
+      {/* ── 5. ACTION BUTTONS (Instagram layout) ────────────────── */}
+      <div className="flex gap-1.5 px-4 pb-3">
         {isOwn ? (
           <>
-            <button onClick={onEditProfile} className="min-h-[44px] flex-1 rounded-xl bg-stone-100 px-2 py-2.5 text-[13px] font-semibold text-stone-950">
+            <button onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-lg bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Editar perfil
             </button>
-            <button onClick={shareProfile} className="min-h-[44px] flex-1 rounded-xl bg-stone-100 px-2 py-2.5 text-[13px] font-semibold text-stone-950">
+            <button onClick={shareProfile} className="min-h-[34px] flex-1 rounded-lg bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Compartir perfil
+            </button>
+            <button
+              onClick={() => navigate('/explore/people')}
+              aria-label="Descubrir personas"
+              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-stone-100"
+            >
+              <UserPlus size={16} className="text-stone-950" />
             </button>
           </>
         ) : (
@@ -510,12 +549,12 @@ export default function ProfileHeader({
                   ? `Solicitar seguir a ${user?.name}`
                   : `Seguir a ${user?.name}`
               }
-              className={`min-h-[44px] flex-1 rounded-xl px-3 py-2.5 text-[13px] font-semibold ${
+              className={`min-h-[34px] flex-1 rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
                 user?.is_following
-                  ? 'border-[1.5px] border-stone-200 bg-white text-stone-950'
+                  ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
-                  ? 'border-[1.5px] border-stone-200 bg-white text-stone-500'
-                  : 'bg-stone-950 text-white'
+                  ? 'bg-stone-100 text-stone-500'
+                  : 'bg-[#0095f6] text-white'
               }`}
             >
               {user?.follow_request_pending
@@ -523,81 +562,90 @@ export default function ProfileHeader({
                 : user?.is_following
                 ? 'Siguiendo'
                 : user?.is_private
-                ? 'Solicitar seguir'
+                ? 'Solicitar'
                 : 'Seguir'}
             </button>
             <button
               onClick={onMessage}
               aria-label="Enviar mensaje"
               disabled={user?.is_private && !user?.is_following}
-              className={`flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-stone-950 ${
+              className={`flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
                 user?.is_private && !user?.is_following ? 'opacity-40 cursor-not-allowed' : ''
               }`}
             >
-              <MessageCircle size={16} />
+              <MessageCircle size={15} />
               {!showStoreButton && 'Mensaje'}
             </button>
             {showStoreButton && (
               <button
                 onClick={() => navigate(`/store/${user?.store_slug || user?.username}`)}
-                className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-stone-950"
+                className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
               >
-                <Store size={16} />
+                <Store size={15} />
                 Tienda
               </button>
             )}
+            <button
+              onClick={() => navigate('/explore/people')}
+              aria-label="Descubrir personas"
+              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-stone-100"
+            >
+              <UserPlus size={16} className="text-stone-950" />
+            </button>
           </>
         )}
       </div>
 
-      {/* ── 5b. MUTUAL FOLLOWERS (Q10) ───────────────────────────── */}
+      {/* ── 5b. MUTUAL FOLLOWERS (Instagram style) ───────────────── */}
       {!isOwn && user?.mutual_followers?.length > 0 && (
-        <div className="flex items-center gap-2 px-4 pb-3">
-          <div className="flex -space-x-2">
+        <div className="flex items-center gap-2 px-4 pb-2">
+          <div className="flex -space-x-1.5">
             {user.mutual_followers.slice(0, 3).map((mf) => (
               <img
                 key={mf.user_id}
                 src={mf.profile_image || '/default-avatar.png'}
                 alt={mf.username}
-                className="h-5 w-5 rounded-full border border-white object-cover"
+                className="h-4 w-4 rounded-full border-[1.5px] border-white object-cover"
               />
             ))}
           </div>
-          <span className="text-[12px] text-stone-500">
+          <span className="text-[12px] text-stone-500 leading-tight">
             Seguido por{' '}
-            <span className="font-medium text-stone-700">{user.mutual_followers[0]?.username}</span>
-            {user.mutual_followers_count > 1 && (
-              <> y <span className="font-medium text-stone-700">{user.mutual_followers_count - 1} más</span></>
+            <span className="font-semibold text-stone-950">{user.mutual_followers[0]?.username}</span>
+            {(user.mutual_followers_count || user.mutual_followers.length) > 1 && (
+              <> y <span className="font-semibold text-stone-950">{(user.mutual_followers_count || user.mutual_followers.length) - 1} más que sigues</span></>
             )}
           </span>
         </div>
       )}
 
-      {/* ── 6. HIGHLIGHTS ────────────────────────────────────────── */}
+      {/* ── 6. HIGHLIGHTS (Instagram style circles) ──────────────── */}
       {(isOwn || highlights.length > 0) && (
-        <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-none">
+        <div className="flex gap-4 overflow-x-auto px-4 pb-3 pt-1 scrollbar-none">
           {isOwn && (
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1.5">
               <button
                 onClick={onCreateHighlight || (() => toast('Próximamente'))}
                 aria-label="Crear historia destacada"
-                className="flex h-[62px] w-[62px] shrink-0 items-center justify-center rounded-full border-2 border-dashed border-stone-200"
+                className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full border border-stone-300"
               >
-                <Plus size={20} className="text-stone-500" />
+                <Plus size={22} className="text-stone-400" />
               </button>
-              <span className="text-[10px] text-stone-500">Nueva</span>
+              <span className="text-[11px] text-stone-500">Nuevo</span>
             </div>
           )}
 
           {highlights.map((hl, i) => (
-            <div key={hl.highlight_id || hl.id || i} className="flex shrink-0 flex-col items-center gap-1">
-              <div className="h-[62px] w-[62px] overflow-hidden rounded-full bg-stone-100 ring-2 ring-stone-200">
-                {(hl.cover_url || hl.image) && (
-                  <img src={hl.cover_url || hl.image} alt={hl.title} className="h-full w-full object-cover" />
+            <div key={hl.highlight_id || hl.id || i} className="flex shrink-0 flex-col items-center gap-1.5">
+              <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-stone-100 ring-[1.5px] ring-stone-300 ring-offset-2 ring-offset-white">
+                {(hl.cover_url || hl.image) ? (
+                  <img src={hl.cover_url || hl.image} alt={hl.title} className="h-[64px] w-[64px] rounded-full object-cover" />
+                ) : (
+                  <span className="text-lg text-stone-400">✦</span>
                 )}
               </div>
-              <span className="max-w-[62px] truncate text-[10px] text-stone-950">
-                {hl.title?.slice(0, 12)}
+              <span className="max-w-[64px] truncate text-[11px] text-stone-950">
+                {hl.title?.slice(0, 15)}
               </span>
             </div>
           ))}

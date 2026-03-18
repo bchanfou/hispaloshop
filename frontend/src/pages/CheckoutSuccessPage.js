@@ -98,7 +98,13 @@ export default function CheckoutSuccessPage() {
   // Success
   const orderId = order?.order_id || order?.id;
   const orderRef = orderId ? `#HSP-${String(orderId).slice(-8).toUpperCase()}` : '';
-  const totalPaid = order?.total ? `${(order.total / 100).toFixed(2)}€` : order?.total_amount ? `${Number(order.total_amount).toFixed(2)}€` : '';
+  const totalPaid = order?.total_cents
+    ? `${(order.total_cents / 100).toFixed(2)} €`
+    : order?.total
+      ? `${(Number(order.total) / 100).toFixed(2)} €`
+      : order?.total_amount
+        ? `${Number(order.total_amount).toFixed(2)} €`
+        : '';
   const email = order?.customer_email || order?.email || '';
   const items = order?.items || order?.line_items || [];
 
@@ -181,7 +187,11 @@ export default function CheckoutSuccessPage() {
                   <p className="text-xs text-stone-500">x{item.quantity}</p>
                 </div>
                 <span className="text-[13px] font-semibold text-stone-950 flex-shrink-0">
-                  {item.price ? `${Number(item.price).toFixed(2)}€` : ''}
+                  {item.unit_price_cents
+                    ? `${(item.unit_price_cents / 100 * item.quantity).toFixed(2)} €`
+                    : item.price
+                      ? `${(Number(item.price) * item.quantity).toFixed(2)} €`
+                      : ''}
                 </span>
               </div>
             ))}

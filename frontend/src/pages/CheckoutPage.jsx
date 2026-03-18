@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Check, Loader2, Plus, Tag, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useLocale } from '../context/LocaleContext';
 import { useCartAddresses, useCartCheckout, useCartPricing } from '../features/cart/hooks';
 
 /* ── Stepper ── */
@@ -41,11 +42,12 @@ function Stepper({ current }) {
 }
 
 /* ── Order Summary Card ── */
-function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel }) {
+function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel, formatPrice }) {
   const subtotal = cartSummary?.subtotal_cents ? cartSummary.subtotal_cents / 100 : 0;
   const discount = (appliedDiscount?.discount_cents || 0) / 100;
   const shipping = cartSummary?.shipping_cents ? cartSummary.shipping_cents / 100 : 0;
   const total = cartSummary?.total_cents ? cartSummary.total_cents / 100 : subtotal - discount + shipping;
+  const fmt = formatPrice || ((v) => `${v.toFixed(2)}€`);
 
   return (
     <div className="bg-stone-100 rounded-xl p-4">
@@ -61,15 +63,15 @@ function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel }
         </div>
       ))}
       {cartItems.length > 5 && (
-        <p className="text-xs text-stone-500 mb-2.5">+{cartItems.length - 5} más</p>
+        <p className="text-xs text-stone-500 mb-2.5">+{cartItems.length - 5} mas</p>
       )}
 
       <div className="flex flex-col gap-1.5">
-        <SummaryRow label="Subtotal" value={`${subtotal.toFixed(2)}€`} />
-        {discount > 0 && <SummaryRow label="Descuento" value={`-${discount.toFixed(2)}€`} />}
-        <SummaryRow label="Envío" value={shipping === 0 ? (shippingLabel || 'Calculando...') : `${shipping.toFixed(2)}€`} />
+        <SummaryRow label="Subtotal" value={fmt(subtotal)} />
+        {discount > 0 && <SummaryRow label="Descuento" value={`-${fmt(discount)}`} />}
+        <SummaryRow label="Envio" value={shipping === 0 ? (shippingLabel || 'Calculando...') : fmt(shipping)} />
         <div className="h-px bg-stone-200 my-1" />
-        <SummaryRow label="Total" value={`${total.toFixed(2)}€`} bold />
+        <SummaryRow label="Total" value={fmt(total)} bold />
       </div>
     </div>
   );
@@ -89,9 +91,11 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { cartItems, appliedDiscount, applyDiscount, removeDiscount, loading: cartLoading } = useCart();
+  const { convertAndFormatPrice, currency } = useLocale();
   const { savedAddresses, defaultAddressId, createAddress, savingAddress, isLoading: addressesLoading } = useCartAddresses();
   const { cartSummary } = useCartPricing(cartItems, appliedDiscount);
   const { checkoutLoading, createCheckout } = useCartCheckout();
+  const formatPrice = useCallback((euros) => convertAndFormatPrice(euros, currency), [convertAndFormatPrice, currency]);
 
   const [step, setStep] = useState(1);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -200,7 +204,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const total = cartSummary?.total_cents ? (cartSummary.total_cents / 100).toFixed(2) : '...';
+  const total = cartSummary?.total_cents ? formatPrice(cartSummary.total_cents / 100) : '...';
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -380,7 +384,7 @@ export default function CheckoutPage() {
 
             {/* Summary */}
             <div className="mt-6">
-              <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel="Según dirección" />
+              <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel="Según dirección" formatPrice={formatPrice} />
             </div>
 
             {/* Continue */}
@@ -462,7 +466,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Order summary */}
-            <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} />
+            <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} formatPrice={formatPrice} />
 
             {/* Security text */}
             <p className="flex items-center justify-center gap-1 text-xs text-stone-500 my-4">
@@ -479,7 +483,7 @@ export default function CheckoutPage() {
               {checkoutLoading ? (
                 <Loader2 className="w-[22px] h-[22px] animate-spin" />
               ) : (
-                `Pagar ${total}€`
+                `Pagar ${total}`
               )}
             </button>
           </motion.div>

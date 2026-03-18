@@ -9,7 +9,7 @@ import {
 
 const STATUS_FLOW = ['confirmed', 'preparing', 'shipped', 'delivered'];
 const STATUS_LABELS = {
-  pending: 'Confirmado', confirmed: 'Confirmado', preparing: 'Preparando',
+  pending: 'Pendiente', paid: 'Pagado', confirmed: 'Confirmado', preparing: 'Preparando',
   shipped: 'Enviado', in_transit: 'Enviado', delivered: 'Entregado',
   cancelled: 'Cancelado', refunded: 'Reembolsado',
 };
@@ -50,9 +50,9 @@ export default function OrderDetailPage() {
     try {
       const data = await apiClient.get(`/customer/orders/${orderId}`);
       setOrder(data);
-    } catch {
-      toast.error('Error al cargar el pedido');
-      navigate('/orders');
+    } catch (error) {
+      toast.error(error?.status === 404 ? 'Pedido no encontrado' : 'Error al cargar el pedido');
+      navigate('/dashboard/orders');
     } finally {
       setLoading(false);
     }
@@ -92,8 +92,8 @@ export default function OrderDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <Loader2 size={28} className="text-stone-500 animate-spin" />
       </div>
     );
   }
@@ -101,10 +101,11 @@ export default function OrderDetailPage() {
   if (!order) return null;
 
   const status = (order.status || 'pending').toLowerCase();
-  const canCancel = ['pending', 'confirmed'].includes(status);
+  const canCancel = ['pending', 'paid', 'confirmed'].includes(status);
   const isDelivered = status === 'delivered';
   const isCancelled = status === 'cancelled' || status === 'refunded';
-  const currentStepIdx = STATUS_FLOW.indexOf(status === 'pending' ? 'confirmed' : status);
+  const normalizedStatus = status === 'pending' || status === 'paid' ? 'confirmed' : status === 'in_transit' ? 'shipped' : status;
+  const currentStepIdx = STATUS_FLOW.indexOf(normalizedStatus);
   const ref = `#HSP-${String(order.order_id || orderId).slice(-8).toUpperCase()}`;
   const items = order.items || order.line_items || [];
   const subtotal = order.subtotal_cents ? (order.subtotal_cents / 100).toFixed(2) : order.subtotal ? Number(order.subtotal).toFixed(2) : null;
@@ -266,7 +267,11 @@ export default function OrderDetailPage() {
                 <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0' }}>x{item.quantity}</p>
               </div>
               <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', flexShrink: 0 }}>
-                {item.price ? `${Number(item.price).toFixed(2)}€` : ''}
+                {item.unit_price_cents
+                  ? `${(item.unit_price_cents / 100 * item.quantity).toFixed(2)} €`
+                  : item.price
+                    ? `${(Number(item.price) * item.quantity).toFixed(2)} €`
+                    : ''}
               </span>
             </div>
           ))}
@@ -446,10 +451,10 @@ export default function OrderDetailPage() {
                 style={{
                   width: '100%', height: 44,
                   background: 'transparent',
-                  border: '1px solid var(--color-red)',
+                  border: '1px solid #78716c',
                   borderRadius: 'var(--radius-lg)',
                   fontSize: 14, fontWeight: 600,
-                  color: 'var(--color-red)',
+                  color: '#78716c',
                   cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
               >

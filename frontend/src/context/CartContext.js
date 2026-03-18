@@ -162,6 +162,13 @@ export function CartProvider({ children }) {
       return;
     }
 
+    // Optimistic remove — hide item immediately, revert on error
+    const previousItems = cartItems;
+    const key = `${productId}-${variantId || ''}-${packId || ''}`;
+    setCartItems(prev =>
+      prev.filter(item => `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}` !== key)
+    );
+
     try {
       let path = `/cart/items/${productId}`;
       const params = new URLSearchParams();
@@ -173,10 +180,11 @@ export function CartProvider({ children }) {
       await fetchCart();
     } catch (error) {
       console.error('Error removing from cart:', error);
+      setCartItems(previousItems); // Revert on error
       toast.error('No se pudo eliminar el producto');
       captureException(error);
     }
-  }, [user, fetchCart]);
+  }, [user, fetchCart, cartItems]);
 
   const updateQuantity = useCallback(async (productId, newQuantity, variantId = null, packId = null) => {
     if (newQuantity <= 0) {
@@ -197,6 +205,16 @@ export function CartProvider({ children }) {
       return;
     }
 
+    // Optimistic update — update UI immediately, revert on error
+    const previousItems = cartItems;
+    const key = `${productId}-${variantId || ''}-${packId || ''}`;
+    setCartItems(prev =>
+      prev.map(item => {
+        const itemKey = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
+        return itemKey === key ? { ...item, quantity: newQuantity } : item;
+      })
+    );
+
     try {
       await apiClient.patch(`/cart/items/${productId}`, {
         quantity: newQuantity,
@@ -206,10 +224,11 @@ export function CartProvider({ children }) {
       await fetchCart();
     } catch (error) {
       console.error('Error updating quantity:', error);
+      setCartItems(previousItems); // Revert on error
       toast.error('No se pudo actualizar la cantidad');
       captureException(error);
     }
-  }, [user, fetchCart, removeFromCart]);
+  }, [user, fetchCart, removeFromCart, cartItems]);
 
   const clearCart = useCallback(async () => {
     if (!user) {

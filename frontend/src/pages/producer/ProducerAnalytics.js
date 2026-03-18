@@ -50,13 +50,19 @@ export default function ProducerAnalytics() {
   const [period, setPeriod] = useState('30d');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const fetchAnalytics = () => {
     setLoading(true);
+    setError(false);
     apiClient.get(`/producer/analytics?period=${period}`)
       .then(d => setData(d))
-      .catch(() => setData(null))
+      .catch(() => { setData(null); setError(true); })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
   }, [period]);
 
   if (loading) {
@@ -72,6 +78,23 @@ export default function ProducerAnalytics() {
           ))}
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4 h-48 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <BarChart3 className="w-12 h-12 text-stone-300 mb-4" />
+        <p className="text-stone-600 font-medium mb-2">Error al cargar analíticas</p>
+        <p className="text-stone-500 text-sm mb-4">Comprueba tu conexión e inténtalo de nuevo.</p>
+        <button
+          type="button"
+          onClick={fetchAnalytics}
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors"
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
@@ -111,7 +134,7 @@ export default function ProducerAnalytics() {
                   <p className="text-xs text-stone-500">{product.units_sold} unidades vendidas</p>
                 </div>
                 <p className="text-sm font-bold text-stone-950 shrink-0">
-                  {(product.revenue || 0).toFixed(2)}€
+                  {(product.revenue || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
                 </p>
               </div>
             ))}

@@ -14,6 +14,7 @@ export default function ProducerProfile() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('company');
   
@@ -55,9 +56,11 @@ export default function ProducerProfile() {
   }, []);
 
   const fetchProfile = async () => {
+    setError(false);
+    setLoading(true);
     try {
       const data = await apiClient.get('/producer/profile');
-      
+
       setProfile({
         company_name: data.company_name || '',
         contact_person: data.contact_person || '',
@@ -74,7 +77,7 @@ export default function ProducerProfile() {
         setWarehouseAddress(data.warehouse_address);
       }
     } catch {
-      // handled silently
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -126,8 +129,44 @@ export default function ProducerProfile() {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-stone-500">
-        {t('common.loading', 'Loading...')}
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <div className="h-8 w-48 bg-stone-100 rounded-xl animate-pulse" />
+          <div className="h-4 w-72 bg-stone-100 rounded animate-pulse" />
+        </div>
+        <div className="flex gap-4 border-b border-stone-200 pb-4">
+          {[1,2,3].map(i => (
+            <div key={i} className="h-5 w-28 bg-stone-100 rounded animate-pulse" />
+          ))}
+        </div>
+        <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-2xl space-y-4">
+          <div className="h-5 w-40 bg-stone-100 rounded animate-pulse" />
+          <div className="grid grid-cols-2 gap-4">
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} className="space-y-1">
+                <div className="h-3 w-24 bg-stone-100 rounded animate-pulse" />
+                <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <Building2 className="w-12 h-12 text-stone-300 mb-4" />
+        <p className="text-stone-600 font-medium mb-2">{t('errors.loadingProfile', 'Error al cargar el perfil')}</p>
+        <p className="text-stone-500 text-sm mb-4">{t('errors.tryAgain', 'Comprueba tu conexión e inténtalo de nuevo.')}</p>
+        <button
+          type="button"
+          onClick={fetchProfile}
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors"
+        >
+          {t('common.retry', 'Reintentar')}
+        </button>
       </div>
     );
   }

@@ -7,6 +7,9 @@ import { toast } from 'sonner';
 
 /* ───────────────────────── constants ───────────────────────── */
 
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB per image
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+
 const FILTERS = [
   { name: 'Natural', emoji: '✨', css: 'none' },
   { name: 'Amanecer', emoji: '🌅', css: 'sepia(0.25) saturate(1.3) brightness(1.08)' },
@@ -130,6 +133,9 @@ export default function CreatePostPage() {
   const [location, setLocation] = useState('');
   const [audience, setAudience] = useState('public'); // 'public' | 'followers'
 
+  /* --- upload progress --- */
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   /* --- filter swipe state --- */
   const filterSwipeRef = useRef({ startX: 0 });
   const [showFilterName, setShowFilterName] = useState(false);
@@ -141,10 +147,31 @@ export default function CreatePostPage() {
   const handleFiles = useCallback((e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
+
+    // Validate each file
+    const valid = [];
+    for (const file of files) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        toast.error(`"${file.name}" no es un formato válido. Usa JPG, PNG o WebP.`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`"${file.name}" supera los 20 MB permitidos.`);
+        continue;
+      }
+      valid.push(file);
+    }
+    if (!valid.length) return;
+
     setSelectedFiles((prev) => {
-      const merged = [...prev, ...files].slice(0, 10);
+      const merged = [...prev, ...valid].slice(0, 10);
+      if (merged.length >= 10 && valid.length > merged.length - prev.length) {
+        toast('Máximo 10 imágenes por publicación', { duration: 3000 });
+      }
       return merged;
     });
+    // Reset input so the same file can be re-selected
+    e.target.value = '';
   }, []);
 
   useEffect(() => {
@@ -184,8 +211,9 @@ export default function CreatePostPage() {
   const [publishSuccess, setPublishSuccess] = useState(false);
 
   const handlePublish = async () => {
-    if (publishing) return;
+    if (publishing || !selectedFiles.length) return;
     setPublishing(true);
+    setUploadProgress(0);
     try {
       const fd = new FormData();
       selectedFiles.forEach((f) => fd.append('files', f));
@@ -193,7 +221,15 @@ export default function CreatePostPage() {
       if (taggedProducts.length) fd.append('tagged_products_json', JSON.stringify(taggedProducts.map((p) => ({ product_id: p.id }))));
       if (selectedFiles.length > 1) fd.append('post_type', 'carousel');
       if (location.trim()) fd.append('location', location.trim());
-      const res = await apiClient.post('/posts', fd);
+      if (audience) fd.append('audience', audience);
+
+      // Upload with progress tracking
+      const res = await apiClient.post('/posts', fd, {
+        onUploadProgress: (e) => {
+          if (e.total) setUploadProgress(Math.round((e.loaded / e.total) * 100));
+        },
+      });
+      setUploadProgress(100);
       const postId = res?.id || res?.post?.id || res?.data?.id;
 
       // Haptic feedback
@@ -213,6 +249,7 @@ export default function CreatePostPage() {
       const msg = typeof detail === 'string' ? detail : 'Error al publicar. Comprueba tu conexión e inténtalo de nuevo.';
       toast.error(msg, { duration: 5000 });
       setPublishing(false);
+      setUploadProgress(0);
     }
   };
 
@@ -235,6 +272,14 @@ export default function CreatePostPage() {
 
   /* ── drag text (perf: direct DOM during drag, state sync on end) ── */
   const rafRef = useRef(null);
+
+  /* ── cleanup on unmount ── */
+  useEffect(() => {
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      dragRef.current = null;
+    };
+  }, []);
 
   const handleDragStart = (e, overlay) => {
     e.preventDefault();
@@ -273,7 +318,7 @@ export default function CreatePostPage() {
       dragRef.current = null;
       window.removeEventListener('mousemove', move);
       window.removeEventListener('mouseup', up);
-      window.removeEventListener('touchmove', move, { passive: true });
+      window.removeEventListener('touchmove', move);
       window.removeEventListener('touchend', up);
     };
     window.addEventListener('mousemove', move);
@@ -452,7 +497,7 @@ export default function CreatePostPage() {
       { key: 'recorte', label: 'Recorte', icon: Crop },
     ];
 
-    const previewAspect = aspectRatio.value;
+    const previewAspect = aspectRatio.value || 'auto';
 
     return (
       <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
@@ -585,7 +630,7 @@ export default function CreatePostPage() {
                 {FILTERS.map((f) => (
                   <div
                     key={f.name}
-                    onClick={() => setActiveFilter(f)}
+                    onClick={() => { setActiveFilter(f); if (navigator.vibrate) navigator.vibrate(10); }}
                     style={{ flexShrink: 0, cursor: 'pointer', textAlign: 'center' }}
                   >
                     <div
@@ -595,10 +640,12 @@ export default function CreatePostPage() {
                         borderRadius: 'var(--radius-md)',
                         overflow: 'hidden',
                         border: activeFilter.name === f.name ? '2px solid var(--color-white)' : '2px solid transparent',
+                        transition: 'border-color 0.15s, transform 0.15s',
+                        transform: activeFilter.name === f.name ? 'scale(1.05)' : 'scale(1)',
                       }}
                     >
                       {previewUrls[previewIndex] && (
-                        <img src={previewUrls[previewIndex]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: f.css === 'none' ? 'none' : f.css }} />
+                        <img src={previewUrls[previewIndex]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: f.css === 'none' ? 'none' : f.css }} loading="lazy" />
                       )}
                     </div>
                     <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 4, display: 'block' }}>{f.emoji} {f.name}</span>
@@ -1107,6 +1154,12 @@ export default function CreatePostPage() {
 
       {/* fixed publish button */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: 16, background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
+        {/* Upload progress bar */}
+        {publishing && uploadProgress > 0 && uploadProgress < 100 && (
+          <div style={{ width: '100%', height: 3, background: '#e7e5e4', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
+            <div style={{ height: '100%', background: '#0c0a09', borderRadius: 2, width: `${uploadProgress}%`, transition: 'width 0.3s ease' }} />
+          </div>
+        )}
         <button
           onClick={handlePublish}
           disabled={publishing}
@@ -1143,7 +1196,11 @@ export default function CreatePostPage() {
               }}
             />
           )}
-          {publishing ? 'Publicando...' : 'Publicar ahora'}
+          {publishing
+            ? uploadProgress < 100
+              ? `Subiendo... ${uploadProgress}%`
+              : 'Procesando...'
+            : 'Publicar ahora'}
         </button>
       </div>
 

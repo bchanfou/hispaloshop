@@ -102,7 +102,7 @@ function OrderRow({ order, expanded, onToggle }) {
           <Receipt className="w-4 h-4 text-stone-500 flex-shrink-0" />
           <div className="min-w-0">
             <p className="text-sm font-medium text-stone-950 truncate">
-              #{order.order_id.slice(-8)}
+              #{String(order.order_id).slice(-8)}
             </p>
             <p className="text-xs text-stone-500">
               {order.customer_name} · {new Date(order.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
@@ -112,8 +112,8 @@ function OrderRow({ order, expanded, onToggle }) {
         <div className="flex items-center gap-3 flex-shrink-0">
           <StatusBadge status={order.status} />
           <div className="text-right">
-            <p className="text-sm font-semibold text-stone-700">+{order.net_earnings.toFixed(2)}€</p>
-            <p className="text-[10px] text-stone-500">{order.gross_amount.toFixed(2)}€ bruto</p>
+            <p className="text-sm font-semibold text-stone-700">+{(order.net_earnings ?? 0).toFixed(2)}€</p>
+            <p className="text-[10px] text-stone-500">{(order.gross_amount ?? 0).toFixed(2)}€ bruto</p>
           </div>
           {expanded ? <ChevronUp className="w-4 h-4 text-stone-500" /> : <ChevronDown className="w-4 h-4 text-stone-500" />}
         </div>
@@ -121,15 +121,15 @@ function OrderRow({ order, expanded, onToggle }) {
       {expanded && (
         <div className="px-4 pb-3 bg-stone-50/50">
           <div className="space-y-1.5 ml-7">
-            {order.items.map((item, i) => (
+            {(order.items || []).map((item, i) => (
               <div key={i} className="flex justify-between text-xs text-stone-600">
                 <span>{item.quantity}x {item.product_name}</span>
-                <span>{item.subtotal.toFixed(2)}€</span>
+                <span>{(item.subtotal ?? 0).toFixed(2)}€</span>
               </div>
             ))}
             <div className="pt-1.5 mt-1.5 border-t border-stone-200 flex justify-between text-xs">
-              <span className="text-stone-500">Comisión plataforma ({order.gross_amount > 0 ? (order.platform_fee / order.gross_amount * 100).toFixed(0) : 0}%)</span>
-              <span className="text-stone-600">-{order.platform_fee.toFixed(2)}€</span>
+              <span className="text-stone-500">Comisión plataforma ({(order.gross_amount ?? 0) > 0 ? ((order.platform_fee ?? 0) / order.gross_amount * 100).toFixed(0) : 0}%)</span>
+              <span className="text-stone-600">-{(order.platform_fee ?? 0).toFixed(2)}€</span>
             </div>
           </div>
         </div>
@@ -175,8 +175,26 @@ export default function ProducerPayments() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
+      <div className="space-y-6">
+        <div className="space-y-1">
+          <div className="h-8 w-40 bg-stone-100 rounded-xl animate-pulse" />
+          <div className="h-4 w-56 bg-stone-100 rounded animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="bg-white rounded-xl border border-stone-200 p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-stone-100 rounded-xl animate-pulse" />
+                <div className="h-3 w-20 bg-stone-100 rounded animate-pulse" />
+              </div>
+              <div className="h-6 w-24 bg-stone-100 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-stone-200 p-5 h-64 animate-pulse" />
+          <div className="lg:col-span-3 bg-white rounded-xl border border-stone-200 p-5 h-64 animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -228,15 +246,15 @@ export default function ProducerPayments() {
         <StatCard
           icon={DollarSign}
           label={t('producer.grossSales')}
-          value={`${data.total_gross.toFixed(2)}€`}
-          sublabel={`${data.paid_orders} pedidos completados`}
+          value={`${(data.total_gross ?? 0).toFixed(2)}€`}
+          sublabel={`${data.paid_orders ?? 0} pedidos completados`}
           color="blue"
           testId="stat-gross"
         />
         <StatCard
           icon={TrendingUp}
           label={`Tus ganancias (${100 - commissionPct}%)`}
-          value={`${data.total_net.toFixed(2)}€`}
+          value={`${(data.total_net ?? 0).toFixed(2)}€`}
           sublabel={t('producer.afterCommission')}
           color="green"
           testId="stat-net"
@@ -244,14 +262,14 @@ export default function ProducerPayments() {
         <StatCard
           icon={CreditCard}
           label={`Comisión plataforma (${commissionPct}%)`}
-          value={`${data.total_platform_fee.toFixed(2)}€`}
+          value={`${(data.total_platform_fee ?? 0).toFixed(2)}€`}
           color="amber"
           testId="stat-fees"
         />
         <StatCard
           icon={Wallet}
           label={t('producer.pendingPayout')}
-          value={`${data.pending_payout.toFixed(2)}€`}
+          value={`${(data.pending_payout ?? 0).toFixed(2)}€`}
           sublabel={data.stripe_connected ? 'Stripe conectado' : 'Conecta Stripe'}
           color={data.pending_payout > 0 ? 'green' : 'default'}
           testId="stat-pending"
@@ -299,7 +317,7 @@ export default function ProducerPayments() {
             <BarChart3 className="w-4 h-4 text-stone-500" />
             <h2 className="font-medium text-stone-950 text-sm">Ventas mensuales</h2>
           </div>
-          <MonthlyChart data={data.monthly_summary} />
+          <MonthlyChart data={data.monthly_summary || []} />
           <div className="flex items-center gap-4 mt-3 text-xs text-stone-500 justify-center">
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-sm bg-[#d4c5a9]" /> Bruto
@@ -317,16 +335,16 @@ export default function ProducerPayments() {
               <ShoppingBag className="w-4 h-4 text-stone-500" />
               <h2 className="font-medium text-stone-950 text-sm">Pedidos recientes</h2>
             </div>
-            <span className="text-xs text-stone-500">{data.recent_orders.length} pedidos</span>
+            <span className="text-xs text-stone-500">{(data.recent_orders || []).length} pedidos</span>
           </div>
           <div className="max-h-[400px] overflow-y-auto" data-testid="recent-orders-list">
-            {data.recent_orders.length === 0 ? (
+            {(data.recent_orders || []).length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-stone-500">
                 <ShoppingBag className="w-10 h-10 mb-2 opacity-30" />
                 <p className="text-sm">Aún no tienes pedidos</p>
               </div>
             ) : (
-              data.recent_orders.map((order) => (
+              (data.recent_orders || []).map((order) => (
                 <OrderRow
                   key={order.order_id}
                   order={order}
@@ -342,7 +360,7 @@ export default function ProducerPayments() {
       </div>
 
       {/* Monthly Breakdown Table */}
-      {data.monthly_summary.length > 0 && (
+      {(data.monthly_summary || []).length > 0 && (
         <div className="bg-white rounded-xl border border-stone-200 overflow-hidden" data-testid="monthly-breakdown">
           <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
             <h2 className="font-medium text-stone-950 text-sm flex items-center gap-2">

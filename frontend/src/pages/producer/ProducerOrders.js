@@ -206,6 +206,7 @@ export default function ProducerOrders() {
   const [orderToShip, setOrderToShip] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState(false);
   const { t } = useTranslation();
 
   const statusLabels = {
@@ -234,7 +235,7 @@ export default function ProducerOrders() {
       const data = await apiClient.get('/producer/orders');
       setOrders(Array.isArray(data) ? data : data?.orders || []);
     } catch {
-      // handled silently
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -310,10 +311,59 @@ export default function ProducerOrders() {
     return ['paid', 'confirmed', 'preparing', 'shipped'].includes(status);
   };
 
+  // Retry handler for error state
+  const fetchOrdersWithError = async () => {
+    setError(false);
+    setLoading(true);
+    try {
+      const data = await apiClient.get('/producer/orders');
+      setOrders(Array.isArray(data) ? data : data?.orders || []);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-stone-950" />
+      <div className="space-y-4 pt-4">
+        <div className="h-8 w-48 bg-stone-100 rounded-xl animate-pulse" />
+        <div className="h-10 w-full bg-stone-100 rounded-xl animate-pulse" />
+        <div className="flex gap-2">
+          {[1,2,3,4,5].map(i => (
+            <div key={i} className="h-9 w-24 bg-stone-100 rounded-full animate-pulse" />
+          ))}
+        </div>
+        {[1,2,3].map(i => (
+          <div key={i} className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-stone-100 rounded-xl animate-pulse" />
+              <div className="space-y-2 flex-1">
+                <div className="h-4 w-32 bg-stone-100 rounded animate-pulse" />
+                <div className="h-3 w-24 bg-stone-100 rounded animate-pulse" />
+              </div>
+            </div>
+            <div className="h-12 bg-stone-50 rounded-xl animate-pulse" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <ShoppingBag className="w-12 h-12 text-stone-300 mb-4" />
+        <p className="text-stone-600 font-medium mb-2">{t('orders.errorLoading', 'Error al cargar pedidos')}</p>
+        <p className="text-stone-500 text-sm mb-4">{t('orders.tryAgain', 'Comprueba tu conexión e inténtalo de nuevo.')}</p>
+        <button
+          type="button"
+          onClick={fetchOrdersWithError}
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors"
+        >
+          {t('common.retry', 'Reintentar')}
+        </button>
       </div>
     );
   }
@@ -470,11 +520,11 @@ export default function ProducerOrders() {
                             <div className="flex-1">
                               <p className="text-sm font-medium text-stone-950">{item.product_name}</p>
                               <p className="text-xs text-stone-500">
-                                {item.quantity} x €{asNumber(item.price).toFixed(2)}
+                                {item.quantity} x {asNumber(item.price).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
                               </p>
                             </div>
                             <p className="text-sm font-semibold text-stone-950">
-                              €{(asNumber(item.quantity) * asNumber(item.price)).toFixed(2)}
+                              {(asNumber(item.quantity) * asNumber(item.price)).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
                             </p>
                           </div>
                         ))}
@@ -527,8 +577,8 @@ export default function ProducerOrders() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-stone-500">{t('orders.orderTotal')}</p>
-                      <p className="text-xl font-bold text-stone-950">€{asNumber(order.total_amount).toFixed(2)}</p>
-                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: €{(asNumber(order.total_amount) * 0.82).toFixed(2)} <span className="text-stone-400">(Plan {order.commission_plan || 'FREE'})</span></p>
+                      <p className="text-xl font-bold text-stone-950">{asNumber(order.total_amount).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p>
+                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: {asNumber(order.producer_share || (asNumber(order.total_amount) * (1 - asNumber(order.commission_rate, 0.18)))).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} <span className="text-stone-400">(Plan {order.commission_plan || 'FREE'})</span></p>
                     </div>
                   </div>
                 </div>

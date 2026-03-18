@@ -307,7 +307,7 @@ function DesktopHealthScore({ healthData, t }) {
           <div className="text-xs" style={{ color: 'var(--color-stone)' }}>{t('producer.healthScore.orders30d')}</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>€{healthData.metrics.revenue_30d.toFixed(0)}</div>
+          <div className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>€{(healthData.metrics.revenue_30d ?? 0).toFixed(0)}</div>
           <div className="text-xs" style={{ color: 'var(--color-stone)' }}>{t('producer.healthScore.revenue30d')}</div>
         </div>
         <div className="text-center">
@@ -356,6 +356,7 @@ function FollowerGrowthChart() {
   }, [days]);
 
   const fetchFollowerStats = async () => {
+    setLoading(true);
     try {
       const data = await apiClient.get(`/producer/follower-stats?days=${days}`);
       setData(data?.chart_data || []);

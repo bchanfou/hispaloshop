@@ -1125,7 +1125,7 @@ export default function ProducerProducts() {
                     </div>
                     <div className="px-5 py-3 flex items-center justify-between">
                       <span className="text-sm text-stone-500">{t('producerProducts.unitPrice')}</span>
-                      <span className="text-sm font-semibold text-stone-950">{formData.price ? `€${parseFloat(formData.price).toFixed(2)}` : '—'}</span>
+                      <span className="text-sm font-semibold text-stone-950">{formData.price ? parseFloat(formData.price).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) : '—'}</span>
                     </div>
                     <div className="px-5 py-3 flex items-center justify-between">
                       <span className="text-sm text-stone-500">{t('producerProducts.countryOrigin')}</span>
@@ -1227,7 +1227,18 @@ export default function ProducerProducts() {
       {/* Products */}
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
+          <div className="divide-y divide-stone-200">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="p-4 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-stone-100 animate-pulse shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-40 bg-stone-100 rounded animate-pulse" />
+                  <div className="h-3 w-24 bg-stone-100 rounded animate-pulse" />
+                </div>
+                <div className="h-4 w-16 bg-stone-100 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
         ) : products.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-stone-500 mb-4">{t('producerProducts.noProductsYet')}</p>
@@ -1259,7 +1270,7 @@ export default function ProducerProducts() {
                         <p className="font-medium text-stone-950 truncate">{product.name}</p>
                         <p className="text-sm text-stone-500">{product.country_origin}</p>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="font-semibold text-stone-950">${asNumber(product.price).toFixed(2)}</span>
+                          <span className="font-semibold text-stone-950">{asNumber(product.price).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${product.approved ? 'bg-stone-100 text-stone-700' : 'bg-stone-100 text-stone-700'}`}>
                             {product.approved ? t('producerProducts.table.approved') : t('producerProducts.table.pending')}
                           </span>
@@ -1329,7 +1340,7 @@ export default function ProducerProducts() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-stone-950">${asNumber(product.price).toFixed(2)}</p>
+                      <p className="font-medium text-stone-950">{asNumber(product.price).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p>
                     </td>
                     <td className="px-6 py-4">
                       <StockEditor 

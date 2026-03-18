@@ -21,6 +21,7 @@ const FONTS = ['Sans', 'Serif', 'Mono', 'Display'];
 const TEXT_COLORS = ['#ffffff', '#0c0a09', '#78716c', '#d6d3d1', '#a8a29e'];
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v'];
 
 const fmt = (s) => {
   const m = Math.floor(s / 60);
@@ -60,7 +61,7 @@ export default function CreateReelPage() {
   const [textStyle, setTextStyle] = useState('clean'); // clean | box | outline
   const [filterThumb, setFilterThumb] = useState(null); // base64 frame for filter previews
   const [trimFrames, setTrimFrames] = useState([]); // array of base64 frames for trim timeline
-  const trimDragRef = useRef(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const videoRef = useRef(null);
   const videoPreviewRef = useRef(null);
@@ -73,6 +74,7 @@ export default function CreateReelPage() {
   useEffect(() => {
     return () => {
       clearTimeout(playIconTimer.current);
+      cancelAnimationFrame(rafRef.current);
       if (videoUrl) URL.revokeObjectURL(videoUrl);
       // Clean up any lingering document drag listeners
       dragRef.current = null;
@@ -82,6 +84,11 @@ export default function CreateReelPage() {
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!ALLOWED_VIDEO_TYPES.includes(file.type) && !file.type.startsWith('video/')) {
+      toast.error('Formato no soportado. Usa MP4, MOV o WebM.');
+      e.target.value = '';
+      return;
+    }
     if (file.size > MAX_FILE_SIZE) {
       toast.error('El vídeo es demasiado grande (máx. 100 MB)');
       e.target.value = '';
@@ -262,6 +269,7 @@ export default function CreateReelPage() {
   const handlePublish = useCallback(async () => {
     if (!videoFile) return;
     setPublishing(true);
+    setUploadProgress(0);
     try {
       const fd = new FormData();
       fd.append('file', videoFile);
@@ -269,12 +277,22 @@ export default function CreateReelPage() {
       if (location.trim()) fd.append('location', location.trim());
       fd.append('playback_rate', String(speed));
       fd.append('muted', String(isMuted));
+      fd.append('audience', audience);
+      if (activeFilter !== 'none') fd.append('filter', activeFilter);
       if (trimStart > 0) fd.append('trim_start_seconds', String(trimStart.toFixed(2)));
       if (trimEnd > 0 && trimEnd < duration) fd.append('trim_end_seconds', String(trimEnd.toFixed(2)));
       if (thumbnailIndex > 0 && duration > 0) {
         fd.append('cover_frame_seconds', String((duration / 5) * thumbnailIndex));
       }
-      const res = await apiClient.post('/reels', fd);
+      if (textOverlays.length > 0) {
+        fd.append('text_overlays_json', JSON.stringify(textOverlays));
+      }
+      const res = await apiClient.post('/reels', fd, {
+        onUploadProgress: (e) => {
+          if (e.total) setUploadProgress(Math.round((e.loaded / e.total) * 100));
+        },
+      });
+      setUploadProgress(100);
       const postId = res?.id || res?.post?.id || res?.data?.id;
       if (navigator.vibrate) navigator.vibrate(50);
       setPublishSuccess(true);
@@ -286,10 +304,13 @@ export default function CreateReelPage() {
         navigate(postId ? `/posts/${postId}` : '/');
       }, 800);
     } catch (err) {
-      toast.error('Error al publicar el reel');
+      const detail = err?.response?.data?.detail;
+      const msg = typeof detail === 'string' ? detail : 'Error al publicar el reel. Comprueba tu conexión e inténtalo de nuevo.';
+      toast.error(msg, { duration: 5000 });
       setPublishing(false);
+      setUploadProgress(0);
     }
-  }, [videoFile, caption, activeFilter, speed, textOverlays, thumbnailIndex, navigate, location, audience]);
+  }, [videoFile, caption, activeFilter, speed, textOverlays, thumbnailIndex, navigate, location, audience, isMuted, trimStart, trimEnd, duration]);
 
   // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
   if (screen === 'upload') {
@@ -418,6 +439,7 @@ export default function CreateReelPage() {
             className="w-full h-full object-cover"
             style={{
               filter: activeFilter === 'none' ? 'none' : activeFilter,
+              transition: 'filter 0.2s',
             }}
           />
 
@@ -450,10 +472,16 @@ export default function CreateReelPage() {
                 ...(t.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
                 ...(t.style === 'outline' ? { WebkitTextStroke: `2px ${t.color}`, textShadow: 'none' } : {}),
               }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                dragRef.current = { id: t.id, el: e.currentTarget, lastX: t.x, lastY: t.y };
+                e.currentTarget.style.willChange = 'left, top';
+              }}
               onTouchMove={(e) => handleTextDragDOM(e.currentTarget, e)}
               onTouchEnd={() => {
                 if (dragRef.current) {
-                  const { id: dId, lastX, lastY } = dragRef.current;
+                  const { id: dId, lastX, lastY, el } = dragRef.current;
+                  if (el) el.style.willChange = '';
                   setTextOverlays((prev) => prev.map((tt) => tt.id === dId ? { ...tt, x: lastX, y: lastY } : tt));
                   dragRef.current = null;
                 }
@@ -625,7 +653,7 @@ export default function CreateReelPage() {
               {SPEED_OPTIONS.map((s) => (
                 <button
                   key={s}
-                  onClick={() => setSpeed(s)}
+                  onClick={() => { setSpeed(s); if (navigator.vibrate) navigator.vibrate(10); }}
                   className={`rounded-full px-5 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors ${
                     speed === s
                       ? 'bg-white text-black border border-white'
@@ -664,7 +692,7 @@ export default function CreateReelPage() {
                     max={100}
                     value={volume}
                     onChange={(e) => setVolume(Number(e.target.value))}
-                    className="flex-1 accent-white"
+                    className="flex-1 accent-stone-50"
                     aria-label="Volumen del audio original"
                   />
                   <Volume2 size={14} className="text-white/40 shrink-0" />
@@ -797,7 +825,7 @@ export default function CreateReelPage() {
                 return (
                   <button
                     key={f.name}
-                    onClick={() => setActiveFilter(f.value)}
+                    onClick={() => { setActiveFilter(f.value); if (navigator.vibrate) navigator.vibrate(10); }}
                     className="flex flex-col items-center gap-1.5 flex-shrink-0 snap-start bg-transparent border-none cursor-pointer p-0"
                     aria-label={`Filtro ${f.name}`}
                     aria-pressed={isActive}
@@ -920,13 +948,18 @@ export default function CreateReelPage() {
         </div>
 
         {/* Video preview small */}
-        <div className="aspect-[9/16] max-h-[200px] bg-black rounded-xl overflow-hidden self-center">
+        <div className="aspect-[9/16] max-h-[200px] bg-black rounded-xl overflow-hidden self-center shadow-lg">
           <video
             src={videoUrl}
             className="w-full h-full object-cover"
             style={{
               filter: activeFilter === 'none' ? 'none' : activeFilter,
+              transition: 'filter 0.2s',
             }}
+            autoPlay
+            loop
+            muted
+            playsInline
             aria-hidden="true"
           />
         </div>
@@ -949,14 +982,30 @@ export default function CreateReelPage() {
 
       {/* Publish button */}
       <div className="px-4 pt-3 pb-6 border-t border-stone-200">
+        {/* Upload progress bar */}
+        {publishing && uploadProgress > 0 && uploadProgress < 100 && (
+          <div className="w-full h-[3px] bg-stone-200 rounded-full mb-3 overflow-hidden">
+            <div
+              className="h-full bg-stone-950 rounded-full transition-[width] duration-300 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        )}
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 ${
+          className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 flex items-center justify-center gap-2 ${
             publishing ? 'opacity-60 cursor-not-allowed' : ''
           }`}
         >
-          {publishing ? 'Publicando...' : 'Publicar ahora'}
+          {publishing && (
+            <span className="inline-block w-[18px] h-[18px] border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          )}
+          {publishing
+            ? uploadProgress < 100
+              ? `Subiendo... ${uploadProgress}%`
+              : 'Procesando...'
+            : 'Publicar ahora'}
         </button>
       </div>
     </div>

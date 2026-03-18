@@ -9,6 +9,7 @@ import {
   Camera,
   Film,
   Lock,
+  Play,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
@@ -44,6 +45,13 @@ const priceFormatter = new Intl.NumberFormat('es-ES', {
   style: 'currency',
   currency: 'EUR',
 });
+
+function formatViews(n) {
+  if (n == null) return '0';
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + ' M';
+  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + ' mil';
+  return String(n);
+}
 
 /* ── Skeleton grid ── */
 function SkeletonGrid({ count = 9, columns = 3 }) {
@@ -186,9 +194,9 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     return () => observer.disconnect();
   }, [activeTab, hasMore, loading, fetchTab]);
 
-  /* ── Tab bar ── */
+  /* ── Tab bar (Instagram: indicator at top) ── */
   const tabBar = (
-    <div role="tablist" className="sticky top-[52px] z-30 flex border-b border-stone-200 bg-white">
+    <div role="tablist" className="sticky top-[52px] z-30 flex border-t border-stone-200 bg-white">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const TabIcon = tab.icon;
@@ -199,14 +207,14 @@ const ProfileTabs = forwardRef(function ProfileTabs({
             aria-label={tab.label}
             aria-selected={isActive}
             role="tab"
-            className={`relative flex flex-1 items-center justify-center py-3 transition-colors duration-150 ${
+            className={`relative flex flex-1 items-center justify-center py-2.5 transition-colors duration-150 ${
               isActive ? 'text-stone-950' : 'text-stone-400'
             }`}
           >
-            <TabIcon size={22} />
             {isActive && (
-              <div className="absolute bottom-0 left-[20%] right-[20%] h-0.5 bg-stone-950" />
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-stone-950" />
             )}
+            <TabIcon size={24} />
           </button>
         );
       })}
@@ -226,7 +234,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       );
     }
     return (
-      <div className="grid grid-cols-3 gap-0.5">
+      <div className="grid grid-cols-3 gap-px bg-stone-100">
         {items.map((post, i) => {
           const src = (post.images?.length > 0 && post.images[0]) || post.image_url;
           const hasMultiple = post.images?.length > 1;
@@ -237,7 +245,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(post); }}
               role="button"
               tabIndex={0}
-              className="relative aspect-square cursor-pointer overflow-hidden"
+              className="relative aspect-square cursor-pointer overflow-hidden bg-white"
             >
               <img
                 src={src}
@@ -264,7 +272,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       );
     }
     return (
-      <div className="grid grid-cols-3 gap-0.5">
+      <div className="grid grid-cols-3 gap-px bg-stone-100">
         {items.map((reel, i) => {
           const src = reel.thumbnail_url || reel.cover_url || reel.image_url || '';
           return (
@@ -274,7 +282,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/reels?user=${userId}`); }}
               role="button"
               tabIndex={0}
-              className="relative aspect-square cursor-pointer overflow-hidden"
+              className="relative aspect-[9/16] cursor-pointer overflow-hidden bg-black"
             >
               <img
                 src={src}
@@ -282,12 +290,10 @@ const ProfileTabs = forwardRef(function ProfileTabs({
                 loading="lazy"
                 className="block h-full w-full object-cover"
               />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <PlaySquare size={24} className="text-white drop-shadow-md" />
-              </div>
               {reel.views != null && (
-                <span className="absolute bottom-1 left-1.5 text-[11px] font-semibold text-white drop-shadow-md">
-                  {reel.views}
+                <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 text-[12px] font-semibold text-white drop-shadow-md">
+                  <Play size={12} fill="white" />
+                  {formatViews(reel.views)}
                 </span>
               )}
             </div>
@@ -397,7 +403,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       return <EmptyState icon={Bookmark} title="Nada guardado todavía" />;
     }
     return (
-      <div className="grid grid-cols-3 gap-0.5">
+      <div className="grid grid-cols-3 gap-px bg-stone-100">
         {items.map((item, i) => {
           const src = (item.images?.length > 0 && item.images[0]) || item.image_url;
           return (

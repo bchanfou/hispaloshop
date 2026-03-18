@@ -10,17 +10,15 @@ import {
 } from 'lucide-react';
 import { asNumber, firstToken } from '../../utils/safe';
 import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
+import { useLocale } from '../../context/LocaleContext';
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 const getStoreSlug = (store) => store?.store_slug || store?.slug || null;
-const formatPrice = (value) => {
-  const numeric = Number(value || 0);
-  return Number.isFinite(numeric) ? numeric.toFixed(2) : '0.00';
-};
 
 export default function CustomerOverview() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { convertAndFormatPrice, currency } = useLocale();
   const [orders, setOrders] = useState([]);
   const [followedStores, setFollowedStores] = useState([]);
   const [recommended, setRecommended] = useState([]);
@@ -95,7 +93,7 @@ export default function CustomerOverview() {
                  latestOrder.status === 'paid' ? t('customerDashboard.orderConfirmed') :
                  t('customerDashboard.orderPending')}
               </p>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{latestOrder.line_items?.length || 0} items · {asNumber(latestOrder.total_amount).toFixed(2)}€</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{latestOrder.line_items?.length || 0} items · {convertAndFormatPrice(asNumber(latestOrder.total_amount), currency)}</p>
             </div>
             <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.5)' }} />
           </div>
@@ -212,7 +210,7 @@ export default function CustomerOverview() {
                 </div>
                 <div className="p-2.5">
                   <p className="text-xs font-medium truncate" style={{ color: 'var(--color-black)' }}>{item.name}</p>
-                  {item.price && <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>{Number(item.price).toFixed(2)}€</p>}
+                  {item.price && <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(item.price), currency)}</p>}
                 </div>
               </Link>
             ))}
@@ -239,7 +237,7 @@ export default function CustomerOverview() {
               </div>
               <div className="p-2.5">
                 <p className="text-xs font-medium truncate" style={{ color: 'var(--color-black)' }}>{p.name}</p>
-                <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>{formatPrice(p.display_price || p.price)}€</p>
+                <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(p.display_price || p.price || 0), currency)}</p>
               </div>
             </Link>
           );})}
@@ -290,7 +288,7 @@ export default function CustomerOverview() {
                   <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>{p.name}</p>
                   <p className="text-xs" style={{ color: 'var(--color-stone)' }}>{p.store_name || ''}</p>
                 </div>
-                <p className="text-sm font-bold shrink-0" style={{ color: 'var(--color-black)' }}>{formatPrice(p.display_price || p.price)}€</p>
+                <p className="text-sm font-bold shrink-0" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(p.display_price || p.price || 0), currency)}</p>
               </Link>
             );})}
           </div>

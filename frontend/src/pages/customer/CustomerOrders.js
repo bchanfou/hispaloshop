@@ -8,8 +8,9 @@ import { asNumber } from '../../utils/safe';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
 import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
+import { useLocale } from '../../context/LocaleContext';
 
-const STATUS_FLOW = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered'];
+const STATUS_FLOW = ['pending', 'paid', 'confirmed', 'preparing', 'shipped', 'delivered'];
 
 const FILTER_TABS = [
   { key: 'all', label: 'Todos' },
@@ -24,6 +25,7 @@ export default function CustomerOrders() {
   const [activeFilter, setActiveFilter] = useState('all');
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { convertAndFormatPrice, currency } = useLocale();
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -118,7 +120,7 @@ export default function CustomerOrders() {
                   {/* Order info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-stone-950">€{asNumber(order.total_amount).toFixed(2)}</span>
+                      <span className="text-sm font-semibold text-stone-950">{convertAndFormatPrice(asNumber(order.total_amount), currency)}</span>
                       <span className="text-xs text-stone-500">·</span>
                       <span className="text-xs text-stone-500">{order.line_items?.length || 0} items</span>
                     </div>
@@ -140,7 +142,7 @@ export default function CustomerOrders() {
                         try {
                           await apiClient.post(`/customer/orders/${order.order_id}/reorder`, {});
                           toast.success('Productos agregados al carrito');
-                        } catch { toast.error('Error al reordenar'); }
+                        } catch (err) { toast.error(err?.message || 'Error al reordenar'); }
                       }}
                       className="shrink-0 bg-stone-950 text-white text-xs font-medium px-3 py-1.5 rounded-full hover:bg-stone-800 transition-colors"
                       data-testid={`reorder-${order.order_id}`}

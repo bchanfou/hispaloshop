@@ -207,14 +207,22 @@ export default function ProducerStoreProfile() {
   });
 
   const [isDirty, setIsDirty] = useState(false);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const fetchStoreProfile = () => {
+    setLoading(true);
+    setError(false);
     let active = true;
     apiClient.get('/producer/store-profile')
       .then(data => { if (active) setProfile(data); })
-      .catch(() => { if (active) toast.error('Error al cargar el perfil de tienda'); })
+      .catch(() => { if (active) setError(true); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
+  };
+
+  useEffect(() => {
+    const cleanup = fetchStoreProfile();
+    return cleanup;
   }, []);
 
   // Warn on unsaved changes
@@ -249,8 +257,55 @@ export default function ProducerStoreProfile() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-stone-950" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-7 w-48 bg-stone-100 rounded-xl animate-pulse" />
+            <div className="h-4 w-64 bg-stone-100 rounded animate-pulse" />
+          </div>
+          <div className="flex gap-3">
+            <div className="h-10 w-28 bg-stone-100 rounded-xl animate-pulse" />
+            <div className="h-10 w-36 bg-stone-100 rounded-xl animate-pulse" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+              <div className="h-5 w-32 bg-stone-100 rounded animate-pulse" />
+              <div className="aspect-[3/1] bg-stone-100 rounded-xl animate-pulse" />
+              <div className="w-32 h-32 bg-stone-100 rounded-xl animate-pulse" />
+            </div>
+            <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+              <div className="h-5 w-40 bg-stone-100 rounded animate-pulse" />
+              <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
+              <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+              <div className="h-5 w-40 bg-stone-100 rounded animate-pulse" />
+              <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
+              <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <Store className="w-12 h-12 text-stone-300 mb-4" />
+        <p className="text-stone-600 font-medium mb-2">Error al cargar el perfil de tienda</p>
+        <p className="text-stone-500 text-sm mb-4">Comprueba tu conexión e inténtalo de nuevo.</p>
+        <button
+          type="button"
+          onClick={fetchStoreProfile}
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors"
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
