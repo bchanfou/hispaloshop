@@ -54,7 +54,9 @@ async def get_products(
     search: Optional[str] = None,
     sort: Optional[str] = None,
     origin_country: Optional[str] = None,
-    free_shipping: Optional[str] = None
+    free_shipping: Optional[str] = None,
+    page: int = 1,
+    limit: int = 50,
 ):
     """Get products. Default: all active/approved products. featured_only for Best Products."""
     country = normalize_market_code(country)
@@ -161,7 +163,12 @@ async def get_products(
         # First get all products sorted by date
         sort_query = [("created_at", -1)]
     
-    products = await db.products.find(query, {"_id": 0}).sort(sort_query).to_list(1000)
+    # Clamp pagination values
+    limit = max(1, min(limit, 200))
+    page = max(1, page)
+    skip = (page - 1) * limit
+
+    products = await db.products.find(query, {"_id": 0}).sort(sort_query).skip(skip).limit(limit).to_list(limit)
     
     # For default sorting: Mix new products with popular ones
     # New products (last 7 days) get featured at the start

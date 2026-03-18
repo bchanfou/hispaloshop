@@ -5,6 +5,7 @@ Extracted from server.py.
 from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import Optional
 from datetime import datetime, timezone, timedelta
+import asyncio
 import uuid
 import logging
 
@@ -112,26 +113,47 @@ async def get_stories(request: Request):
     
     twenty_four_hours_ago = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
     
+    # Batch fetch latest posts + products for all sellers (2 queries instead of 30)
+    seller_ids = [s["user_id"] for s in sellers]
+
+    posts_pipeline = [
+        {"$match": {"user_id": {"$in": seller_ids}, "image_url": {"$ne": None}}},
+        {"$sort": {"created_at": -1}},
+        {"$group": {"_id": "$user_id", "doc": {"$first": "$$ROOT"}}},
+        {"$project": {"_id": 0, "user_id": "$_id", "post_id": "$doc.post_id",
+                       "image_url": "$doc.image_url", "caption": "$doc.caption",
+                       "created_at": "$doc.created_at"}},
+    ]
+    products_pipeline = [
+        {"$match": {"producer_id": {"$in": seller_ids}, "status": "active"}},
+        {"$sort": {"created_at": -1}},
+        {"$group": {"_id": "$producer_id", "doc": {"$first": "$$ROOT"}}},
+        {"$project": {"_id": 0, "producer_id": "$_id", "product_id": "$doc.product_id",
+                       "name": "$doc.name", "images": "$doc.images",
+                       "price": "$doc.price", "created_at": "$doc.created_at"}},
+    ]
+
+    latest_posts_list, latest_products_list = await asyncio.gather(
+        db.user_posts.aggregate(posts_pipeline).to_list(len(seller_ids)),
+        db.products.aggregate(products_pipeline).to_list(len(seller_ids)),
+    )
+
+    posts_by_user = {p["user_id"]: p for p in latest_posts_list}
+    products_by_user = {p["producer_id"]: p for p in latest_products_list}
+
     for seller in sellers:
         sid = seller["user_id"]
-        # Get latest post or product (within 24h preferred)
-        latest_post = await db.user_posts.find_one(
-            {"user_id": sid, "image_url": {"$ne": None}},
-            {"_id": 0, "post_id": 1, "image_url": 1, "caption": 1, "created_at": 1}
-        )
-        latest_product = await db.products.find_one(
-            {"producer_id": sid, "status": "active"},
-            {"_id": 0, "product_id": 1, "name": 1, "images": 1, "price": 1, "created_at": 1}
-        )
-        
+        latest_post = posts_by_user.get(sid)
+        latest_product = products_by_user.get(sid)
+
         is_recent = False
         preview = None
         if latest_post and latest_post.get("created_at", "") >= twenty_four_hours_ago:
-            preview = {"type": "post", "image": latest_post.get("image_url"), "text": latest_post.get("caption", "")[:60]}
+            preview = {"type": "post", "image": latest_post.get("image_url"), "text": (latest_post.get("caption") or "")[:60]}
             is_recent = True
         elif latest_product:
             preview = {"type": "product", "image": (latest_product.get("images") or [None])[0], "text": latest_product.get("name", ""), "price": latest_product.get("price")}
-        
+
         if preview:
             stories.append({
                 "user_id": sid,

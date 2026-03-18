@@ -783,12 +783,17 @@ async def get_follow_requests(user: User = Depends(get_current_user)):
         {"target_id": user.user_id, "status": "pending"}
     ).sort("created_at", -1).to_list(length=100)
 
+    # Batch fetch all requesters in one query instead of N+1
+    requester_ids = list({req["requester_id"] for req in requests})
+    requesters_list = await db.users.find(
+        {"user_id": {"$in": requester_ids}},
+        {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "role": 1},
+    ).to_list(len(requester_ids))
+    requesters_map = {u["user_id"]: u for u in requesters_list}
+
     result = []
     for req in requests:
-        requester = await db.users.find_one(
-            {"user_id": req["requester_id"]},
-            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "role": 1},
-        )
+        requester = requesters_map.get(req["requester_id"])
         if requester:
             result.append({
                 "request_id": str(req.get("_id", "")),

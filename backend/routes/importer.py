@@ -70,17 +70,27 @@ async def get_importer_stats(user: User = Depends(get_current_user)):
         {"importer_id": user.user_id, "status": {"$in": ["pending", "confirmed_by_producer", "paid", "shipped"]}}
     )
 
-    # Volume this month from B2C orders
-    month_orders = await db.orders.find(
-        {"created_at": {"$gte": month_start}}, {"line_items": 1, "total_amount": 1}
-    ).to_list(2000)
-    volume_month = 0
-    store_orders = 0
-    for o in month_orders:
-        items = [it for it in o.get("line_items", []) if it.get("producer_id") == user.user_id]
-        if items:
-            store_orders += 1
-            volume_month += sum(it.get("subtotal", it.get("price", 0) * it.get("quantity", 1)) for it in items)
+    # Volume this month from B2C orders — aggregation pipeline instead of Python loop
+    month_agg = await db.orders.aggregate([
+        {"$match": {"created_at": {"$gte": month_start}}},
+        {"$unwind": "$line_items"},
+        {"$match": {"line_items.producer_id": user.user_id}},
+        {"$group": {
+            "_id": None,
+            "volume_month": {"$sum": {
+                "$ifNull": ["$line_items.subtotal",
+                    {"$multiply": [
+                        {"$ifNull": ["$line_items.price", 0]},
+                        {"$ifNull": ["$line_items.quantity", 1]}
+                    ]}
+                ]
+            }},
+            "store_orders": {"$addToSet": "$order_id"},
+        }},
+    ]).to_list(1)
+    agg_result = month_agg[0] if month_agg else {}
+    volume_month = round(agg_result.get("volume_month", 0), 2)
+    store_orders = len(agg_result.get("store_orders", []))
 
     # Subscription plan
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "subscription": 1})
