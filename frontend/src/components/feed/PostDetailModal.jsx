@@ -101,7 +101,8 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
       .finally(() => setCommentsLoading(false));
   }, [postId]);
 
-  useEffect(() => { fetchComments(); }, [fetchComments]);
+  // Only fetch comments once we have a post (avoid fetching for undefined postId)
+  useEffect(() => { if (post) fetchComments(); }, [post, fetchComments]);
 
   // Lock body scroll
   useEffect(() => {

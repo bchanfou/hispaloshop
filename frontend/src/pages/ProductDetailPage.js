@@ -312,7 +312,7 @@ export default function ProductDetailPage() {
           onScroll={handleGalleryScroll}
           className="flex overflow-x-auto scrollbar-hide [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch]"
         >
-          {(images.length > 0 ? images : [primaryImage]).map((img, i) => (
+          {(images.length > 0 ? images : primaryImage ? [primaryImage] : []).map((img, i) => (
             <div
               key={img || i}
               className="relative aspect-square w-full flex-[0_0_100%] [scroll-snap-align:start]"

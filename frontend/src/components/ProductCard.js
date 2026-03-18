@@ -61,6 +61,7 @@ function ProductCard({ product, variant = 'default' }) {
   const basePrice = product.display_price || product.price || 0;
   const baseCurrency = product.display_currency || product.currency || 'EUR';
   const displayPrice = convertAndFormatPrice(basePrice, baseCurrency);
+  if (!productId) return null; // No ID, can't render card
   const trackStock = product.track_stock !== false;
   const stock = product.market_stock ?? product.stock ?? 100;
   const isOutOfStock = trackStock && stock <= 0;

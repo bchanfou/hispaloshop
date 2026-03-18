@@ -59,7 +59,7 @@ export default function BottomNavBar() {
   const activePanelRef = useRef(null);
   const conversationsRef = useRef(conversations);
 
-  const { data: unreadData } = useUnreadNotifications();
+  const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
   const unreadCount = user ? (unreadData?.count ?? 0) : 0;
 
   useEffect(() => {
@@ -132,6 +132,9 @@ export default function BottomNavBar() {
     socket.addEventListener('open', () => {
       socket.send(JSON.stringify({ type: 'auth', token }));
     });
+    socket.onerror = () => {
+      try { socket.close(); } catch { /* already closed */ }
+    };
 
     socket.onmessage = (event) => {
       try {
@@ -188,9 +191,13 @@ export default function BottomNavBar() {
         window.clearTimeout(toastTimeoutRef.current);
         toastTimeoutRef.current = null;
       }
-      socket.close();
+      if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+        socket.close();
+      }
     };
-  }, [location.pathname, reloadConversations, user?.user_id]);
+    // Only re-create socket when user changes — NOT on route change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.user_id]);
 
   if (shouldHide) return null;
 

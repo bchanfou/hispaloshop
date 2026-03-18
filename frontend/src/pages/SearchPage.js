@@ -40,8 +40,13 @@ function SuggestedPeopleSection() {
 
   const handleFollow = async (userId) => {
     try {
-      await apiClient.post(`/users/${userId}/follow`, {});
-      setFollowedIds(prev => new Set([...prev, userId]));
+      if (followedIds.has(userId)) {
+        await apiClient.delete(`/users/${userId}/follow`);
+        setFollowedIds(prev => { const s = new Set(prev); s.delete(userId); return s; });
+      } else {
+        await apiClient.post(`/users/${userId}/follow`, {});
+        setFollowedIds(prev => new Set([...prev, userId]));
+      }
     } catch { /* ignore */ }
   };
 
@@ -73,10 +78,9 @@ function SuggestedPeopleSection() {
                 <span className="text-[10px] text-stone-500">{ROLE_LABELS[u.role] || u.role}</span>
               </Link>
               <button
-                onClick={() => !isFollowed && handleFollow(u.user_id)}
-                disabled={isFollowed}
+                onClick={() => handleFollow(u.user_id)}
                 className={`min-h-[36px] shrink-0 rounded-full px-3.5 text-[11px] font-semibold border-none cursor-pointer transition-colors ${
-                  isFollowed ? 'bg-stone-100 text-stone-500' : 'bg-stone-950 text-white hover:bg-stone-800'
+                  isFollowed ? 'bg-stone-100 text-stone-500 hover:bg-stone-200' : 'bg-stone-950 text-white hover:bg-stone-800'
                 }`}
               >
                 {isFollowed ? 'Siguiendo' : 'Seguir'}
@@ -125,7 +129,7 @@ function RowSkeleton() {
 /* ── Result Components ── */
 function ProductCard({ p }) {
   return (
-    <Link to={`/products/${p.product_id}`} className="block no-underline">
+    <Link to={`/products/${p.product_id || p.id}`} className="block no-underline">
       <div className="overflow-hidden rounded-xl border border-stone-200 bg-white transition-shadow">
         <div className="aspect-square overflow-hidden bg-stone-100">
           {p.images?.[0] ? (
@@ -153,7 +157,7 @@ function ProductCard({ p }) {
 
 function RecipeCard({ r }) {
   return (
-    <Link to={`/recipes/${r.recipe_id}`} className="block no-underline">
+    <Link to={`/recipes/${r.recipe_id || r.id}`} className="block no-underline">
       <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
         <div className="aspect-square overflow-hidden bg-stone-100">
           {r.cover_image ? (

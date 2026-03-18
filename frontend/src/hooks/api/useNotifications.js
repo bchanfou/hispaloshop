@@ -21,7 +21,7 @@ const NOTIF_KEYS = {
  * Hook para notificaciones no leídas (badge count)
  * Polls every 30s, pauses when tab is not visible.
  */
-export function useUnreadNotifications() {
+export function useUnreadNotifications({ enabled = true } = {}) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -34,7 +34,8 @@ export function useUnreadNotifications() {
     queryKey: NOTIF_KEYS.unread,
     queryFn: () => apiClient.get('/notifications/unread-count'),
     staleTime: 30 * 1000,
-    refetchInterval: visible ? 30 * 1000 : false,
+    refetchInterval: visible && enabled ? 30 * 1000 : false,
+    enabled,
   });
 }
 

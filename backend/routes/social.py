@@ -646,13 +646,15 @@ async def get_user_profile(user_id: str, request: Request):
 
     # Mutual followers (people you follow who also follow them)
     mutual_followers = []
+    mutual_followers_count = 0
     if current_user and current_user.user_id != actual_user_id:
         my_following = await db.user_follows.distinct("following_id", {"follower_id": current_user.user_id})
         their_followers = await db.user_follows.distinct("follower_id", {"following_id": actual_user_id})
-        mutual_ids = list(set(my_following) & set(their_followers))[:3]
+        mutual_ids = list(set(my_following) & set(their_followers))
+        mutual_followers_count = len(mutual_ids)
         if mutual_ids:
             mutual_users = await db.users.find(
-                {"user_id": {"$in": mutual_ids}},
+                {"user_id": {"$in": mutual_ids[:3]}},
                 {"_id": 0, "user_id": 1, "username": 1, "name": 1, "profile_image": 1}
             ).to_list(3)
             mutual_followers = mutual_users
@@ -690,7 +692,7 @@ async def get_user_profile(user_id: str, request: Request):
         "follow_request_pending": follow_request_pending,
         "has_active_story": has_active_story,
         "mutual_followers": mutual_followers,
-        "mutual_followers_count": len(mutual_followers),
+        "mutual_followers_count": mutual_followers_count,
     }
 
     # Attach store_slug for producers
@@ -908,7 +910,7 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
         upsert=True,
     )
     if not result.upserted_id:
-        raise HTTPException(status_code=400, detail="Already following this user")
+        return {"status": "ok", "message": "Already following"}
     # Keep followers_count in sync
     await db.users.update_one({"user_id": user_id}, {"$inc": {"followers_count": 1}})
     await db.users.update_one({"user_id": user.user_id}, {"$inc": {"following_count": 1}})
@@ -919,7 +921,9 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
 async def unfollow_user(user_id: str, user: User = Depends(get_current_user)):
     result = await db.user_follows.delete_one({"follower_id": user.user_id, "following_id": user_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Not following this user")
+        # Also cancel any pending follow request
+        await db.follow_requests.delete_many({"requester_id": user.user_id, "target_id": user_id, "status": "pending"})
+        return {"status": "ok"}
     # Keep followers_count in sync
     await db.users.update_one({"user_id": user_id}, {"$inc": {"followers_count": -1}})
     await db.users.update_one({"user_id": user.user_id}, {"$inc": {"following_count": -1}})

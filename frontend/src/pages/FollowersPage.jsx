@@ -40,7 +40,7 @@ export default function FollowersPage() {
     if (user?.username === username || user?.user_id === username) {
       setProfileUserId(user.user_id);
     } else {
-      apiClient.get(`/social/users/by-username/${username}`)
+      apiClient.get(`/users/by-username/${username}`)
         .then(data => setProfileUserId(data?.user_id))
         .catch(() => setProfileUserId(username));
     }
@@ -53,8 +53,8 @@ export default function FollowersPage() {
 
     try {
       const endpoint = tab === 'followers'
-        ? `/social/users/${profileUserId}/followers`
-        : `/social/users/${profileUserId}/following`;
+        ? `/users/${profileUserId}/followers`
+        : `/users/${profileUserId}/following`;
 
       const params = { page: pageNum, limit: 20 };
       if (debouncedSearch) params.search = debouncedSearch;
@@ -82,7 +82,7 @@ export default function FollowersPage() {
 
   const handleFollow = async (targetId) => {
     try {
-      await apiClient.post(`/social/users/${targetId}/follow`);
+      await apiClient.post(`/users/${targetId}/follow`);
       setUsers(prev => prev.map(u =>
         u.id === targetId ? { ...u, is_following: true } : u
       ));
@@ -93,7 +93,7 @@ export default function FollowersPage() {
 
   const handleUnfollow = async (targetId) => {
     try {
-      await apiClient.delete(`/social/users/${targetId}/follow`);
+      await apiClient.delete(`/users/${targetId}/follow`);
       setUsers(prev => prev.map(u =>
         u.id === targetId ? { ...u, is_following: false } : u
       ));
@@ -139,7 +139,7 @@ export default function FollowersPage() {
               }}
             >
               {t === 'followers' ? 'Seguidores' : 'Siguiendo'}
-              {!loading && (
+              {!loading && tab === t && (
                 <span style={{
                   marginLeft: 6, fontSize: 12, fontWeight: 700,
                   color: tab === t ? 'var(--color-black)' : 'var(--color-stone)',
@@ -216,7 +216,7 @@ export default function FollowersPage() {
                   padding: '12px 0', borderBottom: '1px solid var(--color-border)',
                 }}>
                   {/* Avatar */}
-                  <Link to={`/user/${u.username || u.id}`} style={{ flexShrink: 0 }}>
+                  <Link to={`/${u.username || u.id}`} style={{ flexShrink: 0 }}>
                     <div style={{
                       width: 48, height: 48, borderRadius: '50%',
                       background: 'var(--color-surface)',
@@ -233,7 +233,7 @@ export default function FollowersPage() {
                   </Link>
 
                   {/* Name */}
-                  <Link to={`/user/${u.username || u.id}`} style={{ flex: 1, minWidth: 0, textDecoration: 'none' }}>
+                  <Link to={`/${u.username || u.id}`} style={{ flex: 1, minWidth: 0, textDecoration: 'none' }}>
                     <p style={{
                       fontSize: 14, fontWeight: 600, color: 'var(--color-black)', margin: 0,
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',

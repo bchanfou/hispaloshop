@@ -141,7 +141,7 @@ const CategoryPage = () => {
           <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => navigate('/discover')}
+              onClick={() => navigate('/search')}
               aria-label="Buscar"
               className="flex h-10 w-10 items-center justify-center rounded-full text-stone-700 transition-colors hover:bg-stone-100"
             >

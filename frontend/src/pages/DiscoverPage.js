@@ -53,7 +53,7 @@ export default function DiscoverPage() {
   const [followingIds, setFollowingIds] = useState(new Set());
 
   const { products, isLoading: loadingProducts } = useProducts({ limit: '12' });
-  const { stores, isLoading: loadingStores } = useStores({});
+  const { stores, isLoading: loadingStores } = useStores({ limit: 8 });
 
   const isB2BUser = user?.role === 'producer' || user?.role === 'importer';
 
@@ -107,6 +107,13 @@ export default function DiscoverPage() {
       setEliteFading(false);
     }, ELITE_FADE_MS);
   }, [eliteStores.length]);
+
+  // Reset carousel index when elite stores change
+  useEffect(() => {
+    if (eliteStores.length > 0 && eliteIdx >= eliteStores.length) {
+      setEliteIdx(0);
+    }
+  }, [eliteStores.length, eliteIdx]);
 
   useEffect(() => {
     if (eliteStores.length <= 1) return;
@@ -308,11 +315,12 @@ export default function DiscoverPage() {
             </div>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide">
               {stores.slice(0, 8).map(store => {
-                const slug = store.slug || store.store_slug;
+                const slug = store.slug || store.store_slug || store.id || store.store_id;
+                if (!slug) return null;
                 const hero = store.hero_image || store.logo;
                 return (
                   <Link
-                    key={store.id || store.store_id || slug}
+                    key={slug}
                     to={`/store/${slug}`}
                     className="w-[180px] shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white no-underline"
                   >
@@ -354,8 +362,8 @@ export default function DiscoverPage() {
                 const diff = recipe.difficulty || 'easy';
                 return (
                   <Link
-                    key={recipe.recipe_id || recipe.id || recipe._id}
-                    to={`/recipes/${recipe.recipe_id || recipe.id || recipe._id}`}
+                    key={recipe.recipe_id || recipe.id}
+                    to={`/recipes/${recipe.recipe_id || recipe.id}`}
                     className="w-40 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white no-underline"
                   >
                     <div className="relative aspect-[3/4] bg-stone-100">

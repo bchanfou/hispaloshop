@@ -29,7 +29,7 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick, items
     >
       <div className="relative">
       <div
-        className={`w-[62px] h-[62px] rounded-full overflow-hidden flex items-center justify-center ${ringClass}${hasUnseenStory ? ' animate-[pulse_3s_ease-in-out_infinite]' : ''}`}
+        className={`w-[62px] h-[62px] rounded-full overflow-hidden flex items-center justify-center ${ringClass} ${hasUnseenStory ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}
       >
         {showPlaceholder ? (
           <Plus size={18} className="text-stone-950" />

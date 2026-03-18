@@ -55,10 +55,14 @@ export default function SuggestedUsersCard() {
   }, [currentUser]);
 
   const handleFollow = useCallback(async (userId) => {
+    // Optimistic update
+    setFollowedIds(prev => new Set([...prev, userId]));
     try {
       await apiClient.post(`/users/${userId}/follow`, {});
-      setFollowedIds(prev => new Set([...prev, userId]));
-    } catch { /* silently fail — user sees unchanged button */ }
+    } catch {
+      // Rollback on failure
+      setFollowedIds(prev => { const next = new Set(prev); next.delete(userId); return next; });
+    }
   }, []);
 
   const handleDismiss = useCallback(() => {

@@ -40,7 +40,9 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
     setError(false);
     try {
       const res = await apiClient.get('/feed/stories');
-      setStories(normalizeStories(res));
+      const normalized = normalizeStories(res);
+      // Filter out stories with no viewable items
+      setStories(normalized.filter(s => s.items && s.items.length > 0 && s.items[0].image_url));
     } catch {
       setStories([]);
       setError(true);
@@ -50,20 +52,8 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
   }, [normalizeStories]);
 
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const res = await apiClient.get('/feed/stories');
-        if (!cancelled) setStories(normalizeStories(res));
-      } catch {
-        if (!cancelled) { setStories([]); setError(true); }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    load();
-    return () => { cancelled = true; };
-  }, [normalizeStories]);
+    fetchStories();
+  }, [fetchStories]);
 
   return (
     <div
@@ -72,13 +62,15 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
       aria-label="Historias"
       tabIndex={0}
     >
-      {/* Self ring */}
-      <StoryRing
-        user={currentUser}
-        isSelf
-        hasUnseenStory={false}
-        onClick={onCreateStory}
-      />
+      {/* Self ring — only when authenticated */}
+      {currentUser && (
+        <StoryRing
+          user={currentUser}
+          isSelf
+          hasUnseenStory={false}
+          onClick={onCreateStory}
+        />
+      )}
 
       {loading
         ? Array.from({ length: 5 }).map((_, i) => (

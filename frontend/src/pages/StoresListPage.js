@@ -388,8 +388,9 @@ export default function StoresListPage() {
     return () => { active = false; };
   }, [debouncedSearch]);
 
-  /* ── fetch elite stores ── */
+  /* ── fetch elite stores (skip during search) ── */
   useEffect(() => {
+    if (debouncedSearch) return;
     let active = true;
     apiClient.get(`/stores?plan=elite&country=${userCountry}&limit=10`)
       .then(data => {
@@ -399,7 +400,7 @@ export default function StoresListPage() {
       })
       .catch(() => { /* elite section gracefully hidden */ });
     return () => { active = false; };
-  }, [userCountry]);
+  }, [userCountry, debouncedSearch]);
 
   /* ── infinite scroll ── */
   useEffect(() => {

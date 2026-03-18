@@ -21,6 +21,14 @@ import { useAuth } from '../../context/AuthContext';
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
 
+// Inject keyframe once at module level (idempotent)
+if (typeof document !== 'undefined' && !document.getElementById('reelcard-heart-keyframe')) {
+  const style = document.createElement('style');
+  style.id = 'reelcard-heart-keyframe';
+  style.textContent = '@keyframes heartPop { 0% { transform: scale(0); opacity: 1; } 30% { transform: scale(1.2); } 50% { transform: scale(0.95); } 70% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }';
+  document.head.appendChild(style);
+}
+
 export default function ReelCard({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false }) {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
@@ -64,14 +72,14 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          video.play().catch(() => {});
+          video.play().catch(() => { setPlaying(false); });
           setPlaying(true);
         } else {
           video.pause();
           setPlaying(false);
         }
       },
-      { threshold: 0.8 }
+      { threshold: 0.5 }
     );
 
     observer.observe(container);
@@ -87,7 +95,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         video.pause();
         setPlaying(false);
       } else if (isActive) {
-        video.play().catch(() => {});
+        video.play().catch(() => { setPlaying(false); });
         setPlaying(true);
       }
     };
@@ -115,7 +123,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     const video = videoRef.current;
     if (!video) return;
     if (isActive === true) {
-      video.play().catch(() => {});
+      video.play().catch(() => { setPlaying(false); });
       setPlaying(true);
     } else if (isActive === false) {
       video.pause();
@@ -127,7 +135,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
-      video.play().catch(() => {});
+      video.play().catch(() => { setPlaying(false); });
       setPlaying(true);
     } else {
       video.pause();
@@ -267,8 +275,6 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         </div>
       </div>
 
-      {/* Stable keyframe — always present to avoid DOM thrashing */}
-      <style>{`@keyframes heartPop { 0% { transform: scale(0); opacity: 1; } 30% { transform: scale(1.2); } 50% { transform: scale(0.95); } 70% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }`}</style>
 
       {/* Double-tap heart */}
       {showDoubleTapHeart && (
@@ -337,9 +343,13 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
                   e.stopPropagation();
                   if (isFollowing) return;
                   try {
-                    await apiClient.post('/social/follow', { following_id: reelUserId });
-                    setIsFollowing(true);
-                    toast.success('Siguiendo a ' + (reel.user?.name || 'usuario'));
+                    const res = await apiClient.post(`/users/${reelUserId}/follow`, {});
+                    if (res?.status === 'pending') {
+                      toast.success('Solicitud enviada');
+                    } else {
+                      setIsFollowing(true);
+                      toast.success('Siguiendo a ' + (reel.user?.name || 'usuario'));
+                    }
                   } catch {
                     toast.error('No se pudo seguir al usuario');
                   }

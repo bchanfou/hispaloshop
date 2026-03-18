@@ -12,16 +12,18 @@ export default function AppHeader() {
   const location = useLocation();
   const { user } = useAuth();
   const { getTotalItems } = useCart();
-  const { data: unreadData } = useUnreadNotifications();
+  // Only fetch notifications when authenticated — prevents 401 spam
+  const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const { activeTab, setActiveTab } = useFeedTab();
   const isHome = location.pathname === '/';
+  const isAuthenticated = !!user;
 
-  const unreadCount = user ? (unreadData?.count ?? 0) : 0;
-  const totalCartItems = getTotalItems();
+  const unreadCount = isAuthenticated ? (unreadData?.count ?? 0) : 0;
+  const totalCartItems = isAuthenticated ? getTotalItems() : 0;
 
   // Scroll-aware border + shadow
   useEffect(() => {
@@ -32,13 +34,14 @@ export default function AppHeader() {
 
   return (
     <header
+      className=""
       style={{
         position: 'sticky',
         top: 0,
-        zIndex: 'var(--z-sticky)',
-        background: 'var(--color-cream)',
-        borderBottom: scrolled ? '1px solid var(--color-border)' : '1px solid transparent',
-        boxShadow: scrolled ? 'var(--shadow-xs)' : 'none',
+        zIndex: 'var(--z-sticky, 40)',
+        background: 'var(--color-cream, #fafaf9)',
+        borderBottom: scrolled ? '1px solid var(--color-border, #e7e5e4)' : '1px solid transparent',
+        boxShadow: scrolled ? 'var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.05))' : 'none',
         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
         fontFamily: 'var(--font-sans)',
       }}
@@ -47,7 +50,7 @@ export default function AppHeader() {
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
       {/* ── Mobile Header ── */}
-      <div className="lg:hidden" style={{
+      <div style={{
         height: 52,
         display: 'flex',
         alignItems: 'center',
@@ -61,7 +64,7 @@ export default function AppHeader() {
           </Link>
           {isHome ? (
             <div style={{ display: 'flex', alignItems: 'center', borderRadius: 9999, background: 'var(--color-surface)', padding: 3 }}>
-              {[{ id: 'foryou', label: 'Para ti' }, { id: 'following', label: 'Siguiendo' }].map((tab) => (
+              {[{ id: 'foryou', label: 'Para ti' }, ...(isAuthenticated ? [{ id: 'following', label: 'Siguiendo' }] : [])].map((tab) => (
                 <button
                   key={tab.id}
                   type="button"

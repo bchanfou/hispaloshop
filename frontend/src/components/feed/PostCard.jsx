@@ -63,10 +63,12 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 
-  // Local optimistic state — accept both prop schemas
-  const [liked, setLiked] = useState(post.liked ?? post.is_liked ?? false);
-  const [likesCount, setLikesCount] = useState(post.likes ?? post.likes_count ?? 0);
-  const [saved, setSaved] = useState(post.saved ?? post.is_saved ?? false);
+  // Controlled state — single source of truth is React Query cache (via props)
+  const liked = post.liked ?? post.is_liked ?? false;
+  const likesCount = post.likes ?? post.likes_count ?? 0;
+  const saved = post.saved ?? post.is_saved ?? false;
+
+  // Local UI-only state
   const [expanded, setExpanded] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
@@ -75,29 +77,37 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
   const [editCaption, setEditCaption] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  // Save uses local optimistic state because it calls API directly (not via parent)
+  const [savePending, setSavePending] = useState(null); // null=use prop, true/false=optimistic override
+  const effectiveSaved = savePending ?? saved;
 
   const lastTapRef = useRef(0);
   const heartTimerRef = useRef(null);
   const scrollRef = useRef(null);
   const undoTimerRef = useRef(null);
+  const captionRef = useRef(null); // ref for fresh caption in share handler
 
-  const isOwner = currentUser?.id && (currentUser.id === (post.user?.id || post.user_id));
+  const isOwner = (currentUser?.user_id || currentUser?.id) && ((currentUser.user_id || currentUser.id) === (post.user?.id || post.user_id));
+
+  // Cleanup timers on unmount to prevent memory leaks + setState on unmounted component
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(heartTimerRef.current);
+      clearTimeout(undoTimerRef.current);
+    };
+  }, []);
 
   // ---- handlers -----------------------------------------------------------
 
+  // Like — delegate entirely to parent (React Query optimistic update)
   const handleLike = useCallback(() => {
-    const next = !liked;
-    setLiked(next);
-    setLikesCount((c) => (next ? c + 1 : c - 1));
     onLike?.(post.id);
-  }, [liked, onLike, post.id]);
+  }, [onLike, post.id]);
 
   const handleDoubleTap = useCallback(() => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       if (!liked) {
-        setLiked(true);
-        setLikesCount((c) => c + 1);
         onLike?.(post.id);
       }
       setShowHeartAnim(true);
@@ -107,9 +117,10 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
     lastTapRef.current = now;
   }, [liked, onLike, post.id]);
 
+  // Save — calls API directly with local optimistic override
   const handleSave = useCallback(async () => {
-    const next = !saved;
-    setSaved(next);
+    const next = !effectiveSaved;
+    setSavePending(next);
     try {
       if (next) {
         await apiClient.post(`/posts/${post.id}/save`);
@@ -118,23 +129,25 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
       }
       onSave?.(post.id);
     } catch {
-      setSaved(!next); // rollback
+      setSavePending(null); // rollback to prop value
       toast.error('Error al guardar');
     }
-  }, [saved, onSave, post.id]);
+  }, [effectiveSaved, onSave, post.id]);
 
+  // Share — uses ref for always-fresh caption
   const handleShare = useCallback(async () => {
     const url = `${window.location.origin}/posts/${post.id}`;
+    const title = (captionRef.current || '').slice(0, 60) || 'Post';
     try {
       if (navigator.share) {
-        await navigator.share({ title: captionText?.slice(0, 60) || 'Post', url });
+        await navigator.share({ title, url });
       } else {
         await navigator.clipboard?.writeText(url);
         toast.success('Enlace copiado');
       }
     } catch {}
     onShare?.(post.id);
-  }, [post.id, captionText, onShare]);
+  }, [post.id, onShare]);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -143,18 +156,20 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
     setCarouselIndex(idx);
   }, []);
 
+  const [localCaption, setLocalCaption] = useState(null); // null = use prop
+  const [isEdited, setIsEdited] = useState(false);
+
   const handleEditSave = useCallback(async () => {
     try {
       await apiClient.patch(`/posts/${post.id}`, { caption: editCaption });
-      post.content = editCaption;
-      post.caption = editCaption;
-      post.edited = true;
+      setLocalCaption(editCaption);
+      setIsEdited(true);
       setShowEditCaption(false);
       toast.success('Publicación editada');
     } catch {
       toast.error('Error al editar');
     }
-  }, [editCaption, post]);
+  }, [editCaption, post.id]);
 
   const handleDelete = useCallback(() => {
     setDeleted(true);
@@ -191,7 +206,8 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
   const hasMultiple = images.length > 1;
   const user = post.user ?? {};
   const avatarUrl = user.avatar_url || user.avatar || user.profile_image;
-  const captionText = post.content ?? post.caption ?? '';
+  const captionText = localCaption ?? post.content ?? post.caption ?? '';
+  captionRef.current = captionText; // keep ref fresh for handleShare closure
   const commentsCount = post.comments_count ?? post.comments ?? 0;
   const createdAt = post.created_at ?? post.timestamp;
   const hasStory = user.has_story ?? post.has_story ?? false;
@@ -335,7 +351,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
               <span className="text-[11px] text-stone-500 whitespace-nowrap">{timeAgo(createdAt)}</span>
             </>
           )}
-          {(post.edited || post.is_edited) && (
+          {(isEdited || post.edited || post.is_edited) && (
             <span className="text-[10px] text-stone-400 italic">· editado</span>
           )}
         </div>
@@ -430,7 +446,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
                       style={{
                         width: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
                         height: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
-                        background: i === carouselIndex ? 'var(--color-black, #0c0a09)' : '#d6d3d1',
+                        background: i === carouselIndex ? 'var(--color-black, #0c0a09)' : 'var(--color-border, #d6d3d1)',
                         opacity: dist > 2 ? 0.5 : 1,
                       }}
                     />
@@ -483,14 +499,14 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
 
         <button
           className={`ml-auto flex min-h-[44px] items-center bg-transparent border-none py-2.5 cursor-pointer ${
-            saved ? 'text-stone-950' : 'text-stone-500'
+            effectiveSaved ? 'text-stone-950' : 'text-stone-500'
           }`}
           onClick={handleSave}
-          aria-label={saved ? 'Quitar guardado' : 'Guardar'}
+          aria-label={effectiveSaved ? 'Quitar guardado' : 'Guardar'}
         >
           <Bookmark
             size={24}
-            fill={saved ? 'currentColor' : 'none'}
+            fill={effectiveSaved ? 'currentColor' : 'none'}
             color="currentColor"
           />
         </button>

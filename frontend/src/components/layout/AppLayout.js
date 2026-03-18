@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import AppHeader from './AppHeader';
-import SideNav from './SideNav';
+// SideNav disabled — mobile-first layout
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { trackPageVisit } from '../../utils/analytics';
@@ -109,12 +109,9 @@ export default function AppLayout({ children }) {
         <AppHeader />
       </div>
 
-      {/* Desktop: SideNav */}
-      <SideNav />
-
-      {/* Content area — offset on desktop for sidebar */}
+      {/* Content area */}
       <main
-        className="min-h-screen lg:pl-[var(--sidebar-width)]"
+        className="min-h-screen"
         style={{
           paddingBottom: 'calc(50px + env(safe-area-inset-bottom, 0px))',
         }}

@@ -141,15 +141,24 @@ export function useToggleUserFollowMutation() {
       isFollowing
         ? apiClient.delete(`/users/${userId}/follow`)
         : apiClient.post(`/users/${userId}/follow`, {}),
-    onSuccess: (_data, { userId, isFollowing }) => {
+    onSuccess: (data, { userId, isFollowing }) => {
       queryClient.setQueryData(userKeys.profile(userId), (current) => {
         if (!current) {
           return current;
         }
 
+        // Private accounts: backend returns {status: "pending"}
+        if (!isFollowing && data?.status === 'pending') {
+          return {
+            ...current,
+            follow_request_pending: true,
+          };
+        }
+
         return {
           ...current,
           is_following: !isFollowing,
+          follow_request_pending: false,
           followers_count: Math.max(0, (current.followers_count || 0) + (isFollowing ? -1 : 1)),
         };
       });

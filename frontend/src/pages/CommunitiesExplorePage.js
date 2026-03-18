@@ -134,9 +134,15 @@ export default function CommunitiesExplorePage() {
         {filter === 'joined' && (
           <section className="mb-5">
             <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Mis comunidades</h2>
-            {myCommunities.length === 0 ? (
+            {!user ? (
               <div className="py-10 text-center text-stone-500">
-                <Users size={48} className="mx-auto text-stone-500" strokeWidth={1} />
+                <Users size={48} className="mx-auto text-stone-300" strokeWidth={1} />
+                <p className="mt-3 text-[15px]">Inicia sesión para ver tus comunidades</p>
+                <button onClick={() => navigate('/login')} className="mt-3 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white border-none cursor-pointer">Entrar</button>
+              </div>
+            ) : myCommunities.length === 0 ? (
+              <div className="py-10 text-center text-stone-500">
+                <Users size={48} className="mx-auto text-stone-300" strokeWidth={1} />
                 <p className="mt-3 text-[15px]">No te has unido a ninguna comunidad</p>
               </div>
             ) : (
@@ -212,7 +218,7 @@ export default function CommunitiesExplorePage() {
 
 /* ── My Community Pill (horizontal scroll) ── */
 const MyCommunityPill = ({ community }) => (
-  <Link to={`/communities/${community.slug}`} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5 no-underline">
+  <Link to={`/communities/${community.slug || community.id || community._id}`} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5 no-underline">
     <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-stone-200 ${
       community.cover_image ? 'bg-stone-100' : stoneBg(community.name)
     }`}>
@@ -230,7 +236,7 @@ const MyCommunityPill = ({ community }) => (
 
 /* ── Card for 2-column grid ── */
 const CommunityCard = ({ community }) => {
-  const [joined, setJoined] = useState(community.is_member);
+  const [joined, setJoined] = useState(!!community.is_member);
   const [isToggling, setIsToggling] = useState(false);
 
   const toggle = async (e) => {
@@ -252,7 +258,7 @@ const CommunityCard = ({ community }) => {
   };
 
   return (
-    <Link to={`/communities/${community.slug}`} className="block no-underline">
+    <Link to={`/communities/${community.slug || community.id || community._id}`} className="block no-underline">
       <div className="overflow-hidden rounded-xl border border-stone-200 bg-white transition-colors">
         {/* Cover */}
         <div className="relative aspect-[16/7] overflow-hidden">
@@ -303,7 +309,7 @@ const CommunityCard = ({ community }) => {
 
 /* ── Row for "my communities" list ── */
 const CommunityRow = ({ community }) => (
-  <Link to={`/communities/${community.slug}`} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-3.5 no-underline">
+  <Link to={`/communities/${community.slug || community.id || community._id}`} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-3.5 no-underline">
     <div className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full text-[22px] ${
       community.cover_image ? 'bg-stone-100' : stoneBg(community.name)
     }`}>

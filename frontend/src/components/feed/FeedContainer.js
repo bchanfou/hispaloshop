@@ -18,6 +18,11 @@ function FeedContainer({ activeTab: tabProp }) {
 
   const activeTab = tabProp ?? localTab;
 
+  // Persist tab preference
+  React.useEffect(() => {
+    try { localStorage.setItem('feedTab', activeTab); } catch {}
+  }, [activeTab]);
+
   // Story viewer state
   const [storyViewer, setStoryViewer] = useState(null);
 

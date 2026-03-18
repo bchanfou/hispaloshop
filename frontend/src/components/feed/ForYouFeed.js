@@ -21,7 +21,7 @@ export default function ForYouFeed() {
   const feedQuery = useForYouFeed();
   const likeMutation = useLikePost();
   const allPosts = useMemo(
-    () => (feedQuery.data?.pages || []).flatMap((page) => page?.items || []),
+    () => (feedQuery.data?.pages || []).flatMap((page) => page?.items || []).filter((p) => p?.id),
     [feedQuery.data]
   );
   const hasMore = Boolean(feedQuery.hasNextPage);

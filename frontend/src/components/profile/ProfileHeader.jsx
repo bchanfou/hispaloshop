@@ -353,8 +353,8 @@ export default function ProfileHeader({
         <div className="flex flex-1 justify-around text-center">
           {[
             { value: user?.posts_count, label: 'Publicaciones', link: null },
-            { value: user?.followers_count, label: 'Seguidores', link: `/user/${user?.username}/followers` },
-            { value: user?.following_count, label: 'Seguidos', link: `/user/${user?.username}/following` },
+            { value: user?.followers_count, label: 'Seguidores', link: `/${user?.username}/followers` },
+            { value: user?.following_count, label: 'Seguidos', link: `/${user?.username}/following` },
           ].map((stat) => (
             <div
               key={stat.label}

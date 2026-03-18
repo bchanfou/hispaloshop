@@ -729,6 +729,8 @@ function AppRouter() {
               <Route path="/stories/*" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
               <Route path="/:username" element={<UsernameProfileRoute />} />
+              <Route path="/:username/followers" element={<FollowersPage />} />
+              <Route path="/:username/following" element={<FollowersPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </motion.div>
