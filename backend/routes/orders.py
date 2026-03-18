@@ -471,8 +471,12 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     # 2. Atomic stock decrement — check result to detect oversells
     stock_issues = []
     for item in order.get("line_items", []):
+        item_product_id = item.get("product_id")
+        item_qty = item.get("quantity", 0)
+        if not item_product_id or item_qty <= 0:
+            continue
         product = await db.products.find_one(
-            {"product_id": item["product_id"]},
+            {"product_id": item_product_id},
             {"_id": 0, "track_stock": 1, "variants": 1}
         )
         if product and product.get("track_stock", True):
@@ -480,19 +484,19 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
             pack_id = item.get("pack_id")
             if variant_id and pack_id and product.get("variants"):
                 result = await db.products.update_one(
-                    {"product_id": item["product_id"], "variants.variant_id": variant_id, "variants.packs.pack_id": pack_id},
-                    {"$inc": {"variants.$[v].packs.$[p].stock": -item["quantity"]}},
+                    {"product_id": item_product_id, "variants.variant_id": variant_id, "variants.packs.pack_id": pack_id},
+                    {"$inc": {"variants.$[v].packs.$[p].stock": -item_qty}},
                     array_filters=[{"v.variant_id": variant_id}, {"p.pack_id": pack_id}]
                 )
                 if result.matched_count == 0:
-                    stock_issues.append(item.get("product_name", item["product_id"]))
+                    stock_issues.append(item.get("product_name", item_product_id))
             else:
                 result = await db.products.update_one(
-                    {"product_id": item["product_id"], "stock": {"$gte": item["quantity"]}},
-                    {"$inc": {"stock": -item["quantity"]}}
+                    {"product_id": item_product_id, "stock": {"$gte": item_qty}},
+                    {"$inc": {"stock": -item_qty}}
                 )
                 if result.matched_count == 0:
-                    stock_issues.append(item.get("product_name", item["product_id"]))
+                    stock_issues.append(item.get("product_name", item_product_id))
     if stock_issues:
         logger.error(f"[PAYMENT] Stock oversell detected for order {order_id}: {stock_issues}")
         await db.orders.update_one(
@@ -935,7 +939,6 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                                 await create_attribution(db, user.user_id, influencer["influencer_id"], discount_code["code"])
 
     discounted_subtotal = max(0, subtotal - discount_amount)
-    logger.info(f"[CHECKOUT] subtotal={subtotal}, discount={discount_amount}, discounted={discounted_subtotal}, items={len(cart_items)}, first_price={cart_items[0].get('price') if cart_items else 'N/A'}, first_upc={cart_items[0].get('unit_price_cents') if cart_items else 'N/A'}")
 
     # Active referral attribution:
     # once a customer is linked through referred_by, future orders reuse that influencer
@@ -1106,14 +1109,13 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "line_items": [{
             "price_data": {
                 "currency": base_currency.lower(),
-                "unit_amount": int(total_amount * 100),
+                "unit_amount": int(round(total_amount * 100)),
                 "product_data": {"name": f"Pedido Hispaloshop #{order_id[-8:]}"},
             },
             "quantity": 1,
         }],
     }
     
-    logger.info(f"[CHECKOUT] Stripe amount: total_amount={total_amount}, unit_amount={int(total_amount * 100)}, shipping={shipping_amount}, tax={tax_amount}")
     try:
         session = stripe.checkout.Session.create(**stripe_params)
     except stripe.error.StripeError as e:
@@ -1365,7 +1367,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "line_items": [{
             "price_data": {
                 "currency": base_currency.lower(),
-                "unit_amount": int(total_amount * 100),
+                "unit_amount": int(round(total_amount * 100)),
                 "product_data": {"name": f"Compra directa #{order_id[-8:]}"},
             },
             "quantity": 1,
@@ -1744,7 +1746,7 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
             if pi_id:
                 params = {"payment_intent": pi_id, "metadata": {"order_id": order_id, "type": refund_type}}
                 if refund_type == "partial":
-                    params["amount"] = int(refund_amount * 100)
+                    params["amount"] = int(round(refund_amount * 100))
                 ref = stripe.Refund.create(**params)
                 stripe_refund_id = ref.id
                 logger.info(f"[REFUND] Stripe refund {ref.id}: {refund_amount} ({refund_type})")
@@ -2277,7 +2279,7 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, user: Us
     # Get all producer IDs in this order for seller notification
     for item in order.get("line_items", []):
         if item.get("producer_id"):
-            producer_ids_in_order.add(item["producer_id"])
+            producer_ids_in_order.add(item.get("producer_id"))
     
     # Build status history entry
     status_entry = {

@@ -36,7 +36,7 @@ export default function ForYouFeed() {
     async () => { await queryClient.resetQueries({ queryKey: feedKeys.forYou }); }
   );
 
-  const handleLike = async (postId) => {
+  const handleLike = useCallback(async (postId) => {
     const targetPost = allPosts.find((post) => post.id === postId);
     if (!targetPost) return;
 
@@ -48,7 +48,7 @@ export default function ForYouFeed() {
     } catch {
       // Query layer handles rollback and error state.
     }
-  };
+  }, [allPosts, likeMutation]);
 
   const handleComment = useCallback((postId) => {
     const post = allPosts.find((p) => p.id === postId);
@@ -56,7 +56,7 @@ export default function ForYouFeed() {
     else navigate(`/posts/${postId}`);
   }, [allPosts, navigate]);
 
-  const handleShare = async (postId) => {
+  const handleShare = useCallback(async (postId) => {
     const postUrl = `${window.location.origin}/posts/${postId}`;
 
     try {
@@ -75,7 +75,7 @@ export default function ForYouFeed() {
     } catch {
       // User cancelled share dialog — ignore
     }
-  };
+  }, [t]);
 
   if (error) {
     return (

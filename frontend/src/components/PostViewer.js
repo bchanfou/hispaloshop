@@ -106,6 +106,10 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', gap: 10 }}>
+          <div
+            onClick={() => { const target = user.username || user.user_id; if (target) { onClose?.(); navigate(`/${target}`); } }}
+            style={{ cursor: 'pointer' }}
+          >
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -122,7 +126,8 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
               {(user.name || '?')[0].toUpperCase()}
             </div>
           )}
-          <div style={{ flex: 1 }}>
+          </div>
+          <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { const target = user.username || user.user_id; if (target) { onClose?.(); navigate(`/${target}`); } }}>
             <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>{user.name || user.username || 'Usuario'}</p>
             <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0 }}>{timeAgo(currentPost.created_at || currentPost.timestamp)}</p>
           </div>

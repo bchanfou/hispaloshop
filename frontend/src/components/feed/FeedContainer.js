@@ -74,4 +74,4 @@ function FeedContainer({ activeTab: tabProp }) {
   );
 }
 
-export default FeedContainer;
+export default React.memo(FeedContainer);

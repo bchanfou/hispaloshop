@@ -35,6 +35,11 @@ export default function LoginPage() {
     return params.get('add_account') === 'true';
   }, [location.search]);
 
+  const sessionExpired = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('expired') === '1';
+  }, [location.search]);
+
   const validate = () => {
     const e = {};
     if (!formData.email.trim()) e.email = 'El email es obligatorio';
@@ -59,8 +64,8 @@ export default function LoginPage() {
         // Save token for API client Bearer header — cookie is set automatically by server
         // NOTE: token in localStorage is accessible via XSS; cookie (httpOnly) is not.
         // This is kept for backward compatibility with the Bearer auth path.
-        if (data.session_token) {
-          setToken(data.session_token);
+        if (data.session_token || data.access_token) {
+          setToken(data.session_token || data.access_token, data.refresh_token);
         }
 
         // Multi-account support
@@ -203,6 +208,19 @@ export default function LoginPage() {
         <span style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>o</span>
         <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
       </div>
+
+      {/* Session expired message */}
+      {sessionExpired && (
+        <p style={{
+          fontSize: 13, color: 'var(--color-black)',
+          textAlign: 'center', padding: '10px 14px', marginBottom: 16,
+          background: 'var(--color-surface, #f5f5f4)',
+          borderRadius: 'var(--radius-md)',
+          fontFamily: 'var(--font-sans)',
+        }}>
+          Tu sesión ha expirado. Inicia sesión de nuevo.
+        </p>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit}>

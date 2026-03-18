@@ -4,6 +4,7 @@ import { Eye, EyeOff, Loader2, Check, X as XIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
+import { setToken } from '../lib/auth';
 import apiClient from '../services/api/client';
 
 /* ── Password strength helper ── */
@@ -52,7 +53,8 @@ export default function RegisterPage() {
     setUsernameStatus('checking');
     try {
       const res = await apiClient.get(`/users/check-username/${clean}`);
-      setUsernameStatus(res.data?.available ? 'available' : 'taken');
+      // apiClient already unwraps .data — check res directly
+      setUsernameStatus(res?.available ?? res?.data?.available ? 'available' : 'taken');
     } catch {
       setUsernameStatus(null);
     }
@@ -115,6 +117,10 @@ export default function RegisterPage() {
       });
 
       if (data?.user) {
+        // Save auth token so subsequent API calls are authenticated
+        if (data.session_token || data.access_token) {
+          setToken(data.session_token || data.access_token, data.refresh_token);
+        }
         navigate('/onboarding', { replace: true });
       }
     } catch (err) {

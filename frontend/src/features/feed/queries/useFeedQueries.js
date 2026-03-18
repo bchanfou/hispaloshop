@@ -230,13 +230,11 @@ export function useSavePost() {
     onMutate: async ({ postId, saved }) => {
       await queryClient.cancelQueries({ queryKey: ['feed'] });
 
-      const previousFeed = queryClient.getQueryData(feedKeys.forYou);
+      const previousForYou = queryClient.getQueryData(feedKeys.forYou);
+      const previousFollowing = queryClient.getQueryData(feedKeys.following);
 
-      queryClient.setQueryData(feedKeys.forYou, (old) => {
-        if (!old) {
-          return old;
-        }
-
+      const applySaveUpdate = (old) => {
+        if (!old) return old;
         return {
           ...old,
           pages: old.pages.map((page) => ({
@@ -249,18 +247,23 @@ export function useSavePost() {
               ) {
                 return { ...item, saved: !saved };
               }
-
               return item;
             }),
           })),
         };
-      });
+      };
 
-      return { previousFeed };
+      queryClient.setQueryData(feedKeys.forYou, applySaveUpdate);
+      queryClient.setQueryData(feedKeys.following, applySaveUpdate);
+
+      return { previousForYou, previousFollowing };
     },
     onError: (error, variables, context) => {
-      if (context?.previousFeed) {
-        queryClient.setQueryData(feedKeys.forYou, context.previousFeed);
+      if (context?.previousForYou) {
+        queryClient.setQueryData(feedKeys.forYou, context.previousForYou);
+      }
+      if (context?.previousFollowing) {
+        queryClient.setQueryData(feedKeys.following, context.previousFollowing);
       }
     },
   });

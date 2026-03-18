@@ -1203,7 +1203,11 @@ async def create_post(
         contents = await upload.read()
         if len(contents) > 10 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Image size cannot exceed 10MB")
-        result = await cloudinary_upload(contents, folder="posts", filename=f"post_{uuid.uuid4().hex[:8]}")
+        try:
+            result = await cloudinary_upload(contents, folder="posts", filename=f"post_{uuid.uuid4().hex[:8]}")
+        except Exception as upload_err:
+            logger.error(f"[SOCIAL] Cloudinary upload failed for file {index}: {upload_err}")
+            raise HTTPException(status_code=502, detail="Image upload failed. Please try again.")
         media.append(
             {
                 "url": result["url"],
@@ -1213,7 +1217,7 @@ async def create_post(
             }
         )
 
-    image_url = (media[0] or {}).get("url")
+    image_url = media[0].get("url") if media else None
 
     if not caption.strip() and not media:
         raise HTTPException(status_code=400, detail="Post must have text or an image")

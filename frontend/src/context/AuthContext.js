@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { authApi } from '../lib/authApi';
+import { getToken, removeToken } from '../lib/auth';
 import { setUser as setSentryUser } from '../lib/sentry';
 
 const AuthContext = createContext(null);
@@ -63,6 +64,17 @@ export function AuthProvider({ children }) {
       setError(null);
     }
 
+    // Skip API call if there's no token — avoids unnecessary 401 + refresh cycle
+    if (!getToken()) {
+      checkingRef.current = false;
+      if (mountedRef.current) {
+        setUser(null);
+        setLoading(false);
+        setInitialized(true);
+      }
+      return null;
+    }
+
     try {
       const currentUser = await authApi.getCurrentUser();
       const normalizedUser = normalizeUser(currentUser || null);
@@ -76,6 +88,9 @@ export function AuthProvider({ children }) {
       if (mountedRef.current) {
         setUser(null);
       }
+      // If session check failed (e.g. 401), clear stale tokens from localStorage
+      // so the API client doesn't keep sending expired Bearer headers
+      removeToken();
       return null;
     } finally {
       checkingRef.current = false;
@@ -159,6 +174,8 @@ export function AuthProvider({ children }) {
     } catch (logoutError) {
       // silently handled
     } finally {
+      // Clear localStorage tokens so subsequent API calls don't send stale Bearer headers
+      removeToken();
       if (mountedRef.current) {
         setUser(null);
         setError(null);

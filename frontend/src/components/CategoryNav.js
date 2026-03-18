@@ -44,7 +44,7 @@ export default function CategoryNav({
       sourceConfig.map((category) => {
         const baseCategory =
           CATEGORY_CONFIG.find((item) => item.slug === category.slug) ||
-          CATEGORY_CONFIG.find((item) => item.aliases.includes(category.slug)) ||
+          CATEGORY_CONFIG.find((item) => (item.aliases || []).includes(category.slug)) ||
           {};
         const matchingProducts =
           variant === 'home-minimal'

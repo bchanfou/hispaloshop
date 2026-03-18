@@ -195,16 +195,24 @@ async def get_best_sellers(country: Optional[str] = None, limit: int = 8):
             {"$limit": remaining + len(featured_ids)}  # extra to skip featured
         ]
         results = await db.orders.aggregate(pipeline).to_list(remaining + len(featured_ids))
-        
+
+        # Batch-fetch products instead of N+1 individual queries
+        candidate_ids = [r["_id"] for r in results if r["_id"] not in featured_ids]
+        if candidate_ids:
+            _projection = {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "producer_name": 1, "country_origin": 1}
+            prods_list = await db.products.find(
+                {"product_id": {"$in": candidate_ids}, "status": "active"}, _projection
+            ).to_list(len(candidate_ids))
+            prods_map = {p["product_id"]: p for p in prods_list}
+        else:
+            prods_map = {}
+
         for r in results:
             if r["_id"] in featured_ids:
                 continue
             if len(products) >= limit:
                 break
-            prod = await db.products.find_one(
-                {"product_id": r["_id"], "status": "active"},
-                {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "producer_name": 1, "country_origin": 1}
-            )
+            prod = prods_map.get(r["_id"])
             if prod:
                 products.append({**prod, "total_sold": r["total_sold"]})
     
@@ -318,20 +326,14 @@ async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] =
     offset = int(cursor) if cursor else skip
     pool_size = limit * 3  # fetch a larger pool to score and sort
 
-    # Fetch posts — collection is user_posts (where create_post writes)
-    posts_raw = await db.user_posts.find(
-        {},
-        {"_id": 0}
-    ).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size)
+    # Fetch posts + reels concurrently
+    posts_raw, reels_raw = await asyncio.gather(
+        db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size),
+        db.reels.find({}, {"_id": 0}).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size),
+    )
     for p in posts_raw:
         p.setdefault("type", "post")
         p.setdefault("id", p.get("post_id") or p.get("id"))
-
-    # Fetch reels (Q3: mixed feed)
-    reels_raw = await db.reels.find(
-        {},
-        {"_id": 0}
-    ).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size)
     for r in reels_raw:
         r["type"] = "reel"
         r.setdefault("id", r.get("reel_id") or r.get("id"))

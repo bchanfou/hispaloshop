@@ -122,7 +122,7 @@ export default function BottomNavBar() {
       window.removeEventListener('toggle-chat', handleToggleChat);
       window.removeEventListener('open-creator', handleOpenCreator);
     };
-  }, [user]);
+  }, [user, navigate]);
 
   useEffect(() => {
     const token = getToken();

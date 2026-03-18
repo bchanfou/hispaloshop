@@ -66,7 +66,7 @@ export default function StorePage() {
     enabled: Boolean(storeSlug),
   });
 
-  const allProducts = Array.isArray(productsQuery.data?.products) ? productsQuery.data.products : [];
+  const allProducts = Array.isArray(productsQuery.data?.products) ? productsQuery.data.products : (Array.isArray(productsQuery.data) ? productsQuery.data : []);
   const recipes = Array.isArray(recipesQuery.data) ? recipesQuery.data : (Array.isArray(recipesQuery.data?.recipes) ? recipesQuery.data.recipes : []);
   const reviews = Array.isArray(reviewsQuery.data?.reviews) ? reviewsQuery.data.reviews : [];
   const certificates = Array.isArray(certificatesQuery.data) ? certificatesQuery.data : [];
@@ -150,11 +150,11 @@ export default function StorePage() {
       <div aria-busy="true" aria-label="Cargando tienda" style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: F }}>
         <div style={{ width: '100%', aspectRatio: '3/1', background: 'var(--color-surface)' }} />
         <div style={{ padding: '0 16px', marginTop: -40 }}>
-          <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-lg)', background: 'var(--color-surface)', border: '3px solid var(--color-white)' }} />
-          <div style={{ marginTop: 12, height: 18, width: '50%', background: 'var(--color-surface)', borderRadius: 4 }} />
-          <div style={{ marginTop: 8, height: 14, width: '30%', background: 'var(--color-surface)', borderRadius: 4 }} />
+          <div className="animate-pulse" style={{ width: 80, height: 80, borderRadius: 'var(--radius-lg)', background: 'var(--color-surface)', border: '3px solid var(--color-white)' }} />
+          <div className="animate-pulse" style={{ marginTop: 12, height: 18, width: '50%', background: 'var(--color-surface)', borderRadius: 4 }} />
+          <div className="animate-pulse" style={{ marginTop: 8, height: 14, width: '30%', background: 'var(--color-surface)', borderRadius: 4 }} />
           <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-            {[1,2,3].map(i => <div key={i} style={{ flex: 1, height: 40, background: 'var(--color-surface)', borderRadius: 'var(--radius-md)' }} />)}
+            {[1,2,3].map(i => <div key={i} className="animate-pulse" style={{ flex: 1, height: 40, background: 'var(--color-surface)', borderRadius: 'var(--radius-md)' }} />)}
           </div>
         </div>
       </div>
@@ -381,7 +381,7 @@ export default function StorePage() {
             {productsQuery.isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', aspectRatio: '3/4' }} />
+                  <div key={i} className="animate-pulse" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', aspectRatio: '3/4' }} />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (

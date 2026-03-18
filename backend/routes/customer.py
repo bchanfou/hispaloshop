@@ -156,8 +156,9 @@ async def cancel_customer_order(order_id: str, user: User = Depends(get_current_
 @router.get("/customer/profile")
 async def get_customer_profile(user: User = Depends(get_current_user)):
     """Get customer profile with preferences"""
-    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "user_id": 1, "email": 1, "name": 1, "country": 1, "username": 1, "consent": 1})
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "user_id": 1, "email": 1, "name": 1, "country": 1, "username": 1, "consent": 1, "profile_image": 1, "avatar_url": 1, "picture": 1})
     prefs = await db.user_preferences.find_one({"user_id": user.user_id}, {"_id": 0})
+    profile_image = (user_doc.get("profile_image") or user_doc.get("avatar_url") or user_doc.get("picture", "")) if user_doc else ""
     return {
         "user_id": user.user_id,
         "email": user.email,
@@ -165,6 +166,7 @@ async def get_customer_profile(user: User = Depends(get_current_user)):
         "country": user_doc.get("country", user.country) if user_doc else user.country,
         "username": user_doc.get("username", "") if user_doc else "",
         "consent": user_doc.get("consent") if user_doc else None,
+        "profile_image": profile_image,
         "preferences": prefs
     }
 

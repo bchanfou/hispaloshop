@@ -136,7 +136,7 @@ function ProductCard({ product, variant = 'default' }) {
       to={`/products/${productId}`}
       className="group block overflow-hidden product-card-hover"
       style={{
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 'var(--radius-xl)',
         background: 'var(--color-white)',
         border: '0.5px solid var(--color-border)',
         transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',

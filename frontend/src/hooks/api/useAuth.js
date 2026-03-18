@@ -71,10 +71,14 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (profileData) => apiClient.put('/auth/me', profileData),
+    mutationFn: (profileData) => apiClient.put('/customer/profile', profileData),
     onSuccess: (data) => {
-      queryClient.setQueryData(AUTH_KEYS.me, data.user);
-      setUser(data.user);
+      if (data?.user) {
+        queryClient.setQueryData(AUTH_KEYS.me, data.user);
+        setUser(data.user);
+      } else {
+        queryClient.invalidateQueries({ queryKey: AUTH_KEYS.me });
+      }
     },
   });
 }

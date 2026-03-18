@@ -59,7 +59,7 @@ function renderCaption(text) {
 // PostCard
 // ---------------------------------------------------------------------------
 
-export default function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority = false }) {
+function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority = false }) {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 
@@ -321,6 +321,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
             <img
               src={avatarUrl}
               alt={user.name}
+              loading="lazy"
               className={`rounded-full object-cover ${
                 hasStory ? 'h-[30px] w-[30px] border-2 border-white' : 'h-9 w-9'
               }`}
@@ -562,6 +563,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
                 <img
                   src={product.producer_avatar || product.store?.avatar}
                   alt={product.producer_name || product.store_name || product.store?.name || ''}
+                  loading="lazy"
                   className="h-4 w-4 rounded-full object-cover"
                 />
               )}
@@ -569,6 +571,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
                 <img
                   src={product.image || product.thumbnail}
                   alt={product.name || product.title}
+                  loading="lazy"
                   className="h-8 w-8 rounded-full object-cover"
                 />
               )}
@@ -606,3 +609,29 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
     </article>
   );
 }
+
+const arePostPropsEqual = (prev, next) => {
+  const p = prev.post;
+  const n = next.post;
+  return (
+    p?.id === n?.id &&
+    p?.liked === n?.liked &&
+    p?.is_liked === n?.is_liked &&
+    p?.likes === n?.likes &&
+    p?.likes_count === n?.likes_count &&
+    p?.saved === n?.saved &&
+    p?.is_saved === n?.is_saved &&
+    p?.comments_count === n?.comments_count &&
+    p?.comments === n?.comments &&
+    p?.caption === n?.caption &&
+    p?.content === n?.content &&
+    prev.priority === next.priority &&
+    prev.onLike === next.onLike &&
+    prev.onComment === next.onComment &&
+    prev.onShare === next.onShare &&
+    prev.onSave === next.onSave &&
+    prev.onDelete === next.onDelete
+  );
+};
+
+export default React.memo(PostCard, arePostPropsEqual);

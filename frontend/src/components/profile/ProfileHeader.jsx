@@ -503,7 +503,7 @@ export default function ProfileHeader({
               onClick={onFollowToggle}
               aria-label={
                 user?.follow_request_pending
-                  ? 'Solicitud pendiente'
+                  ? 'Cancelar solicitud'
                   : user?.is_following
                   ? `Dejar de seguir a ${user?.name}`
                   : user?.is_private
@@ -517,7 +517,6 @@ export default function ProfileHeader({
                   ? 'border-[1.5px] border-stone-200 bg-white text-stone-500'
                   : 'bg-stone-950 text-white'
               }`}
-              disabled={user?.follow_request_pending}
             >
               {user?.follow_request_pending
                 ? 'Solicitado'

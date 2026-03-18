@@ -200,7 +200,7 @@ export default function DiscoverPage() {
           {loadingTrending ? (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
               {[1,2,3,4].map(i => (
-                <div key={i} className="overflow-hidden rounded-lg border border-stone-200 bg-white">
+                <div key={i} className="overflow-hidden rounded-xl border border-stone-200 bg-white">
                   <div className="aspect-square animate-pulse bg-stone-100" />
                   <div className="p-3">
                     <div className="mb-1.5 h-3 w-[70%] animate-pulse rounded bg-stone-100" />
@@ -396,7 +396,7 @@ export default function DiscoverPage() {
           {loadingProducts ? (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} className="overflow-hidden rounded-lg border border-stone-200 bg-white">
+                <div key={i} className="overflow-hidden rounded-xl border border-stone-200 bg-white">
                   <div className="aspect-square animate-pulse bg-stone-100" />
                   <div className="p-3">
                     <div className="mb-1.5 h-3 w-[70%] animate-pulse rounded bg-stone-100" />

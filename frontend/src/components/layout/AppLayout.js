@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import AppHeader from './AppHeader';
@@ -82,7 +82,7 @@ function EmailVerificationBanner() {
 export default function AppLayout({ children }) {
   const location = useLocation();
   const { user } = useAuth();
-  const hideChrome = shouldHideChrome(location.pathname);
+  const hideChrome = useMemo(() => shouldHideChrome(location.pathname), [location.pathname]);
   const prevPathRef = useRef(location.pathname);
 
   // Track page visits for analytics

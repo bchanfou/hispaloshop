@@ -7,7 +7,7 @@ const ringClasses = {
   seen: 'border-2 border-solid border-stone-200',
 };
 
-export default function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
+function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
   const label = isSelf ? 'Tu historia' : (user?.name || user?.username || '');
   const avatarUrl = user?.avatar_url || user?.avatar || user?.profile_image;
   const showPlaceholder = isSelf && !hasUnseenStory;
@@ -29,20 +29,25 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick, items
     >
       <div className="relative">
       <div
-        className={`w-[62px] h-[62px] rounded-full overflow-hidden flex items-center justify-center ${ringClass} ${hasUnseenStory ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}
+        className={`w-[62px] h-[62px] rounded-full flex items-center justify-center ${ringClass} ${hasUnseenStory ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}
       >
         {showPlaceholder ? (
           <Plus size={18} className="text-stone-950" />
-        ) : avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt={label}
-            className="w-full h-full object-cover"
-          />
         ) : (
-          <span className="text-stone-500 text-lg font-semibold">
-            {(label || '?').charAt(0).toUpperCase()}
-          </span>
+          <div className="w-[54px] h-[54px] rounded-full overflow-hidden bg-white flex items-center justify-center">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={label}
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-stone-500 text-lg font-semibold">
+                {(label || '?').charAt(0).toUpperCase()}
+              </span>
+            )}
+          </div>
         )}
       </div>
       {itemsCount > 1 && hasUnseenStory && (
@@ -61,3 +66,5 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick, items
     </div>
   );
 }
+
+export default React.memo(StoryRing);

@@ -63,7 +63,7 @@ function FollowingFeed() {
     async () => { await queryClient.resetQueries({ queryKey: feedKeys.following }); }
   );
 
-  const handleLike = async (postId) => {
+  const handleLike = useCallback(async (postId) => {
     const targetPost = allPosts.find((post) => post.id === postId);
     if (!targetPost) return;
 
@@ -75,7 +75,7 @@ function FollowingFeed() {
     } catch {
       // Query layer handles rollback and error state.
     }
-  };
+  }, [allPosts, likeMutation]);
 
   const handleComment = useCallback((postId) => {
     const post = allPosts.find((p) => p.id === postId);
@@ -83,7 +83,7 @@ function FollowingFeed() {
     else navigate(`/posts/${postId}`);
   }, [allPosts, navigate]);
 
-  const handleShare = async (postId) => {
+  const handleShare = useCallback(async (postId) => {
     const postUrl = `${window.location.origin}/posts/${postId}`;
 
     try {
@@ -102,7 +102,7 @@ function FollowingFeed() {
     } catch {
       // User cancelled share dialog — ignore
     }
-  };
+  }, [t]);
 
   if (error) {
     return (

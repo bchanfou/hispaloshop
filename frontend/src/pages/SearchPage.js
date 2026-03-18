@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, UserPlus } from 'lucide-react';
 import apiClient from '../services/api/client';
+import { useLocale } from '../context/LocaleContext';
 import SEO from '../components/SEO';
 import { toast } from 'sonner';
 
@@ -31,7 +32,7 @@ function SuggestedPeopleSection() {
   React.useEffect(() => {
     let active = true;
     apiClient.get('/discovery/suggested-users?context=search&limit=6')
-      .then(data => { if (active) setPeople(data?.users || []); })
+      .then(data => { if (active) setPeople(Array.isArray(data) ? data : data?.users || []); })
       .catch(() => {});
     return () => { active = false; };
   }, []);
@@ -127,7 +128,8 @@ function RowSkeleton() {
 }
 
 /* ── Result Components ── */
-function ProductCard({ p }) {
+function ProductCardLocal({ p }) {
+  const { convertAndFormatPrice } = useLocale();
   return (
     <Link to={`/products/${p.product_id || p.id}`} className="block no-underline">
       <div className="overflow-hidden rounded-xl border border-stone-200 bg-white transition-shadow">
@@ -146,7 +148,7 @@ function ProductCard({ p }) {
           </p>
           {p.price != null && (
             <p className="mt-1 text-[13px] font-bold text-stone-950">
-              {Number(p.price).toFixed(2)} {p.currency || 'EUR'}
+              {convertAndFormatPrice(p.display_price || p.price, p.display_currency || p.currency || 'EUR')}
             </p>
           )}
         </div>
@@ -322,6 +324,16 @@ export default function SearchPage() {
   const totalCount = counts.products + counts.recipes + counts.stores + counts.creators;
   const hasResults = totalCount > 0;
 
+  const sortedProducts = useMemo(() => {
+    if (!results?.products) return [];
+    return [...results.products].sort((a, b) => {
+      if (sortBy === 'price_asc') return (a.price || 0) - (b.price || 0);
+      if (sortBy === 'price_desc') return (b.price || 0) - (a.price || 0);
+      if (sortBy === 'newest') return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      return 0;
+    });
+  }, [results?.products, sortBy]);
+
   const showProducts = (activeTab === 'all' || activeTab === 'products') && counts.products > 0;
   const showRecipes = (activeTab === 'all' || activeTab === 'recipes') && counts.recipes > 0;
   const showStores = (activeTab === 'all' || activeTab === 'stores') && counts.stores > 0;
@@ -463,12 +475,7 @@ export default function SearchPage() {
               <section>
                 <SectionHeader icon={ShoppingBag} label="Productos" count={counts.products} />
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {[...results.products].sort((a, b) => {
-                    if (sortBy === 'price_asc') return (a.price || 0) - (b.price || 0);
-                    if (sortBy === 'price_desc') return (b.price || 0) - (a.price || 0);
-                    if (sortBy === 'newest') return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-                    return 0;
-                  }).map(p => <ProductCard key={p.product_id} p={p} />)}
+                  {sortedProducts.map(p => <ProductCardLocal key={p.product_id || p.id} p={p} />)}
                 </div>
               </section>
             )}
@@ -476,20 +483,20 @@ export default function SearchPage() {
               <section>
                 <SectionHeader icon={ChefHat} label="Recetas" count={counts.recipes} />
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {results.recipes.map(r => <RecipeCard key={r.recipe_id} r={r} />)}
+                  {results.recipes.map(r => <RecipeCard key={r.recipe_id || r.id} r={r} />)}
                 </div>
               </section>
             )}
             {showCreators && (
               <section>
                 <SectionHeader icon={Users} label="Creadores" count={counts.creators} />
-                {results.creators.map(c => <PersonRow key={c.user_id} person={c} linkBase="/user/" />)}
+                {results.creators.map(c => <PersonRow key={c.user_id || c.id} person={c} linkBase="/user/" />)}
               </section>
             )}
             {showStores && (
               <section>
                 <SectionHeader icon={Store} label="Tiendas" count={counts.stores} />
-                {results.stores.map(s => <PersonRow key={s.store_id} person={s} linkBase="/store/" />)}
+                {results.stores.map(s => <PersonRow key={s.store_id || s.id} person={s} linkBase="/store/" />)}
               </section>
             )}
           </motion.div>

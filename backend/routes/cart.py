@@ -305,11 +305,14 @@ async def validate_cart_country(request: Request, current_user = Depends(get_cur
 
     unavailable_items = []
     for item in cart.get("items", []):
-        product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
+        pid = item.get("product_id")
+        if not pid:
+            continue
+        product = await db.products.find_one({"product_id": pid}, {"_id": 0})
 
         if not product or not is_product_available_in_country(product, country):
             unavailable_items.append({
-                "product_id": item.get("product_id"),
+                "product_id": pid,
                 "product_name": item.get("product_name"),
                 "variant_name": item.get("variant_name"),
                 "pack_label": item.get("pack_label"),
@@ -338,7 +341,11 @@ async def apply_country_change(request: Request, current_user = Depends(get_curr
     updated_count = 0
 
     for item in cart.get("items", []):
-        product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
+        pid = item.get("product_id")
+        if not pid:
+            removed_count += 1
+            continue
+        product = await db.products.find_one({"product_id": pid}, {"_id": 0})
 
         if not product or not is_product_available_in_country(product, country):
             removed_count += 1

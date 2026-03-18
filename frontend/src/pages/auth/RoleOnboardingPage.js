@@ -563,7 +563,13 @@ export default function RoleOnboardingPage() {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
 
-  const handleFinish = useCallback(() => {
+  const handleFinish = useCallback(async () => {
+    // Mark onboarding as completed on the backend before navigating
+    try {
+      await apiClient.patch('/users/me', { onboarding_completed: true });
+    } catch {
+      // Continue to destination even if the patch fails — user can still use the app
+    }
     const dest = DESTINATIONS[role] || '/feed';
     navigate(dest, { replace: true });
   }, [role, navigate]);
