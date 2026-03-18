@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { Instagram } from 'lucide-react';
 import Logo from '../brand/Logo';
 
 const COUNTRIES = [
@@ -190,30 +191,34 @@ export default function Footer() {
             </div>
 
             {/* Social icons */}
-            <div style={{ display: 'flex', gap: 12 }}>
-              {[
-                { label: 'Instagram', path: 'M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 3.5a2.5 2.5 0 00-2.5 2.5v4a2.5 2.5 0 005 0V8A2.5 2.5 0 0012 5.5z' },
-                { label: 'TikTok', path: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z' },
-                { label: 'LinkedIn', path: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z' },
-              ].map((social, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  aria-label={social.label}
-                  style={{
-                    color: 'rgba(255,255,255,0.4)',
-                    transition: 'color var(--transition-fast)',
-                    display: 'flex',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
-                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
-                >
-                  <span style={{ fontSize: 18 }}>
-                    {social.label === 'Instagram' ? '📷' :
-                     social.label === 'TikTok' ? '🎵' : '💼'}
-                  </span>
-                </a>
-              ))}
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <a
+                href="#"
+                aria-label="Instagram"
+                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color var(--transition-fast)', display: 'flex' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+              >
+                <Instagram size={18} />
+              </a>
+              <a
+                href="#"
+                aria-label="TikTok"
+                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color var(--transition-fast)', display: 'flex' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+              >
+                <span style={{ fontSize: 16, lineHeight: 1 }}>TK</span>
+              </a>
+              <a
+                href="#"
+                aria-label="LinkedIn"
+                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color var(--transition-fast)', display: 'flex' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+              >
+                <span style={{ fontSize: 16, lineHeight: 1, fontWeight: 700 }}>in</span>
+              </a>
             </div>
           </div>
         </div>

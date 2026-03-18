@@ -235,7 +235,7 @@ function EmptyState() {
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-24 px-8 text-center"
     >
-      <div style={{ fontSize: 48, marginBottom: 16 }}>🔔</div>
+      <div style={{ marginBottom: 16 }}><Bell size={48} style={{ color: 'var(--color-stone)' }} strokeWidth={1.5} /></div>
       <h3 style={{
         fontSize: 16,
         fontWeight: 600,

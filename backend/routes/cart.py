@@ -239,21 +239,26 @@ async def update_cart_item(
 async def remove_from_cart(
     product_id: str,
     variant_id: Optional[str] = None,
+    pack_id: Optional[str] = None,
     current_user = Depends(get_current_user)
 ):
-    """Eliminar item del carrito"""
+    """Eliminar item del carrito (triple match: product + variant + pack)"""
     db = get_db()
-    
+
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
         "status": "active"
     })
-    
+
     if not cart:
         raise HTTPException(status_code=404, detail="Cart not found")
-    
+
     items = cart.get("items", [])
-    items = [i for i in items if not (i.get("product_id") == product_id and i.get("variant_id") == variant_id)]
+    items = [i for i in items if not (
+        i.get("product_id") == product_id
+        and i.get("variant_id") == variant_id
+        and i.get("pack_id") == pack_id
+    )]
     
     await db.carts.update_one(
         {"_id": cart["_id"], "user_id": current_user.user_id},
@@ -466,6 +471,7 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
         raise HTTPException(status_code=400, detail="items must be a list")
 
     normalized_items = []
+    from bson.objectid import ObjectId
     for item in incoming_items:
         if not isinstance(item, dict):
             continue
@@ -474,16 +480,32 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
         if not product_id or quantity <= 0:
             continue
 
+        # Server-side price validation — never trust client prices
+        try:
+            product = await db.products.find_one(
+                {"_id": ObjectId(str(product_id))},
+                {"_id": 0, "price_cents": 1, "price": 1, "name": 1, "images": 1,
+                 "seller_id": 1, "producer_id": 1, "seller_type": 1}
+            )
+        except Exception:
+            product = None
+
+        if not product:
+            continue  # Skip unknown products
+
+        server_price_cents = product.get("price_cents") or int(round((product.get("price", 0)) * 100))
+
         normalized_items.append({
             "product_id": str(product_id),
-            "product_name": item.get("product_name") or item.get("name"),
-            "product_image": item.get("product_image") or item.get("image"),
-            "seller_id": item.get("seller_id") or item.get("producer_id"),
-            "seller_type": item.get("seller_type", "producer"),
+            "product_name": product.get("name") or item.get("product_name") or item.get("name"),
+            "product_image": (product.get("images") or [{}])[0].get("url") if product.get("images") else item.get("product_image"),
+            "seller_id": product.get("seller_id") or product.get("producer_id") or item.get("seller_id"),
+            "seller_type": product.get("seller_type", "producer"),
             "quantity": quantity,
-            "unit_price_cents": int(item.get("unit_price_cents", 0) or 0),
-            "total_price_cents": int(item.get("total_price_cents", 0) or 0),
+            "unit_price_cents": server_price_cents,
+            "total_price_cents": server_price_cents * quantity,
             "variant_id": item.get("variant_id"),
+            "pack_id": item.get("pack_id"),
             "added_at": datetime.now(timezone.utc),
         })
 

@@ -1,18 +1,19 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { Camera, Video, Circle, ChefHat } from 'lucide-react';
 
 const CONTENT_TYPES = [
   // Row 1 — 3 columns
-  { type: 'post',  emoji: '📸', label: 'Post',   primary: false },
-  { type: 'reel',  emoji: '🎬', label: 'Reel',   primary: false },
-  { type: 'story', emoji: '⭕', label: 'Story',  primary: false },
+  { type: 'post',  icon: <Camera size={22} />, label: 'Post',   primary: false },
+  { type: 'reel',  icon: <Video size={22} />, label: 'Reel',   primary: false },
+  { type: 'story', icon: <Circle size={22} />, label: 'Story',  primary: false },
   // Row 2 — 2 columns (centrado)
-  { type: 'recipe', emoji: '🍳', label: 'Receta', primary: true },
-  { type: 'text',   emoji: 'Aa', label: 'Texto',  primary: false, isText: true },
+  { type: 'recipe', icon: <ChefHat size={22} />, label: 'Receta', primary: true },
+  { type: 'text',   icon: null, label: 'Texto',  primary: false, isText: true },
 ];
 
-function ContentTypeButton({ emoji, label, primary, isText, onSelect }) {
+function ContentTypeButton({ icon, label, primary, isText, onSelect }) {
   return (
     <button
       type="button"
@@ -47,7 +48,7 @@ function ContentTypeButton({ emoji, label, primary, isText, onSelect }) {
         background: primary ? 'var(--color-black)' : 'var(--color-surface)',
         color: primary ? '#fff' : 'var(--color-black)',
       }}>
-        {emoji}
+        {isText ? 'Aa' : icon}
       </div>
       <span style={{
         fontSize: 'var(--text-sm)',

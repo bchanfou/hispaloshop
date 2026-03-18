@@ -626,11 +626,21 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
         "used": False
     })
     
-    # Use request origin (works on preview + production)
-    origin = request.headers.get("origin") or request.headers.get("referer", "").rstrip("/") or FRONTEND_URL
-    # Strip any path from referer
-    if "/api" in origin:
-        origin = origin.split("/api")[0]
+    # Validate origin against trusted domains to prevent open redirect
+    _trusted_origins = {FRONTEND_URL}
+    if AUTH_BACKEND_URL:
+        _trusted_origins.add(AUTH_BACKEND_URL.rstrip("/"))
+    # Allow Vercel preview URLs (*.vercel.app)
+    raw_origin = request.headers.get("origin") or request.headers.get("referer", "").rstrip("/") or ""
+    if "/api" in raw_origin:
+        raw_origin = raw_origin.split("/api")[0]
+    origin = FRONTEND_URL  # safe default
+    if raw_origin:
+        from urllib.parse import urlparse
+        parsed = urlparse(raw_origin)
+        candidate = f"{parsed.scheme}://{parsed.netloc}"
+        if candidate in _trusted_origins or (parsed.netloc and parsed.netloc.endswith(".vercel.app")):
+            origin = candidate
     reset_link = f"{origin}/reset-password?token={reset_token}"
     
     # Detect language from user preferences
@@ -682,13 +692,14 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
 async def reset_password(input: ResetPasswordInput, request: Request):
     """Reset password using token"""
     await rate_limiter.check(request, endpoint_type="reset_password")
-    # Find valid reset token
+    # Find valid reset token — constant-time verification to prevent timing attacks
+    import secrets as _secrets
     reset = await db.password_resets.find_one(
         {"token": input.token},
         {"_id": 0}
     )
-    
-    if not reset:
+
+    if not reset or not _secrets.compare_digest(reset.get("token", ""), input.token):
         logger.warning(f"[RESET_PASSWORD] Token not found: {input.token[:20]}...")
         raise HTTPException(status_code=400, detail="El enlace de recuperación no es válido. Por favor solicita uno nuevo.")
     

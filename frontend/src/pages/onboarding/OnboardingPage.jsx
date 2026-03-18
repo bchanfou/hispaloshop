@@ -8,6 +8,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingCart, Wheat, Star, Globe, Droplets, Package, Leaf, UtensilsCrossed, Baby, PawPrint } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { useSaveOnboardingMutation } from '../../features/onboarding/queries';
@@ -57,7 +58,7 @@ function ProgressDots({ current, total }) {
 
 // ── Toggle Pill ──────────────────────────────────────────
 
-function TogglePill({ emoji, label, selected, variant, onClick }) {
+function TogglePill({ emoji, icon, label, selected, variant, onClick }) {
   const styles = useMemo(() => {
     if (!selected) {
       return {
@@ -106,7 +107,7 @@ function TogglePill({ emoji, label, selected, variant, onClick }) {
         gap: 6,
       }}
     >
-      <span style={{ fontSize: 15 }}>{emoji}</span>
+      <span style={{ fontSize: 15, display: 'inline-flex', alignItems: 'center' }}>{icon || emoji}</span>
       {label}
     </motion.button>
   );
@@ -132,10 +133,10 @@ const ALLERGIES = [
 ];
 
 const INTERESTS = [
-  { id: 'aceites', emoji: '\uD83E\uDED2', label: 'Aceites' },
+  { id: 'aceites', icon: <Droplets size={15} className="text-stone-950" />, label: 'Aceites' },
   { id: 'mieles', emoji: '\uD83C\uDF6F', label: 'Mieles' },
   { id: 'quesos', emoji: '\uD83E\uDDC0', label: 'Quesos' },
-  { id: 'conservas', emoji: '\uD83E\uDED9', label: 'Conservas' },
+  { id: 'conservas', icon: <Package size={15} className="text-stone-950" />, label: 'Conservas' },
   { id: 'especias', emoji: '\uD83C\uDF36\uFE0F', label: 'Especias' },
   { id: 'recetas', emoji: '\uD83D\uDC68\u200D\uD83C\uDF73', label: 'Recetas' },
   { id: 'embutidos', emoji: '\uD83E\uDD69', label: 'Embutidos' },
@@ -145,25 +146,25 @@ const INTERESTS = [
 const ROLES = [
   {
     id: 'customer',
-    emoji: '\uD83D\uDED2',
+    icon: <ShoppingCart size={24} className="text-stone-950" />,
     title: 'Consumidor',
     description: 'Descubre y compra productos artesanales',
   },
   {
     id: 'producer',
-    emoji: '\uD83C\uDFED',
+    icon: <Wheat size={24} className="text-stone-950" />,
     title: 'Productor',
     description: 'Vende tus productos artesanales',
   },
   {
     id: 'influencer',
-    emoji: '\uD83D\uDCF1',
+    icon: <Star size={24} className="text-stone-950" />,
     title: 'Influencer',
     description: 'Gana comisión recomendando productos',
   },
   {
     id: 'importer',
-    emoji: '\uD83D\uDEA2',
+    icon: <Globe size={24} className="text-stone-950" />,
     title: 'Importador',
     description: 'Importa productos en volumen mayorista',
   },
@@ -430,6 +431,7 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
           <TogglePill
             key={item.id}
             emoji={item.emoji}
+            icon={item.icon}
             label={item.label}
             selected={interests.includes(item.id)}
             variant="interest"
@@ -537,7 +539,7 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
                 transition: 'all 0.2s ease',
               }}
             >
-              <span style={{ fontSize: 28, flexShrink: 0 }}>{role.emoji}</span>
+              <span style={{ fontSize: 28, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{role.icon}</span>
               <div>
                 <p
                   style={{

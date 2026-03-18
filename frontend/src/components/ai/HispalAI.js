@@ -1,19 +1,19 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
-import { X, Send, Sparkles, Mic, Trash2 } from 'lucide-react';
+import { X, Send, Sparkles, Mic, Trash2, ChefHat, BarChart3, Wheat, ShoppingCart } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import useHispalAI from '../../hooks/useHispalAI';
 import { useAuth } from '../../context/AuthContext';
 import ProductCardInChat from './ProductCardInChat';
 
 const QUICK_SUGGESTIONS = [
-  { label: '¿Qué hay de nuevo?', icon: '🆕' },
-  { label: 'Receta de hoy', icon: '🍳' },
-  { label: 'Mi dieta', icon: '📊' },
-  { label: 'Productos halal', icon: '☪️' },
-  { label: 'Sin gluten', icon: '🌾' },
-  { label: 'Ver mi carrito', icon: '🛒' },
+  { label: '¿Qué hay de nuevo?', Icon: Sparkles },
+  { label: 'Receta de hoy', Icon: ChefHat },
+  { label: 'Mi dieta', Icon: BarChart3 },
+  { label: 'Productos halal', emoji: '☪️' },
+  { label: 'Sin gluten', Icon: Wheat },
+  { label: 'Ver mi carrito', Icon: ShoppingCart },
 ];
 
 function parseMarkdownSafe(text) {
@@ -200,7 +200,7 @@ export default function HispalAI() {
                           onClick={() => handleSuggestion(s.label)}
                           className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-700 transition-all hover:bg-stone-50 hover:shadow-sm active:scale-95"
                         >
-                          <span>{s.icon}</span>
+                          {s.Icon ? <s.Icon size={14} className="text-stone-500" /> : <span>{s.emoji}</span>}
                           <span>{s.label}</span>
                         </button>
                       ))}

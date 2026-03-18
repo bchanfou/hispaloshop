@@ -11,6 +11,7 @@ import PostViewer from '../components/PostViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import OverlayErrorBoundary from '../components/OverlayErrorBoundary';
 import apiClient from '../services/api/client';
+import SEO from '../components/SEO';
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -163,6 +164,11 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
+      <SEO
+        title={`${user.name || user.username} — Hispaloshop`}
+        description={user.bio?.slice(0, 160) || `Perfil de ${user.name} en Hispaloshop`}
+        image={user.profile_image}
+      />
       <ProfileHeader
         user={user}
         isOwn={isOwn}

@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Award, CheckCircle, ChevronLeft, ExternalLink, Globe,
-  Heart, Mail, MapPin, MessageCircle, Phone, Search, Share2,
+  Award, CheckCircle, ChefHat, ChevronLeft, ExternalLink, Globe,
+  Heart, Info, Mail, MapPin, MessageCircle, Package, Phone, Search, Share2,
   Star, Store, Truck, User,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -135,10 +135,10 @@ export default function StorePage() {
   }, [allProducts, requestedProductId]);
 
   const tabs = [
-    { id: 'products', emoji: '📦', label: 'Productos', count: productTotal },
-    { id: 'recipes', emoji: '🍳', label: 'Recetas', count: recipes.length },
-    { id: 'reviews', emoji: '⭐', label: 'Reseñas', count: reviewsTotal },
-    { id: 'about', emoji: 'ℹ️', label: 'Sobre nosotros', count: null },
+    { id: 'products', icon: <Package size={14} />, label: 'Productos', count: productTotal },
+    { id: 'recipes', icon: <ChefHat size={14} />, label: 'Recetas', count: recipes.length },
+    { id: 'reviews', icon: <Star size={14} />, label: 'Reseñas', count: reviewsTotal },
+    { id: 'about', icon: <Info size={14} />, label: 'Sobre nosotros', count: null },
   ];
 
   const tagline = store?.tagline || store?.long_description || store?.story || '';
@@ -330,7 +330,7 @@ export default function StorePage() {
               background: 'none', border: 'none', cursor: 'pointer',
               borderBottom: activeTab === tab.id ? '2px solid var(--color-black)' : '2px solid transparent',
             }}>
-              {tab.emoji} {tab.label}
+              {tab.icon} {tab.label}
               {tab.count !== null && <span style={{ marginLeft: 4, fontSize: 11 }}>{tab.count}</span>}
             </button>
           ))}

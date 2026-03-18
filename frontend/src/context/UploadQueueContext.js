@@ -3,16 +3,31 @@ import apiClient from '../services/api/client';
 
 async function publishSocialContent({ publishData, onProgress }) {
   const fd = new FormData();
-  fd.append('type', publishData.contentType || 'post');
-  if (publishData.caption) fd.append('content', publishData.caption);
+  if (publishData.caption) fd.append('caption', publishData.caption);
   if (publishData.files) {
-    publishData.files.forEach((f) => fd.append('media', f));
+    publishData.files.forEach((f) => fd.append('files', f));
   }
   if (publishData.products) {
-    fd.append('products', JSON.stringify(publishData.products));
+    fd.append('tagged_products_json', JSON.stringify(publishData.products.map((p) => ({ product_id: p.id || p }))));
   }
+  if (publishData.location) fd.append('location', publishData.location);
   onProgress?.(50);
-  const res = await apiClient.post('/posts', fd);
+
+  // Route to correct endpoint based on content type
+  const type = publishData.contentType || 'post';
+  let endpoint = '/posts';
+  if (type === 'reel') {
+    endpoint = '/reels';
+    // Reels expect 'file' not 'files'
+    const firstFile = publishData.files?.[0];
+    if (firstFile) { fd.delete('files'); fd.append('file', firstFile); }
+  } else if (type === 'story') {
+    endpoint = '/stories';
+    const firstFile = publishData.files?.[0];
+    if (firstFile) { fd.delete('files'); fd.append('file', firstFile); }
+  }
+
+  const res = await apiClient.post(endpoint, fd);
   onProgress?.(100);
   return res;
 }

@@ -268,6 +268,7 @@ export default function CartPage() {
   };
 
   const handleCheckout = async () => {
+    if (checkoutLoading) return; // Prevent double-submit
     if (cartItems.length === 0) {
       toast.error(t('cart.empty'));
       return;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
@@ -54,7 +54,7 @@ export default function ExploreCategoryPage() {
   if (!group) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
-        <span className="text-5xl">🔍</span>
+        <Search size={48} className="text-stone-300" strokeWidth={1.5} />
         <p className="text-[15px] text-stone-500">Categoría no encontrada</p>
         <button
           onClick={() => navigate('/explore')}
@@ -122,7 +122,7 @@ export default function ExploreCategoryPage() {
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16">
-            <span className="text-5xl">📦</span>
+            <Package size={48} className="text-stone-300" strokeWidth={1.5} />
             <p className="text-center text-[15px] text-stone-500">
               No hay productos en esta categoría todavía
             </p>

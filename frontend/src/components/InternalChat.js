@@ -114,7 +114,7 @@ function ChatAvatar({ src, name, size = 'h-11 w-11', alt }) {
 
 function MessageStatus({ message, isOwn }) {
   const status = (message?.status || '').toLowerCase();
-  const label = status === 'read' ? 'Leido' : 'No leido';
+  const label = status === 'read' ? 'Leído' : 'No leído';
 
   return (
     <div

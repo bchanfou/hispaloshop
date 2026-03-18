@@ -1,32 +1,32 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Loader2, Check, UserPlus } from 'lucide-react';
+import { ArrowLeft, Loader2, Check, UserPlus, ShoppingCart, Wheat, Star, Globe, Droplets, Package, Leaf, UtensilsCrossed, Baby, PawPrint } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
 /* ── Constants ── */
 const ROLES = [
-  { id: 'consumer', emoji: '🛒', label: 'Consumidor', desc: 'Quiero descubrir y comprar productos artesanales' },
-  { id: 'producer', emoji: '🌾', label: 'Productor', desc: 'Tengo productos artesanales y quiero venderlos' },
-  { id: 'influencer', emoji: '⭐', label: 'Influencer', desc: 'Creo contenido y quiero ganar comisiones' },
-  { id: 'importer', emoji: '🌍', label: 'Importador', desc: 'Busco productos para importar o distribuir' },
+  { id: 'consumer', icon: <ShoppingCart size={24} className="text-stone-950" />, label: 'Consumidor', desc: 'Quiero descubrir y comprar productos artesanales' },
+  { id: 'producer', icon: <Wheat size={24} className="text-stone-950" />, label: 'Productor', desc: 'Tengo productos artesanales y quiero venderlos' },
+  { id: 'influencer', icon: <Star size={24} className="text-stone-950" />, label: 'Influencer', desc: 'Creo contenido y quiero ganar comisiones' },
+  { id: 'importer', icon: <Globe size={24} className="text-stone-950" />, label: 'Importador', desc: 'Busco productos para importar o distribuir' },
 ];
 
 const PREFERENCES = [
-  { id: 'aceites', emoji: '🫒', label: 'Aceites' },
+  { id: 'aceites', icon: <Droplets size={18} className="text-stone-950" />, label: 'Aceites' },
   { id: 'mieles', emoji: '🍯', label: 'Mieles' },
   { id: 'quesos', emoji: '🧀', label: 'Quesos' },
   { id: 'carnes', emoji: '🥩', label: 'Carnes' },
-  { id: 'conservas', emoji: '🥫', label: 'Conservas' },
+  { id: 'conservas', icon: <Package size={18} className="text-stone-950" />, label: 'Conservas' },
   { id: 'snacks', emoji: '🍿', label: 'Snacks' },
-  { id: 'ecologico', emoji: '🌿', label: 'Ecológico' },
-  { id: 'gourmet', emoji: '🍽️', label: 'Gourmet' },
-  { id: 'sin-gluten', emoji: '🌾', label: 'Sin gluten' },
+  { id: 'ecologico', icon: <Leaf size={18} className="text-stone-950" />, label: 'Ecológico' },
+  { id: 'gourmet', icon: <UtensilsCrossed size={18} className="text-stone-950" />, label: 'Gourmet' },
+  { id: 'sin-gluten', icon: <Wheat size={18} className="text-stone-950" />, label: 'Sin gluten' },
   { id: 'vegano', emoji: '🥬', label: 'Vegano' },
-  { id: 'bebes', emoji: '👶', label: 'Bebés' },
-  { id: 'mascotas', emoji: '🐾', label: 'Mascotas' },
+  { id: 'bebes', icon: <Baby size={18} className="text-stone-950" />, label: 'Bebés' },
+  { id: 'mascotas', icon: <PawPrint size={18} className="text-stone-950" />, label: 'Mascotas' },
 ];
 
 const slideVariants = {
@@ -188,7 +188,7 @@ export default function OnboardingPage() {
                 transition: 'var(--transition-fast)',
               }}
             >
-              <div style={{ fontSize: 40, marginBottom: 8 }}>{role.emoji}</div>
+              <div style={{ fontSize: 40, marginBottom: 8, display: 'flex', justifyContent: 'center' }}>{role.icon}</div>
               <p style={{
                 fontSize: 'var(--text-base, 16px)', fontWeight: 600,
                 color: '#fff', margin: '0 0 4px',
@@ -292,7 +292,7 @@ export default function OnboardingPage() {
                   transition: 'var(--transition-fast)',
                 }}
               >
-                <span>{pref.emoji}</span>
+                <span>{pref.icon || pref.emoji}</span>
                 <span>{pref.label}</span>
               </button>
             );

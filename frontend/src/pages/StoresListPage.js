@@ -4,6 +4,7 @@ import { ArrowLeft, Search, Star, MapPin, Package, Truck, X, Map as MapIcon, Lis
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
+import SEO from '../components/SEO';
 
 /* ══════════════════════════════════════════
    Region / Country mapping
@@ -456,6 +457,7 @@ export default function StoresListPage() {
   /* ── render ── */
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)', paddingBottom: 80 }}>
+      <SEO title="Tiendas — Hispaloshop" description="Explora tiendas de productores artesanales de alimentación saludable local. Filtra por región y país." />
       <style>{`
         @keyframes storesPulse { 0%,100%{opacity:.4} 50%{opacity:1} }
         .stores-grid { display:grid; gap:12px; grid-template-columns:repeat(2,1fr); }

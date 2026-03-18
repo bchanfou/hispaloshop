@@ -2,22 +2,23 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import {
   FileCheck, Plus, ArrowLeft, ArrowRight, CheckCircle, Clock, XCircle,
-  Upload, FileText, Info, Check, Save, Send, AlertCircle
+  Upload, FileText, Info, Check, Save, Send, AlertCircle,
+  Leaf, Sprout, Wheat, Handshake, MapPin, Dna, ClipboardList
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
 
 // Certificate types available
 const CERTIFICATE_TYPES = [
-  { id: 'organic', label: 'Orgánico / Ecológico', icon: '🌿' },
-  { id: 'vegan', label: 'Vegano', icon: '🌱' },
-  { id: 'glutenFree', label: 'Sin Gluten', icon: '🌾' },
-  { id: 'halal', label: 'Halal', icon: '☪️' },
-  { id: 'kosher', label: 'Kosher', icon: '✡️' },
-  { id: 'fairTrade', label: 'Comercio Justo', icon: '🤝' },
-  { id: 'localProduct', label: 'Producto Local', icon: '📍' },
-  { id: 'nonGMO', label: 'Sin OGM', icon: '🧬' },
-  { id: 'other', label: 'Otro', icon: '📋' }
+  { id: 'organic', label: 'Orgánico / Ecológico', Icon: Leaf },
+  { id: 'vegan', label: 'Vegano', Icon: Sprout },
+  { id: 'glutenFree', label: 'Sin Gluten', Icon: Wheat },
+  { id: 'halal', label: 'Halal', emoji: '☪️' },
+  { id: 'kosher', label: 'Kosher', emoji: '✡️' },
+  { id: 'fairTrade', label: 'Comercio Justo', Icon: Handshake },
+  { id: 'localProduct', label: 'Producto Local', Icon: MapPin },
+  { id: 'nonGMO', label: 'Sin OGM', Icon: Dna },
+  { id: 'other', label: 'Otro', Icon: ClipboardList }
 ];
 
 const STATUS_CONFIG = {
@@ -310,7 +311,7 @@ export default function ProducerCertificates() {
                           }`}
                           data-testid={`cert-type-${type.id}`}
                         >
-                          <span className="text-2xl mb-2 block">{type.icon}</span>
+                          <span className="mb-2 block">{type.Icon ? <type.Icon size={24} className="text-stone-600" /> : <span className="text-2xl">{type.emoji}</span>}</span>
                           <span className="font-medium text-sm text-stone-950">{type.label}</span>
                         </button>
                       ))}

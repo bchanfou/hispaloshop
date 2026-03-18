@@ -1,4 +1,5 @@
 import React from 'react';
+import { ShoppingCart, Package, Star, Globe } from 'lucide-react';
 import { InfoNav, Hero, FooterCTA, FadeUp } from '../../components/info/shared';
 
 export default function QueEsPage() {
@@ -75,10 +76,10 @@ export default function QueEsPage() {
           gap: 16, maxWidth: 900, margin: '0 auto',
         }}>
           {[
-            { icon: '🛒', role: 'Consumidor', desc: 'Descubre productos auténticos, sigue a tus productores favoritos y compra con la ayuda de Hispal AI.', href: '/registro' },
-            { icon: '🫙', role: 'Productor',  desc: 'Vende directamente, construye tu comunidad y exporta al mundo con el Agente Comercial IA.', href: '/productor' },
-            { icon: '⭐', role: 'Influencer', desc: 'Comparte lo que usas, gana comisiones reales y conecta con marcas que encajan con tu audiencia.', href: '/influencer' },
-            { icon: '🌍', role: 'Importador', desc: 'Accede al catálogo español verificado, gestiona certificados y automatiza las órdenes de compra.', href: '/importador' },
+            { icon: <ShoppingCart size={20} className="text-stone-950" />, role: 'Consumidor', desc: 'Descubre productos auténticos, sigue a tus productores favoritos y compra con la ayuda de Hispal AI.', href: '/registro' },
+            { icon: <Package size={20} className="text-stone-950" />, role: 'Productor',  desc: 'Vende directamente, construye tu comunidad y exporta al mundo con el Agente Comercial IA.', href: '/productor' },
+            { icon: <Star size={20} className="text-stone-950" />, role: 'Influencer', desc: 'Comparte lo que usas, gana comisiones reales y conecta con marcas que encajan con tu audiencia.', href: '/influencer' },
+            { icon: <Globe size={20} className="text-stone-950" />, role: 'Importador', desc: 'Accede al catálogo español verificado, gestiona certificados y automatiza las órdenes de compra.', href: '/importador' },
           ].map((r, i) => (
             <FadeUp key={r.role} delay={i * 0.08}>
               <a href={r.href} style={{ textDecoration: 'none' }}>
@@ -92,7 +93,7 @@ export default function QueEsPage() {
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.09)'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
                 >
-                  <div style={{ fontSize: 38, marginBottom: 14 }}>{r.icon}</div>
+                  <div style={{ marginBottom: 14, display: 'flex' }}>{r.icon}</div>
                   <p style={{ fontSize: 18, fontWeight: 700, color: '#1D1D1F',
                                marginBottom: 10 }}>{r.role}</p>
                   <p style={{ fontSize: 13, color: '#6E6E73',

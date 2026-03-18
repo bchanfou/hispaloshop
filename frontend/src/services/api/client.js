@@ -50,20 +50,19 @@ const httpClient = axios.create({
 let refreshPromise = null;
 
 async function refreshSession() {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) {
-    return false;
-  }
-
+  // Backend uses httpOnly session_token cookie for refresh (not body token).
+  // The cookie is sent automatically via withCredentials: true.
   try {
     const response = await axios.post(
       `${API_BASE_URL}/auth/refresh`,
-      { refresh_token: refreshToken },
+      {},
       { withCredentials: true },
     );
 
-    if (response?.data?.access_token) {
-      setToken(response.data.access_token, response.data.refresh_token);
+    // Backend returns new session_token in both cookie and body
+    const data = response?.data;
+    if (data?.session_token || data?.access_token) {
+      setToken(data.session_token || data.access_token, data.refresh_token);
       return true;
     }
 

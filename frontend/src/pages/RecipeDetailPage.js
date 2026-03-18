@@ -9,6 +9,7 @@ import { useCart } from '../context/CartContext';
 import { resolveUserImage } from '../features/user/queries';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
+import SEO from '../components/SEO';
 
 const DIFFICULTY_CLASSES = {
   easy: { pill: 'bg-stone-200/50 text-stone-600', label: 'Fácil' },
@@ -155,6 +156,12 @@ export default function RecipeDetailPage() {
             <Bookmark size={22} fill={saved ? 'currentColor' : 'none'} />
           </button>
         }
+      />
+
+      <SEO
+        title={`${recipe.title} — Receta en Hispaloshop`}
+        description={recipe.description?.slice(0, 160) || `Receta de ${recipe.title} con ingredientes artesanales locales`}
+        image={recipe.image_url}
       />
 
       {/* ── Hero Image ── */}

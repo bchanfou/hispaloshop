@@ -5,21 +5,21 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
+import { Check, Droplets, Package, Leaf, UtensilsCrossed, Wheat, Baby, PawPrint } from 'lucide-react';
 
 const CATEGORIES = [
-  { id: 'aceites', label: 'Aceites', emoji: '🫒' },
+  { id: 'aceites', label: 'Aceites', icon: <Droplets size={18} className="text-stone-950" /> },
   { id: 'quesos', label: 'Quesos', emoji: '🧀' },
   { id: 'embutidos', label: 'Embutidos', emoji: '🥩' },
   { id: 'panadería', label: 'Panadería', emoji: '🍞' },
   { id: 'miel', label: 'Miel', emoji: '🍯' },
-  { id: 'conservas', label: 'Conservas', emoji: '🫙' },
+  { id: 'conservas', label: 'Conservas', icon: <Package size={18} className="text-stone-950" /> },
   { id: 'vinos', label: 'Vinos', emoji: '🍷' },
   { id: 'dulces', label: 'Dulces', emoji: '🍪' },
-  { id: 'bebes', label: 'Bebés', emoji: '👶' },
-  { id: 'mascotas', label: 'Mascotas', emoji: '🐕' },
-  { id: 'orgánico', label: 'Orgánico', emoji: '🌿' },
-  { id: 'singluten', label: 'Sin gluten', emoji: '🌾' },
+  { id: 'bebes', label: 'Bebés', icon: <Baby size={18} className="text-stone-950" /> },
+  { id: 'mascotas', label: 'Mascotas', icon: <PawPrint size={18} className="text-stone-950" /> },
+  { id: 'orgánico', label: 'Orgánico', icon: <Leaf size={18} className="text-stone-950" /> },
+  { id: 'singluten', label: 'Sin gluten', icon: <Wheat size={18} className="text-stone-950" /> },
 ];
 
 export default function StepInterests({ data, onUpdate, onNext }) {
@@ -69,7 +69,7 @@ export default function StepInterests({ data, onUpdate, onNext }) {
                   : 'border-stone-200 hover:border-stone-300'
               }`}
             >
-              <span className="text-3xl">{category.emoji}</span>
+              <span className="text-3xl">{category.icon || category.emoji}</span>
               <p className="mt-2 text-sm font-medium text-stone-950">
                 {category.label}
               </p>

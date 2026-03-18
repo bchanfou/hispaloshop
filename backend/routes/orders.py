@@ -537,6 +537,11 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
             )
             if inc_result.matched_count == 0:
                 logger.warning(f"[PAYMENT] Discount code {code} exceeded usage limit for order {order_id}")
+                # Remove discount from this order — it was used beyond its limit
+                await db.orders.update_one(
+                    {"order_id": order_id},
+                    {"$set": {"discount_voided": True, "discount_void_reason": "usage_limit_exceeded"}}
+                )
     
     # 4. Clear cart — skip for buy-now orders to preserve the user's regular cart
     is_buy_now = order.get("buy_now", False)
@@ -801,7 +806,25 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     
     if stock_issues:
         raise HTTPException(status_code=400, detail={"message": "Checkout validation failed", "issues": stock_issues})
-    
+
+    # === CREATE STOCK HOLDS (15-min TTL) ===
+    # Reserve stock atomically to prevent oversell between checkout and payment
+    hold_expires = datetime.now(timezone.utc) + timedelta(minutes=15)
+    await db.stock_holds.delete_many({"user_id": user.user_id})  # Clear stale holds
+    stock_hold_docs = []
+    for item in cart_items:
+        stock_hold_docs.append({
+            "user_id": user.user_id,
+            "product_id": item["product_id"],
+            "variant_id": item.get("variant_id"),
+            "pack_id": item.get("pack_id"),
+            "quantity": item["quantity"],
+            "expires_at": hold_expires,
+            "created_at": datetime.now(timezone.utc),
+        })
+    if stock_hold_docs:
+        await db.stock_holds.insert_many(stock_hold_docs)
+
     # Calculate base total
     subtotal = sum(item["price"] * item["quantity"] for item in cart_items)
     
@@ -846,9 +869,11 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                             for item in cart_items 
                             if item["product_id"] in applicable_products
                         )
-                        discount_amount = applicable_total * (discount_code["value"] / 100)
+                        from decimal import Decimal
+                        discount_amount = float((Decimal(str(applicable_total)) * Decimal(str(discount_code["value"])) / 100).quantize(Decimal("0.01")))
                     else:
-                        discount_amount = subtotal * (discount_code["value"] / 100)
+                        from decimal import Decimal
+                        discount_amount = float((Decimal(str(subtotal)) * Decimal(str(discount_code["value"])) / 100).quantize(Decimal("0.01")))
                 elif discount_code["type"] == "fixed":
                     discount_amount = min(discount_code["value"], subtotal)
                 # free_shipping would be handled separately in shipping calculation
@@ -1125,6 +1150,13 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "influencer_commission_status": "pending" if influencer_commission_data else None
     }
     await db.orders.insert_one(order)
+
+    # Link stock holds to the Stripe session for cleanup on payment
+    await db.stock_holds.update_many(
+        {"user_id": user.user_id, "session_id": {"$exists": False}},
+        {"$set": {"session_id": session.id}}
+    )
+
     return {"url": session.url, "session_id": session.id}
 
 @router.post("/checkout/buy-now")

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, Image, Check, Type, Crop, Sliders, Search, MapPin, Globe, Lock } from 'lucide-react';
+import { X, ChevronLeft, Image, Check, Type, Crop, Sliders, Search, MapPin, Globe, Lock, Camera, Sparkles } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
@@ -327,7 +327,7 @@ export default function CreatePostPage() {
           <span style={{ fontSize: 13, color: '#fff', fontWeight: 500 }}>
             {selectedFiles.length > 0 ? `${selectedFiles.length} seleccionada${selectedFiles.length > 1 ? 's' : ''}` : 'Recientes'} ▼
           </span>
-          <button onClick={() => cameraInputRef.current?.click()} aria-label="Abrir cámara" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>📷</button>
+          <button onClick={() => cameraInputRef.current?.click()} aria-label="Abrir cámara" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Camera size={18} className="text-white" /></button>
         </div>
 
         {/* Reorder strip — shows selected images as draggable thumbnails */}
@@ -908,6 +908,8 @@ export default function CreatePostPage() {
         {/* AI suggest */}
         <button
           style={{
+            display: 'flex',
+            alignItems: 'center',
             background: 'var(--color-surface-alt, #f5f5f4)',
             color: 'var(--color-black)',
             fontSize: 13,
@@ -919,7 +921,7 @@ export default function CreatePostPage() {
             marginBottom: 16,
           }}
         >
-          ✨ Sugerir con Hispal AI
+          <Sparkles size={14} style={{ marginRight: 6, flexShrink: 0 }} /> Sugerir con Hispal AI
         </button>
 
         {/* tag products */}

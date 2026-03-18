@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check } from 'lucide-react';
+import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check, Video } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -288,9 +288,7 @@ export default function CreateReelPage() {
 
         {/* Content */}
         <div className="flex-1 flex flex-col items-center justify-center gap-4 px-8">
-          <span className="text-[48px]" role="img" aria-hidden="true">
-            {uploadTab === 'subir' ? '🎬' : '🎥'}
-          </span>
+          <Video size={48} className="text-white/30" />
           <span className="text-base text-white font-medium">
             {uploadTab === 'subir' ? 'Selecciona un video' : 'Graba un video'}
           </span>

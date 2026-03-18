@@ -32,6 +32,19 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         if os.environ.get("ENV", "development").lower() == "production":
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
 
+        # Content Security Policy — prevent XSS execution
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "img-src 'self' data: blob: https://res.cloudinary.com https://*.tile.openstreetmap.org; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "connect-src 'self' https://api.stripe.com https://*.sentry.io wss:; "
+            "frame-src https://js.stripe.com; "
+            "object-src 'none'; "
+            "base-uri 'self'"
+        )
+
         # Control de referrer
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         
@@ -63,16 +76,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.requests = {}  # {client_id: [(timestamp, count)]}
     
     def _get_client_id(self, request: Request) -> str:
-        """Identifica al cliente por IP + User-Agent hash"""
+        """Identifica al cliente por IP solamente (User-Agent es spoofeable)."""
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
-            client_ip = forwarded.split(",")[0].strip()
-        else:
-            client_ip = request.client.host if request.client else "unknown"
-        
-        user_agent = request.headers.get("User-Agent", "")
-        # Simple hash para identificar cliente
-        return f"{client_ip}:{hash(user_agent) % 10000}"
+            return forwarded.split(",")[0].strip()
+        return request.client.host if request.client else "unknown"
     
     async def dispatch(self, request: Request, call_next):
         client_id = self._get_client_id(request)

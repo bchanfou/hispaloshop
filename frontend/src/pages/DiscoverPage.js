@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, ChevronRight, Star, Clock } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Star, Clock, Package, Store, ChefHat, Users, ClipboardList } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -14,10 +14,10 @@ import { toast } from 'sonner';
 /* ── constants ── */
 
 const SECTION_PILLS = [
-  { id: 'products', emoji: '📦', label: 'Productos', to: '/products' },
-  { id: 'stores', emoji: '🏪', label: 'Tiendas', to: '/stores' },
-  { id: 'recipes', emoji: '🍳', label: 'Recetas', to: '/recipes' },
-  { id: 'communities', emoji: '👥', label: 'Comunidad', to: '/communities' },
+  { id: 'products', icon: <Package size={14} />, label: 'Productos', to: '/products' },
+  { id: 'stores', icon: <Store size={14} />, label: 'Tiendas', to: '/stores' },
+  { id: 'recipes', icon: <ChefHat size={14} />, label: 'Recetas', to: '/recipes' },
+  { id: 'communities', icon: <Users size={14} />, label: 'Comunidad', to: '/communities' },
 ];
 
 const DIFFICULTY_MAP = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' };
@@ -177,12 +177,12 @@ export default function DiscoverPage() {
         <div className="mb-5 flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
           {SECTION_PILLS.map(pill => (
             <button key={pill.id} onClick={() => navigate(pill.to)} className={pillCls(false)}>
-              {pill.emoji} {pill.label}
+              {pill.icon} {pill.label}
             </button>
           ))}
           {isB2BUser && (
             <button onClick={() => navigate('/b2b/catalog')} className={pillCls(false)}>
-              📋 Catálogo B2B
+              <ClipboardList size={14} /> Catálogo B2B
             </button>
           )}
         </div>

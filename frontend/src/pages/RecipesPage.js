@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
 import { resolveUserImage } from '../features/user/queries';
+import SEO from '../components/SEO';
 
 const DIFFICULTY_PILLS = [
   { id: 'all', label: 'Todas' },
@@ -238,6 +239,7 @@ export default function RecipesPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] font-sans">
+      <SEO title="Recetas — Hispaloshop" description="Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta." />
       {/* ── Topbar ── */}
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button

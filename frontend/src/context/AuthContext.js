@@ -39,6 +39,7 @@ export function AuthProvider({ children }) {
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState(null);
   const mountedRef = useRef(true);
+  const checkingRef = useRef(false);
 
   const setUser = useCallback((value) => {
     if (typeof value === 'function') {

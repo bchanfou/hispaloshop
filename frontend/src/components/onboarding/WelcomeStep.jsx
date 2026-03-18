@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ShoppingCart, Smartphone, Trophy } from 'lucide-react';
 import { onboardingApi } from '../../lib/onboardingApi';
 
 export default function WelcomeStep({ onComplete, onError }) {
@@ -48,7 +49,7 @@ export default function WelcomeStep({ onComplete, onError }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 bg-stone-50 rounded-xl">
-          <div className="text-2xl mb-2">🛒</div>
+          <div className="text-2xl mb-2"><ShoppingCart size={20} className="text-stone-950" /></div>
           <h3 className="font-medium text-stone-900 mb-1">Compra directo</h3>
           <p className="text-sm text-stone-600">
             Productos de productores locales e importadores
@@ -56,7 +57,7 @@ export default function WelcomeStep({ onComplete, onError }) {
         </div>
         
         <div className="p-4 bg-stone-50 rounded-xl">
-          <div className="text-2xl mb-2">📱</div>
+          <div className="text-2xl mb-2"><Smartphone size={20} className="text-stone-950" /></div>
           <h3 className="font-medium text-stone-900 mb-1">Red social</h3>
           <p className="text-sm text-stone-600">
             Posts, reels y contenido de marcas e influencers
@@ -64,7 +65,7 @@ export default function WelcomeStep({ onComplete, onError }) {
         </div>
         
         <div className="p-4 bg-stone-50 rounded-xl">
-          <div className="text-2xl mb-2">🏆</div>
+          <div className="text-2xl mb-2"><Trophy size={20} className="text-stone-950" /></div>
           <h3 className="font-medium text-stone-900 mb-1">Recompensas</h3>
           <p className="text-sm text-stone-600">
             Hispalopoints y misiones exclusivas
