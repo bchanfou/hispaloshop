@@ -43,7 +43,7 @@ export default function PostDetailPage() {
 
   const fetchComments = useCallback(() => {
     setCommentsLoading(true);
-    apiClient.get(`/social/posts/${postId}/comments?limit=50`)
+    apiClient.get(`/posts/${postId}/comments?limit=50`)
       .then((data) => setComments(Array.isArray(data) ? data : []))
       .catch(() => setComments([]))
       .finally(() => setCommentsLoading(false));
@@ -56,7 +56,7 @@ export default function PostDetailPage() {
     if (!text || sending) return;
     setSending(true);
     try {
-      const comment = await apiClient.post(`/social/posts/${postId}/comments`, { text });
+      const comment = await apiClient.post(`/posts/${postId}/comments`, { text });
       setComments(prev => [comment, ...prev]);
       setNewComment('');
       setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
@@ -69,7 +69,7 @@ export default function PostDetailPage() {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await apiClient.delete(`/social/comments/${commentId}`);
+      await apiClient.delete(`/comments/${commentId}`);
       setComments(prev => prev.filter(c => c.comment_id !== commentId));
       setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
     } catch {

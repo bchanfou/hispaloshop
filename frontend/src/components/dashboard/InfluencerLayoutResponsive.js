@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-import InfluencerAIAssistant from '../InfluencerAIAssistant';
+
 import InternalChat from '../InternalChat';
 import { useDashboardLogout } from '../../features/dashboard/queries';
 
@@ -176,8 +176,6 @@ export default function InfluencerLayoutResponsive({ children }) {
         </div>
       </div>
 
-      {/* ===== AI ASSISTANT ===== */}
-      <InfluencerAIAssistant />
       
       {/* ===== INTERNAL CHAT ===== */}
       <InternalChat userType="influencer" />

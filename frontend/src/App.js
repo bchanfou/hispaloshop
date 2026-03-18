@@ -42,8 +42,6 @@ import MiniCart from './components/cart/MiniCart';
 import ConsentBanner from './components/ui/ConsentBanner';
 import { initAnalyticsOnConsent } from './utils/analytics';
 
-const AboutPage = lazy(() => import('./pages/informativas/WhatIsHispaloshop'));
-const PricingPage = lazy(() => import('./pages/PricingPage'));
 const ProductorLandingPage = lazy(() => import('./pages/informativas/ForProducers'));
 const InfluencerLandingPage = lazy(() => import('./pages/informativas/ForInfluencers'));
 const RecipesPage = lazy(() => import('./pages/RecipesPage'));
@@ -84,12 +82,7 @@ const SignatureSettingsPage = lazy(() => import('./pages/settings/SignatureSetti
 const NewConversationPage = lazy(() => import('./pages/chat/NewConversationPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
-const HelpPage = lazy(() => import('./pages/HelpPage'));
-const BlogPage = lazy(() => import('./pages/BlogPage'));
-const PressPage = lazy(() => import('./pages/PressPage'));
-const CareersPage = lazy(() => import('./pages/CareersPage'));
 const ContactPage = lazy(() => import('./pages/informativas/ContactPage'));
-const InfoPricingPage = lazy(() => import('./pages/informativas/PricingPage'));
 const LegalPage = lazy(() => import('./pages/informativas/LegalPage'));
 const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'));
@@ -337,8 +330,8 @@ function AppRouter() {
           >
             <Routes location={location}>
               <Route path="/" element={<HomeRoute />} />
-              <Route path="/about" element={<InfoLayout><AboutPage /></InfoLayout>} />
-              <Route path="/pricing" element={<InfoLayout><PricingPage /></InfoLayout>} />
+              <Route path="/about" element={<Navigate to="/que-es" replace />} />
+              <Route path="/pricing" element={<Navigate to="/que-es" replace />} />
               <Route path="/vender" element={<Navigate to="/productor" replace />} />
               <Route path="/productor" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
               <Route path="/productor/registro" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
@@ -476,13 +469,13 @@ function AppRouter() {
               <Route path="/terms" element={<InfoLayout><TermsPage /></InfoLayout>} />
               <Route path="/legal" element={<Navigate to="/terms" replace />} />
               <Route path="/privacy" element={<InfoLayout><PrivacyPage /></InfoLayout>} />
-              <Route path="/help" element={<InfoLayout><HelpPage /></InfoLayout>} />
-              <Route path="/blog" element={<InfoLayout><BlogPage /></InfoLayout>} />
-              <Route path="/press" element={<InfoLayout><PressPage /></InfoLayout>} />
-              <Route path="/careers" element={<InfoLayout><CareersPage /></InfoLayout>} />
-              <Route path="/contact" element={<InfoLayout><ContactPage /></InfoLayout>} />
+              <Route path="/help" element={<Navigate to="/contacto" replace />} />
+              <Route path="/blog" element={<Navigate to="/" replace />} />
+              <Route path="/press" element={<Navigate to="/" replace />} />
+              <Route path="/careers" element={<Navigate to="/" replace />} />
+              <Route path="/contact" element={<Navigate to="/contacto" replace />} />
               <Route path="/contacto" element={<InfoLayout><ContactPage /></InfoLayout>} />
-              <Route path="/precios" element={<InfoLayout><InfoPricingPage /></InfoLayout>} />
+              <Route path="/precios" element={<Navigate to="/que-es" replace />} />
               <Route path="/legal/*" element={<InfoLayout><LegalPage /></InfoLayout>} />
               <Route
                 path="/pending-approval"
@@ -707,7 +700,7 @@ function AppRouter() {
                 )}
               />
 
-              <Route path="/reels" element={<ReelsPage />} />
+              <Route path="/reels" element={<Navigate to="/" replace />} />
               <Route path="/feed" element={<Navigate to="/" replace />} />
               <Route path="/chat" element={<ChatContainer />} />
               <Route path="/messages" element={<ChatsPage />} />

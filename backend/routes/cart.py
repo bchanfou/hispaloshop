@@ -80,16 +80,12 @@ async def add_to_cart(
     if quantity <= 0:
         raise HTTPException(status_code=400, detail="Quantity must be at least 1")
     db = get_db()
-    from bson.objectid import ObjectId
     
-    # Validar producto
-    try:
-        product = await db.products.find_one({
-            "_id": ObjectId(product_id),
-            "status": {"$in": ["active", "approved"]}
-        })
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid product ID")
+    # Validar producto — lookup by product_id string field (matches products collection schema)
+    product = await db.products.find_one({
+        "product_id": product_id,
+        "status": {"$in": ["active", "approved"]}
+    }, {"_id": 0})
     
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -231,9 +227,8 @@ async def update_cart_item(
         items.pop(item_idx)
     else:
         # Verificar stock
-        from bson.objectid import ObjectId
-        product = await db.products.find_one({"_id": ObjectId(product_id)})
-        stock = product.get("stock_quantity", product.get("stock", 0))
+        product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+        stock = product.get("stock_quantity", product.get("stock", 0)) if product else 0
         
         if quantity > stock:
             raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
@@ -296,14 +291,9 @@ async def validate_cart_country(request: Request, current_user = Depends(get_cur
     if not cart:
         return {"unavailable_count": 0, "unavailable_items": []}
 
-    from bson.objectid import ObjectId
-
     unavailable_items = []
     for item in cart.get("items", []):
-        try:
-            product = await db.products.find_one({"_id": ObjectId(item["product_id"])})
-        except Exception:
-            product = None
+        product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
 
         if not product or not is_product_available_in_country(product, country):
             unavailable_items.append({
@@ -331,17 +321,12 @@ async def apply_country_change(request: Request, current_user = Depends(get_curr
     if not cart:
         return {"removed_count": 0, "updated_count": 0, "items": []}
 
-    from bson.objectid import ObjectId
-
     next_items = []
     removed_count = 0
     updated_count = 0
 
     for item in cart.get("items", []):
-        try:
-            product = await db.products.find_one({"_id": ObjectId(item["product_id"])})
-        except Exception:
-            product = None
+        product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
 
         if not product or not is_product_available_in_country(product, country):
             removed_count += 1
@@ -487,7 +472,6 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
         raise HTTPException(status_code=400, detail="items must be a list")
 
     normalized_items = []
-    from bson.objectid import ObjectId
     for item in incoming_items:
         if not isinstance(item, dict):
             continue
@@ -497,14 +481,11 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
             continue
 
         # Server-side price validation — never trust client prices
-        try:
-            product = await db.products.find_one(
-                {"_id": ObjectId(str(product_id))},
-                {"_id": 0, "price_cents": 1, "price": 1, "name": 1, "images": 1,
-                 "seller_id": 1, "producer_id": 1, "seller_type": 1}
-            )
-        except Exception:
-            product = None
+        product = await db.products.find_one(
+            {"product_id": str(product_id)},
+            {"_id": 0, "price_cents": 1, "price": 1, "name": 1, "images": 1,
+             "seller_id": 1, "producer_id": 1, "seller_type": 1}
+        )
 
         if not product:
             continue  # Skip unknown products

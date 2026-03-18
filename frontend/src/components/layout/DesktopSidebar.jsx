@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronRight, Sparkles, Store, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -7,7 +7,8 @@ import apiClient from '../../services/api/client';
 
 export default function DesktopSidebar() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const location = useLocation();
+  const path = location.pathname;
 
   const { data: storesData, isLoading: loadingStores } = useQuery({
     queryKey: ['sidebar-suggested-stores'],
@@ -50,20 +51,25 @@ export default function DesktopSidebar() {
   const influencers = influencersData?.users || influencersData?.data || [];
   const communities = communitiesData?.communities || communitiesData?.data || [];
 
+  // Contextual logic: show different content based on current page
+  const isStore = path.startsWith('/store/');
+  const isCommunities = path.startsWith('/communities');
+  const isProfile = path.startsWith('/profile') || (path.match(/^\/[a-zA-Z0-9_]+$/) && path !== '/');
+
   return (
     <aside style={{
       width: 'var(--container-sidebar)',
       position: 'sticky',
-      top: 72,
+      top: 16,
       height: 'fit-content',
-      maxHeight: 'calc(100vh - 80px)',
+      maxHeight: 'calc(100vh - 32px)',
       overflowY: 'auto',
-      padding: 'var(--space-4) 0',
+      padding: '0',
       fontFamily: 'var(--font-sans)',
       scrollbarWidth: 'none',
     }}>
-      {/* Suggested Stores */}
-      {loadingStores ? (
+      {/* Contextual: On store pages, prioritize communities. On communities, show stores. Default: mix */}
+      {!isCommunities && (loadingStores ? (
         <SidebarSection title="Tiendas sugeridas" viewAllTo="/stores">
           <SkeletonItems count={3} />
         </SidebarSection>
@@ -73,29 +79,29 @@ export default function DesktopSidebar() {
             <StoreItem key={store.id || store._id || store.user_id} store={store} />
           ))}
         </SidebarSection>
-      ) : null}
+      ) : null)}
 
-      {/* Influencers to follow */}
-      {loadingInfluencers ? (
-        <SidebarSection title="Influencers" viewAllTo="/discover?scope=profiles">
+      {/* Suggested people — show on feed and profiles */}
+      {!isStore && (loadingInfluencers ? (
+        <SidebarSection title="Sugerencias para ti" viewAllTo="/discover?scope=profiles">
           <SkeletonItems count={3} />
         </SidebarSection>
       ) : influencers.length > 0 ? (
-        <SidebarSection title="Influencers" viewAllTo="/discover?scope=profiles">
+        <SidebarSection title="Sugerencias para ti" viewAllTo="/discover?scope=profiles">
           {influencers.slice(0, 3).map(inf => (
             <InfluencerItem key={inf.id || inf._id || inf.user_id} influencer={inf} />
           ))}
         </SidebarSection>
-      ) : null}
+      ) : null)}
 
-      {/* Communities */}
-      {loadingCommunities ? null : communities.length > 0 ? (
+      {/* Communities — show on feed and store pages */}
+      {!isCommunities && (loadingCommunities ? null : communities.length > 0 ? (
         <SidebarSection title="Comunidades activas" viewAllTo="/communities">
-          {communities.slice(0, 3).map(community => (
+          {communities.slice(0, 2).map(community => (
             <CommunityItem key={community.id || community._id} community={community} />
           ))}
         </SidebarSection>
-      ) : null}
+      ) : null)}
 
       {/* David AI Card — ALWAYS visible */}
       <div style={{
@@ -138,17 +144,14 @@ export default function DesktopSidebar() {
       </div>
 
       {/* Legal links */}
-      <div style={{ padding: '12px 0', display: 'flex', flexWrap: 'wrap', gap: '4px 12px' }}>
+      <div style={{ padding: '12px 0', display: 'flex', flexWrap: 'wrap', gap: '4px 10px' }}>
         {[
-          { label: 'Acerca de', to: '/about' },
-          { label: 'Ayuda', to: '/help' },
-          { label: 'Prensa', to: '/press' },
-          { label: 'Empleo', to: '/careers' },
+          { label: 'Acerca de', to: '/que-es' },
           { label: 'Privacidad', to: '/privacy' },
           { label: 'Términos', to: '/terms' },
-          { label: 'Contacto', to: '/contact' },
+          { label: 'Contacto', to: '/contacto' },
         ].map(link => (
-          <Link key={link.to} to={link.to} style={{ fontSize: 11, color: 'var(--color-stone)', textDecoration: 'none', lineHeight: 2 }}>
+          <Link key={link.to} to={link.to} style={{ fontSize: 10, color: 'var(--color-stone)', textDecoration: 'none', lineHeight: 2 }}>
             {link.label}
           </Link>
         ))}

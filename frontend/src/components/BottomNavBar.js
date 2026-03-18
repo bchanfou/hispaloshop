@@ -18,6 +18,7 @@ const HIDDEN_ON_PATHS = [
   '/influencer/aplicar', '/influencers/aplicar',
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
   '/chat',
+  '/messages', // conversation fullscreen
   '/reels',   // full-screen inmersivo — nav oculta
   '/create/',  // editores fullscreen
 ];

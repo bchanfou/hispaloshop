@@ -110,6 +110,24 @@
   --content-px-desktop: 24px;
 }
 
+/* ── Desktop compact overrides (lg+) ── */
+@media (min-width: 1024px) {
+  :root {
+    --text-xs:   11px;
+    --text-sm:   12px;
+    --text-base: 14px;
+    --text-md:   15px;
+    --text-lg:   17px;
+    --text-xl:   19px;
+    --text-2xl:  22px;
+    --text-3xl:  28px;
+    --content-px: 12px;
+    --header-height: 0px;  /* no top header on desktop */
+    --bottom-nav-height: 0px;  /* no bottom nav on desktop */
+    --sidebar-width: 240px;  /* slightly tighter sidebar */
+  }
+}
+
 /* ── Dark theme (Superadmin) ── */
 .superadmin-theme {
   --color-dark-bg:      #0F1117;

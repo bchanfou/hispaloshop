@@ -59,6 +59,7 @@ export default function CreateReelPage() {
   const [trimEnd, setTrimEnd] = useState(0); // 0 = full duration
   const [textStyle, setTextStyle] = useState('clean'); // clean | box | outline
   const [filterThumb, setFilterThumb] = useState(null); // base64 frame for filter previews
+  const [trimFrames, setTrimFrames] = useState([]); // array of base64 frames for trim timeline
   const trimDragRef = useRef(null);
 
   const videoRef = useRef(null);
@@ -138,20 +139,58 @@ export default function CreateReelPage() {
   const handleLoadedMetadata = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
-    setDuration(v.duration);
-    setTrimEnd(v.duration);
-    // Capture a frame for filter thumbnails
-    const captureFrame = () => {
+    const dur = v.duration;
+    setDuration(dur);
+    setTrimEnd(dur);
+
+    // Extract frames for filter thumbnail + trim timeline (non-blocking)
+    const captureFrames = async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 80;
+      canvas.height = 80;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Filter thumbnail from first frame
       try {
-        const canvas = document.createElement('canvas');
-        canvas.width = 80;
-        canvas.height = 80;
-        canvas.getContext('2d').drawImage(v, 0, 0, 80, 80);
+        ctx.drawImage(v, 0, 0, 80, 80);
         setFilterThumb(canvas.toDataURL('image/jpeg', 0.5));
-      } catch {}
+      } catch { /* cross-origin or not ready */ }
+
+      // Trim timeline: extract 9 evenly-spaced frames
+      const frameCount = 9;
+      const frames = [];
+      canvas.width = 60;
+      canvas.height = 90;
+      const prevTime = v.currentTime;
+      const prevPaused = v.paused;
+      v.pause();
+
+      for (let i = 0; i < frameCount; i++) {
+        const seekTime = (dur / frameCount) * i;
+        v.currentTime = seekTime;
+        await new Promise((resolve) => {
+          const onSeeked = () => { v.removeEventListener('seeked', onSeeked); resolve(); };
+          v.addEventListener('seeked', onSeeked);
+          // Safety timeout — don't hang if seeked never fires
+          setTimeout(resolve, 300);
+        });
+        try {
+          ctx.drawImage(v, 0, 0, 60, 90);
+          frames.push(canvas.toDataURL('image/jpeg', 0.4));
+        } catch {
+          frames.push(null);
+        }
+      }
+
+      setTrimFrames(frames);
+      // Restore playback position
+      v.currentTime = prevTime;
+      if (!prevPaused) v.play().catch(() => {});
     };
-    if (v.readyState >= 2) captureFrame();
-    else v.addEventListener('seeked', captureFrame, { once: true });
+
+    if (v.readyState >= 2) captureFrames();
+    else v.addEventListener('seeked', () => captureFrames(), { once: true });
   }, []);
 
   const addTextOverlay = useCallback(() => {
@@ -446,29 +485,51 @@ export default function CreateReelPage() {
           )}
         </div>
 
-        {/* Trim bar — functional drag handles */}
+        {/* Trim bar with real frame thumbnails */}
         <div className="px-4 py-2">
           <div
-            className="h-10 bg-white/10 rounded-lg relative flex items-center"
+            className="h-14 rounded-xl relative flex items-center overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.06)' }}
             onMouseDown={(e) => {
-              // Click on track = seek
               const rect = e.currentTarget.getBoundingClientRect();
               const ratio = (e.clientX - rect.left) / rect.width;
               const t = ratio * duration;
               if (videoRef.current) videoRef.current.currentTime = Math.max(trimStart, Math.min(trimEnd || duration, t));
             }}
           >
-            {/* Selected region highlight */}
+            {/* Frame thumbnails strip */}
+            <div className="absolute inset-0 flex">
+              {trimFrames.length > 0 ? trimFrames.map((frame, i) => (
+                <div key={i} className="flex-1 h-full overflow-hidden">
+                  {frame ? (
+                    <img src={frame} alt="" className="w-full h-full object-cover opacity-60" draggable={false} />
+                  ) : (
+                    <div className="w-full h-full bg-stone-800" />
+                  )}
+                </div>
+              )) : (
+                Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i} className="flex-1 h-full bg-stone-800 animate-pulse" />
+                ))
+              )}
+            </div>
+
+            {/* Dimmed regions outside trim */}
+            <div className="absolute top-0 bottom-0 left-0 bg-black/60 z-[1]" style={{ width: duration > 0 ? `${(trimStart / duration) * 100}%` : '0%' }} />
+            <div className="absolute top-0 bottom-0 right-0 bg-black/60 z-[1]" style={{ width: duration > 0 ? `${(1 - (trimEnd || duration) / duration) * 100}%` : '0%' }} />
+
+            {/* Selected region border */}
             <div
-              className="absolute top-0 bottom-0 bg-white/20 rounded"
+              className="absolute top-0 bottom-0 border-2 border-white/90 rounded-lg z-[2]"
               style={{
                 left: duration > 0 ? `${(trimStart / duration) * 100}%` : '0%',
                 right: duration > 0 ? `${(1 - (trimEnd || duration) / duration) * 100}%` : '0%',
               }}
             />
+
             {/* Playhead */}
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-white z-[2]"
+              className="absolute top-0 bottom-0 w-0.5 bg-white shadow-sm shadow-black/50 z-[3]"
               style={{ left: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
             />
             {/* Left handle */}
@@ -728,29 +789,34 @@ export default function CreateReelPage() {
             </div>
           )}
 
-          {/* FILTROS */}
+          {/* FILTROS — real frame previews */}
           {editTab === 'filtros' && (
-            <div className="grid grid-cols-4 gap-2">
-              {FILTERS.map((f) => (
-                <button
-                  key={f.name}
-                  onClick={() => setActiveFilter(f.value)}
-                  className={`bg-white/[0.08] rounded-xl py-2.5 px-1 cursor-pointer flex flex-col items-center gap-1 border-2 transition-colors ${
-                    activeFilter === f.value ? 'border-white bg-white/15' : 'border-transparent'
-                  }`}
-                  aria-label={`Filtro ${f.name}`}
-                  aria-pressed={activeFilter === f.value}
-                >
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-stone-700">
-                    {filterThumb ? (
-                      <img src={filterThumb} alt="" className="w-full h-full object-cover" style={{ filter: f.value === 'none' ? 'none' : f.value }} />
-                    ) : (
-                      <div className="w-full h-full" style={{ filter: f.value === 'none' ? 'none' : f.value, background: 'linear-gradient(135deg, #78716c, #d6d3d1)' }} />
-                    )}
-                  </div>
-                  <span className="text-[10px] text-white font-medium">{f.emoji} {f.name}</span>
-                </button>
-              ))}
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
+              {FILTERS.map((f) => {
+                const isActive = activeFilter === f.value;
+                return (
+                  <button
+                    key={f.name}
+                    onClick={() => setActiveFilter(f.value)}
+                    className="flex flex-col items-center gap-1.5 flex-shrink-0 snap-start bg-transparent border-none cursor-pointer p-0"
+                    aria-label={`Filtro ${f.name}`}
+                    aria-pressed={isActive}
+                  >
+                    <div className={`w-16 h-20 rounded-xl overflow-hidden transition-all duration-150 ${
+                      isActive ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-105' : 'opacity-70 hover:opacity-100'
+                    }`}>
+                      {filterThumb ? (
+                        <img src={filterThumb} alt="" className="w-full h-full object-cover" style={{ filter: f.value === 'none' ? 'none' : f.value }} draggable={false} />
+                      ) : (
+                        <div className="w-full h-full bg-stone-700" style={{ filter: f.value === 'none' ? 'none' : f.value }} />
+                      )}
+                    </div>
+                    <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-white' : 'text-white/50'}`}>
+                      {f.name}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

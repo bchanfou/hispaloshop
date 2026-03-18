@@ -5,7 +5,7 @@ import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditC
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
-import InfluencerAIAssistant from '../../components/InfluencerAIAssistant';
+
 import InternalChat from '../../components/InternalChat';
 import InfluencerAnalytics from '../../components/InfluencerAnalytics';
 import TierProgress from '../../components/TierProgress';
@@ -1073,8 +1073,6 @@ export default function InfluencerDashboard() {
         </div>
       </div>
 
-      {/* AI Assistant */}
-      <InfluencerAIAssistant influencerData={dashboard} />
 
       {/* Internal Chat */}
       <InternalChat userType="influencer" />

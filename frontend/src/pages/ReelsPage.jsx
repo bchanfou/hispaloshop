@@ -30,7 +30,7 @@ export default function ReelsPage() {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
     try {
-      const data = await apiClient.get(`/reels?page=${p}&limit=10&tab=${activeTab}`);
+      const data = await apiClient.get(`/reels?skip=${(p - 1) * 10}&limit=10&tab=${activeTab}`);
       const items = data?.reels || data?.items || data || [];
       if (items.length < 10) setHasMore(false);
       setReels((prev) => (p === 1 ? items : [...prev, ...items]));

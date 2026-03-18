@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X } from 'lucide-react';
+import { X, Heart, Send } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
 const STORY_DURATION = 5000;
@@ -22,7 +22,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [showReactions, setShowReactions] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [replyText, setReplyText] = useState('');
   const [videoDuration, setVideoDuration] = useState(null);
   const longPressRef = useRef(null);
   const intervalRef = useRef(null);
@@ -30,6 +31,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const touchStartY = useRef(null);
   const touchStartTime = useRef(null);
   const videoRef = useRef(null);
+  const replyInputRef = useRef(null);
   const handledByTouch = useRef(false);
 
   const currentStory = stories[currentUserIndex];
@@ -429,35 +431,59 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           </div>
         )}
 
-        {/* Reaction bar */}
-        {showReactions && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[5] flex gap-3 bg-black/60 backdrop-blur-xl rounded-full px-4 py-2.5">
-            {['\u2764\uFE0F', '\uD83D\uDD25', '\uD83D\uDE0D', '\uD83E\uDD24', '\uD83D\uDC4F', '\uD83D\uDE2E'].map((emoji) => (
-              <button
-                key={emoji}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const el = e.currentTarget;
-                  el.style.transform = 'scale(1.5) translateY(-20px)';
-                  el.style.opacity = '0';
-                  setTimeout(() => { el.style.transform = ''; el.style.opacity = ''; }, 600);
-                  setShowReactions(false);
-                  try { apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji }); } catch {}
-                }}
-                className="text-2xl bg-transparent border-none cursor-pointer p-0 transition-all duration-300"
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
-        )}
+      </div>
 
-        {/* Reaction trigger */}
+      {/* Bottom bar: like + reply input + send */}
+      <div className="flex items-center gap-2 px-3 py-2 pb-[calc(env(safe-area-inset-bottom,8px)+8px)]">
         <button
-          onClick={(e) => { e.stopPropagation(); setShowReactions(r => !r); }}
-          className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[3] bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 border-none cursor-pointer"
+          onClick={() => {
+            const newLiked = !liked;
+            setLiked(newLiked);
+            try {
+              if (newLiked) {
+                apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji: 'heart' });
+              }
+            } catch {}
+          }}
+          className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"
+          aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
         >
-          <span className="text-[11px] text-white/60 font-sans">{'\u2191'} Reaccionar</span>
+          <Heart
+            size={24}
+            className={liked ? 'text-stone-950 fill-stone-950' : 'text-white'}
+            strokeWidth={liked ? 0 : 1.5}
+          />
+        </button>
+        <input
+          ref={replyInputRef}
+          type="text"
+          value={replyText}
+          onChange={(e) => setReplyText(e.target.value)}
+          onFocus={() => setPaused(true)}
+          onBlur={() => setPaused(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && replyText.trim()) {
+              e.preventDefault();
+              try { apiClient.post(`/stories/${currentItem?.story_id}/reply`, { text: replyText.trim() }); } catch {}
+              setReplyText('');
+              replyInputRef.current?.blur();
+            }
+          }}
+          placeholder="Envía un mensaje..."
+          className="flex-1 h-10 rounded-full bg-white/10 border border-white/20 px-4 text-sm text-white placeholder-white/40 outline-none focus:border-white/40 font-sans"
+        />
+        <button
+          onClick={() => {
+            if (!replyText.trim()) return;
+            try { apiClient.post(`/stories/${currentItem?.story_id}/reply`, { text: replyText.trim() }); } catch {}
+            setReplyText('');
+            replyInputRef.current?.blur();
+          }}
+          disabled={!replyText.trim()}
+          className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer disabled:opacity-30"
+          aria-label="Enviar mensaje"
+        >
+          <Send size={20} className="text-white" />
         </button>
       </div>
     </div>

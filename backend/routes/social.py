@@ -1919,7 +1919,7 @@ async def upload_avatar(file: UploadFile = File(...), user: User = Depends(get_c
         raise HTTPException(status_code=400, detail="Image size cannot exceed 5MB")
     result = await cloudinary_upload(contents, folder="avatars", filename=f"avatar_{user.user_id}")
     image_url = result["url"]
-    await db.users.update_one({"user_id": user.user_id}, {"$set": {"profile_image": image_url}})
+    await db.users.update_one({"user_id": user.user_id}, {"$set": {"profile_image": image_url, "picture": image_url}})
     return {"image_url": image_url}
 
 

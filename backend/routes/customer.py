@@ -144,7 +144,9 @@ async def update_customer_profile(data: dict, user: User = Depends(get_current_u
     if update_data:
         # Map avatar_url to profile_image for storage consistency
         if "avatar_url" in update_data:
-            update_data["profile_image"] = update_data.pop("avatar_url")
+            avatar_val = update_data.pop("avatar_url")
+            update_data["profile_image"] = avatar_val
+            update_data["picture"] = avatar_val
         await db.users.update_one({"user_id": user.user_id}, {"$set": update_data})
         # Sync name changes to store_profiles for producers/importers
         if "name" in update_data and user.role in ("producer", "importer"):

@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+
 import BackButton from '../components/BackButton';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { useCart } from '../context/CartContext';
@@ -329,11 +328,9 @@ export default function CartPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-stone-50">
-        <Header />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <p className="text-stone-500">{t('common.loading')}</p>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -344,7 +341,6 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <Header />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12 pb-32 md:pb-12">
         <div className="hidden md:block">
           <Breadcrumbs className="mb-6" />
@@ -774,7 +770,6 @@ export default function CartPage() {
           </div>
         )}
       </div>
-      <Footer />
     </div>
   );
 }

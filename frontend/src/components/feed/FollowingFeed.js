@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, Users } from 'lucide-react';
 import PostCard from './PostCard';
 import ReelCard from './ReelCard';
+import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
 import { useFollowingFeed, useLikePost, feedKeys } from '@/features/feed/queries';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -55,6 +56,9 @@ function FollowingFeed() {
   const isLoading = feedQuery.isLoading || feedQuery.isFetchingNextPage;
   const error = feedQuery.error;
 
+  const [modalPost, setModalPost] = useState(null);
+  const handleCloseModal = useCallback(() => setModalPost(null), []);
+
   const { refreshing, progress, handlers } = usePullToRefresh(
     async () => { await queryClient.resetQueries({ queryKey: feedKeys.following }); }
   );
@@ -73,9 +77,11 @@ function FollowingFeed() {
     }
   };
 
-  const handleComment = (postId) => {
-    navigate(`/posts/${postId}`);
-  };
+  const handleComment = useCallback((postId) => {
+    const post = allPosts.find((p) => p.id === postId);
+    if (post) setModalPost(post);
+    else navigate(`/posts/${postId}`);
+  }, [allPosts, navigate]);
 
   const handleShare = async (postId) => {
     const postUrl = `${window.location.origin}/posts/${postId}`;
@@ -170,6 +176,7 @@ function FollowingFeed() {
                         productTag: post.product_tag,
                         timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                       }}
+                      embedded
                       onLike={() => handleLike(post.id)}
                       onComment={() => handleComment(post.id)}
                       onShare={() => handleShare(post.id)}
@@ -226,6 +233,14 @@ function FollowingFeed() {
               ? <FeedSkeleton count={2} />
               : null,
           }}
+        />
+      )}
+
+      {modalPost && (
+        <PostDetailModal
+          postId={modalPost.id || modalPost.post_id}
+          post={modalPost}
+          onClose={handleCloseModal}
         />
       )}
     </motion.div>

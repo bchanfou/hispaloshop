@@ -204,10 +204,14 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       doubleTapHeartTimer.current = setTimeout(() => setShowDoubleTapHeart(false), 800);
     } else {
       singleTapTimer.current = setTimeout(() => {
-        togglePlay();
+        if (embedded) {
+          navigate('/reels');
+        } else {
+          togglePlay();
+        }
       }, 250);
     }
-  }, [liked, reel.id, onLike, togglePlay]);
+  }, [liked, reel.id, onLike, togglePlay, embedded, navigate]);
 
   const videoUrl = reel.video_url || reel.videoUrl;
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;

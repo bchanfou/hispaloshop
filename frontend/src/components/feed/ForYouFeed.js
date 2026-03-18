@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, Sparkles } from 'lucide-react';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
+import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
 import SuggestedUsersCard from './SuggestedUsersCard';
 import { useForYouFeed, useLikePost, feedKeys } from '@/features/feed/queries';
@@ -27,6 +28,10 @@ export default function ForYouFeed() {
   const isLoading = feedQuery.isLoading || feedQuery.isFetchingNextPage;
   const error = feedQuery.error;
 
+  // Post detail modal state
+  const [modalPost, setModalPost] = useState(null);
+  const handleCloseModal = useCallback(() => setModalPost(null), []);
+
   const { refreshing, progress, handlers } = usePullToRefresh(
     async () => { await queryClient.resetQueries({ queryKey: feedKeys.forYou }); }
   );
@@ -45,9 +50,11 @@ export default function ForYouFeed() {
     }
   };
 
-  const handleComment = (postId) => {
-    navigate(`/posts/${postId}`);
-  };
+  const handleComment = useCallback((postId) => {
+    const post = allPosts.find((p) => p.id === postId);
+    if (post) setModalPost(post);
+    else navigate(`/posts/${postId}`);
+  }, [allPosts, navigate]);
 
   const handleShare = async (postId) => {
     const postUrl = `${window.location.origin}/posts/${postId}`;
@@ -160,6 +167,7 @@ export default function ForYouFeed() {
                         productTag: post.product_tag,
                         timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                       }}
+                      embedded
                       onLike={() => handleLike(post.id)}
                       onComment={() => handleComment(post.id)}
                       onShare={() => handleShare(post.id)}
@@ -217,6 +225,15 @@ export default function ForYouFeed() {
               ? <FeedSkeleton count={2} />
               : null,
           }}
+        />
+      )}
+
+      {/* Post detail modal overlay */}
+      {modalPost && (
+        <PostDetailModal
+          postId={modalPost.id || modalPost.post_id}
+          post={modalPost}
+          onClose={handleCloseModal}
         />
       )}
     </motion.div>

@@ -30,6 +30,11 @@ function normalizeUser(rawUser) {
   normalizedUser.onboarding_completed = Boolean(onboardingCompleted);
   normalizedUser.onboardingCompleted = Boolean(onboardingCompleted);
 
+  // Normalize avatar field — backend may return profile_image or picture
+  const avatar = normalizedUser.avatar_url || normalizedUser.profile_image || normalizedUser.picture || null;
+  normalizedUser.avatar_url = avatar;
+  normalizedUser.avatar = avatar;
+
   return normalizedUser;
 }
 
