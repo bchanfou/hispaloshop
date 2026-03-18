@@ -87,10 +87,12 @@ const TestimonialCarousel = ({ testimonials = [] }) => {
                 role="tab"
                 aria-selected={index === current}
                 aria-label={`Testimonio ${index + 1}`}
-                className={`h-2 w-2 rounded-full transition-colors ${
+                className="h-6 w-6 flex items-center justify-center rounded-full"
+              >
+                <span className={`block h-2 w-2 rounded-full transition-colors ${
                   index === current ? 'bg-stone-950' : 'bg-stone-300'
-                }`}
-              />
+                }`} />
+              </button>
             ))}
           </div>
 

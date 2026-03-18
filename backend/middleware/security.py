@@ -33,16 +33,23 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
 
         # Content Security Policy — prevent XSS execution
+        # Must stay in sync with <meta http-equiv="Content-Security-Policy"> in index.html
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-            "img-src 'self' data: blob: https://res.cloudinary.com https://*.tile.openstreetmap.org; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net https://*.i.posthog.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
             "font-src 'self' https://fonts.gstatic.com; "
-            "connect-src 'self' https://api.stripe.com https://*.sentry.io wss:; "
-            "frame-src https://js.stripe.com; "
+            "img-src 'self' data: blob: https://res.cloudinary.com https://*.cloudinary.com https://images.unsplash.com "
+            "https://i.pravatar.cc https://lh3.googleusercontent.com https://via.placeholder.com https://media.giphy.com "
+            "https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; "
+            "media-src 'self' blob: https://res.cloudinary.com; "
+            "connect-src 'self' wss: ws: https://api.anthropic.com https://api.stripe.com https://*.hispaloshop.com "
+            "https://*.i.posthog.com https://us.i.posthog.com https://api.giphy.com https://upload.cloudinary.com https://*.sentry.io; "
+            "worker-src 'self' blob:; "
+            "frame-src https://js.stripe.com https://hooks.stripe.com https://maps.google.com https://www.google.com; "
             "object-src 'none'; "
-            "base-uri 'self'"
+            "base-uri 'self'; "
+            "form-action 'self'"
         )
 
         # Control de referrer

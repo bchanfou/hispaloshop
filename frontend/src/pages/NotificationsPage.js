@@ -216,7 +216,7 @@ function NotifRow({ notif, onRead, onDelete }) {
         </span>
         <button
           onClick={(e) => { e.stopPropagation(); onDelete(notif.notification_id || notif._id); }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5"
+          className="opacity-0 group-hover:opacity-100 transition-opacity p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
           style={{ color: 'var(--color-stone)' }}
           aria-label="Eliminar notificación"
         >

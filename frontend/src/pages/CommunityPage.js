@@ -56,7 +56,8 @@ export default function CommunityPage() {
           display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
         }}>
           <button onClick={() => navigate(-1)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
+            aria-label="Volver"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ArrowLeft size={22} color="var(--color-black)" />
           </button>
           <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad</span>
@@ -79,7 +80,8 @@ export default function CommunityPage() {
           display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
         }}>
           <button onClick={() => navigate(-1)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
+            aria-label="Volver"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ArrowLeft size={22} color="var(--color-black)" />
           </button>
           <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad</span>
@@ -115,7 +117,7 @@ export default function CommunityPage() {
         display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
       }}>
         <button onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           aria-label="Volver">
           <ArrowLeft size={22} color="var(--color-black)" />
         </button>
@@ -127,7 +129,8 @@ export default function CommunityPage() {
         </span>
         {isAdmin && (
           <Link to={`/communities/${slug}/settings`}
-            style={{ display: 'flex', padding: 4, color: 'var(--color-stone)' }}>
+            aria-label="Configuración"
+            style={{ display: 'flex', padding: 10, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', color: 'var(--color-stone)' }}>
             <Settings size={20} />
           </Link>
         )}
@@ -479,7 +482,8 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <button onClick={() => fileRef.current?.click()}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-stone)', fontSize: 20, padding: 4 }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-stone)', fontSize: 20, padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          aria-label="Subir imagen"
           title="Añadir imagen">
           📷
         </button>
@@ -579,7 +583,8 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
         </Link>
         {(isOwn || isAdmin) && (
           <button onClick={deletePost}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--color-stone)', padding: 4 }}>
+            aria-label="Opciones"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--color-stone)', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             ···
           </button>
         )}

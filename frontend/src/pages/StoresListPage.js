@@ -100,7 +100,7 @@ const sLabel = {
 };
 
 /* ══════════════════════════════════════════
-   Map Component (Leaflet)
+   Map Component (Leaflet) — minimalista B&W
    ══════════════════════════════════════════ */
 
 function escapeHtml(str) {
@@ -108,12 +108,18 @@ function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-function StoreMap({ stores, onStoreClick }) {
+// Grayscale tile provider — CartoDB Positron (free, no API key, light/minimal)
+const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
+
+function StoreMap({ stores }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const markersRef = useRef(null);
   const [L, setL] = useState(null);
+  const [mapReady, setMapReady] = useState(false);
 
-  // Dynamic import of Leaflet (avoid SSR issues)
+  // Dynamic import of Leaflet — once
   useEffect(() => {
     let cancelled = false;
     Promise.all([
@@ -125,92 +131,120 @@ function StoreMap({ stores, onStoreClick }) {
     return () => { cancelled = true; };
   }, []);
 
+  // Create map instance — once
   useEffect(() => {
-    if (!L || !mapRef.current) return;
-
-    // Remove previous map instance when stores change
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.remove();
-      mapInstanceRef.current = null;
-    }
-
-    const storesWithCoords = stores.filter(s => s.coordinates?.lat && s.coordinates?.lng);
-    const center = storesWithCoords.length > 0
-      ? [storesWithCoords[0].coordinates.lat, storesWithCoords[0].coordinates.lng]
-      : [40.4168, -3.7038]; // Madrid default
+    if (!L || !mapRef.current || mapInstanceRef.current) return;
 
     const map = L.map(mapRef.current, {
-      center,
-      zoom: storesWithCoords.length > 1 ? 5 : 12,
+      center: [40.4168, -3.7038],
+      zoom: 5,
       zoomControl: false,
+      attributionControl: false,
     });
 
-    L.control.zoom({ position: 'topright' }).addTo(map);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
+    L.tileLayer(TILE_URL, {
+      attribution: TILE_ATTR,
       maxZoom: 18,
+      subdomains: 'abcd',
     }).addTo(map);
 
-    // Custom icon
-    const makeIcon = (store) => {
-      const logoUrl = store.logo;
-      if (logoUrl) {
-        return L.divIcon({
-          className: '',
-          html: `<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:2px solid var(--color-black);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2)">
-            <img src="${escapeHtml(logoUrl)}" style="width:100%;height:100%;object-fit:cover" alt="" />
-          </div>`,
-          iconSize: [36, 36],
-          iconAnchor: [18, 18],
-        });
-      }
-      return L.divIcon({
-        className: '',
-        html: `<div style="width:28px;height:28px;border-radius:50%;background:var(--color-black);border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.2)"></div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
-      });
+    mapInstanceRef.current = map;
+    markersRef.current = L.layerGroup().addTo(map);
+    setMapReady(true);
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      markersRef.current = null;
+      setMapReady(false);
     };
+  }, [L]);
 
-    storesWithCoords.forEach(store => {
-      const marker = L.marker(
-        [store.coordinates.lat, store.coordinates.lng],
-        { icon: makeIcon(store) }
-      ).addTo(map);
+  // Update markers when stores change — without recreating the map
+  useEffect(() => {
+    if (!mapReady || !L || !markersRef.current || !mapInstanceRef.current) return;
 
-      const slug = store.slug || store.store_slug;
-      marker.bindPopup(`
-        <div style="font-family:var(--font-sans);min-width:160px">
-          <p style="font-size:14px;font-weight:600;margin:0 0 4px">${escapeHtml(store.name)}</p>
-          <p style="font-size:11px;color:#78716c;margin:0 0 8px">${escapeHtml(store.location || '')}</p>
-          <a href="/store/${encodeURIComponent(slug)}" style="font-size:12px;font-weight:600;color:#0c0a09;text-decoration:none">Ver tienda →</a>
-        </div>
-      `, { closeButton: false, className: 'store-popup' });
+    const map = mapInstanceRef.current;
+    const group = markersRef.current;
+    group.clearLayers();
+
+    const storesWithCoords = stores.filter(s => s.coordinates?.lat && s.coordinates?.lng);
+    if (storesWithCoords.length === 0) return;
+
+    const dotIcon = L.divIcon({
+      className: '',
+      html: '<div style="width:10px;height:10px;border-radius:50%;background:#0c0a09;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.25)"></div>',
+      iconSize: [10, 10],
+      iconAnchor: [5, 5],
     });
 
-    // Fit bounds if multiple stores
-    if (storesWithCoords.length > 1) {
-      const bounds = L.latLngBounds(storesWithCoords.map(s => [s.coordinates.lat, s.coordinates.lng]));
-      map.fitBounds(bounds, { padding: [40, 40] });
-    }
+    storesWithCoords.forEach(store => {
+      const logoUrl = store.logo;
+      const icon = logoUrl
+        ? L.divIcon({
+            className: '',
+            html: `<div style="width:32px;height:32px;border-radius:50%;overflow:hidden;border:2px solid #0c0a09;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.15)"><img src="${escapeHtml(logoUrl)}" style="width:100%;height:100%;object-fit:cover" alt="" loading="lazy" /></div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+          })
+        : dotIcon;
 
-    mapInstanceRef.current = map;
-    return () => { map.remove(); mapInstanceRef.current = null; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [L, stores]);
+      const marker = L.marker(
+        [store.coordinates.lat, store.coordinates.lng],
+        { icon }
+      );
+
+      const slug = store.slug || store.store_slug;
+      marker.bindPopup(
+        `<div style="font-family:var(--font-sans);min-width:140px;padding:2px 0">` +
+        `<p style="font-size:13px;font-weight:600;color:#0c0a09;margin:0 0 2px">${escapeHtml(store.name)}</p>` +
+        (store.location ? `<p style="font-size:11px;color:#78716c;margin:0 0 6px">${escapeHtml(store.location)}</p>` : '') +
+        `<a href="/store/${encodeURIComponent(slug)}" style="font-size:11px;font-weight:600;color:#0c0a09;text-decoration:none">Ver tienda →</a>` +
+        `</div>`,
+        { closeButton: false, className: 'hs-popup', maxWidth: 200 }
+      );
+
+      group.addLayer(marker);
+    });
+
+    // Fit bounds with animation
+    const bounds = L.latLngBounds(storesWithCoords.map(s => [s.coordinates.lat, s.coordinates.lng]));
+    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14, animate: true, duration: 0.4 });
+  }, [stores, mapReady, L]);
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="relative">
       <style>{`
-        .store-popup .leaflet-popup-content-wrapper {
-          border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        .hs-popup .leaflet-popup-content-wrapper {
+          border-radius: 14px;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+          border: 1px solid rgba(0,0,0,0.06);
           padding: 0;
         }
-        .store-popup .leaflet-popup-content { margin: 12px 16px; }
-        .store-popup .leaflet-popup-tip { display: none; }
+        .hs-popup .leaflet-popup-content { margin: 10px 14px; }
+        .hs-popup .leaflet-popup-tip { display: none; }
+        .leaflet-control-zoom a {
+          width: 32px !important;
+          height: 32px !important;
+          line-height: 32px !important;
+          font-size: 14px !important;
+          border-radius: 8px !important;
+          background: #fff !important;
+          color: #0c0a09 !important;
+          border: 1px solid rgba(0,0,0,0.08) !important;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+        }
+        .leaflet-control-zoom { border: none !important; border-radius: 10px !important; overflow: hidden; }
+        .leaflet-control-attribution { font-size: 9px !important; opacity: 0.5; }
       `}</style>
-      <div ref={mapRef} style={{ width: '100%', height: 'calc(100vh - 160px)', borderRadius: 'var(--radius-xl)', overflow: 'hidden' }} />
+      <div
+        ref={mapRef}
+        className="w-full overflow-hidden rounded-2xl"
+        style={{ height: 'min(calc(100vh - 200px), 500px)' }}
+      />
     </div>
   );
 }
