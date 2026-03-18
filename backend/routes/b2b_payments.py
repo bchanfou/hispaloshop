@@ -292,7 +292,11 @@ async def stripe_b2b_webhook(request: Request):
         if _real_webhook_secret:
             event = stripe.Webhook.construct_event(body, signature, _real_webhook_secret)
         else:
-            logger.warning("[B2B WEBHOOK] Signature verification skipped — STRIPE_WEBHOOK_SECRET not configured")
+            import os as _os
+            if _os.environ.get("ENV", "development").lower() == "production":
+                logger.error("[B2B WEBHOOK] STRIPE_WEBHOOK_SECRET not configured in production — rejecting unsigned webhook")
+                raise HTTPException(status_code=500, detail="Webhook signature verification not configured")
+            logger.warning("[B2B WEBHOOK] Signature verification skipped (dev mode) — STRIPE_WEBHOOK_SECRET not configured")
             payload = body.decode("utf-8")
             event = _json.loads(payload)
 

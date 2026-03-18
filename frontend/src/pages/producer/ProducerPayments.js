@@ -152,8 +152,7 @@ export default function ProducerPayments() {
     try {
       const data = await apiClient.get('/producer/payments');
       setData(data);
-    } catch (error) {
-      console.error('Error fetching payments:', error);
+    } catch {
       toast.error('Error al cargar datos de pagos');
     } finally {
       setLoading(false);

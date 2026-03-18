@@ -136,7 +136,6 @@ export default function CustomerAIPreferences() {
       const data = await apiClient.get('/ai/profile');
       setProfile(data);
     } catch (error) {
-      console.error('Error fetching AI profile:', error);
       toast.error(t('aiPrefs.loadError', 'Error al cargar preferencias'));
     } finally {
       setLoading(false);
@@ -155,7 +154,6 @@ export default function CustomerAIPreferences() {
       });
       toast.success(t('aiPrefs.saved', 'Preferencias guardadas'));
     } catch (error) {
-      console.error('Error saving profile:', error);
       toast.error(t('aiPrefs.saveError', 'Error al guardar preferencias'));
     } finally {
       setSaving(false);
@@ -172,7 +170,6 @@ export default function CustomerAIPreferences() {
       setProfile(data.profile);
       toast.success(t('aiPrefs.resetDone', 'Preferencias reiniciadas'));
     } catch (error) {
-      console.error('Error resetting profile:', error);
       toast.error(t('aiPrefs.resetError', 'Error al reiniciar preferencias'));
     } finally {
       setSaving(false);

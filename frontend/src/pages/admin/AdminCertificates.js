@@ -51,7 +51,6 @@ export default function AdminCertificates() {
       const data = await apiClient.get('/admin/certificates');
       setCertificates(data);
     } catch (error) {
-      console.error('Error fetching certificates:', error);
       toast.error(t('errors.loadCertificates', 'Error al cargar certificados'));
     } finally {
       setLoading(false);
@@ -67,7 +66,7 @@ export default function AdminCertificates() {
       const data = await apiClient.get(`/admin/certificates/${certificateId}/history`);
       setCertHistory(data);
     } catch (error) {
-      console.error('Error fetching history:', error);
+      // toast + Sentry handle this
     }
   };
 

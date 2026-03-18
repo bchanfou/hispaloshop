@@ -51,6 +51,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const checkAuth = useCallback(async () => {
+    if (checkingRef.current) return user; // Prevent concurrent calls
+    checkingRef.current = true;
     if (mountedRef.current) {
       setLoading(true);
       setError(null);
@@ -71,6 +73,7 @@ export function AuthProvider({ children }) {
       }
       return null;
     } finally {
+      checkingRef.current = false;
       if (mountedRef.current) {
         setLoading(false);
         setInitialized(true);

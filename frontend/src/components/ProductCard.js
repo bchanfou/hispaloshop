@@ -29,8 +29,8 @@ function AddButton({ onAdd, isDisabled, testId }) {
       data-testid={testId}
       aria-label="Añadir al carrito"
       style={{
-        width: 22, height: 22,
-        borderRadius: 6,
+        width: 44, height: 44,
+        borderRadius: 'var(--radius-full)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

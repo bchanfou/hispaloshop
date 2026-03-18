@@ -62,7 +62,6 @@ function StripeConnectSection() {
         requirements_due: [],
       });
     } catch (error) {
-      console.error('Error fetching Stripe status:', error);
       setStripeStatus({
         has_account: false,
         onboarding_completed: false,
@@ -203,8 +202,8 @@ function HealthScoreCard() {
     try {
       const data = await apiClient.get('/producer/health-score');
       setHealthData(data);
-    } catch (error) {
-      console.error('Error fetching health score:', error);
+    } catch {
+      // handled silently
     } finally {
       setLoading(false);
     }
@@ -360,8 +359,8 @@ function FollowerGrowthChart() {
     try {
       const data = await apiClient.get(`/producer/follower-stats?days=${days}`);
       setData(data?.chart_data || []);
-    } catch (error) {
-      console.error('Error fetching follower stats:', error);
+    } catch {
+      // handled silently
     } finally {
       setLoading(false);
     }
@@ -533,7 +532,7 @@ export default function ProducerOverview() {
 
   // Fetch sales chart, alerts, collabs in parallel
   useEffect(() => {
-    const logErr = (label) => (err) => console.warn(`[ProducerOverview] ${label}:`, err?.message || err);
+    const logErr = () => () => {};
     apiClient.get('/producer/sales-chart').then(d => setSalesChart(d?.days || [])).catch(logErr('sales-chart'));
     apiClient.get('/producer/alerts').then(d => setAlerts(d || [])).catch(logErr('alerts'));
     apiClient.get('/verification/status').then(d => setVerificationStatus(d)).catch(logErr('verification'));
@@ -589,8 +588,7 @@ export default function ProducerOverview() {
       if (warnings.length >= 2) {
         setError('No se pudieron cargar los datos principales del panel. Por favor, refresca la página.');
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    } catch {
       setError('Error al cargar datos. Por favor, refresca la página.');
     } finally {
       setLoading(false);

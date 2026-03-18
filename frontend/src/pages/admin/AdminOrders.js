@@ -28,7 +28,7 @@ export default function AdminOrders() {
       setOrders(ordersData);
       setPayments(paymentsData);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      // Sentry captures this automatically
     } finally {
       setLoading(false);
     }

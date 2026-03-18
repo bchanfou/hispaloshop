@@ -113,15 +113,13 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
 
           toast.success(t('producerProducts.uploadSuccess'), { duration: 2000 });
         } catch (uploadError) {
-          console.error('Upload error for file:', file.name, uploadError);
           toast.error(
             uploadError?.message || t('producerProducts.uploadFailed'),
             { duration: 4000 }
           );
         }
       }
-    } catch (error) {
-      console.error('Upload process error:', error);
+    } catch {
       toast.error(t('producerProducts.uploadFailed'), { duration: 4000 });
     } finally {
       // Reset file input

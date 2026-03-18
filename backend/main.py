@@ -24,6 +24,13 @@ init_sentry()
 from core.config import settings
 from core.database import connect_db, disconnect_db
 
+# Export critical env vars so libraries using os.environ.get() can find them
+import os as _os
+for _var in ("CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"):
+    _val = getattr(settings, _var, None)
+    if _val and _var not in _os.environ:
+        _os.environ[_var] = _val
+
 # === MIDDLEWARE DE SEGURIDAD ===
 from middleware.security import (
     SecurityHeadersMiddleware,

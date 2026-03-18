@@ -22,7 +22,6 @@ export default function AdminReviews() {
       const data = await apiClient.get('/admin/reviews');
       setReviews(data);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
       toast.error('Failed to load reviews');
     } finally {
       setLoading(false);

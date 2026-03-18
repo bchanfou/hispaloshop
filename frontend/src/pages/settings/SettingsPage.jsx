@@ -148,8 +148,8 @@ export default function SettingsPage() {
         <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
           <SettingsItem icon={<User size={20} />} label="Editar perfil" to="/settings/profile" />
           <SettingsItem icon={<Lock size={20} />} label="Contraseña" to="/settings/password" />
-          <SettingsItem icon={<Mail size={20} />} label="Email" sublabel={user?.email || 'Sin configurar'} to="/settings/email" />
-          <SettingsItem icon={<Phone size={20} />} label="Teléfono" sublabel={user?.phone || 'Sin configurar'} to="/settings/phone" />
+          <SettingsItem icon={<Mail size={20} />} label="Email" sublabel={user?.email || 'Sin configurar'} to="/settings/profile" />
+          <SettingsItem icon={<Phone size={20} />} label="Teléfono" sublabel={user?.phone || 'Sin configurar'} to="/settings/profile" />
         </div>
 
         {/* ── PREFERENCIAS ── */}
@@ -164,7 +164,7 @@ export default function SettingsPage() {
           <>
             <SectionLabel>Mi tienda</SectionLabel>
             <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
-              <SettingsItem icon={<Store size={20} />} label="Editar tienda" to="/settings/store" />
+              <SettingsItem icon={<Store size={20} />} label="Editar tienda" to="/producer/store" />
               <SettingsItem icon={<PenTool size={20} />} label="Firma digital" to="/settings/signature" />
               <SettingsItem icon={<CreditCard size={20} />} label="Datos bancarios" to="/settings/payout" />
               <SettingsItem icon={<BarChart3 size={20} />} label="Plan de suscripción" to="/settings/plan" />
@@ -187,14 +187,17 @@ export default function SettingsPage() {
         {/* ── PRIVACIDAD ── */}
         <SectionLabel>Privacidad</SectionLabel>
         <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
-          <SettingsItem icon={<Shield size={20} />} label="Privacidad" to="/settings/privacy" />
+          <SettingsItem icon={<Shield size={20} />} label="Solicitudes de seguimiento" to="/settings/follow-requests" />
           <SettingsItem
             icon={<Eye size={20} />}
             label="Cuenta privada"
-            sublabel="Solo seguidores ven tu perfil"
-            rightContent={<ToggleSwitch value={isPrivate} onChange={handleTogglePrivate} />}
+            sublabel={isProducer ? 'Las cuentas de productores e importadores deben ser públicas' : 'Solo seguidores ven tu perfil'}
+            rightContent={isProducer
+              ? <ToggleSwitch value={false} onChange={() => {}} disabled />
+              : <ToggleSwitch value={isPrivate} onChange={handleTogglePrivate} />
+            }
           />
-          <SettingsItem icon={<Ban size={20} />} label="Usuarios bloqueados" to="/settings/blocked" />
+          {/* Usuarios bloqueados — próximamente */}
         </div>
 
         {/* ── SOPORTE ── */}

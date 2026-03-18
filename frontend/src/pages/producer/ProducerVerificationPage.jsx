@@ -185,8 +185,8 @@ export default function ProducerVerificationPage() {
       fd.append('file', file);
       const res = await apiClient.post('/verification/cif-nif', fd);
       await fetchStatus();
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // handled silently
     } finally {
       setCifUploading(false);
     }
@@ -199,8 +199,8 @@ export default function ProducerVerificationPage() {
       fd.append('file', file);
       await apiClient.post('/verification/facility-photo', fd);
       await fetchStatus();
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // handled silently
     } finally {
       setFacilityUploading(false);
     }
@@ -214,8 +214,8 @@ export default function ProducerVerificationPage() {
       fd.append('cert_type', selectedCertType);
       await apiClient.post('/verification/certificate', fd);
       await fetchStatus();
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // handled silently
     } finally {
       setCertUploading(false);
     }

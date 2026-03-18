@@ -62,6 +62,10 @@ export default function PayoutSettingsPage() {
       toast.error('IBAN y nombre del titular son obligatorios');
       return;
     }
+    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{4,}$/i.test(iban.replace(/\s/g, ''))) {
+      toast.error('El formato del IBAN no es válido');
+      return;
+    }
     setSaving(true);
     try {
       const data = await apiClient.post('/influencer/fiscal/payout-method', {
@@ -272,7 +276,7 @@ export default function PayoutSettingsPage() {
                   Datos bancarios SEPA
                 </p>
 
-                {sepaConfigured && !iban && (
+                {sepaConfigured && !iban.trim() && (
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 8,
                     padding: '10px 14px', borderRadius: 'var(--radius-lg)',

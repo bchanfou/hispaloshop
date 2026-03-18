@@ -253,10 +253,14 @@ function StepProducto({ form, set }) {
 function StepPrecio({ form, set }) {
   const qty = Number(form.quantity) || 0;
   const price = Number(form.price_per_unit) || 0;
-  const subtotal = qty * price;
-  const commission = subtotal * 0.03;
-  const stripe = subtotal * 0.014;
-  const net = subtotal - commission - stripe;
+  const subtotalCents = Math.round(qty * price * 100);
+  const commissionCents = Math.round(subtotalCents * 3 / 100);
+  const stripeCents = Math.round(subtotalCents * 14 / 1000);
+  const netCents = subtotalCents - commissionCents - stripeCents;
+  const subtotal = subtotalCents / 100;
+  const commission = commissionCents / 100;
+  const stripe = stripeCents / 100;
+  const net = netCents / 100;
 
   return (
     <div className="flex flex-col gap-5">

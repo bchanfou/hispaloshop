@@ -108,7 +108,7 @@ export default function HispaloPredictions() {
       setPredictions(data.predictions || []);
       setSummary(data.summary || {});
     } catch (err) {
-      console.error('Error fetching predictions:', err);
+      // Sentry captures this automatically
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ export default function HispaloPredictions() {
         quantity: 1,
       });
     } catch (err) {
-      console.error('Reorder error:', err);
+      // Sentry captures this automatically
     } finally {
       setReordering(null);
     }
@@ -157,7 +157,7 @@ export default function HispaloPredictions() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-stone-900 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-stone-950 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div>

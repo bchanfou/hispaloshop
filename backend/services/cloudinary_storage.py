@@ -10,13 +10,33 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Initialize Cloudinary
+# Initialize Cloudinary — use settings (pydantic) with os.environ fallback
+def _get_cloud_var(name):
+    """Read from os.environ first, then from pydantic settings."""
+    val = os.environ.get(name)
+    if val:
+        return val
+    try:
+        from core.config import settings
+        return getattr(settings, name, None)
+    except Exception:
+        return None
+
+_cloud_name = _get_cloud_var("CLOUDINARY_CLOUD_NAME")
+_api_key = _get_cloud_var("CLOUDINARY_API_KEY")
+_api_secret = _get_cloud_var("CLOUDINARY_API_SECRET")
+
 cloudinary.config(
-    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.environ.get("CLOUDINARY_API_KEY"),
-    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+    cloud_name=_cloud_name,
+    api_key=_api_key,
+    api_secret=_api_secret,
     secure=True
 )
+
+if _cloud_name:
+    logger.info(f"[CLOUDINARY] Configured with cloud_name={_cloud_name}")
+else:
+    logger.warning("[CLOUDINARY] NOT CONFIGURED — uploads will fail")
 
 FOLDERS = {
     "products": "hispaloshop/products",
@@ -105,7 +125,7 @@ async def upload_video(file_bytes: bytes, folder: str = "reels", filename: str =
             thumb = result["eager"][0].get("secure_url", "")
         if not thumb:
             # Fallback: build thumbnail URL from the video public_id
-            cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
+            cloud_name = _cloud_name or ""
             thumb = f"https://res.cloudinary.com/{cloud_name}/video/upload/so_1,w_540,q_auto,f_jpg/{result.get('public_id', '')}"
 
         logger.info(f"[CLOUDINARY] Video uploaded: {public_id} -> {url}")
@@ -129,7 +149,7 @@ async def upload_video(file_bytes: bytes, folder: str = "reels", filename: str =
 
 def get_optimized_url(public_id: str, width: int = 800) -> str:
     """Get an optimized Cloudinary URL with auto format and quality."""
-    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
+    cloud_name = _cloud_name or ""
     return f"https://res.cloudinary.com/{cloud_name}/image/upload/w_{width},q_auto,f_auto/{public_id}"
 
 

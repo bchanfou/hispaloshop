@@ -24,6 +24,7 @@ type ProductImageProps = React.HTMLAttributes<HTMLDivElement> & {
   imageClassName?: string;
   sizes?: string;
   preferThumbnail?: boolean;
+  priority?: boolean;
 };
 
 const FALLBACK_GRADIENTS = [
@@ -78,6 +79,7 @@ export default function ProductImage({
   imageClassName = '',
   sizes,
   preferThumbnail = true,
+  priority = false,
   ...props
 }: ProductImageProps) {
   const [hasError, setHasError] = useState(false);
@@ -132,7 +134,7 @@ export default function ProductImage({
             src={normalizedSrc}
             srcSet={getCloudinarySrcSet(normalizedSrc, [200, 400, 800]) || undefined}
             alt={label}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
             decoding="async"
             sizes={sizes}
             className={`h-full w-full object-cover transition duration-500 ${

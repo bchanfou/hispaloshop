@@ -388,7 +388,7 @@ export default function ProductsPage() {
             {filters.category ? (
               <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700">
                 {getCategoryLabel(filters.category)}
-                <button type="button" onClick={() => setCategoryFilter(filters.category)} className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-stone-100" aria-label="Quitar filtro de categoría">
+                <button type="button" onClick={() => setCategoryFilter(filters.category)} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-stone-100" aria-label="Quitar filtro de categoría">
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -397,7 +397,7 @@ export default function ProductsPage() {
               <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1.5 text-xs font-medium text-white">
                 <Truck className="h-3 w-3" />
                 {t('products.freeShipping', 'Envío gratis')}
-                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, freeShipping: false }))} className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-white/10" aria-label="Quitar filtro de envío gratis">
+                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, freeShipping: false }))} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10" aria-label="Quitar filtro de envío gratis">
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -405,7 +405,7 @@ export default function ProductsPage() {
             {filters.origin_country ? (
               <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700">
                 {allCountries.find((item) => item.code === filters.origin_country)?.name || filters.origin_country}
-                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, origin_country: '' }))} className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-stone-100" aria-label="Quitar filtro de país">
+                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, origin_country: '' }))} className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-stone-100" aria-label="Quitar filtro de país">
                   <X className="h-3 w-3" />
                 </button>
               </span>

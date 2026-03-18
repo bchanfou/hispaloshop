@@ -42,7 +42,6 @@ export default function AdminDiscountCodes() {
       setDiscountCodes(codesData);
       setPendingInfluencerCodes(pendingData);
     } catch (error) {
-      console.error('Error fetching discount codes:', error);
       toast.error('Error al cargar los códigos de descuento');
     } finally {
       setLoading(false);

@@ -45,7 +45,6 @@ export default function AdminProducts() {
       const data = await apiClient.get('/admin/products');
       setProducts(data);
     } catch (error) {
-      console.error('Error fetching products:', error);
       toast.error(t('errors.generic'));
     } finally {
       setLoading(false);
@@ -57,7 +56,7 @@ export default function AdminProducts() {
       const data = await apiClient.get('/categories');
       setCategories(data);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      // Sentry captures this automatically
     }
   };
 

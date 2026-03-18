@@ -57,7 +57,6 @@ export default function AuthCallback() {
         navigate('/login', { replace: true });
 
       } catch (error) {
-        console.error('Auth error:', error);
         setError('Authentication failed');
         setTimeout(() => navigate('/login', { replace: true }), 2000);
       }

@@ -673,7 +673,6 @@ export default function OnboardingPage() {
       navigate(destinations[selectedRole] || '/', { replace: true });
     } catch (error) {
       toast.error('Error guardando preferencias');
-      console.error(error);
     }
   }, [data, saveOnboardingMutation, setUser, navigate]);
 

@@ -35,8 +35,8 @@ export default function PricingPage() {
       } else {
         setCurrentPlan(null);
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // handled by UI loading state
     } finally {
       setLoading(false);
     }

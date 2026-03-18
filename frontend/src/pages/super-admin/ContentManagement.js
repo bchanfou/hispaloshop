@@ -43,8 +43,7 @@ export default function ContentManagement() {
 
       const payload = await apiClient.get(url);
       setProducts(Array.isArray(payload) ? payload : (Array.isArray(payload?.products) ? payload.products : []));
-    } catch (error) {
-      console.error('Error fetching products:', error);
+    } catch {
       toast.error(t('contentManagement.errors.loadFailed'));
     } finally {
       setLoading(false);
@@ -59,8 +58,7 @@ export default function ContentManagement() {
 
       const payload = await apiClient.get(url);
       setCertificates(Array.isArray(payload) ? payload : (Array.isArray(payload?.certificates) ? payload.certificates : []));
-    } catch (error) {
-      console.error('Error fetching certificates:', error);
+    } catch {
       toast.error(t('contentManagement.errors.loadFailed'));
     } finally {
       setLoading(false);
@@ -71,8 +69,8 @@ export default function ContentManagement() {
     try {
       const data = await apiClient.get('/super-admin/products/stats');
       setProductStats(data);
-    } catch (error) {
-      console.error('Error fetching product stats:', error);
+    } catch {
+      // handled silently
     }
   };
 
@@ -80,8 +78,8 @@ export default function ContentManagement() {
     try {
       const data = await apiClient.get('/super-admin/certificates/stats');
       setCertStats(data);
-    } catch (error) {
-      console.error('Error fetching certificate stats:', error);
+    } catch {
+      // handled silently
     }
   };
 

@@ -30,7 +30,6 @@ export default function CustomerOrders() {
       const data = await apiClient.get('/customer/orders');
       setOrders(data);
     } catch (error) {
-      console.error('Error fetching orders:', error);
       toast.error(t('orders.loadError', 'Failed to load orders'));
     } finally {
       setLoading(false);

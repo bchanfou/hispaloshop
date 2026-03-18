@@ -68,7 +68,6 @@ export default function AdminManagement() {
       const payload = await apiClient.get('/super-admin/admins');
       setAdmins(Array.isArray(payload) ? payload : (Array.isArray(payload?.admins) ? payload.admins : []));
     } catch (error) {
-      console.error('Error fetching admins:', error);
       toast.error(t('errors.generic'));
     } finally {
       setLoading(false);
@@ -97,7 +96,6 @@ export default function AdminManagement() {
       setNewAdmin({ email: '', name: '', password: '', role: 'admin', assigned_country: '' });
       fetchAdmins();
     } catch (error) {
-      console.error('Error creating admin:', error);
       setFormError(error.message || t('errors.generic'));
     } finally {
       setSubmitting(false);
@@ -110,7 +108,6 @@ export default function AdminManagement() {
       toast.success(t('success.updated'));
       fetchAdmins();
     } catch (error) {
-      console.error('Error updating admin status:', error);
       toast.error(error.message || t('errors.generic'));
     }
   };
@@ -122,7 +119,6 @@ export default function AdminManagement() {
       setShowDeleteConfirm(null);
       fetchAdmins();
     } catch (error) {
-      console.error('Error deleting admin:', error);
       toast.error(error.message || t('errors.generic'));
     }
   };

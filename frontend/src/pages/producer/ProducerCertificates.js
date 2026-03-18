@@ -119,8 +119,8 @@ export default function ProducerCertificates() {
       ]);
       setCertificates(certsData);
       setProducts(productsData);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    } catch {
+      // handled silently
     } finally {
       setLoading(false);
     }

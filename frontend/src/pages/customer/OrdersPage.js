@@ -16,7 +16,7 @@ export default function OrdersPage() {
       const data = await apiClient.get('/orders');
       setOrders(data);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      // Sentry captures this automatically
     } finally {
       setLoading(false);
     }

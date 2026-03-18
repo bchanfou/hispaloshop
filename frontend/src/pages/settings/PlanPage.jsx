@@ -69,6 +69,12 @@ export default function PlanPage() {
   };
 
   const handleChangePlan = async (planId) => {
+    const PLAN_ORDER = { free: 0, pro: 1, elite: 2 };
+    const isDowngrade = (PLAN_ORDER[planId] || 0) < (PLAN_ORDER[currentPlan] || 0);
+    if (isDowngrade) {
+      const confirmed = window.confirm('¿Seguro que quieres bajar de plan? Perderás las funcionalidades premium al final del periodo de facturación.');
+      if (!confirmed) return;
+    }
     try {
       const data = await apiClient.post('/billing/change-plan', { plan: planId });
       if (data.url) window.location.href = data.url;

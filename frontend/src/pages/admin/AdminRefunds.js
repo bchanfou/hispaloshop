@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, RotateCcw, Search, AlertTriangle, Check, ChevronDown, Download } from 'lucide-react';
+import { Loader2, RotateCcw, Search, AlertTriangle, ChevronDown, Download } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 

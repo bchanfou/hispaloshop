@@ -96,8 +96,7 @@ export default function UserManagement() {
 
       const payload = await apiClient.get(url);
       setUsers(Array.isArray(payload) ? payload : (Array.isArray(payload?.users) ? payload.users : []));
-    } catch (error) {
-      console.error('Error fetching users:', error);
+    } catch {
       toast.error(t('userManagement.errors.loadFailed'));
     } finally {
       setLoading(false);
@@ -108,8 +107,7 @@ export default function UserManagement() {
     try {
       const payload = await apiClient.get('/super-admin/users/countries');
       setCountries(Array.isArray(payload) ? payload : (Array.isArray(payload?.countries) ? payload.countries : []));
-    } catch (error) {
-      console.error('Error fetching countries:', error);
+    } catch {
       setCountries([]);
     }
   };
@@ -118,8 +116,8 @@ export default function UserManagement() {
     try {
       const data = await apiClient.get('/super-admin/users/stats');
       setStats(data);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
+    } catch {
+      // handled silently
     }
   };
 

@@ -310,7 +310,6 @@ const B2BOperationsDashboard = () => {
       const res = await apiClient.get('/b2b/operations');
       if (!cancelled) setOperations(res.data?.operations || res.data || []);
     } catch (err) {
-      console.error('Failed to fetch B2B operations', err);
       if (!cancelled) setError(true);
     } finally {
       if (!cancelled) setLoading(false);

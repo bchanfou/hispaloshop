@@ -174,8 +174,10 @@ export default function ProductDetailPage() {
     } catch { toast.error(t('errors.generic', 'Error')); }
   };
 
+  const addingRef = React.useRef(false);
   const handleAddToCart = async () => {
-    if (isOutOfStock) { toast.error(t('productDetail.outOfStock')); return; }
+    if (addingRef.current || isOutOfStock) { if (isOutOfStock) toast.error(t('productDetail.outOfStock')); return; }
+    addingRef.current = true;
     toast.loading(t('cart.adding', 'Añadiendo...'), { id: 'add-to-cart' });
     try {
       const variantId = selectedVariant?.variant_id || null;
@@ -191,6 +193,8 @@ export default function ProductDetailPage() {
       }
     } catch {
       toast.error(t('errors.generic', 'Error'), { id: 'add-to-cart' });
+    } finally {
+      addingRef.current = false;
     }
   };
 
@@ -347,7 +351,7 @@ export default function ProductDetailPage() {
                   if (el) el.scrollTo({ left: el.offsetWidth * i, behavior: 'smooth' });
                 }}
                 aria-label={`Ir a imagen ${i + 1}`}
-                className="flex h-6 w-6 items-center justify-center rounded-full bg-transparent"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-transparent"
               >
                 <span className={`block h-2 w-2 rounded-full transition-colors duration-200 ${
                   i === activeImageIndex ? 'bg-stone-950' : 'bg-black/25'
@@ -467,7 +471,7 @@ export default function ProductDetailPage() {
           <span className="text-[13px] font-medium text-stone-950">
             {isFreeShipping
               ? t('products.freeShipping', 'Envío gratis')
-              : `${t('products.shippingCost', 'Envío')}: ${convertAndFormatPrice(product.shipping_cost, 'EUR')}`
+              : `${t('products.shippingCost', 'Envío')}: ${convertAndFormatPrice(product.shipping_cost, product.currency || 'EUR')}`
             }
           </span>
         </div>

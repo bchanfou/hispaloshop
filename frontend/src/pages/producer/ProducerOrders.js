@@ -233,8 +233,8 @@ export default function ProducerOrders() {
     try {
       const data = await apiClient.get('/producer/orders');
       setOrders(data);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+    } catch {
+      // handled silently
     } finally {
       setLoading(false);
     }

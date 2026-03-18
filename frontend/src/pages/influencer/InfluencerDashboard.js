@@ -262,8 +262,8 @@ export default function InfluencerDashboard() {
 
   useEffect(() => {
     let active = true;
-    const logFetchErr = (label) => (err) => {
-      console.warn(`[InfluencerDashboard] Failed to load ${label}:`, err?.message || err);
+    const logFetchErr = () => () => {
+      // Sentry captures fetch errors automatically
     };
     apiClient.get('/collaborations').then(d => {
       if (active) setCollabs(d?.collaborations || []);

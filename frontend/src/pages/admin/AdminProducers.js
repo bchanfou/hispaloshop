@@ -44,7 +44,6 @@ export default function AdminProducers() {
       const data = await apiClient.get('/admin/producers');
       setProducers(data);
     } catch (error) {
-      console.error('Error fetching producers:', error);
       toast.error(t('adminProducers.messages.loadError'));
     } finally {
       setLoading(false);

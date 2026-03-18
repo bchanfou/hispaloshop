@@ -23,11 +23,41 @@ _MEDIA_TYPES = _IMAGE_TYPES | _VIDEO_TYPES
 
 
 def _check_cloudinary_configured():
-    if not os.environ.get("CLOUDINARY_CLOUD_NAME") or os.environ.get("CLOUDINARY_CLOUD_NAME") == "PENDIENTE_REEMPLAZAR":
+    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME")
+    if not cloud_name:
+        try:
+            from core.config import settings
+            cloud_name = settings.CLOUDINARY_CLOUD_NAME
+        except Exception:
+            pass
+    if not cloud_name or cloud_name in ("", "PENDIENTE_REEMPLAZAR", "PENDIENTE"):
         raise HTTPException(
             status_code=503,
             detail="Image storage not configured. Contact the administrator."
         )
+
+
+# Magic bytes for common image/video formats (server-side validation)
+_MAGIC_BYTES = {
+    b'\xff\xd8\xff': 'image/jpeg',
+    b'\x89PNG': 'image/png',
+    b'GIF8': 'image/gif',
+    b'RIFF': 'image/webp',  # RIFF....WEBP
+    b'\x00\x00\x00': 'video/mp4',  # ftyp box (MP4/MOV)
+    b'\x1a\x45\xdf\xa3': 'video/webm',
+}
+
+
+def _validate_magic_bytes(content: bytes, claimed_type: str) -> bool:
+    """Verify file content matches claimed MIME type via magic bytes."""
+    if len(content) < 4:
+        return False
+    for magic, mime_prefix in _MAGIC_BYTES.items():
+        if content[:len(magic)] == magic:
+            # Accept if the magic byte type family matches the claimed type family
+            return mime_prefix.split('/')[0] == claimed_type.split('/')[0]
+    # If no magic byte matches, reject for safety
+    return False
 
 
 async def _upload_media(file: UploadFile, folder: str, max_bytes: int, allowed_types: set, user_id: str) -> dict:
@@ -38,6 +68,9 @@ async def _upload_media(file: UploadFile, folder: str, max_bytes: int, allowed_t
     content = await file.read()
     if len(content) > max_bytes:
         raise HTTPException(status_code=400, detail=f"File too large. Maximum {max_bytes // (1024 * 1024)}MB")
+    # Server-side magic byte validation — prevents disguised executables
+    if not _validate_magic_bytes(content, file.content_type):
+        raise HTTPException(status_code=400, detail="File content does not match declared type. Upload rejected.")
     filename = f"{user_id}_{uuid.uuid4().hex[:8]}"
     if file.content_type in _VIDEO_TYPES:
         return await cloudinary_upload_video(content, folder=folder, filename=filename)

@@ -73,8 +73,8 @@ export default function ProducerProfile() {
       if (data.warehouse_address) {
         setWarehouseAddress(data.warehouse_address);
       }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    } catch {
+      // handled silently
     } finally {
       setLoading(false);
     }

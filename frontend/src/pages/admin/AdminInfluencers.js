@@ -46,7 +46,7 @@ export default function AdminInfluencers() {
       const data = await apiClient.get('/admin/influencer-stats');
       setStats(data);
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      // Sentry captures this automatically
     }
   };
 

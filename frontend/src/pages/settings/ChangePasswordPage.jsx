@@ -73,6 +73,7 @@ export default function ChangePasswordPage() {
 
   const eyeBtn = (show, toggle) => (
     <button onClick={toggle}
+      aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
       style={{
         position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
         background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex',

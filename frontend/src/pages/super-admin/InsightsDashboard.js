@@ -80,8 +80,7 @@ export default function InsightsDashboard() {
         enable_fear_tracking: configData.enable_fear_tracking ?? true,
         enable_health_inference: configData.enable_health_inference ?? true
       });
-    } catch (error) {
-      console.error('Error fetching insights:', error);
+    } catch {
       toast.error(t('superAdmin.insights.failedToLoad'));
     } finally {
       setLoading(false);
@@ -100,8 +99,7 @@ export default function InsightsDashboard() {
       const data = await apiClient.get(`/insights/country/${countryCode}`);
       setCountryData(data);
       setSelectedCountry(countryCode);
-    } catch (error) {
-      console.error('Error fetching country data:', error);
+    } catch {
       toast.error(t('superAdmin.insights.failedToLoadCountry'));
     }
   };
@@ -773,8 +771,8 @@ function ComplianceTab({ data, config }) {
       ]);
       setAuditLog(auditData);
       setGdprSummary(gdprData);
-    } catch (error) {
-      console.error('Error fetching audit data:', error);
+    } catch {
+      // handled silently
     } finally {
       setLoadingAudit(false);
     }
