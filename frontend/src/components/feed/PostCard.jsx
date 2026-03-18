@@ -406,7 +406,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
           {normalizedProducts.length > 0 && normalizedProducts[0].price != null && (
             <button
               className="absolute top-3 left-3 z-[1] flex items-center gap-1 rounded-full bg-stone-950/70 backdrop-blur-sm px-2.5 py-1 border-none cursor-pointer"
-              onClick={(e) => { e.stopPropagation(); navigate(`/product/${normalizedProducts[0].id || normalizedProducts[0].product_id}`); }}
+              onClick={(e) => { e.stopPropagation(); navigate(`/products/${normalizedProducts[0].id || normalizedProducts[0].product_id}`); }}
               aria-label={`Ver producto ${formatPrice(normalizedProducts[0].price)}`}
             >
               <span className="text-[11px] font-bold text-white">{formatPrice(normalizedProducts[0].price)}</span>
@@ -556,7 +556,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
             <button
               key={product.id || product.product_id}
               className="flex shrink-0 items-center gap-2 rounded-full bg-stone-100 py-1 pl-1 pr-3 border-none cursor-pointer font-[inherit]"
-              onClick={() => navigate(`/product/${product.id || product.product_id}`)}
+              onClick={() => navigate(`/products/${product.id || product.product_id}`)}
             >
               {(product.producer_avatar || product.store?.avatar) && (
                 <img

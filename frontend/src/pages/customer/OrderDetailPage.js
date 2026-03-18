@@ -107,10 +107,10 @@ export default function OrderDetailPage() {
   const currentStepIdx = STATUS_FLOW.indexOf(status === 'pending' ? 'confirmed' : status);
   const ref = `#HSP-${String(order.order_id || orderId).slice(-8).toUpperCase()}`;
   const items = order.items || order.line_items || [];
-  const subtotal = order.subtotal ? (order.subtotal / 100).toFixed(2) : null;
-  const discount = order.discount ? (order.discount / 100).toFixed(2) : null;
-  const shipping = order.shipping != null ? (order.shipping / 100).toFixed(2) : null;
-  const total = order.total ? (order.total / 100).toFixed(2) : order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00';
+  const subtotal = order.subtotal_cents ? (order.subtotal_cents / 100).toFixed(2) : order.subtotal ? Number(order.subtotal).toFixed(2) : null;
+  const discount = order.discount_cents ? (order.discount_cents / 100).toFixed(2) : order.discount ? Number(order.discount).toFixed(2) : null;
+  const shipping = order.shipping_cents != null ? (order.shipping_cents / 100).toFixed(2) : order.shipping_amount != null ? Number(order.shipping_amount).toFixed(2) : null;
+  const total = order.total_cents ? (order.total_cents / 100).toFixed(2) : order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00';
 
   const statusTimestamps = {};
   if (order.status_history) {

@@ -113,7 +113,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
                 <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 rounded" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)' }}>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-black)' }} />
-                    <span className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>€{wd.amount.toFixed(2)}</span>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>€{Number(wd.amount || 0).toFixed(2)}</span>
                   </div>
                   <span className="text-xs" style={{ color: 'var(--color-stone)' }}>
                     {new Date(wd.created_at).toLocaleDateString('es-ES')}

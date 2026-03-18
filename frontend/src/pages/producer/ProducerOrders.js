@@ -232,7 +232,7 @@ export default function ProducerOrders() {
   const fetchOrders = async () => {
     try {
       const data = await apiClient.get('/producer/orders');
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : data?.orders || []);
     } catch {
       // handled silently
     } finally {
