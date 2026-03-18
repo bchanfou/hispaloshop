@@ -5,10 +5,10 @@ const RATE_LIMIT_FREE = 20;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 const SUGGESTIONS = [
-  '¿Qué productos ecológicos tenéis?',
-  'Busco algo sin gluten',
-  '¿Qué me recomiendas para desayunar?',
-  'Muéstrame productos veganos',
+  '¿Qué me recomiendas hoy?',
+  'Busco algo sin gluten para merendar',
+  '¿Qué desayuno sano me propones?',
+  'Enséñame productos veganos buenos',
 ];
 
 function getRateLimitState() {

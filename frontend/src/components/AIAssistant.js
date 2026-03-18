@@ -328,17 +328,17 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     
     // Get greeting based on current language
     const greetings = {
-      es: '¡Hola! Soy Hispalo AI, tu asistente de compras personal. Puedo ayudarte a encontrar productos según tus preferencias dietéticas, alergias o cualquier necesidad específica. ¿En qué puedo ayudarte hoy?',
-      en: 'Hello! I\'m Hispalo AI, your personal shopping assistant. I can help you find products based on your dietary preferences, allergies, or any specific needs. How can I help you today?',
-      fr: 'Bonjour ! Je suis Hispalo AI, votre assistant d\'achat personnel. Je peux vous aider à trouver des produits selon vos préférences alimentaires, allergies ou besoins spécifiques. Comment puis-je vous aider aujourd\'hui ?',
-      de: 'Hallo! Ich bin Hispalo AI, Ihr persönlicher Einkaufsassistent. Ich kann Ihnen helfen, Produkte nach Ihren Ernährungspräferenzen, Allergien oder spezifischen Bedürfnissen zu finden. Wie kann ich Ihnen heute helfen?',
-      pt: 'Olá! Sou Hispalo AI, seu assistente de compras pessoal. Posso ajudá-lo a encontrar produtos de acordo com suas preferências alimentares, alergias ou necessidades específicas. Como posso ajudá-lo hoje?',
-      ar: 'مرحباً! أنا Hispalo AI، مساعدك الشخصي للتسوق. يمكنني مساعدتك في العثور على منتجات تناسب تفضيلاتك الغذائية أو الحساسية أو أي احتياجات محددة. كيف يمكنني مساعدتك اليوم؟',
-      hi: 'नमस्ते! मैं Hispalo AI हूं, आपका व्यक्तिगत शॉपिंग सहायक। मैं आपकी आहार प्राथमिकताओं, एलर्जी या किसी विशिष्ट जरूरत के आधार पर उत्पाद खोजने में मदद कर सकता हूं। आज मैं आपकी कैसे मदद कर सकता हूं?',
-      zh: '你好！我是 Hispalo AI，你的个人购物助手。我可以帮助你根据饮食偏好、过敏或任何特定需求找到产品。今天我能为你做些什么？',
-      ja: 'こんにちは！私は Hispalo AI、あなたの個人的なショッピングアシスタントです。食事の好み、アレルギー、または特定のニーズに基づいて商品を見つけるお手伝いができます。今日はどのようにお手伝いできますか？',
-      ko: '안녕하세요! 저는 Hispalo AI, 당신의 개인 쇼핑 어시스턴트입니다. 식이 선호도, 알레르기 또는 특정 요구 사항에 따라 제품을 찾는 데 도움을 드릴 수 있습니다. 오늘 어떻게 도와드릴까요?',
-      ru: 'Привет! Я Hispalo AI, ваш персональный помощник по покупкам. Я могу помочь вам найти продукты в соответствии с вашими диетическими предпочтениями, аллергиями или любыми конкретными потребностями. Чем могу помочь сегодня?'
+      es: '¡Hola! Soy David, tu asistente de compras personal. Puedo ayudarte a encontrar productos según tus preferencias dietéticas, alergias o cualquier necesidad específica. ¿En qué puedo ayudarte hoy?',
+      en: 'Hello! I\'m David, your personal shopping assistant. I can help you find products based on your dietary preferences, allergies, or any specific needs. How can I help you today?',
+      fr: 'Bonjour ! Je suis David, votre assistant d\'achat personnel. Je peux vous aider à trouver des produits selon vos préférences alimentaires, allergies ou besoins spécifiques. Comment puis-je vous aider aujourd\'hui ?',
+      de: 'Hallo! Ich bin David, Ihr persönlicher Einkaufsassistent. Ich kann Ihnen helfen, Produkte nach Ihren Ernährungspräferenzen, Allergien oder spezifischen Bedürfnissen zu finden. Wie kann ich Ihnen heute helfen?',
+      pt: 'Olá! Sou David, seu assistente de compras pessoal. Posso ajudá-lo a encontrar produtos de acordo com suas preferências alimentares, alergias ou necessidades específicas. Como posso ajudá-lo hoje?',
+      ar: 'مرحباً! أنا David، مساعدك الشخصي للتسوق. يمكنني مساعدتك في العثور على منتجات تناسب تفضيلاتك الغذائية أو الحساسية أو أي احتياجات محددة. كيف يمكنني مساعدتك اليوم؟',
+      hi: 'नमस्ते! मैं David हूं, आपका व्यक्तिगत शॉपिंग सहायक। मैं आपकी आहार प्राथमिकताओं, एलर्जी या किसी विशिष्ट जरूरत के आधार पर उत्पाद खोजने में मदद कर सकता हूं। आज मैं आपकी कैसे मदद कर सकता हूं?',
+      zh: '你好！我是 David，你的个人购物助手。我可以帮助你根据饮食偏好、过敏或任何特定需求找到产品。今天我能为你做些什么？',
+      ja: 'こんにちは！私は David、あなたの個人的なショッピングアシスタントです。食事の好み、アレルギー、または特定のニーズに基づいて商品を見つけるお手伝いができます。今日はどのようにお手伝いできますか？',
+      ko: '안녕하세요! 저는 David, 당신의 개인 쇼핑 어시스턴트입니다. 식이 선호도, 알레르기 또는 특정 요구 사항에 따라 제품을 찾는 데 도움을 드릴 수 있습니다. 오늘 어떻게 도와드릴까요?',
+      ru: 'Привет! Я David, ваш персональный помощник по покупкам. Я могу помочь вам найти продукты в соответствии с вашими диетическими предпочтениями, аллергиями или любыми конкретными потребностями. Чем могу помочь сегодня?'
     };
     
     const greeting = greetings[currentLang] || greetings['en'];
@@ -355,17 +355,17 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     if (isOpen && messages.length === 0 && !hasShownGreeting) {
       // Get greeting based on current language
       const greetings = {
-        es: '¡Hola! Soy Hispalo AI, tu asistente de compras personal. Puedo ayudarte a encontrar productos según tus preferencias dietéticas, alergias o cualquier necesidad específica. ¿En qué puedo ayudarte hoy?',
-        en: 'Hello! I\'m Hispalo AI, your personal shopping assistant. I can help you find products based on your dietary preferences, allergies, or any specific needs. How can I help you today?',
-        fr: 'Bonjour ! Je suis Hispalo AI, votre assistant d\'achat personnel. Je peux vous aider à trouver des produits selon vos préférences alimentaires, allergies ou besoins spécifiques. Comment puis-je vous aider aujourd\'hui ?',
-        de: 'Hallo! Ich bin Hispalo AI, Ihr persönlicher Einkaufsassistent. Ich kann Ihnen helfen, Produkte nach Ihren Ernährungspräferenzen, Allergien oder spezifischen Bedürfnissen zu finden. Wie kann ich Ihnen heute helfen?',
-        pt: 'Olá! Sou Hispalo AI, seu assistente de compras pessoal. Posso ajudá-lo a encontrar produtos de acordo com suas preferências alimentares, alergias ou necessidades específicas. Como posso ajudá-lo hoje?',
-        ar: 'مرحباً! أنا Hispalo AI، مساعدك الشخصي للتسوق. يمكنني مساعدتك في العثور على منتجات تناسب تفضيلاتك الغذائية أو الحساسية أو أي احتياجات محددة. كيف يمكنني مساعدتك اليوم؟',
-        hi: 'नमस्ते! मैं Hispalo AI हूं, आपका व्यक्तिगत शॉपिंग सहायक। मैं आपकी आहार प्राथमिकताओं, एलर्जी या किसी विशिष्ट जरूरत के आधार पर उत्पाद खोजने में मदद कर सकता हूं। आज मैं आपकी कैसे मदद कर सकता हूं?',
-        zh: '你好！我是 Hispalo AI，你的个人购物助手。我可以帮助你根据饮食偏好、过敏或任何特定需求找到产品。今天我能为你做些什么？',
-        ja: 'こんにちは！私は Hispalo AI、あなたの個人的なショッピングアシスタントです。食事の好み、アレルギー、または特定のニーズに基づいて商品を見つけるお手伝いができます。今日はどのようにお手伝いできますか？',
-        ko: '안녕하세요! 저는 Hispalo AI, 당신의 개인 쇼핑 어시스턴트입니다. 식이 선호도, 알레르기 또는 특정 요구 사항에 따라 제품을 찾는 데 도움을 드릴 수 있습니다. 오늘 어떻게 도와드릴까요?',
-        ru: 'Привет! Я Hispalo AI, ваш персональный помощник по покупкам. Я могу помочь вам найти продукты в соответствии с вашими диетическими предпочтениями, аллергиями или любыми конкретными потребностями. Чем могу помочь сегодня?'
+        es: '¡Hola! Soy David, tu asistente de compras personal. Puedo ayudarte a encontrar productos según tus preferencias dietéticas, alergias o cualquier necesidad específica. ¿En qué puedo ayudarte hoy?',
+        en: 'Hello! I\'m David, your personal shopping assistant. I can help you find products based on your dietary preferences, allergies, or any specific needs. How can I help you today?',
+        fr: 'Bonjour ! Je suis David, votre assistant d\'achat personnel. Je peux vous aider à trouver des produits selon vos préférences alimentaires, allergies ou besoins spécifiques. Comment puis-je vous aider aujourd\'hui ?',
+        de: 'Hallo! Ich bin David, Ihr persönlicher Einkaufsassistent. Ich kann Ihnen helfen, Produkte nach Ihren Ernährungspräferenzen, Allergien oder spezifischen Bedürfnissen zu finden. Wie kann ich Ihnen heute helfen?',
+        pt: 'Olá! Sou David, seu assistente de compras pessoal. Posso ajudá-lo a encontrar produtos de acordo com suas preferências alimentares, alergias ou necessidades específicas. Como posso ajudá-lo hoje?',
+        ar: 'مرحباً! أنا David، مساعدك الشخصي للتسوق. يمكنني مساعدتك في العثور على منتجات تناسب تفضيلاتك الغذائية أو الحساسية أو أي احتياجات محددة. كيف يمكنني مساعدتك اليوم؟',
+        hi: 'नमस्ते! मैं David हूं, आपका व्यक्तिगत शॉपिंग सहायक। मैं आपकी आहार प्राथमिकताओं, एलर्जी या किसी विशिष्ट जरूरत के आधार पर उत्पाद खोजने में मदद कर सकता हूं। आज मैं आपकी कैसे मदद कर सकता हूं?',
+        zh: '你好！我是 David，你的个人购物助手。我可以帮助你根据饮食偏好、过敏或任何特定需求找到产品。今天我能为你做些什么？',
+        ja: 'こんにちは！私は David、あなたの個人的なショッピングアシスタントです。食事の好み、アレルギー、または特定のニーズに基づいて商品を見つけるお手伝いができます。今日はどのようにお手伝いできますか？',
+        ko: '안녕하세요! 저는 David, 당신의 개인 쇼핑 어시스턴트입니다. 식이 선호도, 알레르기 또는 특정 요구 사항에 따라 제품을 찾는 데 도움을 드릴 수 있습니다. 오늘 어떻게 도와드릴까요?',
+        ru: 'Привет! Я David, ваш персональный помощник по покупкам. Я могу помочь вам найти продукты в соответствии с вашими диетическими предпочтениями, аллергиями или любыми конкретными потребностями. Чем могу помочь сегодня?'
       };
       
       const greeting = greetings[currentLang] || greetings['en'];
@@ -382,17 +382,17 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
   // Update greeting message when language changes (if only one assistant message exists)
   useEffect(() => {
     const greetings = {
-      es: '¡Hola! Soy Hispalo AI, tu asistente de compras personal. Puedo ayudarte a encontrar productos según tus preferencias dietéticas, alergias o cualquier necesidad específica. ¿En qué puedo ayudarte hoy?',
-      en: 'Hello! I\'m Hispalo AI, your personal shopping assistant. I can help you find products based on your dietary preferences, allergies, or any specific needs. How can I help you today?',
-      fr: 'Bonjour ! Je suis Hispalo AI, votre assistant d\'achat personnel. Je peux vous aider à trouver des produits selon vos préférences alimentaires, allergies ou besoins spécifiques. Comment puis-je vous aider aujourd\'hui ?',
-      de: 'Hallo! Ich bin Hispalo AI, Ihr persönlicher Einkaufsassistent. Ich kann Ihnen helfen, Produkte nach Ihren Ernährungspräferenzen, Allergien oder spezifischen Bedürfnissen zu finden. Wie kann ich Ihnen heute helfen?',
-      pt: 'Olá! Sou Hispalo AI, seu assistente de compras pessoal. Posso ajudá-lo a encontrar produtos de acordo com suas preferências alimentares, alergias ou necessidades específicas. Como posso ajudá-lo hoje?',
-      ar: 'مرحباً! أنا Hispalo AI، مساعدك الشخصي للتسوق. يمكنني مساعدتك في العثور على منتجات تناسب تفضيلاتك الغذائية أو الحساسية أو أي احتياجات محددة. كيف يمكنني مساعدتك اليوم؟',
-      hi: 'नमस्ते! मैं Hispalo AI हूं, आपका व्यक्तिगत शॉपिंग सहायक। मैं आपकी आहार प्राथमिकताओं, एलर्जी या किसी विशिष्ट जरूरत के आधार पर उत्पाद खोजने में मदद कर सकता हूं। आज मैं आपकी कैसे मदद कर सकता हूं?',
-      zh: '你好！我是 Hispalo AI，你的个人购物助手。我可以帮助你根据饮食偏好、过敏或任何特定需求找到产品。今天我能为你做些什么？',
-      ja: 'こんにちは！私は Hispalo AI、あなたの個人的なショッピングアシスタントです。食事の好み、アレルギー、または特定のニーズに基づいて商品を見つけるお手伝いができます。今日はどのようにお手伝いできますか？',
-      ko: '안녕하세요! 저는 Hispalo AI, 당신의 개인 쇼핑 어시스턴트입니다. 식이 선호도, 알레르기 또는 특정 요구 사항에 따라 제품을 찾는 데 도움을 드릴 수 있습니다. 오늘 어떻게 도와드릴까요?',
-      ru: 'Привет! Я Hispalo AI, ваш персональный помощник по покупкам. Я могу помочь вам найти продукты в соответствии с вашими диетическими предпочтениями, аллергиями или любыми конкретными потребностями. Чем могу помочь сегодня?'
+      es: '¡Hola! Soy David, tu asistente de compras personal. Puedo ayudarte a encontrar productos según tus preferencias dietéticas, alergias o cualquier necesidad específica. ¿En qué puedo ayudarte hoy?',
+      en: 'Hello! I\'m David, your personal shopping assistant. I can help you find products based on your dietary preferences, allergies, or any specific needs. How can I help you today?',
+      fr: 'Bonjour ! Je suis David, votre assistant d\'achat personnel. Je peux vous aider à trouver des produits selon vos préférences alimentaires, allergies ou besoins spécifiques. Comment puis-je vous aider aujourd\'hui ?',
+      de: 'Hallo! Ich bin David, Ihr persönlicher Einkaufsassistent. Ich kann Ihnen helfen, Produkte nach Ihren Ernährungspräferenzen, Allergien oder spezifischen Bedürfnissen zu finden. Wie kann ich Ihnen heute helfen?',
+      pt: 'Olá! Sou David, seu assistente de compras pessoal. Posso ajudá-lo a encontrar produtos de acordo com suas preferências alimentares, alergias ou necessidades específicas. Como posso ajudá-lo hoje?',
+      ar: 'مرحباً! أنا David، مساعدك الشخصي للتسوق. يمكنني مساعدتك في العثور على منتجات تناسب تفضيلاتك الغذائية أو الحساسية أو أي احتياجات محددة. كيف يمكنني مساعدتك اليوم؟',
+      hi: 'नमस्ते! मैं David हूं, आपका व्यक्तिगत शॉपिंग सहायक। मैं आपकी आहार प्राथमिकताओं, एलर्जी या किसी विशिष्ट जरूरत के आधार पर उत्पाद खोजने में मदद कर सकता हूं। आज मैं आपकी कैसे मदद कर सकता हूं?',
+      zh: '你好！我是 David，你的个人购物助手。我可以帮助你根据饮食偏好、过敏或任何特定需求找到产品。今天我能为你做些什么？',
+      ja: 'こんにちは！私は David、あなたの個人的なショッピングアシスタントです。食事の好み、アレルギー、または特定のニーズに基づいて商品を見つけるお手伝いができます。今日はどのようにお手伝いできますか？',
+      ko: '안녕하세요! 저는 David, 당신의 개인 쇼핑 어시스턴트입니다. 식이 선호도, 알레르기 또는 특정 요구 사항에 따라 제품을 찾는 데 도움을 드릴 수 있습니다. 오늘 어떻게 도와드릴까요?',
+      ru: 'Привет! Я David, ваш персональный помощник по покупкам. Я могу помочь вам найти продукты в соответствии с вашими диетическими предпочтениями, аллергиями или любыми конкретными потребностями. Чем могу помочь сегодня?'
     };
     
     // Only update if it's just the greeting message (first message, from assistant, no user messages yet)
@@ -624,14 +624,14 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     toast.success(t('ai.conversationCleared', 'Conversación borrada'));
   };
 
-  // Hispal AI Logo — HA monogram, stone-950
+  // David Logo — D monogram, stone-950
   const HispaloLogo = ({ size = 40 }) => (
     <div
       className="rounded-full bg-stone-950 flex items-center justify-center flex-shrink-0"
       style={{ width: size, height: size }}
     >
-      <span className="text-white font-semibold" style={{ fontSize: size * 0.28 }}>
-        HA
+      <span className="text-white font-semibold" style={{ fontSize: size * 0.32 }}>
+        D
       </span>
     </div>
   );
@@ -714,7 +714,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                 <HispaloLogo size={isMobile ? 26 : 30} />
                 <div>
                   <h3 className="text-sm font-semibold text-stone-950" data-testid="chat-title">
-                    Hispalo AI
+                    David
                   </h3>
                 </div>
               </div>

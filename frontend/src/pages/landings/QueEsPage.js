@@ -47,7 +47,7 @@ export default function QueEsPage() {
                   Con una IA que conoce lo que comes.
                 </h2>
                 <p style={{ fontSize: 16, color: '#6E6E73', lineHeight: 1.7 }}>
-                  Hispal AI aprende tus preferencias, alergias y objetivos de
+                  David AI aprende tus preferencias, alergias y objetivos de
                   salud. Te recomienda productos reales del catálogo, crea recetas
                   y puede añadirlos al carrito por ti. El asistente más personal
                   que ha tenido tu cocina.
@@ -76,7 +76,7 @@ export default function QueEsPage() {
           gap: 16, maxWidth: 900, margin: '0 auto',
         }}>
           {[
-            { icon: <ShoppingCart size={20} className="text-stone-950" />, role: 'Consumidor', desc: 'Descubre productos auténticos, sigue a tus productores favoritos y compra con la ayuda de Hispal AI.', href: '/registro' },
+            { icon: <ShoppingCart size={20} className="text-stone-950" />, role: 'Consumidor', desc: 'Descubre productos auténticos, sigue a tus productores favoritos y compra con la ayuda de David AI.', href: '/registro' },
             { icon: <Package size={20} className="text-stone-950" />, role: 'Productor',  desc: 'Vende directamente, construye tu comunidad y exporta al mundo con el Agente Comercial IA.', href: '/productor' },
             { icon: <Star size={20} className="text-stone-950" />, role: 'Influencer', desc: 'Comparte lo que usas, gana comisiones reales y conecta con marcas que encajan con tu audiencia.', href: '/influencer' },
             { icon: <Globe size={20} className="text-stone-950" />, role: 'Importador', desc: 'Accede al catálogo español verificado, gestiona certificados y automatiza las órdenes de compra.', href: '/importador' },

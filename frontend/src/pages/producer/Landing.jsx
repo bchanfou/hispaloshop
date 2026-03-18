@@ -4,7 +4,7 @@ import { InfoNav, Hero, FeatureGrid, PricingSection, FooterCTA } from '../../com
 const FEATURES = [
   { icon: '🫙', title: 'Tu tienda en 5 minutos', desc: 'Sube tus productos, añade tu historia y empieza a vender sin comisión fija. Solo pagas cuando vendes.' },
   { icon: '📲', title: 'Social commerce nativo', desc: 'Publica posts, reels y stories directamente desde el panel. Tus productos aparecen etiquetados en el contenido.' },
-  { icon: '🤖', title: 'Hispal AI trabaja por ti', desc: 'El asistente de IA recomienda tus productos a compradores con el perfil exacto. 24 horas al día, sin intervención.' },
+  { icon: '🤖', title: 'David AI trabaja por ti', desc: 'El asistente de IA recomienda tus productos a compradores con el perfil exacto. 24 horas al día, sin intervención.' },
   { icon: '📊', title: 'Analítica de verdad', desc: 'Ve qué productos generan más ventas, qué contenido convierte y desde dónde te llegan los compradores.' },
   { icon: '🌍', title: 'Exporta sin intermediarios', desc: 'Con el plan ELITE, el Agente Comercial IA conecta tu producto con importadores de más de 40 países.' },
   { icon: '💳', title: 'Cobros automáticos', desc: 'Stripe gestiona los pagos, las comisiones y las liquidaciones. Tú recibes tu dinero sin papeleo.' },
@@ -22,7 +22,7 @@ const PLANS = [
       'Visibilidad nacional en España',
       'Comisión del 20% sobre ventas',
       'Acceso a comunidad de productores',
-      'Hispal AI (consumidores)',
+      'David AI (consumidores)',
     ],
     cta: 'Crear mi tienda',
     ctaHref: '/registro?plan=free',
@@ -95,7 +95,7 @@ export default function ProductorPage() {
           { n: '+8.000', label: 'productores activos' },
           { n: '42', label: 'países de exportación' },
           { n: '0€', label: 'para empezar' },
-          { n: '24/7', label: 'Hispal AI trabajando' },
+          { n: '24/7', label: 'David AI trabajando' },
         ].map(s => (
           <div key={s.label} style={{ textAlign: 'center' }}>
             <p style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 700,

@@ -1,5 +1,5 @@
 """
-Tests for Hispal AI endpoints and tool functions.
+Tests for David AI endpoints and tool functions.
 """
 import pytest
 import sys

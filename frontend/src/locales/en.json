@@ -935,7 +935,7 @@
     "myOrders": "My Orders",
     "followedStores": "Followed Stores",
     "profile": "Profile",
-    "aiPreferences": "Hispalo AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Continue Shopping",
     "recentOrders": "Recent Orders",
     "noOrders": "You have no orders yet",
@@ -1315,10 +1315,10 @@
     "stripeError": "Error connecting to Stripe"
   },
   "ai": {
-    "greeting": "Hello! I'm Hispalo AI, your personal shopping assistant. What are you looking for today?",
+    "greeting": "Hello! I'm David AI, your personal shopping assistant. What are you looking for today?",
     "placeholder": "Ask me anything about our products...",
     "send": "Send",
-    "typing": "Hispalo AI is typing...",
+    "typing": "David AI is typing...",
     "error": "Sorry, I couldn't process that. Please try again.",
     "noProducts": "I couldn't find products matching your request.",
     "recommendations": "Here are my recommendations",
@@ -1686,7 +1686,7 @@
     "benefit2Title": "18-month window",
     "benefit2Desc": "Each referred customer generates commissions for 18 months.",
     "benefit3Title": "AI Assistant",
-    "benefit3Desc": "Access Hispalo AI, your intelligent assistant that helps with pricing, trends, and sales strategies.",
+    "benefit3Desc": "Access David AI, your intelligent assistant that helps with pricing, trends, and sales strategies.",
     "benefit4Title": "Simplified Management",
     "benefit4Desc": "Intuitive dashboard to manage products, orders, inventory, and payments from one place.",
     "benefit5Title": "Detailed Analytics",
@@ -1700,7 +1700,7 @@
     "commissionFeature1": "Includes secure payment gateway (Stripe)",
     "commissionFeature2": "Verifiable product certificates",
     "commissionFeature3": "Technical support and customer service",
-    "commissionFeature4": "Access to Hispalo AI for sellers",
+    "commissionFeature4": "Access to Pedro AI for sellers",
     "howItWorksTitle": "How to start selling?",
     "step1Title": "Sign Up",
     "step1Desc": "Create your seller account with your company or freelancer details",
@@ -1770,7 +1770,7 @@
   "floatingIsland": {
     "messages": "Messages",
     "directChat": "Direct Chat",
-    "hispaloAI": "Hispalo AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "AI Assistant"
   },
   "discover": {
@@ -2360,8 +2360,8 @@
     "africaMiddleEast": "Africa & Middle East"
   },
   "aiPrefs": {
-    "title": "Hispalo AI Preferences",
-    "subtitle": "Hispalo AI uses these preferences to personalize your shopping experience.",
+    "title": "David AI Preferences",
+    "subtitle": "David AI uses these preferences to personalize your shopping experience.",
     "communicationStyle": "Communication Style",
     "toneLabel": "How do you prefer responses?",
     "toneShort": "Brief & Direct",
@@ -2384,7 +2384,7 @@
     "soy": "Soy",
     "wheat": "Wheat",
     "fish": "Fish",
-    "allergyNote": "Hispalo AI will never recommend products containing these allergens.",
+    "allergyNote": "David AI will never recommend products containing these allergens.",
     "goals": "Goals",
     "selectGoals": "What are your goals?",
     "healthyEating": "Healthy Eating",

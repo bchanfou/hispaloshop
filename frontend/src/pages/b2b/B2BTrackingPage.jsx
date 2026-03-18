@@ -583,12 +583,12 @@ export default function B2BTrackingPage() {
             </button>
           </div>
 
-          {/* ═══ Section 4 — Hispal AI ══════════════ */}
+          {/* ═══ Section 4 — Pedro AI ══════════════ */}
           <div style={{ background: V2.greenLight, border: `1px solid ${V2.greenBorder}`, borderRadius: V2.radiusMd, padding: 16 }}>
             <div className="flex items-center" style={{ gap: 8, marginBottom: 10 }}>
               <Sparkles size={20} color={V2.green} />
               <span style={{ fontSize: 13, fontWeight: 600, color: V2.green }}>
-                Hispal AI &middot; Asistente B2B
+                Pedro AI &middot; Asistente B2B
               </span>
             </div>
 

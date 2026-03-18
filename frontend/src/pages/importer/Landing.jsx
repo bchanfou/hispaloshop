@@ -51,7 +51,7 @@ const PLANS = [
     isDark: true,
     features: [
       'Todo lo del Distribuidor',
-      'Hispal AI para importadores',
+      'Pedro AI para importadores',
       'Directorio de productores verificados',
       'Alertas de desabastecimiento',
       'Análisis de precios por origen',

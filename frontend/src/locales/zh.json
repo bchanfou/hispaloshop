@@ -297,10 +297,10 @@
     "shareCode": "与您的粉丝分享此代码"
   },
   "ai": {
-    "greeting": "您好！我是 Hispalo AI，您的个人购物助手。今天想找什么？",
+    "greeting": "您好！我是 David AI，您的个人购物助手。今天想找什么？",
     "placeholder": "问我任何关于产品的问题...",
     "send": "发送",
-    "typing": "Hispalo AI 正在输入...",
+    "typing": "David AI 正在输入...",
     "error": "抱歉，无法处理。请重试。",
     "noProducts": "未找到匹配的产品。",
     "recommendations": "这是我的推荐",
@@ -396,7 +396,7 @@
     "viewDetails": "查看完整详情",
     "layer1": {
       "title": "快速摘要",
-      "bullet1": "我们分析您与Hispalo AI的对话以推断购物偏好",
+      "bullet1": "我们分析您与David AI的对话以推断购物偏好",
       "bullet2": "我们绝不存储您的原始聊天消息用于分析",
       "bullet3": "您的数据仅用于个性化推荐",
       "bullet4": "您可以随时从个人资料中撤回同意",

@@ -24,7 +24,7 @@ async def send_b2b_system_message(conversation_id: str, event_type: str, data: d
         "contract_signed": "\ud83d\udd12 Contrato firmado por ambas partes \u00b7 Hash: {hash_short}",
         "payment_received": "\ud83d\udcb3 Pago de {amount} recibido",
         "shipment_confirmed": "\ud83d\udce6 Env\u00edo confirmado \u00b7 {carrier} {tracking}",
-        "ai_alert": "\u26a0\ufe0f Hispal AI: {alert_text}",
+        "ai_alert": "\u26a0\ufe0f David AI: {alert_text}",
     }
 
     template = MESSAGE_TEMPLATES.get(event_type)

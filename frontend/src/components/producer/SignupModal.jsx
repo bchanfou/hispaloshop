@@ -79,7 +79,7 @@ export const PRODUCER_PLANS = {
     summary: 'Para cooperativas y productores con ambición global.',
     features: [
       'Todo lo del PRO',
-      'Hispal AI Agente Comercial Internacional',
+      'Pedro AI — Tu socio comercial internacional',
       'Predicción de demanda por país y temporada',
       'Análisis de mercados internacionales (precio, competencia, oportunidad)',
       'Detección preventiva de riesgo de desabastecimiento',

@@ -97,7 +97,7 @@ export default function DesktopSidebar() {
         </SidebarSection>
       ) : null}
 
-      {/* Hispal AI Card — ALWAYS visible */}
+      {/* David AI Card — ALWAYS visible */}
       <div style={{
         margin: '0 0 16px',
         padding: 16,
@@ -114,7 +114,7 @@ export default function DesktopSidebar() {
             <Sparkles size={14} color="var(--color-white)" />
           </div>
           <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-black)' }}>
-            ✨ Hispal AI
+            ✨ David
           </span>
         </div>
         <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-stone)', margin: '0 0 10px', lineHeight: 1.5 }}>

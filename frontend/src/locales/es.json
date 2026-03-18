@@ -691,7 +691,7 @@
     "myOrders": "Mis Pedidos",
     "followedStores": "Tiendas Seguidas",
     "profile": "Perfil",
-    "aiPreferences": "Hispalo AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Seguir Comprando",
     "recentOrders": "Pedidos Recientes",
     "noOrders": "No tienes pedidos an",
@@ -1071,10 +1071,10 @@
     "stripeError": "Error al conectar con Stripe"
   },
   "ai": {
-    "greeting": "Hola! Soy Hispalo AI, tu asistente personal de compras. Qu buscas hoy",
+    "greeting": "Hola! Soy David AI, tu asistente personal de compras. Qu buscas hoy",
     "placeholder": "Pregntame sobre nuestros productos...",
     "send": "Enviar",
-    "typing": "Hispalo AI est escribiendo...",
+    "typing": "David AI est escribiendo...",
     "error": "Lo siento, no pude procesar eso. Por favor, intntalo de nuevo.",
     "noProducts": "No encontr productos que coincidan con tu bsqueda.",
     "recommendations": "Aqu tienes mis recomendaciones",
@@ -1442,7 +1442,7 @@
     "benefit2Title": "Ventana de 18 meses",
     "benefit2Desc": "Cada cliente referido te genera comisiónes durante 18 meses.",
     "benefit3Title": "Asistente IA",
-    "benefit3Desc": "Accede a Hispalo AI, tu asistente inteligente que te ayuda con precios, tendencias y estrategias de venta.",
+    "benefit3Desc": "Accede a Pedro AI, tu socio comercial que te ayuda con precios, tendencias y estrategias de venta.",
     "benefit4Title": "Gestin Simplificada",
     "benefit4Desc": "Panel de control intuitivo para gestionar productos, pedidos, inventario y pagos desde un solo lugar.",
     "benefit5Title": "Estadísticas detalladas",
@@ -1456,7 +1456,7 @@
     "commissionFeature1": "Incluye pasarela de pago segura (Stripe)",
     "commissionFeature2": "Certificados de producto verificables",
     "commissionFeature3": "Soporte tcnico y atencin al cliente",
-    "commissionFeature4": "Acceso a Hispalo AI para productores",
+    "commissionFeature4": "Acceso a David AI para productores",
     "howItWorksTitle": "Cmo empezar a vender",
     "step1Title": "Regstrate",
     "step1Desc": "Crea tu cuenta de productor con tus datos de empresa o autnomo",
@@ -1770,7 +1770,7 @@
   "floatingIsland": {
     "messages": "Mensajes",
     "directChat": "Chat directo",
-    "hispaloAI": "Hispalo AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "Asistente IA"
   },
   "discover": {
@@ -2360,8 +2360,8 @@
     "africaMiddleEast": "Africa y Oriente Medio"
   },
   "aiPrefs": {
-    "title": "Preferencias de Hispalo AI",
-    "subtitle": "Hispalo AI usa estás preferencias para personalizar tu experiencia de compra.",
+    "title": "Preferencias de David AI",
+    "subtitle": "David AI usa estás preferencias para personalizar tu experiencia de compra.",
     "communicationStyle": "Estilo de comunicacion",
     "toneLabel": "Como prefieres que te responda",
     "toneShort": "Breve y directo",
@@ -2384,7 +2384,7 @@
     "soy": "Soja",
     "wheat": "Trigo",
     "fish": "Pescado",
-    "allergyNote": "Hispalo AI nunca te recomendara productos con estos alergenos.",
+    "allergyNote": "David AI nunca te recomendara productos con estos alergenos.",
     "goals": "Objetivos",
     "selectGoals": "Cuales son tus objetivos",
     "healthyEating": "Alimentacion saludable",

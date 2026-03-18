@@ -47,7 +47,7 @@ export default function HispalAIPanel({ isOpen, onClose, contentType, onApply })
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Sparkles size={18} color="var(--color-black)" />
-                <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>Hispal AI</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>David AI</span>
               </div>
               <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} color="var(--color-stone)" />

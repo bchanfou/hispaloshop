@@ -320,10 +320,10 @@
     "shareCode": "Partagez ce code avec vos abonnés"
   },
   "ai": {
-    "greeting": "Bonjour ! Je suis Hispalo AI, votre assistant shopping personnel. Que recherchez-vous aujourd'hui ?",
+    "greeting": "Bonjour ! Je suis David AI, votre assistant shopping personnel. Que recherchez-vous aujourd'hui ?",
     "placeholder": "Posez-moi une question sur nos produits...",
     "send": "Envoyer",
-    "typing": "Hispalo AI écrit...",
+    "typing": "David AI écrit...",
     "error": "Désolé, je n'ai pas pu traiter cela. Veuillez réessayer.",
     "noProducts": "Je n'ai pas trouvé de produits correspondants.",
     "recommendations": "Voici mes recommandations",
@@ -423,7 +423,7 @@
     "viewDetails": "Voir tous les détails",
     "layer1": {
       "title": "Résumé Rapide",
-      "bullet1": "Nous analysons vos conversations avec Hispalo AI pour déduire vos préférences d'achat",
+      "bullet1": "Nous analysons vos conversations avec David AI pour déduire vos préférences d'achat",
       "bullet2": "Nous ne stockons JAMAIS vos messages de chat bruts pour l'analyse",
       "bullet3": "Vos données sont utilisées uniquement pour des recommandations personnalisées",
       "bullet4": "Vous pouvez retirer votre consentement à tout moment depuis votre profil",

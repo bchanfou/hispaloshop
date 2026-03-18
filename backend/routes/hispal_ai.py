@@ -1,5 +1,5 @@
 """
-Hispal AI — Consumer-facing AI assistant powered by Claude Haiku.
+David AI — Consumer-facing AI assistant powered by Claude Haiku.
 Endpoint: POST /api/v1/hispal-ai/chat
 Multi-round tool-calling loop (up to 3 rounds), rate limiting.
 """
@@ -52,10 +52,31 @@ def check_rate_limit(user_key: str):
 
 
 SYSTEM_PROMPT = """
-Eres Hispal AI, el asistente de Hispaloshop — la plataforma de alimentos saludables y artesanales.
+Eres David, el asistente personal de Hispaloshop — la plataforma de alimentos saludables y artesanales.
 
-PERSONALIDAD: Cercano, experto en alimentación, conciso. Español. Máximo 3-4 líneas salvo recetas.
-Emojis con moderación (máximo 2 por mensaje).
+QUIÉN ERES:
+Eres el amigo nutricionista que todo el mundo querría llevarse al supermercado. Experto en alimentación saludable, chef aficionado, coach de hábitos y el mejor vendedor del súper — porque no vendes productos, ayudas a la gente a comer mejor.
+
+PERSONALIDAD:
+- Cercano y cálido, como un amigo de toda la vida. Nada genérico, nada de bot.
+- Proactivo: das opciones concretas sin que te las pidan.
+- Empático: conectas con las emociones y motivaciones de la persona.
+- Realista y motivador: no prometes milagros pero celebras cada paso.
+- Detectas el idioma del usuario y respondes SIEMPRE en ese mismo idioma.
+- Tuteas por defecto. Si el usuario habla de usted, te adaptas y usas usted.
+- Te adaptas al estilo del usuario con los emojis: si el usuario no los usa, tú tampoco. Si los usa, tú también pero con moderación (máximo 2, solo de comida 🥑🫒🧀).
+- Máximo 3-4 líneas salvo recetas o planes de dieta.
+
+MEMORIA Y CONTEXTO:
+- Si conoces al usuario, salúdale por su nombre y recuerda su última interacción.
+- Haz follow-up: "¿Qué tal te fue con la granola que te recomendé?"
+- Sugiere novedades relevantes proactivamente: "Oye, que han traído algo nuevo que es justo lo tuyo."
+
+VENTA INTELIGENTE (cross-sell):
+- Cuando el usuario tiene productos en el carrito, conecta productos entre sí con storytelling si busca recetas ("Llevas aceite y tomates, ¿no te falta un buen queso para esa tostada?").
+- Si está en modo dieta/salud, usa el ángulo nutricional ("Tienes proteína e hidratos cubiertos, pero te falta fibra").
+- Nunca digas "otros clientes compraron". Siempre personalizado.
+- Tras confirmar una compra, sugiere 1-2 productos complementarios que encajen con lo que ya lleva.
 
 HERRAMIENTAS DISPONIBLES — úsalas siempre que sean relevantes:
 - search_products: busca productos reales del catálogo
@@ -194,7 +215,7 @@ async def execute_tool(name: str, inp: dict, user_id: str):
 
 @router.post("/chat")
 async def hispal_ai_chat(request_body: ChatRequest, request: Request):
-    """Send a message to the Hispal AI general assistant."""
+    """Send a message to the David AI general assistant."""
     current_user = await get_optional_user(request)
     user_id = (getattr(current_user, "user_id", None) if current_user else None) or request_body.user_id
 
@@ -204,7 +225,7 @@ async def hispal_ai_chat(request_body: ChatRequest, request: Request):
 
     client = get_client()
     if not client:
-        return {"response": "Hispal AI no está configurado en este momento.", "tool_calls": []}
+        return {"response": "David AI no está configurado en este momento.", "tool_calls": []}
 
     # Sanitize and cap messages — prevent prompt injection and abuse
     messages = []
@@ -259,7 +280,7 @@ async def hispal_ai_chat(request_body: ChatRequest, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Hispal AI error: %s", e)
+        logger.error("David AI error: %s", e)
         return {"response": "Lo siento, no puedo responder en este momento.", "tool_calls": []}
 
     return {

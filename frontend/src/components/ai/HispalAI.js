@@ -8,12 +8,12 @@ import { useAuth } from '../../context/AuthContext';
 import ProductCardInChat from './ProductCardInChat';
 
 const QUICK_SUGGESTIONS = [
-  { label: '¿Qué hay de nuevo?', Icon: Sparkles },
-  { label: 'Receta de hoy', Icon: ChefHat },
-  { label: 'Mi dieta', Icon: BarChart3 },
+  { label: '¿Qué me recomiendas hoy?', Icon: Sparkles },
+  { label: 'Hazme una receta rápida', Icon: ChefHat },
+  { label: 'Ayúdame con mi dieta', Icon: BarChart3 },
   { label: 'Productos halal', emoji: '☪️' },
-  { label: 'Sin gluten', Icon: Wheat },
-  { label: 'Ver mi carrito', Icon: ShoppingCart },
+  { label: 'Opciones sin gluten', Icon: Wheat },
+  { label: '¿Qué llevo en el carrito?', Icon: ShoppingCart },
 ];
 
 function parseMarkdownSafe(text) {
@@ -117,7 +117,7 @@ export default function HispalAI() {
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             onClick={toggleOpen}
             className="fixed bottom-[88px] right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-stone-950 shadow-[0_4px_24px_rgba(0,0,0,0.20)] transition-transform hover:scale-105 active:scale-95"
-            aria-label="Abrir Hispal AI"
+            aria-label="Abrir David"
           >
             <Sparkles className="h-6 w-6 text-white" />
           </motion.button>
@@ -154,10 +154,10 @@ export default function HispalAI() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[16px] font-semibold text-stone-950">Hispal AI</span>
+                      <span className="text-[16px] font-semibold text-stone-950">David</span>
                       <span className="h-2 w-2 rounded-full bg-stone-950" />
                     </div>
-                    <p className="text-[12px] text-stone-500">Tu asistente de alimentación</p>
+                    <p className="text-[12px] text-stone-500">Tu compañero de compras</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -187,9 +187,9 @@ export default function HispalAI() {
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
                       <Sparkles className="h-8 w-8 text-stone-950" />
                     </div>
-                    <h3 className="mt-4 text-lg font-semibold text-stone-950">Hola, soy Hispal AI</h3>
+                    <h3 className="mt-4 text-lg font-semibold text-stone-950">Hola, soy David</h3>
                     <p className="mt-1 text-center text-sm text-stone-500">
-                      Pregúntame sobre productos, recetas o recomendaciones
+                      Estoy aquí para ayudarte a encontrar lo que necesitas
                     </p>
 
                     {/* Quick Suggestions */}
@@ -278,7 +278,7 @@ export default function HispalAI() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Pregunta a Hispal AI..."
+                    placeholder="Pregúntale a David..."
                     className="flex-1 border-none bg-transparent text-[15px] text-stone-950 placeholder-stone-400 outline-none"
                   />
                   <button

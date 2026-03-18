@@ -50,7 +50,7 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: t('sellerAI.welcome', 'Hola. Soy Hispal AI Ventas, tu asistente de negocio. Puedo ayudarte a crear mejores packs, analizar tendencias, optimizar precios y diseñar estrategias de ventas. ¿En qué te puedo ayudar hoy?')
+      content: t('sellerAI.welcome', 'Hola, soy Pedro — tu socio comercial en Hispaloshop. He trabajado con productores como tú para mejorar ventas, optimizar precios y detectar oportunidades de mercado. ¿Por dónde empezamos?')
     }
   ]);
   const [input, setInput]         = useState('');
@@ -111,8 +111,8 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
         <div className="flex items-center gap-3">
           <HAAvatar size={36} />
           <div>
-            <h3 className="text-white font-semibold text-sm">{t('sellerAI.title', 'Hispal AI Ventas')}</h3>
-            <p className="text-white/50 text-xs">{t('sellerAI.subtitle', 'Asistente de ventas')}</p>
+            <h3 className="text-white font-semibold text-sm">{t('sellerAI.title', 'Pedro AI')}</h3>
+            <p className="text-white/50 text-xs">{t('sellerAI.subtitle', 'Tu socio comercial')}</p>
           </div>
         </div>
         <button

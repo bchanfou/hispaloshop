@@ -5,10 +5,10 @@ import { CheckCircle2, ShoppingBag, TrendingUp, Wand2, Globe } from 'lucide-reac
 import { ROLE_CONFIG } from './useHIChat';
 
 const ROLE_META = {
-  consumer: { icon: ShoppingBag, label: 'Hispal AI', badge: null },
-  producer: { icon: TrendingUp, label: 'Hispal Ventas', badge: 'PRO' },
+  consumer: { icon: ShoppingBag, label: 'David', badge: null },
+  producer: { icon: TrendingUp, label: 'Pedro', badge: 'PRO' },
   influencer: { icon: Wand2, label: 'Hispal Creativo', badge: 'PRO' },
-  importer: { icon: Globe, label: 'Hispal Ventas', badge: 'PRO' },
+  importer: { icon: Globe, label: 'Pedro', badge: 'PRO' },
 };
 
 function RoleSelector({ activeRole, onSwitch, isOpen, onClose, availableRoles }) {

@@ -301,10 +301,10 @@
     "shareCode": "Teilen Sie diesen Code mit Ihren Followern"
   },
   "ai": {
-    "greeting": "Hallo! Ich bin Hispalo AI, Ihr persönlicher Einkaufsassistent. Was suchen Sie heute?",
+    "greeting": "Hallo! Ich bin David AI, Ihr persönlicher Einkaufsassistent. Was suchen Sie heute?",
     "placeholder": "Fragen Sie mich zu unseren Produkten...",
     "send": "Senden",
-    "typing": "Hispalo AI schreibt...",
+    "typing": "David AI schreibt...",
     "error": "Entschuldigung, ich konnte das nicht verarbeiten. Bitte versuchen Sie es erneut.",
     "noProducts": "Ich konnte keine passenden Produkte finden.",
     "recommendations": "Hier sind meine Empfehlungen",
@@ -404,7 +404,7 @@
     "viewDetails": "Alle Details anzeigen",
     "layer1": {
       "title": "Kurzübersicht",
-      "bullet1": "Wir analysieren Ihre Chats mit Hispalo AI, um Einkaufspräferenzen abzuleiten",
+      "bullet1": "Wir analysieren Ihre Chats mit David AI, um Einkaufspräferenzen abzuleiten",
       "bullet2": "Wir speichern NIEMALS Ihre Chat-Nachrichten für Analysen",
       "bullet3": "Ihre Daten werden nur für personalisierte Empfehlungen verwendet",
       "bullet4": "Sie können Ihre Einwilligung jederzeit in Ihrem Profil widerrufen",

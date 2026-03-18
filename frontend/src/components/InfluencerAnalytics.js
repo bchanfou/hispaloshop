@@ -303,7 +303,7 @@ export default function InfluencerAnalytics() {
             )}
             <li>• Recuerda mencionar el descuento del 10% que obtienen tus seguidores.</li>
             <li>• Los Stories y Reels tienen mejor engagement que los posts estáticos.</li>
-            <li>• Usa el Hispalo AI Creativo para generar ideas de contenido.</li>
+            <li>• Usa el Asistente Creativo para generar ideas de contenido.</li>
           </ul>
         </div>
       </div>

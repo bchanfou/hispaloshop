@@ -297,10 +297,10 @@
     "shareCode": "Compartilhe este código com seus seguidores"
   },
   "ai": {
-    "greeting": "Olá! Sou o Hispalo AI, seu assistente de compras pessoal. O que você procura hoje?",
+    "greeting": "Olá! Sou o David AI, seu assistente de compras pessoal. O que você procura hoje?",
     "placeholder": "Pergunte-me sobre nossos produtos...",
     "send": "Enviar",
-    "typing": "Hispalo AI está digitando...",
+    "typing": "David AI está digitando...",
     "error": "Desculpe, não consegui processar isso. Por favor, tente novamente.",
     "noProducts": "Não encontrei produtos correspondentes.",
     "recommendations": "Aqui estão minhas recomendações",
@@ -396,7 +396,7 @@
     "viewDetails": "Ver detalhes completos",
     "layer1": {
       "title": "Resumo Rápido",
-      "bullet1": "Analisamos suas conversas com Hispalo AI para inferir preferências de compra",
+      "bullet1": "Analisamos suas conversas com David AI para inferir preferências de compra",
       "bullet2": "NUNCA armazenamos suas mensagens de chat para análise",
       "bullet3": "Seus dados são usados apenas para recomendações personalizadas",
       "bullet4": "Você pode retirar o consentimento a qualquer momento no seu perfil",

@@ -921,7 +921,7 @@ export default function CreatePostPage() {
             marginBottom: 16,
           }}
         >
-          <Sparkles size={14} style={{ marginRight: 6, flexShrink: 0 }} /> Sugerir con Hispal AI
+          <Sparkles size={14} style={{ marginRight: 6, flexShrink: 0 }} /> Sugerir con David AI
         </button>
 
         {/* tag products */}

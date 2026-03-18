@@ -197,10 +197,10 @@ export default function CustomerAIPreferences() {
     <div data-testid="ai-preferences-page">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-stone-950 uppercase tracking-[0.02em]" data-testid="ai-preferences-title">
-          {t('aiPrefs.title', 'Preferencias de Hispalo AI')}
+          {t('aiPrefs.title', 'Preferencias de David AI')}
         </h1>
         <p className="text-sm text-stone-500 mt-2">
-          {t('aiPrefs.subtitle', 'Hispalo AI usa estas preferencias para personalizar tu experiencia de compra.')}
+          {t('aiPrefs.subtitle', 'David AI usa estas preferencias para personalizar tu experiencia de compra.')}
         </p>
       </div>
 
@@ -240,7 +240,7 @@ export default function CustomerAIPreferences() {
             label={t('aiPrefs.selectAllergies', 'Selecciona tus alergias')}
           />
           <p className="text-xs text-stone-500 mt-3">
-            {t('aiPrefs.allergyNote', 'Hispalo AI nunca te recomendara productos con estos alergenos.')}
+            {t('aiPrefs.allergyNote', 'David AI nunca te recomendara productos con estos alergenos.')}
           </p>
         </div>
 

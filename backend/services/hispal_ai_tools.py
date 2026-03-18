@@ -1,5 +1,5 @@
 """
-Hispal AI — Tool implementations for product search, cart, and user profile.
+David AI — Tool implementations for product search, cart, and user profile.
 These functions are called by the AI router when Claude uses tools.
 """
 from bson import ObjectId

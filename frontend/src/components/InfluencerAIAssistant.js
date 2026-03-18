@@ -47,7 +47,7 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: '¡Hola! Soy Hispal AI Creativo, tu asistente de contenido.\n\nPuedo ayudarte con guiones para videos, captions y posts, ideas para Stories, estrategias de contenido y textos promocionales auténticos.\n\n¿Qué tipo de contenido necesitas crear hoy?'
+      content: '¡Hola! Soy tu asistente creativo en Hispaloshop.\n\nPuedo ayudarte con guiones para videos, captions y posts, ideas para Stories, estrategias de contenido y textos promocionales auténticos.\n\n¿Qué tipo de contenido necesitas crear hoy?'
     }
   ]);
   const [input, setInput]             = useState('');
@@ -112,7 +112,7 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
         <div className="flex items-center gap-3">
           <HAAvatar size={36} />
           <div>
-            <h3 className="text-white font-semibold text-sm">Hispal AI Creativo</h3>
+            <h3 className="text-white font-semibold text-sm">Asistente Creativo</h3>
             <p className="text-white/50 text-xs">Asistente de contenido</p>
           </div>
         </div>

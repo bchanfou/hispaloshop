@@ -14,11 +14,11 @@ export function getTimeGreeting() {
 // ── Role configuration ─────────────────────────────────────────────
 export const ROLE_CONFIG = {
   consumer: {
-    name: 'Hispal AI',
-    mode: 'Hispal AI',
-    description: 'Tu asistente personal de alimentación y soporte',
+    name: 'David',
+    mode: 'David',
+    description: 'Tu compañero de compras y alimentación',
     welcomeMessage:
-      '¡Hola! Soy Hispal AI, tu asistente personal de Hispaloshop. ¿En qué puedo ayudarte hoy?',
+      '¡Hola! Soy David, estoy aquí para echarte una mano con lo que necesites. ¿Qué te apetece hoy?',
     suggestions: [
       { id: 'meal_plan',     label: 'Planificar comidas',      action: 'meal_plan',     emoji: '🗓' },
       { id: 'find_products', label: 'Buscar productos',         action: 'find_products', emoji: '🛍' },
@@ -27,11 +27,11 @@ export const ROLE_CONFIG = {
     ],
   },
   producer: {
-    name: 'Hispal Ventas',
-    mode: 'Hispal Ventas',
-    description: 'Asistente de negocio premium para productores',
+    name: 'Pedro',
+    mode: 'Pedro',
+    description: 'Tu asesor de negocio para productores',
     welcomeMessage:
-      '¡Hola! Soy Hispal Ventas, tu asistente de negocio. ¿Qué quieres analizar hoy?',
+      '¡Hola! Soy Pedro, tu asesor de negocio. ¿Qué quieres analizar hoy?',
     suggestions: [
       { id: 'sales',    label: 'Analizar ventas',          action: 'sales_analysis',  emoji: '📊' },
       { id: 'pricing',  label: 'Optimizar precios',         action: 'pricing',         emoji: '💰' },
@@ -53,11 +53,11 @@ export const ROLE_CONFIG = {
     ],
   },
   importer: {
-    name: 'Hispal Ventas',
-    mode: 'Hispal Ventas',
+    name: 'Pedro',
+    mode: 'Pedro',
     description: 'Análisis de mercado internacional para importadores',
     welcomeMessage:
-      '¡Hola! Soy Hispal Ventas, tu analista de mercado internacional. ¿Cómo puedo ayudarte?',
+      '¡Hola! Soy Pedro, tu analista de mercado internacional. ¿Cómo puedo ayudarte?',
     suggestions: [
       { id: 'find_producers', label: 'Encontrar productores',  action: 'find_producers', emoji: '🏭' },
       { id: 'margins',        label: 'Análisis de márgenes',   action: 'margins',         emoji: '📈' },

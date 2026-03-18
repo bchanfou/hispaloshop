@@ -51,7 +51,7 @@ def test_rate_limiter_has_ai_limits():
     limiter = RateLimiter()
     assert "hispal_ai" in limiter.limits
     assert "commercial_ai" in limiter.limits
-    # Hispal AI: 20 per hour
+    # David AI: 20 per hour
     assert limiter.limits["hispal_ai"] == (20, 3600)
     # Commercial AI: 50 per hour
     assert limiter.limits["commercial_ai"] == (50, 3600)

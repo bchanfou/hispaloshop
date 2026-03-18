@@ -340,9 +340,9 @@ export default function CreateRecipePage() {
           )}
         </div>
 
-        {/* Hispal AI card */}
+        {/* David AI card */}
         <div className="mb-4 rounded-xl border border-stone-200 bg-stone-50 p-4">
-          <p className="mb-2 text-sm text-stone-950 leading-relaxed">✨ Hispal AI puede ayudarte con:</p>
+          <p className="mb-2 text-sm text-stone-950 leading-relaxed">✨ David AI puede ayudarte con:</p>
           <ul className="mb-3 pl-4 text-sm text-stone-500 leading-relaxed">
             <li>Una introducción para tu receta</li>
             <li>Hashtags relevantes</li>

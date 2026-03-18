@@ -235,7 +235,7 @@ app.include_router(documents_router, prefix="/api", tags=["documents"])
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
 
-# Hispal AI — Consumer assistant (Claude Haiku)
+# David AI — Consumer assistant (Claude Haiku)
 from routes.hispal_ai import router as hispal_ai_router
 app.include_router(hispal_ai_router, prefix="/api", tags=["hispal-ai"])
 

@@ -18,7 +18,7 @@ function SalesSourcesChart({ sources }) {
   const data = [
     { name: 'Feed', value: sources?.feed || 0, color: '#57534e' },
     { name: 'Tienda', value: sources?.store || 0, color: '#78716c' },
-    { name: 'Hispal AI', value: sources?.hispal_ai || 0, color: '#44403c' },
+    { name: 'David AI', value: sources?.hispal_ai || 0, color: '#44403c' },
     { name: 'Influencer', value: sources?.influencer || 0, color: '#a8a29e' },
     { name: 'Directo', value: sources?.direct || 0, color: '#d6d3d1' },
   ].filter(d => d.value > 0);

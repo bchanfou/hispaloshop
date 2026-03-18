@@ -211,7 +211,7 @@ function ConsumerDashboard() {
       )}
 
       <div>
-        <h3 className="font-semibold text-stone-950 mb-3">Sugerencias Hispal AI</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">Sugerencias de David</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>
