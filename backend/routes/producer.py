@@ -680,6 +680,8 @@ async def create_stripe_connect_account(request: Request, user: User = Depends(g
     
     # Check if producer already has a Stripe account
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
     if user_doc.get("stripe_account_id"):
         # Account already exists, create a new onboarding link
         try:
@@ -831,24 +833,32 @@ async def get_producer_sales_chart(user: User = Depends(get_current_user)):
     """30-day daily sales data for overview chart."""
     await require_role(user, ["producer", "importer"])
     now = datetime.now(timezone.utc)
+    start_30d = (now - timedelta(days=30)).replace(hour=0, minute=0, second=0).isoformat()
+
+    # Single query for all 30 days (was 30 separate queries)
+    all_orders = await db.orders.find(
+        {"created_at": {"$gte": start_30d}, "line_items.producer_id": user.user_id},
+        {"line_items": 1, "created_at": 1},
+    ).to_list(2000)
+
+    # Group by day
+    daily = {}
+    for o in all_orders:
+        created = o.get("created_at", "")
+        day_str = created[:10] if isinstance(created, str) else created.strftime("%Y-%m-%d") if created else ""
+        if not day_str:
+            continue
+        items = [it for it in o.get("line_items", []) if it.get("producer_id") == user.user_id]
+        if items:
+            entry = daily.setdefault(day_str, {"revenue": 0, "orders": 0})
+            entry["orders"] += 1
+            entry["revenue"] += sum(it.get("subtotal", it.get("price", 0) * it.get("quantity", 1)) for it in items)
+
     days = []
     for i in range(29, -1, -1):
-        day = now - timedelta(days=i)
-        day_str = day.strftime("%Y-%m-%d")
-        start = day.replace(hour=0, minute=0, second=0).isoformat()
-        end = day.replace(hour=23, minute=59, second=59).isoformat()
-        orders = await db.orders.find(
-            {"created_at": {"$gte": start, "$lte": end}},
-            {"line_items": 1, "total_amount": 1},
-        ).to_list(500)
-        revenue = 0
-        count = 0
-        for o in orders:
-            items = [it for it in o.get("line_items", []) if it.get("producer_id") == user.user_id]
-            if items:
-                count += 1
-                revenue += sum(it.get("subtotal", it.get("price", 0) * it.get("quantity", 1)) for it in items)
-        days.append({"date": day_str, "revenue": round(revenue, 2), "orders": count})
+        day_str = (now - timedelta(days=i)).strftime("%Y-%m-%d")
+        entry = daily.get(day_str, {"revenue": 0, "orders": 0})
+        days.append({"date": day_str, "revenue": round(entry["revenue"], 2), "orders": entry["orders"]})
     return {"days": days}
 
 
@@ -880,9 +890,9 @@ async def get_producer_alerts(user: User = Depends(get_current_user)):
             "action": "/producer/products",
         })
 
-    # Pending orders
+    # Pending orders (filter by producer to avoid loading all platform orders)
     orders = await db.orders.find(
-        {"status": {"$in": ["paid", "confirmed"]}},
+        {"status": {"$in": ["paid", "confirmed"]}, "line_items.producer_id": user.user_id},
         {"line_items": 1},
     ).to_list(200)
     pending = sum(

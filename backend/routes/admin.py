@@ -587,6 +587,7 @@ async def get_global_stats(user: User = Depends(get_current_user)):
 async def get_admin_activity(limit: int = 50, user: User = Depends(get_current_user)):
     """Get admin activity log (Super Admin only)"""
     await require_super_admin(user)
+    limit = min(limit, 500)
     
     activities = await db.admin_activity.find(
         {},
@@ -651,20 +652,24 @@ async def get_all_users_by_role(
     if country and country != "all":
         query["country"] = country
     
+    and_clauses = []
     if status == "suspended":
         query["account_status"] = "suspended"
     elif status == "active":
-        query["$or"] = [
+        and_clauses.append({"$or": [
             {"account_status": {"$exists": False}},
             {"account_status": "active"}
-        ]
-    
+        ]})
+
     if search:
-        query["$or"] = [
+        and_clauses.append({"$or": [
             {"name": {"$regex": re.escape(search), "$options": "i"}},
             {"email": {"$regex": re.escape(search), "$options": "i"}},
             {"company_name": {"$regex": re.escape(search), "$options": "i"}}
-        ]
+        ]})
+
+    if and_clauses:
+        query["$and"] = and_clauses
     
     users = await db.users.find(
         query,
@@ -1149,7 +1154,7 @@ async def update_product_stock_producer(product_id: str, input: StockUpdateInput
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    if product["producer_id"] != user.user_id:
+    if product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized to update this product's stock")
     
     if input.stock < 0:
@@ -1375,7 +1380,7 @@ async def create_variant(product_id: str, input: VariantCreateInput, user: User 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    if product["producer_id"] != user.user_id:
+    if product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this product")
     
     variant_id = f"var_{uuid.uuid4().hex[:8]}"
@@ -1405,7 +1410,7 @@ async def update_variant(product_id: str, variant_id: str, input: VariantCreateI
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    if product["producer_id"] != user.user_id:
+    if product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this product")
     
     variants = product.get("variants", [])
@@ -1434,7 +1439,7 @@ async def delete_variant(product_id: str, variant_id: str, user: User = Depends(
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    if product["producer_id"] != user.user_id:
+    if product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this product")
     
     variants = product.get("variants", [])
@@ -1467,7 +1472,7 @@ async def create_pack(product_id: str, input: PackCreateInput, user: User = Depe
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    if product["producer_id"] != user.user_id:
+    if product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this product")
     
     variants = product.get("variants", [])
@@ -1512,7 +1517,7 @@ async def update_pack(product_id: str, pack_id: str, input: PackUpdateInput, use
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    if product["producer_id"] != user.user_id:
+    if product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this product")
     
     variants = product.get("variants", [])
@@ -1550,7 +1555,7 @@ async def delete_pack(product_id: str, pack_id: str, user: User = Depends(get_cu
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    if product["producer_id"] != user.user_id:
+    if product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this product")
     
     variants = product.get("variants", [])

@@ -308,7 +308,6 @@ async def get_pending_certificates(user: User = Depends(get_current_user)):
             cert_query["producer_id"] = "__none__"
     certificates = await db.certificates.find(cert_query, {"_id": 0}).to_list(100)
     return certificates
-    return certificates
 
 @router.put("/admin/certificates/{certificate_id}/approve")
 async def approve_certificate(certificate_id: str, approved: bool, user: User = Depends(get_current_user)):

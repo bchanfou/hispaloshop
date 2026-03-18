@@ -85,7 +85,7 @@ async def upload_cif_nif(
         folder="verification_docs",
         filename=f"cif_{user.user_id}_{uuid.uuid4().hex[:8]}",
     )
-    file_url = result["url"]
+    file_url = result.get("url", "")
     now = datetime.now(timezone.utc)
 
     # Initialize verification_status if needed
@@ -163,7 +163,7 @@ async def upload_facility_photo(
         folder="verification_docs",
         filename=f"facility_{user.user_id}_{uuid.uuid4().hex[:8]}",
     )
-    file_url = result["url"]
+    file_url = result.get("url", "")
     now = datetime.now(timezone.utc)
 
     # Mark as pending
@@ -231,7 +231,7 @@ async def upload_certificate(
         folder="verification_docs",
         filename=f"cert_{user.user_id}_{cert_type}_{uuid.uuid4().hex[:8]}",
     )
-    file_url = result["url"]
+    file_url = result.get("url", "")
     now = datetime.now(timezone.utc)
 
     # Verify with AI
@@ -310,7 +310,7 @@ async def renew_certificate(
         folder="verification_docs",
         filename=f"cert_{user.user_id}_{cert_type}_{uuid.uuid4().hex[:8]}",
     )
-    file_url = result["url"]
+    file_url = result.get("url", "")
     now = datetime.now(timezone.utc)
 
     verification = await verify_certificate(file_url, cert_type)
