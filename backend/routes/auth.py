@@ -960,7 +960,9 @@ async def set_role(request: Request, user: User = Depends(get_current_user)):
     role = body.get("role")
     preferences = body.get("preferences", [])
 
-    valid_roles = ["consumer", "customer", "producer", "influencer", "importer"]
+    # Only allow consumer/customer during onboarding — privileged roles
+    # (producer, influencer, importer) require dedicated registration flows
+    valid_roles = ["consumer", "customer"]
     if not role or role not in valid_roles:
         raise HTTPException(status_code=400, detail="Invalid role")
 

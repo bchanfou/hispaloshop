@@ -507,11 +507,10 @@ async def stripe_billing_webhook(request: Request):
 
     webhook_secret = os.environ.get("STRIPE_BILLING_WEBHOOK_SECRET")
     try:
-        if webhook_secret:
-            event = stripe.Webhook.construct_event(body, sig, webhook_secret)
-        else:
-            import json
-            event = json.loads(body)
+        if not webhook_secret:
+            logger.error("[BILLING WEBHOOK] STRIPE_BILLING_WEBHOOK_SECRET not configured — rejecting")
+            raise HTTPException(status_code=503, detail="Webhook not configured")
+        event = stripe.Webhook.construct_event(body, sig, webhook_secret)
     except Exception as e:
         logger.error(f"[BILLING WEBHOOK] Error: {e}")
         raise HTTPException(status_code=400, detail="Invalid webhook")
@@ -656,18 +655,21 @@ async def get_my_tier(user: User = Depends(get_current_user)):
 
 @router.post('/subscriptions/upgrade')
 async def upgrade_subscription(request: Request, user: User = Depends(get_current_user)):
+    """Admin-only plan override. Production upgrades go through Stripe checkout."""
+    await require_role(user, ['admin'])
     body = await request.json()
+    target_user_id = body.get('user_id') or user.user_id
     new_plan = str(body.get('plan', 'PRO')).upper()
     billing_cycle = str(body.get('billing_cycle', 'monthly')).lower()
     if new_plan not in SELLER_PLANS or new_plan == 'FREE':
         raise HTTPException(status_code=400, detail='Plan invalido. Usa PRO o ELITE.')
 
-    user_doc = await db.users.find_one({'user_id': user.user_id}, {'_id': 0, 'subscription': 1}) or {}
+    user_doc = await db.users.find_one({'user_id': target_user_id}, {'_id': 0, 'subscription': 1}) or {}
     sub = user_doc.get('subscription', {})
     current_plan = sub.get('plan', 'FREE')
 
     await db.users.update_one(
-        {'user_id': user.user_id},
+        {'user_id': target_user_id},
         {'$set': {
             'subscription.plan': new_plan,
             'subscription.plan_status': 'active',
@@ -678,7 +680,7 @@ async def upgrade_subscription(request: Request, user: User = Depends(get_curren
             'subscription.cancel_at_period_end': False,
         }}
     )
-    await record_subscription_event(db, user.user_id, 'upgraded', {'from': current_plan, 'to': new_plan, 'billing_cycle': billing_cycle})
+    await record_subscription_event(db, target_user_id, 'admin_upgraded', {'from': current_plan, 'to': new_plan, 'billing_cycle': billing_cycle, 'admin': user.user_id})
     return {'message': f'Plan actualizado a {new_plan}', 'old_plan': current_plan, 'new_plan': new_plan}
 
 

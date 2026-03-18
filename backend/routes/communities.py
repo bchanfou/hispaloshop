@@ -183,7 +183,7 @@ async def create_community(body: CreateCommunityBody, request: Request):
         "tags": body.tags[:5],
         "cover_image": body.cover_image,
         "creator_id": user.user_id,
-        "creator_username": user.username or user.name,
+        "creator_username": getattr(user, "username", None) or user.name,
         "member_count": 1,
         "post_count": 0,
         "created_at": now.isoformat(),
@@ -197,7 +197,7 @@ async def create_community(body: CreateCommunityBody, request: Request):
     await db.community_members.insert_one({
         "community_id": community_id,
         "user_id": user.user_id,
-        "username": user.username or user.name,
+        "username": getattr(user, "username", None) or user.name,
         "avatar_url": getattr(user, "picture", None),
         "is_admin": True,
         "is_seller": user.role in ("producer", "importer"),
@@ -229,7 +229,7 @@ async def join_community(community_id: str, request: Request):
     await db.community_members.insert_one({
         "community_id": cid,
         "user_id": user.user_id,
-        "username": user.username or user.name,
+        "username": getattr(user, "username", None) or user.name,
         "avatar_url": getattr(user, "picture", None),
         "is_admin": False,
         "is_seller": user.role in ("producer", "importer"),
@@ -335,7 +335,7 @@ async def create_community_post(
     post = {
         "community_id": cid,
         "author_id": user.user_id,
-        "author_username": user.username or user.name,
+        "author_username": getattr(user, "username", None) or user.name,
         "author_avatar": getattr(user, "picture", None),
         "author_is_seller": user.role in ("producer", "importer"),
         "text": body.text.strip()[:1000],

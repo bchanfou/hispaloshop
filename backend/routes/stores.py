@@ -157,7 +157,7 @@ async def get_store_by_slug(slug: str):
             {"product_id": {"$in": product_ids}, "approved": True}
         ).to_list(500)
         if reviews:
-            store["rating"] = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
+            store["rating"] = round(sum(r.get("rating", 0) for r in reviews) / len(reviews), 1)
             store["review_count"] = len(reviews)
     
     # Get follower count for Instagram-style display
@@ -214,8 +214,8 @@ async def get_store_reviews(slug: str, limit: int = 20, offset: int = 0):
         {"producer_id": store["producer_id"]},
         {"product_id": 1, "name": 1}
     ).to_list(1000)
-    product_ids = [p["product_id"] for p in products]
-    product_names = {p["product_id"]: p["name"] for p in products}
+    product_ids = [p.get("product_id") for p in products if p.get("product_id")]
+    product_names = {p.get("product_id"): p.get("name", "") for p in products if p.get("product_id")}
     
     if not product_ids:
         return {"reviews": [], "total": 0, "average_rating": 0}
@@ -237,7 +237,7 @@ async def get_store_reviews(slug: str, limit: int = 20, offset: int = 0):
         {"product_id": {"$in": product_ids}, "approved": True},
         {"rating": 1}
     ).to_list(500)
-    avg_rating = round(sum(r["rating"] for r in all_reviews) / len(all_reviews), 1) if all_reviews else 0
+    avg_rating = round(sum(r.get("rating", 0) for r in all_reviews) / len(all_reviews), 1) if all_reviews else 0
     
     return {"reviews": reviews, "total": total, "average_rating": avg_rating}
 

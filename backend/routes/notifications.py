@@ -92,6 +92,9 @@ async def delete_notification(
     from core.database import db
     from bson import ObjectId
 
+    if not ObjectId.is_valid(notification_id):
+        raise HTTPException(status_code=400, detail="Invalid notification ID")
+
     result = await db.notifications.delete_one({
         "_id": ObjectId(notification_id),
         "user_id": current_user.user_id,

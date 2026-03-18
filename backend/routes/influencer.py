@@ -1365,7 +1365,7 @@ async def process_influencer_payouts():
 
         try:
             transfer = stripe.Transfer.create(
-                amount=int(total * 100),
+                amount=int(round(total * 100)),
                 currency="eur",
                 destination=stripe_account,
                 transfer_group=f"INFLUENCER_{inf_id}_{now.strftime('%Y%m')}",

@@ -324,7 +324,7 @@ async def upload_chat_image(
         raise HTTPException(status_code=403, detail="Not a participant in this conversation")
     
     # Validate file type
-    if not file.content_type.startswith('image/'):
+    if not file.content_type or not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="Only image files are allowed")
     
     # Read and validate file size (5MB max)

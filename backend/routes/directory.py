@@ -2,7 +2,9 @@
 Directory routes: Public listings for influencers, producers.
 """
 import logging
+import uuid
 from typing import Optional
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends, Query, WebSocket, WebSocketDisconnect
 
 from core.database import db
@@ -247,8 +249,8 @@ async def get_public_producer_profile(store_id: str):
         {"producer_id": store.get("producer_id"), "approved": True},
         {"product_id": 1}
     ).to_list(1000)
-    product_ids = [p["product_id"] for p in products]
-    
+    product_ids = [p["product_id"] for p in products if "product_id" in p]
+
     avg_rating = 0
     review_count = 0
     if product_ids:
@@ -256,7 +258,7 @@ async def get_public_producer_profile(store_id: str):
             {"product_id": {"$in": product_ids}, "approved": True}
         ).to_list(1000)
         if reviews:
-            avg_rating = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
+            avg_rating = round(sum(r.get("rating", 0) for r in reviews) / len(reviews), 1)
             review_count = len(reviews)
     
     return {

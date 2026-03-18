@@ -82,13 +82,13 @@ async def upload_fiscal_certificate(
 
     # Apply verification results
     fiscal_update = {
-        "fiscal_status.certificate_verified": verification["verified"],
-        "fiscal_status.affiliate_blocked": verification["affiliate_blocked"],
-        "fiscal_status.block_reason": verification["block_reason"],
-        "fiscal_status.withholding_pct": verification["withholding_pct"],
-        "fiscal_status.verified_at": now_iso if verification["verified"] else None,
-        "fiscal_status.verified_by": verification["verified_by"],
-        "fiscal_status.entity_name": verification["entity_name"],
+        "fiscal_status.certificate_verified": verification.get("verified", False),
+        "fiscal_status.affiliate_blocked": verification.get("affiliate_blocked", True),
+        "fiscal_status.block_reason": verification.get("block_reason"),
+        "fiscal_status.withholding_pct": verification.get("withholding_pct", 0.0),
+        "fiscal_status.verified_at": now_iso if verification.get("verified") else None,
+        "fiscal_status.verified_by": verification.get("verified_by"),
+        "fiscal_status.entity_name": verification.get("entity_name"),
         "fiscal_status.needs_manual_review": verification.get("needs_manual_review", False),
         "updated_at": now_iso,
     }
