@@ -61,7 +61,7 @@ export default function Breadcrumbs({ customItems, className = '' }) {
             </Link>
           </li>
           {customItems.map((item, index) => (
-            <li key={index} className="flex items-center">
+            <li key={item.href || item.label || index} className="flex items-center">
               <ChevronRight className="w-4 h-4 mx-1 text-stone-500/50" />
               {item.href && index < customItems.length - 1 ? (
                 <Link 
@@ -133,7 +133,7 @@ export default function Breadcrumbs({ customItems, className = '' }) {
           </Link>
         </li>
         {breadcrumbItems.map((item, index) => (
-          <li key={index} className="flex items-center">
+          <li key={item.path || item.label || index} className="flex items-center">
             <ChevronRight className="w-4 h-4 mx-1 text-stone-500/50" />
             {!item.isLast ? (
               <Link 

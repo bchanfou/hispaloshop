@@ -11,7 +11,7 @@ const TYPE_CONFIG = {
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[#1C1C1E] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -206,7 +206,7 @@ function ExportUserTool() {
         value={userId}
         onChange={e => setUserId(e.target.value)}
         placeholder="user_id"
-        className="flex-1 px-3.5 py-2.5 bg-[#2C2C2E] border border-white/10 rounded-xl text-white text-sm outline-none"
+        className="flex-1 px-3.5 py-2.5 bg-[var(--color-bg-hover)] border border-white/10 rounded-xl text-white text-sm outline-none"
       />
       <button
         onClick={handleExport}

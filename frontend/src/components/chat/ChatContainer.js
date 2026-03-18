@@ -82,7 +82,7 @@ function ClearConfirmModal({ onConfirm, onCancel }) {
         exit={{ y: 60, opacity: 0 }}
         transition={{ type: 'spring', damping: 28, stiffness: 320 }}
         onClick={(e) => e.stopPropagation()}
-        className="mx-4 mb-6 w-full max-w-sm rounded-[32px] border border-stone-200/80 bg-[rgba(255,255,255,0.98)] p-6 shadow-[0_25px_60px_rgba(15,15,15,0.18)]"
+        className="mx-4 mb-6 w-full max-w-sm rounded-full border border-stone-200/80 bg-[rgba(255,255,255,0.98)] p-6 shadow-[0_25px_60px_rgba(15,15,15,0.18)]"
       >
         <p className="mb-1 text-base font-semibold text-stone-950">¿Borrar conversación?</p>
         <p className="mb-6 text-sm text-stone-500">Se eliminarán todos los mensajes de esta sesión.</p>

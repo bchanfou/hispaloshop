@@ -78,8 +78,8 @@ function MessageBubble({ message, isFirstInGroup }) {
           <div
             className={`px-5 py-4 ${
               isUser
-                ? 'rounded-[28px] rounded-br-lg bg-[linear-gradient(180deg,#1b1b1b_0%,#0e0e0e_100%)] text-white shadow-[0_16px_34px_rgba(15,15,15,0.18)]'
-                : 'rounded-[28px] rounded-bl-lg border border-[#e6dece] bg-[linear-gradient(180deg,#fffdfa_0%,#fbf8f2_100%)] text-stone-950 shadow-[0_12px_28px_rgba(30,25,20,0.06)]'
+                ? 'rounded-3xl rounded-br-lg bg-[linear-gradient(180deg,#1b1b1b_0%,#0e0e0e_100%)] text-white shadow-[0_16px_34px_rgba(15,15,15,0.18)]'
+                : 'rounded-3xl rounded-bl-lg border border-[#e6dece] bg-[linear-gradient(180deg,#fffdfa_0%,#fbf8f2_100%)] text-stone-950 shadow-[0_12px_28px_rgba(30,25,20,0.06)]'
             }`}
           >
             {isUser ? (

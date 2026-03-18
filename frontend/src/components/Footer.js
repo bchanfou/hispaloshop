@@ -33,7 +33,7 @@ export default function Footer() {
   return (
     <footer className="mt-14 border-t border-stone-200 bg-stone-950 text-white" data-testid="main-footer">
       <div className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6">
-        <div className="mb-10 rounded-[28px] border border-white/10 bg-white/[0.04] p-5 sm:p-6">
+        <div className="mb-10 rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">

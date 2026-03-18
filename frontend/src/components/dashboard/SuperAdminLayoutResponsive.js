@@ -50,7 +50,7 @@ export default function SuperAdminLayoutResponsive() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-sm text-white/40">Cargando...</p>
@@ -61,7 +61,7 @@ export default function SuperAdminLayoutResponsive() {
 
   if (!user || user.role !== 'super_admin') {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center px-4">
         <div className="text-center">
           <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-white/60" />
@@ -77,9 +77,9 @@ export default function SuperAdminLayoutResponsive() {
   }
 
   return (
-    <div className="superadmin-theme min-h-screen bg-[#0A0A0A]">
+    <div className="superadmin-theme min-h-screen bg-[var(--color-bg-primary)]">
       {/* ===== MOBILE HEADER ===== */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#111111] border-b border-white/[0.08] px-4 h-14 flex items-center justify-between">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[var(--color-bg-secondary)] border-b border-white/[0.08] px-4 h-14 flex items-center justify-between">
         <button
           onClick={() => navigate('/')}
           className="p-2 -ml-2 text-white/40 hover:text-white transition-colors"
@@ -95,7 +95,7 @@ export default function SuperAdminLayoutResponsive() {
       </header>
 
       {/* ===== DESKTOP SIDEBAR ===== */}
-      <aside className="hidden md:flex fixed top-0 left-0 bottom-0 w-[220px] z-40 bg-[#111111] border-r border-white/[0.08] flex-col">
+      <aside className="hidden md:flex fixed top-0 left-0 bottom-0 w-[220px] z-40 bg-[var(--color-bg-secondary)] border-r border-white/[0.08] flex-col">
         {/* Logo */}
         <div className="p-4 pb-6">
           <p className="text-[17px] font-extrabold tracking-tight text-white">hispaloshop</p>
@@ -156,7 +156,7 @@ export default function SuperAdminLayoutResponsive() {
       </main>
 
       {/* ===== MOBILE HORIZONTAL TAB NAVIGATION ===== */}
-      <div className="md:hidden fixed top-14 left-0 right-0 z-30 bg-[#111111] border-b border-white/[0.08]">
+      <div className="md:hidden fixed top-14 left-0 right-0 z-30 bg-[var(--color-bg-secondary)] border-b border-white/[0.08]">
         <div className="flex overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {mobileNavItems.map((item) => {
             if (item.to === '#more') {

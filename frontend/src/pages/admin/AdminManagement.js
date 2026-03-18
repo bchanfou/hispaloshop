@@ -12,7 +12,7 @@ import FocusTrap from 'focus-trap-react';
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[#1C1C1E] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -301,7 +301,7 @@ export default function AdminManagement() {
       {showCreateModal && (
         <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-[#1C1C1E] rounded-2xl border border-white/[0.08] max-w-md w-full mx-4 p-6" data-testid="create-admin-modal">
+          <div className="bg-[var(--color-bg-card)] rounded-2xl border border-white/[0.08] max-w-md w-full mx-4 p-6" data-testid="create-admin-modal">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-white">
                 {t('superAdmin.createAdmin')}
@@ -380,8 +380,8 @@ export default function AdminManagement() {
                   className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm focus:outline-none focus:border-[var(--color-black)]"
                   data-testid="admin-role-select"
                 >
-                  <option value="admin" className="bg-[#1C1C1E]">Admin</option>
-                  <option value="super_admin" className="bg-[#1C1C1E]">Super Admin</option>
+                  <option value="admin" className="bg-[var(--color-bg-card)]">Admin</option>
+                  <option value="super_admin" className="bg-[var(--color-bg-card)]">Super Admin</option>
                 </select>
               </div>
 
@@ -397,7 +397,7 @@ export default function AdminManagement() {
                     data-testid="admin-country-select"
                   >
                     {COUNTRIES.map(country => (
-                      <option key={country.code} value={country.code} className="bg-[#1C1C1E]">{country.name}</option>
+                      <option key={country.code} value={country.code} className="bg-[var(--color-bg-card)]">{country.name}</option>
                     ))}
                   </select>
                   <p className="text-[11px] text-white/20 mt-1.5">
@@ -433,7 +433,7 @@ export default function AdminManagement() {
       {showDeleteConfirm && (
         <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-[#1C1C1E] rounded-2xl border border-white/[0.08] max-w-md w-full mx-4 p-6" data-testid="delete-confirm-modal">
+          <div className="bg-[var(--color-bg-card)] rounded-2xl border border-white/[0.08] max-w-md w-full mx-4 p-6" data-testid="delete-confirm-modal">
             <div className="text-center">
               <div className="w-12 h-12 bg-[var(--color-red)]/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-6 h-6 text-[var(--color-red)]" />

@@ -8,6 +8,7 @@ import hashlib
 import uuid
 from datetime import datetime, timezone
 import sys
+import getpass
 
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "test_database"
@@ -50,7 +51,8 @@ def create_admin(email: str, password: str, name: str, is_super: bool = False):
     print(f"   Nombre: {name}")
     print(f"   User ID: {user_id}")
     print(f"   Rol: {role}")
-    print(f"   Contraseña: {password}")
+    masked = password[:4] + "*" * (len(password) - 4) if len(password) > 4 else "****"
+    print(f"   Contraseña: {masked}")
     
     client.close()
     return True
@@ -172,7 +174,7 @@ if __name__ == "__main__":
         elif choice == "2":
             print("\n--- Crear Nuevo Administrador ---")
             email = input("Email: ").strip()
-            password = input("Contraseña: ").strip()
+            password = getpass.getpass("Contraseña: ").strip()
             name = input("Nombre: ").strip()
             
             if email and password and name:

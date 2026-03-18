@@ -10,7 +10,8 @@ class RateLimiter:
         self.limits = {
             "login": (5, 300),           # 5 per 5 min
             "register": (3, 3600),       # 3 per hour
-            "forgot_password": (3, 60),  # 3 per min
+            "forgot_password": (3, 900),  # 3 per 15 min
+            "reset_password": (3, 900),  # 3 per 15 min
             "checkout": (10, 60),        # 10 per min
             "hispal_ai": (20, 3600),     # 20 per hour
             "commercial_ai": (50, 3600), # 50 per hour

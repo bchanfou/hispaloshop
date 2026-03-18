@@ -23,7 +23,7 @@ export default function LandingSectionNav({ items = DEFAULT_ITEMS }) {
       if (location.pathname === path) {
         document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
-        window.location.href = href;
+        navigate(href);
       }
       return;
     }

@@ -49,7 +49,7 @@ async def generate_embeddings(batch_size: int = 50):
                 if isinstance(updated_at, str):
                     try:
                         updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
-                    except:
+                    except (ValueError, AttributeError):
                         updated_at = None
                 
                 if updated_at:

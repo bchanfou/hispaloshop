@@ -36,7 +36,7 @@ function TypingIndicator() {
       <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-stone-950">
         <Sparkles className="h-3 w-3 text-white" />
       </div>
-      <div className="flex gap-1 rounded-[18px] rounded-bl-[4px] bg-stone-100 px-4 py-3">
+      <div className="flex gap-1 rounded-2xl rounded-bl-[4px] bg-stone-100 px-4 py-3">
         {[0, 1, 2].map((i) => (
           <motion.span
             key={i}
@@ -225,8 +225,8 @@ export default function HispalAI() {
                         <div
                           className={`${isUser ? 'max-w-[75%]' : 'max-w-[85%]'} ${
                             isUser
-                              ? 'rounded-[18px] rounded-br-[4px] bg-stone-950 px-4 py-3 text-white'
-                              : 'rounded-[18px] rounded-bl-[4px] bg-stone-100 px-4 py-3 text-stone-950'
+                              ? 'rounded-2xl rounded-br-[4px] bg-stone-950 px-4 py-3 text-white'
+                              : 'rounded-2xl rounded-bl-[4px] bg-stone-100 px-4 py-3 text-stone-950'
                           }`}
                         >
                           {isUser ? (

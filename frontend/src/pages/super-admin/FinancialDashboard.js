@@ -27,7 +27,7 @@ const fixed2 = (value) => safeNumber(value).toFixed(2);
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[#1C1C1E] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -64,7 +64,7 @@ function EventBadge({ type }) {
 const DarkTooltip = ({ active, payload, label, formatter }) => {
   if (!active || !payload) return null;
   return (
-    <div className="bg-[#2C2C2E] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-xl">
+    <div className="bg-[var(--color-bg-hover)] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-xl">
       <p className="text-white/50 mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} className="text-white font-medium">
@@ -363,12 +363,12 @@ export default function FinancialDashboard() {
               className="text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl px-2 py-1.5 text-white focus:outline-none"
               data-testid="ledger-filter"
             >
-              <option value="all" className="bg-[#1C1C1E]">Todos</option>
-              <option value="order_paid" className="bg-[#1C1C1E]">Pagos</option>
-              <option value="seller_transfer" className="bg-[#1C1C1E]">Transferencias</option>
-              <option value="influencer_scheduled" className="bg-[#1C1C1E]">Influencer prog.</option>
-              <option value="influencer_paid" className="bg-[#1C1C1E]">Influencer pagado</option>
-              <option value="refund" className="bg-[#1C1C1E]">Reembolsos</option>
+              <option value="all" className="bg-[var(--color-bg-card)]">Todos</option>
+              <option value="order_paid" className="bg-[var(--color-bg-card)]">Pagos</option>
+              <option value="seller_transfer" className="bg-[var(--color-bg-card)]">Transferencias</option>
+              <option value="influencer_scheduled" className="bg-[var(--color-bg-card)]">Influencer prog.</option>
+              <option value="influencer_paid" className="bg-[var(--color-bg-card)]">Influencer pagado</option>
+              <option value="refund" className="bg-[var(--color-bg-card)]">Reembolsos</option>
             </select>
           </div>
         </div>
@@ -380,7 +380,7 @@ export default function FinancialDashboard() {
             </div>
           ) : (
             <table className="w-full text-xs">
-              <thead className="sticky top-0 bg-[#1C1C1E]">
+              <thead className="sticky top-0 bg-[var(--color-bg-card)]">
                 <tr className="text-white/30 text-[11px] uppercase tracking-wider">
                   <th className="text-left px-5 py-2.5 font-medium">Fecha</th>
                   <th className="text-left px-3 py-2.5 font-medium">Evento</th>

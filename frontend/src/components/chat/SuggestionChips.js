@@ -17,7 +17,7 @@ function SuggestionChips({ suggestions, onSelect, isEmpty = false }) {
             transition={{ delay: index * 0.07, duration: 0.2 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => onSelect(suggestion)}
-            className="flex min-w-[176px] flex-shrink-0 flex-col items-start gap-3 rounded-[26px] border border-stone-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] px-4 py-4 text-left shadow-[0_14px_28px_rgba(30,25,20,0.06)] transition-all hover:border-stone-300 hover:-translate-y-0.5"
+            className="flex min-w-[176px] flex-shrink-0 flex-col items-start gap-3 rounded-3xl border border-stone-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] px-4 py-4 text-left shadow-[0_14px_28px_rgba(30,25,20,0.06)] transition-all hover:border-stone-300 hover:-translate-y-0.5"
           >
             <span className="text-lg leading-none">{suggestion.emoji || 'AI'}</span>
             <span className="text-sm font-medium leading-snug tracking-[-0.01em] text-stone-900">{suggestion.label}</span>

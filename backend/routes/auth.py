@@ -679,8 +679,9 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
 
 
 @router.post("/auth/reset-password")
-async def reset_password(input: ResetPasswordInput):
+async def reset_password(input: ResetPasswordInput, request: Request):
     """Reset password using token"""
+    await rate_limiter.check(request, endpoint_type="reset_password")
     # Find valid reset token
     reset = await db.password_resets.find_one(
         {"token": input.token},

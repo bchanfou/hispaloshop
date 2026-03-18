@@ -195,7 +195,7 @@ export function CartProvider({ children }) {
     }
 
     try {
-      await apiClient.put(`/cart/items/${productId}`, {
+      await apiClient.patch(`/cart/items/${productId}`, {
         quantity: newQuantity,
         ...(variantId && { variant_id: variantId }),
         ...(packId && { pack_id: packId }),

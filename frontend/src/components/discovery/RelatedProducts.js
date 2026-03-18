@@ -19,7 +19,7 @@ const formatPrice = (value) => {
 
 function ProductSkeleton() {
   return (
-    <div className="min-w-[148px] shrink-0 overflow-hidden rounded-[20px] border border-stone-200 bg-white animate-pulse md:min-w-0">
+    <div className="min-w-[148px] shrink-0 overflow-hidden rounded-2xl border border-stone-200 bg-white animate-pulse md:min-w-0">
       <div className="h-32 w-full bg-stone-100" />
       <div className="space-y-2 p-3">
         <div className="h-3.5 w-3/4 rounded bg-stone-100" />
@@ -75,7 +75,7 @@ export default function RelatedProducts({ productId, title = 'Productos relacion
                   if (!nextProductId) return;
                   navigate(`/products/${nextProductId}`);
                 }}
-                className="min-w-[148px] shrink-0 overflow-hidden rounded-[20px] border border-stone-200 bg-white text-left shadow-sm transition-shadow hover:shadow-md md:min-w-0"
+                className="min-w-[148px] shrink-0 overflow-hidden rounded-2xl border border-stone-200 bg-white text-left shadow-sm transition-shadow hover:shadow-md md:min-w-0"
               >
                 <ProductImage
                   src={product.image_url || product.images?.[0] || null}

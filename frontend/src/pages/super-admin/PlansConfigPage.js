@@ -20,7 +20,7 @@ const INFLUENCER_TIERS = [
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[#1C1C1E] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -31,7 +31,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div className="bg-[#1C1C1E] border border-[var(--color-red)]/40 rounded-2xl p-6 w-full max-w-[400px] mx-4" onClick={e => e.stopPropagation()}>
+      <div className="bg-[var(--color-bg-card)] border border-[var(--color-red)]/40 rounded-2xl p-6 w-full max-w-[400px] mx-4" onClick={e => e.stopPropagation()}>
         <h3 className="text-base font-bold text-white mb-2">Confirmar cambio de plan</h3>
         <p className="text-sm text-white/40 mb-4">
           Introduce tu contraseña de superadmin para aplicar este cambio en producción.
@@ -43,7 +43,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
           onKeyDown={e => e.key === 'Enter' && onConfirm(password)}
           placeholder="Contraseña superadmin"
           autoFocus
-          className="w-full px-3.5 py-2.5 bg-[#2C2C2E] border border-[var(--color-red)]/40 rounded-xl text-white text-sm outline-none mb-3"
+          className="w-full px-3.5 py-2.5 bg-[var(--color-bg-hover)] border border-[var(--color-red)]/40 rounded-xl text-white text-sm outline-none mb-3"
         />
         <div className="flex gap-2">
           <button onClick={onClose} className="flex-1 py-2.5 bg-white/[0.08] rounded-xl text-white text-sm">

@@ -43,7 +43,7 @@ const COUNTRY_META = {
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[#1C1C1E] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );

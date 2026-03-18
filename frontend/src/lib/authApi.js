@@ -63,15 +63,16 @@ export const getAuthErrorMessage = (error, fallbackMessage = 'Ha ocurrido un err
   return fallbackMessage;
 };
 
+// authApi uses httpClient (raw axios) — all methods must unwrap .data
 export const authApi = {
   async login(credentials) {
     const response = await apiClient.post('/auth/login', credentials);
-    return response;
+    return response?.data ?? response;
   },
 
   async getGoogleAuthUrl() {
     const response = await apiClient.get('/auth/google/url');
-    return response;
+    return response?.data ?? response;
   },
 
   async register(payload, options = {}) {
@@ -80,22 +81,22 @@ export const authApi = {
       params.ref = options.ref;
     }
     const response = await apiClient.post('/auth/register', payload, { params });
-    return response;
+    return response?.data ?? response;
   },
 
   async getCurrentUser() {
     const response = await apiClient.get('/auth/me');
-    return response;
+    return response?.data ?? response;
   },
 
   async logout() {
     const response = await apiClient.post('/auth/logout');
-    return response;
+    return response?.data ?? response;
   },
 
   async refreshToken() {
     const response = await apiClient.post('/auth/refresh');
-    return response;
+    return response?.data ?? response;
   },
 };
 

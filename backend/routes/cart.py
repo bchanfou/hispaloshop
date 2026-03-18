@@ -130,7 +130,9 @@ async def add_to_cart(
         # Verificar si ya existe
         existing_idx = None
         for idx, item in enumerate(cart.get("items", [])):
-            if item.get("product_id") == product_id and item.get("variant_id") == variant_id:
+            if (item.get("product_id") == product_id
+                    and item.get("variant_id") == variant_id
+                    and item.get("pack_id") == pack_id):
                 existing_idx = idx
                 break
 
@@ -181,24 +183,27 @@ async def update_cart_item(
     product_id: str,
     quantity: int,
     variant_id: Optional[str] = None,
+    pack_id: Optional[str] = None,
     current_user = Depends(get_current_user)
 ):
     """Actualizar cantidad de item"""
     db = get_db()
-    
+
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
         "status": "active"
     })
-    
+
     if not cart:
         raise HTTPException(status_code=404, detail="Cart not found")
-    
-    # Encontrar item
+
+    # Encontrar item (triple match: product + variant + pack)
     items = cart.get("items", [])
     item_idx = None
     for idx, item in enumerate(items):
-        if item.get("product_id") == product_id and item.get("variant_id") == variant_id:
+        if (item.get("product_id") == product_id
+                and item.get("variant_id") == variant_id
+                and item.get("pack_id") == pack_id):
             item_idx = idx
             break
     
