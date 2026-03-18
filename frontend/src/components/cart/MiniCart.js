@@ -10,7 +10,7 @@ const MiniCart = ({ isOpen, onClose }) => {
   const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading } = useCart();
   const [shippingData, setShippingData] = useState(null);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (((item.unit_price_cents || 0) / 100 || item.price || 0) * item.quantity), 0);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // Fetch real shipping estimate
@@ -131,9 +131,9 @@ const MiniCart = ({ isOpen, onClose }) => {
                             exit={{ opacity: 0, x: -100 }}
                             className="flex gap-3 bg-stone-50 rounded-xl p-3"
                           >
-                            {(item.image || item.product?.image) ? (
+                            {(item.product_image || item.image || item.product?.image) ? (
                               <img
-                                src={item.image || item.product?.image}
+                                src={item.product_image || item.image || item.product?.image}
                                 alt={item.name || item.product?.name}
                                 className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
                               />
@@ -177,7 +177,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   </button>
                                 </div>
                                 <span className="font-semibold text-stone-950">
-                                  €{((item.price || item.product?.price || 0) * item.quantity).toFixed(2)}
+                                  €{(((item.unit_price_cents || 0) / 100 || item.price || item.product?.price || 0) * item.quantity).toFixed(2)}
                                 </span>
                               </div>
                             </div>

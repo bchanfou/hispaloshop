@@ -446,7 +446,7 @@ export default function CartPage() {
                           data-testid={`cart-item-${itemKey}`}
                         >
                           <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
-                            {item.image && <img src={item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
+                            {(item.product_image || item.image) && <img src={item.product_image || item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <h3 className="font-medium text-stone-950 text-sm md:text-base line-clamp-2">{item.product_name}</h3>
@@ -479,7 +479,7 @@ export default function CartPage() {
                                   </button>
                                 </div>
                                 <p className="text-sm font-bold text-stone-950 md:text-base">
-                                  {convertAndFormatPrice((item.price || 0) * item.quantity, item.currency || 'EUR')}
+                                  {convertAndFormatPrice(((item.unit_price_cents || item.price_cents || 0) / 100 || item.price || 0) * item.quantity, item.currency || 'EUR')}
                                 </p>
                               </div>
                               <button
