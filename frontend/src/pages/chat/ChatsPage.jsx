@@ -81,7 +81,7 @@ function ConversationItem({ conversation, index, onClick, onDelete }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
         onClick={onClick}
-        className="flex w-full items-start gap-3 border-none bg-stone-50 px-4 py-3.5 text-left font-apple active:bg-stone-100"
+        className="flex w-full items-start gap-3 border-none bg-white px-4 py-3.5 text-left font-apple active:bg-stone-50"
       >
         {/* Avatar */}
         <div className="relative shrink-0">
@@ -92,7 +92,7 @@ function ConversationItem({ conversation, index, onClick, onDelete }) {
               className={`h-12 w-12 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
             />
           ) : (
-            <div className={`flex h-12 w-12 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+            <div className={`flex h-12 w-12 items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
               {getInitial(name)}
             </div>
           )}
@@ -124,7 +124,7 @@ function ConversationItem({ conversation, index, onClick, onDelete }) {
           </span>
 
           {isUnread && (
-            <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-stone-950 px-1 text-[11px] font-semibold leading-none text-white">
+            <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-[#0095F6] px-1 text-[11px] font-semibold leading-none text-white">
               {unread_count > 99 ? '99+' : unread_count}
             </span>
           )}
@@ -182,23 +182,23 @@ export default function ChatsPage() {
   const isEmpty = filteredConversations.length === 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50 font-apple">
+    <div className="flex min-h-screen flex-col bg-white font-apple">
       {/* TopBar */}
-      <div className="sticky top-0 z-30 flex items-center justify-between bg-stone-50/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl">
-        <h1 className="text-xl font-bold text-stone-950">Mensajes</h1>
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl">
+        <h1 className="text-[22px] font-bold text-stone-950">Mensajes</h1>
 
         <button
-          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-stone-950"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
           aria-label="Nuevo mensaje"
           onClick={() => navigate('/chat/new')}
         >
-          <PenSquare size={16} className="text-white" strokeWidth={2} />
+          <PenSquare size={22} strokeWidth={1.8} />
         </button>
       </div>
 
       {/* Search bar */}
       <div className="px-4 pb-2">
-        <label className="flex h-11 items-center gap-2 rounded-xl bg-stone-200/60 px-3">
+        <label className="flex h-[36px] items-center gap-2 rounded-[10px] bg-stone-100 px-3">
           <Search size={18} className="text-stone-500" strokeWidth={2} />
           <input
             type="text"
@@ -220,8 +220,8 @@ export default function ChatsPage() {
               onClick={() => setActiveFilter(f.key)}
               className={`shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${
                 isActive
-                  ? 'bg-stone-950 text-white'
-                  : 'bg-stone-200/60 text-stone-500 active:bg-stone-200'
+                  ? 'bg-[#0095F6] text-white'
+                  : 'bg-stone-100 text-stone-500 active:bg-stone-200'
               }`}
             >
               {f.label}
@@ -263,7 +263,7 @@ export default function ChatsPage() {
                     onDelete={() => deleteConversation(conv.id)}
                   />
                   {i < filteredConversations.length - 1 && (
-                    <div className="ml-[72px] mr-4 h-px bg-stone-100" />
+                    <div className="ml-[72px] mr-4 h-px bg-stone-100/80" />
                   )}
                 </React.Fragment>
               ))}

@@ -48,7 +48,7 @@ function UserAvatar({ src, name, size = 'h-11 w-11', rounded = 'rounded-full' })
     <img
       src={src}
       alt={`Avatar de ${name || 'usuario'}`}
-      className={`${size} ${rounded} shrink-0 object-cover bg-stone-100`}
+      className={`${size} ${rounded} shrink-0 object-cover bg-stone-50`}
       onError={() => setError(true)}
     />
   );
@@ -146,9 +146,9 @@ export default function NewConversationPage() {
   const showResults = query.length >= 2;
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50 font-apple">
+    <div className="flex min-h-screen flex-col bg-white font-apple">
       {/* TopBar */}
-      <div className="sticky top-0 z-30 flex h-14 items-center bg-stone-50/90 px-4 pt-[env(safe-area-inset-top,0px)] backdrop-blur-xl">
+      <div className="sticky top-0 z-30 flex h-14 items-center border-b border-stone-100 bg-white/95 px-4 pt-[env(safe-area-inset-top,0px)] backdrop-blur-xl">
         <button
           className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-950 active:bg-stone-200"
           onClick={() => navigate(-1)}
@@ -164,7 +164,7 @@ export default function NewConversationPage() {
 
       {/* Search input */}
       <div className="px-4 py-3">
-        <label className="flex h-11 items-center gap-2 rounded-full bg-stone-200/60 px-4">
+        <label className="flex h-[36px] items-center gap-2 rounded-[10px] bg-stone-100 px-4">
           <Search size={18} className="shrink-0 text-stone-500" />
           <input
             type="text"
@@ -189,7 +189,7 @@ export default function NewConversationPage() {
               return (
                 <button
                   key={uid || i}
-                  className="flex w-full items-center gap-3 border-b border-stone-100 px-4 py-3 text-left bg-transparent active:bg-stone-50 disabled:opacity-50"
+                  className="flex w-full items-center gap-3 border-b border-stone-50 px-4 py-3 text-left bg-transparent active:bg-stone-50 disabled:opacity-50"
                   onClick={() => handleSelect(u)}
                   disabled={selecting}
                 >

@@ -2,7 +2,7 @@
 Superadmin Moderation Endpoints
 Fase 5: Moderación asistida por IA
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 
 from schemas.superadmin.moderation import (
@@ -19,7 +19,6 @@ async def require_superadmin(current_user: dict = Depends(get_current_user)):
     """Verificar que el usuario es superadmin o moderator"""
     role = current_user.get("role", "")
     if role not in ["superadmin", "admin", "moderator"]:
-        from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Moderator access required")
     return current_user
 
@@ -53,11 +52,10 @@ async def process_moderation_action(
     """
     success = await moderation_service.process_moderation_action(
         action=action,
-        moderator_id=current_user.user_id
+        moderator_id=current_user.get("user_id", ""),
     )
-    
+
     if not success:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Queue item not found")
     
     return {"status": "success", "action": action.action}
@@ -90,8 +88,8 @@ async def submit_content(
         content_id=content_id,
         content_preview=content_preview,
         content_url=content_url,
-        reported_by=current_user.user_id,
-        report_reason=report_reason
+        reported_by=current_user.get("user_id", ""),
+        report_reason=report_reason,
     )
     
     return {"queue_id": queue_id, "status": "submitted"}
@@ -130,12 +128,11 @@ async def acknowledge_alert(
     success = await moderation_service.update_alert_status(
         alert_id=alert_id,
         new_status=SystemAlertStatus.ACKNOWLEDGED,
-        user_id=current_user.user_id,
-        notes=notes
+        user_id=current_user.get("user_id", ""),
+        notes=notes,
     )
-    
+
     if not success:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Alert not found")
     
     return {"status": "acknowledged"}
@@ -153,12 +150,11 @@ async def resolve_alert(
     success = await moderation_service.update_alert_status(
         alert_id=alert_id,
         new_status=SystemAlertStatus.RESOLVED,
-        user_id=current_user.user_id,
-        notes=notes
+        user_id=current_user.get("user_id", ""),
+        notes=notes,
     )
-    
+
     if not success:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Alert not found")
     
     return {"status": "resolved"}

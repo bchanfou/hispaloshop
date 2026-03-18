@@ -89,12 +89,13 @@ async def send_push_to_user(recipient_id: str, title: str, body: str, data: dict
                 vapid_claims=vapid_claims,
             )
         except WebPushException as e:
-            if e.response and e.response.status_code in (404, 410):
+            resp = getattr(e, "response", None)
+            if resp and getattr(resp, "status_code", None) in (404, 410):
                 stale_endpoints.append(subscription_info.get("endpoint"))
             else:
-                logger.error(f"[PUSH] Error sending to {recipient_id}: {e}")
+                logger.error("[PUSH] Error sending to %s: %s", recipient_id, e)
         except Exception as e:
-            logger.error(f"[PUSH] Unexpected error: {e}")
+            logger.error("[PUSH] Unexpected error sending to %s: %s", recipient_id, e)
 
     if stale_endpoints:
         for ep in stale_endpoints:

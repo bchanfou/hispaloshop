@@ -122,7 +122,7 @@ def _validate_offer_enums(data: OfferInput):
 
 def _serialize_operation(op: dict) -> dict:
     """Convert MongoDB document to JSON-safe dict."""
-    op["id"] = str(op.pop("_id"))
+    op["id"] = str(op.pop("_id", ""))
     return op
 
 
@@ -237,7 +237,7 @@ async def get_operation(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
     return _serialize_operation(operation)
@@ -264,13 +264,16 @@ async def add_counteroffer(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
     # Detect modified fields vs previous version
-    prev_offer = operation["offers"][-1]
+    offers = operation.get("offers", [])
+    if not offers:
+        raise HTTPException(status_code=400, detail="No previous offers found")
+    prev_offer = offers[-1]
     modified_fields = _detect_modified_fields(prev_offer, body)
-    new_version = prev_offer["version"] + 1
+    new_version = prev_offer.get("version", 0) + 1
 
     offer_doc = _build_offer_doc(
         body,
@@ -312,7 +315,7 @@ async def accept_offer(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
     # Guard: cannot accept on already-completed/accepted operations
@@ -322,8 +325,8 @@ async def accept_offer(
 
     # Find the offer version
     target_offer = None
-    for offer in operation["offers"]:
-        if offer["version"] == version:
+    for offer in operation.get("offers", []):
+        if offer.get("version") == version:
             target_offer = offer
             break
 
@@ -331,7 +334,7 @@ async def accept_offer(
         raise HTTPException(status_code=404, detail=f"Offer version {version} not found")
 
     # Verify current user is the receiver, not the creator
-    if target_offer["created_by"] == user_id:
+    if target_offer.get("created_by") == user_id:
         raise HTTPException(status_code=403, detail="Cannot accept your own offer")
 
     now = datetime.now(timezone.utc).isoformat()
@@ -392,13 +395,13 @@ async def reject_offer(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
     # Find the offer version
     target_offer = None
-    for offer in operation["offers"]:
-        if offer["version"] == version:
+    for offer in operation.get("offers", []):
+        if offer.get("version") == version:
             target_offer = offer
             break
 
@@ -406,7 +409,7 @@ async def reject_offer(
         raise HTTPException(status_code=404, detail=f"Offer version {version} not found")
 
     # Verify current user is the receiver, not the creator
-    if target_offer["created_by"] == user_id:
+    if target_offer.get("created_by") == user_id:
         raise HTTPException(status_code=403, detail="Cannot reject your own offer")
 
     now = datetime.now(timezone.utc).isoformat()
@@ -442,13 +445,14 @@ async def generate_contract_endpoint(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
-    if operation["status"] not in ("offer_accepted", "contract_generated"):
+    op_status = operation.get("status", "")
+    if op_status not in ("offer_accepted", "contract_generated"):
         raise HTTPException(
             status_code=400,
-            detail=f"Cannot generate contract when status is '{operation['status']}'. Must be 'offer_accepted'.",
+            detail=f"Cannot generate contract when status is '{op_status}'. Must be 'offer_accepted'.",
         )
 
     result = await generate_contract(operation, db)
@@ -500,13 +504,14 @@ async def sign_contract(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
-    if operation["status"] not in ("contract_generated", "contract_pending"):
+    sign_status = operation.get("status", "")
+    if sign_status not in ("contract_generated", "contract_pending"):
         raise HTTPException(
             status_code=400,
-            detail=f"Cannot sign when status is '{operation['status']}'. Contract must be generated first.",
+            detail=f"Cannot sign when status is '{sign_status}'. Contract must be generated first.",
         )
 
     # Check user has a signature
@@ -515,8 +520,8 @@ async def sign_contract(
         raise HTTPException(status_code=400, detail="No signature configured. Please upload your signature first.")
 
     # Determine role and check if already signed
-    is_seller = user_id == operation["seller_id"]
-    is_buyer = user_id == operation["buyer_id"]
+    is_seller = user_id == operation.get("seller_id")
+    is_buyer = user_id == operation.get("buyer_id")
     contract = operation.get("contract", {})
 
     if is_seller and contract.get("signed_by_seller"):
@@ -606,11 +611,12 @@ async def get_required_documents(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
     # Get the accepted offer
-    offer = operation["offers"][-1] if operation.get("offers") else {}
+    _offers = operation.get("offers", [])
+    offer = _offers[-1] if _offers else {}
 
     # Get product info for categories/certifications
     product_id = offer.get("product_id")
@@ -619,8 +625,8 @@ async def get_required_documents(
         product = await db.products.find_one({"product_id": product_id})
 
     # Get seller and buyer for country info
-    seller = await db.users.find_one({"user_id": operation["seller_id"]})
-    buyer = await db.users.find_one({"user_id": operation["buyer_id"]})
+    seller = await db.users.find_one({"user_id": operation.get("seller_id")})
+    buyer = await db.users.find_one({"user_id": operation.get("buyer_id")})
 
     country_origin = (seller or {}).get("country", "ES")
     country_destination = (buyer or {}).get("country", "ES")
@@ -724,7 +730,7 @@ async def upload_document(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
     # Read file bytes
@@ -782,11 +788,12 @@ async def confirm_shipment(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     # Only the seller can confirm shipment
-    if current_user.user_id != operation["seller_id"]:
+    if current_user.user_id != operation.get("seller_id"):
         raise HTTPException(status_code=403, detail="Only the seller can confirm shipment")
 
-    if operation["status"] not in ("payment_confirmed", "contract_signed"):
-        raise HTTPException(status_code=400, detail=f"Cannot ship when status is '{operation['status']}'")
+    ship_status = operation.get("status", "")
+    if ship_status not in ("payment_confirmed", "contract_signed"):
+        raise HTTPException(status_code=400, detail=f"Cannot ship when status is '{ship_status}'")
 
     tracking_number = body.get("tracking_number", "")
     carrier = body.get("carrier", "")
@@ -795,7 +802,8 @@ async def confirm_shipment(
         raise HTTPException(status_code=400, detail="tracking_number and carrier are required")
 
     now = datetime.now(timezone.utc).isoformat()
-    offer = operation["offers"][-1] if operation.get("offers") else {}
+    _offers = operation.get("offers", [])
+    offer = _offers[-1] if _offers else {}
     delivery_days = offer.get("delivery_days", 7)
 
     estimated_delivery = (datetime.now(timezone.utc) + timedelta(days=delivery_days)).isoformat()
@@ -846,13 +854,14 @@ async def open_dispute(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     user_id = current_user.user_id
-    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+    if user_id not in (operation.get("buyer_id"), operation.get("seller_id")):
         raise HTTPException(status_code=404, detail="Operation not found")
 
-    if operation["status"] not in ("in_transit", "delivered", "payment_confirmed"):
+    dispute_status = operation.get("status", "")
+    if dispute_status not in ("in_transit", "delivered", "payment_confirmed"):
         raise HTTPException(
             status_code=400,
-            detail=f"Cannot open dispute when status is '{operation['status']}'. Must be in_transit, delivered, or payment_confirmed."
+            detail=f"Cannot open dispute when status is '{dispute_status}'. Must be in_transit, delivered, or payment_confirmed."
         )
 
     reason = body.get("reason", "")

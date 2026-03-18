@@ -5,19 +5,26 @@ export default function NotFoundPage() {
   const font = { fontFamily: 'var(--font-sans)' };
 
   return (
-    <div style={{
-      minHeight: '100vh', background: 'var(--color-cream)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '24px 16px', ...font,
-    }}>
+    <main
+      role="main"
+      aria-label="Página no encontrada"
+      style={{
+        minHeight: '100vh', background: 'var(--color-cream)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '24px 16px', ...font,
+      }}
+    >
       <div style={{ textAlign: 'center', maxWidth: 400 }}>
         {/* Logo */}
-        <div style={{
-          width: 64, height: 64, borderRadius: 'var(--radius-full, 999px)',
-          background: 'var(--color-black)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 32px',
-        }}>
+        <div
+          aria-hidden="true"
+          style={{
+            width: 64, height: 64, borderRadius: 'var(--radius-full, 999px)',
+            background: 'var(--color-black)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 32px',
+          }}
+        >
           <span style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-white)', letterSpacing: '-0.03em' }}>
             H
           </span>
@@ -49,6 +56,7 @@ export default function NotFoundPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <Link
             to="/"
+            aria-label="Volver a la página de inicio"
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               height: 48, background: 'var(--color-black)', color: 'var(--color-white)',
@@ -59,7 +67,8 @@ export default function NotFoundPage() {
             Volver al inicio
           </Link>
           <Link
-            to="/explore"
+            to="/discover"
+            aria-label="Explorar el catálogo de productos"
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               height: 48, background: 'var(--color-white)', color: 'var(--color-black)',
@@ -72,6 +81,6 @@ export default function NotFoundPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

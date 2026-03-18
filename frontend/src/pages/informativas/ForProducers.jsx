@@ -56,7 +56,7 @@ export default function ForProducers() {
 
             <div className="hero-animate-in-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button
-                onClick={() => navigate('/register')}
+                onClick={() => navigate('/registro')}
                 style={{
                   height: 46, padding: '0 28px',
                   borderRadius: 'var(--radius-full)',
@@ -163,7 +163,7 @@ export default function ForProducers() {
                 }}>
                   {step.num}
                 </div>
-                <p className="info-eyebrow" style={{ color: 'var(--color-black)', marginBottom: 8 }}>
+                <p className="info-eyebrow" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>
                   {step.day}
                 </p>
                 <h4 className="info-h4" style={{ color: '#fff', marginBottom: 8 }}>{step.title}</h4>
@@ -219,7 +219,7 @@ export default function ForProducers() {
             pagamos menos.
           </p>
 
-          <Link to="/pricing" style={{
+          <Link to="/productor" style={{
             fontSize: 'var(--text-sm)', fontWeight: 600,
             color: 'var(--color-black)', textDecoration: 'none',
           }}>
@@ -252,7 +252,7 @@ export default function ForProducers() {
               'Pagos seguros con retención de fondos',
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Check size={18} color="var(--color-black)" strokeWidth={2.5} />
+                <Check size={18} color="rgba(255,255,255,0.8)" strokeWidth={2.5} />
                 <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)' }}>{item}</span>
               </div>
             ))}
@@ -270,7 +270,7 @@ export default function ForProducers() {
             Únete a más de 1.200 productores que ya venden.
           </p>
           <button
-            onClick={() => navigate('/register')}
+            onClick={() => navigate('/registro')}
             style={{
               height: 56, padding: '0 40px',
               borderRadius: 'var(--radius-full)',
@@ -282,7 +282,7 @@ export default function ForProducers() {
             Publicar mis primeros productos →
           </button>
           <div style={{ marginTop: 16 }}>
-            <Link to="/contact" style={{
+            <Link to="/contacto" style={{
               fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.35)', textDecoration: 'none',
             }}>
               Tengo preguntas · Contactar

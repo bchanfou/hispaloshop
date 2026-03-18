@@ -113,7 +113,7 @@ async def create_b2b_payment(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     # --- Auth: buyer only ---
-    if operation["buyer_id"] != current_user.user_id:
+    if operation.get("buyer_id") != current_user.user_id:
         raise HTTPException(status_code=403, detail="Only the buyer can initiate payment")
 
     # --- Status check ---
@@ -140,7 +140,7 @@ async def create_b2b_payment(
 
     # --- Seller Stripe account ---
     seller = await db.users.find_one(
-        {"user_id": operation["seller_id"]},
+        {"user_id": operation.get("seller_id")},
         {"stripe_account_id": 1},
     )
     seller_stripe_account = (seller or {}).get("stripe_account_id")
@@ -164,8 +164,8 @@ async def create_b2b_payment(
                 "type": "b2b",
                 "operation_id": operation_id,
                 "payment_type": payment_type,
-                "seller_id": operation["seller_id"],
-                "buyer_id": operation["buyer_id"],
+                "seller_id": operation.get("seller_id", ""),
+                "buyer_id": operation.get("buyer_id", ""),
                 "platform_fee_pct": "3.0",
             },
             transfer_data={
@@ -174,7 +174,7 @@ async def create_b2b_payment(
             application_fee_amount=platform_fee_cents if seller_stripe_account else None,
         )
     except stripe.error.StripeError as e:
-        logger.error(f"[B2B PAY] Stripe error creating PaymentIntent: {e}")
+        logger.error("[B2B PAY] Stripe error creating PaymentIntent: %s", e)
         raise HTTPException(status_code=502, detail=f"Stripe error: {str(e)}")
 
     # --- Store payment record ---
@@ -193,7 +193,7 @@ async def create_b2b_payment(
         }}},
     )
 
-    logger.info(f"[B2B PAY] PaymentIntent {intent.id} created for operation {operation_id} ({payment_type})")
+    logger.info("[B2B PAY] PaymentIntent %s created for operation %s (%s)", intent.id, operation_id, payment_type)
 
     return {
         "client_secret": intent.client_secret,
@@ -226,7 +226,7 @@ async def capture_b2b_payment(
 
     # --- Auth: seller or admin ---
     user_role = getattr(current_user, "role", "")
-    if operation["seller_id"] != current_user.user_id and user_role not in ("admin", "super_admin"):
+    if operation.get("seller_id") != current_user.user_id and user_role not in ("admin", "super_admin"):
         raise HTTPException(status_code=403, detail="Only the seller or an admin can capture payment")
 
     # --- Find pending payment ---
@@ -240,13 +240,15 @@ async def capture_b2b_payment(
     if not pending_payment:
         raise HTTPException(status_code=400, detail="No pending payment found to capture")
 
-    payment_intent_id = pending_payment["payment_intent_id"]
+    payment_intent_id = pending_payment.get("payment_intent_id")
+    if not payment_intent_id:
+        raise HTTPException(status_code=400, detail="Payment record missing payment_intent_id")
 
     # --- Capture via Stripe ---
     try:
         captured = stripe.PaymentIntent.capture(payment_intent_id)
     except stripe.error.StripeError as e:
-        logger.error(f"[B2B CAPTURE] Stripe error capturing {payment_intent_id}: {e}")
+        logger.error("[B2B CAPTURE] Stripe error capturing %s: %s", payment_intent_id, e)
         raise HTTPException(status_code=502, detail=f"Stripe error: {str(e)}")
 
     # --- Update payment status ---
@@ -258,7 +260,7 @@ async def capture_b2b_payment(
         }},
     )
 
-    logger.info(f"[B2B CAPTURE] PaymentIntent {payment_intent_id} captured for operation {operation_id}")
+    logger.info("[B2B CAPTURE] PaymentIntent %s captured for operation %s", payment_intent_id, operation_id)
 
     return {
         "captured": True,
@@ -302,13 +304,13 @@ async def stripe_b2b_webhook(request: Request):
 
         event_type = event.get("type", "unknown")
         event_id = event.get("id")
-        logger.info(f"[B2B WEBHOOK] Event: {event_type} (id={event_id})")
+        logger.info("[B2B WEBHOOK] Event: %s (id=%s)", event_type, event_id)
 
         # Idempotency: reject events already processed
         if event_id:
             existing = await db.processed_webhook_events.find_one({"event_id": event_id})
             if existing:
-                logger.info(f"[B2B WEBHOOK] Event {event_id} already processed, skipping")
+                logger.info("[B2B WEBHOOK] Event %s already processed, skipping", event_id)
                 return {"status": "already_processed"}
 
         data_object = event.get("data", {}).get("object", {})
@@ -329,7 +331,7 @@ async def stripe_b2b_webhook(request: Request):
         try:
             oid = ObjectId(operation_id)
         except Exception:
-            logger.error(f"[B2B WEBHOOK] Invalid operation_id: {operation_id}")
+            logger.error("[B2B WEBHOOK] Invalid operation_id: %s", operation_id)
             return {"status": "success"}
 
         # --- payment_intent.succeeded ---
@@ -345,13 +347,13 @@ async def stripe_b2b_webhook(request: Request):
                     {"_id": oid},
                     {"$set": {"status": "payment_confirmed"}},
                 )
-                logger.info(f"[B2B WEBHOOK] Deposit succeeded for operation {operation_id} — status → payment_confirmed")
+                logger.info("[B2B WEBHOOK] Deposit succeeded for operation %s — status -> payment_confirmed", operation_id)
             elif payment_type == "final":
                 await db.b2b_operations.update_one(
                     {"_id": oid},
                     {"$set": {"status": "completed"}},
                 )
-                logger.info(f"[B2B WEBHOOK] Final payment succeeded for operation {operation_id} — status → completed")
+                logger.info("[B2B WEBHOOK] Final payment succeeded for operation %s — status -> completed", operation_id)
 
             # FUTURE: Send notification to buyer/seller
 
@@ -362,7 +364,7 @@ async def stripe_b2b_webhook(request: Request):
                 {"$set": {"payments.$.status": "failed"}},
             )
             failure_message = data_object.get("last_payment_error", {}).get("message", "Unknown")
-            logger.error(f"[B2B WEBHOOK] Payment failed for operation {operation_id}: {failure_message}")
+            logger.error("[B2B WEBHOOK] Payment failed for operation %s: %s", operation_id, failure_message)
 
         # Mark event as processed (idempotency)
         if event_id:
@@ -376,10 +378,10 @@ async def stripe_b2b_webhook(request: Request):
         return {"status": "success"}
 
     except stripe.error.SignatureVerificationError as e:
-        logger.error(f"[B2B WEBHOOK] Signature verification failed: {e}")
+        logger.error("[B2B WEBHOOK] Signature verification failed: %s", e)
         raise HTTPException(status_code=400, detail="Invalid signature")
     except Exception as e:
-        logger.error(f"[B2B WEBHOOK] Error processing webhook: {str(e)}")
+        logger.error("[B2B WEBHOOK] Error processing webhook: %s", e)
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -459,14 +461,16 @@ async def confirm_delivery(
         raise HTTPException(status_code=404, detail="Operation not found")
 
     # Only the buyer can confirm delivery
-    if current_user.user_id != operation["buyer_id"]:
+    if current_user.user_id != operation.get("buyer_id"):
         raise HTTPException(status_code=403, detail="Only the buyer can confirm delivery")
 
-    if operation["status"] not in ("in_transit", "delivered"):
-        raise HTTPException(status_code=400, detail=f"Cannot confirm delivery when status is '{operation['status']}'")
+    del_status = operation.get("status", "")
+    if del_status not in ("in_transit", "delivered"):
+        raise HTTPException(status_code=400, detail=f"Cannot confirm delivery when status is '{del_status}'")
 
     now = datetime.now(timezone.utc)
-    offer = operation["offers"][-1] if operation.get("offers") else {}
+    offers = operation.get("offers", [])
+    offer = offers[-1] if offers else {}
     payment_terms = offer.get("payment_terms", "prepaid")
     total_price = offer.get("total_price", 0)
 
@@ -488,8 +492,8 @@ async def confirm_delivery(
             "operation_id": operation_id,
             "amount": total_price,
             "currency": offer.get("currency", "EUR"),
-            "seller_id": operation["seller_id"],
-            "buyer_id": operation["buyer_id"],
+            "seller_id": operation.get("seller_id", ""),
+            "buyer_id": operation.get("buyer_id", ""),
             "scheduled_for": scheduled_for,
             "status": "pending",
             "stripe_transfer_id": None,
@@ -499,15 +503,15 @@ async def confirm_delivery(
 
     elif payment_terms == "letter_of_credit":
         # 50% was deposit, 50% final on delivery
-        final_amount = total_price * 0.50
+        final_amount = round(total_price * 0.50, 2)
         scheduled_for = (now + timedelta(days=3)).isoformat()  # 3-day grace for LC
 
         await db.b2b_scheduled_payments.insert_one({
             "operation_id": operation_id,
             "amount": final_amount,
             "currency": offer.get("currency", "EUR"),
-            "seller_id": operation["seller_id"],
-            "buyer_id": operation["buyer_id"],
+            "seller_id": operation.get("seller_id", ""),
+            "buyer_id": operation.get("buyer_id", ""),
             "scheduled_for": scheduled_for,
             "status": "pending",
             "stripe_transfer_id": None,

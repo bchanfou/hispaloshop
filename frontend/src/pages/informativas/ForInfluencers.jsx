@@ -125,7 +125,7 @@ export default function ForInfluencers() {
                 fontSize: 11, fontWeight: 600, marginBottom: 16,
               }}>Tier de entrada</span>
               <h3 className="info-h3" style={{ color: '#fff', marginBottom: 12 }}>Hércules</h3>
-              <p style={{ fontSize: 60, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 12px', lineHeight: 1 }}>3%</p>
+              <p style={{ fontSize: 60, fontWeight: 700, color: '#fff', margin: '0 0 12px', lineHeight: 1 }}>3%</p>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', margin: '0 0 8px', lineHeight: 1.6 }}>
                 Para empezar. Sin cuota. Sin riesgo.
               </p>
@@ -150,7 +150,7 @@ export default function ForInfluencers() {
                 fontSize: 11, fontWeight: 600, marginBottom: 16,
               }}>El más frecuente</span>
               <h3 className="info-h3" style={{ color: '#fff', marginBottom: 12 }}>Atenea</h3>
-              <p style={{ fontSize: 60, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 12px', lineHeight: 1 }}>5%</p>
+              <p style={{ fontSize: 60, fontWeight: 700, color: '#fff', margin: '0 0 12px', lineHeight: 1 }}>5%</p>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', margin: '0 0 8px', lineHeight: 1.6 }}>
                 Ya tienes tracción. La plataforma te premia.
               </p>
@@ -170,12 +170,12 @@ export default function ForInfluencers() {
               <span style={{
                 display: 'inline-block', padding: '4px 10px',
                 borderRadius: 'var(--radius-full)',
-                background: 'var(--color-amber-light)',
-                color: 'var(--color-amber-dark)',
+                background: 'var(--color-surface-alt, #f5f5f4)',
+                color: 'var(--color-black)',
                 fontSize: 11, fontWeight: 600, marginBottom: 16,
               }}>La élite</span>
               <h3 className="info-h3" style={{ color: '#fff', marginBottom: 12 }}>Zeus</h3>
-              <p style={{ fontSize: 60, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 12px', lineHeight: 1 }}>7%</p>
+              <p style={{ fontSize: 60, fontWeight: 700, color: '#fff', margin: '0 0 12px', lineHeight: 1 }}>7%</p>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', margin: '0 0 8px', lineHeight: 1.6 }}>
                 El 7% de una venta de 50€ son 3.50€.
                 Con 5 ventas diarias son 630€ al mes.
@@ -288,7 +288,7 @@ export default function ForInfluencers() {
               'Link de afiliado exclusivo para la collab',
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Check size={18} color="var(--color-black)" strokeWidth={2.5} />
+                <Check size={18} color="rgba(255,255,255,0.8)" strokeWidth={2.5} />
                 <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)' }}>{item}</span>
               </div>
             ))}

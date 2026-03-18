@@ -2,14 +2,18 @@
 Endpoints B2B para importadores y productores.
 Fase 4: B2B Importer + Fase 15: Producer B2B Requests
 """
+import logging
 from datetime import datetime, timezone
 from typing import Optional, List
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from core.database import get_db
 from core.auth import get_current_user
 from utils.images import extract_product_image
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["B2B"])
 
@@ -67,13 +71,13 @@ async def get_b2b_catalog(
         }).sort("min_quantity", 1).to_list(length=5)
         
         product["b2b_prices"] = [{
-            "min_quantity": p["min_quantity"],
-            "unit_price_cents": p["unit_price_cents"],
+            "min_quantity": p.get("min_quantity", 1),
+            "unit_price_cents": p.get("unit_price_cents", 0),
             "max_quantity": p.get("max_quantity")
         } for p in b2b_prices]
-        
+
         # MOQ mínimo
-        product["moq"] = b2b_prices[0]["min_quantity"] if b2b_prices else 1
+        product["moq"] = b2b_prices[0].get("min_quantity", 1) if b2b_prices else 1
         
         # Filtrar por precio/MOQ si se especificó
         if moq_max and product["moq"] > moq_max:
@@ -245,7 +249,7 @@ async def get_discovery_matches(
     for match in matches:
         match["id"] = str(match.pop("_id", ""))
         
-        producer = await db.users.find_one({"user_id": match["producer_id"]})
+        producer = await db.users.find_one({"user_id": match.get("producer_id")})
         if producer:
             match["producer"] = {
                 "name": producer.get("full_name"),
@@ -363,25 +367,26 @@ async def contact_producer(
 ):
     """Iniciar contacto con un productor"""
     db = get_db()
-    from bson.objectid import ObjectId
-    
+
     if current_user.role != "importer":
         raise HTTPException(status_code=403, detail="Importers only")
-    
+
     try:
-        match = await db.b2b_discovery_matches.find_one({
-            "_id": ObjectId(match_id),
-            "importer_id": current_user.user_id
-        })
+        oid = ObjectId(match_id)
     except Exception:
-        raise HTTPException(status_code=404, detail="Match not found")
+        raise HTTPException(status_code=400, detail="Invalid match_id")
+
+    match = await db.b2b_discovery_matches.find_one({
+        "_id": oid,
+        "importer_id": current_user.user_id
+    })
     
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
     
     # Actualizar match
     await db.b2b_discovery_matches.update_one(
-        {"_id": ObjectId(match_id)},
+        {"_id": oid},
         {
             "$set": {
                 "status": "contacted",
@@ -397,7 +402,7 @@ async def contact_producer(
     lead = {
         "match_id": match_id,
         "importer_id": current_user.user_id,
-        "producer_id": match["producer_id"],
+        "producer_id": match.get("producer_id", ""),
         "initial_message": message,
         "status": "new",
         "priority": "medium",
@@ -426,14 +431,19 @@ async def add_b2b_price(
         raise HTTPException(status_code=403, detail="Producers only")
     
     # Verificar que el producto pertenece al usuario
+    try:
+        oid = ObjectId(product_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid product_id")
+
     product = await db.products.find_one({
-        "_id": __import__('bson').ObjectId(product_id),
+        "_id": oid,
         "seller_id": current_user.user_id
     })
-    
+
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    
+
     price_doc = {
         "product_id": product_id,
         "seller_id": current_user.user_id,
@@ -444,12 +454,12 @@ async def add_b2b_price(
         "is_active": True,
         "created_at": datetime.now(timezone.utc)
     }
-    
+
     await db.b2b_catalog_prices.insert_one(price_doc)
-    
+
     # Marcar producto como B2B enabled
     await db.products.update_one(
-        {"_id": __import__('bson').ObjectId(product_id)},
+        {"_id": oid},
         {"$set": {"b2b_enabled": True}}
     )
     
@@ -478,7 +488,7 @@ async def get_b2b_leads(
     for lead in leads:
         lead["id"] = str(lead.pop("_id", ""))
         
-        importer = await db.users.find_one({"user_id": lead["importer_id"]})
+        importer = await db.users.find_one({"user_id": lead.get("importer_id")})
         if importer:
             lead["importer"] = {
                 "name": importer.get("full_name"),
@@ -499,7 +509,6 @@ async def update_lead_status(
 ):
     """Productor: Actualizar estado de lead"""
     db = get_db()
-    from bson.objectid import ObjectId
     
     if current_user.role not in ["producer", "importer"]:
         raise HTTPException(status_code=403, detail="Producers only")
@@ -624,7 +633,6 @@ async def confirm_b2b_request(
         raise HTTPException(status_code=400, detail="Precio debe ser positivo")
 
     db = get_db()
-    from bson.objectid import ObjectId
 
     try:
         oid = ObjectId(request_id)
@@ -672,7 +680,6 @@ async def reject_b2b_request(
         raise HTTPException(status_code=403, detail="Producers only")
 
     db = get_db()
-    from bson.objectid import ObjectId
 
     try:
         oid = ObjectId(request_id)
@@ -720,7 +727,6 @@ async def ship_b2b_request(
         raise HTTPException(status_code=403, detail="Producers only")
 
     db = get_db()
-    from bson.objectid import ObjectId
 
     try:
         oid = ObjectId(request_id)

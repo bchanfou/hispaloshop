@@ -5,7 +5,7 @@
  * 3. Choose Role
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Wheat, Star, Globe, Droplets, Package, Leaf, UtensilsCrossed, Baby, PawPrint } from 'lucide-react';
@@ -76,9 +76,9 @@ function TogglePill({ emoji, icon, label, selected, variant, onClick }) {
     }
     if (variant === 'allergy') {
       return {
-        background: 'var(--color-red-light)',
-        border: '1px solid var(--color-red)',
-        color: 'var(--color-red)',
+        background: 'var(--color-surface-alt, #f5f5f4)',
+        border: '1px solid var(--color-black)',
+        color: 'var(--color-black)',
       };
     }
     // interests
@@ -677,10 +677,11 @@ export default function OnboardingPage() {
   }, [data, saveOnboardingMutation, setUser, navigate]);
 
   // If onboarding already completed, redirect
-  if (user?.onboardingCompleted) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    if (user?.onboardingCompleted) {
+      navigate('/', { replace: true });
+    }
+  }, [user?.onboardingCompleted, navigate]);
 
   const slideVariants = {
     enter: { opacity: 0, x: 40 },

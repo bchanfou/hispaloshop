@@ -160,7 +160,7 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
               />
             ) : (
               <span style={{ fontSize: 18, fontWeight: 700, color: T.stone }}>
-                {(operation.product_name || 'P')[0].toUpperCase()}
+                {(operation.product_name || operation.product?.name || 'P')[0].toUpperCase()}
               </span>
             )}
           </div>
@@ -180,7 +180,7 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
                 }}
                 className="truncate"
               >
-                {operation.product_name || 'Producto'}
+                {operation.product_name || operation.product?.name || 'Producto'}
               </span>
               <span
                 style={{
@@ -308,7 +308,8 @@ const B2BOperationsDashboard = () => {
     setLoading(true);
     try {
       const res = await apiClient.get('/b2b/operations');
-      if (!cancelled) setOperations(res.data?.operations || res.data || []);
+      const raw = res?.data?.operations || res?.data || res || [];
+      if (!cancelled) setOperations(Array.isArray(raw) ? raw : []);
     } catch (err) {
       if (!cancelled) setError(true);
     } finally {

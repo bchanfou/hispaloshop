@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, X, Loader2, Filter } from 'lucide-react';
+import { Search, X, Loader2, Filter, AlertTriangle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useLocale } from '../../context/LocaleContext';
 
 const CATEGORIES = [
   { value: '', label: 'Todas las categorías' },
@@ -46,8 +47,8 @@ const CERT_ICONS = {
   sin_gluten: '🌾', sin_lactosa: '🥛', dop: '🏆',
 };
 
-function B2BProductCard({ product, onRequest }) {
-  const hasTiers = product.b2b_prices?.length > 1;
+function B2BProductCard({ product, onRequest, convertAndFormatPrice }) {
+  const hasTiers = (product.b2b_prices?.length || 0) > 1;
   const lowestPrice = product.b2b_prices?.[0]?.unit_price_cents
     ? product.b2b_prices[0].unit_price_cents / 100
     : product.price || 0;
@@ -57,14 +58,14 @@ function B2BProductCard({ product, onRequest }) {
       {/* Image */}
       <div className="relative aspect-square">
         {product.images?.[0] ? (
-          <img src={product.images[0]} alt={product.name}
+          <img src={product.images[0]} alt={product.name || 'Producto'}
             className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-stone-100 flex items-center justify-center">
             <span className="text-3xl text-stone-300">📦</span>
           </div>
         )}
-        {product.certifications?.length > 0 && (
+        {(product.certifications?.length || 0) > 0 && (
           <div className="absolute top-1.5 left-1.5 flex gap-1">
             {product.certifications.slice(0, 2).map(cert => (
               <span key={cert} className="text-sm bg-white/90 rounded px-1">
@@ -77,7 +78,7 @@ function B2BProductCard({ product, onRequest }) {
 
       <div className="p-2.5">
         <p className="text-[13px] font-bold text-stone-950 line-clamp-2 leading-tight mb-0.5">
-          {product.name}
+          {product.name || 'Producto'}
         </p>
         <p className="text-[11px] text-stone-500 mb-2 truncate">
           {product.producer_name || product.seller_name || ''} · {product.region || product.country_origin || ''}
@@ -85,7 +86,7 @@ function B2BProductCard({ product, onRequest }) {
 
         {/* Wholesale price */}
         <p className="text-[15px] font-extrabold text-stone-950 mb-0.5">
-          Desde {lowestPrice.toFixed(2)}€/{product.unit || 'ud'}
+          Desde {convertAndFormatPrice(lowestPrice, 'EUR')}/{product.unit || 'ud'}
         </p>
         {product.moq > 1 && (
           <p className="text-[10px] text-stone-400 mb-2">
@@ -96,11 +97,11 @@ function B2BProductCard({ product, onRequest }) {
         {/* Price tiers */}
         {hasTiers && (
           <div className="mb-2">
-            {product.b2b_prices.slice(0, 2).map((tier, i) => (
+            {(product.b2b_prices || []).slice(0, 2).map((tier, i) => (
               <div key={i} className="flex justify-between text-[10px] text-stone-500 py-0.5">
                 <span>≥ {tier.min_quantity} {product.unit || 'uds'}</span>
                 <span className="font-semibold text-stone-700">
-                  {(tier.unit_price_cents / 100).toFixed(2)}€
+                  {convertAndFormatPrice((tier.unit_price_cents || 0) / 100, 'EUR')}
                 </span>
               </div>
             ))}
@@ -118,7 +119,7 @@ function B2BProductCard({ product, onRequest }) {
   );
 }
 
-function B2BOrderRequestModal({ product, onClose, onSuccess }) {
+function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPrice }) {
   const [quantity, setQuantity] = useState(product.moq || 1);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -236,7 +237,7 @@ function B2BOrderRequestModal({ product, onClose, onSuccess }) {
                     isActive ? 'font-bold text-stone-950' : 'text-stone-500'
                   }`}>
                     <span>{isActive ? '→ ' : ''}{tier.min_quantity}+ {product.unit || 'uds'}</span>
-                    <span>{(tier.unit_price_cents / 100).toFixed(2)}€/{product.unit || 'ud'}</span>
+                    <span>{convertAndFormatPrice((tier.unit_price_cents || 0) / 100, 'EUR')}/{product.unit || 'ud'}</span>
                   </div>
                 );
               })}
@@ -247,10 +248,10 @@ function B2BOrderRequestModal({ product, onClose, onSuccess }) {
           <div className="bg-white border border-stone-200 rounded-xl p-3.5 mb-4">
             <div className="flex justify-between mb-1">
               <span className="text-sm text-stone-500">
-                {quantity} {product.unit || 'uds'} × {unitPrice.toFixed(2)}€
+                {quantity} {product.unit || 'uds'} × {convertAndFormatPrice(unitPrice, 'EUR')}
               </span>
               <span className="text-sm font-bold text-stone-950">
-                {totalPrice.toFixed(2)}€
+                {convertAndFormatPrice(totalPrice, 'EUR')}
               </span>
             </div>
             <p className="text-[11px] text-stone-400">
@@ -291,18 +292,21 @@ function B2BOrderRequestModal({ product, onClose, onSuccess }) {
 }
 
 export default function ImporterCatalogPage() {
+  const { convertAndFormatPrice } = useLocale();
   const [filters, setFilters] = useState({
     category: '', certification: '', country: '',
   });
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const fetchProducts = useCallback(async (p = 1, append = false) => {
     setLoading(true);
+    setError(false);
     try {
       const params = new URLSearchParams();
       if (filters.category) params.set('category', filters.category);
@@ -312,12 +316,12 @@ export default function ImporterCatalogPage() {
 
       const res = await apiClient.get(`/b2b/catalog?${params.toString()}`);
       const data = res?.data || res || {};
-      const items = data.products || [];
+      const items = Array.isArray(data.products) ? data.products : [];
       setProducts(prev => append ? [...prev, ...items] : items);
       setHasMore(items.length >= 12);
       setPage(p);
     } catch {
-      if (!append) setProducts([]);
+      if (!append) { setProducts([]); setError(true); }
     } finally {
       setLoading(false);
     }
@@ -389,7 +393,18 @@ export default function ImporterCatalogPage() {
       </div>
 
       {/* Products grid */}
-      {loading && products.length === 0 ? (
+      {error && products.length === 0 ? (
+        <div className="text-center py-16">
+          <AlertTriangle className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-stone-950 mb-1">Error al cargar el catálogo</p>
+          <button
+            onClick={() => fetchProducts(1, false)}
+            className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      ) : loading && products.length === 0 ? (
         <div className="grid grid-cols-2 gap-3">
           {Array(6).fill(0).map((_, i) => (
             <div key={i} className="h-60 rounded-xl bg-stone-100 animate-pulse" />
@@ -409,6 +424,7 @@ export default function ImporterCatalogPage() {
                 key={product.product_id || product.id}
                 product={product}
                 onRequest={setSelectedProduct}
+                convertAndFormatPrice={convertAndFormatPrice}
               />
             ))}
           </div>
@@ -430,6 +446,7 @@ export default function ImporterCatalogPage() {
           <B2BOrderRequestModal
             product={selectedProduct}
             onClose={() => setSelectedProduct(null)}
+            convertAndFormatPrice={convertAndFormatPrice}
             onSuccess={() => {
               setSelectedProduct(null);
               toast.success('Solicitud enviada al productor');

@@ -24,7 +24,7 @@ function SettingsItem({ icon, label, sublabel, to, onClick, rightContent }) {
   const Wrapper = to ? Link : 'div';
   const props = to
     ? { to, style: { textDecoration: 'none', color: 'inherit' } }
-    : { onClick, role: 'button', tabIndex: 0 };
+    : { onClick, role: 'button', tabIndex: 0, onKeyDown: (e) => { if ((e.key === 'Enter' || e.key === ' ') && onClick) { e.preventDefault(); onClick(); } } };
 
   return (
     <Wrapper {...props}>
@@ -146,7 +146,7 @@ export default function SettingsPage() {
           aria-label="Volver">
           <ArrowLeft size={22} color="var(--color-black)" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Configuración</span>
+        <h1 style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)', margin: 0 }}>Configuración</h1>
       </div>
 
       <div style={{ maxWidth: 600, margin: '0 auto', paddingBottom: 100 }}>
@@ -211,10 +211,10 @@ export default function SettingsPage() {
         <SectionLabel>Soporte</SectionLabel>
         <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
           <SettingsItem icon={<HelpCircle size={20} />} label="Centro de ayuda"
-            onClick={() => window.open('https://help.hispaloshop.com', '_blank')} />
+            to="/ayuda" />
           <SettingsItem icon={<MessageSquare size={20} />} label="Contactar soporte" to="/contacto" />
           <SettingsItem icon={<Star size={20} />} label="Valorar la app"
-            onClick={() => window.open('https://hispaloshop.com', '_blank')} />
+            to="/que-es-hispaloshop" />
           <SettingsItem icon={<FileText size={20} />} label="Términos y condiciones" to="/legal/terminos" />
           <SettingsItem icon={<Shield size={20} />} label="Política de privacidad" to="/legal/privacidad" />
         </div>
@@ -243,7 +243,7 @@ export default function SettingsPage() {
             style={{
               width: '100%', padding: 10,
               background: 'none', border: 'none',
-              fontSize: 14, fontWeight: 500, color: 'var(--color-red)',
+              fontSize: 14, fontWeight: 500, color: 'var(--color-stone)',
               cursor: 'pointer', ...font,
             }}
           >
@@ -265,6 +265,9 @@ export default function SettingsPage() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: 16,
         }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirmar cierre de sesión"
           onClick={() => setShowLogoutConfirm(false)}
         >
           <div style={{
@@ -310,6 +313,9 @@ export default function SettingsPage() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: 16,
         }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirmar eliminación de cuenta"
           onClick={() => setShowDeleteConfirm(false)}
         >
           <div style={{
@@ -318,7 +324,7 @@ export default function SettingsPage() {
           }}
             onClick={e => e.stopPropagation()}
           >
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-red)', margin: '0 0 8px', ...font }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-stone)', margin: '0 0 8px', ...font }}>
               Eliminar cuenta
             </h3>
             <p style={{ fontSize: 14, color: 'var(--color-stone)', margin: '0 0 16px', lineHeight: 1.5, ...font }}>
@@ -330,6 +336,7 @@ export default function SettingsPage() {
               value={deleteEmail}
               onChange={e => setDeleteEmail(e.target.value)}
               placeholder={user?.email || 'tu@email.com'}
+              aria-label="Confirma tu email para eliminar la cuenta"
               style={{
                 width: '100%', height: 44, padding: '0 14px',
                 border: '1px solid var(--color-border)',
@@ -354,7 +361,7 @@ export default function SettingsPage() {
                 disabled={deleteEmail !== user?.email || deleting}
                 style={{
                   flex: 1, padding: 12, borderRadius: 'var(--radius-lg)',
-                  border: 'none', background: 'var(--color-red)', color: 'var(--color-white)',
+                  border: 'none', background: 'var(--color-black)', color: 'var(--color-white)',
                   fontSize: 14, fontWeight: 600, cursor: 'pointer',
                   opacity: (deleteEmail !== user?.email || deleting) ? 0.5 : 1, ...font,
                 }}>

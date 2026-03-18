@@ -87,7 +87,7 @@ async def _upsert_queue_item(
                 "$set": {"updated_at": datetime.now(timezone.utc)},
             },
         )
-        return existing["item_id"]
+        return existing.get("item_id", "")
 
     item_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
@@ -244,7 +244,7 @@ async def get_queue_item(item_id: str, user: User = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Elemento no encontrado")
 
     reports = await db.reports.find(
-        {"content_id": item["content_id"], "content_type": item["content_type"]},
+        {"content_id": item.get("content_id"), "content_type": item.get("content_type")},
         {"_id": 0},
     ).to_list(20)
 
@@ -282,11 +282,14 @@ async def apply_action(
     )
 
     action_id = str(uuid.uuid4())
+    item_content_type = item.get("content_type", "")
+    item_content_id = item.get("content_id", "")
+
     await db.moderation_actions.insert_one({
         "action_id": action_id,
         "moderator_id": user.user_id,
-        "content_type": item["content_type"],
-        "content_id": item["content_id"],
+        "content_type": item_content_type,
+        "content_id": item_content_id,
         "user_id": item.get("user_id"),
         "action": body.action,
         "reason": body.reason or "",
@@ -322,7 +325,7 @@ async def apply_action(
 
     # Mark related reports as reviewed
     await db.reports.update_many(
-        {"content_id": item["content_id"], "content_type": item["content_type"]},
+        {"content_id": item_content_id, "content_type": item_content_type},
         {"$set": {"status": "reviewed"}},
     )
 

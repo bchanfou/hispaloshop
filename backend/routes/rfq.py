@@ -69,7 +69,7 @@ async def create_rfq(data: RFQCreateInput, user: User = Depends(get_current_user
         <p>{data.message.strip()}</p>
         """
         try:
-            send_email(producer["email"], subject, html)
+            send_email(producer.get("email", ""), subject, html)
             email_sent = True
         except Exception as exc:
             logger.warning("RFQ email failed for producer %s: %s", data.producer_id, exc)

@@ -8,10 +8,10 @@ import apiClient from '../services/api/client';
 
 /* ── Constants ── */
 const ROLES = [
-  { id: 'consumer', icon: <ShoppingCart size={24} className="text-stone-950" />, label: 'Consumidor', desc: 'Quiero descubrir y comprar productos artesanales' },
-  { id: 'producer', icon: <Wheat size={24} className="text-stone-950" />, label: 'Productor', desc: 'Tengo productos artesanales y quiero venderlos' },
-  { id: 'influencer', icon: <Star size={24} className="text-stone-950" />, label: 'Influencer', desc: 'Creo contenido y quiero ganar comisiones' },
-  { id: 'importer', icon: <Globe size={24} className="text-stone-950" />, label: 'Importador', desc: 'Busco productos para importar o distribuir' },
+  { id: 'consumer', icon: <ShoppingCart size={24} color="#fff" />, label: 'Consumidor', desc: 'Quiero descubrir y comprar productos artesanales' },
+  { id: 'producer', icon: <Wheat size={24} color="#fff" />, label: 'Productor', desc: 'Tengo productos artesanales y quiero venderlos' },
+  { id: 'influencer', icon: <Star size={24} color="#fff" />, label: 'Influencer', desc: 'Creo contenido y quiero ganar comisiones' },
+  { id: 'importer', icon: <Globe size={24} color="#fff" />, label: 'Importador', desc: 'Busco productos para importar o distribuir' },
 ];
 
 const PREFERENCES = [
@@ -43,6 +43,7 @@ export default function OnboardingPage() {
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedPrefs, setSelectedPrefs] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [handleFinishLaterLoading, setHandleFinishLaterLoading] = useState(false);
 
   // Redirect if not authenticated or already has role
   useEffect(() => {
@@ -90,7 +91,7 @@ export default function OnboardingPage() {
   };
 
   const handleFinishLater = async () => {
-    setSaving(true);
+    setHandleFinishLaterLoading(true);
     try {
       await apiClient.post('/auth/set-role', {
         role: selectedRole,
@@ -99,6 +100,8 @@ export default function OnboardingPage() {
       await checkAuth();
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Error al guardar. Puedes configurar tu perfil más tarde.');
+    } finally {
+      setHandleFinishLaterLoading(false);
     }
     navigate('/', { replace: true });
   };
@@ -179,7 +182,7 @@ export default function OnboardingPage() {
               style={{
                 background: isSelected ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)',
                 border: isSelected
-                  ? '1.5px solid var(--color-black)'
+                  ? '1.5px solid rgba(255,255,255,0.6)'
                   : '1.5px solid rgba(255,255,255,0.15)',
                 borderRadius: 'var(--radius-xl)',
                 padding: '20px 16px',
@@ -242,6 +245,7 @@ export default function OnboardingPage() {
       }}>
         <button
           onClick={() => goTo(1)}
+          aria-label="Volver al paso anterior"
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 4,
@@ -344,7 +348,7 @@ export default function OnboardingPage() {
       const prefs = selectedPrefs.join(',');
       apiClient.get(`/discovery/suggested-users?context=onboarding&limit=12${prefs ? `&preferences=${prefs}` : ''}`)
         .then(data => { if (active) setSuggestions(data?.users || []); })
-        .catch(() => {})
+        .catch(() => { if (active) setSuggestions([]); })
         .finally(() => { if (active) setSugLoading(false); });
       return () => { active = false; };
     }, []);
@@ -353,7 +357,9 @@ export default function OnboardingPage() {
       try {
         await apiClient.post(`/users/${userId}/follow`, {});
         setFollowedIds(prev => new Set([...prev, userId]));
-      } catch { /* ignore */ }
+      } catch {
+        toast.error('No se pudo seguir a este usuario');
+      }
     }, []);
 
     const ROLE_LABELS = { producer: 'Productor', influencer: 'Influencer', consumer: 'Consumidor', importer: 'Importador' };
@@ -361,7 +367,7 @@ export default function OnboardingPage() {
     return (
       <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)', padding: '0 24px 120px' }}>
         <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
-          <button onClick={() => goTo(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', padding: 0 }}>
+          <button onClick={() => goTo(2)} aria-label="Volver al paso anterior" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', padding: 0 }}>
             <ArrowLeft size={18} /> Atrás
           </button>
         </div>
@@ -688,6 +694,7 @@ export default function OnboardingPage() {
         }}>
           <button
             onClick={() => goTo(3)}
+            aria-label="Volver al paso anterior"
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4,

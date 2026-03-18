@@ -54,12 +54,14 @@ async def get_moderation_queue(
         )
 
         # Fetch content preview
-        preview = await _get_content_preview(item["content_type"], item["content_id"])
+        ct = item.get("content_type", "")
+        cid = item.get("content_id", "")
+        preview = await _get_content_preview(ct, cid) if ct and cid else {"text": "", "image": None}
 
         result.append({
             "id": str(item["_id"]),
-            "content_type": item["content_type"],
-            "content_id": item["content_id"],
+            "content_type": ct,
+            "content_id": cid,
             "creator_id": item.get("creator_id"),
             "creator_name": (creator or {}).get("name", "Unknown"),
             "creator_avatar": (creator or {}).get("picture"),
@@ -141,7 +143,8 @@ async def confirm_moderation(
     )
 
     # Notify creator
-    _notify_creator(item, confirmed=True)
+    if item.get("creator_id"):
+        _notify_creator(item, confirmed=True)
 
     return {"status": "confirmed", "id": item_id}
 
@@ -171,8 +174,10 @@ async def restore_moderation(
     now = datetime.now(timezone.utc)
 
     # Restore the content
-    ct = item["content_type"]
-    cid = item["content_id"]
+    ct = item.get("content_type", "")
+    cid = item.get("content_id", "")
+    if not ct or not cid:
+        raise HTTPException(status_code=400, detail="Item missing content_type or content_id")
 
     if ct in ("post", "reel", "story"):
         await db.posts.update_one(
@@ -202,9 +207,12 @@ async def restore_moderation(
     )
 
     # Notify creator of restoration
+    creator_id = item.get("creator_id")
+    if not creator_id:
+        return {"status": "restored", "id": item_id}
     try:
         await create_notification(
-            user_id=item.get("creator_id"),
+            user_id=creator_id,
             title="Contenido restaurado",
             body="Tu contenido ha sido revisado y restaurado por un administrador.",
             notification_type="moderation_restored",

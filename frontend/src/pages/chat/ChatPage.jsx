@@ -71,7 +71,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
   const isOnline = conversation?.online || status?.online;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-stone-200 bg-stone-50/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] font-apple backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-stone-100 bg-white/95 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] font-apple backdrop-blur-xl">
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
@@ -82,7 +82,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
         </button>
 
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-100">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400">
             {conversation?.avatar_url ? (
               <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
@@ -91,7 +91,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
               </div>
             )}
             {isOnline && (
-              <span className="absolute bottom-0 right-0 h-[10px] w-[10px] rounded-full border-2 border-stone-50 bg-green-500" />
+              <span className="absolute bottom-0 right-0 h-[10px] w-[10px] rounded-full border-2 border-white bg-green-500" />
             )}
           </div>
 
@@ -132,7 +132,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="mt-2 flex items-center gap-2 rounded-xl bg-stone-200/60 px-3 py-2">
+            <div className="mt-2 flex items-center gap-2 rounded-[10px] bg-stone-100 px-3 py-2">
               <Search size={16} className="shrink-0 text-stone-500" />
               <input
                 type="text"
@@ -179,12 +179,10 @@ function ContextBanner({ orderId, navigate }) {
    ================================================================ */
 function DateSeparator({ date }) {
   return (
-    <div className="flex items-center gap-3 px-6 py-4">
-      <div className="h-px flex-1 bg-stone-200" />
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
+    <div className="flex justify-center py-3">
+      <span className="rounded-full bg-stone-100/80 px-3 py-1 text-[12px] font-medium text-stone-500">
         {formatDateSeparator(date)}
       </span>
-      <div className="h-px flex-1 bg-stone-200" />
     </div>
   );
 }
@@ -226,7 +224,7 @@ function ReactionBar({ reactions }) {
 /* ================================================================
    AudioPlayer — mini player for voice messages
    ================================================================ */
-function AudioPlayer({ url, duration }) {
+function AudioPlayer({ url, duration, isOwn }) {
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -253,15 +251,15 @@ function AudioPlayer({ url, duration }) {
   return (
     <div className="flex items-center gap-2">
       <audio ref={audioRef} src={url} preload="metadata" />
-      <button onClick={toggle} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-200">
+      <button onClick={toggle} className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${isOwn ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
         {playing ? <Pause size={14} /> : <Play size={14} />}
       </button>
       <div className="flex-1">
-        <div className="h-1 rounded-full bg-stone-200">
-          <div className="h-1 rounded-full bg-stone-950 transition-[width]" style={{ width: `${progress * 100}%` }} />
+        <div className={`h-1 rounded-full ${isOwn ? 'bg-white/30' : 'bg-stone-200'}`}>
+          <div className={`h-1 rounded-full transition-[width] ${isOwn ? 'bg-white' : 'bg-[#0095F6]'}`} style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
-      <span className="text-[11px] text-stone-500">{fmt(duration || 0)}</span>
+      <span className={`text-[11px] ${isOwn ? 'text-white/70' : 'text-stone-500'}`}>{fmt(duration || 0)}</span>
     </div>
   );
 }
@@ -326,7 +324,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
   if (message.message_type === 'system' || message.sender_id === 'system') {
     return (
       <div className="flex justify-center px-4" style={{ marginTop: gap }}>
-        <div className="max-w-[85%] rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-center text-[11px] text-stone-500">
+        <div className="max-w-[85%] rounded-full bg-stone-100 px-3 py-1 text-center text-[11px] text-stone-500">
           {message.content}
         </div>
       </div>
@@ -387,11 +385,11 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
         <div className="max-w-[75%]">
           <div
             className={`min-w-[200px] px-3.5 py-2.5 font-apple ${
-              isOwn ? 'bg-stone-950 text-white' : 'border border-stone-200 bg-white text-stone-950'
+              isOwn ? 'bg-[#0095F6] text-white' : 'bg-[#EFEFEF] text-stone-950'
             }`}
             style={{ borderRadius: bubbleRadius }}
           >
-            <AudioPlayer url={message.audio_url} duration={message.audio_duration || 0} />
+            <AudioPlayer url={message.audio_url} duration={message.audio_duration || 0} isOwn={isOwn} />
           </div>
           <ReactionBar reactions={message.reactions} />
           {showTimestamp && (
@@ -410,14 +408,14 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
     <div className="max-w-[75%]">
       <div
         className={`break-words px-3.5 py-2.5 text-[15px] leading-[21px] font-apple ${
-          isOwn ? 'bg-stone-950 text-white' : 'border border-stone-200 bg-white text-stone-950'
+          isOwn ? 'bg-[#0095F6] text-white' : 'bg-[#EFEFEF] text-stone-950'
         }`}
         style={{ borderRadius: bubbleRadius }}
       >
         {/* Reply reference */}
         {replyPreview && (
           <div className={`mb-1.5 rounded-lg px-2.5 py-1.5 text-[12px] leading-[16px] ${
-            isOwn ? 'bg-white/15 text-white/80' : 'bg-stone-100 text-stone-600'
+          isOwn ? 'bg-white/15 text-white/80' : 'bg-stone-200/60 text-stone-600'
           }`}>
             <span className="block truncate font-semibold text-[11px]">{replyPreview.sender_name || ''}</span>
             <span className="block truncate">{replyPreview.content || ''}</span>
@@ -571,11 +569,11 @@ function CollabSampleMessage({ message, isOwn, gap, touchProps }) {
 function TypingIndicator() {
   return (
     <div className="mt-3 flex justify-start px-4">
-      <div className="flex items-center gap-1 rounded-[20px] rounded-bl-[4px] border border-stone-200 bg-white px-4 py-3">
+      <div className="flex items-center gap-1 rounded-[20px] rounded-bl-[4px] border border-stone-100 bg-stone-50 px-4 py-3">
         {[0, 1, 2].map((i) => (
           <motion.span
             key={i}
-            className="block h-[7px] w-[7px] rounded-full bg-stone-500"
+            className="block h-[7px] w-[7px] rounded-full bg-stone-400"
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
           />
@@ -595,7 +593,7 @@ function NewMessagesPill({ onClick }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       onClick={onClick}
-      className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full bg-stone-950 px-4 py-1.5 text-[13px] font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+      className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full bg-[#0095F6] px-4 py-1.5 text-[13px] font-semibold text-white shadow-[0_4px_12px_rgba(0,149,246,0.3)]"
     >
       <span className="text-[15px]">↓</span> Nuevos mensajes
     </motion.button>
@@ -704,7 +702,7 @@ function EmptyConversation({ conversation, onSendSuggestion }) {
 
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 font-apple">
-      <div className="mb-3 h-16 w-16 overflow-hidden rounded-full bg-stone-100">
+      <div className="mb-3 h-16 w-16 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400">
         {conversation?.avatar_url ? (
           <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" />
         ) : (
@@ -727,7 +725,7 @@ function EmptyConversation({ conversation, onSendSuggestion }) {
           <button
             key={text}
             onClick={() => onSendSuggestion(text)}
-            className="rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-stone-950 active:bg-stone-200"
+            className="rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-[#0095F6] active:bg-stone-200"
           >
             {text}
           </button>
@@ -750,6 +748,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
   const fileInputRef = useRef(null);
+  const recordingSecsRef = useRef(0);
 
   useEffect(() => () => { clearTimeout(typingTimeoutRef.current); clearInterval(timerRef.current); }, []);
 
@@ -784,18 +783,23 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
       mediaRecorderRef.current = mr;
       chunksRef.current = [];
       setRecordingSecs(0);
+      recordingSecsRef.current = 0;
       mr.ondataavailable = (e) => { if (e.data.size) chunksRef.current.push(e.data); };
       mr.onstop = () => {
         stream.getTracks().forEach(t => t.stop());
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        if (blob.size > 0) onVoiceSend?.(blob, recordingSecs);
+        if (blob.size > 0) onVoiceSend?.(blob, recordingSecsRef.current);
         setIsRecording(false);
         setRecordingSecs(0);
+        recordingSecsRef.current = 0;
         clearInterval(timerRef.current);
       };
       mr.start();
       setIsRecording(true);
-      timerRef.current = setInterval(() => setRecordingSecs(s => s + 1), 1000);
+      timerRef.current = setInterval(() => {
+        recordingSecsRef.current += 1;
+        setRecordingSecs(recordingSecsRef.current);
+      }, 1000);
     } catch {
       // Mic not available
     }
@@ -831,7 +835,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
   const fmtSecs = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   return (
-    <div className="shrink-0 border-t border-stone-200 bg-stone-50 font-apple" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
+    <div className="shrink-0 border-t border-stone-100 bg-white font-apple" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
       {/* Reply preview bar */}
       <AnimatePresence>
         {replyTo && (
@@ -839,7 +843,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-b border-stone-200 bg-stone-100"
+            className="overflow-hidden border-b border-stone-100 bg-stone-50"
           >
             <div className="flex items-center gap-2 px-3 py-2">
               <Reply size={14} className="shrink-0 text-stone-500" />
@@ -864,14 +868,14 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
             <motion.span animate={{ opacity: [1, 0.3] }} transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }} className="h-2.5 w-2.5 rounded-full bg-red-500" />
             <span className="text-sm font-medium text-stone-950">{fmtSecs(recordingSecs)}</span>
           </div>
-          <button onClick={stopRecording} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75" aria-label="Enviar nota de voz">
+          <button onClick={stopRecording} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[#0095F6] text-white active:opacity-75" aria-label="Enviar nota de voz">
             <ArrowUp size={20} />
           </button>
         </div>
       ) : (
         <div className="flex items-end gap-2 px-3 pt-2">
-          <button onClick={handleImagePick} className="mb-1 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-500 active:bg-stone-200" aria-label="Adjuntar imagen">
-            <Plus size={20} />
+          <button onClick={handleImagePick} className="mb-1 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-[#0095F6] active:opacity-60" aria-label="Adjuntar imagen">
+            <Plus size={22} />
           </button>
 
           <div className="min-h-[44px] flex-1">
@@ -882,7 +886,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
               onKeyDown={handleKeyDown}
               placeholder="Mensaje..."
               rows={1}
-              className="w-full min-h-[44px] max-h-[120px] resize-none rounded-3xl bg-stone-100 px-4 py-2.5 text-[15px] leading-[22px] text-stone-950 outline-none placeholder:text-stone-400"
+              className="w-full min-h-[44px] max-h-[120px] resize-none rounded-3xl border border-stone-200 bg-white px-4 py-2.5 text-[15px] leading-[22px] text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-300"
             />
           </div>
 
@@ -895,7 +899,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 onClick={handleSend}
-                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75"
+                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-[#0095F6] text-white active:opacity-75"
                 aria-label="Enviar"
               >
                 <ArrowUp size={20} />
@@ -908,7 +912,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 onClick={startRecording}
-                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-500 active:bg-stone-100"
+                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-500 active:bg-stone-50"
                 aria-label="Nota de voz"
               >
                 <Mic size={20} />
@@ -1161,7 +1165,7 @@ export default function ChatPage() {
 
   return (
     <div
-      className="fixed inset-0 z-40 flex flex-col bg-stone-50 font-apple"
+      className="fixed inset-0 z-40 flex flex-col bg-white font-apple"
       style={{ paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}
     >
       <ChatHeader
@@ -1174,7 +1178,7 @@ export default function ChatPage() {
       />
       <ContextBanner orderId={conversation?.order_id} navigate={navigate} />
 
-      <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-stone-50">
+      <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-white">
         <div className="pb-4 pt-2">
           {/* Pagination spinner (Q10) */}
           {loadingMore && (

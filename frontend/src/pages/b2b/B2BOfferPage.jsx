@@ -405,7 +405,7 @@ function StepLogistica({ form, set }) {
           onChange={(e) => set('incoterm_city', e.target.value)}
           style={inputStyle}
         />
-        {form.incoterm && form.incoterm !== 'EXW' && !form.incoterm_city.trim() && (
+        {form.incoterm && form.incoterm !== 'EXW' && !(form.incoterm_city || '').trim() && (
           <p className="text-xs text-stone-500 mt-1">La ciudad de entrega es obligatoria para {form.incoterm}</p>
         )}
       </div>
@@ -581,7 +581,7 @@ export default function B2BOfferPage() {
     if (step === 2) {
       if (!form.incoterm) return false;
       if (!form.delivery_days || Number(form.delivery_days) < 1) return false;
-      if (form.incoterm !== 'EXW' && !form.incoterm_city.trim()) return false;
+      if (form.incoterm !== 'EXW' && !(form.incoterm_city || '').trim()) return false;
       return true;
     }
     if (step === 3) return confirmed;
@@ -606,15 +606,15 @@ export default function B2BOfferPage() {
     setSubmitting(true);
 
     const offer = {
-      product_name: form.product_name.trim(),
-      product_id: form.product_id.trim() || undefined,
+      product_name: (form.product_name || '').trim(),
+      product_id: (form.product_id || '').trim() || undefined,
       quantity: Number(form.quantity),
       unit: form.unit,
       price_per_unit: Number(form.price_per_unit),
       currency: form.currency,
       payment_terms: form.payment_terms,
       incoterm: form.incoterm,
-      incoterm_city: form.incoterm_city.trim(),
+      incoterm_city: (form.incoterm_city || '').trim(),
       delivery_days: form.delivery_days ? Number(form.delivery_days) : undefined,
       validity_days: Number(form.validity_days),
     };
@@ -649,10 +649,11 @@ export default function B2BOfferPage() {
 
   /* ── Render ─────────────────────────────────────────────── */
   const stepContent = [
-    <StepProducto form={form} set={set} />,
-    <StepPrecio form={form} set={set} />,
-    <StepLogistica form={form} set={set} />,
+    <StepProducto key="step-0" form={form} set={set} />,
+    <StepPrecio key="step-1" form={form} set={set} />,
+    <StepLogistica key="step-2" form={form} set={set} />,
     <StepRevisar
+      key="step-3"
       form={form}
       prefillData={prefillData}
       confirmed={confirmed}

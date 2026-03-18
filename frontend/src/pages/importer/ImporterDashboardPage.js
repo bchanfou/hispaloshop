@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Package, ShoppingBag, Factory, Store, Search, Award, FileCheck,
@@ -7,6 +7,7 @@ import {
   Clock, ChevronRight, BarChart3, PenTool, FileText, KeyRound, CreditCard
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useLocale } from '../../context/LocaleContext';
 import apiClient from '../../services/api/client';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { toast } from 'sonner';
@@ -128,7 +129,7 @@ function ImporterPlanCard({ plan }) {
         className="block w-full text-center py-2.5 text-sm font-medium transition-colors"
         style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)' }}
       >
-        Actualizar a ELITE · 249€/mes <ArrowRight className="w-4 h-4 inline ml-1" />
+        Actualizar a ELITE · 249 €/mes <ArrowRight className="w-4 h-4 inline ml-1" />
       </Link>
     </div>
   );
@@ -213,6 +214,7 @@ function PeriodSelector({ value, onChange }) {
 
 export default function ImporterDashboardPage() {
   const { user } = useAuth();
+  const { convertAndFormatPrice } = useLocale();
   const navigate = useNavigate();
   const { openConversation } = useChatContext();
 
@@ -232,11 +234,14 @@ export default function ImporterDashboardPage() {
   const [b2bOperations, setB2bOperations] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [activeTab, setActiveTab] = useState('b2c');
   const [period, setPeriod] = useState('month');
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     let active = true;
+    setError(false);
+    setLoading(true);
     Promise.all([
       apiClient.get('/importer/stats').catch(() => null),
       apiClient.get('/importer/alerts').catch(() => []),
@@ -248,20 +253,47 @@ export default function ImporterDashboardPage() {
       if (!active) return;
       setStats(s || {});
       setAlerts(Array.isArray(a) ? a : []);
-      setRecentB2B(b?.orders || []);
+      setRecentB2B(Array.isArray(b?.orders) ? b.orders : []);
       setB2cOrders(Array.isArray(orders) ? orders : []);
       setB2bOperations(Array.isArray(ops) ? ops : (ops?.operations || []));
-      setTopProducts(Array.isArray(products) ? products.slice(0, 3) : (products?.products || []).slice(0, 3));
+      setTopProducts(Array.isArray(products) ? products.slice(0, 3) : (Array.isArray(products?.products) ? products.products : []).slice(0, 3));
+    }).catch(() => {
+      if (active) setError(true);
     }).finally(() => {
       if (active) setLoading(false);
     });
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--color-stone)' }} />
+      <div style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)' }}>
+        <div className="h-8 w-48 rounded-xl bg-stone-100 animate-pulse mb-2" />
+        <div className="h-4 w-32 rounded-xl bg-stone-100 animate-pulse mb-5" />
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          {[0,1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-stone-100 animate-pulse" />)}
+        </div>
+        <div className="h-40 rounded-xl bg-stone-100 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3" style={{ fontFamily: 'var(--font-sans)' }}>
+        <AlertTriangle className="w-10 h-10" style={{ color: 'var(--color-stone)' }} />
+        <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Error al cargar el panel</p>
+        <button
+          onClick={loadData}
+          className="px-5 py-2 text-sm font-semibold transition-colors"
+          style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)', border: 'none', cursor: 'pointer' }}
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
@@ -338,7 +370,7 @@ export default function ImporterDashboardPage() {
           <div className="grid grid-cols-2 gap-3 mb-5">
             <KPICard
               icon={TrendingUp}
-              value={`${(stats?.volume_month || 0).toFixed(0)}€`}
+              value={convertAndFormatPrice(stats?.volume_month || 0, 'EUR')}
               label="Ventas B2C"
               description={`${stats?.store_orders || 0} pedidos`}
               href="/producer/orders"
@@ -394,7 +426,7 @@ export default function ImporterDashboardPage() {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
-                        {(order.total || 0).toFixed(2)}€
+                        {convertAndFormatPrice(order.total || 0, 'EUR')}
                       </p>
                       <B2COrderStatusBadge status={order.status} />
                     </div>
@@ -451,7 +483,7 @@ export default function ImporterDashboardPage() {
                     {product.name}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
-                    {product.price ? `${product.price.toFixed(2)}€` : ''} · Stock: {product.stock ?? '—'}
+                    {product.price ? convertAndFormatPrice(product.price, 'EUR') : ''} · Stock: {product.stock ?? '—'}
                   </p>
                 </div>
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
@@ -490,7 +522,7 @@ export default function ImporterDashboardPage() {
                   </div>
                   <div className="text-right shrink-0 ml-3">
                     <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
-                      {(order.total || 0).toFixed(2)}€
+                      {convertAndFormatPrice(order.total || 0, 'EUR')}
                     </p>
                     <B2COrderStatusBadge status={order.status} />
                   </div>
@@ -521,7 +553,7 @@ export default function ImporterDashboardPage() {
             />
             <KPICard
               icon={ShoppingBag}
-              value={`${(stats?.volume_month || 0).toFixed(0)}€`}
+              value={convertAndFormatPrice(stats?.volume_month || 0, 'EUR')}
               label="Volumen este mes"
             />
             <KPICard
@@ -682,7 +714,7 @@ export default function ImporterDashboardPage() {
                   )}
                   <div className="text-right shrink-0 ml-3">
                     <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
-                      {(order.total || 0).toFixed(2)}€
+                      {convertAndFormatPrice(order.total || 0, 'EUR')}
                     </p>
                     <B2BOrderStatusBadge status={order.status} />
                   </div>

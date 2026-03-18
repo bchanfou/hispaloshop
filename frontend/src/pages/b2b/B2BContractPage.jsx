@@ -144,10 +144,13 @@ export default function B2BContractPage() {
   if (loading) {
     return (
       <div
-        className="fixed inset-0 flex items-center justify-center"
-        style={{ background: V2.cream, fontFamily: V2.fontSans }}
+        className="fixed inset-0 flex flex-col"
+        style={{ background: V2.cream, fontFamily: V2.fontSans, padding: 16, paddingTop: 60 }}
       >
-        <Loader2 size={28} className="animate-spin" style={{ color: V2.stone }} />
+        <div className="h-10 w-48 rounded-xl animate-pulse mb-4" style={{ background: V2.surface }} />
+        <div className="h-32 rounded-xl animate-pulse mb-4" style={{ background: V2.surface }} />
+        <div className="h-24 rounded-xl animate-pulse mb-4" style={{ background: V2.surface }} />
+        <div className="h-48 rounded-xl animate-pulse" style={{ background: V2.surface }} />
       </div>
     );
   }
@@ -165,23 +168,40 @@ export default function B2BContractPage() {
         <p style={{ color: V2.stone, fontSize: 13, textAlign: 'center' }}>
           {error || 'La operación solicitada no existe o no tienes acceso.'}
         </p>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            marginTop: 12,
-            background: V2.black,
-            color: V2.white,
-            border: 'none',
-            borderRadius: V2.radiusFull,
-            padding: '10px 28px',
-            fontSize: 14,
-            fontWeight: 600,
-            fontFamily: V2.fontSans,
-            cursor: 'pointer',
-          }}
-        >
-          Volver
-        </button>
+        <div className="flex gap-3" style={{ marginTop: 12 }}>
+          <button
+            onClick={fetchOperation}
+            style={{
+              background: V2.black,
+              color: V2.white,
+              border: 'none',
+              borderRadius: V2.radiusFull,
+              padding: '10px 28px',
+              fontSize: 14,
+              fontWeight: 600,
+              fontFamily: V2.fontSans,
+              cursor: 'pointer',
+            }}
+          >
+            Reintentar
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              background: V2.white,
+              color: V2.black,
+              border: `1px solid ${V2.border}`,
+              borderRadius: V2.radiusFull,
+              padding: '10px 28px',
+              fontSize: 14,
+              fontWeight: 600,
+              fontFamily: V2.fontSans,
+              cursor: 'pointer',
+            }}
+          >
+            Volver
+          </button>
+        </div>
       </div>
     );
   }
@@ -606,8 +626,8 @@ export default function B2BContractPage() {
               </p>
               <p style={{ fontSize: 12, color: V2.stone }}>
                 {fmtDate(
-                  operation.contract?.buyer_signature_at > operation.contract?.seller_signature_at
-                    ? operation.contract.buyer_signed_at
+                  (operation.contract?.buyer_signature_at || '') > (operation.contract?.seller_signature_at || '')
+                    ? (operation.contract?.buyer_signature_at || operation.contract?.buyer_signed_at)
                     : operation.contract?.seller_signature_at
                 )}
               </p>

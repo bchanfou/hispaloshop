@@ -49,11 +49,14 @@ async def cron_grace_period_check(user: User = Depends(get_current_user)):
             try:
                 stripe.Subscription.cancel(stripe_sub_id)
             except Exception as e:
-                logger.error(f"[GRACE] Stripe cancel failed for {seller['user_id']}: {e}")
+                logger.error(f"[GRACE] Stripe cancel failed for {seller.get('user_id')}: {e}")
 
         # Downgrade to FREE
+        seller_uid = seller.get("user_id")
+        if not seller_uid:
+            continue
         await db.users.update_one(
-            {"user_id": seller["user_id"]},
+            {"user_id": seller_uid},
             {"$set": {
                 "subscription.plan": "FREE",
                 "subscription.commission_rate": 0.20,
@@ -63,7 +66,7 @@ async def cron_grace_period_check(user: User = Depends(get_current_user)):
             }}
         )
         downgraded += 1
-        logger.info(f"[GRACE] Downgraded {seller['user_id']} ({seller['name']}) to FREE")
+        logger.info(f"[GRACE] Downgraded {seller_uid} ({seller.get('name')}) to FREE")
 
     return {"downgraded": downgraded, "checked": len(expired)}
 
@@ -84,11 +87,13 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
     # Group by influencer
     by_influencer = {}
     for p in due_payouts:
-        iid = p["influencer_id"]
+        iid = p.get("influencer_id")
+        if not iid:
+            continue
         if iid not in by_influencer:
             by_influencer[iid] = {"payouts": [], "total": 0}
         by_influencer[iid]["payouts"].append(p)
-        by_influencer[iid]["total"] = round(by_influencer[iid]["total"] + p["amount"], 2)
+        by_influencer[iid]["total"] = round(by_influencer[iid]["total"] + (p.get("amount") or 0), 2)
 
     paid_count = 0
     skipped_count = 0
@@ -108,19 +113,23 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
         # Verify orders are still valid (not refunded)
         valid_payouts = []
         for p in data["payouts"]:
-            order = await db.orders.find_one({"order_id": p["order_id"]}, {"_id": 0, "status": 1})
+            p_order_id = p.get("order_id")
+            p_payout_id = p.get("payout_id")
+            if not p_order_id or not p_payout_id:
+                continue
+            order = await db.orders.find_one({"order_id": p_order_id}, {"_id": 0, "status": 1})
             if order and order.get("status") not in ("cancelled", "refunded"):
                 valid_payouts.append(p)
             else:
                 await db.scheduled_payouts.update_one(
-                    {"payout_id": p["payout_id"]},
+                    {"payout_id": p_payout_id},
                     {"$set": {"status": "cancelled", "cancel_reason": "order_refunded", "updated_at": now.isoformat()}}
                 )
 
         if not valid_payouts:
             continue
 
-        total_valid = round(sum(p["amount"] for p in valid_payouts), 2)
+        total_valid = round(sum(p.get("amount", 0) for p in valid_payouts), 2)
         if total_valid < INFLUENCER_MIN_PAYOUT_EUR:
             continue
 
@@ -128,7 +137,7 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
         payout_currency = valid_payouts[0].get("currency", "eur").lower()
         try:
             transfer = stripe.Transfer.create(
-                amount=int(total_valid * 100),
+                amount=int(round(total_valid * 100)),
                 currency=payout_currency,
                 destination=inf["stripe_account_id"],
                 metadata={"influencer_id": iid, "payout_count": len(valid_payouts)},
@@ -137,18 +146,18 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
 
             for p in valid_payouts:
                 await db.scheduled_payouts.update_one(
-                    {"payout_id": p["payout_id"]},
+                    {"payout_id": p.get("payout_id")},
                     {"$set": {"status": "paid", "transfer_id": transfer.id, "paid_at": now.isoformat()}}
                 )
 
             paid_count += 1
-            logger.info(f"[PAYOUT] Paid {iid}: ${total_valid:.2f} ({len(valid_payouts)} orders) → {transfer.id}")
+            logger.info(f"[PAYOUT] Paid {iid}: {total_valid:.2f}EUR ({len(valid_payouts)} orders) -> {transfer.id}")
 
         except stripe.error.StripeError as e:
             logger.error(f"[PAYOUT] Stripe error for {iid}: {e}")
             for p in valid_payouts:
                 await db.scheduled_payouts.update_one(
-                    {"payout_id": p["payout_id"]},
+                    {"payout_id": p.get("payout_id")},
                     {"$set": {"status": "failed", "error": str(e), "updated_at": now.isoformat()}}
                 )
 
@@ -168,11 +177,14 @@ async def cron_tier_recalculation(user: User = Depends(get_current_user)):
 
     changes = []
     for inf in due_influencers:
+        inf_id = inf.get("influencer_id")
+        if not inf_id:
+            continue
         old_tier = normalize_influencer_tier(inf.get("current_tier", "hercules"))
-        new_tier = await recalculate_influencer_tier(db, inf["influencer_id"])
+        new_tier = await recalculate_influencer_tier(db, inf_id)
         if new_tier != old_tier:
-            changes.append({"influencer_id": inf["influencer_id"], "from": old_tier, "to": new_tier})
-            logger.info(f"[TIER] {inf['influencer_id']}: {old_tier} → {new_tier}")
+            changes.append({"influencer_id": inf_id, "from": old_tier, "to": new_tier})
+            logger.info(f"[TIER] {inf_id}: {old_tier} -> {new_tier}")
 
     return {"reviewed": len(due_influencers), "changes": changes}
 
@@ -272,12 +284,13 @@ async def cron_predict_notifications(user: User = Depends(get_current_user)):
     now = datetime.now(timezone.utc)
     now_iso = now.isoformat()
 
-    # Get all customers who have orders
+    # Get all customers who have orders (limit to prevent unbounded)
     customer_ids_cursor = db.orders.aggregate([
         {"$match": {"status": {"$nin": ["cancelled", "refunded"]}}},
         {"$group": {"_id": "$user_id"}},
+        {"$limit": 5000},
     ])
-    customer_ids = [doc["_id"] async for doc in customer_ids_cursor]
+    customer_ids = [doc["_id"] async for doc in customer_ids_cursor if doc.get("_id")]
 
     notified_users = 0
     notified_products = 0
@@ -369,14 +382,16 @@ async def cron_predict_notifications(user: User = Depends(get_current_user)):
             frontend_url=_html.escape(FRONTEND_URL, quote=True),
         )
 
-        try:
-            send_email(
-                to=user_doc["email"],
-                subject=f"Hispalo Predict: {len(overdue)} producto(s) vencido(s)",
-                html=html_body,
-            )
-        except Exception as e:
-            logger.error(f"[PREDICT-CRON] Email failed for {uid}: {e}")
+        user_email = user_doc.get("email")
+        if user_email:
+            try:
+                send_email(
+                    to=user_email,
+                    subject=f"Hispalo Predict: {len(overdue)} producto(s) vencido(s)",
+                    html=html_body,
+                )
+            except Exception as e:
+                logger.error(f"[PREDICT-CRON] Email failed for {uid}: {e}")
 
         notified_users += 1
         notified_products += len(overdue)
@@ -392,11 +407,10 @@ async def cron_predict_notifications(user: User = Depends(get_current_user)):
 
 @router.post("/admin/cron/b2b-scheduled-payments")
 async def process_b2b_scheduled_payments(
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Process B2B scheduled payments that are due today."""
-    if current_user.role not in ("admin", "super_admin"):
-        raise HTTPException(status_code=403, detail="Admin access required")
+    await require_role(current_user, ["admin", "super_admin"])
 
     db2 = get_db()
     now = datetime.now(timezone.utc)
@@ -412,10 +426,15 @@ async def process_b2b_scheduled_payments(
 
     for payment in pending:
         try:
-            operation_id = payment["operation_id"]
-            seller_id = payment["seller_id"]
-            amount = payment["amount"]
+            operation_id = payment.get("operation_id")
+            seller_id = payment.get("seller_id")
+            amount = payment.get("amount")
             currency = payment.get("currency", "EUR")
+
+            if not operation_id or not seller_id or not amount:
+                logger.warning("Incomplete B2B payment record: %s", str(payment.get("_id")))
+                failed += 1
+                continue
 
             # Get seller's Stripe account
             seller = await db2.users.find_one({"user_id": seller_id})
@@ -438,7 +457,7 @@ async def process_b2b_scheduled_payments(
             stripe.api_key = STRIPE_SECRET_KEY
 
             transfer = stripe.Transfer.create(
-                amount=int(seller_amount * 100),
+                amount=int(round(seller_amount * 100)),
                 currency=currency.lower(),
                 destination=stripe_account,
                 metadata={
@@ -511,23 +530,26 @@ async def cron_generate_quarterly_tax_report(user: User = Depends(get_current_us
 
     from services.modelo190_service import generate_quarterly_report
     result = await generate_quarterly_report(year, quarter)
+    if not result:
+        raise HTTPException(status_code=500, detail="Failed to generate quarterly tax report")
 
     # Send email to superadmin
     try:
         superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1, "name": 1})
-        if superadmin:
+        sa_email = (superadmin or {}).get("email")
+        if sa_email:
             send_email(
-                to=superadmin["email"],
+                to=sa_email,
                 subject=f"Informe de retenciones Q{quarter} {year} listo",
                 html=f"""
                 <h2>Informe Modelo 190 — Q{quarter} {year}</h2>
                 <p>El informe de retenciones trimestral ha sido generado.</p>
                 <ul>
-                    <li>Perceptores: {result['perceptors_count']}</li>
-                    <li>Total retenido: {result['total_withheld']:.2f}€</li>
-                    <li>Total bruto: {result['total_gross']:.2f}€</li>
+                    <li>Perceptores: {result.get('perceptors_count', 0)}</li>
+                    <li>Total retenido: {result.get('total_withheld', 0):.2f}€</li>
+                    <li>Total bruto: {result.get('total_gross', 0):.2f}€</li>
                 </ul>
-                <p><a href="{result['pdf_url']}">Descargar PDF</a></p>
+                <p><a href="{result.get('pdf_url', '')}">Descargar PDF</a></p>
                 """,
             )
     except Exception as e:
@@ -536,9 +558,9 @@ async def cron_generate_quarterly_tax_report(user: User = Depends(get_current_us
     return {
         "quarter": quarter,
         "year": year,
-        "pdf_url": result["pdf_url"],
-        "total_withheld": result["total_withheld"],
-        "perceptors_count": result["perceptors_count"],
+        "pdf_url": result.get("pdf_url", ""),
+        "total_withheld": result.get("total_withheld", 0),
+        "perceptors_count": result.get("perceptors_count", 0),
     }
 
 
@@ -605,7 +627,9 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
         vs = producer.get("verification_status", {})
         certs = vs.get("documents", {}).get("certificates", [])
         name = producer.get("company_name") or producer.get("name", "Productor")
-        uid = producer["user_id"]
+        uid = producer.get("user_id")
+        if not uid:
+            continue
         email = producer.get("email")
 
         for i, cert in enumerate(certs):

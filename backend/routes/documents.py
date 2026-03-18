@@ -62,6 +62,8 @@ async def upload_signature(
 
     # Handle optional stamp
     if stamp and stamp.filename:
+        if stamp.content_type not in ("image/png", "image/jpeg", "image/webp"):
+            raise HTTPException(status_code=400, detail="El sello debe ser PNG, JPEG o WebP")
         stamp_bytes = await stamp.read()
         if len(stamp_bytes) > 5 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="El sello no puede superar 5MB")
@@ -124,17 +126,20 @@ async def list_signed_contracts(current_user=Depends(get_current_user)):
         "contract.signed_by_buyer": True,
     }
 
-    ops = await db.b2b_operations.find(query).sort("contract.sealed_at", -1).to_list(100)
+    ops = await db.b2b_operations.find(query).sort("contract.sealed_at", -1).to_list(200)
 
     contracts = []
     for op in ops:
+        op_id = op.get("_id")
+        if not op_id:
+            continue
         contract = op.get("contract", {})
         is_seller = op.get("seller_id") == uid
         counterpart_name = op.get("buyer_name", "") if is_seller else op.get("seller_name", "")
 
         contracts.append({
-            "operation_id": str(op["_id"]),
-            "operation_id_short": str(op["_id"])[-8:].upper(),
+            "operation_id": str(op_id),
+            "operation_id_short": str(op_id)[-8:].upper(),
             "counterpart_name": counterpart_name,
             "product_name": op.get("product_name", op.get("offer", {}).get("product_name", "")),
             "quantity": op.get("offer", {}).get("quantity", 0),
@@ -174,13 +179,20 @@ async def verify_document_integrity(operation_id: str, current_user=Depends(get_
     if not pdf_url:
         raise HTTPException(status_code=400, detail="No signed PDF available")
 
-    # Download current PDF and calculate hash
+    # Download current PDF and calculate hash (limit to 50MB to prevent abuse)
     calculated_hash = ""
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.get(pdf_url)
             resp.raise_for_status()
+            if len(resp.content) > 50 * 1024 * 1024:
+                raise HTTPException(status_code=400, detail="PDF too large for verification")
             calculated_hash = hashlib.sha256(resp.content).hexdigest()
+    except HTTPException:
+        raise
+    except httpx.TimeoutException:
+        logger.error("Timeout downloading PDF for verification: %s", pdf_url)
+        raise HTTPException(status_code=504, detail="PDF download timed out")
     except Exception as exc:
         logger.error("Failed to download PDF for verification: %s", exc)
         raise HTTPException(status_code=502, detail="Could not download PDF for verification")

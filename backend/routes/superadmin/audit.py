@@ -2,7 +2,7 @@
 Superadmin Audit Endpoints
 Fase 5: Logs de auditoría compliance
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 from datetime import datetime
 
@@ -18,7 +18,6 @@ router = APIRouter(prefix="/superadmin/audit", tags=["superadmin-audit"])
 async def require_superadmin(current_user: dict = Depends(get_current_user)):
     """Verificar que el usuario es superadmin"""
     if current_user.get("role") != "superadmin":
-        from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Superadmin access required")
     return current_user
 
@@ -52,13 +51,15 @@ async def get_audit_logs(
     )
     
     result = await audit_service.get_audit_logs(filters, page=page, limit=limit)
-    
+    if not result:
+        return AuditLogListResponse(entries=[], total=0, page=page, limit=limit, has_more=False)
+
     return AuditLogListResponse(
-        entries=result["entries"],
-        total=result["total"],
-        page=result["page"],
-        limit=result["limit"],
-        has_more=result["has_more"]
+        entries=result.get("entries", []),
+        total=result.get("total", 0),
+        page=result.get("page", page),
+        limit=result.get("limit", limit),
+        has_more=result.get("has_more", False),
     )
 
 
@@ -110,12 +111,12 @@ async def manual_log_action(
     Log manual de acción (para casos especiales)
     """
     log_id = await audit_service.log_action(
-        admin_id=current_user.user_id,
-        admin_email=getattr(current_user, "email", ""),
-        admin_role=getattr(current_user, "role", ""),
+        admin_id=current_user.get("user_id", ""),
+        admin_email=current_user.get("email", ""),
+        admin_role=current_user.get("role", ""),
         action=action,
         resource_type=resource_type,
         resource_id=resource_id,
-        change_summary=change_summary
+        change_summary=change_summary,
     )
     return {"log_id": log_id, "status": "logged"}

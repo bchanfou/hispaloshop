@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Download, Loader2, ExternalLink, Award } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, Download, Loader2, ExternalLink, Award, AlertTriangle } from 'lucide-react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
@@ -80,37 +80,41 @@ export default function ImporterCertificatesPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [certs, setCerts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const { producerId: paramProducerId } = useParams();
   const [searchParams] = useSearchParams();
   const producerId = paramProducerId || searchParams.get('producer_id') || searchParams.get('producerId');
 
-  useEffect(() => {
+  const loadCerts = useCallback(async () => {
     if (!producerId) {
       setLoading(false);
       return;
     }
-    const load = async () => {
-      setLoading(true);
+    setLoading(true);
+    setError(false);
+    try {
+      // Try supplier-certificates endpoint first
+      let data;
       try {
-        // Try supplier-certificates endpoint first
-        let data;
-        try {
-          data = await apiClient.get('/importer/supplier-certificates');
-        } catch {
-          // Fallback: fetch certificates for the specific producer
-          data = await apiClient.get(`/b2b/producers/${producerId}/certificates`);
-        }
-        const items = data?.certificates || (Array.isArray(data) ? data : []);
-        setCerts(items);
+        data = await apiClient.get('/importer/supplier-certificates');
       } catch {
-        setCerts([]);
-      } finally {
-        setLoading(false);
+        // Fallback: fetch certificates for the specific producer
+        data = await apiClient.get(`/b2b/producers/${producerId}/certificates`);
       }
-    };
-    load();
+      const items = data?.certificates || (Array.isArray(data) ? data : []);
+      setCerts(items);
+    } catch {
+      setCerts([]);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [producerId]);
+
+  useEffect(() => {
+    loadCerts();
+  }, [loadCerts]);
 
   const expiring = certs.filter(c => c.days_until_expiry != null && c.days_until_expiry > 0 && c.days_until_expiry <= 60);
   const expired = certs.filter(c => c.days_until_expiry != null && c.days_until_expiry <= 0);
@@ -183,7 +187,18 @@ export default function ImporterCertificatesPage() {
       </div>
 
       {/* Certificate list */}
-      {loading ? (
+      {error ? (
+        <div className="text-center py-16">
+          <AlertTriangle className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-stone-950 mb-1">Error al cargar los certificados</p>
+          <button
+            onClick={loadCerts}
+            className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      ) : loading ? (
         <div className="space-y-2">
           {Array(5).fill(0).map((_, i) => (
             <div key={i} className="h-[72px] rounded-xl bg-stone-100 animate-pulse" />

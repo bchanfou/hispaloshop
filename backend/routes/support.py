@@ -148,7 +148,7 @@ async def get_case(case_id: str, user: User = Depends(get_current_user)):
 
     user_doc = (
         await db.users.find_one(
-            {"user_id": case["user_id"]},
+            {"user_id": case.get("user_id")},
             {"_id": 0, "name": 1, "email": 1, "country": 1},
         )
         or {}
@@ -158,7 +158,7 @@ async def get_case(case_id: str, user: User = Depends(get_current_user)):
     if case.get("order_id"):
         order_doc = (
             await db.orders.find_one(
-                {"order_id": case["order_id"]},
+                {"order_id": case.get("order_id")},
                 {"_id": 0, "status": 1, "total": 1, "created_at": 1},
             )
             or {}
@@ -227,7 +227,7 @@ async def update_case_status(
             "notification_id": str(uuid.uuid4()),
             "type": "case_escalated",
             "case_id": case_id,
-            "user_id": case["user_id"],
+            "user_id": case.get("user_id", ""),
             "created_at": now,
             "read": False,
         })
@@ -354,7 +354,7 @@ async def get_my_cases(user: User = Depends(get_current_user)):
 async def get_my_case(case_id: str, user: User = Depends(get_current_user)):
     """User: view a specific case of theirs."""
     case = await _get_case_or_404(case_id)
-    if case["user_id"] != user.user_id:
+    if case.get("user_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Acceso denegado")
     for field in ("created_at", "updated_at", "resolved_at"):
         if case.get(field) and hasattr(case[field], "isoformat"):
@@ -370,7 +370,7 @@ async def user_send_message(
 ):
     """User: reply to an open support case."""
     case = await _get_case_or_404(case_id)
-    if case["user_id"] != user.user_id:
+    if case.get("user_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Acceso denegado")
     if case.get("status") in ("cerrado", "resuelto"):
         raise HTTPException(status_code=400, detail="El caso ya está cerrado")

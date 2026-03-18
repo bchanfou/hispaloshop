@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2, MessageSquare, Check } from 'lucide-react';
 import { useB2BCatalog, useB2BProducers } from '../../features/b2b/queries';
 import QuoteBuilder from '../../components/b2b/QuoteBuilder';
+import { useLocale } from '../../context/LocaleContext';
 
 const TABS = [
   { id: 'catalog', label: 'Catálogo', icon: Package },
@@ -10,28 +11,32 @@ const TABS = [
   { id: 'rfq', label: 'Solicitar oferta', icon: FileText },
 ];
 
-function ProductCard({ product }) {
+function ProductCard({ product, convertAndFormatPrice }) {
   const navigate = useNavigate();
   const lowestPrice = product.b2b_prices?.[0];
   return (
     <div
       onClick={() => navigate(`/products/${product.id || product.product_id}`)}
-      className="bg-white rounded-2xl border border-stone-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+      className="bg-white rounded-xl border border-stone-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
     >
-      {product.image_url && (
-        <img src={product.image_url} alt={product.name} className="w-full h-40 object-cover" />
+      {product.image_url ? (
+        <img src={product.image_url} alt={product.name || 'Producto'} className="w-full h-40 object-cover" />
+      ) : (
+        <div className="w-full h-40 bg-stone-100 flex items-center justify-center">
+          <Package className="w-8 h-8 text-stone-300" />
+        </div>
       )}
       <div className="p-4">
-        <p className="font-semibold text-stone-800 text-sm line-clamp-2">{product.name}</p>
+        <p className="font-semibold text-stone-950 text-sm line-clamp-2">{product.name || 'Producto'}</p>
         {product.moq && (
           <p className="text-xs text-stone-500 mt-1">MOQ: {product.moq} uds</p>
         )}
         {lowestPrice && (
           <p className="text-stone-950 font-bold text-sm mt-2">
-            desde {((Number(lowestPrice?.unit_price_cents) || 0) / 100).toFixed(2)} EUR/ud
+            desde {convertAndFormatPrice((Number(lowestPrice?.unit_price_cents) || 0) / 100, 'EUR')}/ud
           </p>
         )}
-        {product.b2b_prices?.length > 1 && (
+        {(product.b2b_prices?.length || 0) > 1 && (
           <p className="text-xs text-stone-400 mt-0.5">{product.b2b_prices.length} tramos de precio</p>
         )}
       </div>
@@ -41,7 +46,7 @@ function ProductCard({ product }) {
 
 function ProducerCard({ producer, onContact, onChat }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-4">
+    <div className="bg-white rounded-xl border border-stone-200 p-4">
       <div className="flex items-start gap-3">
         {producer.profile_image ? (
           <img src={producer.profile_image} alt={producer.full_name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
@@ -52,7 +57,7 @@ function ProducerCard({ producer, onContact, onChat }) {
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-semibold text-stone-800 truncate">{producer.company_name || producer.full_name}</p>
+            <p className="font-semibold text-stone-950 truncate">{producer.company_name || producer.full_name}</p>
             {producer.is_verified && (
               <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-stone-950 text-white rounded-full text-[10px] font-semibold shrink-0">
                 <Check className="w-2.5 h-2.5" />
@@ -103,6 +108,7 @@ function ProducerCard({ producer, onContact, onChat }) {
 
 export default function B2BMarketplacePage() {
   const navigate = useNavigate();
+  const { convertAndFormatPrice } = useLocale();
   const [activeTab, setActiveTab] = useState('catalog');
   const [search, setSearch] = useState('');
   const [rfqProducerId, setRfqProducerId] = useState('');
@@ -137,7 +143,7 @@ export default function B2BMarketplacePage() {
   return (
     <div className="min-h-screen bg-stone-50">
       <div className="bg-white border-b border-stone-200 px-4 pt-6 pb-0">
-        <h1 className="text-2xl font-bold text-stone-800 mb-4">Marketplace B2B</h1>
+        <h1 className="text-2xl font-bold text-stone-950 mb-4">Marketplace B2B</h1>
 
         {activeTab !== 'rfq' && (
           <div className="relative mb-4">
@@ -177,14 +183,20 @@ export default function B2BMarketplacePage() {
         {activeTab === 'catalog' && (
           <>
             {catalogQuery.isLoading ? (
-              <div className="flex justify-center py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-stone-400" />
+              <div className="grid grid-cols-2 gap-3">
+                {[0,1,2,3].map(i => <div key={i} className="h-60 rounded-xl bg-stone-100 animate-pulse" />)}
               </div>
             ) : catalogQuery.isError ? (
               <div className="text-center py-16 text-stone-500">
                 <Package className="w-12 h-12 mx-auto mb-3 text-stone-300" />
                 <p className="font-medium">Sin acceso al catálogo B2B</p>
                 <p className="text-sm mt-1">Completa tu perfil de importador para acceder</p>
+                <button
+                  onClick={() => catalogQuery.refetch()}
+                  className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+                >
+                  Reintentar
+                </button>
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="text-center py-16 text-stone-500">
@@ -194,7 +206,7 @@ export default function B2BMarketplacePage() {
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {filteredProducts.map((product) => (
-                  <ProductCard key={product.id || product.product_id} product={product} />
+                  <ProductCard key={product.id || product.product_id} product={product} convertAndFormatPrice={convertAndFormatPrice} />
                 ))}
               </div>
             )}
@@ -204,13 +216,19 @@ export default function B2BMarketplacePage() {
         {activeTab === 'producers' && (
           <>
             {producersQuery.isLoading ? (
-              <div className="flex justify-center py-16">
-                <Loader2 className="w-8 h-8 animate-spin text-stone-400" />
+              <div className="space-y-3">
+                {[0,1,2].map(i => <div key={i} className="h-32 rounded-xl bg-stone-100 animate-pulse" />)}
               </div>
             ) : producersQuery.isError ? (
               <div className="text-center py-16 text-stone-500">
                 <Users className="w-12 h-12 mx-auto mb-3 text-stone-300" />
                 <p className="font-medium">Sin acceso al directorio de productores</p>
+                <button
+                  onClick={() => producersQuery.refetch()}
+                  className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+                >
+                  Reintentar
+                </button>
               </div>
             ) : filteredProducers.length === 0 ? (
               <div className="text-center py-16 text-stone-500">
@@ -234,11 +252,11 @@ export default function B2BMarketplacePage() {
 
         {activeTab === 'rfq' && (
           <div className="space-y-4">
-            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4">
+            <div className="bg-stone-50 border border-stone-200 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <Tag className="w-5 h-5 text-stone-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-stone-800 text-sm">Cómo funciona</p>
+                  <p className="font-semibold text-stone-950 text-sm">Cómo funciona</p>
                   <p className="text-xs text-stone-600 mt-1">
                     Indica el productor, los productos y la cantidad. El productor recibirá tu solicitud y podrá responderte con una oferta personalizada.
                   </p>

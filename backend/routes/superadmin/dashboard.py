@@ -2,7 +2,7 @@
 Superadmin Dashboard Endpoints
 Fase 5: Analytics y KPIs
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 
 from schemas.superadmin.dashboard import DashboardSummaryResponse
@@ -66,7 +66,3 @@ async def get_top_influencers(
         limit=limit,
         days=days
     )
-
-
-# Fix imports
-from fastapi import HTTPException

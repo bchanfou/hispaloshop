@@ -63,7 +63,7 @@ def _validate_magic_bytes(content: bytes, claimed_type: str) -> bool:
 async def _upload_media(file: UploadFile, folder: str, max_bytes: int, allowed_types: set, user_id: str) -> dict:
     """Shared upload logic for images and videos."""
     _check_cloudinary_configured()
-    if file.content_type not in allowed_types:
+    if not file.content_type or file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail=f"Invalid file type. Received: {file.content_type}")
     content = await file.read()
     if len(content) > max_bytes:
@@ -155,7 +155,7 @@ async def upload_generic_file(file: UploadFile = File(...), user: User = Depends
     """Generic upload for certificates and admin flows (PDF/image, max 10MB)."""
     await require_role(user, ["producer", "importer", "admin", "super_admin"])
     allowed = {"application/pdf"} | _IMAGE_TYPES
-    if file.content_type not in allowed:
+    if not file.content_type or file.content_type not in allowed:
         raise HTTPException(status_code=400, detail="Invalid file type. Allowed: PDF, JPEG, PNG, WebP")
     content = await file.read()
     if len(content) > 10 * 1024 * 1024:
@@ -179,7 +179,7 @@ async def upload_chat_image(file: UploadFile = File(...), user: User = Depends(g
 
 @router.get("/uploads/products/{filename}")
 async def get_product_image(filename: str):
-    if '..' in filename or '/' in filename or '\\' in filename:
+    if '..' in filename or '/' in filename or '\\' in filename or len(filename) > 255:
         raise HTTPException(status_code=400, detail="Invalid filename")
     base_dir = Path("/app/uploads/products").resolve()
     file_path = (base_dir / filename).resolve()
@@ -191,7 +191,7 @@ async def get_product_image(filename: str):
 
 @router.get("/uploads/posts/{filename}")
 async def get_post_image(filename: str):
-    if '..' in filename or '/' in filename or '\\' in filename:
+    if '..' in filename or '/' in filename or '\\' in filename or len(filename) > 255:
         raise HTTPException(status_code=400, detail="Invalid filename")
     base_dir = Path("/app/uploads/posts").resolve()
     file_path = (base_dir / filename).resolve()
@@ -203,7 +203,7 @@ async def get_post_image(filename: str):
 
 @router.get("/uploads/avatars/{filename}")
 async def get_avatar_image(filename: str):
-    if '..' in filename or '/' in filename or '\\' in filename:
+    if '..' in filename or '/' in filename or '\\' in filename or len(filename) > 255:
         raise HTTPException(status_code=400, detail="Invalid filename")
     base_dir = Path("/app/uploads/avatars").resolve()
     file_path = (base_dir / filename).resolve()
@@ -215,7 +215,7 @@ async def get_avatar_image(filename: str):
 
 @router.get("/uploads/chat_images/{filename}")
 async def get_chat_image(filename: str):
-    if '..' in filename or '/' in filename or '\\' in filename:
+    if '..' in filename or '/' in filename or '\\' in filename or len(filename) > 255:
         raise HTTPException(status_code=400, detail="Invalid filename")
     base_dir = Path("/app/uploads/chat_images").resolve()
     file_path = (base_dir / filename).resolve()

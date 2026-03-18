@@ -3,6 +3,7 @@ Unified Search — single round-trip that queries products, recipes, stores and 
 Endpoint: GET /api/search?q=...&limit=6
 """
 
+import logging
 import re
 
 from fastapi import APIRouter, Query, Depends
@@ -10,6 +11,8 @@ from typing import Optional, List
 import asyncio
 from core.database import get_db
 from core.auth import get_current_user_optional
+
+logger = logging.getLogger(__name__)
 
 
 def _sanitize_search(q: str) -> str:
@@ -146,7 +149,7 @@ async def unified_search(
     """
     country = None
     if current_user:
-        country = current_user.get("country")
+        country = getattr(current_user, "country", None) or (current_user.get("country") if isinstance(current_user, dict) else None)
 
     # Sanitize search input to prevent regex injection / ReDoS
     safe_q = _sanitize_search(q)

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ShoppingCart, Package, Star, Globe } from 'lucide-react';
 import { InfoNav, Hero, FooterCTA, FadeUp } from '../../components/info/shared';
 
@@ -29,11 +30,11 @@ export default function QueEsPage() {
             }}>
               <div>
                 <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)',
-                              fontWeight: 700, color: '#1D1D1F',
+                              fontWeight: 700, color: 'var(--color-black)',
                               letterSpacing: '-0.02em', marginBottom: 16 }}>
                   Instagram se encontró con Amazon. Nació Hispaloshop.
                 </h2>
-                <p style={{ fontSize: 16, color: '#6E6E73', lineHeight: 1.7 }}>
+                <p style={{ fontSize: 16, color: 'var(--color-stone)', lineHeight: 1.7 }}>
                   Hispaloshop es una plataforma de social commerce especializada
                   en alimentos saludables y artesanales. Los productores publican
                   su historia, sus productos y su proceso. Los consumidores
@@ -42,11 +43,11 @@ export default function QueEsPage() {
               </div>
               <div>
                 <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)',
-                              fontWeight: 700, color: '#1D1D1F',
+                              fontWeight: 700, color: 'var(--color-black)',
                               letterSpacing: '-0.02em', marginBottom: 16 }}>
                   Con una IA que conoce lo que comes.
                 </h2>
-                <p style={{ fontSize: 16, color: '#6E6E73', lineHeight: 1.7 }}>
+                <p style={{ fontSize: 16, color: 'var(--color-stone)', lineHeight: 1.7 }}>
                   David AI aprende tus preferencias, alergias y objetivos de
                   salud. Te recomienda productos reales del catálogo, crea recetas
                   y puede añadirlos al carrito por ti. El asistente más personal
@@ -60,12 +61,12 @@ export default function QueEsPage() {
 
       {/* Los 4 roles */}
       <section style={{
-        background: '#FFFFFF',
+        background: 'var(--color-white)',
         padding: 'clamp(56px, 8vw, 96px) 24px',
       }}>
         <FadeUp>
           <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
-                        textAlign: 'center', color: '#1D1D1F',
+                        textAlign: 'center', color: 'var(--color-black)',
                         letterSpacing: '-0.02em', marginBottom: 48 }}>
             Una plataforma, cuatro roles
           </h2>
@@ -82,7 +83,7 @@ export default function QueEsPage() {
             { icon: <Globe size={20} className="text-stone-950" />, role: 'Importador', desc: 'Accede al catálogo español verificado, gestiona certificados y automatiza las órdenes de compra.', href: '/importador' },
           ].map((r, i) => (
             <FadeUp key={r.role} delay={i * 0.08}>
-              <a href={r.href} style={{ textDecoration: 'none' }}>
+              <Link to={r.href} style={{ textDecoration: 'none' }}>
                 <div style={{
                   background: 'var(--color-cream, #F5F5F7)',
                   borderRadius: 18, padding: '28px 22px',
@@ -94,16 +95,16 @@ export default function QueEsPage() {
                   onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
                 >
                   <div style={{ marginBottom: 14, display: 'flex' }}>{r.icon}</div>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: '#1D1D1F',
+                  <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)',
                                marginBottom: 10 }}>{r.role}</p>
-                  <p style={{ fontSize: 13, color: '#6E6E73',
+                  <p style={{ fontSize: 13, color: 'var(--color-stone)',
                                lineHeight: 1.6, margin: 0 }}>{r.desc}</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0A',
+                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)',
                                margin: '14px 0 0' }}>
                     Saber más →
                   </p>
                 </div>
-              </a>
+              </Link>
             </FadeUp>
           ))}
         </div>
@@ -111,7 +112,7 @@ export default function QueEsPage() {
 
       {/* Por que Espana */}
       <section style={{
-        background: '#0A0A0A',
+        background: 'var(--color-black)',
         padding: 'clamp(56px, 8vw, 96px) 24px',
         textAlign: 'center',
       }}>
@@ -122,7 +123,7 @@ export default function QueEsPage() {
             Por qué España
           </p>
           <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
-                        color: '#FFFFFF', maxWidth: 620, margin: '0 auto 20px',
+                        color: 'var(--color-white)', maxWidth: 620, margin: '0 auto 20px',
                         letterSpacing: '-0.02em', lineHeight: 1.1 }}>
             El 4º exportador agroalimentario de Europa
           </h2>
@@ -136,7 +137,7 @@ export default function QueEsPage() {
             {[['€74B', 'exportados en 2024'], ['30.000', 'empresas exportadoras'], ['190', 'países destino']].map(([n, l]) => (
               <div key={l}>
                 <p style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800,
-                             color: '#FFFFFF', letterSpacing: '-0.03em', margin: 0 }}>{n}</p>
+                             color: 'var(--color-white)', letterSpacing: '-0.03em', margin: 0 }}>{n}</p>
                 <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)',
                              margin: '4px 0 0' }}>{l}</p>
               </div>
