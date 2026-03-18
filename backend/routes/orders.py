@@ -768,8 +768,9 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     for item in cart_items:
         product = await db.products.find_one(
             {"product_id": item["product_id"]}, 
-            {"_id": 0, "stock": 1, "track_stock": 1, "name": 1, "variants": 1, 
-             "available_countries": 1, "country_prices": 1}
+            {"_id": 0, "stock": 1, "track_stock": 1, "name": 1, "variants": 1,
+             "available_countries": 1, "country_prices": 1, "price": 1, "price_cents": 1,
+             "inventory_by_country": 1}
         )
         if not product:
             stock_issues.append(f"Product '{item['product_name']}' no longer available")
