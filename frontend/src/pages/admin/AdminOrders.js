@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/api/client';
-import { Search, ShoppingBag, DollarSign, TrendingUp, Download } from 'lucide-react';
+import { Search, ShoppingBag, DollarSign, TrendingUp, Download, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { asLowerText, asNumber } from '../../utils/safe';
 import { toast } from 'sonner';
 
-
+const fmtPrice = (value, currency = 'EUR') =>
+  new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(asNumber(value));
 
 export default function AdminOrders() {
   const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [payments, setPayments] = useState({ payments: [], summary: {} });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('orders');
 
@@ -20,15 +22,16 @@ export default function AdminOrders() {
   }, []);
 
   const fetchData = async () => {
+    setError(null);
     try {
       const [ordersData, paymentsData] = await Promise.all([
         apiClient.get('/admin/orders'),
         apiClient.get('/admin/payments'),
       ]);
-      setOrders(ordersData);
-      setPayments(paymentsData);
-    } catch (error) {
-      // Sentry captures this automatically
+      setOrders(Array.isArray(ordersData) ? ordersData : []);
+      setPayments(paymentsData || { payments: [], summary: {} });
+    } catch (err) {
+      setError(err?.message || 'Error al cargar datos');
     } finally {
       setLoading(false);
     }
@@ -47,7 +50,7 @@ export default function AdminOrders() {
       o.order_id,
       `${o.user_name || ''} <${o.user_email || ''}>`,
       o.line_items?.length || 0,
-      asNumber(o.total_amount).toFixed(2),
+      fmtPrice(o.total_amount),
       o.status,
       o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A',
     ]);
@@ -98,7 +101,7 @@ export default function AdminOrders() {
             <div>
               <p className="text-sm text-stone-500">{t('adminOrders.summary.totalRevenue')}</p>
               <p className="text-2xl font-bold text-stone-950">
-                {asNumber(payments.summary?.total_amount).toFixed(2)}€
+                {fmtPrice(payments.summary?.total_amount)}
               </p>
             </div>
           </div>
@@ -111,7 +114,7 @@ export default function AdminOrders() {
             <div>
               <p className="text-sm text-stone-500">{t('adminOrders.summary.platformCommission')}</p>
               <p className="text-2xl font-bold text-stone-950">
-                {asNumber(payments.summary?.platform_commission).toFixed(2)}€
+                {fmtPrice(payments.summary?.platform_commission)}
               </p>
             </div>
           </div>
@@ -124,7 +127,7 @@ export default function AdminOrders() {
             <div>
               <p className="text-sm text-stone-500">{t('adminOrders.summary.producerPayouts')}</p>
               <p className="text-2xl font-bold text-stone-950">
-                {asNumber(payments.summary?.producer_share).toFixed(2)}€
+                {fmtPrice(payments.summary?.producer_share)}
               </p>
             </div>
           </div>
@@ -179,15 +182,24 @@ export default function AdminOrders() {
         )}
       </div>
 
+      {/* Error state */}
+      {error && (
+        <div className="flex items-center gap-3 p-4 mb-4 rounded-xl border border-stone-200 bg-stone-50">
+          <AlertTriangle className="w-5 h-5 text-stone-500 shrink-0" />
+          <p className="text-sm text-stone-700 flex-1">{error}</p>
+          <button onClick={fetchData} className="text-sm font-medium text-stone-950 hover:underline">Reintentar</button>
+        </div>
+      )}
+
       {/* Content */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : activeTab === 'orders' ? (
           filteredOrders.length === 0 ? (
             <div className="p-8 text-center text-stone-500">{t('adminOrders.noOrders')}</div>
           ) : (
-            <table className="w-full" data-testid="orders-table">
+            <table className="w-full min-w-[700px]" data-testid="orders-table">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
                   <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.ordersTable.orderId')}</th>
@@ -212,7 +224,7 @@ export default function AdminOrders() {
                       <p className="text-stone-950">{t('adminOrders.ordersTable.itemsCount', { count: order.line_items?.length || 0 })}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-stone-950">{asNumber(order.total_amount).toFixed(2)}€</p>
+                      <p className="font-medium text-stone-950">{fmtPrice(order.total_amount)}</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColors[order.status] || 'bg-stone-100 text-stone-700'}`}>
@@ -233,7 +245,7 @@ export default function AdminOrders() {
           payments.payments?.length === 0 ? (
             <div className="p-8 text-center text-stone-500">{t('adminOrders.noPayments')}</div>
           ) : (
-            <table className="w-full" data-testid="payments-table">
+            <table className="w-full min-w-[600px]" data-testid="payments-table">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
                   <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.paymentsTable.transactionId')}</th>
@@ -244,7 +256,7 @@ export default function AdminOrders() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200">
-                {payments.payments.map((payment) => (
+                {(payments.payments || []).map((payment) => (
                   <tr key={payment.transaction_id} className="hover:bg-stone-50">
                     <td className="px-6 py-4">
                       <p className="font-mono text-sm text-stone-950">{payment.transaction_id}</p>
@@ -254,7 +266,7 @@ export default function AdminOrders() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="font-medium text-stone-950">
-                        ${asNumber(payment.amount).toFixed(2)} {payment.currency?.toUpperCase()}
+                        {fmtPrice(payment.amount, (payment.currency || 'EUR').toUpperCase())}
                       </p>
                     </td>
                     <td className="px-6 py-4">

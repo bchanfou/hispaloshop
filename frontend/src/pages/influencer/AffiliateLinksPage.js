@@ -4,8 +4,9 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 import apiClient from '../../services/api/client';
+import { useLocale } from '../../context/LocaleContext';
 
-function AffiliateLinkCard({ link }) {
+function AffiliateLinkCard({ link, convertAndFormatPrice }) {
   const [copied, setCopied] = useState(false);
 
   const copyLink = async () => {
@@ -31,7 +32,7 @@ function AffiliateLinkCard({ link }) {
         )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-stone-950 truncate">{link.product_name}</p>
-          <p className="text-xs text-stone-500">{link.product_price}€</p>
+          <p className="text-xs text-stone-500">{convertAndFormatPrice(Number(link.product_price || 0))}</p>
         </div>
       </div>
 
@@ -40,7 +41,7 @@ function AffiliateLinkCard({ link }) {
         {[
           { label: 'Clics', value: link.clicks || 0 },
           { label: 'Conversiones', value: link.conversions || 0 },
-          { label: 'Comisión', value: `${(link.commission_eur || 0).toFixed(2)}€` },
+          { label: 'Comisión', value: convertAndFormatPrice(Number(link.commission_eur || 0)) },
         ].map((stat) => (
           <div key={stat.label} className="bg-stone-50 rounded-xl p-2 text-center">
             <p className="text-base font-bold text-stone-950">{stat.value}</p>
@@ -72,6 +73,7 @@ function AffiliateLinkCard({ link }) {
 }
 
 export default function AffiliateLinksPage() {
+  const { convertAndFormatPrice } = useLocale();
   const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -148,9 +150,9 @@ export default function AffiliateLinksPage() {
       <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
         <div className="max-w-xl mx-auto px-4 py-6 pb-28">
           <h1 className="text-xl font-bold mb-1" style={{ color: 'var(--color-black)' }}>Mis links de afiliado</h1>
-          <div className="mt-6 p-5" style={{ background: 'var(--color-amber-light)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-amber)' }}>
+          <div className="mt-6 p-5" style={{ background: '#f5f5f4', borderRadius: 'var(--radius-xl)', border: '1px solid #d6d3d1' }}>
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
               <div>
                 <p className="text-sm font-semibold mb-1" style={{ color: 'var(--color-black)' }}>
                   Configuración fiscal requerida
@@ -222,7 +224,7 @@ export default function AffiliateLinksPage() {
                       <p className="text-sm font-medium text-stone-950 truncate">
                         {product.name}
                       </p>
-                      <p className="text-xs text-stone-500">{product.price}€</p>
+                      <p className="text-xs text-stone-500">{convertAndFormatPrice(Number(product.price || 0))}</p>
                     </div>
                   </button>
                 ))}
@@ -299,7 +301,7 @@ export default function AffiliateLinksPage() {
         ) : (
           <div className="space-y-3">
             {myLinks.map((link) => (
-              <AffiliateLinkCard key={link.link_id || link.id} link={link} />
+              <AffiliateLinkCard key={link.link_id || link.id} link={link} convertAndFormatPrice={convertAndFormatPrice} />
             ))}
           </div>
         )}

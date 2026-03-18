@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowDown, ArrowUp, BarChart3, RefreshCw, ShoppingCart, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowDown, ArrowUp, BarChart3, RefreshCw, ShoppingCart, TrendingUp, Users, Zap, AlertTriangle } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
 const PERIODS = [
@@ -61,17 +61,22 @@ export default function AdminGrowthAnalytics() {
   const [data, setData] = useState(null);
   const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const load = (d) => {
     setLoading(true);
+    setError(null);
     Promise.all([
       apiClient.get(`/discovery/growth-analytics?days=${d}`).catch(() => null),
       apiClient.get(`/discovery/growth-analytics?days=${d * 2}`).catch(() => null),
     ]).then(([current, prior]) => {
+      if (!current && !prior) {
+        setError('No se pudieron cargar los datos de crecimiento');
+      }
       setData(current);
-      // Prior period = double window minus current window → approximate previous period
-      // We use the full 2x window's overview as the "prev" baseline
       setPrevData(prior);
+    }).catch(() => {
+      setError('Error al cargar los datos');
     }).finally(() => setLoading(false));
   };
 
@@ -122,6 +127,15 @@ export default function AdminGrowthAnalytics() {
       </div>
 
       <div className="mx-auto max-w-6xl space-y-8 px-6 py-6">
+        {/* Error state */}
+        {error && (
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-stone-200 bg-stone-50">
+            <AlertTriangle className="w-5 h-5 text-stone-500 shrink-0" />
+            <p className="text-sm text-stone-700 flex-1">{error}</p>
+            <button onClick={() => load(days)} className="text-sm font-medium text-stone-950 hover:underline">Reintentar</button>
+          </div>
+        )}
+
         {/* Overview KPIs */}
         <div className="grid gap-4 sm:grid-cols-3">
           <StatCard
@@ -153,8 +167,8 @@ export default function AdminGrowthAnalytics() {
         {/* Top converting content */}
         <div>
           <SectionTitle title="Contenido con mayor conversión" />
-          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white">
+            <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="border-b border-stone-100 bg-stone-50">
                   <th className="px-4 py-3 text-left font-medium text-stone-500">Título</th>
@@ -208,8 +222,8 @@ export default function AdminGrowthAnalytics() {
         {/* Top clicked products */}
         <div>
           <SectionTitle title="Productos más clicados desde contenido" />
-          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white">
+            <table className="w-full min-w-[500px] text-sm">
               <thead>
                 <tr className="border-b border-stone-100 bg-stone-50">
                   <th className="px-4 py-3 text-left font-medium text-stone-500">Producto</th>
@@ -253,8 +267,8 @@ export default function AdminGrowthAnalytics() {
         {/* Creator commerce impact */}
         <div>
           <SectionTitle title="Creadores con mayor impacto comercial" />
-          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white">
+            <table className="w-full min-w-[500px] text-sm">
               <thead>
                 <tr className="border-b border-stone-100 bg-stone-50">
                   <th className="px-4 py-3 text-left font-medium text-stone-500">Creador</th>

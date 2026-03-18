@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useLocale } from '../../context/LocaleContext';
 
 /* ─── Country list (subset, popular first) ─── */
 const COUNTRIES = [
@@ -65,12 +66,13 @@ const EU_CODES = new Set([
 
 function getWithholdingInfo(code) {
   if (!code) return null;
-  if (code === 'ES') return { pct: 15, label: 'Retención 15% IRPF', color: 'amber' };
-  return { pct: 0, label: 'Sin retención', color: 'green' };
+  if (code === 'ES') return { pct: 15, label: 'Retención 15% IRPF', color: 'stone-dark' };
+  return { pct: 0, label: 'Sin retención', color: 'stone-light' };
 }
 
 export default function FiscalSetupPage() {
   const navigate = useNavigate();
+  const { convertAndFormatPrice } = useLocale();
   const [searchParams] = useSearchParams();
   const fileRef = useRef(null);
 
@@ -265,9 +267,9 @@ export default function FiscalSetupPage() {
 
       {/* Blocked banner */}
       {isBlocked && (
-        <div className="p-4 mb-5" style={{ background: 'var(--color-amber-light)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-amber)' }}>
+        <div className="p-4 mb-5" style={{ background: '#f5f5f4', borderRadius: 'var(--radius-xl)', border: '1px solid #d6d3d1' }}>
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
             <p className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>
               Necesitas completar tu configuración fiscal para activar tus links de afiliado
             </p>
@@ -338,8 +340,8 @@ export default function FiscalSetupPage() {
         {/* Withholding badge */}
         {withholdingInfo && (
           <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" style={{
-            background: withholdingInfo.color === 'amber' ? 'var(--color-amber-light)' : 'var(--color-surface-alt, #f5f5f4)',
-            color: withholdingInfo.color === 'amber' ? 'var(--color-amber)' : 'var(--color-black)',
+            background: withholdingInfo.color === 'stone-dark' ? '#e7e5e4' : '#f5f5f4',
+            color: withholdingInfo.color === 'stone-dark' ? '#44403c' : 'var(--color-black)',
           }}>
             {withholdingInfo.label}
           </div>
@@ -381,7 +383,7 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'uploading' && (
-          <div className="p-5 flex items-center gap-3" style={{ background: 'var(--color-amber-light)', borderRadius: 'var(--radius-xl)' }}>
+          <div className="p-5 flex items-center gap-3" style={{ background: '#f5f5f4', borderRadius: 'var(--radius-xl)' }}>
             <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--color-black)' }} />
             <p className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>
               Analizando tu certificado... esto tarda unos segundos
@@ -418,9 +420,9 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'rejected' && (
-          <div className="p-4" style={{ background: 'var(--color-red-light)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-red)' }}>
+          <div className="p-4" style={{ background: '#f5f5f4', borderRadius: 'var(--radius-xl)', border: '1px solid #d6d3d1' }}>
             <div className="flex items-start gap-3">
-              <X className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-red)' }} />
+              <X className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
               <div>
                 <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Certificado no válido</p>
                 {fiscal?.block_reason && (
@@ -440,9 +442,9 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'manual_review' && (
-          <div className="p-4" style={{ background: 'var(--color-amber-light)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-amber)' }}>
+          <div className="p-4" style={{ background: '#f5f5f4', borderRadius: 'var(--radius-xl)', border: '1px solid #d6d3d1' }}>
             <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+              <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
               <div>
                 <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>En revisión manual</p>
                 <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>
@@ -488,7 +490,7 @@ export default function FiscalSetupPage() {
               Recibe en minutos en tu cuenta Stripe
             </p>
             <p className="text-xs ml-8 mt-0.5" style={{ color: 'var(--color-stone)', opacity: 0.7 }}>
-              Fee: 0.25€ por transferencia (se descuenta de tu comisión)
+              Fee: 0,25 por transferencia (se descuenta de tu comisión)
             </p>
           </button>
 
@@ -568,23 +570,23 @@ export default function FiscalSetupPage() {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span style={{ color: 'var(--color-stone)' }}>Balance bruto</span>
-              <span className="font-semibold" style={{ color: 'var(--color-black)' }}>{grossPreview.toFixed(2)}€</span>
+              <span className="font-semibold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(grossPreview || 0))}</span>
             </div>
             {country === 'ES' && withholdingPreview > 0 && (
               <div className="flex justify-between text-sm">
                 <span style={{ color: 'var(--color-stone)' }}>Retención IRPF (15%)</span>
-                <span className="font-semibold" style={{ color: 'var(--color-red)' }}>−{withholdingPreview.toFixed(2)}€</span>
+                <span className="font-semibold" style={{ color: 'var(--color-stone)' }}>−{convertAndFormatPrice(Number(withholdingPreview || 0))}</span>
               </div>
             )}
             {feePreview > 0 && (
               <div className="flex justify-between text-sm">
                 <span style={{ color: 'var(--color-stone)' }}>Fee de transferencia</span>
-                <span className="font-semibold" style={{ color: 'var(--color-red)' }}>−{feePreview.toFixed(2)}€</span>
+                <span className="font-semibold" style={{ color: 'var(--color-stone)' }}>−{convertAndFormatPrice(Number(feePreview || 0))}</span>
               </div>
             )}
             <div className="pt-2 flex justify-between text-sm" style={{ borderTop: '1px solid var(--color-border)' }}>
               <span className="font-bold" style={{ color: 'var(--color-black)' }}>RECIBIRÁS</span>
-              <span className="font-bold" style={{ color: 'var(--color-black)' }}>{netPreview.toFixed(2)}€</span>
+              <span className="font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(netPreview || 0))}</span>
             </div>
           </div>
         </div>

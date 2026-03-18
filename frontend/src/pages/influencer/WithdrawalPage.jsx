@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, CreditCard, Building2, Loader2, Check, AlertTriangle, Info,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useLocale } from '../../context/LocaleContext';
 
 export default function WithdrawalPage() {
   const navigate = useNavigate();
+  const { convertAndFormatPrice } = useLocale();
   const [fiscal, setFiscal] = useState(null);
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -38,11 +40,12 @@ export default function WithdrawalPage() {
   const withholding = isSpain ? Math.round(gross * (withholdingPct / 100) * 100) / 100 : 0;
   const isSEPA = ['sepa', 'bank_transfer'].includes(fiscal?.payout_method);
   const transferFee = isSEPA ? 0 : 0.25;
-  const net = Math.max(0, Math.round((gross - withholding - transferFee) * 100) / 100);
+  const netRaw = gross - withholding - transferFee;
+  const net = Math.max(0, Math.round(netRaw * 100) / 100);
   const canWithdraw = net >= 20;
   const methodLabel = isSEPA ? 'cuenta bancaria' : 'Stripe';
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setSubmitting(true);
     try {
       const res = await apiClient.post('/influencer/request-withdrawal', {
@@ -62,7 +65,7 @@ export default function WithdrawalPage() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [isSEPA, net, gross, withholding, fiscal?.payout_method, transferFee]);
 
   // Success screen
   if (success) {
@@ -73,7 +76,7 @@ export default function WithdrawalPage() {
         </div>
         <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--color-black)' }}>¡Cobro en camino!</h2>
         <p className="text-sm text-center mb-6" style={{ color: 'var(--color-stone)' }}>
-          Transferiremos {success.net_amount.toFixed(2)}€ a tu {success.method === 'sepa' ? 'cuenta bancaria' : 'cuenta Stripe'}
+          Transferiremos {convertAndFormatPrice(Number(success.net_amount || 0))} a tu {success.method === 'sepa' ? 'cuenta bancaria' : 'cuenta Stripe'}
         </p>
         <p className="text-xs mb-6" style={{ color: 'var(--color-stone)' }}>
           {success.method === 'sepa' ? 'Tiempo estimado: 1-3 días hábiles' : 'Tiempo estimado: En minutos'}
@@ -82,23 +85,23 @@ export default function WithdrawalPage() {
         <div className="w-full max-w-xs p-4 space-y-2 mb-6" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)' }}>
           <div className="flex justify-between text-sm">
             <span style={{ color: 'var(--color-stone)' }}>Bruto</span>
-            <span className="font-semibold" style={{ color: 'var(--color-black)' }}>{success.gross_amount.toFixed(2)}€</span>
+            <span className="font-semibold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(success.gross_amount || 0))}</span>
           </div>
           {success.withholding > 0 && (
             <div className="flex justify-between text-sm">
               <span style={{ color: 'var(--color-stone)' }}>Retención IRPF</span>
-              <span style={{ color: 'var(--color-red)' }}>−{success.withholding.toFixed(2)}€</span>
+              <span style={{ color: 'var(--color-stone)' }}>−{convertAndFormatPrice(Number(success.withholding || 0))}</span>
             </div>
           )}
           {success.transfer_fee > 0 && (
             <div className="flex justify-between text-sm">
               <span style={{ color: 'var(--color-stone)' }}>Fee transferencia</span>
-              <span style={{ color: 'var(--color-red)' }}>−{success.transfer_fee.toFixed(2)}€</span>
+              <span style={{ color: 'var(--color-stone)' }}>−{convertAndFormatPrice(Number(success.transfer_fee || 0))}</span>
             </div>
           )}
           <div className="pt-2 flex justify-between text-sm font-bold" style={{ borderTop: '1px solid var(--color-border)' }}>
             <span style={{ color: 'var(--color-black)' }}>Neto</span>
-            <span style={{ color: 'var(--color-black)' }}>{success.net_amount.toFixed(2)}€</span>
+            <span style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(success.net_amount || 0))}</span>
           </div>
           <div className="flex justify-between text-xs pt-1">
             <span style={{ color: 'var(--color-stone)' }}>Método</span>
@@ -130,7 +133,7 @@ export default function WithdrawalPage() {
       {/* Balance card (dark) */}
       <div className="p-5 mb-5" style={{ background: 'var(--color-black)', borderRadius: 'var(--radius-xl)' }}>
         <p className="text-[9px] uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>Balance disponible</p>
-        <p className="text-3xl font-bold mb-1" style={{ color: '#fff' }}>{gross.toFixed(2)}€</p>
+        <p className="text-3xl font-bold mb-1" style={{ color: '#fff' }}>{convertAndFormatPrice(Number(gross || 0))}</p>
         <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.5)' }}>Disponible para cobro</p>
       </div>
 
@@ -139,7 +142,7 @@ export default function WithdrawalPage() {
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
             <span style={{ color: 'var(--color-stone)' }}>Comisión bruta</span>
-            <span className="font-semibold" style={{ color: 'var(--color-black)' }}>{gross.toFixed(2)}€</span>
+            <span className="font-semibold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(gross || 0))}</span>
           </div>
 
           {isSpain && (
@@ -147,7 +150,7 @@ export default function WithdrawalPage() {
               <div className="flex items-center gap-1">
                 <span style={{ color: 'var(--color-stone)' }}>Retención IRPF ({withholdingPct}%)</span>
               </div>
-              <span className="font-semibold" style={{ color: 'var(--color-red)' }}>−{withholding.toFixed(2)}€</span>
+              <span className="font-semibold" style={{ color: 'var(--color-stone)' }}>−{convertAndFormatPrice(Number(withholding || 0))}</span>
             </div>
           )}
 
@@ -155,26 +158,26 @@ export default function WithdrawalPage() {
             <div className="flex items-center gap-1">
               <span style={{ color: 'var(--color-stone)' }} title="La comisión real puede variar según tu método de pago">Fee de transferencia (aprox.)</span>
             </div>
-            <span className="font-semibold" style={{ color: transferFee > 0 ? 'var(--color-red)' : 'var(--color-black)' }}>
-              {transferFee > 0 ? `−${transferFee.toFixed(2)}€` : '0€'}
+            <span className="font-semibold" style={{ color: transferFee > 0 ? 'var(--color-stone)' : 'var(--color-black)' }}>
+              {transferFee > 0 ? `−${convertAndFormatPrice(Number(transferFee || 0))}` : convertAndFormatPrice(0)}
             </span>
           </div>
 
           <div className="pt-3 flex justify-between" style={{ borderTop: '1px solid var(--color-border)' }}>
             <span className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>RECIBIRÁS</span>
-            <span className="text-base font-bold" style={{ color: 'var(--color-black)' }}>{net.toFixed(2)}€</span>
+            <span className="text-base font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(net || 0))}</span>
           </div>
         </div>
       </div>
 
       {/* Insufficient balance warning */}
       {!canWithdraw && (
-        <div className="p-4 mb-5 flex items-start gap-3" style={{ background: 'var(--color-amber-light)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-amber)' }}>
-          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+        <div className="p-4 mb-5 flex items-start gap-3" style={{ background: '#f5f5f4', borderRadius: 'var(--radius-xl)', border: '1px solid #d6d3d1' }}>
+          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
           <div>
             <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Casi llegas</p>
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>
-              Estás a {(20 - net).toFixed(2)}€ de poder solicitar tu cobro (mínimo 20€ neto)
+              Estás a {convertAndFormatPrice(Math.max(0, 20 - Number(net || 0)))} de poder solicitar tu cobro (mínimo {convertAndFormatPrice(20)} neto)
             </p>
           </div>
         </div>
@@ -232,7 +235,7 @@ export default function WithdrawalPage() {
         {submitting ? (
           <Loader2 className="w-5 h-5 animate-spin" />
         ) : (
-          `Recibir ${net.toFixed(2)}€`
+          `Recibir ${convertAndFormatPrice(Number(net || 0))}`
         )}
       </button>
     </div>

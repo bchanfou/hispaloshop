@@ -8,6 +8,9 @@ const TABS = [
   { id: 'refunded', label: 'Reembolsados' },
 ];
 
+const fmtPrice = (value) =>
+  new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value || 0);
+
 const STATUS_LABELS = {
   paid: 'Pagado',
   confirmed: 'Confirmado',
@@ -40,7 +43,7 @@ function RefundModal({ order, onClose, onRefunded }) {
       toast.error('Introduce un importe válido');
       return;
     }
-    if (!window.confirm(`¿Confirmar reembolso ${type === 'full' ? 'total' : 'parcial'} de ${type === 'full' ? total.toFixed(2) : parseFloat(amount).toFixed(2)}€?`)) return;
+    if (!window.confirm(`¿Confirmar reembolso ${type === 'full' ? 'total' : 'parcial'} de ${fmtPrice(type === 'full' ? total : parseFloat(amount))}?`)) return;
 
     setProcessing(true);
     try {
@@ -62,7 +65,7 @@ function RefundModal({ order, onClose, onRefunded }) {
       <div className="bg-white rounded-2xl w-full max-w-md mx-4 p-6" onClick={e => e.stopPropagation()}>
         <h3 className="text-lg font-bold text-stone-950 mb-1">Procesar reembolso</h3>
         <p className="text-sm text-stone-500 mb-4">
-          Pedido #{(order.order_id || '').slice(-8).toUpperCase()} · {total.toFixed(2)}€
+          Pedido #{(order.order_id || '').slice(-8).toUpperCase()} · {fmtPrice(total)}
         </p>
 
         {/* Type selector */}
@@ -90,7 +93,7 @@ function RefundModal({ order, onClose, onRefunded }) {
               max={total}
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              placeholder={`Máx. ${total.toFixed(2)}`}
+              placeholder={`Máx. ${fmtPrice(total)}`}
               className="w-full px-3 py-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400"
             />
           </div>
@@ -160,7 +163,7 @@ function OrderRow({ order, showRefundButton, onRefund }) {
             {STATUS_LABELS[status] || status}
           </span>
         </div>
-        <span className="text-sm font-bold text-stone-950">{(order.total_amount || 0).toFixed(2)}€</span>
+        <span className="text-sm font-bold text-stone-950">{fmtPrice(order.total_amount)}</span>
       </div>
 
       <div className="flex items-center justify-between text-xs text-stone-500">
@@ -170,9 +173,9 @@ function OrderRow({ order, showRefundButton, onRefund }) {
           <span>{formatDate(order.created_at)}</span>
         </div>
         <div className="flex items-center gap-2">
-          {isRefunded && order.refund_amount != null && (
+          {isRefunded && order?.refund_amount != null && (
             <span className="text-xs font-semibold text-stone-700">
-              -{order.refund_amount.toFixed(2)}€ {order.refund_type === 'partial' ? '(parcial)' : '(total)'}
+              -{fmtPrice(order.refund_amount)} {order.refund_type === 'partial' ? '(parcial)' : '(total)'}
             </span>
           )}
           {showRefundButton && !isRefunded && (
@@ -249,7 +252,7 @@ export default function AdminRefunds() {
     const rows = data.refunded.map(o => [
       o.order_id,
       o.user_name || o.user_email || 'Cliente',
-      (o.refund_amount || 0).toFixed(2),
+      fmtPrice(o.refund_amount),
       o.status,
       formatDate(o.created_at),
     ]);
@@ -269,7 +272,7 @@ export default function AdminRefunds() {
       <div className="mb-4">
         <h1 className="text-2xl font-bold text-stone-950 mb-1">Gestión de reembolsos</h1>
         <p className="text-sm text-stone-500">
-          {data.refunded.length} reembolsos procesados · {totalRefunded.toFixed(2)}€ total
+          {data.refunded.length} reembolsos procesados · {fmtPrice(totalRefunded)} total
         </p>
       </div>
 

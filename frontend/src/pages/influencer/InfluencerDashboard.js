@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2, HelpCircle, Building2, X, Handshake, ChevronRight } from 'lucide-react';
@@ -18,6 +18,7 @@ import {
   useInfluencerWithdrawal,
 } from '../../features/influencer/hooks';
 import { asNumber } from '../../utils/safe';
+import { useLocale } from '../../context/LocaleContext';
 
 const MINIMUM_WITHDRAWAL = 20; // €20 minimum (synced with WithdrawalPage)
 
@@ -25,10 +26,11 @@ const MINIMUM_WITHDRAWAL = 20; // €20 minimum (synced with WithdrawalPage)
 function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSuccess }) {
   const [showHistory, setShowHistory] = useState(false);
   const { withdrawals, withdrawing, requestWithdrawal, refetchWithdrawals } = useInfluencerWithdrawal();
+  const { convertAndFormatPrice } = useLocale();
 
-  const handleWithdraw = async () => {
+  const handleWithdraw = useCallback(async () => {
     if (availableToWithdraw < MINIMUM_WITHDRAWAL) {
-      toast.error(`El mínimo de retiro es €${MINIMUM_WITHDRAWAL}. Tienes €${availableToWithdraw.toFixed(2)} disponibles.`);
+      toast.error(`El mínimo de retiro es ${convertAndFormatPrice(MINIMUM_WITHDRAWAL)}. Tienes ${convertAndFormatPrice(availableToWithdraw)} disponibles.`);
       return;
     }
 
@@ -40,7 +42,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
     } catch (error) {
       toast.error(error?.message || 'Error al procesar el retiro');
     }
-  };
+  }, [availableToWithdraw, convertAndFormatPrice, requestWithdrawal, refetchWithdrawals, onWithdrawSuccess]);
 
   const canWithdraw = stripeConnected && availableToWithdraw >= MINIMUM_WITHDRAWAL;
 
@@ -57,8 +59,8 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
           {/* Available to withdraw */}
           <div className="text-center p-4" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
             <p className="text-sm mb-1" style={{ color: 'var(--color-stone)' }}>Disponible para retirar</p>
-            <p className="text-3xl font-bold" style={{ color: 'var(--color-black)' }}>€{availableToWithdraw.toFixed(2)}</p>
-            <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>Mínimo: €{MINIMUM_WITHDRAWAL}</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(availableToWithdraw || 0))}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>Mínimo: {convertAndFormatPrice(MINIMUM_WITHDRAWAL)}</p>
           </div>
 
           {/* Withdraw button */}
@@ -71,7 +73,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
           ) : availableToWithdraw < MINIMUM_WITHDRAWAL ? (
             <div className="text-center p-3" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
               <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
-                Necesitas €{(MINIMUM_WITHDRAWAL - availableToWithdraw).toFixed(2)} más para alcanzar el mínimo de retiro
+                Necesitas {convertAndFormatPrice(Math.max(0, MINIMUM_WITHDRAWAL - Number(availableToWithdraw || 0)))} más para alcanzar el mínimo de retiro
               </p>
             </div>
           ) : (
@@ -89,7 +91,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
               ) : (
                 <>
                   <ArrowUpRight className="w-4 h-4" />
-                  Retirar €{availableToWithdraw.toFixed(2)}
+                  Retirar {convertAndFormatPrice(Number(availableToWithdraw || 0))}
                 </>
               )}
             </button>
@@ -113,7 +115,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
                 <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 rounded" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)' }}>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-black)' }} />
-                    <span className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>€{Number(wd.amount || 0).toFixed(2)}</span>
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(wd.amount || 0))}</span>
                   </div>
                   <span className="text-xs" style={{ color: 'var(--color-stone)' }}>
                     {new Date(wd.created_at).toLocaleDateString('es-ES')}
@@ -243,6 +245,7 @@ function CreateCodeCard({ onCodeCreated }) {
 export default function InfluencerDashboard() {
   const { user, refreshUser } = useAuth();
   const { t } = useTranslation();
+  const { convertAndFormatPrice } = useLocale();
   const { dashboard, loading, refetchDashboard } = useInfluencerProfile();
   const { stripeStatus, connectingStripe, connectStripe: connectStripeAccount } = useInfluencerStripeStatus();
   const [copied, setCopied] = useState(false);
@@ -294,30 +297,30 @@ export default function InfluencerDashboard() {
     };
   }, []);
 
-  const handleEmailVerified = () => {
+  const handleEmailVerified = useCallback(() => {
     setEmailVerified(true);
     if (refreshUser) refreshUser();
-  };
+  }, [refreshUser]);
 
-  const handleCodeCreated = (_newCode) => {
+  const handleCodeCreated = useCallback((_newCode) => {
     refetchDashboard();
-  };
+  }, [refetchDashboard]);
 
-  const scrollToWithdrawals = () => {
+  const scrollToWithdrawals = useCallback(() => {
     const withdrawalSection = document.getElementById('withdrawal-card-section');
     withdrawalSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }, []);
 
-  const copyDiscountCode = () => {
+  const copyDiscountCode = useCallback(() => {
     if (dashboard?.discount_code) {
       navigator.clipboard.writeText(dashboard.discount_code);
       setCopied(true);
       toast.success(t('influencer.codeCopied', '¡Código copiado!'));
       setTimeout(() => setCopied(false), 2000);
     }
-  };
+  }, [dashboard?.discount_code, t]);
 
-  const connectStripe = async () => {
+  const connectStripe = useCallback(async () => {
     try {
       const res = await connectStripeAccount();
       if (res?.url) {
@@ -326,7 +329,7 @@ export default function InfluencerDashboard() {
     } catch (err) {
       toast.error(t('influencer.stripeError', 'Error al conectar con Stripe'));
     }
-  };
+  }, [connectStripeAccount, t]);
 
   if (loading) {
     return (
@@ -352,7 +355,7 @@ export default function InfluencerDashboard() {
   }
 
   const tierPercent = Number(dashboard.commission_value || ((dashboard.commission_rate || 0) * 100) || 0);
-  const influencerExample = ((18 * tierPercent) / 100).toFixed(2);
+  const influencerExampleAmount = Math.round((18 * tierPercent) / 100 * 100) / 100;
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}>
@@ -422,7 +425,7 @@ export default function InfluencerDashboard() {
             </div>
             <div className="rounded-xl border-2 border-stone-500 bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Comisiones 30d</p>
-              <p className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>€{(dashboard.stats.earned_30d || 0).toFixed(2)}</p>
+              <p className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(dashboard.stats.earned_30d || 0))}</p>
             </div>
           </div>
         )}
@@ -430,10 +433,10 @@ export default function InfluencerDashboard() {
         {/* === BLACK BALANCE CARD === */}
         <div className="mb-6 p-6" style={{ background: 'var(--color-black)', borderRadius: 'var(--radius-xl)' }}>
           <p className="text-sm mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>Balance disponible</p>
-          <p className="font-bold mb-2" style={{ color: '#fff', fontSize: '26px' }}>€{asNumber(dashboard.available_balance).toFixed(2)}</p>
+          <p className="font-bold mb-2" style={{ color: '#fff', fontSize: '26px' }}>{convertAndFormatPrice(asNumber(dashboard.available_balance))}</p>
           {dashboard.payment_schedule?.available_soon > 0 && (
             <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              +€{asNumber(dashboard.payment_schedule.available_soon).toFixed(2)} disponible en los próximos días
+              +{convertAndFormatPrice(asNumber(dashboard.payment_schedule.available_soon))} disponible en los próximos días
             </p>
           )}
           {dashboard.payment_schedule?.next_payment_date && (
@@ -443,7 +446,7 @@ export default function InfluencerDashboard() {
           )}
           {dashboard.payment_schedule?.pending_amount > 0 && (
             <p className="text-[10px] mb-3" style={{ color: 'rgba(255,255,255,0.3)' }} title="Las comisiones están disponibles 15 días después de la venta para cubrir posibles devoluciones">
-              €{asNumber(dashboard.payment_schedule.pending_amount).toFixed(2)} en retención (disponible tras 15 días de la venta)
+              {convertAndFormatPrice(asNumber(dashboard.payment_schedule.pending_amount))} en retención (disponible tras 15 días de la venta)
             </p>
           )}
           {/* "Solicitar cobro" */}
@@ -542,11 +545,11 @@ export default function InfluencerDashboard() {
         {/* === Stats grid 3 cols === */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-            <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>€{asNumber(dashboard.total_sales_generated).toFixed(0)}</p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(asNumber(dashboard.total_sales_generated))}</p>
             <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.totalSales')}</p>
           </div>
           <div className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-            <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>€{asNumber(dashboard.total_commission_earned).toFixed(0)}</p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(asNumber(dashboard.total_commission_earned))}</p>
             <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>Comisión mes</p>
           </div>
           <div className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
@@ -672,10 +675,10 @@ export default function InfluencerDashboard() {
                   </p>
                   <div className="mt-2 text-xs p-2" style={{ color: 'var(--color-stone)', background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
                     <p className="font-medium">{t('influencer.example')}:</p>
-                    <p>- {t('influencer.sale')}: €100</p>
-                    <p>- {t('influencer.sellerReceives')}: €82</p>
-                    <p>- {t('influencer.platformFee')}: €18</p>
-                    <p>- <strong>{t('influencer.yourCommission')}: &euro;{influencerExample}</strong> ({tierPercent}% de &euro;18)</p>
+                    <p>- {t('influencer.sale')}: {convertAndFormatPrice(100)}</p>
+                    <p>- {t('influencer.sellerReceives')}: {convertAndFormatPrice(82)}</p>
+                    <p>- {t('influencer.platformFee')}: {convertAndFormatPrice(18)}</p>
+                    <p>- <strong>{t('influencer.yourCommission')}: {convertAndFormatPrice(influencerExampleAmount)}</strong> ({tierPercent}% de {convertAndFormatPrice(18)})</p>
                   </div>
                 </div>
 
@@ -690,7 +693,7 @@ export default function InfluencerDashboard() {
                 <div className="flex justify-between items-center py-2">
                   <span style={{ color: 'var(--color-stone)' }}>{t('influencer.available')}</span>
                   <span className="font-medium" style={{ color: 'var(--color-black)' }}>
-                    €{dashboard.available_balance.toFixed(2)}
+                    {convertAndFormatPrice(Number(dashboard.available_balance || 0))}
                   </span>
                 </div>
               </div>
@@ -712,14 +715,14 @@ export default function InfluencerDashboard() {
                 {/* Available to withdraw */}
                 <div className="text-center p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
                   <p className="text-sm mb-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.availableToWithdraw')}</p>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>€{dashboard.payment_schedule.available_to_withdraw.toFixed(2)}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(dashboard.payment_schedule.available_to_withdraw || 0))}</p>
                   <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.alreadyPassed15Days')}</p>
                 </div>
 
                 {/* Available soon */}
                 <div className="text-center p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
                   <p className="text-sm mb-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.availableSoon')}</p>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--color-stone)' }}>€{dashboard.payment_schedule.available_soon.toFixed(2)}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--color-stone)' }}>{convertAndFormatPrice(Number(dashboard.payment_schedule.available_soon || 0))}</p>
                   <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.inNext7Days')}</p>
                 </div>
 
@@ -787,21 +790,21 @@ export default function InfluencerDashboard() {
               <div className={`grid ${fiscalStatus?.tax_country === 'ES' ? 'grid-cols-3' : 'grid-cols-2'} gap-3 mb-4`}>
                 <div className="text-center p-3" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
                   <p className="text-lg font-bold" style={{ color: 'var(--color-black)' }}>
-                    {(withholdingSummary?.gross_ytd || 0).toFixed(2)}€
+                    {convertAndFormatPrice(Number(withholdingSummary?.gross_ytd || 0))}
                   </p>
                   <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>Comisiones brutas</p>
                 </div>
                 {fiscalStatus?.tax_country === 'ES' && (
                   <div className="text-center p-3" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
-                    <p className="text-lg font-bold" style={{ color: 'var(--color-amber)' }}>
-                      {(withholdingSummary?.withheld_ytd || 0).toFixed(2)}€
+                    <p className="text-lg font-bold" style={{ color: 'var(--color-stone)' }}>
+                      {convertAndFormatPrice(Number(withholdingSummary?.withheld_ytd || 0))}
                     </p>
                     <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>IRPF retenido (15%)</p>
                   </div>
                 )}
                 <div className="text-center p-3" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
                   <p className="text-lg font-bold" style={{ color: 'var(--color-black)' }}>
-                    {(withholdingSummary?.net_ytd || 0).toFixed(2)}€
+                    {convertAndFormatPrice(Number(withholdingSummary?.net_ytd || 0))}
                   </p>
                   <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>Cobrado neto</p>
                 </div>
@@ -821,9 +824,9 @@ export default function InfluencerDashboard() {
                           <p className="text-[10px] font-bold mb-1" style={{ color: isCurrent ? 'var(--color-black)' : 'var(--color-stone)' }}>{q}</p>
                           {qData ? (
                             <>
-                              <p className="text-xs font-semibold" style={{ color: 'var(--color-black)' }}>{qData.gross.toFixed(0)}€</p>
+                              <p className="text-xs font-semibold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(qData.gross || 0))}</p>
                               {fiscalStatus?.tax_country === 'ES' && (
-                                <p className="text-[9px]" style={{ color: 'var(--color-stone)' }}>−{qData.withheld.toFixed(0)}€</p>
+                                <p className="text-[9px]" style={{ color: 'var(--color-stone)' }}>−{convertAndFormatPrice(Number(qData.withheld || 0))}</p>
                               )}
                             </>
                           ) : (
@@ -873,17 +876,17 @@ export default function InfluencerDashboard() {
                           {p.created_at ? new Date(p.created_at).toLocaleDateString('es-ES') : '—'}
                         </p>
                         <p className="text-[10px]" style={{ color: 'var(--color-stone)' }}>
-                          Bruto: {(p.gross_amount || p.amount || 0).toFixed(2)}€
-                          {(p.withholding_amount || 0) > 0 && ` · Ret: ${p.withholding_amount.toFixed(2)}€`}
+                          Bruto: {convertAndFormatPrice(Number(p.gross_amount || p.amount || 0))}
+                          {(p.withholding_amount || 0) > 0 && ` · Ret: ${convertAndFormatPrice(Number(p.withholding_amount || 0))}`}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
-                          {(p.net_amount || p.amount || 0).toFixed(2)}€
+                          {convertAndFormatPrice(Number(p.net_amount || p.amount || 0))}
                         </p>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
-                          background: p.status === 'completed' ? 'var(--color-surface, #f5f5f4)' : 'var(--color-amber-light)',
-                          color: p.status === 'completed' ? 'var(--color-black)' : 'var(--color-amber)',
+                          background: p.status === 'completed' ? 'var(--color-surface, #f5f5f4)' : '#f5f5f4',
+                          color: p.status === 'completed' ? 'var(--color-black)' : 'var(--color-stone)',
                         }}>
                           {p.status === 'completed' ? 'Pagado' : 'Procesando'}
                         </span>
@@ -961,9 +964,9 @@ export default function InfluencerDashboard() {
                       return (
                         <tr key={comm.commission_id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                           <td className="py-3 px-4 font-mono text-sm" style={{ color: 'var(--color-black)' }}>{comm.order_id}</td>
-                          <td className="py-3 px-4" style={{ color: 'var(--color-black)' }}>€{comm.order_total.toFixed(2)}</td>
+                          <td className="py-3 px-4" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(comm.order_total || 0))}</td>
                           <td className="py-3 px-4 font-medium" style={{ color: 'var(--color-stone)' }}>
-                            €{comm.commission_amount.toFixed(2)}
+                            {convertAndFormatPrice(Number(comm.commission_amount || 0))}
                           </td>
                           <td className="py-3 px-4">
                             <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
@@ -1035,7 +1038,7 @@ export default function InfluencerDashboard() {
                 const statusMap = {
                   proposed: { label: 'Pendiente', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
                   active: { label: 'Activa', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
-                  declined: { label: 'Rechazada', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
+                  declined: { label: 'Rechazada', bg: '#f5f5f4', color: '#57534e' },
                   sample_sent: { label: 'Muestra enviada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
                   sample_received: { label: 'Muestra recibida', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
                 };

@@ -9,7 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { asLowerText, asNumber } from '../../utils/safe';
 import FocusTrap from 'focus-trap-react';
 
-
+const fmtPrice = (value) =>
+  new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(asNumber(value));
 
 export default function AdminProducts() {
   const { t } = useTranslation();
@@ -43,7 +44,7 @@ export default function AdminProducts() {
   const fetchProducts = async () => {
     try {
       const data = await apiClient.get('/admin/products');
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       toast.error(t('errors.generic'));
     } finally {
@@ -54,7 +55,7 @@ export default function AdminProducts() {
   const fetchCategories = async () => {
     try {
       const data = await apiClient.get('/categories');
-      setCategories(data);
+      setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
       // Sentry captures this automatically
     }
@@ -113,6 +114,7 @@ export default function AdminProducts() {
   };
 
   const approveSelected = async () => {
+    if (!window.confirm(`¿Aprobar ${selectedProducts.length} producto(s) seleccionado(s)?`)) return;
     try {
       await Promise.all(selectedProducts.map(id => apiClient.put(`/admin/products/${id}/approve?approved=true`, {})));
       toast.success(`${selectedProducts.length} producto(s) aprobado(s)`);
@@ -364,13 +366,13 @@ export default function AdminProducts() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : filteredProducts.length === 0 ? (
           <div className="p-8 text-center text-stone-500">{t('adminProducts.noProductsFound')}</div>
         ) : (
-          <table className="w-full" data-testid="products-table">
+          <table className="w-full min-w-[700px]" data-testid="products-table">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
                 <th scope="col" className="px-4 py-4 w-10"></th>
@@ -436,7 +438,7 @@ export default function AdminProducts() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-stone-950">{asNumber(product.price).toFixed(2)}€</span>
+                        <span className="font-medium text-stone-950">{fmtPrice(product.price)}</span>
                         <button
                           onClick={() => setEditingPrice({ productId: product.product_id, value: String(product.price) })}
                           className="text-stone-500 hover:text-stone-950"

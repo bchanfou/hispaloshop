@@ -104,7 +104,7 @@ export default function PostFollowSheet({ followedUserId, followedUserName, onCl
                 return (
                   <div key={user.user_id} className="flex items-center gap-3 py-2.5">
                     <button
-                      onClick={() => { setVisible(false); navigate(`/user/${user.username || user.user_id}`); }}
+                      onClick={() => { setVisible(false); navigate(`/${user.username || user.user_id}`); }}
                       className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-stone-200 border-none p-0 cursor-pointer"
                     >
                       {user.profile_image ? (

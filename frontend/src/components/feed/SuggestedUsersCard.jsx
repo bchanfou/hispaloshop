@@ -113,7 +113,7 @@ export default function SuggestedUsersCard() {
             >
               {/* Avatar */}
               <button
-                onClick={() => navigate(`/user/${user.username || user.user_id}`)}
+                onClick={() => navigate(`/${user.username || user.user_id}`)}
                 className="mb-2 h-14 w-14 overflow-hidden rounded-full bg-stone-200 border-none p-0 cursor-pointer"
               >
                 {avatar ? (

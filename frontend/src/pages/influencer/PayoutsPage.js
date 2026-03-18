@@ -3,8 +3,10 @@ import { CheckCircle2, CreditCard, Loader2, Wallet, FileText, ChevronLeft, Chevr
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
+import { useLocale } from '../../context/LocaleContext';
 
 export default function PayoutsPage() {
+  const { convertAndFormatPrice } = useLocale();
   const [payouts, setPayouts] = useState([]);
   const [stats, setStats] = useState(null);
   const [loadingPayouts, setLoadingPayouts] = useState(true);
@@ -17,7 +19,7 @@ export default function PayoutsPage() {
   const fetchPayouts = useCallback(async () => {
     try {
       const data = await apiClient.get('/influencer/payouts');
-      setPayouts(data?.payouts || []);
+      setPayouts(Array.isArray(data?.payouts) ? data.payouts : []);
     } catch {
       setPayouts([]);
     } finally {
@@ -76,7 +78,7 @@ export default function PayoutsPage() {
           ) : (
             <>
               <p className="text-4xl font-extrabold tracking-tight text-white mb-1">
-                {(stats?.pending_eur || 0).toFixed(2)}€
+                {convertAndFormatPrice(Number(stats?.pending_eur || 0))}
               </p>
               {(stats?.pending_eur || 0) >= 20 ? (
                 <p className="text-sm text-stone-400 mb-4">
@@ -84,7 +86,7 @@ export default function PayoutsPage() {
                 </p>
               ) : (
                 <p className="text-sm text-stone-500 mb-4">
-                  Estás a {(20 - (stats?.pending_eur || 0)).toFixed(2)}€ de poder solicitar tu cobro
+                  Estás a {convertAndFormatPrice(Math.max(0, 20 - Number(stats?.pending_eur || 0)))} de poder solicitar tu cobro
                 </p>
               )}
 
@@ -135,7 +137,7 @@ export default function PayoutsPage() {
               <div>
                 <p className="text-sm font-semibold text-stone-950">Resumen fiscal {new Date().getFullYear()}</p>
                 <p className="text-xs text-stone-500">
-                  Retenciones acumuladas: {((withholdingSummary.total_withheld_cents || 0) / 100).toFixed(2)}€
+                  Retenciones acumuladas: {convertAndFormatPrice(Math.round(Number(withholdingSummary.total_withheld_cents || 0)) / 100)}
                 </p>
               </div>
             </div>
@@ -187,7 +189,7 @@ export default function PayoutsPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-base font-bold text-stone-950">
-                    {(payout.net_amount_eur || 0).toFixed(2)}€
+                    {convertAndFormatPrice(Number(payout.net_amount_eur || 0))}
                   </p>
                   <span className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-600">
                     <CheckCircle2 className="w-3 h-3" />

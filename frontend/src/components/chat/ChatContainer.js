@@ -211,7 +211,7 @@ function ChatContainer() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className={`font-semibold tracking-[-0.02em] text-stone-950 ${isKeyboardOpen ? 'text-[16px]' : 'text-[18px]'}`}>{roleName}</h1>
+                  <h1 className={`font-semibold tracking-[-0.02em] text-stone-950 ${isKeyboardOpen ? 'text-[16px]' : 'text-[18px]'}`}>{roleConfig.name}</h1>
                   <StatusDot active={!isLoading} />
                 </div>
                 {!isKeyboardOpen ? <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">{roleConfig.name}</p> : null}

@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { useLocale } from '../../context/LocaleContext';
 
 const STATUS_CONFIG = {
   pending: { label: 'Pendiente', color: 'text-stone-600', bg: 'bg-stone-100', icon: Clock },
@@ -17,6 +18,7 @@ const STATUS_CONFIG = {
 };
 
 export function CommissionHistory() {
+  const { convertAndFormatPrice } = useLocale();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('recent'); // recent | highest
@@ -52,7 +54,9 @@ export function CommissionHistory() {
     );
   }
 
-  const { commissions, total, pages } = data || { commissions: [], total: 0, pages: 0 };
+  const commissions = Array.isArray(data?.commissions) ? data.commissions : [];
+  const total = data?.total || 0;
+  const pages = data?.pages || 0;
 
   return (
     <div className="space-y-4">
@@ -100,10 +104,10 @@ export function CommissionHistory() {
               </p>
             ) : (
               [...commissions].sort((a, b) => {
-                if (sortBy === 'highest') return (b.commission_cents || 0) - (a.commission_cents || 0);
+                if (sortBy === 'highest') return (Number(b.commission_cents) || 0) - (Number(a.commission_cents) || 0);
                 return new Date(b.created_at || 0) - new Date(a.created_at || 0);
               }).map((commission) => (
-                <CommissionRow key={commission.id} commission={commission} />
+                <CommissionRow key={commission.id} commission={commission} convertAndFormatPrice={convertAndFormatPrice} />
               ))
             )}
           </div>
@@ -138,9 +142,10 @@ export function CommissionHistory() {
   );
 }
 
-function CommissionRow({ commission }) {
+function CommissionRow({ commission, convertAndFormatPrice }) {
   const status = STATUS_CONFIG[commission.status] || STATUS_CONFIG.pending;
   const StatusIcon = status.icon;
+  const amountEur = Math.round(Number(commission.commission_cents || 0)) / 100;
 
   return (
     <div className="flex items-center gap-4 p-4 border border-stone-100 rounded-xl hover:bg-stone-50 transition">
@@ -149,15 +154,15 @@ function CommissionRow({ commission }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-medium truncate">{commission.product_name}</p>
+        <p className="font-medium truncate">{commission.product_name || '—'}</p>
         <p className="text-sm text-stone-500">
-          Orden {commission.order_number} • {new Date(commission.created_at).toLocaleDateString()}
+          Orden {commission.order_number || '—'} • {commission.created_at ? new Date(commission.created_at).toLocaleDateString() : '—'}
         </p>
       </div>
 
       <div className="text-right shrink-0">
         <p className="font-bold text-lg">
-          €{(commission.commission_cents / 100).toFixed(2)}
+          {convertAndFormatPrice(amountEur)}
         </p>
         <p className={`text-xs ${status.color}`}>
           {status.label}

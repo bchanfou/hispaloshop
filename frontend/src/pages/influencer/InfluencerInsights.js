@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BarChart3, MousePointerClick, RefreshCw, ShoppingCart, TrendingUp, TrendingDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useLocale } from '../../context/LocaleContext';
 
 const PERIODS = [
   { label: '7 días', value: 7 },
   { label: '30 días', value: 30 },
   { label: '90 días', value: 90 },
 ];
-
-const formatPrice = (v) =>
-  new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(Number(v) || 0);
 
 function KpiCard({ icon: Icon, label, value, prevValue }) {
   const change = (prevValue != null && prevValue > 0 && value != null && value !== '—')
@@ -37,13 +35,14 @@ function KpiCard({ icon: Icon, label, value, prevValue }) {
 }
 
 export default function InfluencerInsights() {
+  const { convertAndFormatPrice } = useLocale();
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
   const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const load = (d, isRefresh = false) => {
+  const load = useCallback((d, isRefresh = false) => {
     setLoading(true);
     setError(false);
     // Fetch current + previous period for trend comparison
@@ -58,13 +57,13 @@ export default function InfluencerInsights() {
       })
       .catch(() => { setData(null); setError(true); })
       .finally(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(() => { load(days); }, [days]);
+  useEffect(() => { load(days); }, [days, load]);
 
   const overview = data?.overview || {};
   const prevOverview = prevData?.overview || {};
-  const topProducts = data?.top_products_driven || [];
+  const topProducts = Array.isArray(data?.top_products_driven) ? data.top_products_driven : [];
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
@@ -183,7 +182,7 @@ export default function InfluencerInsights() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-stone-950">{p.name}</p>
-                    <p className="text-xs text-stone-500">{formatPrice(p.price)}</p>
+                    <p className="text-xs text-stone-500">{convertAndFormatPrice(Number(p.price || 0))}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-stone-950">{p.clicks}</p>

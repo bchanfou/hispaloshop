@@ -109,7 +109,7 @@ export default function AdminOverview() {
       <div className="grid grid-cols-2 gap-3 mb-5">
         <KPICard
           icon={TrendingUp}
-          value={`${(stats?.gmv_month || 0).toFixed(0)}€`}
+          value={new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(stats?.gmv_month || 0)}
           title="GMV este mes"
           description={`${stats?.orders_month || 0} pedidos`}
           to="/admin/orders"
@@ -161,7 +161,7 @@ export default function AdminOverview() {
             <span className="font-medium" style={{ color: 'var(--color-black)' }}>
               {stats.blocked_by_expired_cert} productor(es) bloqueados por certificado caducado
             </span>
-            <ArrowRight className="w-4 h-4 ml-auto shrink-0" style={{ color: 'var(--color-red)' }} />
+            <ArrowRight className="w-4 h-4 ml-auto shrink-0" style={{ color: 'var(--color-black)' }} />
           </Link>
         </div>
       )}
@@ -181,7 +181,7 @@ export default function AdminOverview() {
         <div className="space-y-2">
           <PendingRow label="Certificados pendientes de revisión" count={stats?.fiscal_pending_review || 0} to="/admin/fiscal" />
           <PendingRow
-            label={`Retenciones acumuladas YTD${fiscalStats === null ? '' : `: ${((fiscalStats.total_withheld_ytd_cents || 0) / 100).toFixed(2)}€`}`}
+            label={`Retenciones acumuladas YTD${fiscalStats === null ? '' : `: ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format((fiscalStats?.total_withheld_ytd_cents || 0) / 100)}`}`}
             count={0}
             to="/admin/fiscal"
           />
