@@ -934,6 +934,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                                 await create_attribution(db, user.user_id, influencer["influencer_id"], discount_code["code"])
 
     discounted_subtotal = max(0, subtotal - discount_amount)
+    logger.info(f"[CHECKOUT] subtotal={subtotal}, discount={discount_amount}, discounted={discounted_subtotal}, items={len(cart_items)}, first_price={cart_items[0].get('price') if cart_items else 'N/A'}, first_upc={cart_items[0].get('unit_price_cents') if cart_items else 'N/A'}")
 
     # Active referral attribution:
     # once a customer is linked through referred_by, future orders reuse that influencer
@@ -1111,6 +1112,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         }],
     }
     
+    logger.info(f"[CHECKOUT] Stripe amount: total_amount={total_amount}, unit_amount={int(total_amount * 100)}, shipping={shipping_amount}, tax={tax_amount}")
     try:
         session = stripe.checkout.Session.create(**stripe_params)
     except stripe.error.StripeError as e:
