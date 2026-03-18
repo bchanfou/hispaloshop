@@ -2,7 +2,7 @@
 B2B Contract Service — AI-powered contract PDF generation, signing, and sealing.
 Uses Claude for legal text, ReportLab for PDF rendering, Cloudinary for storage.
 """
-import anthropic
+from anthropic import AsyncAnthropic
 import cloudinary
 import cloudinary.uploader
 import hashlib
@@ -110,8 +110,8 @@ async def generate_contract(operation: dict, db) -> dict:
     }
 
     try:
-        client = anthropic.Anthropic()
-        message = client.messages.create(
+        client = AsyncAnthropic()
+        message = await client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=2000,
             system="Eres un asistente legal especializado en contratos de compraventa internacional de alimentos. Genera contratos profesionales, claros y legalmente sólidos bajo derecho español y CISG. Responde SOLO con el texto del contrato en español, sin explicaciones adicionales.",

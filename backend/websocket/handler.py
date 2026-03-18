@@ -66,6 +66,9 @@ class ConnectionManager:
             if user_id and user_id != exclude_user_id:
                 await self.send_personal_message(message, user_id)
 
+    def is_online(self, user_id: str) -> bool:
+        return user_id in self.active_connections
+
 
 manager = ConnectionManager()
 
@@ -212,8 +215,9 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
     elif msg_type == "message":
         conversation_id = message.get("conversation_id")
         content = message.get("content", "").strip()
+        message_type = message.get("message_type", "text")
         
-        if not conversation_id or not content:
+        if not conversation_id or (not content and message_type == "text"):
             await websocket.send_json({
                 "type": "error",
                 "message": "Missing conversation_id or content"
@@ -240,11 +244,19 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         from datetime import datetime, timezone
         import uuid
         
+        msg_id = f"msg_{uuid.uuid4().hex[:12]}"
+        temp_id = message.get("temp_id")
         message_doc = {
-            "message_id": f"msg_{uuid.uuid4().hex[:12]}",
+            "message_id": msg_id,
             "conversation_id": conversation_id,
             "sender_id": user_id,
             "content": content,
+            "message_type": message_type,
+            "image_url": message.get("image_url"),
+            "audio_url": message.get("audio_url"),
+            "audio_duration": message.get("audio_duration"),
+            "reply_to_id": message.get("reply_to_id"),
+            "reply_to_preview": message.get("reply_to_preview"),
             "created_at": datetime.now(timezone.utc).isoformat(),
             "read": False
         }
@@ -265,7 +277,8 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         # Confirmar al remitente
         await websocket.send_json({
             "type": "message_sent",
-            "message_id": message_doc["message_id"],
+            "message_id": msg_id,
+            "temp_id": temp_id,
             "conversation_id": conversation_id,
             "timestamp": message_doc["created_at"]
         })
@@ -280,6 +293,30 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             },
             exclude_user_id=user_id
         )
+    
+    elif msg_type == "reaction":
+        message_id = message.get("message_id")
+        emoji = message.get("emoji", "")
+        conversation_id = message.get("conversation_id")
+
+        if message_id and emoji and conversation_id:
+            msg_doc = await db.chat_messages.find_one({"message_id": message_id})
+            if msg_doc:
+                reactions = msg_doc.get("reactions", [])
+                existing = next((r for r in reactions if r["user_id"] == user_id and r["emoji"] == emoji), None)
+                if existing:
+                    reactions = [r for r in reactions if not (r["user_id"] == user_id and r["emoji"] == emoji)]
+                else:
+                    reactions = [r for r in reactions if r["user_id"] != user_id]
+                    user_doc = await db.users.find_one({"user_id": user_id}, {"name": 1})
+                    reactions.append({"user_id": user_id, "emoji": emoji, "name": (user_doc or {}).get("name", "")})
+                await db.chat_messages.update_one({"message_id": message_id}, {"$set": {"reactions": reactions}})
+                await manager.broadcast_to_conversation(
+                    conversation_id,
+                    {"type": "reaction", "message_id": message_id, "conversation_id": conversation_id, "reactions": reactions},
+                    exclude_user_id=user_id
+                )
+                await websocket.send_json({"type": "reaction", "message_id": message_id, "reactions": reactions})
     
     elif msg_type == "read_receipt":
         conversation_id = message.get("conversation_id")

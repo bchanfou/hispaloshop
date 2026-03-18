@@ -741,6 +741,33 @@ async def reset_password(input: ResetPasswordInput, request: Request):
     
     return {"message": "Password reset successfully. Please login with your new password."}
 
+@router.post("/auth/add-password")
+async def add_password_to_account(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+):
+    """Allow Google-only users to add a password to their account"""
+    body = await request.json()
+    new_password = body.get("new_password", "")
+    if not new_password or len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 6 caracteres")
+
+    user_doc = await db.users.find_one({"user_id": current_user.user_id})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Only allow if user has no password yet (Google-only account)
+    if user_doc.get("password_hash") and user_doc.get("auth_provider") != "google":
+        raise HTTPException(status_code=400, detail="Ya tienes una contraseña configurada. Usa la opción de cambiar contraseña.")
+
+    password_hash = hash_password(new_password)
+    await db.users.update_one(
+        {"user_id": current_user.user_id},
+        {"$set": {"password_hash": password_hash, "has_password": True}}
+    )
+    return {"message": "Contraseña añadida correctamente"}
+
+
 @router.get("/auth/session")
 async def auth_session(request: Request, response: Response):
     """Exchange session_id for a session token (legacy)"""

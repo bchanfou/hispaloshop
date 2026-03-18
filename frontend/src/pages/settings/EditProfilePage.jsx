@@ -12,6 +12,7 @@ export default function EditProfilePage() {
 
   const [form, setForm] = useState({
     name: '', username: '', bio: '', website: '', location: '',
+    phone: '',
     company_name: '', company_cif: '', store_description: '',
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -36,6 +37,7 @@ export default function EditProfilePage() {
       bio: user.bio || '',
       website: user.website || '',
       location: user.location || '',
+      phone: user.phone || '',
       company_name: user.company_name || '',
       company_cif: user.company_cif || user.cif || '',
       store_description: user.store_description || '',
@@ -52,6 +54,7 @@ export default function EditProfilePage() {
     if (form.bio !== (user?.bio || '')) return true;
     if (form.website !== (user?.website || '')) return true;
     if (form.location !== (user?.location || '')) return true;
+    if (form.phone !== (user?.phone || '')) return true;
     if (isProducer) {
       if (form.company_name !== (user?.company_name || '')) return true;
       if (form.store_description !== (user?.store_description || '')) return true;
@@ -93,9 +96,10 @@ export default function EditProfilePage() {
       toast.error('El nombre de usuario no está disponible');
       return;
     }
-    if (form.website && !/^https?:\/\//i.test(form.website)) {
-      toast.error('El enlace web debe empezar por http:// o https://');
-      return;
+    // Auto-prepend https:// to website if user typed a bare domain
+    let website = form.website.trim();
+    if (website && !/^https?:\/\//i.test(website)) {
+      website = 'https://' + website;
     }
     setSaving(true);
     try {
@@ -114,8 +118,9 @@ export default function EditProfilePage() {
         name: form.name,
         username: form.username,
         bio: form.bio,
-        website: form.website,
+        website: website,
         location: form.location,
+        phone: form.phone,
         avatar_url: avatarUrl,
       };
 
@@ -246,6 +251,28 @@ export default function EditProfilePage() {
 
         <FormField label="Ubicación" value={form.location} placeholder="Madrid, España"
           onChange={v => setForm(f => ({ ...f, location: v }))} />
+
+        {/* ── Contact Info ── */}
+        <div className="mt-2 border-t border-stone-200 pt-5">
+          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-stone-500">
+            Información de contacto
+          </p>
+        </div>
+
+        <div className="mb-5">
+          <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">
+            Email
+          </label>
+          <input
+            value={user?.email || ''}
+            readOnly
+            className="h-11 w-full rounded-lg border border-stone-200 bg-stone-100 px-3.5 text-sm text-stone-500 outline-none"
+          />
+          <p className="mt-1 text-[11px] text-stone-400">El email no se puede cambiar desde aquí</p>
+        </div>
+
+        <FormField label="Teléfono" value={form.phone} placeholder="+34 600 000 000"
+          onChange={v => setForm(f => ({ ...f, phone: v }))} />
 
         {/* ── Producer Fields ── */}
         {isProducer && (

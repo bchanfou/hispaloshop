@@ -99,8 +99,12 @@ export default function SettingsPage() {
     try {
       const apiClient = (await import('../../services/api/client')).default;
       await apiClient.put('/customer/profile', { is_private: val });
+      const { toast } = await import('sonner');
+      toast.success(val ? 'Cuenta privada activada' : 'Cuenta pública activada');
     } catch {
       setIsPrivate(!val);
+      const { toast } = await import('sonner');
+      toast.error('Error al cambiar la privacidad');
     }
   };
 
@@ -116,11 +120,14 @@ export default function SettingsPage() {
     setDeleting(true);
     try {
       const apiClient = (await import('../../services/api/client')).default;
-      await apiClient.delete('/account/delete');
+      await apiClient.delete('/account/delete', { data: { email_confirmation: deleteEmail } });
       localStorage.removeItem('hsp_token');
       localStorage.removeItem('hsp_accounts');
+      logout();
       navigate('/login', { replace: true });
-    } catch {
+    } catch (e) {
+      const { toast } = await import('sonner');
+      toast.error(e?.response?.data?.detail || 'Error al eliminar la cuenta');
       setDeleting(false);
     }
   };
@@ -148,7 +155,7 @@ export default function SettingsPage() {
         <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
           <SettingsItem icon={<User size={20} />} label="Editar perfil" to="/settings/profile" />
           <SettingsItem icon={<Lock size={20} />} label="Contraseña" to="/settings/password" />
-          <SettingsItem icon={<Mail size={20} />} label="Email" sublabel={user?.email || 'Sin configurar'} to="/settings/profile" />
+          <SettingsItem icon={<Mail size={20} />} label="Email" sublabel={user?.email || 'Sin configurar'} rightContent={<span />} />
           <SettingsItem icon={<Phone size={20} />} label="Teléfono" sublabel={user?.phone || 'Sin configurar'} to="/settings/profile" />
         </div>
 

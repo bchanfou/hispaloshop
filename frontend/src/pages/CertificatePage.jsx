@@ -434,13 +434,23 @@ export default function CertificatePage() {
 
         {/* ── QR Verification + Share ── */}
         <div className="mt-4 flex items-center gap-5 rounded-[28px] border border-stone-100 bg-white p-6 shadow-sm">
-          <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}&bgcolor=ffffff&color=0c0a09`}
-            alt={t('certificate.qrCode', 'Código QR de verificación')}
-            width={100}
-            height={100}
-            className="shrink-0 rounded-xl"
-          />
+          {certificate?.qr_code ? (
+            <img
+              src={`data:image/png;base64,${certificate.qr_code}`}
+              alt={t('certificate.qrCode', 'Código QR de verificación')}
+              width={100}
+              height={100}
+              className="shrink-0 rounded-xl"
+            />
+          ) : (
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}&bgcolor=ffffff&color=0c0a09`}
+              alt={t('certificate.qrCode', 'Código QR de verificación')}
+              width={100}
+              height={100}
+              className="shrink-0 rounded-xl"
+            />
+          )}
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-stone-950">{t('certificate.verify', 'Verificar autenticidad')}</p>
             <p className="mt-1 text-xs text-stone-500">{t('certificate.scanQR', 'Escanea el QR o copia el enlace para verificar este certificado.')}</p>

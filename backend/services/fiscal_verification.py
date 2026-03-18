@@ -5,7 +5,7 @@ Uses Claude Haiku vision to analyze tax residency certificates.
 import os
 import logging
 import httpx
-import anthropic
+from anthropic import AsyncAnthropic
 import base64
 from datetime import datetime, timezone
 
@@ -84,7 +84,7 @@ async def verify_certificate(file_url: str, declared_country: str) -> dict:
         file_b64 = base64.standard_b64encode(file_bytes).decode("utf-8")
 
         # Analyze with Claude Haiku vision
-        client = anthropic.Anthropic()
+        client = AsyncAnthropic()
 
         if content_type == "application/pdf":
             # For PDFs, use document type
@@ -130,7 +130,7 @@ async def verify_certificate(file_url: str, declared_country: str) -> dict:
                 },
             ]
 
-        response = client.messages.create(
+        response = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=500,
             messages=[{"role": "user", "content": message_content}],

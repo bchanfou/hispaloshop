@@ -12,13 +12,20 @@ CSRF_SAFE_METHODS = {"GET", "HEAD", "OPTIONS", "TRACE"}
 CSRF_HEADER = "X-CSRF-Token"
 CSRF_COOKIE = "csrf_token"
 
-# Paths exempt from CSRF (webhooks receive external POST requests)
+# Paths exempt from CSRF (webhooks receive external POST requests,
+# upload/multipart endpoints are already protected by JWT auth)
 CSRF_EXEMPT_PREFIXES = (
     "/webhooks",
     "/api/webhooks",
     "/health",
     "/api/health",
     "/ws/",
+    "/api/upload",
+    "/api/posts",
+    "/api/reels",
+    "/api/stories",
+    "/api/users/upload-avatar",
+    "/api/internal-chat/upload-image",
 )
 
 

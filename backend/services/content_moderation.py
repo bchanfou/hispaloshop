@@ -8,7 +8,7 @@ import logging
 import base64
 
 import httpx
-import anthropic
+from anthropic import AsyncAnthropic
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ async def moderate_post_content(content: dict) -> dict:
     tags = content.get("tags", [])
 
     try:
-        client = anthropic.Anthropic()
+        client = AsyncAnthropic()
 
         # 1. Text analysis
         if text.strip():
@@ -144,7 +144,7 @@ async def moderate_post_content(content: dict) -> dict:
                 '"confidence": "high"|"medium"|"low"}'
             )
 
-            resp = client.messages.create(
+            resp = await client.messages.create(
                 model="claude-haiku-4-5-20251001",
                 max_tokens=300,
                 messages=[{"role": "user", "content": text_prompt}],
@@ -185,7 +185,7 @@ async def moderate_post_content(content: dict) -> dict:
                     {"type": "text", "text": img_prompt},
                 ]
 
-                resp = client.messages.create(
+                resp = await client.messages.create(
                     model="claude-haiku-4-5-20251001",
                     max_tokens=300,
                     messages=[{"role": "user", "content": msg_content}],
@@ -242,7 +242,7 @@ async def moderate_product(product: dict) -> dict:
         return alcohol_block
 
     try:
-        client = anthropic.Anthropic()
+        client = AsyncAnthropic()
 
         # 2. AI category check
         category = product.get("category", "")
@@ -271,7 +271,7 @@ async def moderate_product(product: dict) -> dict:
             '"confidence": "high"|"medium"|"low"}'
         )
 
-        resp = client.messages.create(
+        resp = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=300,
             messages=[{"role": "user", "content": product_prompt}],
@@ -313,7 +313,7 @@ async def moderate_product(product: dict) -> dict:
                     {"type": "text", "text": img_prompt},
                 ]
 
-                resp2 = client.messages.create(
+                resp2 = await client.messages.create(
                     model="claude-haiku-4-5-20251001",
                     max_tokens=300,
                     messages=[{"role": "user", "content": msg_content}],

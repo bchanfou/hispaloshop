@@ -427,12 +427,15 @@ async def create_reel(
     tagged_products = await _hydrate_tagged_products(requested_tags)
     tagged_product = tagged_products[0] if tagged_products else None
 
+    # Fetch profile image for denormalization
+    reel_user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "company_name": 1})
     reel_id = f"reel_{uuid.uuid4().hex[:12]}"
     reel = {
         "reel_id": reel_id,
         "id": reel_id,
         "user_id": user.user_id,
-        "user_name": user.name,
+        "user_name": (reel_user_doc or {}).get("company_name") or user.name,
+        "user_profile_image": (reel_user_doc or {}).get("profile_image"),
         "video_url": video_url,
         "original_video_url": original_video_url,
         "thumbnail_url": thumbnail_url,
@@ -1208,11 +1211,14 @@ async def create_post(
     tagged_products = await _hydrate_tagged_products(requested_tags)
     tagged_product = tagged_products[0] if tagged_products else None
 
+    # Fetch profile image for denormalization into post doc
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "company_name": 1})
     post_id = f"post_{uuid.uuid4().hex[:12]}"
     post = {
         "post_id": post_id,
         "user_id": user.user_id,
-        "user_name": user.name,
+        "user_name": (user_doc or {}).get("company_name") or user.name,
+        "user_profile_image": (user_doc or {}).get("profile_image"),
         "image_url": image_url,
         "media": media,
         "caption": caption,
@@ -1223,6 +1229,7 @@ async def create_post(
         "tagged_products": tagged_products,
         "likes_count": 0,
         "comments_count": 0,
+        "status": "published",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.user_posts.insert_one(post)
@@ -1935,12 +1942,14 @@ async def create_story(
     result = await cloudinary_upload(contents, folder="stories", filename=f"story_{uuid.uuid4().hex[:8]}")
     image_url = result["url"]
 
+    story_user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "company_name": 1})
     story_id = f"story_{uuid.uuid4().hex[:12]}"
     now = datetime.now(timezone.utc)
     story = {
         "story_id": story_id,
         "user_id": user.user_id,
-        "user_name": user.name,
+        "user_name": (story_user_doc or {}).get("company_name") or user.name,
+        "user_profile_image": (story_user_doc or {}).get("profile_image"),
         "image_url": image_url,
         "caption": caption[:200] if caption else "",
         "location": location[:120] if location else "",

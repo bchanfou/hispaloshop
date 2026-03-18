@@ -12,10 +12,19 @@ const ROLE_LABELS = {
 };
 
 const DISMISSED_KEY = 'hs_dismissed_suggestions';
+const DISMISSED_TS_KEY = 'hs_dismissed_suggestions_ts';
+const DISMISS_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function getDismissed() {
-  try { return JSON.parse(localStorage.getItem(DISMISSED_KEY) || '[]'); }
-  catch { return []; }
+  try {
+    const ts = Number(localStorage.getItem(DISMISSED_TS_KEY) || '0');
+    if (ts && Date.now() - ts > DISMISS_TTL_MS) {
+      localStorage.removeItem(DISMISSED_KEY);
+      localStorage.removeItem(DISMISSED_TS_KEY);
+      return [];
+    }
+    return JSON.parse(localStorage.getItem(DISMISSED_KEY) || '[]');
+  } catch { return []; }
 }
 
 /**
@@ -58,6 +67,7 @@ export default function SuggestedUsersCard() {
     try {
       const prev = getDismissed();
       localStorage.setItem(DISMISSED_KEY, JSON.stringify([...new Set([...prev, ...ids])].slice(-50)));
+      localStorage.setItem(DISMISSED_TS_KEY, String(Date.now()));
     } catch { /* localStorage full — ignore */ }
   }, [users]);
 

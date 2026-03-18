@@ -200,6 +200,84 @@ async def get_best_sellers(country: Optional[str] = None, limit: int = 8):
 
 
 # ============================================
+# FEED HELPERS
+# ============================================
+
+async def _hydrate_feed_users(items, current_user=None, following_ids=None):
+    """Batch-enrich feed items with user info (avatar, name, verified, has_story).
+
+    Avoids N+1 queries by fetching all authors in a single DB call.
+    """
+    if not items:
+        return items
+
+    if following_ids is None:
+        following_ids = set()
+
+    # Collect unique author IDs
+    author_ids = list({item.get("user_id") for item in items if item.get("user_id")})
+    if not author_ids:
+        return items
+
+    # Single batch query for all authors
+    users = await db.users.find(
+        {"user_id": {"$in": author_ids}},
+        {"_id": 0, "user_id": 1, "name": 1, "username": 1, "company_name": 1,
+         "profile_image": 1, "role": 1, "verified": 1}
+    ).to_list(len(author_ids))
+    user_map = {u["user_id"]: u for u in users}
+
+    # Check which authors have recent stories (posts with image in last 24h)
+    twenty_four_h_ago = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    story_authors = set()
+    if author_ids:
+        story_pipeline = [
+            {"$match": {"user_id": {"$in": author_ids}, "image_url": {"$ne": None}, "created_at": {"$gte": twenty_four_h_ago}}},
+            {"$group": {"_id": "$user_id"}}
+        ]
+        try:
+            story_results = await db.user_posts.aggregate(story_pipeline).to_list(len(author_ids))
+            story_authors = {s["_id"] for s in story_results}
+        except Exception:
+            pass
+
+    # Check like status for current user
+    liked_ids = set()
+    if current_user:
+        item_ids = [item.get("id") or item.get("post_id") or item.get("reel_id") for item in items]
+        item_ids = [i for i in item_ids if i]
+        if item_ids:
+            # Check post likes
+            post_likes = await db.post_likes.find(
+                {"user_id": current_user.user_id, "post_id": {"$in": item_ids}},
+                {"_id": 0, "post_id": 1}
+            ).to_list(len(item_ids))
+            liked_ids.update(l["post_id"] for l in post_likes)
+            # Check reel likes
+            reel_likes = await db.reel_likes.find(
+                {"user_id": current_user.user_id, "reel_id": {"$in": item_ids}},
+                {"_id": 0, "reel_id": 1}
+            ).to_list(len(item_ids))
+            liked_ids.update(l["reel_id"] for l in reel_likes)
+
+    # Enrich each item
+    for item in items:
+        uid = item.get("user_id")
+        user = user_map.get(uid, {})
+        item["user_name"] = item.get("user_name") or user.get("company_name") or user.get("name") or "Usuario"
+        item["user_profile_image"] = item.get("user_profile_image") or user.get("profile_image")
+        item["user_verified"] = user.get("verified", False)
+        item["user_has_story"] = uid in story_authors
+        item["user_role"] = user.get("role")
+        item_id = item.get("id") or item.get("post_id") or item.get("reel_id")
+        if current_user and item_id:
+            item["is_liked"] = item_id in liked_ids
+            item["liked"] = item_id in liked_ids
+
+    return items
+
+
+# ============================================
 # FEED ENDPOINTS — proxy to social.py feed
 # The frontend expects /feed/foryou and /feed at the /api prefix.
 # The actual implementation is in social.py's /feed endpoint.
@@ -207,22 +285,92 @@ async def get_best_sellers(country: Optional[str] = None, limit: int = 8):
 
 @router.get("/feed/foryou")
 async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] = None, skip: int = 0):
-    """For-you feed — returns posts sorted by engagement score."""
+    """For-you feed — mixed posts+reels scored by engagement + recency."""
+    import random
     try:
         current_user = await get_optional_user(request)
     except Exception:
         current_user = None
+
     offset = int(cursor) if cursor else skip
-    posts = await db.posts.find(
-        {"status": {"$in": ["published", "active"]}},
+    pool_size = limit * 3  # fetch a larger pool to score and sort
+
+    # Fetch posts — collection is user_posts (where create_post writes)
+    posts_raw = await db.user_posts.find(
+        {},
         {"_id": 0}
-    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
-    return {"posts": posts, "items": posts, "total": len(posts), "has_more": len(posts) == limit}
+    ).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size)
+    for p in posts_raw:
+        p.setdefault("type", "post")
+        p.setdefault("id", p.get("post_id") or p.get("id"))
+
+    # Fetch reels (Q3: mixed feed)
+    reels_raw = await db.reels.find(
+        {},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size)
+    for r in reels_raw:
+        r["type"] = "reel"
+        r.setdefault("id", r.get("reel_id") or r.get("id"))
+        r.setdefault("video_url", r.get("video_url") or r.get("url"))
+
+    # Merge candidates
+    candidates = posts_raw + reels_raw
+
+    # Followed user IDs for personalization boost
+    following_ids = set()
+    if current_user:
+        follows = await db.user_follows.find(
+            {"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}
+        ).to_list(500)
+        following_ids = {f["following_id"] for f in follows}
+
+    # Score each item (Q2: algorithmic feed)
+    now = datetime.now(timezone.utc)
+    scored = []
+    for item in candidates:
+        created = item.get("created_at", "")
+        try:
+            dt = datetime.fromisoformat(str(created).replace("Z", "+00:00")) if created else now
+        except Exception:
+            dt = now
+        age_h = max((now - dt).total_seconds() / 3600, 0.01)
+
+        recency = max(0, 100 - age_h * 1.5) if age_h < 48 else max(5, 30 - age_h * 0.05)
+        engagement = min(100, (
+            (item.get("likes_count", 0) or 0)
+            + (item.get("comments_count", 0) or 0) * 2
+            + (item.get("shares_count", 0) or 0) * 3
+            + (item.get("saves_count", 0) or 0) * 2
+        ) / 5)
+        personalization = 60 if item.get("user_id") in following_ids else 30
+        serendipity = random.uniform(0, 15)
+
+        score = recency * 0.25 + engagement * 0.30 + personalization * 0.35 + serendipity * 0.10
+        scored.append((score, item))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+
+    # Diversify: max 2 consecutive from same author
+    result = []
+    author_run = {}
+    for _, item in scored:
+        uid = item.get("user_id", "")
+        author_run[uid] = author_run.get(uid, 0) + 1
+        if author_run[uid] <= 2:
+            result.append(item)
+        if len(result) >= limit:
+            break
+
+    # Hydrate user info (avatar, verified, etc.) — single batch query
+    result = await _hydrate_feed_users(result, current_user, following_ids)
+
+    return {"posts": result, "items": result, "total": len(result), "has_more": len(result) == limit}
 
 
 @router.get("/feed/following")
 async def feed_following(request: Request, limit: int = 20, cursor: Optional[str] = None, skip: int = 0):
-    """Following feed — posts from followed users only."""
+    """Following feed — posts + reels from followed users only."""
     try:
         current_user = await get_optional_user(request)
     except Exception:
@@ -234,9 +382,32 @@ async def feed_following(request: Request, limit: int = 20, cursor: Optional[str
             {"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}
         ).to_list(500)
         following_ids = [f["following_id"] for f in follows]
-    query = {"status": {"$in": ["published", "active"]}}
-    if following_ids:
-        query["user_id"] = {"$in": following_ids}
-    posts = await db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
-    return {"posts": posts, "items": posts, "total": len(posts), "has_more": len(posts) == limit}
+
+    # If not authenticated or not following anyone, return empty feed
+    if not following_ids:
+        return {"posts": [], "items": [], "total": 0, "has_more": False}
+
+    query = {"user_id": {"$in": following_ids}}
+    posts = await db.user_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    for p in posts:
+        p.setdefault("type", "post")
+        p.setdefault("id", p.get("post_id") or p.get("id"))
+
+    # Mix in reels from followed users
+    reel_query = {"user_id": {"$in": following_ids}} if following_ids else {}
+    reels = await db.reels.find(reel_query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    for r in reels:
+        r["type"] = "reel"
+        r.setdefault("id", r.get("reel_id") or r.get("id"))
+        r.setdefault("video_url", r.get("video_url") or r.get("url"))
+
+    # Merge and sort by created_at DESC
+    combined = posts + reels
+    combined.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    result = combined[:limit]
+
+    # Hydrate user info
+    result = await _hydrate_feed_users(result, current_user, set(following_ids))
+
+    return {"posts": result, "items": result, "total": len(result), "has_more": len(result) == limit}
 

@@ -5,6 +5,7 @@ Fase 4: Checkout + B2B Importer
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel
 
 from core.database import get_db
 from core.auth import get_current_user
@@ -59,15 +60,23 @@ async def get_cart(current_user = Depends(get_current_user)):
     }
 
 
+class AddToCartBody(BaseModel):
+    product_id: str
+    quantity: int = 1
+    variant_id: Optional[str] = None
+    pack_id: Optional[str] = None
+
+
 @router.post("/items")
 async def add_to_cart(
-    product_id: str,
-    quantity: int = 1,
-    variant_id: Optional[str] = None,
-    pack_id: Optional[str] = None,
+    body: AddToCartBody,
     current_user = Depends(get_current_user)
 ):
     """Añadir item al carrito"""
+    product_id = body.product_id
+    quantity = body.quantity
+    variant_id = body.variant_id
+    pack_id = body.pack_id
     if quantity <= 0:
         raise HTTPException(status_code=400, detail="Quantity must be at least 1")
     db = get_db()
@@ -178,15 +187,22 @@ async def add_to_cart(
     }
 
 
+class UpdateCartItemBody(BaseModel):
+    quantity: int
+    variant_id: Optional[str] = None
+    pack_id: Optional[str] = None
+
+
 @router.patch("/items/{product_id}")
 async def update_cart_item(
     product_id: str,
-    quantity: int,
-    variant_id: Optional[str] = None,
-    pack_id: Optional[str] = None,
+    body: UpdateCartItemBody,
     current_user = Depends(get_current_user)
 ):
     """Actualizar cantidad de item"""
+    quantity = body.quantity
+    variant_id = body.variant_id
+    pack_id = body.pack_id
     db = get_db()
 
     cart = await db.carts.find_one({

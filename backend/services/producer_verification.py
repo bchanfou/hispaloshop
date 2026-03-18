@@ -11,7 +11,7 @@ import base64
 from datetime import datetime, timezone, timedelta
 
 import httpx
-import anthropic
+from anthropic import AsyncAnthropic
 
 from core.database import db
 
@@ -140,10 +140,10 @@ async def verify_cif_nif(file_url: str) -> dict:
     )
 
     try:
-        client = anthropic.Anthropic()
+        client = AsyncAnthropic()
         message_content = _build_vision_message(file_b64, content_type, prompt)
 
-        response = client.messages.create(
+        response = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=500,
             messages=[{"role": "user", "content": message_content}],
@@ -233,10 +233,10 @@ async def verify_facility_photo(file_url: str) -> dict:
     )
 
     try:
-        client = anthropic.Anthropic()
+        client = AsyncAnthropic()
         message_content = _build_vision_message(file_b64, content_type, prompt)
 
-        response = client.messages.create(
+        response = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=500,
             messages=[{"role": "user", "content": message_content}],
@@ -329,10 +329,10 @@ async def verify_certificate(file_url: str, cert_type: str) -> dict:
     )
 
     try:
-        client = anthropic.Anthropic()
+        client = AsyncAnthropic()
         message_content = _build_vision_message(file_b64, content_type, prompt)
 
-        response = client.messages.create(
+        response = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=500,
             messages=[{"role": "user", "content": message_content}],

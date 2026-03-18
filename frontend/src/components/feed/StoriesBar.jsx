@@ -10,26 +10,51 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // Normalize backend story format → StoryViewer-compatible format
+  const normalizeStories = useCallback((raw) => {
+    const list = Array.isArray(raw) ? raw : raw?.data || [];
+    return list.map((s) => ({
+      user_id: s.user_id,
+      user: {
+        id: s.user_id,
+        name: s.name,
+        avatar_url: s.avatar,
+        profile_image: s.avatar,
+      },
+      is_recent: s.is_recent,
+      is_followed: s.is_followed,
+      has_unseen: s.is_recent,
+      // StoryViewer needs an `items` array with image_url/video_url
+      items: s.preview ? [{
+        id: `${s.user_id}_preview`,
+        image_url: s.preview.image,
+        caption: s.preview.text,
+        type: s.preview.type,
+        price: s.preview.price,
+      }] : [],
+    }));
+  }, []);
+
   const fetchStories = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
       const res = await apiClient.get('/feed/stories');
-      setStories(Array.isArray(res) ? res : res?.data || []);
+      setStories(normalizeStories(res));
     } catch {
       setStories([]);
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [normalizeStories]);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
         const res = await apiClient.get('/feed/stories');
-        if (!cancelled) setStories(Array.isArray(res) ? res : res?.data || []);
+        if (!cancelled) setStories(normalizeStories(res));
       } catch {
         if (!cancelled) { setStories([]); setError(true); }
       } finally {
@@ -38,7 +63,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
     }
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [normalizeStories]);
 
   return (
     <div
@@ -86,11 +111,11 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
           )
         : stories.map((story, idx) => (
             <StoryRing
-              key={story.user?.id || idx}
+              key={story.user_id || idx}
               user={story.user}
               isSelf={false}
-              hasUnseenStory={story.has_unseen !== false}
-              itemsCount={story.items?.length || story.items_count || 1}
+              hasUnseenStory={story.has_unseen ?? true}
+              itemsCount={story.items?.length || 1}
               onClick={() => onStoryClick && onStoryClick(stories, idx)}
             />
           ))}

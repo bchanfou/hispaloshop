@@ -23,6 +23,8 @@ export function ChatProvider({ children }) {
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [typingUsers, setTypingUsers] = useState({});
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Load conversations from API
   const loadConversations = useCallback(async () => {
@@ -40,8 +42,10 @@ export function ChatProvider({ children }) {
   const loadMessages = useCallback(async (conversationId) => {
     if (!conversationId || !isAuthenticated) return;
     try {
-      const msgs = await apiClient.get(`/chat/conversations/${conversationId}/messages`);
-      setMessages(msgs || []);
+      const data = await apiClient.get(`/chat/conversations/${conversationId}/messages`);
+      const msgs = data?.messages ?? (Array.isArray(data) ? data : []);
+      setMessages(msgs);
+      setHasMoreMessages(data?.has_more ?? false);
       setCurrentConversation(conversationId);
       
       // Join conversation via WebSocket
@@ -56,8 +60,28 @@ export function ChatProvider({ children }) {
     }
   }, [isAuthenticated]);
 
+  // Load older messages (pagination)
+  const loadOlderMessages = useCallback(async (conversationId) => {
+    if (!conversationId || !isAuthenticated || loadingMore || !hasMoreMessages) return;
+    const oldest = messages[0];
+    if (!oldest) return;
+    setLoadingMore(true);
+    try {
+      const before = oldest.created_at || oldest.timestamp;
+      const data = await apiClient.get(`/chat/conversations/${conversationId}/messages?before=${encodeURIComponent(before)}`);
+      const older = data?.messages ?? (Array.isArray(data) ? data : []);
+      if (older.length > 0) {
+        setMessages(prev => [...older, ...prev]);
+      }
+      setHasMoreMessages(data?.has_more ?? false);
+    } catch (e) {
+      // silently handled
+    }
+    setLoadingMore(false);
+  }, [isAuthenticated, loadingMore, hasMoreMessages, messages]);
+
   // Send message via WebSocket
-  const sendMessage = useCallback((conversationId, content) => {
+  const sendMessage = useCallback((conversationId, content, extra = {}) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
       return false;
     }
@@ -65,7 +89,8 @@ export function ChatProvider({ children }) {
     wsRef.current.send(JSON.stringify({
       type: 'message',
       conversation_id: conversationId,
-      content: content
+      content: content,
+      ...extra,
     }));
     return true;
   }, []);
@@ -168,6 +193,29 @@ export function ChatProvider({ children }) {
   const getConversationsByType = useCallback((type) => {
     return conversations.filter((c) => c.type === type);
   }, [conversations]);
+
+  // Send reaction via WS
+  const sendReaction = useCallback((conversationId, messageId, emoji) => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+    wsRef.current.send(JSON.stringify({
+      type: 'reaction',
+      conversation_id: conversationId,
+      message_id: messageId,
+      emoji,
+    }));
+  }, []);
+
+  // Delete conversation
+  const deleteConversation = useCallback(async (conversationId) => {
+    if (!isAuthenticated) return false;
+    try {
+      await apiClient.delete(`/chat/conversations/${conversationId}`);
+      setConversations(prev => prev.filter(c => (c.id || c.conversation_id) !== conversationId));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }, [isAuthenticated]);
 
   // Clear notification unread count
   const clearNotifUnreadCount = useCallback(() => {
@@ -319,7 +367,14 @@ export function ChatProvider({ children }) {
               break;
               
             case 'message_sent':
-              // Message confirmed sent
+              // Update pending message with server-confirmed id
+              if (payload.temp_id) {
+                setMessages(prev => prev.map(msg =>
+                  (msg.id === payload.temp_id || msg.message_id === payload.temp_id)
+                    ? { ...msg, message_id: payload.message_id, id: payload.message_id, status: 'sent' }
+                    : msg
+                ));
+              }
               break;
               
             case 'typing':
@@ -348,6 +403,17 @@ export function ChatProvider({ children }) {
                 setMessages(prev => prev.map(msg => 
                   payload.message_ids.includes(msg.message_id)
                     ? { ...msg, read: true }
+                    : msg
+                ));
+              }
+              break;
+
+            case 'reaction':
+              // Update reactions on a message
+              if (payload.message_id) {
+                setMessages(prev => prev.map(msg =>
+                  (msg.message_id === payload.message_id || msg.id === payload.message_id)
+                    ? { ...msg, reactions: payload.reactions }
                     : msg
                 ));
               }
@@ -419,6 +485,11 @@ export function ChatProvider({ children }) {
     attachDocument,
     sendImage,
     getConversationsByType,
+    sendReaction,
+    deleteConversation,
+    loadOlderMessages,
+    hasMoreMessages,
+    loadingMore,
 
     // Typing indicators
     typingUsers,
@@ -447,6 +518,11 @@ export function ChatProvider({ children }) {
     attachDocument,
     sendImage,
     getConversationsByType,
+    sendReaction,
+    deleteConversation,
+    loadOlderMessages,
+    hasMoreMessages,
+    loadingMore,
     typingUsers,
     notifConnected,
     notifUnreadCount,

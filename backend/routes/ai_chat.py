@@ -10,7 +10,7 @@ import uuid
 import os
 import logging
 
-from openai import AsyncOpenAI
+from anthropic import AsyncAnthropic
 from core.database import db
 from core.models import (
     User, AIProfileUpdate, AIExecuteActionInput, AISmartCartAction,
@@ -22,7 +22,24 @@ from services.ai_helpers import infer_user_signals_from_chat
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+import time as _time
+from collections import defaultdict as _defaultdict
+
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
+_CLAUDE_MODEL = "claude-haiku-4-5-20251001"
+
+# Rate limiting for AI chat endpoints — 20 RPM per user
+_AI_CHAT_RATE_LIMIT_RPM = 20
+_ai_chat_rate_store: dict = _defaultdict(list)
+
+
+def _check_ai_chat_rate_limit(user_id: str):
+    now = _time.time()
+    window = now - 60
+    _ai_chat_rate_store[user_id] = [t for t in _ai_chat_rate_store[user_id] if t > window]
+    if len(_ai_chat_rate_store[user_id]) >= _AI_CHAT_RATE_LIMIT_RPM:
+        raise HTTPException(status_code=429, detail="Demasiadas solicitudes. Espera un momento.")
+    _ai_chat_rate_store[user_id].append(now)
 
 LANGUAGE_NAMES = {
     "es": "Spanish", "en": "English", "ko": "Korean", "fr": "French",
@@ -722,6 +739,9 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
 @router.post("/ai/seller-assistant")
 async def seller_ai_assistant(input: SellerAIInput, user: User = Depends(get_current_user)):
     """AI assistant for sellers — PRO: same-country data, ELITE: all countries. FREE: blocked."""
+    _check_ai_chat_rate_limit(user.user_id)
+    if input.message:
+        input.message = input.message[:2000]
     await require_role(user, ["producer"])
     
     # Check subscription plan
@@ -805,18 +825,17 @@ DIRECTRICES:
 """
 
     try:
-        session_id = f"seller_ai_{user.user_id}_{uuid.uuid4().hex[:8]}"
-        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        completion = await client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": context},
-                {"role": "user", "content": input.message},
-            ],
+        if not ANTHROPIC_API_KEY:
+            return {"response": "El asistente de ventas no está configurado. Contacta al administrador.", "success": False}
+        client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        response = await client.messages.create(
+            model=_CLAUDE_MODEL,
+            max_tokens=1024,
+            system=context,
+            messages=[{"role": "user", "content": input.message}],
         )
-        response = completion.choices[0].message.content
-        
-        return {"response": response, "success": True}
+        text = next((b.text for b in response.content if hasattr(b, "text")), "")
+        return {"response": text, "success": True}
     except Exception as e:
         logger.error(f"Seller AI error: {e}")
         return {"response": "Lo siento, hubo un problema procesando tu consulta. Intenta de nuevo.", "success": False}
@@ -825,7 +844,14 @@ DIRECTRICES:
 @router.post("/chat/message")
 async def send_chat_message(input: ChatMessageInput, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
     import re
-    
+
+    _check_ai_chat_rate_limit(user.user_id)
+
+    # Sanitize input — truncate and strip control characters
+    if input.message:
+        input.message = input.message[:2000]
+        input.message = "".join(c for c in input.message if c == "\n" or c == "\t" or (ord(c) >= 32))
+
     session_id = input.session_id or f"chat_{uuid.uuid4().hex[:12]}"
     
     # Get user's selected country for filtering
@@ -1347,19 +1373,18 @@ FALLBACK BEHAVIORS:
     
     # Send message to AI (for non-cart-action messages)
     try:
-        if not OPENAI_API_KEY:
-            logger.error("[CHAT] OPENAI_API_KEY not configured")
+        if not ANTHROPIC_API_KEY:
+            logger.error("[CHAT] ANTHROPIC_API_KEY not configured")
             raise HTTPException(status_code=500, detail="AI service not configured. Please contact support.")
 
-        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        completion = await client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_msg},
-                {"role": "user", "content": input.message},
-            ],
+        client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        ai_response = await client.messages.create(
+            model=_CLAUDE_MODEL,
+            max_tokens=1024,
+            system=system_msg,
+            messages=[{"role": "user", "content": input.message}],
         )
-        response = completion.choices[0].message.content
+        response = next((b.text for b in ai_response.content if hasattr(b, "text")), "")
     except HTTPException:
         raise
     except Exception as e:
@@ -1531,6 +1556,9 @@ async def get_preferences(user: User = Depends(get_current_user)):
 @router.post("/ai/influencer-assistant")
 async def influencer_ai_assistant(input: InfluencerAIInput, user: User = Depends(get_current_user)):
     """AI assistant for influencers - helps with content creation and strategies"""
+    _check_ai_chat_rate_limit(user.user_id)
+    if input.message:
+        input.message = input.message[:2000]
     
     # Get influencer data
     influencer = await db.influencers.find_one({"user_id": user.user_id}, {"_id": 0})
@@ -1575,17 +1603,16 @@ EJEMPLOS DE CONTENIDO QUE FUNCIONA:
 """
 
     try:
-        session_id = f"influencer_ai_{uuid.uuid4().hex[:8]}"
-        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        completion = await client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": context},
-                {"role": "user", "content": input.message},
-            ],
+        if not ANTHROPIC_API_KEY:
+            return {"response": "El asistente creativo no está configurado. Contacta al administrador.", "success": False}
+        client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        ai_resp = await client.messages.create(
+            model=_CLAUDE_MODEL,
+            max_tokens=1024,
+            system=context,
+            messages=[{"role": "user", "content": input.message}],
         )
-        response = completion.choices[0].message.content
-        
+        response = next((b.text for b in ai_resp.content if hasattr(b, "text")), "")
         return {"response": response, "success": True}
     except Exception as e:
         logger.error(f"Influencer AI error: {e}")
@@ -1735,24 +1762,33 @@ async def get_my_support_cases(user: User = Depends(get_current_user)):
 @router.post("/ai/chat")
 async def hi_chat(req: HIChatRequest, user: User = Depends(get_current_user)):
     try:
-        import litellm
-
+        _check_ai_chat_rate_limit(user.user_id)
         await _check_hi_access(user, req.assistant_role)
 
-        system_prompt = _HI_SYSTEM_PROMPTS.get(req.assistant_role, _HI_SYSTEM_PROMPTS["consumer"])
-        # Cap history to last 20 exchanges to keep prompt efficient
-        messages_payload = [{"role": "system", "content": system_prompt}] + [
-            {"role": m.role, "content": m.content} for m in req.messages[-20:]
-        ]
+        if not ANTHROPIC_API_KEY:
+            raise HTTPException(status_code=503, detail="El asistente no está configurado. Contacta al administrador.")
 
-        response = await litellm.acompletion(
-            model="anthropic/claude-haiku-4-5-20251001",
-            messages=messages_payload,
+        system_prompt = _HI_SYSTEM_PROMPTS.get(req.assistant_role, _HI_SYSTEM_PROMPTS["consumer"])
+        # Cap history to last 20 exchanges, sanitize inputs
+        messages_payload = []
+        for m in req.messages[-20:]:
+            if m.role not in ("user", "assistant"):
+                continue
+            content = m.content[:2000] if m.content else ""
+            content = "".join(c for c in content if c == "\n" or c == "\t" or (ord(c) >= 32))
+            if content.strip():
+                messages_payload.append({"role": m.role, "content": content.strip()})
+
+        client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        ai_resp = await client.messages.create(
+            model=_CLAUDE_MODEL,
             max_tokens=1024,
-            temperature=0.7,
+            system=system_prompt,
+            messages=messages_payload,
         )
 
-        return {"content": response.choices[0].message.content}
+        text = next((b.text for b in ai_resp.content if hasattr(b, "text")), "")
+        return {"content": text}
     except HTTPException:
         raise
     except Exception as e:

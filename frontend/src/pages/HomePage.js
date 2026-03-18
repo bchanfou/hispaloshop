@@ -1,18 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { FeedContainer } from '../components/feed';
-import HomeHeader from '../components/feed/HomeHeader';
+import { useFeedTab } from '../context/FeedTabContext';
 import SEO from '../components/SEO';
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState(() => {
-    try { return localStorage.getItem('feedTab') || 'foryou'; }
-    catch { return 'foryou'; }
-  });
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    try { localStorage.setItem('feedTab', tab); } catch { /* restricted context */ }
-  };
+  const { activeTab } = useFeedTab();
 
   const structuredData = useMemo(
     () => [
@@ -37,10 +29,8 @@ export default function HomePage() {
         structuredData={structuredData}
       />
 
-      <HomeHeader activeTab={activeTab} onTabChange={handleTabChange} />
-
       <main id="main-content">
-        <FeedContainer activeTab={activeTab} onTabChange={handleTabChange} />
+        <FeedContainer activeTab={activeTab} />
       </main>
     </div>
   );

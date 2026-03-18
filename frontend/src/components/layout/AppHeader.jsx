@@ -4,6 +4,7 @@ import { Bell, ShoppingCart, Search, ChevronDown, LogOut, LayoutDashboard, Setti
 import HamburgerMenu from './HamburgerMenu';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useFeedTab } from '../../context/FeedTabContext';
 import { useUnreadNotifications } from '../../hooks/api/useNotifications';
 import { getDefaultRoute } from '../../lib/navigation';
 import Logo from '../brand/Logo';
@@ -27,6 +28,9 @@ export default function AppHeader() {
   const [searchQuery, setSearchQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  const { activeTab, setActiveTab } = useFeedTab();
+  const isHome = location.pathname === '/';
 
   const unreadCount = user ? (unreadData?.count ?? 0) : 0;
   const totalCartItems = getTotalItems();
@@ -114,18 +118,50 @@ export default function AppHeader() {
         justifyContent: 'space-between',
         padding: '0 var(--space-4)',
       }}>
-        {/* Logo */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-          <Logo variant="icon" theme="light" size={28} />
-          <span style={{
-            fontSize: 'var(--text-md)',
-            fontWeight: 700,
-            color: 'var(--color-black)',
-            letterSpacing: '-0.01em',
-          }}>
-            Hispaloshop
-          </span>
-        </Link>
+        {/* Logo + optional feed tabs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
+            <Logo variant="icon" theme="light" size={28} />
+          </Link>
+          {isHome ? (
+            <div style={{ display: 'flex', alignItems: 'center', borderRadius: 9999, background: 'var(--color-surface)', padding: 3 }}>
+              {[{ id: 'foryou', label: 'Para ti' }, { id: 'following', label: 'Siguiendo' }].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    minHeight: 34,
+                    borderRadius: 9999,
+                    padding: '0 14px',
+                    fontSize: 13,
+                    fontFamily: 'var(--font-sans)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    background: activeTab === tab.id ? 'var(--color-white)' : 'transparent',
+                    fontWeight: activeTab === tab.id ? 600 : 400,
+                    color: activeTab === tab.id ? 'var(--color-black)' : 'var(--color-stone)',
+                    boxShadow: activeTab === tab.id ? 'var(--shadow-xs)' : 'none',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <span style={{
+                fontSize: 'var(--text-md)',
+                fontWeight: 700,
+                color: 'var(--color-black)',
+                letterSpacing: '-0.01em',
+              }}>
+                Hispaloshop
+              </span>
+            </Link>
+          )}
+        </div>
 
         {/* Right icons: notif + cart + hamburger */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

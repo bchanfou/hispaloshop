@@ -2,11 +2,13 @@
 Cloudinary Storage Service — persistent image and video uploads with CDN.
 Replaces local filesystem storage. All media gets public HTTPS URLs.
 """
+import asyncio
 import cloudinary
 import cloudinary.uploader
 import os
 import uuid
 import logging
+from functools import partial
 
 logger = logging.getLogger(__name__)
 
@@ -60,19 +62,25 @@ async def upload_image(file_bytes: bytes, folder: str = "products", filename: st
     public_id = f"{cloud_folder}/{filename or uuid.uuid4().hex[:12]}"
 
     try:
-        result = cloudinary.uploader.upload(
-            file_bytes,
-            public_id=public_id,
-            overwrite=True,
-            resource_type="image",
-            transformation=[
-                {"width": 1200, "crop": "limit"},
-                {"quality": "auto:good"},
-                {"fetch_format": "auto"},
-            ],
-            eager=[
-                {"width": 400, "height": 400, "crop": "fill", "quality": "auto", "fetch_format": "auto"},
-            ],
+        # Run sync Cloudinary SDK call in thread pool to avoid blocking the event loop
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None,
+            partial(
+                cloudinary.uploader.upload,
+                file_bytes,
+                public_id=public_id,
+                overwrite=True,
+                resource_type="image",
+                transformation=[
+                    {"width": 1200, "crop": "limit"},
+                    {"quality": "auto:good"},
+                    {"fetch_format": "auto"},
+                ],
+                eager=[
+                    {"width": 400, "height": 400, "crop": "fill", "quality": "auto", "fetch_format": "auto"},
+                ],
+            ),
         )
 
         url = result.get("secure_url", "")
@@ -107,16 +115,21 @@ async def upload_video(file_bytes: bytes, folder: str = "reels", filename: str =
     public_id = f"{cloud_folder}/{filename or uuid.uuid4().hex[:12]}"
 
     try:
-        result = cloudinary.uploader.upload(
-            file_bytes,
-            public_id=public_id,
-            overwrite=True,
-            resource_type="video",
-            eager=[
-                # Generate thumbnail at 1 second
-                {"start_offset": "1", "width": 540, "crop": "limit", "format": "jpg", "quality": "auto"},
-            ],
-            eager_async=False,
+        # Run sync Cloudinary SDK call in thread pool to avoid blocking the event loop
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None,
+            partial(
+                cloudinary.uploader.upload,
+                file_bytes,
+                public_id=public_id,
+                overwrite=True,
+                resource_type="video",
+                eager=[
+                    {"start_offset": "1", "width": 540, "crop": "limit", "format": "jpg", "quality": "auto"},
+                ],
+                eager_async=False,
+            ),
         )
 
         url = result.get("secure_url", "")
@@ -124,7 +137,6 @@ async def upload_video(file_bytes: bytes, folder: str = "reels", filename: str =
         if result.get("eager"):
             thumb = result["eager"][0].get("secure_url", "")
         if not thumb:
-            # Fallback: build thumbnail URL from the video public_id
             cloud_name = _cloud_name or ""
             thumb = f"https://res.cloudinary.com/{cloud_name}/video/upload/so_1,w_540,q_auto,f_jpg/{result.get('public_id', '')}"
 
@@ -156,7 +168,11 @@ def get_optimized_url(public_id: str, width: int = 800) -> str:
 async def delete_media(public_id: str, resource_type: str = "image"):
     """Delete an image or video from Cloudinary."""
     try:
-        result = cloudinary.uploader.destroy(public_id, resource_type=resource_type, invalidate=True)
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None,
+            partial(cloudinary.uploader.destroy, public_id, resource_type=resource_type, invalidate=True),
+        )
         logger.info(f"[CLOUDINARY] Deleted {resource_type}: {public_id} -> {result}")
         return result
     except Exception as e:

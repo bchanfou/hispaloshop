@@ -2,9 +2,9 @@
 Direct messaging: conversations, messages, user search for chat.
 Extracted from server.py.
 """
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File, Form, Request
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import html as html_module
 import re
 import uuid
@@ -32,7 +32,7 @@ async def get_conversations(user: User = Depends(get_current_user)):
     for conv in conversations:
         # Determine the other user
         other_user_id = conv["user2_id"] if conv["user1_id"] == user.user_id else conv["user1_id"]
-        other_user = await db.users.find_one({"user_id": other_user_id}, {"_id": 0, "name": 1, "role": 1})
+        other_user = await db.users.find_one({"user_id": other_user_id}, {"_id": 0, "name": 1, "role": 1, "avatar_url": 1, "profile_image": 1, "last_seen": 1})
         
         # Count unread messages
         unread_count = await db.chat_messages.count_documents({
@@ -41,14 +41,34 @@ async def get_conversations(user: User = Depends(get_current_user)):
             "read": False
         })
         
+        uname = other_user.get("name", "Usuario") if other_user else "Usuario"
+        role = other_user.get("role", "customer") if other_user else "customer"
+        conv_type = "b2c" if role in ("producer", "importer") else "c2c"
+        avatar = (other_user.get("avatar_url") or other_user.get("profile_image")) if other_user else None
+        last_seen_val = other_user.get("last_seen") if other_user else None
+        is_online = False
+        if last_seen_val:
+            try:
+                seen_dt = datetime.fromisoformat(str(last_seen_val).replace("Z", "+00:00"))
+                is_online = (datetime.now(timezone.utc) - seen_dt) < timedelta(minutes=2)
+            except Exception:
+                pass
+
         result.append({
+            "id": conv["conversation_id"],
             "conversation_id": conv["conversation_id"],
             "other_user_id": other_user_id,
-            "other_user_name": other_user.get("name", "Usuario") if other_user else "Usuario",
-            "other_user_type": other_user.get("role", "customer") if other_user else "customer",
+            "name": uname,
+            "avatar_url": avatar,
+            "type": conv_type,
+            "role": role,
+            "online": is_online,
+            "last_seen": last_seen_val,
             "last_message": conv.get("last_message"),
             "last_message_at": conv.get("last_message_at"),
-            "unread_count": unread_count
+            "unread_count": unread_count,
+            "other_user_name": uname,
+            "other_user_type": role,
         })
     
     return result
@@ -103,9 +123,13 @@ async def create_conversation(input: NewConversationInput, user: User = Depends(
     }
 
 @router.get("/chat/conversations/{conversation_id}/messages")
-async def get_messages(conversation_id: str, user: User = Depends(get_current_user)):
-    """Get messages for a conversation"""
-    # Verify user is part of conversation
+async def get_messages(
+    conversation_id: str,
+    limit: int = 30,
+    before: Optional[str] = None,
+    user: User = Depends(get_current_user),
+):
+    """Get messages for a conversation with cursor-based pagination"""
     conversation = await db.internal_chats.find_one({
         "conversation_id": conversation_id,
         "$or": [
@@ -113,16 +137,19 @@ async def get_messages(conversation_id: str, user: User = Depends(get_current_us
             {"user2_id": user.user_id}
         ]
     })
-    
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    
+
+    query = {"conversation_id": conversation_id}
+    if before:
+        query["created_at"] = {"$lt": before}
+
     messages = await db.chat_messages.find(
-        {"conversation_id": conversation_id},
-        {"_id": 0}
-    ).sort("created_at", 1).to_list(500)
-    
-    return messages
+        query, {"_id": 0}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+    messages.reverse()
+
+    return {"messages": messages, "has_more": len(messages) == limit}
 
 @router.post("/chat/conversations/{conversation_id}/messages")
 async def send_message(conversation_id: str, input: MessageInput, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
@@ -269,3 +296,112 @@ async def search_users_for_chat(query: str, user_type: str, user: User = Depends
     return results
 
 
+# ──────────── Reactions ────────────
+
+@router.post("/chat/messages/{message_id}/react")
+async def react_to_message(message_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Toggle an emoji reaction on a message"""
+    body = await request.json()
+    emoji = body.get("emoji", "")
+    if not emoji or len(emoji) > 8:
+        raise HTTPException(status_code=400, detail="Valid emoji is required")
+
+    message = await db.chat_messages.find_one({"message_id": message_id})
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+
+    conv = await db.internal_chats.find_one({
+        "conversation_id": message["conversation_id"],
+        "$or": [{"user1_id": user.user_id}, {"user2_id": user.user_id}]
+    })
+    if not conv:
+        raise HTTPException(status_code=403, detail="Not a participant")
+
+    reactions = message.get("reactions", [])
+    existing = next((r for r in reactions if r["user_id"] == user.user_id and r["emoji"] == emoji), None)
+
+    if existing:
+        reactions = [r for r in reactions if not (r["user_id"] == user.user_id and r["emoji"] == emoji)]
+    else:
+        reactions = [r for r in reactions if r["user_id"] != user.user_id]
+        reactions.append({"user_id": user.user_id, "emoji": emoji, "name": user.name})
+
+    await db.chat_messages.update_one(
+        {"message_id": message_id},
+        {"$set": {"reactions": reactions}}
+    )
+
+    return {"message_id": message_id, "reactions": reactions}
+
+
+# ──────────── File uploads ────────────
+
+@router.post("/chat/conversations/{conversation_id}/upload-image")
+async def upload_conv_image(
+    conversation_id: str,
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+):
+    """Upload an image in a conversation"""
+    conv = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "$or": [{"user1_id": user.user_id}, {"user2_id": user.user_id}]
+    })
+    if not conv:
+        raise HTTPException(status_code=403, detail="Not a participant")
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed")
+
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Max 5 MB")
+
+    from services.cloudinary_storage import upload_image as cloudinary_upload
+    result = await cloudinary_upload(contents, folder="chat", filename=f"chat_{uuid.uuid4().hex[:8]}")
+    return {"image_url": result["url"]}
+
+
+@router.post("/chat/conversations/{conversation_id}/upload-audio")
+async def upload_conv_audio(
+    conversation_id: str,
+    file: UploadFile = File(...),
+    duration: float = Form(0),
+    user: User = Depends(get_current_user),
+):
+    """Upload a voice note in a conversation"""
+    conv = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "$or": [{"user1_id": user.user_id}, {"user2_id": user.user_id}]
+    })
+    if not conv:
+        raise HTTPException(status_code=403, detail="Not a participant")
+
+    allowed = ("audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav", "audio/mp3")
+    if not file.content_type or file.content_type not in allowed:
+        raise HTTPException(status_code=400, detail="Only audio files are allowed")
+
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Max 10 MB")
+
+    from services.cloudinary_storage import upload_image as cloudinary_upload
+    result = await cloudinary_upload(contents, folder="chat-audio", filename=f"voice_{uuid.uuid4().hex[:8]}")
+    return {"audio_url": result["url"], "duration": duration}
+
+
+# ──────────── Delete conversation ────────────
+
+@router.delete("/chat/conversations/{conversation_id}")
+async def delete_conversation(conversation_id: str, user: User = Depends(get_current_user)):
+    """Delete a conversation and all its messages"""
+    conv = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "$or": [{"user1_id": user.user_id}, {"user2_id": user.user_id}]
+    })
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    await db.chat_messages.delete_many({"conversation_id": conversation_id})
+    await db.internal_chats.delete_one({"conversation_id": conversation_id})
+
+    return {"success": True}

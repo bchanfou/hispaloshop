@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, ChefHat, Clock3, Users, Loader2, Plus, User, ShoppingCart, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Search, ChefHat, Clock3, Users, Loader2, Plus, User, ShoppingCart, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
@@ -160,7 +160,6 @@ function FilterSection({ label, pills, active, onSelect }) {
 /*  MAIN COMPONENT                           */
 /* ══════════════════════════════════════════ */
 export default function RecipesPage() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -240,16 +239,10 @@ export default function RecipesPage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)] font-sans">
       <SEO title="Recetas — Hispaloshop" description="Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta." />
-      {/* ── Topbar ── */}
-      <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
-        <button
-          onClick={() => navigate(-1)}
-          aria-label="Volver"
-          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
-        >
-          <ArrowLeft size={22} />
-        </button>
-        <span className="flex-1 text-[17px] font-bold text-stone-950">Recetas</span>
+
+      {/* ── Title bar ── */}
+      <div className="flex items-center justify-between px-4 pt-3 pb-1">
+        <h1 className="text-[22px] font-bold text-stone-950">Recetas</h1>
         {user && (
           <Link
             to="/recipes/create"

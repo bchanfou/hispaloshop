@@ -407,28 +407,36 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
             </div>
           )}
 
-          {/* Dots */}
+          {/* Dots (Q10 — animated, max 5 visible) */}
           {hasMultiple && (
             <div className="flex justify-center gap-1 py-2">
-              {images.map((_, i) => (
-                <button
-                  key={i}
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-transparent border-none p-0 cursor-pointer"
-                  aria-label={`Imagen ${i + 1} de ${images.length}`}
-                  onClick={() => {
-                    scrollRef.current?.scrollTo({
-                      left: i * scrollRef.current.clientWidth,
-                      behavior: 'smooth',
-                    });
-                  }}
-                >
-                  <span
-                    className={`block h-1.5 w-1.5 rounded-full transition-colors duration-150 ${
-                      i === carouselIndex ? 'bg-stone-950' : 'bg-stone-300'
-                    }`}
-                  />
-                </button>
-              ))}
+              {images.map((_, i) => {
+                const dist = Math.abs(i - carouselIndex);
+                if (images.length > 5 && dist > 2 && i !== 0 && i !== images.length - 1) return null;
+                return (
+                  <button
+                    key={i}
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-transparent border-none p-0 cursor-pointer"
+                    aria-label={`Imagen ${i + 1} de ${images.length}`}
+                    onClick={() => {
+                      scrollRef.current?.scrollTo({
+                        left: i * scrollRef.current.clientWidth,
+                        behavior: 'smooth',
+                      });
+                    }}
+                  >
+                    <span
+                      className="block rounded-full transition-all duration-200"
+                      style={{
+                        width: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
+                        height: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
+                        background: i === carouselIndex ? 'var(--color-black, #0c0a09)' : '#d6d3d1',
+                        opacity: dist > 2 ? 0.5 : 1,
+                      }}
+                    />
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -495,6 +503,16 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
           <span className="font-semibold">{(post.liked_by_sample || post.liked_by)[0]?.name || 'alguien'}</span>
           {likesCount > 1 && <span> y <span className="font-semibold">{likesCount - 1} más</span></span>}
         </div>
+      )}
+
+      {/* ---- "Ver los X comentarios" link (Q6) ---- */}
+      {commentsCount > 0 && (
+        <button
+          className="block w-full px-4 bg-transparent border-none p-0 pb-1 text-left text-[13px] text-stone-500 cursor-pointer font-[inherit]"
+          onClick={() => onComment?.(post.id)}
+        >
+          Ver {commentsCount === 1 ? 'el comentario' : `los ${commentsCount} comentarios`}
+        </button>
       )}
 
       {/* ---- Caption ---- */}

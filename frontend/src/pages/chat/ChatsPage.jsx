@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MessageCircle, PenSquare } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { Search, MessageCircle, PenSquare, Trash2 } from 'lucide-react';
 import { useChatContext } from '@/context/chat/ChatProvider';
 
 const FILTERS = [
@@ -40,7 +40,7 @@ function formatTimestamp(ts) {
   return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
-function ConversationItem({ conversation, index, onClick }) {
+function ConversationItem({ conversation, index, onClick, onDelete }) {
   const {
     name,
     avatar_url,
@@ -48,34 +48,58 @@ function ConversationItem({ conversation, index, onClick }) {
     last_message_at,
     unread_count = 0,
     type = 'c2c',
+    online,
   } = conversation;
 
   const isUnread = unread_count > 0;
   const badge = TYPE_BADGES[type];
   const isStore = type === 'b2c' || type === 'b2b';
 
+  const dragX = useMotionValue(0);
+  const deleteOpacity = useTransform(dragX, [-120, -60], [1, 0]);
+
   return (
-    <motion.button
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
-      onClick={onClick}
-      className="flex w-full items-start gap-3 border-none bg-transparent px-4 py-3.5 text-left font-apple active:bg-stone-50"
-    >
-      {/* Avatar */}
-      <div className="relative shrink-0">
-        {avatar_url ? (
-          <img
-            src={avatar_url}
-            alt={name}
-            className={`h-12 w-12 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
-          />
-        ) : (
-          <div className={`flex h-12 w-12 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
-            {getInitial(name)}
-          </div>
-        )}
-      </div>
+    <div className="relative overflow-hidden">
+      {/* Delete backdrop */}
+      <motion.div
+        className="absolute inset-y-0 right-0 flex w-20 items-center justify-center bg-red-500"
+        style={{ opacity: deleteOpacity }}
+      >
+        <Trash2 size={18} className="text-white" />
+      </motion.div>
+
+      <motion.button
+        drag="x"
+        dragConstraints={{ left: -100, right: 0 }}
+        dragElastic={{ left: 0.3, right: 0 }}
+        dragSnapToOrigin
+        style={{ x: dragX }}
+        onDragEnd={(_, info) => {
+          if (info.offset.x < -80 && onDelete) onDelete();
+        }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
+        onClick={onClick}
+        className="flex w-full items-start gap-3 border-none bg-stone-50 px-4 py-3.5 text-left font-apple active:bg-stone-100"
+      >
+        {/* Avatar */}
+        <div className="relative shrink-0">
+          {avatar_url ? (
+            <img
+              src={avatar_url}
+              alt={name}
+              className={`h-12 w-12 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
+            />
+          ) : (
+            <div className={`flex h-12 w-12 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+              {getInitial(name)}
+            </div>
+          )}
+          {online && (
+            <span className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-stone-50 bg-green-500" />
+          )}
+        </div>
 
       {/* Content */}
       <div className="min-w-0 flex-1">
@@ -106,13 +130,14 @@ function ConversationItem({ conversation, index, onClick }) {
           )}
         </div>
       </div>
-    </motion.button>
+      </motion.button>
+    </div>
   );
 }
 
 export default function ChatsPage() {
   const navigate = useNavigate();
-  const { conversations, reloadConversations } = useChatContext();
+  const { conversations, reloadConversations, deleteConversation } = useChatContext();
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -235,6 +260,7 @@ export default function ChatsPage() {
                     conversation={conv}
                     index={i}
                     onClick={() => navigate(`/chat/${conv.id}`)}
+                    onDelete={() => deleteConversation(conv.id)}
                   />
                   {i < filteredConversations.length - 1 && (
                     <div className="ml-[72px] mr-4 h-px bg-stone-100" />

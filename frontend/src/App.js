@@ -31,6 +31,7 @@ import { CartProvider } from './context/CartContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { ChatProvider } from './context/chat/ChatProvider';
+import { FeedTabProvider } from './context/FeedTabContext';
 import { UploadQueueProvider } from './context/UploadQueueContext';
 import { usePushNotifications } from './hooks/usePushNotifications';
 
@@ -759,6 +760,7 @@ function App() {
               <LocaleProvider>
                 <CartProvider>
                   <ChatProvider>
+                    <FeedTabProvider>
                     <UploadQueueProvider>
                       <a href="#main-content" className="skip-to-content">Ir al contenido principal</a>
                       <AppRouter />
@@ -768,6 +770,7 @@ function App() {
                       <ConsentBanner onConsent={(accepted) => { if (accepted) initAnalyticsOnConsent(); }} />
                       <Toaster position="top-center" />
                     </UploadQueueProvider>
+                    </FeedTabProvider>
                   </ChatProvider>
                 </CartProvider>
               </LocaleProvider>

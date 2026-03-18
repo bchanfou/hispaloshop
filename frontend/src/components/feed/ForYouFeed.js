@@ -3,18 +3,20 @@ import { Virtuoso } from 'react-virtuoso';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, Sparkles } from 'lucide-react';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
 import FeedSkeleton from './FeedSkeleton';
 import SuggestedUsersCard from './SuggestedUsersCard';
-import { useForYouFeed, useLikePost } from '@/features/feed/queries';
+import { useForYouFeed, useLikePost, feedKeys } from '@/features/feed/queries';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import PullIndicator from '@/components/ui/PullIndicator';
 
 export default function ForYouFeed() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const feedQuery = useForYouFeed();
   const likeMutation = useLikePost();
   const allPosts = useMemo(
@@ -26,7 +28,7 @@ export default function ForYouFeed() {
   const error = feedQuery.error;
 
   const { refreshing, progress, handlers } = usePullToRefresh(
-    async () => { await feedQuery.refetch(); }
+    async () => { await queryClient.resetQueries({ queryKey: feedKeys.forYou }); }
   );
 
   const handleLike = async (postId) => {

@@ -2,14 +2,14 @@
 Customer dashboard, profile, account management, and shipping addresses.
 Extracted from server.py.
 """
-from fastapi import APIRouter, HTTPException, Depends, Body
+from fastapi import APIRouter, HTTPException, Depends, Body, Request
 from typing import Optional
 from datetime import datetime, timezone
 import uuid
 import logging
 
 from core.database import db
-from core.models import User, ShippingAddress, DeleteAccountRequest
+from core.models import User, ShippingAddress
 from core.auth import get_current_user, require_role
 from services.auth_helpers import hash_password, verify_password
 
@@ -115,7 +115,7 @@ async def get_customer_profile(user: User = Depends(get_current_user)):
 @router.put("/customer/profile")
 async def update_customer_profile(data: dict, user: User = Depends(get_current_user)):
     """Update customer profile"""
-    allowed_fields = ["name", "country", "username", "bio", "website", "location", "avatar_url", "profile_image", "company_name", "store_description"]
+    allowed_fields = ["name", "country", "username", "bio", "website", "location", "avatar_url", "profile_image", "company_name", "store_description", "is_private", "phone"]
     update_data = {k: v for k, v in data.items() if k in allowed_fields and v is not None}
 
     # Validate username if being updated
@@ -214,21 +214,24 @@ async def get_followed_stores(user: User = Depends(get_current_user)):
 # ============================================
 
 @router.delete("/account/delete")
-async def delete_account(request: DeleteAccountRequest, user: User = Depends(get_current_user)):
+async def delete_account(request: Request, user: User = Depends(get_current_user)):
     """
     Permanently delete user account and all associated data.
-    Requires password confirmation and explicit "DELETE" confirmation text.
+    Requires email confirmation.
     """
-    if request.confirmation != "DELETE":
-        raise HTTPException(status_code=400, detail="Please type DELETE to confirm account deletion")
-    
-    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "password_hash": 1})
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    email_confirmation = body.get("email_confirmation", "")
+
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "email": 1})
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    if not verify_password(request.password, user_doc.get("password_hash", "")):
-        raise HTTPException(status_code=400, detail="Incorrect password")
-    
+
+    if email_confirmation.lower().strip() != (user_doc.get("email", "")).lower().strip():
+        raise HTTPException(status_code=400, detail="El email no coincide con tu cuenta")
+
     user_id = user.user_id
     
     # ── Common cleanup for ALL roles ──

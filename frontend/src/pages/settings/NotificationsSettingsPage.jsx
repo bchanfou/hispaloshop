@@ -97,7 +97,7 @@ export default function NotificationsSettingsPage() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await apiClient.get('/users/me/notifications');
+        const data = await apiClient.get('/notifications/preferences');
         if (data) setPrefs(p => ({ ...p, ...data }));
       } catch { /* use defaults */ }
       finally { setLoading(false); }
@@ -107,7 +107,7 @@ export default function NotificationsSettingsPage() {
   const handleToggle = async (key, val) => {
     setPrefs(p => ({ ...p, [key]: val }));
     try {
-      await apiClient.put('/users/me/notifications', { [key]: val });
+      await apiClient.put('/notifications/preferences', { [key]: val });
     } catch {
       setPrefs(p => ({ ...p, [key]: !val }));
       toast.error('Error al actualizar');

@@ -3,11 +3,12 @@ import { Virtuoso } from 'react-virtuoso';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, Users } from 'lucide-react';
 import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import FeedSkeleton from './FeedSkeleton';
-import { useFollowingFeed, useLikePost } from '@/features/feed/queries';
+import { useFollowingFeed, useLikePost, feedKeys } from '@/features/feed/queries';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import PullIndicator from '@/components/ui/PullIndicator';
 
@@ -43,6 +44,7 @@ function EmptyFollowing() {
 function FollowingFeed() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const feedQuery = useFollowingFeed();
   const likeMutation = useLikePost();
   const allPosts = useMemo(
@@ -54,7 +56,7 @@ function FollowingFeed() {
   const error = feedQuery.error;
 
   const { refreshing, progress, handlers } = usePullToRefresh(
-    async () => { await feedQuery.refetch(); }
+    async () => { await queryClient.resetQueries({ queryKey: feedKeys.following }); }
   );
 
   const handleLike = async (postId) => {

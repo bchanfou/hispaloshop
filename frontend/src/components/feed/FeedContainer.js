@@ -22,7 +22,7 @@ function FeedContainer({ activeTab: tabProp }) {
   const [storyViewer, setStoryViewer] = useState(null);
 
   const handleCreateStory = () => {
-    window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
+    window.dispatchEvent(new CustomEvent('open-creator', { detail: {} }));
   };
 
   const handleStoryClick = useCallback((stories, index) => {
