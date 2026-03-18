@@ -14,6 +14,14 @@ from core.models import User, ReviewCreateInput
 
 logger = logging.getLogger(__name__)
 
+
+def _extract_product_image(product: dict) -> str | None:
+    images = product.get("images")
+    if images and isinstance(images, list) and len(images) > 0:
+        first = images[0]
+        return first.get("url") if isinstance(first, dict) else first if isinstance(first, str) else None
+    return product.get("image_url") or product.get("image")
+
 router = APIRouter()
 
 
@@ -258,7 +266,7 @@ async def create_shopping_list(recipe_id: str, request: Request, user: User = De
             cart_items_list.append({
                 "product_id": pid,
                 "product_name": prod.get("name", ""),
-                "product_image": (prod.get("images") or [{}])[0].get("url") if prod.get("images") else None,
+                "product_image": _extract_product_image(prod),
                 "seller_id": prod.get("seller_id") or prod.get("producer_id", ""),
                 "seller_type": "producer",
                 "quantity": quantity,

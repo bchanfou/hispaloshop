@@ -17,6 +17,14 @@ from config import INFLUENCER_TIER_CONFIG, normalize_influencer_tier
 router = APIRouter(prefix="/collaborations", tags=["collaborations"])
 
 
+def _extract_product_image(product: dict) -> str | None:
+    images = product.get("images")
+    if images and isinstance(images, list) and len(images) > 0:
+        first = images[0]
+        return first.get("url") if isinstance(first, dict) else first if isinstance(first, str) else None
+    return product.get("image_url") or product.get("image")
+
+
 # ── Pydantic models ─────────────────────────────────────────
 
 class CreateCollabBody(BaseModel):
@@ -102,7 +110,7 @@ async def create_collaboration(body: CreateCollabBody, current_user=Depends(get_
         "proposal": {
             "product_id": body.product_id,
             "product_name": product.get("name", ""),
-            "product_image_url": (product.get("images", [{}])[0].get("url") if product.get("images") else None),
+            "product_image_url": _extract_product_image(product),
             "commission_pct": body.commission_pct,
             "standard_commission_pct": round(std_rate * 100, 1),
             "duration_days": body.duration_days,

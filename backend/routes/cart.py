@@ -16,6 +16,18 @@ from services.shipping_calculator import calculate_cart_shipping
 router = APIRouter(prefix="/cart", tags=["Cart"])
 
 
+def _extract_product_image(product: dict) -> str | None:
+    """Safely extract image URL from product, handling both dict and string formats."""
+    images = product.get("images")
+    if images and isinstance(images, list) and len(images) > 0:
+        first = images[0]
+        if isinstance(first, dict):
+            return first.get("url")
+        if isinstance(first, str):
+            return first
+    return product.get("image_url") or product.get("image")
+
+
 @router.get("")
 async def get_cart(current_user = Depends(get_current_user)):
     """Obtener carrito activo del usuario"""
@@ -120,7 +132,7 @@ async def add_to_cart(
     cart_item = {
         "product_id": product_id,
         "product_name": product.get("name"),
-        "product_image": product.get("images", [{}])[0].get("url") if product.get("images") else None,
+        "product_image": _extract_product_image(product),
         "seller_id": product.get("seller_id") or product.get("producer_id"),
         "seller_type": product.get("seller_type", "producer"),
         "quantity": quantity,
@@ -495,7 +507,7 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
         normalized_items.append({
             "product_id": str(product_id),
             "product_name": product.get("name") or item.get("product_name") or item.get("name"),
-            "product_image": (product.get("images") or [{}])[0].get("url") if product.get("images") else item.get("product_image"),
+            "product_image": _extract_product_image(product) or item.get("product_image"),
             "seller_id": product.get("seller_id") or product.get("producer_id") or item.get("seller_id"),
             "seller_type": product.get("seller_type", "producer"),
             "quantity": quantity,

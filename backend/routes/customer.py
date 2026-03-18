@@ -17,6 +17,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+def _extract_product_image(product: dict) -> str | None:
+    images = product.get("images")
+    if images and isinstance(images, list) and len(images) > 0:
+        first = images[0]
+        if isinstance(first, dict):
+            return first.get("url")
+        if isinstance(first, str):
+            return first
+    return product.get("image_url") or product.get("image")
+
+
 # ============================================
 # CUSTOMER DASHBOARD ENDPOINTS
 # ============================================
@@ -79,7 +90,7 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
             cart_items.append({
                 "product_id": product_id,
                 "product_name": product.get("name") or item.get("product_name", ""),
-                "product_image": (product.get("images") or [{}])[0].get("url") if product.get("images") else item.get("image"),
+                "product_image": _extract_product_image(product) or item.get("image"),
                 "seller_id": product.get("seller_id") or product.get("producer_id") or item.get("producer_id", ""),
                 "seller_type": "producer",
                 "quantity": quantity,
