@@ -25,6 +25,7 @@ from core.auth import get_current_user
 from core.database import get_db
 from core.models import User
 from services.feed_algorithm import feed_algorithm
+from utils.images import extract_product_image
 from services.trending_service import (
     get_content_conversion_stats,
     get_suggested_creators,
@@ -541,7 +542,7 @@ async def get_influencer_insights(
                 top_products.append({
                     "product_id": item["_id"],
                     "name": p.get("name", "—"),
-                    "image": (p.get("images") or [""])[0],
+                    "image": extract_product_image(p),
                     "price": p.get("price", 0),
                     "clicks": item["clicks"],
                     "score": item["score"],
@@ -613,7 +614,7 @@ async def get_producer_insights(
         product_insights.append({
             "product_id": pid,
             "name": p.get("name", "—"),
-            "image": (p.get("images") or [""])[0],
+            "image": extract_product_image(p),
             "price": p.get("price", 0),
             "views": s.get("views", 0),
             "clicks": s.get("clicks", 0),

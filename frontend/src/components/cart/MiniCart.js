@@ -10,7 +10,10 @@ const MiniCart = ({ isOpen, onClose }) => {
   const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading } = useCart();
   const [shippingData, setShippingData] = useState(null);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (((item.unit_price_cents || 0) / 100 || item.price || 0) * item.quantity), 0);
+  const subtotal = cartItems.reduce((sum, item) => {
+    const unitPrice = item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0);
+    return sum + unitPrice * item.quantity;
+  }, 0);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // Fetch real shipping estimate
@@ -31,7 +34,7 @@ const MiniCart = ({ isOpen, onClose }) => {
   const groupedItems = useMemo(() => {
     const groups = {};
     cartItems.forEach(item => {
-      const producerName = item.producer || item.product?.producer?.name || 'Tienda';
+      const producerName = item.seller_name || item.producer || item.product?.producer?.name || 'Tienda';
       if (!groups[producerName]) groups[producerName] = [];
       groups[producerName].push(item);
     });
@@ -134,7 +137,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                             {(item.product_image || item.image || item.product?.image) ? (
                               <img
                                 src={item.product_image || item.image || item.product?.image}
-                                alt={item.name || item.product?.name}
+                                alt={item.product_name || item.name || item.product?.name}
                                 className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
                               />
                             ) : (
@@ -145,12 +148,12 @@ const MiniCart = ({ isOpen, onClose }) => {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
                                 <h4 className="font-medium text-stone-950 text-sm line-clamp-2">
-                                  {item.name || item.product?.name}
+                                  {item.product_name || item.name || item.product?.name}
                                 </h4>
                                 <button
                                   onClick={() => handleRemove(item)}
                                   className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-full transition-colors"
-                                  aria-label={`Eliminar ${item.name || item.product?.name}`}
+                                  aria-label={`Eliminar ${item.product_name || item.name || item.product?.name}`}
                                 >
                                   <Trash2 className="w-4 h-4 text-stone-500" />
                                 </button>
@@ -161,7 +164,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   <button
                                     onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                                     className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-l-xl transition-colors"
-                                    aria-label={`Disminuir cantidad de ${item.name || item.product?.name}`}
+                                    aria-label={`Disminuir cantidad de ${item.product_name || item.name || item.product?.name}`}
                                   >
                                     <Minus className="w-4 h-4 text-stone-950" />
                                   </button>
@@ -171,13 +174,13 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   <button
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                                     className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-r-xl transition-colors"
-                                    aria-label={`Aumentar cantidad de ${item.name || item.product?.name}`}
+                                    aria-label={`Aumentar cantidad de ${item.product_name || item.name || item.product?.name}`}
                                   >
                                     <Plus className="w-4 h-4 text-stone-950" />
                                   </button>
                                 </div>
                                 <span className="font-semibold text-stone-950">
-                                  €{(((item.unit_price_cents || 0) / 100 || item.price || item.product?.price || 0) * item.quantity).toFixed(2)}
+                                  €{((item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0)) * item.quantity).toFixed(2)}
                                 </span>
                               </div>
                             </div>

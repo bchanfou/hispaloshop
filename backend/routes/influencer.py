@@ -1214,7 +1214,7 @@ async def create_affiliate_link(request: Request, user: User = Depends(get_curre
         "product_id": product_id,
         "product_name": product.get("name", ""),
         "product_price": product.get("price", 0),
-        "product_image": (product.get("images") or [None])[0],
+        "product_image": extract_product_image(product),
         "url": url,
         "code": code,
         "clicks": 0,
@@ -1425,6 +1425,7 @@ async def process_influencer_payouts():
 
 import secrets as _secrets
 import string as _string
+from utils.images import extract_product_image
 
 
 def generate_discount_code(username: str, tier: str = "hercules") -> str:

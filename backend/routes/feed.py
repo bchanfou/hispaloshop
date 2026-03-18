@@ -12,6 +12,7 @@ import logging
 from core.database import db
 from core.models import User, PageVisitRequest
 from core.auth import get_optional_user
+from utils.images import extract_product_image
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -152,7 +153,7 @@ async def get_stories(request: Request):
             preview = {"type": "post", "image": latest_post.get("image_url"), "text": (latest_post.get("caption") or "")[:60]}
             is_recent = True
         elif latest_product:
-            preview = {"type": "product", "image": (latest_product.get("images") or [None])[0], "text": latest_product.get("name", ""), "price": latest_product.get("price")}
+            preview = {"type": "product", "image": extract_product_image(latest_product), "text": latest_product.get("name", ""), "price": latest_product.get("price")}
 
         if preview:
             stories.append({

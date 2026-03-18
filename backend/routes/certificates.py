@@ -21,6 +21,7 @@ from core.constants import SUPPORTED_LANGUAGES
 
 TRANSLATION_LANGUAGES = ['en', 'es', 'fr', 'de', 'pt', 'ar', 'hi', 'zh', 'ja', 'ko', 'ru']
 from services.translation import TranslationService
+from utils.images import extract_product_image
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -144,7 +145,7 @@ async def verify_certificate(cert_id: str, lang: Optional[str] = "es"):
     cert["verified"] = True
     cert["language"] = target_lang
     if product:
-        cert.setdefault("product_image", (product.get("images") or [None])[0])
+        cert.setdefault("product_image", extract_product_image(product))
         if not cert.get("product_name"):
             cert["product_name"] = product.get("name", "")
         if not cert.get("country_origin"):

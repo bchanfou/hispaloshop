@@ -28,7 +28,7 @@ export default function CustomerOrders() {
   const fetchOrders = useCallback(async () => {
     try {
       const data = await apiClient.get('/customer/orders');
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : data?.orders || []);
     } catch (error) {
       toast.error(t('orders.loadError', 'Failed to load orders'));
     } finally {

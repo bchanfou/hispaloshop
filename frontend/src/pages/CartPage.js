@@ -480,7 +480,7 @@ export default function CartPage() {
                                   </button>
                                 </div>
                                 <p className="text-sm font-bold text-stone-950 md:text-base">
-                                  {convertAndFormatPrice(((item.unit_price_cents || item.price_cents || 0) / 100 || item.price || 0) * item.quantity, item.currency || 'EUR')}
+                                  {convertAndFormatPrice((item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0)) * item.quantity, item.currency || 'EUR')}
                                 </p>
                               </div>
                               <button

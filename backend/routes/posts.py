@@ -61,8 +61,6 @@ async def get_feed(
 # POST /posts creation is handled by social.py (accepts FormData + file uploads).
 # This router only handles feed queries and post interactions below.
 
-    return {"success": True, "data": post_doc}
-
 
 @router.get("/{post_id}")
 async def get_post_detail(

@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from core.database import get_db
 from core.auth import get_current_user
+from utils.images import extract_product_image
 
 router = APIRouter(tags=["B2B"])
 
@@ -592,7 +593,7 @@ async def get_producer_b2b_requests(
             "status": req.get("status", "pending"),
             "product_id": req.get("product_id"),
             "product_name": (product or {}).get("name", req.get("product_name", "Producto")),
-            "product_image": ((product or {}).get("images") or ["/placeholder.png"])[0],
+            "product_image": extract_product_image(product),
             "unit": (product or {}).get("unit", req.get("unit", "kg")),
             "quantity": req.get("quantity", 0),
             "unit_price": req.get("unit_price", 0),

@@ -8,6 +8,7 @@ import uuid
 
 from core.database import db
 from core.models import User
+from utils.images import extract_product_image
 from core.auth import get_current_user
 
 router = APIRouter()
@@ -42,7 +43,7 @@ async def get_wishlist(user: User = Depends(get_current_user)):
                 "added_at": e.get("added_at"),
                 "name": prod.get("name"),
                 "price": prod.get("price"),
-                "image": (prod.get("images") or prod.get("image_urls") or [None])[0],
+                "image": extract_product_image(prod),
             })
     return result
 

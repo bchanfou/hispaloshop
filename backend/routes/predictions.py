@@ -9,6 +9,7 @@ import logging
 from core.database import db
 from core.models import User
 from core.auth import get_current_user
+from utils.images import extract_product_image
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -72,10 +73,7 @@ def calculate_predictions(orders: list, products_map: dict) -> list:
         # Skip products that have been deleted or suspended (no longer purchasable)
         if not product_info or product_info.get("status") in ("deleted", "suspended_by_admin"):
             continue
-        image = None
-        images = product_info.get("images", [])
-        if images:
-            image = images[0]
+        image = extract_product_image(product_info)
         category = (product_info.get("category") or "default").lower()
         price = product_info.get("price", 0)
 

@@ -595,9 +595,9 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     except Exception as e:
         logger.error(f"[NOTIF] Failed notify_order_event for {order_id}: {e}")
 
-    producers = set(item["producer_id"] for item in order.get("line_items", []))
+    producers = set(item.get("producer_id") for item in order.get("line_items", []) if item.get("producer_id"))
     for producer_id in producers:
-        producer_items = [item for item in order["line_items"] if item["producer_id"] == producer_id]
+        producer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == producer_id]
         try:
             await send_new_order_email_to_producer(producer_id, order, producer_items)
         except Exception as e:
@@ -732,7 +732,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
 
     # Check email verification before checkout
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "email_verified": 1, "locale": 1})
-    if not user_doc.get("email_verified", False):
+    if not user_doc or not user_doc.get("email_verified", False):
         raise HTTPException(
             status_code=403, 
             detail="Please verify your email before placing an order. Check your email or request a new verification link."
@@ -803,10 +803,10 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         if variant_id and pack_id and product.get("variants"):
             # Find pack stock
             current_stock = 0
-            for variant in product["variants"]:
-                if variant["variant_id"] == variant_id:
+            for variant in (product.get("variants") or []):
+                if variant.get("variant_id") == variant_id:
                     for pack in variant.get("packs", []):
-                        if pack["pack_id"] == pack_id:
+                        if pack.get("pack_id") == pack_id:
                             current_stock = pack.get("stock", 0)
                             break
                     break

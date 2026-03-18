@@ -11,6 +11,7 @@ import re
 from core.database import db
 from core.auth import get_current_user, require_role
 from core.models import User, ReviewCreateInput
+from utils.images import extract_product_image
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ async def _build_shopping_list(recipe: Dict[str, object], servings_multiplier: f
                 "product_id": product.get("product_id"),
                 "name": product.get("name", ing.get("name", "")),
                 "price": product.get("price", 0),
-                "image": (product.get("images") or [None])[0],
+                "image": extract_product_image(product),
                 "quantity": quantity,
                 "producer_id": product.get("producer_id"),
                 "ingredient_name": ing.get("name", ""),
@@ -110,7 +111,7 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
                     "product_id": matched_product.get("product_id"),
                     "name": matched_product.get("name", ""),
                     "price": matched_product.get("price", 0),
-                    "image": (matched_product.get("images") or [None])[0],
+                    "image": extract_product_image(matched_product),
                 }
                 await _record_recipe_signal(
                     "recipe_ingredient_match",
@@ -175,7 +176,7 @@ async def get_ingredient_suggestions(q: str = Query(..., min_length=1), limit: i
                 "product_id": product.get("product_id"),
                 "name": product.get("name", ""),
                 "price": product.get("price", 0),
-                "image": (product.get("images") or [None])[0],
+                "image": extract_product_image(product),
             }
         ][:limit]
     }
@@ -206,7 +207,7 @@ async def get_recipe(recipe_id: str):
                 "product_id": prod.get("product_id"),
                 "name": prod.get("name", ""),
                 "price": prod.get("price", 0),
-                "image": (prod.get("images") or [None])[0],
+                "image": extract_product_image(prod),
             }
         enriched_ingredients.append(mapped)
     

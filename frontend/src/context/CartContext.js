@@ -266,8 +266,9 @@ export function CartProvider({ children }) {
 
   // Estimate only — backend cartSummary is the source of truth for checkout.
   // Do NOT use this for payment amounts. Only for UI display hints.
+  // Returns total in CENTS — callers must divide by 100 for display
   const getTotalPrice = useCallback(() => {
-    return cartItems.reduce((sum, item) => sum + (item.unit_price_cents || item.price || 0) * item.quantity, 0);
+    return cartItems.reduce((sum, item) => sum + (item.unit_price_cents || 0) * item.quantity, 0);
   }, [cartItems]);
 
   return (

@@ -238,7 +238,7 @@ async def get_products(
             # Find market for this country
             market = next((m for m in inv if m["country_code"] == country and m.get("active")), None)
             if market:
-                product["display_price"] = market.get("price", product["price"])
+                product["display_price"] = market.get("price", product.get("price", 0))
                 product["display_currency"] = market.get("currency", "EUR")
                 product["available_in_country"] = True
                 product["market_stock"] = market.get("stock", 0)
@@ -251,7 +251,7 @@ async def get_products(
                     product["display_currency"] = product.get("country_currency", {}).get(country, "EUR")
                     product["available_in_country"] = True
                 else:
-                    product["display_price"] = product["price"]
+                    product["display_price"] = product.get("price", 0)
                     product["display_currency"] = "EUR"
                     product["available_in_country"] = len(inv) == 0 and is_product_available_in_country(product, country)
         else:
@@ -324,7 +324,7 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
             product["display_price"] = country_prices[country]
             product["display_currency"] = product.get("country_currency", {}).get(country, "EUR")
         else:
-            product["display_price"] = product["price"]
+            product["display_price"] = product.get("price", 0)
             product["display_currency"] = "EUR"
     
     return product
@@ -651,16 +651,10 @@ async def get_product_variants(product_id: str):
     else:
         # Legacy system: use parent_product_id
         variants = await db.products.find(
-            {
-                "$or": [
-                    {"product_id": parent_id},
-                    {"parent_product_id": parent_id}
-                ],
-                "$or": [
-                    {"approved": True},
-                    {"status": "approved"}
-                ]
-            },
+            {"$and": [
+                {"$or": [{"product_id": parent_id}, {"parent_product_id": parent_id}]},
+                {"$or": [{"approved": True}, {"status": "approved"}]},
+            ]},
             {"_id": 0, "product_id": 1, "name": 1, "flavor": 1, "price": 1, "images": 1, "packs": 1}
         ).to_list(50)
     

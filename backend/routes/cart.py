@@ -401,11 +401,12 @@ async def apply_coupon(
     subtotal = sum(item.get("total_price_cents", 0) for item in cart["items"])
 
     discount_cents = 0
-    if coupon["type"] == "percentage":
-        discount_cents = subtotal * coupon["value"] // 100
-    elif coupon["type"] == "fixed":
-        discount_cents = int(coupon["value"] * 100)
-    elif coupon["type"] == "free_shipping":
+    coupon_type = coupon.get("type", "")
+    if coupon_type == "percentage":
+        discount_cents = subtotal * coupon.get("value", 0) // 100
+    elif coupon_type == "fixed":
+        discount_cents = int(coupon.get("value", 0) * 100)
+    elif coupon_type == "free_shipping":
         # Se maneja en checkout
         pass
 

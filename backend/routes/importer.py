@@ -11,6 +11,7 @@ import logging
 from core.database import db
 from core.models import User
 from core.auth import get_current_user, require_role
+from utils.images import extract_product_image
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -203,7 +204,7 @@ async def get_importer_b2b_orders(
             "id": rfq.get("rfq_id"),
             "producer_name": (producer or {}).get("company_name") or (producer or {}).get("full_name", "Productor"),
             "product_name": (product or {}).get("name", "Producto"),
-            "product_image": ((product or {}).get("images") or [None])[0],
+            "product_image": extract_product_image(product),
             "items_count": len(product_ids),
             "quantity": rfq.get("quantity", 0),
             "unit": rfq.get("unit", "uds"),

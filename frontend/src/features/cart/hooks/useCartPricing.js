@@ -14,7 +14,7 @@ export function useCartPricing(cartItems, appliedDiscount) {
   const pricingQuery = useCartPricingQuery({ enabled: Boolean(user) });
   const pricing = pricingQuery.data;
   const subtotalCents =
-    pricing?.subtotalCents || Math.round(cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100);
+    pricing?.subtotalCents || cartItems.reduce((sum, item) => sum + (item.unit_price_cents || 0) * item.quantity, 0);
   const shippingCents = pricing?.shippingCents || 0;
   const taxCents = pricing?.taxCents || 0;
   const taxRateBp = pricing?.taxRateBp || 2100;

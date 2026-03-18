@@ -22,6 +22,7 @@ from core.auth import get_current_user, get_optional_user
 from config import normalize_influencer_tier
 from services.cloudinary_storage import upload_image as cloudinary_upload, upload_video as cloudinary_upload_video
 from services.video_service import VideoService
+from utils.images import extract_product_image
 # NOTE: PostgreSQL fallback disabled - using MongoDB only for MVP
 # from database import AsyncSessionLocal
 # from models import Post as PgPost, User as PgUser
@@ -94,7 +95,7 @@ async def _hydrate_tagged_products(tag_refs: List[Dict[str, object]]) -> List[Di
                 "name": product.get("name", ""),
                 "price": product.get("price", 0),
                 "currency": product.get("currency", "EUR"),
-                "image": (product.get("images") or [None])[0],
+                "image": extract_product_image(product),
                 "producer_id": product.get("producer_id"),
                 "store_id": product.get("store_id"),
                 "position": {
@@ -2137,7 +2138,7 @@ async def search_products_for_content(q: str = Query(default="", min_length=0), 
                 "name": product.get("name", ""),
                 "price": product.get("price", 0),
                 "currency": product.get("currency", "EUR"),
-                "image": (product.get("images") or [None])[0],
+                "image": extract_product_image(product),
                 "producer_id": product.get("producer_id"),
             }
             for product in products

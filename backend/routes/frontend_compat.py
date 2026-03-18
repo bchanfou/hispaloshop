@@ -10,6 +10,7 @@ from core.auth import get_current_user, get_optional_user
 from core.config import settings
 from core.constants import SUPPORTED_COUNTRIES, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES
 from core.database import db
+from utils.images import extract_product_image
 from schemas.frontend_compat import (
     ExchangeRatesOut,
     FeedResponseOut,
@@ -453,7 +454,7 @@ async def get_feed(
                     "price": live_product.get("price", tagged_product.get("price", 0)),
                     "stock": live_product.get("stock", 0),
                     "in_stock": bool(live_product.get("stock", 0) > 0 or not live_product.get("track_stock", True)),
-                    "image": (live_product.get("images") or [tagged_product.get("image")])[0],
+                    "image": extract_product_image(live_product) or tagged_product.get("image"),
                 }
 
         hydrated_tags = []
@@ -470,7 +471,7 @@ async def get_feed(
                     **tag,
                     "name": live_product.get("name", tag.get("name", "")) if live_product else tag.get("name", ""),
                     "price": live_product.get("price", tag.get("price", 0)) if live_product else tag.get("price", 0),
-                    "image": (live_product.get("images") or [tag.get("image")])[0] if live_product else tag.get("image"),
+                    "image": extract_product_image(live_product) or tag.get("image") if live_product else tag.get("image"),
                 }
             )
 

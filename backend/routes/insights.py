@@ -342,13 +342,13 @@ async def get_insights_trends(user: User = Depends(get_current_user)):
     diet_trends = [
         {"tag": tag, "count": count, "percentage": round(count / total_insights * 100, 1)}
         for tag, count in sorted(diet_goals.items(), key=lambda x: -x[1])[:10]
-    ] if total_insights >= threshold else []
-    
+    ] if total_insights > 0 and total_insights >= threshold else []
+
     # Top fear signals (only if above threshold)
     fear_trends = [
         {"tag": tag, "count": count, "percentage": round(count / total_insights * 100, 1)}
         for tag, count in sorted(fears.items(), key=lambda x: -x[1])[:10]
-    ] if total_insights >= threshold else []
+    ] if total_insights > 0 and total_insights >= threshold else []
     
     # Product interest trends
     product_trends = [
