@@ -4,6 +4,7 @@ Preferences, Notifications, and Influencer AI Assistant.
 Extracted from server.py.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks
+from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone, timedelta
 import uuid
