@@ -28,15 +28,22 @@ _cloud_name = _get_cloud_var("CLOUDINARY_CLOUD_NAME")
 _api_key = _get_cloud_var("CLOUDINARY_API_KEY")
 _api_secret = _get_cloud_var("CLOUDINARY_API_SECRET")
 
+# Clear any CLOUDINARY_URL from environment — it overrides explicit config
+# and may contain placeholder values from Railway addons
+if "CLOUDINARY_URL" in os.environ:
+    logger.warning("[CLOUDINARY] Removing CLOUDINARY_URL from env to prevent override")
+    del os.environ["CLOUDINARY_URL"]
+
 cloudinary.config(
     cloud_name=_cloud_name,
     api_key=_api_key,
     api_secret=_api_secret,
-    secure=True
+    secure=True,
+    upload_preset=None,
 )
 
-if _cloud_name:
-    logger.info(f"[CLOUDINARY] Configured with cloud_name={_cloud_name}")
+if _cloud_name and _api_key and _api_secret:
+    logger.info(f"[CLOUDINARY] Configured with cloud_name={_cloud_name}, signed uploads enabled")
 else:
     logger.warning("[CLOUDINARY] NOT CONFIGURED — uploads will fail")
 
