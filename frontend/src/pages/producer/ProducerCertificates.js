@@ -52,7 +52,7 @@ const ProgressSteps = ({ currentStep, steps }) => (
               ? 'bg-stone-950 border-stone-950 text-white'
               : idx === currentStep
                 ? 'border-stone-950 text-stone-950 bg-white'
-                : 'border-stone-300 text-stone-400 bg-white'
+                : 'border-stone-200 text-stone-400 bg-white'
           }`}>
             {idx < currentStep ? (
               <Check className="w-5 h-5" />
@@ -151,9 +151,7 @@ export default function ProducerCertificates() {
       const uploadFormData = new FormData();
       uploadFormData.append('file', file);
 
-      const response = await apiClient.post('/upload', uploadFormData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const response = await apiClient.post('/upload', uploadFormData);
 
       setFormData(prev => ({
         ...prev,
@@ -345,7 +343,7 @@ export default function ProducerCertificates() {
                     <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
                       formData.document_url 
                         ? 'border-stone-200 bg-stone-100'
-                        : 'border-stone-300 hover:border-stone-950 hover:bg-stone-50'
+                        : 'border-stone-200 hover:border-stone-950 hover:bg-stone-50'
                     }`}>
                       {formData.document_url ? (
                         <div className="flex flex-col items-center">

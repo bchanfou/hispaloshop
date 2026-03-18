@@ -219,9 +219,7 @@ export default function SignatureSettingsPage() {
 
     setSaving(true);
     try {
-      const result = await apiClient.post('/users/me/signature', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const result = await apiClient.post('/users/me/signature', fd);
       toast.success('Firma guardada');
       setExistingSig(result?.signature_url || existingSig);
       setConfiguredAt(result?.configured_at || new Date().toISOString());

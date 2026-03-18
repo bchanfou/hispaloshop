@@ -79,7 +79,7 @@ export default function HeroSection({
               <Link
                 to="/info/productor"
                 onClick={onSecondaryCtaClick}
-                className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-stone-300 bg-transparent px-6 py-3 text-sm font-medium text-stone-950 transition-colors duration-200 hover:border-stone-400 hover:bg-white"
+                className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-stone-200 bg-transparent px-6 py-3 text-sm font-medium text-stone-950 transition-colors duration-200 hover:border-stone-400 hover:bg-white"
               >
               Quiero vender
               </Link>

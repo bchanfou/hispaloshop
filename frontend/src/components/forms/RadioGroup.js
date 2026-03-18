@@ -20,7 +20,7 @@ const RadioGroup = ({ options, value, onChange, columns = 1 }) => {
             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
               isSelected 
                 ? 'border-stone-950' 
-                : 'border-stone-300'
+                : 'border-stone-200'
             }`}>
               {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-stone-950" />}
             </div>

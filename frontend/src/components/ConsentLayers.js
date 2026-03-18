@@ -225,7 +225,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
               <button
                 type="button"
                 onClick={() => setShowConfirm(true)}
-                className="px-4 py-2 text-sm font-medium text-stone-700 border border-stone-300 hover:bg-stone-100 rounded-xl transition-colors"
+                className="px-4 py-2 text-sm font-medium text-stone-700 border border-stone-200 hover:bg-stone-100 rounded-xl transition-colors"
                 data-testid="withdraw-consent-btn"
               >
                 {t('consent.layer3.withdrawButton')}

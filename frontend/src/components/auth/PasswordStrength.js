@@ -44,7 +44,7 @@ const PasswordStrength = ({ password }) => {
       <div className="grid grid-cols-2 gap-2">
         {requirements.map(([label, met]) => (
           <div key={label} className="flex items-center gap-1.5">
-            {met ? <Check className="h-3.5 w-3.5 text-stone-950" /> : <div className="h-3.5 w-3.5 rounded-full border border-stone-300" />}
+            {met ? <Check className="h-3.5 w-3.5 text-stone-950" /> : <div className="h-3.5 w-3.5 rounded-full border border-stone-200" />}
             <span className={`text-xs ${met ? 'text-stone-950' : 'text-stone-500'}`}>{label}</span>
           </div>
         ))}

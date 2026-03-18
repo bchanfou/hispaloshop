@@ -303,17 +303,24 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       >
         {/* Avatar + follow */}
         <div className="relative flex flex-col items-center">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={reel.user?.name || 'Usuario'}
-              className="w-10 h-10 rounded-full object-cover border-2 border-white bg-stone-800"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full border-2 border-white bg-stone-800 flex items-center justify-center text-sm font-bold text-white">
-              {(reel.user?.name || '?')[0].toUpperCase()}
-            </div>
-          )}
+          <div
+            onClick={(e) => { e.stopPropagation(); navigate(`/${reel.user?.username || reel.user?.id}`); }}
+            className="cursor-pointer"
+            role="link"
+            aria-label={`Ver perfil de ${reel.user?.name || 'usuario'}`}
+          >
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={reel.user?.name || 'Usuario'}
+                className="w-10 h-10 rounded-full object-cover border-2 border-white bg-stone-800"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full border-2 border-white bg-stone-800 flex items-center justify-center text-sm font-bold text-white">
+                {(reel.user?.name || '?')[0].toUpperCase()}
+              </div>
+            )}
+          </div>
           {(() => {
             const reelUserId = reel.user?.id || reel.user?.user_id;
             const isOwnReel = currentUser && reelUserId && (currentUser.id === reelUserId || currentUser.user_id === reelUserId);
@@ -407,7 +414,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       >
         <button
           className="text-[15px] font-semibold text-white font-sans mb-1.5 bg-transparent border-none p-0 cursor-pointer text-left"
-          onClick={() => reel.user?.id && navigate(`/profile/${reel.user.id}`)}
+          onClick={() => navigate(`/${reel.user?.username || reel.user?.id}`)}
           aria-label={`Ver perfil de ${reel.user?.name || 'usuario'}`}
         >
           {reel.user?.name}

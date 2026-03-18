@@ -9,7 +9,7 @@ const icons = {
 
 const styles = {
   success: 'bg-stone-700 text-white border-stone-800',
-  error: 'bg-stone-900 text-white border-stone-950',
+  error: 'bg-stone-950 text-white border-stone-950',
   warning: 'bg-stone-600 text-white border-stone-700',
   info: 'bg-stone-500 text-white border-stone-600',
 };

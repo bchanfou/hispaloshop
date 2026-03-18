@@ -210,7 +210,7 @@ function RequestCard({ request, onAction }) {
 
         {/* Importer notes */}
         {request.notes && (
-          <div className="bg-stone-50 rounded-xl p-3 mb-3 border-l-3 border-stone-300">
+          <div className="bg-stone-50 rounded-xl p-3 mb-3 border-l-3 border-stone-200">
             <p className="text-[11px] font-bold text-stone-500 mb-1">Nota del importador:</p>
             <p className="text-sm text-stone-700">"{request.notes}"</p>
           </div>

@@ -679,7 +679,7 @@ export default function CustomerProfile() {
                   id="is_default"
                   checked={addressForm.is_default}
                   onChange={(e) => setAddressForm({...addressForm, is_default: e.target.checked})}
-                  className="rounded border-stone-300"
+                  className="rounded border-stone-200"
                 />
                 <label htmlFor="is_default" className="text-sm text-stone-500">
                   {t('checkout.setAsDefault', 'Set as default address')}

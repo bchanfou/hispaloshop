@@ -305,20 +305,27 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2">
-        {(user?.avatar_url || user?.avatar || user?.profile_image) ? (
-          <img
-            src={user.avatar_url || user.avatar || user.profile_image}
-            alt={`Avatar de ${user?.name || user?.username || 'usuario'}`}
-            className="w-8 h-8 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center text-white text-xs font-semibold">
-            {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
-          </div>
-        )}
-        <span className="text-sm font-semibold text-white font-sans">
-          {user?.name || user?.username}
-        </span>
+        <div
+          onClick={(e) => { e.stopPropagation(); onClose(); navigate(`/${user?.username || user?.id || user?.user_id}`); }}
+          className="flex items-center gap-2 cursor-pointer"
+          role="link"
+          aria-label={`Ver perfil de ${user?.name || user?.username}`}
+        >
+          {(user?.avatar_url || user?.avatar || user?.profile_image) ? (
+            <img
+              src={user.avatar_url || user.avatar || user.profile_image}
+              alt={`Avatar de ${user?.name || user?.username || 'usuario'}`}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center text-white text-xs font-semibold">
+              {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
+            </div>
+          )}
+          <span className="text-sm font-semibold text-white font-sans">
+            {user?.name || user?.username}
+          </span>
+        </div>
         <span className="text-xs text-white/60 font-sans">
           {timeAgo(currentItem?.created_at)}
         </span>

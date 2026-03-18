@@ -107,10 +107,34 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
     lastTapRef.current = now;
   }, [liked, onLike, post.id]);
 
-  const handleSave = useCallback(() => {
-    setSaved((s) => !s);
-    onSave?.(post.id);
-  }, [onSave, post.id]);
+  const handleSave = useCallback(async () => {
+    const next = !saved;
+    setSaved(next);
+    try {
+      if (next) {
+        await apiClient.post(`/posts/${post.id}/save`);
+      } else {
+        await apiClient.delete(`/posts/${post.id}/save`);
+      }
+      onSave?.(post.id);
+    } catch {
+      setSaved(!next); // rollback
+      toast.error('Error al guardar');
+    }
+  }, [saved, onSave, post.id]);
+
+  const handleShare = useCallback(async () => {
+    const url = `${window.location.origin}/posts/${post.id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: captionText?.slice(0, 60) || 'Post', url });
+      } else {
+        await navigator.clipboard?.writeText(url);
+        toast.success('Enlace copiado');
+      }
+    } catch {}
+    onShare?.(post.id);
+  }, [post.id, captionText, onShare]);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -270,9 +294,12 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
       {/* ---- Header ---- */}
       <div className="flex items-center gap-2.5 px-4 py-3">
         <div
-          className={`flex shrink-0 items-center justify-center rounded-full ${
+          onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
+          className={`flex shrink-0 items-center justify-center rounded-full cursor-pointer ${
             hasStory ? 'h-9 w-9 bg-stone-950 p-0.5' : 'h-9 w-9'
           }`}
+          role="link"
+          aria-label={`Ver perfil de ${user.name}`}
         >
           {avatarUrl ? (
             <img
@@ -292,7 +319,13 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
         </div>
 
         <div className="flex flex-1 flex-wrap items-center gap-1 min-w-0">
-          <span className="text-sm font-semibold text-stone-950 whitespace-nowrap">{user.name}</span>
+          <span
+            onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
+            className="text-sm font-semibold text-stone-950 whitespace-nowrap cursor-pointer"
+            role="link"
+          >
+            {user.name}
+          </span>
           {user.username && (
             <span className="text-xs text-stone-500 whitespace-nowrap">@{user.username}</span>
           )}
@@ -434,7 +467,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
 
         <button
           className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-500 transition-transform duration-150"
-          onClick={() => onShare?.(post.id)}
+          onClick={handleShare}
           aria-label="Compartir"
         >
           <Share2 size={24} />

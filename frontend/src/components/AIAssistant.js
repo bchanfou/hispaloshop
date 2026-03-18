@@ -101,7 +101,7 @@ function ChatProductCard({ product, onAddToCart, isAdding, convertAndFormatPrice
     // Compact version for mobile horizontal scroll
     return (
       <div 
-        className="bg-stone-50 rounded-md border border-stone-300 overflow-hidden"
+        className="bg-stone-50 rounded-md border border-stone-200 overflow-hidden"
         data-testid={`chat-product-${product.product_id}`}
       >
         <Link to={`/products/${product.product_id}`}>
@@ -135,7 +135,7 @@ function ChatProductCard({ product, onAddToCart, isAdding, convertAndFormatPrice
   
   return (
     <div 
-      className="bg-stone-50 rounded-md border border-stone-300 overflow-hidden hover:shadow-card transition-shadow"
+      className="bg-stone-50 rounded-md border border-stone-200 overflow-hidden hover:shadow-card transition-shadow"
       data-testid={`chat-product-${product.product_id}`}
     >
       <Link to={`/products/${product.product_id}`}>
@@ -146,7 +146,7 @@ function ChatProductCard({ product, onAddToCart, isAdding, convertAndFormatPrice
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-stone-950/5 transition-colors flex items-center justify-center">
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 px-3 py-1 rounded-full text-xs font-medium text-stone-950 border border-stone-300">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 px-3 py-1 rounded-full text-xs font-medium text-stone-950 border border-stone-200">
               View Details
             </span>
           </div>
@@ -179,7 +179,7 @@ function ChatProductCard({ product, onAddToCart, isAdding, convertAndFormatPrice
         <button
           onClick={() => onAddToCart(product)}
           disabled={isAdding}
-          className="w-full bg-transparent border border-stone-300 text-stone-950 hover:border-stone-950 hover:bg-stone-950 hover:text-white rounded-full text-xs py-2 font-medium transition-all"
+          className="w-full bg-transparent border border-stone-200 text-stone-950 hover:border-stone-950 hover:bg-stone-950 hover:text-white rounded-full text-xs py-2 font-medium transition-all"
           data-testid={`add-to-cart-${product.product_id}`}
         >
           {t('products.addToCart')}
@@ -767,7 +767,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                         <button
                           key={chip.label}
                           onClick={() => handleChipClick(chip.query)}
-                          className="text-xs bg-white text-stone-600 px-4 py-2 rounded-full border border-stone-300 hover:border-stone-950 hover:text-stone-950 transition-colors"
+                          className="text-xs bg-white text-stone-600 px-4 py-2 rounded-full border border-stone-200 hover:border-stone-950 hover:text-stone-950 transition-colors"
                         >
                           {chip.label}
                         </button>
@@ -778,7 +778,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                         <button
                           key={chip.label}
                           onClick={() => handleChipClick(chip.query)}
-                          className="text-xs bg-white text-stone-600 px-4 py-2 rounded-full border border-stone-300 hover:border-stone-950 hover:text-stone-950 transition-colors"
+                          className="text-xs bg-white text-stone-600 px-4 py-2 rounded-full border border-stone-200 hover:border-stone-950 hover:text-stone-950 transition-colors"
                         >
                           {chip.label}
                         </button>
@@ -840,7 +840,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                   placeholder={t('ai.placeholder')}
-                  className="flex-1 bg-stone-50 border border-stone-300 rounded-full px-3 md:px-4 py-2 md:py-2.5 text-sm text-stone-950 placeholder:text-stone-500 focus:outline-none focus:border-stone-950 transition-colors"
+                  className="flex-1 bg-stone-50 border border-stone-200 rounded-full px-3 md:px-4 py-2 md:py-2.5 text-sm text-stone-950 placeholder:text-stone-500 focus:outline-none focus:border-stone-950 transition-colors"
                   disabled={loading || isChunking}
                   data-testid="chat-input"
                 />
@@ -861,7 +861,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
 
           {/* Product Recommendations Panel - Hidden on mobile, shown on desktop */}
           {recommendedProducts.length > 0 && !isMobile && (
-            <div className="border-l border-stone-300 bg-stone-50 flex flex-col" style={{ width: '380px' }}>
+            <div className="border-l border-stone-200 bg-stone-50 flex flex-col" style={{ width: '380px' }}>
               {/* Products Header */}
               <div className="p-4 border-b border-stone-200 bg-white">
                 <div className="flex items-center justify-between">

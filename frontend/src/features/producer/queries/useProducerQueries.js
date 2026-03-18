@@ -56,7 +56,6 @@ export function useUploadProducerImageMutation() {
       formData.append('file', file);
 
       const data = await apiClient.post('/upload/product-image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 30000,
       });
 

@@ -436,7 +436,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       <div>
         {tabBar}
         <div className="flex flex-col items-center py-16 text-center">
-          <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-2 border-stone-300">
+          <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-2 border-stone-200">
             <Lock size={28} className="text-stone-400" />
           </div>
           <p className="text-[15px] font-semibold text-stone-950">Esta cuenta es privada</p>
@@ -457,7 +457,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
         <div ref={sentinelRef} className="h-4" />
         {loading[activeTab] && data[activeTab]?.length > 0 && (
           <div className="flex justify-center py-4">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-600" />
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ShoppingCart, Search, ChevronDown, LogOut, LayoutDashboard, Settings, Menu } from 'lucide-react';
+import { Bell, ShoppingCart, Search, ChevronDown, LogOut, LayoutDashboard, Settings, Menu, User } from 'lucide-react';
 import HamburgerMenu from './HamburgerMenu';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -355,6 +355,7 @@ export default function AppHeader() {
 
                 {/* Links */}
                 <div style={{ padding: '6px' }}>
+                  <DropdownLink to={user?.username ? `/${user.username.toLowerCase()}` : '/profile'} icon={<User size={16} />} label="Mi perfil" onClick={() => setDropdownOpen(false)} />
                   <DropdownLink to={dashboardUrl} icon={<LayoutDashboard size={16} />} label="Mi panel" onClick={() => setDropdownOpen(false)} />
                   <DropdownLink to="/settings/locale" icon={<Settings size={16} />} label="Configuración" onClick={() => setDropdownOpen(false)} />
                 </div>

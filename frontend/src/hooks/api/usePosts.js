@@ -161,9 +161,7 @@ export function useUploadReel() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (formData) => apiClient.post('/reels', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    mutationFn: (formData) => apiClient.post('/reels', formData),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POST_KEYS.reels });
@@ -215,9 +213,7 @@ export function useCreateStory() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (formData) => apiClient.post('/stories', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    mutationFn: (formData) => apiClient.post('/stories', formData),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POST_KEYS.stories });

@@ -263,7 +263,7 @@ function fieldClass(hasError, isValid) {
   if (isValid) {
     return 'border-stone-400 focus:outline-none focus:border-stone-950';
   }
-  return 'border-stone-300 focus:outline-none focus:border-stone-950';
+  return 'border-stone-200 focus:outline-none focus:border-stone-950';
 }
 
 function StatusIcon({ valid }) {
@@ -303,7 +303,7 @@ function ProgressDots({ step, success }) {
             const label = point === 1 ? 'Quién eres' : point === 2 ? 'Tu producción' : 'Confirma tu plan';
             return (
               <div key={label} className="flex flex-col items-center gap-2">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-300 bg-white text-stone-500'}`}>
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-500'}`}>
                   {point}
                 </div>
                 <span className={`hidden text-[11px] font-medium sm:block ${active ? 'text-stone-700' : 'text-stone-400'}`}>{label}</span>
@@ -759,7 +759,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           <select
             value={formData.phonePrefix}
             onChange={(event) => updateField('phonePrefix', event.target.value)}
-            className="h-12 rounded-[10px] border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] focus:outline-none focus:border-stone-950"
+            className="h-12 rounded-[10px] border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] focus:outline-none focus:border-stone-950"
           >
             {PHONE_PREFIXES.map((prefix) => (
               <option key={prefix.value} value={prefix.value}>
@@ -937,7 +937,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 className={`flex w-full items-center justify-between rounded-[14px] border px-4 py-3 text-sm font-semibold transition ${formData.references === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
               >
                 <span>{option}</span>
-                <span className={`h-3 w-3 rounded-full border ${formData.references === option ? 'border-stone-950 bg-stone-950' : 'border-stone-300 bg-white'}`} />
+                <span className={`h-3 w-3 rounded-full border ${formData.references === option ? 'border-stone-950 bg-stone-950' : 'border-stone-200 bg-white'}`} />
               </button>
             ))}
           </div>
@@ -1081,7 +1081,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-stone-100 text-stone-500 shadow-[0_18px_44px_-26px_rgba(28,28,28,0.25)]">
             <CircleCheckBig className="h-10 w-10" />
           </div>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-stone-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
             <Sparkles className="h-4 w-4 text-stone-500" />
             Infraestructura activada
           </div>
@@ -1118,7 +1118,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 clearFlow();
                 navigate('/producer/products');
               }}
-              className="rounded-2xl border border-stone-300 px-6 py-4 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
+              className="rounded-2xl border border-stone-200 px-6 py-4 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
             >
               Ver guía rápida para subir mi primer producto
             </button>
@@ -1233,7 +1233,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                             <button
                               type="button"
                               onClick={() => setStep((current) => Math.max(current - 1, 1))}
-                              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
+                              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-stone-200 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
                             >
                               <ArrowLeft className="h-4 w-4" />
                               Atrás

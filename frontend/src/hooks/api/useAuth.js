@@ -109,9 +109,7 @@ export function useOAuthLogin() {
 export function useVerifyDocument() {
   return useMutation({
     mutationFn: (formData) =>
-      apiClient.post('/auth/verify-document', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }),
+      apiClient.post('/auth/verify-document', formData),
   });
 }
 

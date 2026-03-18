@@ -88,7 +88,7 @@ const TestimonialCarousel = ({ testimonials = [] }) => {
                 aria-selected={index === current}
                 aria-label={`Testimonio ${index + 1}`}
                 className={`h-2 w-2 rounded-full transition-colors ${
-                  index === current ? 'bg-stone-900' : 'bg-stone-300'
+                  index === current ? 'bg-stone-950' : 'bg-stone-300'
                 }`}
               />
             ))}

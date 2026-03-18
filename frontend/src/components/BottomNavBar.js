@@ -229,7 +229,7 @@ export default function BottomNavBar() {
     }
   };
 
-  const profileUsername = user?.username || null;
+  const profileUsername = user?.username?.toLowerCase() || null;
   const profileUserId = user?.user_id || user?.id || null;
   const profileUrl   = profileUsername ? `/${profileUsername}` : (profileUserId ? `/profile/${profileUserId}` : '/login');
   const profileImage = user?.profile_image || user?.avatar_url || null;
@@ -239,8 +239,8 @@ export default function BottomNavBar() {
   const isReels      = location.pathname.startsWith('/reels');
   const isChatActive = activePanel === 'chat';
   const isProfile    = profileUsername
-    ? (location.pathname === `/${profileUsername}` || location.pathname.startsWith('/profile/'))
-    : (location.pathname === '/profile' || location.pathname.startsWith('/profile/'));
+    ? (location.pathname.toLowerCase() === `/${profileUsername}` || location.pathname.startsWith('/profile/') || location.pathname.startsWith('/settings/'))
+    : (location.pathname === '/profile' || location.pathname.startsWith('/profile/') || location.pathname.startsWith('/settings/'));
 
 
   return (

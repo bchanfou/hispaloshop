@@ -183,9 +183,7 @@ export default function ProducerVerificationPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await apiClient.post('/verification/cif-nif', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const res = await apiClient.post('/verification/cif-nif', fd);
       await fetchStatus();
     } catch (err) {
       console.error(err);
@@ -199,9 +197,7 @@ export default function ProducerVerificationPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      await apiClient.post('/verification/facility-photo', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await apiClient.post('/verification/facility-photo', fd);
       await fetchStatus();
     } catch (err) {
       console.error(err);
@@ -216,9 +212,7 @@ export default function ProducerVerificationPage() {
       const fd = new FormData();
       fd.append('file', file);
       fd.append('cert_type', selectedCertType);
-      await apiClient.post('/verification/certificate', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await apiClient.post('/verification/certificate', fd);
       await fetchStatus();
     } catch (err) {
       console.error(err);

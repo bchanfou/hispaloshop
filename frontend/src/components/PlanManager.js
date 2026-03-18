@@ -81,7 +81,7 @@ export default function PlanManager() {
         )}
 
         {isPastDue && plan.grace_period_ends_at && (
-          <div className="flex items-center gap-2 text-sm text-stone-700 bg-stone-100 border border-stone-300 rounded-xl p-3 mb-3">
+          <div className="flex items-center gap-2 text-sm text-stone-700 bg-stone-100 border border-stone-200 rounded-xl p-3 mb-3">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             Tu pago fallo. Tienes hasta el {new Date(plan.grace_period_ends_at).toLocaleDateString('es-ES')} para regularizarlo o seras degradado a FREE.
           </div>

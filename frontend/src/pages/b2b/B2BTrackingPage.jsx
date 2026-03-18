@@ -167,9 +167,7 @@ export default function B2BTrackingPage() {
     fd.append('file', file);
     fd.append('document_type', docName);
     try {
-      await apiClient.post(`/b2b/operations/${operationId}/documents`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await apiClient.post(`/b2b/operations/${operationId}/documents`, fd);
       toast.success('Documento subido');
       fetchDocuments();
     } catch {
@@ -184,9 +182,7 @@ export default function B2BTrackingPage() {
     fd.append('file', file);
     fd.append('document_type', file.name);
     try {
-      await apiClient.post(`/b2b/operations/${operationId}/documents`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await apiClient.post(`/b2b/operations/${operationId}/documents`, fd);
       toast.success('Documento subido');
       fetchDocuments();
     } catch {

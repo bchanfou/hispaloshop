@@ -31,7 +31,7 @@ export default class AppErrorBoundary extends React.Component {
             <button
               type="button"
               onClick={this.handleRetry}
-              className="w-full rounded-full bg-stone-900 text-white px-4 py-3 text-sm font-medium hover:bg-stone-800 transition-colors"
+              className="w-full rounded-full bg-stone-950 text-white px-4 py-3 text-sm font-medium hover:bg-stone-900 transition-colors"
             >
               Volver al inicio
             </button>

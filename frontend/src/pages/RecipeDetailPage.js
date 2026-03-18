@@ -138,7 +138,17 @@ export default function RecipeDetailPage() {
         onBack={() => navigate(-1)}
         right={
           <button
-            onClick={() => setSaved(!saved)}
+            onClick={async () => {
+              const next = !saved;
+              setSaved(next);
+              try {
+                if (next) await apiClient.post(`/recipes/${recipeId}/save`);
+                else await apiClient.delete(`/recipes/${recipeId}/save`);
+              } catch {
+                setSaved(!next);
+                toast.error('Error al guardar');
+              }
+            }}
             aria-label={saved ? 'Quitar guardado' : 'Guardar receta'}
             className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
           >

@@ -165,7 +165,7 @@ export default function LocaleSelector({ compact = false }) {
                 onClick={() => onSelect(code)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                   selectedValue === code
-                    ? 'bg-stone-100 border border-stone-300'
+                    ? 'bg-stone-100 border border-stone-200'
                     : 'hover:bg-stone-100'
                 }`}
                 data-testid={`mobile-option-${code}`}
@@ -395,7 +395,7 @@ export default function LocaleSelector({ compact = false }) {
       )}
 
       <AlertDialog open={showCountryWarning} onOpenChange={setShowCountryWarning}>
-        <AlertDialogContent className="bg-stone-50 border-stone-300">
+        <AlertDialogContent className="bg-stone-50 border-stone-200">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl text-stone-950">
               {t('locale.countryChange')}

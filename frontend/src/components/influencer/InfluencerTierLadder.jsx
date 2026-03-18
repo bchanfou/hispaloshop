@@ -25,7 +25,7 @@ export default function InfluencerTierLadder({ tiers }) {
                 </div>
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <h3 className="text-xl font-semibold text-stone-950">{tier.name}</h3>
-                  <span className="rounded-full bg-stone-900 px-3 py-1 text-sm font-semibold text-white">
+                  <span className="rounded-full bg-stone-950 px-3 py-1 text-sm font-semibold text-white">
                     {tier.rate}
                   </span>
                 </div>

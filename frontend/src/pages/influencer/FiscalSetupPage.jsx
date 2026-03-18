@@ -141,9 +141,7 @@ export default function FiscalSetupPage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('tax_country', country);
-      const res = await apiClient.post('/influencer/fiscal/certificate', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const res = await apiClient.post('/influencer/fiscal/certificate', formData);
       if (res.status === 'verified') {
         setCertStatus('verified');
         toast.success('Certificado verificado');

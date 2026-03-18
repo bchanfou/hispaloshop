@@ -164,9 +164,7 @@ export function useUploadUserAvatarMutation() {
     mutationFn: ({ file }) => {
       const formData = new FormData();
       formData.append('file', file);
-      return apiClient.post('/users/upload-avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      return apiClient.post('/users/upload-avatar', formData);
     },
     onSuccess: (data, { userId }) => {
       queryClient.setQueryData(userKeys.profile(userId), (current) =>
@@ -189,9 +187,7 @@ export function useCreateUserPostMutation(userId) {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('caption', caption);
-      return apiClient.post('/posts', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      return apiClient.post('/posts', formData);
     },
     onSuccess: (newPost) => {
       queryClient.setQueryData(userKeys.posts(userId), (current) =>

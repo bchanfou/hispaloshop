@@ -34,7 +34,7 @@ self.addEventListener('notificationclick', (event) => {
   if (!url || url === '/') {
     if (data.type === 'chat' && data.conversation_id) {
       url = '/dashboard?openChat=true';
-    } else if (data.type === 'order_confirmed') {
+    } else if (data.type === 'order_confirmed' || data.type === 'new_order') {
       url = '/producer/orders';
     } else if (data.type === 'commission_earned') {
       url = '/influencer/dashboard';

@@ -95,7 +95,7 @@ export default function SideNav() {
           onClick={() => window.dispatchEvent(new CustomEvent('open-creator'))}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-950"
         >
-          <div className="flex h-5 w-5 items-center justify-center rounded-md border border-stone-300">
+          <div className="flex h-5 w-5 items-center justify-center rounded-md border border-stone-200">
             <Plus className="h-3.5 w-3.5 text-stone-700" strokeWidth={2.2} />
           </div>
           <span>{t('nav.create', 'Crear')}</span>

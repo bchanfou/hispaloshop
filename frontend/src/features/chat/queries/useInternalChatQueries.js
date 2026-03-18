@@ -58,9 +58,7 @@ export function useInternalChatUploadImage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('conversation_id', conversationId);
-      return apiClient.post('/internal-chat/upload-image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      return apiClient.post('/internal-chat/upload-image', formData);
     },
   });
 }

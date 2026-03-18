@@ -125,7 +125,7 @@ function loadStripeJs() {
 function fieldClass(hasError, isValid) {
   if (hasError) return 'border-stone-700 focus:outline-none focus:border-stone-950';
   if (isValid) return 'border-stone-400 focus:outline-none focus:border-stone-950';
-  return 'border-stone-300 focus:outline-none focus:border-stone-950';
+  return 'border-stone-200 focus:outline-none focus:border-stone-950';
 }
 
 function StatusIcon({ valid }) {
@@ -536,7 +536,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           <select
             value={formData.phonePrefix}
             onChange={(event) => updateField('phonePrefix', event.target.value)}
-            className="h-12 rounded-xl border border-stone-300 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
+            className="h-12 rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
           >
             {PHONE_PREFIXES.map((prefix) => <option key={prefix.value} value={prefix.value}>{prefix.label}</option>)}
           </select>
@@ -603,7 +603,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 key={type}
                 type="button"
                 onClick={() => toggleProductType(type)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
               >
                 {type}
               </button>
@@ -636,13 +636,13 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
             <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Empresa constituida</p>
               <p className="mt-2 text-sm text-stone-600">Lo usamos para facturación y aprobación comercial.</p>
           </div>
-          <div className="inline-flex rounded-full border border-stone-300 bg-white p-1">
+          <div className="inline-flex rounded-full border border-stone-200 bg-white p-1">
             {[{ label: 'Si', value: true }, { label: 'No', value: false }].map((option) => (
               <button
                 key={option.label}
                 type="button"
                 onClick={() => updateField('hasCompany', option.value)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${formData.hasCompany === option.value ? 'bg-stone-900 text-white' : 'text-stone-600'}`}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${formData.hasCompany === option.value ? 'bg-stone-950 text-white' : 'text-stone-600'}`}
               >
                 {option.label}
               </button>
@@ -799,7 +799,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               clearFlow();
               redirectAfterAuth(activeUser, navigate);
             }}
-            className="rounded-2xl bg-stone-900 px-6 py-4 text-sm font-semibold text-white transition hover:bg-stone-800"
+            className="rounded-2xl bg-stone-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-stone-900"
           >
             Ir a mi Dashboard
           </button>
@@ -810,7 +810,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               clearFlow();
               navigate('/b2b/marketplace');
             }}
-            className="rounded-2xl border border-stone-300 px-6 py-4 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
+            className="rounded-2xl border border-stone-200 px-6 py-4 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
           >
             Ver catálogo de productores disponibles
           </button>
@@ -875,9 +875,9 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                       <div className="mt-10 flex flex-col gap-3 border-t border-stone-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
                         <div className="text-sm text-stone-500">{step === 1 ? 'Te pedimos solo lo necesario para no empezar con fricción.' : step === 2 ? 'Esto nos permite darte de alta como importador real.' : 'Configurando tu infraestructura comercial.'}</div>
                         <div className="flex flex-col gap-3 sm:flex-row">
-                          {step > 1 ? <button type="button" onClick={() => setStep((current) => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"><ArrowLeft className="h-4 w-4" />Atrás</button> : null}
+                          {step > 1 ? <button type="button" onClick={() => setStep((current) => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-stone-200 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"><ArrowLeft className="h-4 w-4" />Atrás</button> : null}
                           {step < 3 ? (
-                            <button type="button" onClick={proceed} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800">
+                            <button type="button" onClick={proceed} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-900">
                               Continuar
                               <ArrowRight className="h-4 w-4" />
                             </button>

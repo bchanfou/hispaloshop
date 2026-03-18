@@ -48,7 +48,7 @@ export default function FollowStep({ onBack, onComplete, onError }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-300 border-t-stone-900" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-stone-900" />
       </div>
     );
   }
@@ -87,7 +87,7 @@ export default function FollowStep({ onBack, onComplete, onError }) {
                   {user.country ? <p className="mt-1 text-xs text-stone-500">Mercado: {user.country}</p> : null}
                   {user.followers_count > 0 ? <p className="mt-1 text-xs text-stone-500">{user.followers_count.toLocaleString()} seguidores</p> : null}
                 </div>
-                <div className={`h-6 w-6 rounded-full border-2 ${active ? 'border-stone-950 bg-stone-950' : 'border-stone-300 bg-white'}`} />
+                <div className={`h-6 w-6 rounded-full border-2 ${active ? 'border-stone-950 bg-stone-950' : 'border-stone-200 bg-white'}`} />
               </button>
             );
           })}

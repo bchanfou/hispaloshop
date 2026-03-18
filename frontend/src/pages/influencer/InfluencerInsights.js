@@ -147,7 +147,7 @@ export default function InfluencerInsights() {
               ))}
             </div>
           ) : error ? (
-            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center">
+            <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-8 text-center">
               <p className="text-sm font-medium text-stone-950">Error de conexión</p>
               <p className="mt-1 text-sm text-stone-500 mb-3">
                 No pudimos cargar tus datos. Comprueba tu conexión e inténtalo de nuevo.
@@ -160,7 +160,7 @@ export default function InfluencerInsights() {
               </button>
             </div>
           ) : topProducts.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center">
+            <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-8 text-center">
               <p className="text-sm font-medium text-stone-950">Aún no tienes datos</p>
               <p className="mt-1 text-sm text-stone-500">
                 Cuando tu contenido impulse clics o compras aparecerá aquí.

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -379,6 +379,11 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileRef = useRef(null);
 
+  // Revoke blob URL on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => { if (imagePreview) URL.revokeObjectURL(imagePreview); };
+  }, [imagePreview]);
+
   const handleImage = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -388,7 +393,6 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       const formData = new FormData();
       formData.append('file', file);
       const data = await apiClient.post('/upload/product-image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 30000,
       });
       setImageUrl(data.url || data.path || data.image_url);

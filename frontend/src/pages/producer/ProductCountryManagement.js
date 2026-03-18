@@ -31,7 +31,7 @@ function MarketRow({ market, onChange, onRemove }) {
   const isValid = market.active ? (market.stock > 0 && market.delivery_sla_hours <= 48 && market.price > 0) : true;
 
   return (
-    <div className={`bg-white rounded-xl border p-4 transition-all ${market.active ? (isValid ? 'border-stone-400 bg-stone-50' : 'border-stone-300 bg-stone-50') : 'border-stone-200'}`}
+    <div className={`bg-white rounded-xl border p-4 transition-all ${market.active ? (isValid ? 'border-stone-400 bg-stone-50' : 'border-stone-200 bg-stone-50') : 'border-stone-200'}`}
       data-testid={`market-${market.country_code}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">

@@ -167,7 +167,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Variants List */}
           {variants.length === 0 ? (
-            <div className="text-center py-8 bg-stone-50 rounded-xl border border-dashed border-stone-300">
+            <div className="text-center py-8 bg-stone-50 rounded-xl border border-dashed border-stone-200">
               <Package className="w-8 h-8 text-stone-400 mx-auto mb-2" />
               <p className="text-stone-500 mb-4">No variants yet</p>
               <button
@@ -299,7 +299,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                       ) : (
                         <button
                           onClick={() => setAddingPack(variant.variant_id)}
-                          className="w-full py-2 text-sm text-stone-500 border border-dashed border-stone-300 rounded-xl hover:border-stone-400 hover:text-stone-600"
+                          className="w-full py-2 text-sm text-stone-500 border border-dashed border-stone-200 rounded-xl hover:border-stone-400 hover:text-stone-600"
                         >
                           <Plus className="w-4 h-4 inline mr-1" /> Add Pack
                         </button>
@@ -355,7 +355,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
           {variants.length > 0 && !showAddVariant && (
             <button
               onClick={() => setShowAddVariant(true)}
-              className="w-full py-3 text-sm text-stone-500 border border-dashed border-stone-300 rounded-xl hover:border-stone-400 hover:text-stone-600"
+              className="w-full py-3 text-sm text-stone-500 border border-dashed border-stone-200 rounded-xl hover:border-stone-400 hover:text-stone-600"
             >
               <Plus className="w-4 h-4 inline mr-1" /> Add Another Variant
             </button>

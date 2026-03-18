@@ -17,7 +17,7 @@ function CertificateRow({ cert }) {
 
   return (
     <div className={`bg-white rounded-xl p-3.5 flex items-center gap-3 border ${
-      isExpired ? 'border-stone-400' : isExpiring ? 'border-stone-300' : 'border-stone-200'
+      isExpired ? 'border-stone-400' : isExpiring ? 'border-stone-200' : 'border-stone-200'
     }`}>
       {/* Status icon */}
       <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-lg ${

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -94,6 +94,11 @@ export default function CreateCommunityPage() {
 
   const update = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
+  // Revoke blob URL on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => { if (coverPreview) URL.revokeObjectURL(coverPreview); };
+  }, [coverPreview]);
+
   const handleCover = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -104,7 +109,6 @@ export default function CreateCommunityPage() {
       const formData = new FormData();
       formData.append('file', file);
       const data = await apiClient.post('/upload/product-image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 30000,
       });
       update('cover_image', data.url || data.path || data.image_url);

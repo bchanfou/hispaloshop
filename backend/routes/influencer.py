@@ -2,6 +2,7 @@
 Influencer routes: Apply, dashboard, codes, commissions, analytics, Stripe, withdrawals.
 """
 import uuid
+from decimal import Decimal
 import os
 import logging
 import stripe
@@ -760,7 +761,7 @@ async def _execute_withdrawal(db, influencer, user, request, now):
     # Calculate withholding and transfer fee
     fiscal = influencer.get("fiscal_status", {})
     withholding_pct = fiscal.get("withholding_pct", 0.0)
-    withholding = round(gross_amount * (withholding_pct / 100), 2)
+    withholding = float((Decimal(str(gross_amount)) * Decimal(str(withholding_pct)) / 100).quantize(Decimal("0.01")))
     transfer_fee = 0.25 if payout_method == "stripe" else 0.0
     net_amount = round(gross_amount - withholding - transfer_fee, 2)
 

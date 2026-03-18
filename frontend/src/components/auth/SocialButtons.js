@@ -45,7 +45,7 @@ const SocialButton = ({ provider, onClick, fullWidth = false }) => {
       onClick={onClick}
       className={`flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:opacity-90 ${
         fullWidth ? 'w-full' : 'flex-1'
-      } ${border ? 'border border-gray-300' : ''}`}
+      } ${border ? 'border border-stone-200' : ''}`}
       style={{ backgroundColor: bgColor, color: textColor }}
     >
       {icon}

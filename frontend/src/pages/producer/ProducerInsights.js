@@ -197,7 +197,7 @@ export default function ProducerInsights() {
 
         {/* Empty recipes state */}
         {!loading && recipes.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center">
+          <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-8 text-center">
             <ChefHat className="mx-auto mb-3 h-8 w-8 text-stone-300" />
             <p className="text-sm font-medium text-stone-950">Todavía no hay recetas con tus productos</p>
             <p className="mt-1 text-sm text-stone-500">

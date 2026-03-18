@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Upload, X, FileText, Check } from 'lucide-react';
 
 const FileUpload = ({ 
@@ -49,6 +49,13 @@ const FileUpload = ({
     }
   };
 
+  // Revoke all blob URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      files.forEach(f => { if (f.preview) URL.revokeObjectURL(f.preview); });
+    };
+  }, [files]);
+
   const removeFile = (id) => {
     const toRemove = files.find(f => f.id === id);
     if (toRemove?.preview) URL.revokeObjectURL(toRemove.preview);
@@ -75,7 +82,7 @@ const FileUpload = ({
         className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
           dragOver
             ? 'border-stone-400 bg-stone-50'
-            : 'border-stone-300 hover:border-stone-400'
+            : 'border-stone-200 hover:border-stone-400'
         }`}
       >
         <Upload className="w-8 h-8 mx-auto text-stone-500 mb-2" />

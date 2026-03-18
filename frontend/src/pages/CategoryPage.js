@@ -362,7 +362,7 @@ const CategoryPage = () => {
                         />
                         <div
                           className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-stone-950/30 ${
-                            isChecked ? 'border-stone-950 bg-stone-950' : 'border-stone-300'
+                            isChecked ? 'border-stone-950 bg-stone-950' : 'border-stone-200'
                           }`}
                         >
                           {isChecked ? (

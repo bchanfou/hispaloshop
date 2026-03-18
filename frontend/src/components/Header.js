@@ -207,7 +207,7 @@ export default function Header() {
                 onClick={() => setMenuOpen((current) => !current)}
                 className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${
                   menuOpen
-                    ? 'border-stone-300 bg-stone-100 text-stone-950'
+                    ? 'border-stone-200 bg-stone-100 text-stone-950'
                     : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
                 }`}
                 aria-label={menuOpen ? t('nav.closeMenu', 'Cerrar menú') : t('nav.openMenu', 'Abrir menú')}
@@ -273,7 +273,7 @@ export default function Header() {
                         <button
                           type="button"
                           onClick={handleLogout}
-                          className="h-11 w-full rounded-full border border-stone-300 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                          className="h-11 w-full rounded-full border border-stone-200 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
                         >
                           {t('auth.logout', 'Cerrar sesión')}
                         </button>
@@ -290,7 +290,7 @@ export default function Header() {
                         <Link
                           to="/login"
                           onClick={() => setMenuOpen(false)}
-                          className="flex h-11 w-full items-center justify-center rounded-full border border-stone-300 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                          className="flex h-11 w-full items-center justify-center rounded-full border border-stone-200 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
                         >
                           {t('auth.login', 'Iniciar sesión')}
                         </Link>

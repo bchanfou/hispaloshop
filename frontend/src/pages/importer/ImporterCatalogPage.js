@@ -380,7 +380,7 @@ export default function ImporterCatalogPage() {
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="px-3 py-1.5 rounded-full border border-stone-300 bg-stone-100 text-xs text-stone-700 font-medium cursor-pointer shrink-0"
+              className="px-3 py-1.5 rounded-full border border-stone-200 bg-stone-100 text-xs text-stone-700 font-medium cursor-pointer shrink-0"
             >
               ✕ Limpiar
             </button>

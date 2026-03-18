@@ -64,6 +64,7 @@ async def add_to_cart(
     product_id: str,
     quantity: int = 1,
     variant_id: Optional[str] = None,
+    pack_id: Optional[str] = None,
     current_user = Depends(get_current_user)
 ):
     """Añadir item al carrito"""
@@ -121,6 +122,7 @@ async def add_to_cart(
         "unit_price_cents": unit_price_cents,
         "total_price_cents": unit_price_cents * quantity,
         "variant_id": variant_id,
+        "pack_id": pack_id,
         "added_at": datetime.now(timezone.utc)
     }
     
@@ -377,7 +379,7 @@ async def apply_coupon(
 
     discount_cents = 0
     if coupon["type"] == "percentage":
-        discount_cents = int(subtotal * (coupon["value"] / 100))
+        discount_cents = subtotal * coupon["value"] // 100
     elif coupon["type"] == "fixed":
         discount_cents = int(coupon["value"] * 100)
     elif coupon["type"] == "free_shipping":

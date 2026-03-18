@@ -105,7 +105,6 @@ export default function EditProfilePage() {
         const formData = new FormData();
         formData.append('file', avatarFile);
         const uploadRes = await apiClient.post('/upload/avatar', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
           timeout: 30000,
         });
         avatarUrl = uploadRes.url || uploadRes.path || uploadRes.image_url;

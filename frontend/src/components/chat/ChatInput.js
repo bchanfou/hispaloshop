@@ -48,7 +48,7 @@ function ChatInput({ onSend, isLoading, compact = false }) {
       style={{ paddingBottom: `max(env(safe-area-inset-bottom), ${compact ? '2px' : '6px'})` }}
     >
       <div className="mx-auto max-w-3xl">
-        <div className={`flex items-end gap-3 rounded-[30px] border border-stone-300/80 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] px-3 shadow-[0_18px_36px_rgba(30,25,20,0.09)] ${compact ? 'py-2' : 'py-2.5'}`}>
+        <div className={`flex items-end gap-3 rounded-[30px] border border-stone-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] px-3 shadow-[0_18px_36px_rgba(30,25,20,0.09)] ${compact ? 'py-2' : 'py-2.5'}`}>
           <div className="relative flex-1">
             <textarea
               ref={inputRef}

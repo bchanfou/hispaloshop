@@ -202,7 +202,7 @@ const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
 function RouteLoader() {
   return (
     <div className="min-h-[40vh] flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-2 border-stone-300 border-t-stone-700 animate-spin" />
+      <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-700 animate-spin" />
     </div>
   );
 }
@@ -247,9 +247,15 @@ function LegacyOrdersRedirect() {
  */
 function UsernameProfileRoute() {
   const { username } = useParams();
+  // Normalize to lowercase — usernames are case-insensitive
+  const normalized = username?.toLowerCase();
   // Valid usernames: 3-30 chars, lowercase alpha, numbers, underscores, dots
-  const isValidUsername = /^[a-z0-9_.]{3,30}$/.test(username);
+  const isValidUsername = /^[a-z0-9_.]{3,30}$/.test(normalized);
   if (!isValidUsername) return <NotFoundPage />;
+  // Redirect to canonical lowercase if URL had uppercase
+  if (username !== normalized) {
+    return <Navigate to={`/${normalized}`} replace />;
+  }
   return <UserProfilePage />;
 }
 

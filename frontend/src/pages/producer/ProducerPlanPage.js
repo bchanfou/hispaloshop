@@ -72,7 +72,7 @@ function PlanCard({ plan, currentPlan, isCancelling, onUpgrade, changing }) {
       isCurrent
         ? 'border-stone-950'
         : plan.popular
-          ? 'border-stone-300'
+          ? 'border-stone-200'
           : 'border-stone-200'
     }`}>
       {plan.popular && !isCurrent && (
@@ -229,7 +229,7 @@ export default function ProducerPlanPage() {
       )}
 
       {isPastDue && (
-        <div className="flex items-center gap-3 bg-stone-100 border border-stone-300 rounded-xl p-4 mb-4">
+        <div className="flex items-center gap-3 bg-stone-100 border border-stone-200 rounded-xl p-4 mb-4">
           <AlertTriangle className="w-5 h-5 text-stone-700 shrink-0" />
           <div>
             <p className="text-sm font-medium text-stone-950">Pago pendiente</p>

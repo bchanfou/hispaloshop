@@ -89,9 +89,7 @@ export default function UserProfilePage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      await apiClient.post('/upload/avatar', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await apiClient.post('/upload/avatar', fd);
       refetch();
       toast.success('Foto actualizada');
     } catch {

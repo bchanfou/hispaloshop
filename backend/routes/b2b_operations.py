@@ -2,6 +2,7 @@
 B2B Operations — Formal offers with Incoterms, counteroffers, and acceptance flow.
 """
 import asyncio
+from decimal import Decimal
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
@@ -79,7 +80,7 @@ def _build_offer_doc(
     now = datetime.now(timezone.utc)
     total_price = round(data.quantity * data.price_per_unit, 2)
     fee_pct = PLATFORM_FEE_PCT + STRIPE_FEE_PCT
-    net_total = round(total_price * (1 - fee_pct / 100), 2)
+    net_total = float((Decimal(str(total_price)) * (100 - fee_pct) / 100).quantize(Decimal("0.01")))
     expires_at = now + timedelta(days=data.validity_days)
 
     return {
