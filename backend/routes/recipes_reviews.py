@@ -246,18 +246,44 @@ async def create_shopping_list(recipe_id: str, request: Request, user: User = De
             continue
 
         quantity = max(1, int(item.get("quantity", 1) or 1))
-        existing = await db.cart_items.find_one({"user_id": user.user_id, "product_id": pid})
-        if existing:
-            await db.cart_items.update_one({"user_id": user.user_id, "product_id": pid}, {"$inc": {"quantity": quantity}})
+        unit_price_cents = prod.get("price_cents") or int(round((prod.get("price", 0)) * 100))
+        cart = await db.carts.find_one({"user_id": user.user_id, "status": "active"})
+        cart_items_list = list(cart.get("items", [])) if cart else []
+
+        existing_idx = next((i for i, ci in enumerate(cart_items_list) if ci.get("product_id") == pid), None)
+        if existing_idx is not None:
+            cart_items_list[existing_idx]["quantity"] += quantity
+            cart_items_list[existing_idx]["total_price_cents"] = unit_price_cents * cart_items_list[existing_idx]["quantity"]
         else:
-            await db.cart_items.insert_one({
-                "user_id": user.user_id,
+            cart_items_list.append({
                 "product_id": pid,
                 "product_name": prod.get("name", ""),
-                "price": prod.get("price", 0),
+                "product_image": (prod.get("images") or [{}])[0].get("url") if prod.get("images") else None,
+                "seller_id": prod.get("seller_id") or prod.get("producer_id", ""),
+                "seller_type": "producer",
                 "quantity": quantity,
-                "producer_id": prod.get("producer_id", ""),
-                "image": (prod.get("images") or [None])[0],
+                "unit_price_cents": unit_price_cents,
+                "total_price_cents": unit_price_cents * quantity,
+                "variant_id": None,
+                "pack_id": None,
+                "added_at": datetime.now(timezone.utc),
+            })
+
+        if cart:
+            await db.carts.update_one(
+                {"_id": cart["_id"]},
+                {"$set": {"items": cart_items_list, "updated_at": datetime.now(timezone.utc)}}
+            )
+        else:
+            from datetime import timedelta
+            await db.carts.insert_one({
+                "user_id": user.user_id,
+                "tenant_id": "ES",
+                "status": "active",
+                "items": cart_items_list,
+                "created_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc),
+                "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
             })
         added += quantity
         added_items.append({"product_id": pid, "name": prod.get("name", ""), "price": prod.get("price", 0), "quantity": quantity})

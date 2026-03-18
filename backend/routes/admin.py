@@ -888,7 +888,7 @@ async def delete_user_account(
     role = target_user.get("role")
     
     if role == "customer":
-        await db.cart_items.delete_many({"user_id": user_id})
+        await db.carts.delete_many({"user_id": user_id})
         await db.ai_profiles.delete_one({"user_id": user_id})
         await db.user_inferred_insights.delete_one({"user_id": user_id})
         await db.chat_messages.delete_many({"user_id": user_id})

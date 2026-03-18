@@ -48,6 +48,136 @@ LANGUAGE_NAMES = {
     "nl": "Dutch", "sv": "Swedish", "pl": "Polish", "tr": "Turkish",
 }
 
+
+# =====================================================
+# CART HELPERS — operate on db.carts (embedded items[])
+# =====================================================
+
+async def _get_cart_items(user_id: str) -> list:
+    """Return the items array from the user's active cart, or []."""
+    cart = await db.carts.find_one(
+        {"user_id": user_id, "status": "active"},
+        {"_id": 0, "items": 1},
+    )
+    return (cart or {}).get("items", [])
+
+
+async def _clear_cart(user_id: str) -> None:
+    """Empty all items from the user's active cart."""
+    await db.carts.update_one(
+        {"user_id": user_id, "status": "active"},
+        {"$set": {"items": [], "updated_at": datetime.now(timezone.utc)}},
+    )
+
+
+async def _find_cart_item(user_id: str, product_id: str, variant_id=None, pack_id=None):
+    """Find an existing item inside the active cart. Returns (index, item) or (None, None)."""
+    cart = await db.carts.find_one(
+        {"user_id": user_id, "status": "active"},
+        {"_id": 0, "items": 1},
+    )
+    if not cart:
+        return None, None
+    for idx, item in enumerate(cart.get("items", [])):
+        if (item.get("product_id") == product_id
+                and item.get("variant_id") == variant_id
+                and item.get("pack_id") == pack_id):
+            return idx, item
+    return None, None
+
+
+async def _upsert_cart_item(user_id: str, cart_item: dict, tenant_id: str = "ES") -> None:
+    """Add or update an item in the user's active cart (create cart if needed)."""
+    product_id = cart_item["product_id"]
+    variant_id = cart_item.get("variant_id")
+    pack_id = cart_item.get("pack_id")
+    now = datetime.now(timezone.utc)
+
+    cart = await db.carts.find_one({"user_id": user_id, "status": "active"})
+
+    if cart:
+        idx, existing = None, None
+        for i, it in enumerate(cart.get("items", [])):
+            if (it.get("product_id") == product_id
+                    and it.get("variant_id") == variant_id
+                    and it.get("pack_id") == pack_id):
+                idx, existing = i, it
+                break
+
+        if existing is not None:
+            new_qty = existing["quantity"] + cart_item["quantity"]
+            await db.carts.update_one(
+                {"_id": cart["_id"]},
+                {"$set": {
+                    f"items.{idx}.quantity": new_qty,
+                    f"items.{idx}.unit_price_cents": cart_item["unit_price_cents"],
+                    f"items.{idx}.total_price_cents": cart_item["unit_price_cents"] * new_qty,
+                    "updated_at": now,
+                }},
+            )
+        else:
+            await db.carts.update_one(
+                {"_id": cart["_id"]},
+                {"$push": {"items": cart_item}, "$set": {"updated_at": now}},
+            )
+    else:
+        new_cart = {
+            "user_id": user_id,
+            "tenant_id": tenant_id,
+            "status": "active",
+            "items": [cart_item],
+            "created_at": now,
+            "updated_at": now,
+            "expires_at": now + timedelta(days=7),
+        }
+        await db.carts.insert_one(new_cart)
+
+
+async def _update_cart_item_fields(user_id: str, product_id: str, fields: dict) -> None:
+    """Update arbitrary fields on a specific cart item matched by product_id."""
+    cart = await db.carts.find_one(
+        {"user_id": user_id, "status": "active"},
+        {"_id": 1, "items": 1},
+    )
+    if not cart:
+        return
+    for idx, item in enumerate(cart.get("items", [])):
+        if item.get("product_id") == product_id:
+            sets = {f"items.{idx}.{k}": v for k, v in fields.items()}
+            sets["updated_at"] = datetime.now(timezone.utc)
+            await db.carts.update_one({"_id": cart["_id"]}, {"$set": sets})
+            return
+
+
+async def _remove_cart_item(user_id: str, product_id: str) -> None:
+    """Remove one item (by product_id) from the active cart."""
+    await db.carts.update_one(
+        {"user_id": user_id, "status": "active"},
+        {
+            "$pull": {"items": {"product_id": product_id}},
+            "$set": {"updated_at": datetime.now(timezone.utc)},
+        },
+    )
+
+
+async def _replace_cart_item(user_id: str, old_product_id: str, new_item: dict) -> None:
+    """Remove old item and push new item atomically."""
+    now = datetime.now(timezone.utc)
+    await db.carts.update_one(
+        {"user_id": user_id, "status": "active"},
+        {
+            "$pull": {"items": {"product_id": old_product_id}},
+            "$set": {"updated_at": now},
+        },
+    )
+    await db.carts.update_one(
+        {"user_id": user_id, "status": "active"},
+        {
+            "$push": {"items": new_item},
+            "$set": {"updated_at": now},
+        },
+    )
+
 # ============================================
 # AI PROFILE - Memory & Personalization
 # ============================================
@@ -252,7 +382,7 @@ async def ai_execute_action(input: AIExecuteActionInput, user: User = Depends(ge
     
     if input.action == "clear_cart":
         # Clear all cart items for user
-        await db.cart_items.delete_many({"user_id": user.user_id})
+        await _clear_cart(user.user_id)
         results["message"] = "Tu carrito está vacío."
         return results
     
@@ -336,38 +466,41 @@ async def ai_execute_action(input: AIExecuteActionInput, user: User = Depends(ge
                 if track_stock and quantity > stock:
                     quantity = stock  # Add max available
                 
-                # Build cart query
-                cart_query = {"user_id": user.user_id, "product_id": item.product_id}
-                if variant_id:
-                    cart_query["variant_id"] = variant_id
-                if pack_id:
-                    cart_query["pack_id"] = pack_id
-                
-                existing = await db.cart_items.find_one(cart_query, {"_id": 0})
-                
-                if existing:
+                # Convert price (float euros) to cents for the new cart schema
+                unit_price_cents = int(round(price * 100))
+
+                # Check if item already exists in cart
+                idx, existing = await _find_cart_item(user.user_id, item.product_id, variant_id, pack_id)
+
+                if existing is not None:
                     new_qty = existing["quantity"] + quantity
                     if track_stock and new_qty > stock:
                         new_qty = stock
-                    await db.cart_items.update_one(cart_query, {"$set": {"quantity": new_qty, "price": price, "currency": currency}})
+                    await _update_cart_item_fields(user.user_id, item.product_id, {
+                        "quantity": new_qty,
+                        "unit_price_cents": unit_price_cents,
+                        "total_price_cents": unit_price_cents * new_qty,
+                    })
                 else:
+                    product_image = None
+                    if product.get("images"):
+                        img = product["images"][0]
+                        product_image = img.get("url") if isinstance(img, dict) else img
+
                     cart_item = {
-                        "user_id": user.user_id,
                         "product_id": item.product_id,
                         "product_name": product["name"],
-                        "price": price,
-                        "currency": currency,
+                        "product_image": product_image,
+                        "seller_id": product.get("seller_id") or product.get("producer_id"),
+                        "seller_type": product.get("seller_type", "producer"),
                         "quantity": quantity,
-                        "producer_id": product["producer_id"],
-                        "image": product["images"][0] if product.get("images") else None,
+                        "unit_price_cents": unit_price_cents,
+                        "total_price_cents": unit_price_cents * quantity,
                         "variant_id": variant_id,
-                        "variant_name": variant_name,
                         "pack_id": pack_id,
-                        "pack_label": pack_label,
-                        "pack_units": pack_units,
-                        "country": user_country
+                        "added_at": datetime.now(timezone.utc),
                     }
-                    await db.cart_items.insert_one(cart_item)
+                    await _upsert_cart_item(user.user_id, cart_item, tenant_id=user_country)
                 
                 results["added"].append(product["name"])
                 
@@ -409,29 +542,29 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
     results = {"success": True, "message": "", "changes": [], "savings": 0}
     
     # Get user's cart
-    cart_items = await db.cart_items.find({"user_id": user.user_id}, {"_id": 0}).to_list(100)
+    cart_items = await _get_cart_items(user.user_id)
     if not cart_items:
         results["success"] = False
         results["message"] = "Tu carrito está vacío."
         return results
-    
+
     # Get user's profile for preferences
     ai_profile = await db.ai_profiles.find_one({"user_id": user.user_id}, {"_id": 0}) or {}
     user_allergies = ai_profile.get("allergies", [])
     user_diet = ai_profile.get("diet", [])
-    
+
     # Get user's country
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "locale": 1})
     user_country = user_doc.get("locale", {}).get("country", "ES") if user_doc else "ES"
-    
+
     # Load full product data for all cart items
     cart_products = []
     for item in cart_items:
         product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
         if product:
             cart_products.append({"cart_item": item, "product": product})
-    
-    original_total = sum(item["price"] * item["quantity"] for item in cart_items)
+
+    original_total = sum(item.get("unit_price_cents", 0) * item.get("quantity", 1) for item in cart_items) / 100.0
     
     # ==================== ACTION: OPTIMIZE PRICE ====================
     if input.action == "optimize_price":
@@ -446,26 +579,23 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
             best = ProductReasoningEngine.get_best_price_option(product)
             
             # Check if current selection is already cheapest
+            item_price = item.get("unit_price_cents", 0) / 100.0
             if best["variant_id"] != item.get("variant_id") or best["pack_id"] != item.get("pack_id"):
-                if best["price"] and best["price"] < item["price"]:
+                if best["price"] and best["price"] < item_price:
                     # Update cart item
-                    cart_query = {"user_id": user.user_id, "product_id": item["product_id"]}
-                    await db.cart_items.update_one(
-                        cart_query,
-                        {"$set": {
-                            "variant_id": best["variant_id"],
-                            "pack_id": best["pack_id"],
-                            "pack_label": best.get("label"),
-                            "pack_units": best.get("units", 1),
-                            "price": best["price"]
-                        }}
-                    )
+                    best_cents = int(round(best["price"] * 100))
+                    await _update_cart_item_fields(user.user_id, item["product_id"], {
+                        "variant_id": best["variant_id"],
+                        "pack_id": best["pack_id"],
+                        "unit_price_cents": best_cents,
+                        "total_price_cents": best_cents * item.get("quantity", 1),
+                    })
                     changes_made.append(f"{product['name']} → {best.get('label', 'mejor precio')}")
-                    new_total += best["price"] * item["quantity"]
+                    new_total += best["price"] * item.get("quantity", 1)
                 else:
-                    new_total += item["price"] * item["quantity"]
+                    new_total += item_price * item.get("quantity", 1)
             else:
-                new_total += item["price"] * item["quantity"]
+                new_total += item_price * item.get("quantity", 1)
         
         savings = original_total - new_total
         if changes_made:
@@ -525,20 +655,26 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
                 
                 if best_score > current_score + 10:  # Only switch if significantly healthier
                     # Replace in cart
-                    await db.cart_items.delete_one({"user_id": user.user_id, "product_id": item["product_id"]})
-                    
+                    alt_price_cents = int(round(best_alt.get("price", 0) * 100))
+                    alt_image = None
+                    if best_alt.get("images"):
+                        img = best_alt["images"][0]
+                        alt_image = img.get("url") if isinstance(img, dict) else img
+
                     new_item = {
-                        "user_id": user.user_id,
                         "product_id": best_alt["product_id"],
                         "product_name": best_alt["name"],
-                        "price": best_alt["price"],
-                        "quantity": item["quantity"],
-                        "producer_id": best_alt["producer_id"],
-                        "image": best_alt["images"][0] if best_alt.get("images") else None,
-                        "currency": "EUR",
-                        "country": user_country
+                        "product_image": alt_image,
+                        "seller_id": best_alt.get("seller_id") or best_alt.get("producer_id"),
+                        "seller_type": best_alt.get("seller_type", "producer"),
+                        "quantity": item.get("quantity", 1),
+                        "unit_price_cents": alt_price_cents,
+                        "total_price_cents": alt_price_cents * item.get("quantity", 1),
+                        "variant_id": None,
+                        "pack_id": None,
+                        "added_at": datetime.now(timezone.utc),
                     }
-                    await db.cart_items.insert_one(new_item)
+                    await _replace_cart_item(user.user_id, item["product_id"], new_item)
                     changes_made.append(f"{product['name']} → {best_alt['name']}")
         
         if changes_made:
@@ -600,20 +736,26 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
                 
                 if best_score > current_score + 15:  # Only switch if significantly better quality
                     # Replace in cart
-                    await db.cart_items.delete_one({"user_id": user.user_id, "product_id": item["product_id"]})
-                    
+                    alt_price_cents = int(round(best_alt.get("price", 0) * 100))
+                    alt_image = None
+                    if best_alt.get("images"):
+                        img = best_alt["images"][0]
+                        alt_image = img.get("url") if isinstance(img, dict) else img
+
                     new_item = {
-                        "user_id": user.user_id,
                         "product_id": best_alt["product_id"],
                         "product_name": best_alt["name"],
-                        "price": best_alt["price"],
-                        "quantity": item["quantity"],
-                        "producer_id": best_alt["producer_id"],
-                        "image": best_alt["images"][0] if best_alt.get("images") else None,
-                        "currency": "EUR",
-                        "country": user_country
+                        "product_image": alt_image,
+                        "seller_id": best_alt.get("seller_id") or best_alt.get("producer_id"),
+                        "seller_type": best_alt.get("seller_type", "producer"),
+                        "quantity": item.get("quantity", 1),
+                        "unit_price_cents": alt_price_cents,
+                        "total_price_cents": alt_price_cents * item.get("quantity", 1),
+                        "variant_id": None,
+                        "pack_id": None,
+                        "added_at": datetime.now(timezone.utc),
                     }
-                    await db.cart_items.insert_one(new_item)
+                    await _replace_cart_item(user.user_id, item["product_id"], new_item)
                     changes_made.append(f"{product['name']} → {best_alt['name']}")
         
         if changes_made:
@@ -636,16 +778,13 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
             biggest = ProductReasoningEngine.get_biggest_pack(product)
             
             if biggest["pack_id"] and biggest["pack_id"] != item.get("pack_id"):
-                await db.cart_items.update_one(
-                    {"user_id": user.user_id, "product_id": item["product_id"]},
-                    {"$set": {
-                        "variant_id": biggest["variant_id"],
-                        "pack_id": biggest["pack_id"],
-                        "pack_label": biggest.get("label"),
-                        "pack_units": biggest.get("units", 1),
-                        "price": biggest["price"]
-                    }}
-                )
+                biggest_cents = int(round(biggest["price"] * 100))
+                await _update_cart_item_fields(user.user_id, item["product_id"], {
+                    "variant_id": biggest["variant_id"],
+                    "pack_id": biggest["pack_id"],
+                    "unit_price_cents": biggest_cents,
+                    "total_price_cents": biggest_cents * item.get("quantity", 1),
+                })
                 changes_made.append(f"{product['name']} → {biggest.get('label', 'pack grande')}")
         
         if changes_made:
@@ -671,7 +810,7 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
             product_allergens = [a.lower() for a in product.get("allergens", [])]
             
             if allergen_to_check.lower() in product_allergens:
-                await db.cart_items.delete_one({"user_id": user.user_id, "product_id": item["product_id"]})
+                await _remove_cart_item(user.user_id, item["product_id"])
                 removed.append(product["name"])
         
         if removed:
@@ -684,13 +823,13 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
     
     # ==================== ACTION: REMOVE MOST EXPENSIVE ====================
     if input.action == "remove_expensive":
-        # Find most expensive item
-        most_expensive = max(cart_items, key=lambda x: x["price"])
-        await db.cart_items.delete_one({"user_id": user.user_id, "product_id": most_expensive["product_id"]})
-        
-        results["message"] = f"Eliminé {most_expensive['product_name']} (el más caro)."
-        results["changes"] = [most_expensive["product_name"]]
-        results["savings"] = round(most_expensive["price"], 2)
+        # Find most expensive item (by unit_price_cents)
+        most_expensive = max(cart_items, key=lambda x: x.get("unit_price_cents", 0))
+        await _remove_cart_item(user.user_id, most_expensive["product_id"])
+
+        results["message"] = f"Eliminé {most_expensive.get('product_name', 'producto')} (el más caro)."
+        results["changes"] = [most_expensive.get("product_name", "producto")]
+        results["savings"] = round(most_expensive.get("unit_price_cents", 0) / 100.0, 2)
         
         return results
     
@@ -705,17 +844,15 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
             # Find premium option
             premium = ProductReasoningEngine.get_premium_option(product)
             
-            if premium["pack_id"] and premium["price"] > item.get("price", 0):
-                await db.cart_items.update_one(
-                    {"user_id": user.user_id, "product_id": item["product_id"]},
-                    {"$set": {
-                        "variant_id": premium["variant_id"],
-                        "pack_id": premium["pack_id"],
-                        "pack_label": premium.get("label"),
-                        "pack_units": premium.get("units", 1),
-                        "price": premium["price"]
-                    }}
-                )
+            item_price = item.get("unit_price_cents", 0) / 100.0
+            if premium["pack_id"] and premium["price"] > item_price:
+                premium_cents = int(round(premium["price"] * 100))
+                await _update_cart_item_fields(user.user_id, item["product_id"], {
+                    "variant_id": premium["variant_id"],
+                    "pack_id": premium["pack_id"],
+                    "unit_price_cents": premium_cents,
+                    "total_price_cents": premium_cents * item.get("quantity", 1),
+                })
                 changes_made.append(f"{product['name']} → {premium.get('label', 'premium')}")
         
         if changes_made:
@@ -1139,7 +1276,7 @@ Origin: {p.get('country_origin', 'Unknown')}
             session_products = input.session_memory or []
             
             if action_type == "clear":
-                await db.cart_items.delete_many({"user_id": user.user_id})
+                await _clear_cart(user.user_id)
                 direct_response = "Listo. Tu carrito está vacío."
                 direct_cart_action = {"success": True, "message": direct_response}
                 
@@ -1445,7 +1582,7 @@ FALLBACK BEHAVIORS:
         
         if action_type == "clear":
             # Clear cart
-            await db.cart_items.delete_many({"user_id": user.user_id})
+            await _clear_cart(user.user_id)
             cart_action_result = {"success": True, "message": "Tu carrito está vacío."}
         elif action_type == "add_all":
             products_to_add = session_products

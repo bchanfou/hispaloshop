@@ -673,7 +673,11 @@ async def delete_product(product_id: str, user: User = Depends(get_current_user)
     await db.products.delete_one({"product_id": product_id})
     await db.reviews.delete_many({"product_id": product_id})
     await db.certificates.delete_many({"product_id": product_id})
-    await db.cart_items.delete_many({"product_id": product_id})
+    # Remove product from any active carts (embedded items array)
+    await db.carts.update_many(
+        {"items.product_id": product_id},
+        {"$pull": {"items": {"product_id": product_id}}}
+    )
     await db.post_bookmarks.delete_many({"product_id": product_id})
     await db.wishlists.delete_many({"product_id": product_id})
     await db.affiliate_links.update_many(

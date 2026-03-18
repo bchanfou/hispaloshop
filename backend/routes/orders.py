@@ -546,7 +546,10 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     # 4. Clear cart — skip for buy-now orders to preserve the user's regular cart
     is_buy_now = order.get("buy_now", False)
     if user_id and not is_buy_now:
-        await db.cart_items.delete_many({"user_id": user_id})
+        await db.carts.update_one(
+            {"user_id": user_id, "status": "active"},
+            {"$set": {"items": [], "status": "completed", "coupon_code": None, "discount_cents": 0, "updated_at": datetime.now(timezone.utc)}}
+        )
         await db.cart_discounts.delete_one({"user_id": user_id})
 
     # 4a. Release soft-holds (stock reservations)
@@ -739,9 +742,26 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     user_country = normalize_market_code(user_doc.get("locale", {}).get("country")) or "ES"
     base_currency = SUPPORTED_COUNTRIES.get(user_country, {}).get("currency", "EUR")
     
-    cart_items = await db.cart_items.find({"user_id": user.user_id}, {"_id": 0}).to_list(100)
-    if not cart_items:
+    # Read from the unified carts collection (embedded items array)
+    _cart_doc = await db.carts.find_one({
+        "user_id": user.user_id,
+        "status": "active",
+        "expires_at": {"$gte": datetime.now(timezone.utc)}
+    })
+    _raw_items = _cart_doc.get("items", []) if _cart_doc else []
+    if not _raw_items:
         raise HTTPException(status_code=400, detail="Cart is empty")
+
+    # Normalize field names: cart.py stores seller_id + unit_price_cents,
+    # checkout logic expects producer_id + price (euros)
+    cart_items = []
+    for _ri in _raw_items:
+        cart_items.append({
+            **_ri,
+            "producer_id": _ri.get("seller_id") or _ri.get("producer_id") or "",
+            "price": round((_ri.get("unit_price_cents", 0) or 0) / 100, 2) if _ri.get("unit_price_cents") else _ri.get("price", 0),
+            "product_name": _ri.get("product_name") or _ri.get("name", ""),
+        })
     
     # === COUNTRY AVAILABILITY & STOCK VALIDATION AT CHECKOUT ===
     stock_issues = []
@@ -771,11 +791,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
             current_price = product["country_prices"][user_country]
         
         if abs(item["price"] - current_price) > 0.01:
-            # Auto-update cart item price
-            await db.cart_items.update_one(
-                {"user_id": user.user_id, "product_id": item["product_id"]},
-                {"$set": {"price": current_price}}
-            )
+            # Auto-correct price in memory (cart doc will be cleared after payment)
             item["price"] = current_price
         
         track_stock = product.get("track_stock", True)

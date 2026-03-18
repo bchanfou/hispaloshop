@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import apiClient from '../services/api/client';
 import { useAuth } from './AuthContext';
 import { captureException } from '../lib/sentry';
+import { toast } from 'sonner';
 
 const CartContext = createContext();
 
@@ -172,6 +173,8 @@ export function CartProvider({ children }) {
       await fetchCart();
     } catch (error) {
       console.error('Error removing from cart:', error);
+      toast.error('No se pudo eliminar el producto');
+      captureException(error);
     }
   }, [user, fetchCart]);
 
@@ -203,6 +206,8 @@ export function CartProvider({ children }) {
       await fetchCart();
     } catch (error) {
       console.error('Error updating quantity:', error);
+      toast.error('No se pudo actualizar la cantidad');
+      captureException(error);
     }
   }, [user, fetchCart, removeFromCart]);
 
@@ -219,6 +224,7 @@ export function CartProvider({ children }) {
       setAppliedDiscount(null);
     } catch (error) {
       console.error('Error clearing cart:', error);
+      toast.error('No se pudo vaciar el carrito');
     }
   }, [user]);
 

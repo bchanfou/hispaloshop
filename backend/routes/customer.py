@@ -4,7 +4,7 @@ Extracted from server.py.
 """
 from fastapi import APIRouter, HTTPException, Depends, Body, Request
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 import logging
 
@@ -42,26 +42,71 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     
+    # Use the unified carts collection (same as cart.py)
+    cart = await db.carts.find_one({"user_id": user.user_id, "status": "active"})
+    cart_items = list(cart.get("items", [])) if cart else []
+
     added = 0
     for item in order.get("line_items", []):
-        product = await db.products.find_one({"product_id": item.get("product_id")}, {"_id": 0, "stock": 1, "status": 1})
+        product = await db.products.find_one(
+            {"product_id": item.get("product_id")},
+            {"_id": 0, "stock": 1, "status": 1, "price_cents": 1, "price": 1,
+             "name": 1, "images": 1, "seller_id": 1, "producer_id": 1}
+        )
         if not product or product.get("status") != "active":
             continue
-        existing = await db.cart_items.find_one({"user_id": user.user_id, "product_id": item["product_id"]})
-        if existing:
-            await db.cart_items.update_one({"user_id": user.user_id, "product_id": item["product_id"]}, {"$inc": {"quantity": item.get("quantity", 1)}})
+
+        product_id = item["product_id"]
+        quantity = item.get("quantity", 1)
+        unit_price_cents = item.get("price_cents") or int(round((item.get("price", 0)) * 100))
+        # Prefer current product price over stale order price
+        if product.get("price_cents"):
+            unit_price_cents = product["price_cents"]
+        elif product.get("price"):
+            unit_price_cents = int(round(product["price"] * 100))
+
+        # Check if already in cart
+        existing_idx = None
+        for idx, ci in enumerate(cart_items):
+            if ci.get("product_id") == product_id:
+                existing_idx = idx
+                break
+
+        if existing_idx is not None:
+            cart_items[existing_idx]["quantity"] += quantity
+            cart_items[existing_idx]["total_price_cents"] = unit_price_cents * cart_items[existing_idx]["quantity"]
         else:
-            await db.cart_items.insert_one({
-                "user_id": user.user_id,
-                "product_id": item["product_id"],
-                "product_name": item.get("product_name", item.get("name", "")),
-                "price": item.get("price", 0),
-                "quantity": item.get("quantity", 1),
-                "producer_id": item.get("producer_id", ""),
-                "image": item.get("image"),
+            cart_items.append({
+                "product_id": product_id,
+                "product_name": product.get("name") or item.get("product_name", ""),
+                "product_image": (product.get("images") or [{}])[0].get("url") if product.get("images") else item.get("image"),
+                "seller_id": product.get("seller_id") or product.get("producer_id") or item.get("producer_id", ""),
+                "seller_type": "producer",
+                "quantity": quantity,
+                "unit_price_cents": unit_price_cents,
+                "total_price_cents": unit_price_cents * quantity,
+                "variant_id": item.get("variant_id"),
+                "pack_id": item.get("pack_id"),
+                "added_at": datetime.now(timezone.utc),
             })
         added += 1
-    
+
+    if cart:
+        await db.carts.update_one(
+            {"_id": cart["_id"]},
+            {"$set": {"items": cart_items, "updated_at": datetime.now(timezone.utc)}}
+        )
+    else:
+        await db.carts.insert_one({
+            "user_id": user.user_id,
+            "tenant_id": "ES",
+            "status": "active",
+            "items": cart_items,
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        })
+
     return {"added": added, "message": f"{added} productos agregados al carrito"}
 
 @router.put("/customer/orders/{order_id}/cancel")
@@ -247,7 +292,6 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
     await db.user_notifications.delete_many({"user_id": user_id})
     await db.community_members.delete_many({"user_id": user_id})
     await db.carts.delete_many({"user_id": user_id})
-    await db.cart_items.delete_many({"user_id": user_id})
     await db.cart_discounts.delete_many({"user_id": user_id})
     await db.stock_holds.delete_many({"user_id": user_id})
     await db.customer_influencer_attribution.delete_many({"consumer_id": user_id})

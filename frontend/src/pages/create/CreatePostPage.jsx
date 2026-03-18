@@ -209,7 +209,9 @@ export default function CreatePostPage() {
         navigate(postId ? `/posts/${postId}` : '/');
       }, 800);
     } catch (err) {
-      toast.error('Error al publicar');
+      const detail = err?.response?.data?.detail;
+      const msg = typeof detail === 'string' ? detail : 'Error al publicar. Comprueba tu conexión e inténtalo de nuevo.';
+      toast.error(msg, { duration: 5000 });
       setPublishing(false);
     }
   };

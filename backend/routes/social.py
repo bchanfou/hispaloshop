@@ -1459,7 +1459,7 @@ async def delete_own_account(request: Request, user: User = Depends(get_current_
     await db.post_likes.delete_many({"user_id": uid})
     await db.post_comments.delete_many({"user_id": uid})
     await db.post_bookmarks.delete_many({"user_id": uid})
-    await db.cart_items.delete_many({"user_id": uid})
+    await db.carts.delete_many({"user_id": uid})
     await db.cart_discounts.delete_many({"user_id": uid})
     await db.social_events.delete_many({"user_id": uid})
     await db.internal_messages.delete_many({"sender_id": uid})
