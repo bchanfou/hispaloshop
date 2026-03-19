@@ -197,45 +197,28 @@ export default function UserProfilePage() {
         image={user.profile_image}
       />
 
-      {/* ── Sticky mini-header (appears after scrolling 180px) ── */}
-      <motion.div
-        initial={{ y: -48, opacity: 0 }}
-        animate={{ y: scrolled ? 0 : -48, opacity: scrolled ? 1 : 0 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="fixed top-0 left-0 right-0 z-40 flex h-12 items-center justify-between bg-white/95 backdrop-blur-md border-b border-stone-100 px-3"
-        aria-hidden={!scrolled}
-      >
-        <button
-          onClick={() => navigate(-1)}
-          aria-label="Volver"
-          className="flex items-center justify-center p-2"
+      {/* ── Sticky mini-header (only for other profiles, appears after scrolling 180px) ── */}
+      {!isOwn && (
+        <motion.div
+          initial={{ y: -48, opacity: 0 }}
+          animate={{ y: scrolled ? 0 : -48, opacity: scrolled ? 1 : 0 }}
+          transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+          className="fixed top-0 left-0 right-0 z-40 flex h-12 items-center justify-between bg-white/95 backdrop-blur-md border-b border-stone-100 px-3"
+          aria-hidden={!scrolled}
         >
-          <ChevronLeft size={22} className="text-stone-950" />
-        </button>
-        <span className="text-[15px] font-semibold text-stone-950">
-          @{user.username}
-        </span>
-        {!isOwn ? (
           <button
-            onClick={handleFollowToggle}
-            className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold ${
-              user.is_following
-                ? 'bg-stone-100 text-stone-950'
-                : user.follow_request_pending
-                ? 'bg-stone-100 text-stone-500'
-                : 'bg-stone-950 text-white'
-            }`}
+            onClick={() => navigate(-1)}
+            aria-label="Volver"
+            className="flex items-center justify-center p-2"
           >
-            {user.follow_request_pending
-              ? 'Solicitado'
-              : user.is_following
-              ? 'Siguiendo'
-              : 'Seguir'}
+            <ChevronLeft size={22} className="text-stone-950" />
           </button>
-        ) : (
+          <span className="text-[15px] font-semibold text-stone-950">
+            @{user.username}
+          </span>
           <div className="w-10" />
-        )}
-      </motion.div>
+        </motion.div>
+      )}
 
       <ProfileHeader
         user={user}

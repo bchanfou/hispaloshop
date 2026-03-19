@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import {
   ChevronLeft,
   ChevronDown,
-  Settings,
   MoreHorizontal,
   Camera,
   ExternalLink,
@@ -100,7 +99,7 @@ function SocialIcon({ href, label, children }) {
 
 const STORY_RING_GRADIENT = '#2E7D52';
 
-/* ── blue verified badge SVG (Instagram style) ───────────────────── */
+/* ── verified badge SVG ──────────────────────────────────────────── */
 
 function VerifiedBadge({ size = 14 }) {
   return (
@@ -114,7 +113,7 @@ function VerifiedBadge({ size = 14 }) {
     >
       <path
         d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67 2.63 13.43 1.75 12 1.75S9.33 2.63 8.66 3.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z"
-        fill="#0095F6"
+        fill="#0c0a09"
       />
       <path
         d="M9.5 12.5l2 2 4-4.5"
@@ -243,13 +242,7 @@ export default function ProfileHeader({
               @{user?.username}
               <ChevronDown size={14} />
             </button>
-            <button
-              onClick={() => navigate('/settings')}
-              aria-label="Ajustes"
-              className="flex items-center justify-center p-2.5"
-            >
-              <Settings size={22} className="text-stone-500" />
-            </button>
+            <div className="w-10" />
           </>
         ) : (
           <>
@@ -417,11 +410,7 @@ export default function ProfileHeader({
           <span className="text-[14px] font-semibold text-stone-950">{user?.name}</span>
           {user?.is_verified && <VerifiedBadge size={16} />}
           {roleLabel && (
-            <span className={`ml-1.5 rounded-full px-2 py-[2px] text-[10px] font-bold uppercase tracking-wide ${
-              user?.role === 'influencer'
-                ? 'bg-stone-950 text-white'
-                : 'bg-stone-100 text-stone-500'
-            }`}>
+            <span className="ml-1.5 rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium uppercase text-stone-700 border border-stone-200">
               {roleLabel}
             </span>
           )}
