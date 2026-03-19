@@ -74,7 +74,7 @@ def _get_tax_info(buyer_country: str, buyer_state: Optional[str], seller_country
         return {
             "tax_type": "EU_VAT",
             "vat_rate_applied": rate,
-            "product_tax_amount": round(amount * rate, 2),
+            "product_tax_amount": int(round(amount * rate * 100)) / 100,
             "reverse_charge_applied": reverse,
         }
 
