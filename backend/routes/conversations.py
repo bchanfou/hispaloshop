@@ -260,6 +260,95 @@ async def mark_as_read(conversation_id: str, user: User = Depends(get_current_us
     
     return {"success": True}
 
+@router.get("/chat/unread-count")
+async def get_unread_count(user: User = Depends(get_current_user)):
+    """Get total unread message count across all conversations for current user"""
+    # Get all conversations for this user
+    conversations = await db.internal_chats.find({
+        "$or": [
+            {"user1_id": user.user_id},
+            {"user2_id": user.user_id}
+        ]
+    }, {"conversation_id": 1}).to_list(200)
+
+    conv_ids = [c["conversation_id"] for c in conversations]
+    if not conv_ids:
+        return {"total": 0}
+
+    total = await db.chat_messages.count_documents({
+        "conversation_id": {"$in": conv_ids},
+        "sender_id": {"$ne": user.user_id},
+        "read": False
+    })
+
+    return {"total": total}
+
+
+@router.post("/chat/story-reply")
+async def reply_to_story(request: Request, user: User = Depends(get_current_user)):
+    """Send a DM with story context (story reply)"""
+    body = await request.json()
+    story_id = body.get("story_id")
+    recipient_id = body.get("recipient_id")
+    message_text = body.get("message", "").strip()
+
+    if not recipient_id or not message_text:
+        raise HTTPException(status_code=400, detail="recipient_id and message required")
+
+    # Find or create conversation
+    existing = await db.internal_chats.find_one({
+        "$or": [
+            {"user1_id": user.user_id, "user2_id": recipient_id},
+            {"user1_id": recipient_id, "user2_id": user.user_id}
+        ]
+    })
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    if existing:
+        conversation_id = existing["conversation_id"]
+    else:
+        # Verify recipient exists
+        recipient = await db.users.find_one({"user_id": recipient_id})
+        if not recipient:
+            raise HTTPException(status_code=404, detail="Recipient not found")
+
+        conversation_id = f"conv_{uuid.uuid4().hex[:12]}"
+        await db.internal_chats.insert_one({
+            "conversation_id": conversation_id,
+            "user1_id": user.user_id,
+            "user2_id": recipient_id,
+            "created_at": now,
+            "last_message": None,
+            "last_message_at": None
+        })
+
+    # Insert message with story context
+    message_id = f"msg_{uuid.uuid4().hex[:12]}"
+    msg_doc = {
+        "message_id": message_id,
+        "conversation_id": conversation_id,
+        "sender_id": user.user_id,
+        "content": message_text,
+        "story_id": story_id,
+        "type": "story_reply",
+        "created_at": now,
+        "read": False
+    }
+    await db.chat_messages.insert_one(msg_doc)
+
+    # Update conversation last message
+    await db.internal_chats.update_one(
+        {"conversation_id": conversation_id},
+        {"$set": {
+            "last_message": message_text[:100],
+            "last_message_at": now
+        }}
+    )
+
+    return {"conversation_id": conversation_id, "message_id": message_id}
+
+
 @router.get("/chat/search-users")
 async def search_users_for_chat(query: str, user_type: str, user: User = Depends(get_current_user)):
     """Search for users to start a conversation with"""

@@ -10,7 +10,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { toast } from 'sonner';
-import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Minus, Check, Clock, RefreshCw, Truck, Package } from 'lucide-react';
+import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Minus, Check, Clock, RefreshCw, Truck, Package, Calendar } from 'lucide-react';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
 
 /* ── ShippingProgressBar — per-store free-shipping progress ── */
@@ -253,6 +253,30 @@ export default function CartPage() {
     } finally {
       setDiscountLoading(false);
     }
+  };
+
+  const getEstimatedDelivery = () => {
+    // Calculate today + 3-5 business days (skip weekends)
+    const minDays = 3;
+    const maxDays = 5;
+    const addBusinessDays = (date, days) => {
+      let d = new Date(date);
+      let added = 0;
+      while (added < days) {
+        d.setDate(d.getDate() + 1);
+        const dow = d.getDay();
+        if (dow !== 0 && dow !== 6) added++;
+      }
+      return d;
+    };
+    const today = new Date();
+    const minDate = addBusinessDays(today, minDays);
+    const maxDate = addBusinessDays(today, maxDays);
+    const fmt = (d) => d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    // If same week range collapse to "lunes — miércoles DD de mes"
+    const minStr = fmt(minDate);
+    const maxStr = fmt(maxDate);
+    return `${minStr} — ${maxStr}`;
   };
 
   const getDiscountedTotal = () => {
@@ -729,6 +753,10 @@ export default function CartPage() {
                 <div className="border-t border-stone-200 pt-2 md:pt-3 flex justify-between">
                   <span className="font-semibold text-stone-950 text-sm md:text-base">{t('cart.total')}</span>
                   <span className="text-lg font-bold text-stone-950 md:text-xl">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-sm text-stone-600 pt-1">
+                  <Truck className="w-4 h-4 flex-shrink-0 text-stone-400" />
+                  <span>Entrega estimada: <span className="font-medium text-stone-700">{getEstimatedDelivery()}</span></span>
                 </div>
                 {currency !== (countries[country]?.currency || 'EUR') && (
                   <div className="text-xs text-stone-500 pt-2 border-t">

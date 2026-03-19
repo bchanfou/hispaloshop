@@ -1,82 +1,93 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft, ChevronRight, User, Lock, Mail, Phone, Globe, MessageSquare,
-  Bell, Store, PenTool, CreditCard, BarChart3, Shield, Eye, Ban,
-  HelpCircle, Star, FileText, LogOut, Trash2, Link2, Receipt,
+  ArrowLeft, ChevronRight, User, Lock, Bell, Shield, Eye,
+  HelpCircle, MessageSquare, Star, FileText, LogOut, Trash2,
+  Link2, Receipt, CreditCard, Store, Globe, Check,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+/* ── Section header ── */
 function SectionLabel({ children }) {
   return (
-    <p style={{
-      fontSize: 11, fontWeight: 700, color: 'var(--color-stone)',
-      letterSpacing: '0.08em', textTransform: 'uppercase',
-      padding: '20px 16px 8px', margin: 0,
-      fontFamily: 'var(--font-sans)',
-    }}>
+    <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider px-0 pt-5 pb-1.5">
       {children}
     </p>
   );
 }
 
-function SettingsItem({ icon, label, sublabel, to, onClick, rightContent }) {
-  const Wrapper = to ? Link : 'div';
-  const props = to
-    ? { to, style: { textDecoration: 'none', color: 'inherit' } }
-    : { onClick, role: 'button', tabIndex: 0, onKeyDown: (e) => { if ((e.key === 'Enter' || e.key === ' ') && onClick) { e.preventDefault(); onClick(); } } };
-
+/* ── Icon container ── */
+function ItemIcon({ children, className = 'bg-stone-100 text-stone-600' }) {
   return (
-    <Wrapper {...props}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '14px 16px',
-        borderBottom: '1px solid var(--color-border)',
-        cursor: 'pointer',
-        transition: 'var(--transition-fast)',
-      }}>
-        <span style={{ color: 'var(--color-stone)', flexShrink: 0, display: 'flex' }}>
-          {icon}
-        </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', margin: 0, fontFamily: 'var(--font-sans)' }}>
-            {label}
-          </p>
-          {sublabel && (
-            <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '2px 0 0', fontFamily: 'var(--font-sans)' }}>
-              {sublabel}
-            </p>
-          )}
-        </div>
-        {rightContent || <ChevronRight size={16} color="var(--color-stone)" />}
-      </div>
-    </Wrapper>
+    <span className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${className}`}>
+      {children}
+    </span>
   );
 }
 
+/* ── Single settings row ── */
+function SettingsItem({ icon, iconClass, label, sublabel, to, onClick, rightContent }) {
+  const inner = (
+    <div className="flex items-center justify-between py-3 px-0 cursor-pointer group">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <ItemIcon className={iconClass}>{icon}</ItemIcon>
+        <div className="min-w-0 flex-1">
+          <p className="text-[15px] font-medium text-stone-950 leading-snug">{label}</p>
+          {sublabel && (
+            <p className="text-[13px] text-stone-400 truncate mt-0.5">{sublabel}</p>
+          )}
+        </div>
+      </div>
+      {rightContent !== undefined
+        ? rightContent
+        : <ChevronRight size={16} className="text-stone-300 flex-shrink-0" />
+      }
+    </div>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} className="block border-b border-stone-100 last:border-b-0 no-underline">
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && onClick) { e.preventDefault(); onClick(); } }}
+      className="border-b border-stone-100 last:border-b-0"
+    >
+      {inner}
+    </div>
+  );
+}
+
+/* ── Settings group card ── */
+function SettingsGroup({ children }) {
+  return (
+    <div className="bg-white rounded-2xl border border-stone-100 px-4 overflow-hidden">
+      {children}
+    </div>
+  );
+}
+
+/* ── Toggle ── */
 function ToggleSwitch({ value, onChange, disabled }) {
   return (
     <button
       onClick={() => !disabled && onChange(!value)}
       disabled={disabled}
-      style={{
-        width: 44, height: 24, borderRadius: 12,
-        background: value ? 'var(--color-black)' : 'var(--color-border)',
-        border: 'none', cursor: disabled ? 'default' : 'pointer',
-        position: 'relative', transition: 'background 200ms',
-        opacity: disabled ? 0.5 : 1, flexShrink: 0,
-        padding: 0,
-      }}
       aria-label="Toggle"
+      className={`relative w-[44px] h-[26px] rounded-full border-none transition-colors duration-200 flex-shrink-0 ${
+        value ? 'bg-stone-950' : 'bg-stone-200'
+      } ${disabled ? 'opacity-40 cursor-default' : 'cursor-pointer'}`}
     >
-      <div style={{
-        width: 20, height: 20, borderRadius: '50%',
-        background: 'var(--color-white)',
-        position: 'absolute', top: 2,
-        left: value ? 22 : 2,
-        transition: 'left 200ms',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-      }} />
+      <span className={`absolute top-[3px] w-5 h-5 rounded-full bg-white shadow transition-all duration-200 ${
+        value ? 'left-[21px]' : 'left-[3px]'
+      }`} />
     </button>
   );
 }
@@ -92,7 +103,6 @@ export default function SettingsPage() {
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
   const isInfluencer = user?.role === 'influencer';
-  const font = { fontFamily: 'var(--font-sans)' };
 
   const handleTogglePrivate = async (val) => {
     setIsPrivate(val);
@@ -133,171 +143,210 @@ export default function SettingsPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div className="min-h-screen bg-stone-50">
       {/* Topbar */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
-        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-      }}>
-        <button onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
-          aria-label="Volver">
-          <ArrowLeft size={22} color="var(--color-black)" />
+      <div className="sticky top-0 z-40 bg-white border-b border-stone-100 flex items-center gap-3 px-4 py-3">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center justify-center w-9 h-9 -ml-1 rounded-full hover:bg-stone-100 transition-colors"
+          aria-label="Volver"
+        >
+          <ArrowLeft size={20} className="text-stone-950" />
         </button>
-        <h1 style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)', margin: 0 }}>Configuración</h1>
+        <h1 className="text-[17px] font-semibold text-stone-950">Configuración</h1>
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', paddingBottom: 100 }}>
+      <div className="max-w-[600px] mx-auto px-4 pb-28">
+
         {/* ── CUENTA ── */}
         <SectionLabel>Cuenta</SectionLabel>
-        <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
-          <SettingsItem icon={<User size={20} />} label="Editar perfil" to="/settings/profile" />
-          <SettingsItem icon={<Lock size={20} />} label="Contraseña" to="/settings/password" />
-          <SettingsItem icon={<Mail size={20} />} label="Email" sublabel={user?.email || 'Sin configurar'} rightContent={<span />} />
-          <SettingsItem icon={<Phone size={20} />} label="Teléfono" sublabel={user?.phone || 'Sin configurar'} to="/settings/profile" />
-        </div>
-
-        {/* ── PREFERENCIAS ── */}
-        <SectionLabel>Preferencias</SectionLabel>
-        <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
-          <SettingsItem icon={<Globe size={20} />} label="País e idioma" sublabel={user?.country || 'España'} to="/settings/locale" />
-          <SettingsItem icon={<Bell size={20} />} label="Notificaciones" to="/settings/notifications" />
-        </div>
-
-        {/* ── MI TIENDA (producer/importer) ── */}
-        {isProducer && (
-          <>
-            <SectionLabel>Mi tienda</SectionLabel>
-            <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
-              <SettingsItem icon={<Store size={20} />} label="Editar tienda" to="/producer/store" />
-              <SettingsItem icon={<PenTool size={20} />} label="Firma digital" to="/settings/signature" />
-              <SettingsItem icon={<CreditCard size={20} />} label="Datos bancarios" to="/settings/payout" />
-              <SettingsItem icon={<BarChart3 size={20} />} label="Plan de suscripción" to="/settings/plan" />
-            </div>
-          </>
-        )}
-
-        {/* ── AFILIADOS (influencer) ── */}
-        {isInfluencer && (
-          <>
-            <SectionLabel>Afiliados</SectionLabel>
-            <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
-              <SettingsItem icon={<Receipt size={20} />} label="Configuración fiscal" to="/influencer/fiscal-setup" />
-              <SettingsItem icon={<CreditCard size={20} />} label="Método de cobro" to="/settings/payout" />
-              <SettingsItem icon={<Link2 size={20} />} label="Mis links" to="/influencer/links" />
-            </div>
-          </>
-        )}
-
-        {/* ── PRIVACIDAD ── */}
-        <SectionLabel>Privacidad</SectionLabel>
-        <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
-          <SettingsItem icon={<Shield size={20} />} label="Solicitudes de seguimiento" to="/settings/follow-requests" />
+        <SettingsGroup>
           <SettingsItem
-            icon={<Eye size={20} />}
-            label="Cuenta privada"
-            sublabel={isProducer ? 'Las cuentas de productores e importadores deben ser públicas' : 'Solo seguidores ven tu perfil'}
-            rightContent={isProducer
-              ? <ToggleSwitch value={false} onChange={() => {}} disabled />
-              : <ToggleSwitch value={isPrivate} onChange={handleTogglePrivate} />
+            icon={<User size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Editar perfil"
+            to="/settings/profile"
+          />
+          <SettingsItem
+            icon={<Lock size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Contraseña"
+            to="/settings/password"
+          />
+          <SettingsItem
+            icon={<Eye size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Privacidad"
+            sublabel={isProducer ? 'Las cuentas de productor son siempre públicas' : (isPrivate ? 'Cuenta privada' : 'Cuenta pública')}
+            rightContent={
+              isProducer
+                ? <ToggleSwitch value={false} onChange={() => {}} disabled />
+                : <ToggleSwitch value={isPrivate} onChange={handleTogglePrivate} />
             }
           />
-          {/* Usuarios bloqueados — próximamente */}
-        </div>
+          <SettingsItem
+            icon={<Globe size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="País e idioma"
+            sublabel={user?.country || 'España'}
+            to="/settings/locale"
+          />
+        </SettingsGroup>
 
-        {/* ── SOPORTE ── */}
-        <SectionLabel>Soporte</SectionLabel>
-        <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
-          <SettingsItem icon={<HelpCircle size={20} />} label="Centro de ayuda"
-            to="/ayuda" />
-          <SettingsItem icon={<MessageSquare size={20} />} label="Contactar soporte" to="/contacto" />
-          <SettingsItem icon={<Star size={20} />} label="Valorar la app"
-            to="/que-es-hispaloshop" />
-          <SettingsItem icon={<FileText size={20} />} label="Términos y condiciones" to="/legal/terminos" />
-          <SettingsItem icon={<Shield size={20} />} label="Política de privacidad" to="/legal/privacidad" />
-        </div>
+        {/* ── NOTIFICACIONES ── */}
+        <SectionLabel>Notificaciones</SectionLabel>
+        <SettingsGroup>
+          <SettingsItem
+            icon={<Bell size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Notificaciones push"
+            to="/settings/notifications"
+          />
+          <SettingsItem
+            icon={<Shield size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Solicitudes de seguimiento"
+            to="/settings/follow-requests"
+          />
+        </SettingsGroup>
+
+        {/* ── PLAN Y PAGOS ── */}
+        {(isProducer || isInfluencer) && (
+          <>
+            <SectionLabel>Plan y pagos</SectionLabel>
+            <SettingsGroup>
+              {isProducer && (
+                <>
+                  <SettingsItem
+                    icon={<Store size={16} />}
+                    iconClass="bg-stone-100 text-stone-600"
+                    label="Editar tienda"
+                    to="/producer/store"
+                  />
+                  <SettingsItem
+                    icon={<CreditCard size={16} />}
+                    iconClass="bg-stone-100 text-stone-600"
+                    label="Plan de suscripción"
+                    to="/settings/plan"
+                  />
+                  <SettingsItem
+                    icon={<Receipt size={16} />}
+                    iconClass="bg-stone-100 text-stone-600"
+                    label="Datos bancarios"
+                    to="/settings/payout"
+                  />
+                </>
+              )}
+              {isInfluencer && (
+                <>
+                  <SettingsItem
+                    icon={<Receipt size={16} />}
+                    iconClass="bg-stone-100 text-stone-600"
+                    label="Configuración fiscal"
+                    to="/influencer/fiscal-setup"
+                  />
+                  <SettingsItem
+                    icon={<CreditCard size={16} />}
+                    iconClass="bg-stone-100 text-stone-600"
+                    label="Método de cobro"
+                    to="/settings/payout"
+                  />
+                  <SettingsItem
+                    icon={<Link2 size={16} />}
+                    iconClass="bg-stone-100 text-stone-600"
+                    label="Mis links de afiliado"
+                    to="/influencer/links"
+                  />
+                </>
+              )}
+            </SettingsGroup>
+          </>
+        )}
+
+        {/* ── SOPORTE Y LEGAL ── */}
+        <SectionLabel>Soporte y legal</SectionLabel>
+        <SettingsGroup>
+          <SettingsItem
+            icon={<HelpCircle size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Centro de ayuda"
+            to="/ayuda"
+          />
+          <SettingsItem
+            icon={<MessageSquare size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Contactar soporte"
+            to="/contacto"
+          />
+          <SettingsItem
+            icon={<Star size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Valorar la app"
+            to="/que-es-hispaloshop"
+          />
+          <SettingsItem
+            icon={<FileText size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Términos y condiciones"
+            to="/legal/terminos"
+          />
+          <SettingsItem
+            icon={<Shield size={16} />}
+            iconClass="bg-stone-100 text-stone-600"
+            label="Política de privacidad"
+            to="/legal/privacidad"
+          />
+        </SettingsGroup>
 
         {/* ── SESIÓN ── */}
-        <div style={{ padding: '24px 16px' }}>
+        <div className="mt-6 space-y-2.5">
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            style={{
-              width: '100%', padding: 14,
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-xl)',
-              fontSize: 15, fontWeight: 600, color: 'var(--color-black)',
-              cursor: 'pointer', ...font,
-              marginBottom: 10,
-            }}
+            className="w-full flex items-center justify-center gap-2 py-3.5 bg-white border border-stone-200 rounded-2xl text-[15px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
           >
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <LogOut size={18} /> Cerrar sesión
-            </span>
+            <LogOut size={17} /> Cerrar sesión
           </button>
-
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            style={{
-              width: '100%', padding: 10,
-              background: 'none', border: 'none',
-              fontSize: 14, fontWeight: 500, color: 'var(--color-stone)',
-              cursor: 'pointer', ...font,
-            }}
+            className="w-full py-3 text-[14px] font-medium text-stone-400 hover:text-stone-600 transition-colors"
           >
             Eliminar cuenta
           </button>
         </div>
 
-        {/* Version */}
-        <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--color-stone)', padding: '0 0 20px' }}>
+        <p className="text-center text-[11px] text-stone-300 mt-4 pb-4">
           Hispaloshop v2.0
         </p>
       </div>
 
       {/* ── Logout Confirm ── */}
       {showLogoutConfirm && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 999,
-          background: 'rgba(0,0,0,0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 16,
-        }}
+        <div
+          className="fixed inset-0 z-[999] bg-black/40 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Confirmar cierre de sesión"
           onClick={() => setShowLogoutConfirm(false)}
         >
-          <div style={{
-            background: 'var(--color-white)', borderRadius: 'var(--radius-xl)',
-            padding: 24, maxWidth: 340, width: '100%', textAlign: 'center',
-          }}
+          <div
+            className="bg-white rounded-2xl p-6 max-w-[340px] w-full text-center"
             onClick={e => e.stopPropagation()}
           >
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 8px', ...font }}>
-              ¿Cerrar sesión?
-            </h3>
-            <p style={{ fontSize: 14, color: 'var(--color-stone)', margin: '0 0 20px', ...font }}>
+            <h3 className="text-[18px] font-semibold text-stone-950 mb-2">¿Cerrar sesión?</h3>
+            <p className="text-[14px] text-stone-500 mb-5">
               Tendrás que volver a iniciar sesión para acceder a tu cuenta.
             </p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowLogoutConfirm(false)}
-                style={{
-                  flex: 1, padding: 12, borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--color-border)',
-                  background: 'var(--color-white)', color: 'var(--color-black)',
-                  fontSize: 14, fontWeight: 600, cursor: 'pointer', ...font,
-                }}>
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-3 rounded-xl border border-stone-200 text-[14px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
+              >
                 Cancelar
               </button>
-              <button onClick={handleLogout}
-                style={{
-                  flex: 1, padding: 12, borderRadius: 'var(--radius-lg)',
-                  border: 'none', background: 'var(--color-black)', color: 'var(--color-white)',
-                  fontSize: 14, fontWeight: 600, cursor: 'pointer', ...font,
-                }}>
+              <button
+                onClick={handleLogout}
+                className="flex-1 py-3 rounded-xl bg-stone-950 text-[14px] font-semibold text-white hover:bg-stone-800 transition-colors"
+              >
                 Cerrar sesión
               </button>
             </div>
@@ -307,27 +356,19 @@ export default function SettingsPage() {
 
       {/* ── Delete Confirm ── */}
       {showDeleteConfirm && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 999,
-          background: 'rgba(0,0,0,0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 16,
-        }}
+        <div
+          className="fixed inset-0 z-[999] bg-black/40 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Confirmar eliminación de cuenta"
           onClick={() => setShowDeleteConfirm(false)}
         >
-          <div style={{
-            background: 'var(--color-white)', borderRadius: 'var(--radius-xl)',
-            padding: 24, maxWidth: 380, width: '100%',
-          }}
+          <div
+            className="bg-white rounded-2xl p-6 max-w-[380px] w-full"
             onClick={e => e.stopPropagation()}
           >
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-stone)', margin: '0 0 8px', ...font }}>
-              Eliminar cuenta
-            </h3>
-            <p style={{ fontSize: 14, color: 'var(--color-stone)', margin: '0 0 16px', lineHeight: 1.5, ...font }}>
+            <h3 className="text-[18px] font-semibold text-stone-950 mb-2">Eliminar cuenta</h3>
+            <p className="text-[14px] text-stone-500 mb-4 leading-relaxed">
               Esta acción es irreversible. Se eliminarán todos tus datos, pedidos y contenido.
               Escribe tu email para confirmar.
             </p>
@@ -337,34 +378,20 @@ export default function SettingsPage() {
               onChange={e => setDeleteEmail(e.target.value)}
               placeholder={user?.email || 'tu@email.com'}
               aria-label="Confirma tu email para eliminar la cuenta"
-              style={{
-                width: '100%', height: 44, padding: '0 14px',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-lg)',
-                fontSize: 14, color: 'var(--color-black)',
-                outline: 'none', boxSizing: 'border-box',
-                marginBottom: 16, ...font,
-              }}
+              className="w-full h-11 px-3.5 border border-stone-200 rounded-xl text-[14px] text-stone-950 outline-none focus:border-stone-950 transition-colors mb-4"
             />
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => { setShowDeleteConfirm(false); setDeleteEmail(''); }}
-                style={{
-                  flex: 1, padding: 12, borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--color-border)',
-                  background: 'var(--color-white)', color: 'var(--color-black)',
-                  fontSize: 14, fontWeight: 600, cursor: 'pointer', ...font,
-                }}>
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => { setShowDeleteConfirm(false); setDeleteEmail(''); }}
+                className="flex-1 py-3 rounded-xl border border-stone-200 text-[14px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
+              >
                 Cancelar
               </button>
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleteEmail !== user?.email || deleting}
-                style={{
-                  flex: 1, padding: 12, borderRadius: 'var(--radius-lg)',
-                  border: 'none', background: 'var(--color-black)', color: 'var(--color-white)',
-                  fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                  opacity: (deleteEmail !== user?.email || deleting) ? 0.5 : 1, ...font,
-                }}>
+                className="flex-1 py-3 rounded-xl bg-stone-950 text-[14px] font-semibold text-white hover:bg-stone-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 {deleting ? 'Eliminando...' : 'Eliminar'}
               </button>
             </div>

@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, Truck, ChevronRight, ExternalLink, Loader2 } from 'lucide-react';
+import { ArrowLeft, Package, Truck, ChevronRight, ExternalLink, Loader2, Clock, CheckCircle, X, RefreshCw } from 'lucide-react';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'sonner';
 
 const TABS = [
   { id: 'active', label: 'En curso' },
@@ -11,26 +12,23 @@ const TABS = [
 ];
 
 const STATUS_BADGES = {
-  pending: { label: 'Confirmado', bg: 'rgba(168,162,158,0.12)', color: '#57534e' },
-  confirmed: { label: 'Confirmado', bg: 'rgba(168,162,158,0.12)', color: '#57534e' },
-  preparing: { label: 'Preparando', bg: 'rgba(168,162,158,0.12)', color: '#57534e' },
-  processing: { label: 'Procesando', bg: 'rgba(168,162,158,0.12)', color: '#57534e' },
-  shipped: { label: 'En camino', bg: 'rgba(120,113,108,0.12)', color: '#44403c' },
-  in_transit: { label: 'En camino', bg: 'rgba(120,113,108,0.12)', color: '#44403c' },
-  delivered: { label: 'Entregado', bg: '#0c0a09', color: '#fafaf9' },
-  cancelled: { label: 'Cancelado', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-  refunded: { label: 'Reembolsado', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
+  pending:    { label: 'Pendiente',   Icon: Clock,        cls: 'bg-stone-100 text-stone-400' },
+  confirmed:  { label: 'Confirmado',  Icon: CheckCircle,  cls: 'bg-stone-100 text-stone-700' },
+  preparing:  { label: 'Preparando', Icon: Package,      cls: 'bg-stone-100 text-stone-700' },
+  processing: { label: 'Procesando', Icon: Package,      cls: 'bg-stone-100 text-stone-700' },
+  shipped:    { label: 'En camino',  Icon: Truck,        cls: 'bg-stone-100 text-stone-700' },
+  in_transit: { label: 'En camino',  Icon: Truck,        cls: 'bg-stone-100 text-stone-700' },
+  delivered:  { label: 'Entregado',  Icon: Package,      cls: 'bg-stone-950 text-white' },
+  cancelled:  { label: 'Cancelado',  Icon: X,            cls: 'bg-stone-100 text-stone-400' },
+  refunded:   { label: 'Reembolsado', Icon: RefreshCw,   cls: 'bg-stone-100 text-stone-400' },
 };
 
 function StatusBadge({ status }) {
-  const badge = STATUS_BADGES[status] || { label: status, bg: 'var(--color-surface)', color: 'var(--color-stone)' };
+  const badge = STATUS_BADGES[status] || { label: status, Icon: Package, cls: 'bg-stone-100 text-stone-400' };
+  const { Icon } = badge;
   return (
-    <span style={{
-      fontSize: 11, fontWeight: 600,
-      padding: '3px 10px', borderRadius: 'var(--radius-full, 999px)',
-      background: badge.bg, color: badge.color,
-      whiteSpace: 'nowrap',
-    }}>
+    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${badge.cls}`}>
+      <Icon size={11} strokeWidth={2.5} />
       {badge.label}
     </span>
   );
@@ -186,7 +184,9 @@ export default function OrdersPage() {
               const items = order.items || order.line_items || [];
               const status = (order.status || '').toLowerCase();
               const isShipped = status === 'shipped' || status === 'in_transit';
-              const total = order.total ? (order.total / 100).toFixed(2) : order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00';
+              const totalNum = order.total ? (order.total / 100) : order.total_amount ? Number(order.total_amount) : 0;
+              const total = new Intl.NumberFormat('es-ES', { style: 'currency', currency: order.currency || 'EUR' }).format(totalNum);
+              const isDelivered = status === 'delivered';
 
               return (
                 <div
@@ -262,10 +262,33 @@ export default function OrdersPage() {
 
                   {/* Footer */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>{total}€</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600, color: 'var(--color-stone)' }}>
-                      Ver detalles <ChevronRight size={16} />
-                    </span>
+                    <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>{total}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {isDelivered && (
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              await apiClient.post(`/customer/orders/${orderId}/reorder`, {});
+                              toast.success('Productos añadidos al carrito');
+                            } catch (err) {
+                              toast.error(err?.message || 'Error al volver a pedir');
+                            }
+                          }}
+                          style={{
+                            padding: '6px 14px',
+                            background: 'var(--color-black)', color: 'var(--color-white)',
+                            borderRadius: 'var(--radius-full, 999px)',
+                            fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
+                          }}
+                        >
+                          Volver a pedir
+                        </button>
+                      )}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600, color: 'var(--color-stone)' }}>
+                        Ver detalles <ChevronRight size={16} />
+                      </span>
+                    </div>
                   </div>
                 </div>
               );

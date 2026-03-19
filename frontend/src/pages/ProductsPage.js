@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Search, SlidersHorizontal, Truck, X } from 'lucide-react';
+import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CategoryNav from '../components/CategoryNav';
 import ProductCard from '../components/ProductCard';
@@ -64,6 +64,7 @@ export default function ProductsPage() {
   const { t, i18n } = useTranslation();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('products_view_mode') || 'grid');
   const currentLang = i18n.language || language || 'es';
 
   const [filters, setFilters] = useState({
@@ -272,6 +273,28 @@ export default function ProductsPage() {
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 </div>
 
+                {/* View mode toggle */}
+                <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-white p-1">
+                  <button
+                    type="button"
+                    onClick={() => { setViewMode('grid'); localStorage.setItem('products_view_mode', 'grid'); }}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${viewMode === 'grid' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'}`}
+                    aria-label="Vista cuadrícula"
+                    aria-pressed={viewMode === 'grid'}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setViewMode('list'); localStorage.setItem('products_view_mode', 'list'); }}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${viewMode === 'list' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'}`}
+                    aria-label="Vista lista"
+                    aria-pressed={viewMode === 'list'}
+                  >
+                    <List className="h-4 w-4" />
+                  </button>
+                </div>
+
                 <button
                   type="button"
                   className="flex h-11 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 lg:hidden"
@@ -443,11 +466,51 @@ export default function ProductsPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5" data-testid="products-grid">
-              {products.map((product) => (
-                <ProductCard key={product.product_id} product={product} />
-              ))}
-            </div>
+            {viewMode === 'grid' ? (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5" data-testid="products-grid">
+                {products.map((product) => (
+                  <ProductCard key={product.product_id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3" data-testid="products-list">
+                {products.map((product) => (
+                  <div
+                    key={product.product_id}
+                    className="flex items-center gap-4 bg-white rounded-2xl border border-stone-100 p-3 hover:border-stone-200 transition-colors cursor-pointer"
+                    onClick={() => window.location.href = `/products/${product.product_id}`}
+                    role="link"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter') window.location.href = `/products/${product.product_id}`; }}
+                  >
+                    <div className="w-20 h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
+                      {(product.images?.[0] || product.image_url || product.thumbnail) && (
+                        <img
+                          src={product.images?.[0] || product.image_url || product.thumbnail}
+                          alt={product.name || product.product_name || ''}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-semibold text-stone-950 truncate">
+                        {product.name || product.product_name}
+                      </p>
+                      {product.producer_name && (
+                        <p className="text-xs text-stone-400 mt-0.5 truncate">{product.producer_name}</p>
+                      )}
+                      {product.price != null && (
+                        <p className="text-[13px] font-bold text-stone-950 mt-1">
+                          {new Intl.NumberFormat('es-ES', { style: 'currency', currency: product.currency || 'EUR' }).format(product.price)}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-stone-300 flex-shrink-0 -rotate-90" />
+                  </div>
+                ))}
+              </div>
+            )}
 
             {catalogQuery.hasNextPage ? (
               <div className="mt-8 flex justify-center">

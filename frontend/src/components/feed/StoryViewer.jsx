@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Heart, Send } from 'lucide-react';
+import { X, Heart, Send, ArrowRight, Eye } from 'lucide-react';
 import apiClient from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
 import { timeAgo } from '../../utils/time';
 
 const STORY_DURATION = 5000;
 
 export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [currentUserIndex, setCurrentUserIndex] = useState(initialIndex);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -15,8 +17,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [liked, setLiked] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [videoDuration, setVideoDuration] = useState(null);
+  const [sendingReply, setSendingReply] = useState(false);
   const longPressRef = useRef(null);
   const intervalRef = useRef(null);
+  const isPaused = useRef(false);
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
   const touchStartTime = useRef(null);
@@ -97,6 +101,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     let elapsed = 0;
 
     intervalRef.current = setInterval(() => {
+      if (isPaused.current) return; // J1: hold-to-pause ref gate
       elapsed += tick;
       setProgress(Math.min(elapsed / effectiveDuration, 1));
       if (elapsed >= effectiveDuration) {
@@ -195,11 +200,15 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     touchStartTime.current = Date.now();
-    longPressRef.current = setTimeout(() => setPaused(true), 120);
+    longPressRef.current = setTimeout(() => {
+      isPaused.current = true; // J1
+      setPaused(true);
+    }, 120);
   };
 
   const handleTouchEnd = (e) => {
     clearTimeout(longPressRef.current);
+    isPaused.current = false; // J1
     setPaused(false);
 
     if (touchStartX.current === null) return;
@@ -245,17 +254,60 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   };
 
   const handleMouseDown = () => {
-    longPressRef.current = setTimeout(() => setPaused(true), 120);
+    longPressRef.current = setTimeout(() => {
+      isPaused.current = true; // J1
+      setPaused(true);
+    }, 120);
   };
 
   const handleMouseUp = () => {
     clearTimeout(longPressRef.current);
+    isPaused.current = false; // J1
     setPaused(false);
   };
+
+  // J1: pointer-based hold-to-pause (covers both mouse and touch on pointer-capable devices)
+  const handlePointerDown = () => {
+    isPaused.current = true;
+  };
+
+  const handlePointerUp = () => {
+    isPaused.current = false;
+  };
+
+  // J3: send reply as DM — open/create conversation then navigate to chat
+  const handleSendReply = useCallback(async () => {
+    const text = replyText.trim();
+    if (!text || sendingReply) return;
+    setSendingReply(true);
+    try {
+      const res = await apiClient.post('/chat/conversations', {
+        participant_id: currentStory?.user_id || currentStory?.user?.id,
+        message: text,
+      });
+      setReplyText('');
+      replyInputRef.current?.blur();
+      const conversationId = res?.conversation_id || res?.id || res?._id;
+      if (conversationId) {
+        onClose();
+        navigate(`/chat/${conversationId}`);
+      }
+    } catch {
+      // fallback: legacy story reply endpoint
+      try {
+        await apiClient.post(`/stories/${currentItem?.story_id}/reply`, { text });
+        setReplyText('');
+        replyInputRef.current?.blur();
+      } catch {}
+    } finally {
+      setSendingReply(false);
+    }
+  }, [replyText, sendingReply, currentStory, currentItem, navigate, onClose]);
 
   if (!currentStory || !items.length) return null;
 
   const user = currentStory.user;
+  const isOwnStory = currentStory.user_id === currentUser?.id || currentStory.user?.id === currentUser?.id;
 
   return (
     <div
@@ -343,6 +395,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
       >
         {/* Bottom gradient for text legibility */}
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/60 to-transparent z-[1] pointer-events-none" />
@@ -366,6 +420,16 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             className="w-full h-full object-cover"
             draggable={false}
           />
+        )}
+
+        {/* J5: Viewer count — own stories only */}
+        {isOwnStory && (
+          <div className="absolute bottom-4 left-4 z-[2] flex items-center gap-1 pointer-events-none">
+            <Eye size={14} className="text-white/60" />
+            <span className="text-xs text-white/60 font-sans">
+              {currentItem?.view_count ?? currentStory?.view_count ?? 0} vistas
+            </span>
+          </div>
         )}
 
         {/* Product pills */}
@@ -449,32 +513,37 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           type="text"
           value={replyText}
           onChange={(e) => setReplyText(e.target.value)}
-          onFocus={() => setPaused(true)}
-          onBlur={() => setPaused(false)}
+          onFocus={() => { isPaused.current = true; setPaused(true); }}
+          onBlur={() => { isPaused.current = false; setPaused(false); }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && replyText.trim()) {
               e.preventDefault();
-              try { apiClient.post(`/stories/${currentItem?.story_id}/reply`, { text: replyText.trim() }); } catch {}
-              setReplyText('');
-              replyInputRef.current?.blur();
+              handleSendReply();
             }
           }}
-          placeholder="Envía un mensaje..."
+          placeholder={`Responder a ${user?.name || user?.username || 'usuario'}...`}
           className="flex-1 h-10 rounded-full bg-white/10 border border-white/20 px-4 text-sm text-white placeholder-white/40 outline-none focus:border-white/40 font-sans"
         />
-        <button
-          onClick={() => {
-            if (!replyText.trim()) return;
-            try { apiClient.post(`/stories/${currentItem?.story_id}/reply`, { text: replyText.trim() }); } catch {}
-            setReplyText('');
-            replyInputRef.current?.blur();
-          }}
-          disabled={!replyText.trim()}
-          className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer disabled:opacity-30"
-          aria-label="Enviar mensaje"
-        >
-          <Send size={20} className="text-white" />
-        </button>
+        {/* J3: ArrowRight send button — visible when input has text */}
+        {replyText.trim() ? (
+          <button
+            onClick={handleSendReply}
+            disabled={sendingReply}
+            className="shrink-0 w-10 h-10 flex items-center justify-center bg-white rounded-full border-none cursor-pointer disabled:opacity-50"
+            aria-label="Enviar respuesta como mensaje directo"
+          >
+            <ArrowRight size={18} className="text-stone-950" />
+          </button>
+        ) : (
+          <button
+            onClick={() => {}}
+            disabled
+            className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer opacity-30"
+            aria-label="Enviar mensaje"
+          >
+            <Send size={20} className="text-white" />
+          </button>
+        )}
       </div>
     </div>
   );

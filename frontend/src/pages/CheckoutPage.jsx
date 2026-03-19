@@ -10,27 +10,30 @@ import { useCartAddresses, useCartCheckout, useCartPricing } from '../features/c
 
 /* ── Stepper ── */
 function Stepper({ current }) {
-  const steps = ['Dirección', 'Pago', 'Confirmación'];
+  const steps = ['Dirección', 'Pago', 'Confirmar'];
   return (
-    <nav aria-label="Progreso del checkout" className="flex items-center justify-center px-6 py-4 border-b border-stone-200 bg-white">
+    <nav aria-label="Progreso del checkout" className="flex items-center justify-center gap-2 px-6 py-4 border-b border-stone-200 bg-white mb-0">
       {steps.map((label, i) => {
         const step = i + 1;
         const isCompleted = step < current;
         const isActive = step === current;
+        const isFuture = step > current;
         return (
           <React.Fragment key={step}>
             {i > 0 && (
-              <div className={`w-8 h-0.5 mx-1 ${isCompleted ? 'bg-stone-950' : 'bg-stone-200'}`} aria-hidden="true" />
+              <div className={`w-6 h-px mx-0.5 ${isCompleted ? 'bg-stone-950' : 'bg-stone-200'}`} aria-hidden="true" />
             )}
-            <div className="flex items-center gap-1.5">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                isCompleted || isActive
-                  ? 'bg-stone-950 text-white'
-                  : 'bg-transparent text-stone-500 border-[1.5px] border-stone-200'
+            <div className="flex flex-col items-center gap-1">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                isCompleted ? 'bg-stone-950 text-white'
+                : isActive   ? 'bg-stone-950 text-white'
+                :               'bg-stone-100 text-stone-400'
               }`}>
-                {isCompleted ? <Check className="w-3.5 h-3.5" /> : step}
+                {isCompleted ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : step}
               </div>
-              <span className={`text-[13px] ${isActive ? 'font-semibold text-stone-950' : 'font-normal text-stone-500'}`}>
+              <span className={`text-[11px] leading-none ${
+                isActive ? 'font-semibold text-stone-950' : isFuture ? 'text-stone-400' : 'text-stone-600'
+              }`}>
                 {label}
               </span>
             </div>

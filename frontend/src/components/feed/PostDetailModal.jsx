@@ -89,8 +89,8 @@ function renderCaption(text, navigate, onClose) {
   });
 }
 
-/* ── Image carousel ── */
-const ModalCarousel = memo(function ModalCarousel({ images, userName, className, style }) {
+/* ── Image carousel — exposes currentIndex via onIndexChange ── */
+const ModalCarousel = memo(function ModalCarousel({ images, userName, className, style, onDoubleTap, onIndexChange }) {
   const [idx, setIdx] = useState(0);
   const scrollRef = useRef(null);
   const hasMultiple = images.length > 1;
@@ -100,18 +100,25 @@ const ModalCarousel = memo(function ModalCarousel({ images, userName, className,
     if (!el) return;
     el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
     setIdx(i);
-  }, []);
+    onIndexChange?.(i);
+  }, [onIndexChange]);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    setIdx(Math.round(el.scrollLeft / el.clientWidth));
-  }, []);
+    const next = Math.round(el.scrollLeft / el.clientWidth);
+    setIdx(next);
+    onIndexChange?.(next);
+  }, [onIndexChange]);
 
   if (!images.length) return <div className={`bg-stone-100 ${className || ''}`} style={style} />;
 
   return (
-    <div className={`relative bg-black flex items-center justify-center overflow-hidden ${className || ''}`} style={style}>
+    <div
+      className={`relative bg-black flex items-center justify-center overflow-hidden ${className || ''}`}
+      style={style}
+      onDoubleClick={onDoubleTap}
+    >
       <div
         ref={scrollRef}
         className={`w-full h-full scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto' : 'overflow-hidden'}`}
@@ -124,33 +131,45 @@ const ModalCarousel = memo(function ModalCarousel({ images, userName, className,
               alt={`${userName} imagen ${i + 1}`}
               className="w-full h-full object-contain"
               loading={i === 0 ? 'eager' : 'lazy'}
+              draggable={false}
             />
           </div>
         ))}
       </div>
-      {/* Arrows — desktop only */}
+
+      {/* Arrows — desktop only, show on hover via group */}
       {hasMultiple && idx > 0 && (
-        <button onClick={() => goTo(idx - 1)} className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white border-none cursor-pointer items-center justify-center shadow-sm z-[2] transition-colors" aria-label="Anterior">
+        <button onClick={() => goTo(idx - 1)} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white border-none cursor-pointer items-center justify-center shadow-sm z-[2] transition-colors" aria-label="Anterior">
           <ChevronLeft size={18} className="text-stone-950" />
         </button>
       )}
       {hasMultiple && idx < images.length - 1 && (
-        <button onClick={() => goTo(idx + 1)} className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white border-none cursor-pointer items-center justify-center shadow-sm z-[2] transition-colors" aria-label="Siguiente">
+        <button onClick={() => goTo(idx + 1)} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white border-none cursor-pointer items-center justify-center shadow-sm z-[2] transition-colors" aria-label="Siguiente">
           <ChevronRight size={18} className="text-stone-950" />
         </button>
       )}
-      {/* Counter badge — mobile */}
+
+      {/* Counter badge — mobile only */}
       {hasMultiple && (
-        <div className="sm:hidden absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5 z-[3]">
+        <div className="md:hidden absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5 z-[3]">
           <span className="text-[11px] text-white font-semibold tabular-nums">{idx + 1}/{images.length}</span>
         </div>
       )}
-      {/* Dots — desktop */}
+
+      {/* Dot indicators — desktop, stone palette per spec I5 */}
       {hasMultiple && (
-        <div className="hidden sm:flex absolute bottom-3 left-1/2 -translate-x-1/2 gap-1 z-[2]">
+        <div className="hidden md:flex absolute bottom-3 left-1/2 -translate-x-1/2 gap-1 z-[2]">
           {images.map((_, i) => (
-            <span key={i} className="block rounded-full transition-all duration-200"
-              style={{ width: i === idx ? 7 : 5, height: i === idx ? 7 : 5, background: i === idx ? '#fff' : 'rgba(255,255,255,0.5)' }}
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Imagen ${i + 1}`}
+              className="border-none cursor-pointer p-0 rounded-full transition-all duration-200"
+              style={{
+                width: i === idx ? 7 : 6,
+                height: i === idx ? 7 : 6,
+                background: i === idx ? '#0c0a09' : 'rgba(255,255,255,0.55)',
+              }}
             />
           ))}
         </div>
@@ -270,6 +289,31 @@ function CommentInput({ isAuthenticated, user, replyTo, setReplyTo, newComment, 
   );
 }
 
+/* ── Double-tap heart overlay (I4) ── */
+function DoubleTapHeart({ visible }) {
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className="pointer-events-none absolute inset-0 flex items-center justify-center z-10"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.div
+            initial={{ scale: 0, opacity: 1 }}
+            animate={{ scale: [0, 1.3, 1.1], opacity: [1, 1, 0] }}
+            transition={{ duration: 0.6, times: [0, 0.5, 1] }}
+          >
+            <Heart size={90} className="text-white fill-white drop-shadow-xl" />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 /* ── Main Modal ── */
 export default function PostDetailModal({ postId, post: initialPost, onClose }) {
   const navigate = useNavigate();
@@ -284,6 +328,13 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [saved, setSaved] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // I4 — double-tap heart
+  const [showHeart, setShowHeart] = useState(false);
+  const lastTapRef = useRef(0);
+  const heartTimerRef = useRef(null);
+
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -324,6 +375,11 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+
+  // Cleanup heart timer on unmount
+  useEffect(() => {
+    return () => { if (heartTimerRef.current) clearTimeout(heartTimerRef.current); };
+  }, []);
 
   const handleSend = async () => {
     const text = newComment.trim();
@@ -369,14 +425,31 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
     inputRef.current?.focus();
   }, []);
 
-  const handleLikePost = async () => {
+  const handleLikePost = useCallback(async () => {
     setLiked(l => !l);
     setLikesCount(c => liked ? Math.max(0, c - 1) : c + 1);
     try { await apiClient.post(`/posts/${postId}/like`); } catch {
       setLiked(l => !l);
       setLikesCount(c => liked ? c + 1 : Math.max(0, c - 1));
     }
-  };
+  }, [liked, postId]);
+
+  // I4 — double-tap handler: fire like + show heart overlay
+  const handleDoubleTap = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      // Double-tap detected
+      if (!liked) {
+        // Only fire like if not already liked
+        handleLikePost();
+      }
+      // Always show heart overlay
+      setShowHeart(true);
+      if (heartTimerRef.current) clearTimeout(heartTimerRef.current);
+      heartTimerRef.current = setTimeout(() => setShowHeart(false), 700);
+    }
+    lastTapRef.current = now;
+  }, [liked, handleLikePost]);
 
   const handleSavePost = async () => {
     setSaved(s => !s);
@@ -424,6 +497,14 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
     isAuthenticated, user, replyTo, setReplyTo, newComment, setNewComment, sending, onSend: handleSend, inputRef
   };
 
+  // Carousel props shared between mobile + desktop
+  const carouselProps = {
+    images,
+    userName,
+    onDoubleTap: handleDoubleTap,
+    onIndexChange: setCurrentImageIndex,
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -439,15 +520,15 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
         {/* Close — desktop */}
         <button
           onClick={onClose}
-          className="hidden sm:flex absolute top-4 right-4 z-[102] items-center justify-center w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 transition-colors border-none cursor-pointer"
+          className="hidden md:flex absolute top-4 right-4 z-[102] items-center justify-center w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 transition-colors border-none cursor-pointer"
           aria-label="Cerrar"
         >
           <X size={20} className="text-white" />
         </button>
 
-        {/* ═══ MOBILE LAYOUT (<640px) — Full screen like Instagram app ═══ */}
+        {/* ═══ MOBILE LAYOUT (<768px) — Full screen like Instagram app ═══ */}
         <motion.div
-          className="sm:hidden relative z-[101] flex flex-col bg-white w-full h-full"
+          className="md:hidden relative z-[101] flex flex-col bg-white w-full h-full"
           style={{ transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined, opacity: swipeY > 0 ? Math.max(0.5, 1 - swipeY / 300) : 1 }}
           initial={{ y: '100%', opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -490,10 +571,25 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
               </div>
             </div>
 
-            {/* Image */}
-            <ModalCarousel images={images} userName={userName} className="w-full aspect-square" />
+            {/* Image — with double-tap heart overlay */}
+            <div className="relative w-full aspect-square">
+              <ModalCarousel {...carouselProps} className="w-full h-full" />
+              <DoubleTapHeart visible={showHeart} />
+            </div>
 
-            {/* Actions row — Instagram style */}
+            {/* Dot indicators — mobile, stone palette (I5) */}
+            {images.length > 1 && (
+              <div className="flex items-center justify-center gap-1 py-2">
+                {images.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`block rounded-full transition-all duration-200 ${i === currentImageIndex ? 'w-1.5 h-1.5 bg-stone-950' : 'w-1.5 h-1.5 bg-stone-300'}`}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Actions row */}
             <div className="flex items-center px-3 py-2">
               <div className="flex items-center gap-3">
                 <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-[#FF3040]' : 'text-stone-950'}`} aria-label="Me gusta">
@@ -535,22 +631,27 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
           </div>
         </motion.div>
 
-        {/* ═══ DESKTOP LAYOUT (>=640px) — Instagram Web side-by-side ═══ */}
+        {/* ═══ DESKTOP LAYOUT (>=768px / md) — Instagram Web side-by-side ═══ */}
+        {/* I1: split layout ~55% left / ~45% right, max-w-4xl, 85vh */}
         <motion.div
-          className="hidden sm:flex relative z-[101] bg-white rounded-xl overflow-hidden shadow-2xl"
-          style={{ maxWidth: 'min(960px, 90vw)', maxHeight: 'min(700px, 85vh)', width: '100%' }}
+          className="hidden md:flex relative z-[101] bg-white rounded-xl overflow-hidden shadow-2xl w-full"
+          style={{ maxWidth: 'min(960px, 90vw)', maxHeight: '85vh', height: '85vh' }}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Left: Image */}
-          <ModalCarousel images={images} userName={userName} className="shrink-0" style={{ width: '55%', minHeight: 400 }} />
+          {/* I1 Left pane: media, black bg, object-contain, ~55% */}
+          <div className="relative bg-stone-950 flex items-center justify-center" style={{ width: '55%', flexShrink: 0 }}>
+            <ModalCarousel {...carouselProps} className="w-full h-full" />
+            {/* I4 — Double-tap heart overlay on desktop too */}
+            <DoubleTapHeart visible={showHeart} />
+          </div>
 
-          {/* Right: Info + Comments */}
-          <div className="flex flex-col flex-1 min-w-0" style={{ width: '45%' }}>
-            {/* Header */}
+          {/* I1 Right pane: white, ~45%, flex-col */}
+          <div className="flex flex-col" style={{ width: '45%' }}>
+            {/* I2 — Header in right pane at TOP (desktop) */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-stone-100 shrink-0">
               <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="shrink-0">
                 {avatarUrl ? (
@@ -572,7 +673,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
               </button>
             </div>
 
-            {/* Comments area */}
+            {/* I3 — Comments area: flex-1 + overflow-y-auto so it scrolls independently */}
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-1">
               <CommentsPanel
                 post={post} comments={comments} commentsLoading={commentsLoading}
@@ -606,7 +707,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
               </div>
             </div>
 
-            {/* Comment input — desktop */}
+            {/* I3 — Comment input pinned to bottom of right pane */}
             <div className="shrink-0">
               <CommentInput {...commentInputProps} />
             </div>
