@@ -7,6 +7,7 @@ import os
 import secrets
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
 
 CSRF_SAFE_METHODS = {"GET", "HEAD", "OPTIONS", "TRACE"}
 CSRF_HEADER = "X-CSRF-Token"
@@ -26,6 +27,12 @@ CSRF_EXEMPT_PREFIXES = (
     "/api/stories",
     "/api/users/upload-avatar",
     "/api/internal-chat/upload-image",
+    # Auth endpoints: users don't have a CSRF cookie before first GET
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/auth/forgot-password",
+    "/api/auth/reset-password",
+    "/api/auth/google",
 )
 
 
@@ -61,9 +68,9 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         header_token = request.headers.get(CSRF_HEADER)
 
         if not cookie_token or not header_token:
-            raise HTTPException(status_code=403, detail="CSRF token missing")
+            return JSONResponse(status_code=403, content={"detail": "CSRF token missing"})
 
         if not secrets.compare_digest(cookie_token, header_token):
-            raise HTTPException(status_code=403, detail="CSRF token invalid")
+            return JSONResponse(status_code=403, content={"detail": "CSRF token invalid"})
 
         return await call_next(request)

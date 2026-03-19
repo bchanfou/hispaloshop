@@ -7,22 +7,25 @@ from uuid import UUID
 
 import redis.asyncio as redis
 
-from config import settings
+from core.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+def _build_redis_client():
+    """Build a Redis client from REDIS_URL (preferred) or fall back to defaults."""
+    url = getattr(settings, "REDIS_URL", None)
+    if url:
+        return redis.Redis.from_url(url, decode_responses=True)
+    # Fallback: local Redis with no auth (development only)
+    return redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
 
 class RedisManager:
     """Centralized Redis access for cache, rate limiting and websocket presence."""
 
     def __init__(self) -> None:
-        self.client = redis.Redis(
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
-            db=settings.REDIS_DB,
-            password=settings.REDIS_PASSWORD,
-            decode_responses=True,
-        )
+        self.client = _build_redis_client()
         self._local_rate_fallback: Dict[str, tuple[int, datetime]] = {}
 
     async def get_cache(self, key: str) -> Optional[str]:

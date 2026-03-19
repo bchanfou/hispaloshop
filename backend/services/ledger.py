@@ -26,7 +26,9 @@ US_STATE_TAX = {
 
 KR_VAT_RATE = 0.10
 
-# ── Approximate exchange rates to USD (updated periodically) ─
+# ── Approximate exchange rates to USD ─
+# TODO: Replace with live rates from a config collection or external API.
+# These static rates are for fallback/estimation only and MUST NOT be used for billing.
 
 EXCHANGE_RATES_TO_USD = {
     "USD": 1.0, "EUR": 1.08, "GBP": 1.27, "JPY": 0.0067,
@@ -85,7 +87,7 @@ def _get_tax_info(buyer_country: str, buyer_state: Optional[str], seller_country
         return {
             "tax_type": "US_SALES_TAX",
             "vat_rate_applied": rate,
-            "product_tax_amount": round(amount * rate, 2),
+            "product_tax_amount": int(round(amount * rate * 100)) / 100,
             "reverse_charge_applied": False,
             "buyer_state": state,
             "sales_tax_rate": rate,

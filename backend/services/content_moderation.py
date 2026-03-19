@@ -144,11 +144,20 @@ async def moderate_post_content(content: dict) -> dict:
                 '"confidence": "high"|"medium"|"low"}'
             )
 
-            resp = await client.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=300,
-                messages=[{"role": "user", "content": text_prompt}],
-            )
+            try:
+                resp = await client.messages.create(
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=300,
+                    messages=[{"role": "user", "content": text_prompt}],
+                )
+            except Exception as api_err:
+                logger.error("Anthropic API error during text moderation: %s", api_err)
+                return {"action": "review", "reason": "Error de API — revisión manual",
+                        "violation_type": None, "confidence": "low"}
+            if not resp.content:
+                logger.warning("Empty Anthropic response for text moderation")
+                return {"action": "review", "reason": "Respuesta vacía — revisión manual",
+                        "violation_type": None, "confidence": "low"}
             text_result = _parse_ai_json(resp.content[0].text)
 
             if text_result.get("action") == "hide" and text_result.get("confidence") != "low":
@@ -185,11 +194,20 @@ async def moderate_post_content(content: dict) -> dict:
                     {"type": "text", "text": img_prompt},
                 ]
 
-                resp = await client.messages.create(
-                    model="claude-haiku-4-5-20251001",
-                    max_tokens=300,
-                    messages=[{"role": "user", "content": msg_content}],
-                )
+                try:
+                    resp = await client.messages.create(
+                        model="claude-haiku-4-5-20251001",
+                        max_tokens=300,
+                        messages=[{"role": "user", "content": msg_content}],
+                    )
+                except Exception as api_err:
+                    logger.error("Anthropic API error during image moderation: %s", api_err)
+                    return {"action": "review", "reason": "Error de API — revisión manual",
+                            "violation_type": None, "confidence": "low"}
+                if not resp.content:
+                    logger.warning("Empty Anthropic response for image moderation")
+                    return {"action": "review", "reason": "Respuesta vacía — revisión manual",
+                            "violation_type": None, "confidence": "low"}
                 img_result = _parse_ai_json(resp.content[0].text)
                 conf = img_result.get("confidence", "low")
 
@@ -271,11 +289,20 @@ async def moderate_product(product: dict) -> dict:
             '"confidence": "high"|"medium"|"low"}'
         )
 
-        resp = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=300,
-            messages=[{"role": "user", "content": product_prompt}],
-        )
+        try:
+            resp = await client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=300,
+                messages=[{"role": "user", "content": product_prompt}],
+            )
+        except Exception as api_err:
+            logger.error("Anthropic API error during product moderation: %s", api_err)
+            return {"decision": "review", "reason": "Error de API — revisión manual",
+                    "violation_type": None, "confidence": "low"}
+        if not resp.content:
+            logger.warning("Empty Anthropic response for product moderation")
+            return {"decision": "review", "reason": "Respuesta vacía — revisión manual",
+                    "violation_type": None, "confidence": "low"}
         ai_result = _parse_ai_json(resp.content[0].text)
 
         # Low confidence → never block, send to review
@@ -313,11 +340,20 @@ async def moderate_product(product: dict) -> dict:
                     {"type": "text", "text": img_prompt},
                 ]
 
-                resp2 = await client.messages.create(
-                    model="claude-haiku-4-5-20251001",
-                    max_tokens=300,
-                    messages=[{"role": "user", "content": msg_content}],
-                )
+                try:
+                    resp2 = await client.messages.create(
+                        model="claude-haiku-4-5-20251001",
+                        max_tokens=300,
+                        messages=[{"role": "user", "content": msg_content}],
+                    )
+                except Exception as api_err:
+                    logger.error("Anthropic API error during product image moderation: %s", api_err)
+                    return {"decision": "review", "reason": "Error de API — revisión manual",
+                            "violation_type": None, "confidence": "low"}
+                if not resp2.content:
+                    logger.warning("Empty Anthropic response for product image moderation")
+                    return {"decision": "review", "reason": "Respuesta vacía — revisión manual",
+                            "violation_type": None, "confidence": "low"}
                 img_result = _parse_ai_json(resp2.content[0].text)
 
                 if img_result.get("is_alcohol_product") and img_result.get("confidence") != "low":

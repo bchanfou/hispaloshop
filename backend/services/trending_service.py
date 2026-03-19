@@ -4,11 +4,13 @@ Lightweight velocity-based scoring, no heavy ML or external calls.
 All operations are async; record_interaction is a single-insert hot-path.
 """
 
-import asyncio
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
 from core.database import get_db
+
+logger = logging.getLogger(__name__)
 
 # Interaction weights define the commerce signal value of each action.
 INTERACTION_WEIGHTS: Dict[str, int] = {
@@ -44,16 +46,20 @@ async def record_interaction(
     """
     db = get_db()
     weight = INTERACTION_WEIGHTS.get(interaction_type, 1)
-    await db.growth_interactions.insert_one({
-        "entity_type": entity_type,
-        "entity_id": entity_id,
-        "interaction_type": interaction_type,
-        "weight": weight,
-        "user_id": user_id,
-        "country": country,
-        "context_id": context_id,
-        "created_at": datetime.now(timezone.utc),
-    })
+    try:
+        await db.growth_interactions.insert_one({
+            "entity_type": entity_type,
+            "entity_id": entity_id,
+            "interaction_type": interaction_type,
+            "weight": weight,
+            "user_id": user_id,
+            "country": country,
+            "context_id": context_id,
+            "created_at": datetime.now(timezone.utc),
+        })
+    except Exception as e:
+        logger.error("[TRENDING] Failed to record interaction %s for %s/%s: %s",
+                     interaction_type, entity_type, entity_id, e)
 
 
 # ── Trending products ──────────────────────────────────────────────────────────
@@ -94,11 +100,11 @@ async def get_trending_products(
                  "category_id": 1},
             )
             if product:
-                product["id"] = str(product["_id"])
+                product["id"] = str(product.pop("_id", ""))
                 product["trend_score"] = item["trend_score"]
                 results.append(product)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("[TRENDING] Failed to fetch product %s: %s", item.get("_id"), e)
 
     return results
 
@@ -144,15 +150,15 @@ async def get_trending_recipes(
                 {"_id": ObjectId(entity_id)},
                 {"name": 1, "image": 1, "author": 1, "time": 1, "saves_count": 1},
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("[TRENDING] Failed to fetch recipe by ObjectId %s: %s", entity_id, e)
         if not recipe:
             recipe = await db.recipes.find_one(
                 {"id": entity_id},
                 {"name": 1, "image": 1, "author": 1, "time": 1, "saves_count": 1},
             )
         if recipe:
-            recipe["id"] = str(recipe.get("_id", entity_id))
+            recipe["id"] = str(recipe.pop("_id", entity_id))
             recipe["trend_score"] = item["trend_score"]
             results.append(recipe)
 
@@ -206,7 +212,7 @@ async def get_suggested_creators(
         if country and creator.get("country") == country:
             score += 20
         creator["discovery_score"] = score
-        creator["id"] = str(creator.get("_id", ""))
+        creator["id"] = str(creator.pop("_id", ""))
         scored.append(creator)
 
     scored.sort(key=lambda x: x["discovery_score"], reverse=True)
@@ -285,8 +291,8 @@ async def get_top_converting_content(limit: int = 10, days: int = 30) -> List[Di
                     {"_id": ObjectId(entity_id)},
                     {"name": 1, "author": 1},
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("[TRENDING] Failed to fetch %s %s: %s", entity_type, entity_id, e)
 
         results.append({
             "entity_id": entity_id,

@@ -12,6 +12,9 @@ async def check_influencer_attribution(db, customer_id: str, influencer_code: st
     Check if a customer can use an influencer code.
     The active runtime stores attribution on the user document.
     """
+    if not customer_id or not influencer_code:
+        return {"allowed": False, "error": "Datos de referido incompletos"}
+
     customer = await db.users.find_one(
         {"user_id": customer_id},
         {"_id": 0, "referred_by": 1, "referral_code": 1, "referral_expires_at": 1},

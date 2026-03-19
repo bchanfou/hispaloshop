@@ -22,24 +22,39 @@ def init_sentry():
         logger.warning("[SENTRY] sentry-sdk not installed — skipping")
         return
 
+    env = os.getenv("ENV", os.getenv("ENVIRONMENT", "production"))
+
     sentry_sdk.init(
         dsn=dsn,
-        environment=os.getenv("ENVIRONMENT", "production"),
+        environment=env,
         release=os.getenv("APP_VERSION", "1.0.0"),
-        traces_sample_rate=0.1,
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_RATE", "0.1")),
         integrations=[
             FastApiIntegration(transaction_style="endpoint"),
             AsyncioIntegration(),
         ],
         before_send=_before_send,
+        # Don't send PII (emails, IPs) by default
+        send_default_pii=False,
     )
-    logger.info("[SENTRY] Initialized (env=%s)", os.getenv("ENVIRONMENT", "production"))
+    logger.info("[SENTRY] Initialized (env=%s)", env)
 
 
 def _before_send(event, hint):
-    """Filter out expected errors (404, 401) from Sentry reports."""
+    """Filter out expected HTTP errors (401, 404, 429) from Sentry reports."""
+    # Check if the exception is an expected HTTP error
+    exc_info = hint.get("exc_info")
+    if exc_info:
+        exc_type, exc_value, _ = exc_info
+        # Filter FastAPI/Starlette HTTPExceptions with expected status codes
+        status = getattr(exc_value, "status_code", None)
+        if status in (401, 403, 404, 405, 422, 429):
+            return None
+
+    # Also filter warning-level messages mentioning these codes (legacy path)
     if event.get("level") == "warning":
         message = str(event.get("message", ""))
-        if "404" in message or "401" in message:
+        if any(code in message for code in ("401", "404", "429")):
             return None
+
     return event
