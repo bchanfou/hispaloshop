@@ -55,6 +55,12 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
     fetchStories();
   }, [fetchStories]);
 
+  // Hide the bar entirely when loading is done, there are no stories, and no
+  // authenticated user (no self-ring to show either).
+  if (!loading && !error && stories.length === 0 && !currentUser) {
+    return null;
+  }
+
   return (
     <div
       className="scrollbar-hide flex gap-3 overflow-x-auto overscroll-x-contain px-4 py-3"

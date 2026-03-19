@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { Virtuoso } from 'react-virtuoso';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -137,6 +137,15 @@ function FollowingFeed() {
     return <EmptyFollowing />;
   }
 
+  // Show "new content" pill when a background refetch is in progress (not pagination)
+  // and there is already data loaded so the user can act on it.
+  const showNewContentPill = feedQuery.isFetching && !feedQuery.isFetchingNextPage && allPosts.length > 0;
+
+  const handleNewContentClick = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    queryClient.invalidateQueries({ queryKey: feedKeys.following });
+  }, [queryClient]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -145,6 +154,24 @@ function FollowingFeed() {
       className="relative overscroll-none"
       {...handlers}
     >
+      {/* "New content available" floating pill */}
+      <AnimatePresence>
+        {showNewContentPill && (
+          <motion.button
+            key="new-content-pill"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22, ease: [0, 0, 0.2, 1] }}
+            onClick={handleNewContentClick}
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-30 bg-stone-950 text-white text-xs px-4 py-2 rounded-full shadow-lg cursor-pointer border-none"
+            aria-live="polite"
+          >
+            Nuevo contenido disponible
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <PullIndicator progress={progress} isRefreshing={refreshing} />
       {isInitialLoading && allPosts.length === 0 ? (
         <div aria-busy="true" aria-label="Cargando publicaciones">

@@ -11,6 +11,8 @@ import { useInternalChatData } from '../features/chat/hooks/useInternalChatData'
 import { getToken } from '../lib/auth';
 import { getWSUrl } from '../services/api/client';
 import { useUnreadNotifications } from '../hooks/api/useNotifications';
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '../services/api/client';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
@@ -61,6 +63,15 @@ export default function BottomNavBar() {
 
   const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
   const unreadCount = user ? (unreadData?.count ?? 0) : 0;
+
+  // Chat-specific unread DM count
+  const { data: unreadChatData } = useQuery({
+    queryKey: ['unread-chat-count'],
+    queryFn: () => apiClient.get('/chat/unread-count').then((r) => r.data),
+    staleTime: 30000,
+    enabled: !!user,
+  });
+  const hasChatUnread = (unreadChatData?.total ?? 0) > 0;
 
   useEffect(() => {
     activePanelRef.current = activePanel;
@@ -323,13 +334,18 @@ export default function BottomNavBar() {
             aria-label={t('bottomNav.home', 'Inicio')}
             data-testid="bottom-nav-home"
             onClick={(e) => handleNavClick(e, isHome)}
-            className="relative flex h-full items-center justify-center active:opacity-60"
+            className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
           >
-            <div
-              className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
-              style={{ transform: `translateX(-50%) scaleX(${isHome ? 1 : 0})` }}
-            />
-            <Home className={`h-[26px] w-[26px] ${isHome ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
+            <Home className={`h-[24px] w-[24px] ${isHome ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
+            <div className="h-1 flex items-center justify-center mt-0.5">
+              {isHome && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className="w-1 h-1 rounded-full bg-stone-950"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+            </div>
           </Link>
 
           {/* 2 — Explore / Buscar */}
@@ -338,13 +354,18 @@ export default function BottomNavBar() {
             aria-label={t('bottomNav.explore', 'Explorar')}
             data-testid="bottom-nav-explore"
             onClick={(e) => handleNavClick(e, isExplore)}
-            className="relative flex h-full items-center justify-center active:opacity-60"
+            className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
           >
-            <div
-              className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
-              style={{ transform: `translateX(-50%) scaleX(${isExplore ? 1 : 0})` }}
-            />
-            <Compass className={`h-[26px] w-[26px] ${isExplore ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
+            <Compass className={`h-[24px] w-[24px] ${isExplore ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
+            <div className="h-1 flex items-center justify-center mt-0.5">
+              {isExplore && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className="w-1 h-1 rounded-full bg-stone-950"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+            </div>
           </Link>
 
           {/* 3 — Crear (+) — elevated */}
@@ -369,21 +390,31 @@ export default function BottomNavBar() {
             onClick={() => { if (!user) { navigate('/login'); return; } togglePanel('chat'); }}
             aria-label={t('bottomNav.chats', 'Chats')}
             data-testid="bottom-nav-chats"
-            className="relative flex h-full items-center justify-center active:opacity-60"
+            className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
           >
-            <div
-              className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
-              style={{ transform: `translateX(-50%) scaleX(${isChatActive ? 1 : 0})` }}
-            />
-            <MessageCircle className={`h-[26px] w-[26px] ${isChatActive ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
-            {unreadCount > 0 && (
-              <span
-                className="absolute top-1 right-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full px-0.5 animate-pulse"
-                style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)', background: 'var(--color-red)' }}
-              >
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
+            <div className="relative">
+              <MessageCircle className={`h-[24px] w-[24px] ${isChatActive ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
+              {unreadCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1.5 flex h-[14px] min-w-[14px] items-center justify-center rounded-full px-0.5 animate-pulse"
+                  style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)', background: 'var(--color-red)' }}
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+              {hasChatUnread && unreadCount === 0 && (
+                <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-stone-950" />
+              )}
+            </div>
+            <div className="h-1 flex items-center justify-center mt-0.5">
+              {isChatActive && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className="w-1 h-1 rounded-full bg-stone-950"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+            </div>
           </button>
 
           {/* 5 — Perfil */}
@@ -392,14 +423,10 @@ export default function BottomNavBar() {
             aria-label={t('bottomNav.profile', 'Perfil')}
             data-testid="bottom-nav-profile"
             onClick={(e) => handleNavClick(e, isProfile)}
-            className="relative flex h-full items-center justify-center active:opacity-60"
+            className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
           >
-            <div
-              className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
-              style={{ transform: `translateX(-50%) scaleX(${isProfile ? 1 : 0})` }}
-            />
             {profileImage && !profileAvatarError ? (
-              <div className={`h-[26px] w-[26px] overflow-hidden rounded-full transition-all ${
+              <div className={`h-[24px] w-[24px] overflow-hidden rounded-full transition-all ${
                 isProfile
                   ? 'ring-[2px] ring-stone-950 ring-offset-[2px] ring-offset-white'
                   : 'ring-[1.5px] ring-stone-300 ring-offset-0'
@@ -412,8 +439,17 @@ export default function BottomNavBar() {
                 />
               </div>
             ) : (
-              <User className={`h-[26px] w-[26px] ${isProfile ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
+              <User className={`h-[24px] w-[24px] ${isProfile ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             )}
+            <div className="h-1 flex items-center justify-center mt-0.5">
+              {isProfile && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className="w-1 h-1 rounded-full bg-stone-950"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+            </div>
           </Link>
         </div>
 

@@ -14,6 +14,7 @@ import {
   Send,
   X as XIcon,
   Trash2,
+  ShoppingBag,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
@@ -34,6 +35,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const [showComments, setShowComments] = useState(false);
+  const [showProductSheet, setShowProductSheet] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -287,7 +289,9 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
   const avatarUrl = reel.user?.avatar_url || reel.user?.avatar || reel.user?.profile_image || reel.user_profile_image;
   const reelCommentsCount = reel.comments_count ?? reel.comments ?? 0;
-  const product = reel.products?.[0] || reel.tagged_products?.[0] || reel.tagged_product || reel.productTag || null;
+  const allProducts = [...(reel.products || []), ...(reel.tagged_products || [])].filter(Boolean);
+  const product = allProducts[0] || reel.tagged_product || reel.productTag || null;
+  const hasMultipleProducts = allProducts.length > 1;
 
   return (
     <div
@@ -538,6 +542,26 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         )}
       </div>
 
+      {/* Product tag pill — shown when there are tagged products */}
+      {(allProducts.length > 0 || reel.tagged_product || reel.productTag) && (
+        <button
+          className="absolute bottom-16 left-4 z-[3] flex items-center gap-1.5 bg-stone-950/80 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full border-none cursor-pointer hover:bg-stone-950 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (hasMultipleProducts) {
+              setShowProductSheet(true);
+            } else {
+              const p = product;
+              if (p) navigate(`/products/${p.id || p.product_id}`);
+            }
+          }}
+          aria-label={hasMultipleProducts ? `Ver ${allProducts.length} productos` : `Ver producto`}
+        >
+          <ShoppingBag size={13} className="shrink-0" />
+          <span>{hasMultipleProducts ? `Ver productos (${allProducts.length})` : 'Ver producto'}</span>
+        </button>
+      )}
+
       {/* Product CTA */}
       {product && (
         <div className="absolute bottom-4 left-4 right-4 bg-white/15 backdrop-blur-xl rounded-full p-2 flex items-center z-[2]">
@@ -668,6 +692,55 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
               >
                 <Send size={16} />
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Multi-product bottom sheet */}
+      {showProductSheet && (
+        <div
+          className="absolute inset-0 z-[10] flex flex-col justify-end"
+          onClick={() => setShowProductSheet(false)}
+        >
+          <div
+            className="bg-stone-950/95 backdrop-blur-xl rounded-t-2xl flex flex-col max-h-[55vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <span className="text-sm font-semibold text-white">Productos ({allProducts.length})</span>
+              <button
+                onClick={() => setShowProductSheet(false)}
+                className="bg-transparent border-none cursor-pointer p-1"
+                aria-label="Cerrar"
+              >
+                <XIcon size={18} className="text-white/60" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-4 py-2">
+              {allProducts.map((p, i) => (
+                <button
+                  key={p.id || p.product_id || i}
+                  className="w-full flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0 bg-transparent border-none cursor-pointer text-left hover:bg-white/5 -mx-4 px-4 transition-colors"
+                  onClick={() => { setShowProductSheet(false); navigate(`/products/${p.id || p.product_id}`); }}
+                >
+                  {(p.image || p.thumbnail) && (
+                    <img
+                      src={p.image || p.thumbnail}
+                      alt={p.name || p.title}
+                      className="w-12 h-12 rounded-xl object-cover shrink-0 bg-white/10"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold text-white font-sans truncate">{p.name || p.title}</p>
+                    {p.price != null && (
+                      <p className="text-[12px] text-white/60 font-sans mt-0.5">{formatPrice(p.price)}</p>
+                    )}
+                  </div>
+                  <ShoppingBag size={16} className="text-white/40 shrink-0" />
+                </button>
+              ))}
             </div>
           </div>
         </div>

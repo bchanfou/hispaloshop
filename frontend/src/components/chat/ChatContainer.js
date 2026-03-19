@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ChevronDown, MoreHorizontal, Trash2 } from 'lucide-react';
+import { ArrowLeft, ChevronDown, MoreHorizontal, Trash2, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useHIChat, getTimeGreeting } from './useHIChat';
 import MessageBubble from './MessageBubble';
@@ -110,12 +110,14 @@ function ChatContainer() {
   const { user } = useAuth();
   const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
+  const replyingToRef = useRef(null);
 
   const [showRoleSelector, setShowRoleSelector] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null);
 
   const {
     activeRole,
@@ -172,6 +174,19 @@ function ChatContainer() {
   const handleSuggestionClick = async (suggestion) => {
     await applySuggestion(suggestion);
   };
+
+  // Keep ref in sync so handleSend always sees current value
+  replyingToRef.current = replyingTo;
+
+  const handleSend = useCallback(async (text) => {
+    const currentReply = replyingToRef.current;
+    setReplyingTo(null);
+    await sendMessage(text, currentReply?.id || null);
+  }, [sendMessage]);
+
+  const handleSwipeRight = useCallback((message) => {
+    setReplyingTo(message);
+  }, []);
 
   const handleSwitchRole = (newRole) => {
     switchRole(newRole);
@@ -299,6 +314,7 @@ function ChatContainer() {
                     key={message.id}
                     message={message}
                     isFirstInGroup={message.isFirstInGroup}
+                    onSwipeRight={handleSwipeRight}
                   />
                 ))}
               </motion.div>
@@ -347,7 +363,38 @@ function ChatContainer() {
         ) : null}
       </AnimatePresence>
 
-      <ChatInput onSend={sendMessage} isLoading={isLoading} compact={isKeyboardOpen} />
+      {/* Reply preview bar */}
+      <AnimatePresence>
+        {replyingTo ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className="px-4 py-2 bg-stone-50 border-t border-stone-100 flex items-center justify-between gap-2"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-0.5 self-stretch bg-stone-950 rounded-full flex-shrink-0" />
+              <p className="text-xs text-stone-600 truncate">
+                <span className="font-medium text-stone-900">
+                  {replyingTo.role === 'user' ? 'Tú' : 'HA'}
+                </span>
+                {' · '}
+                {replyingTo.content?.slice(0, 80) || ''}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setReplyingTo(null)}
+              className="flex-shrink-0 rounded-full p-1 text-stone-400 hover:text-stone-700 transition-colors"
+              aria-label="Cancelar respuesta"
+            >
+              <X size={14} />
+            </button>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <ChatInput onSend={handleSend} isLoading={isLoading} compact={isKeyboardOpen} />
 
       <AnimatePresence>
         {showRoleSelector ? (

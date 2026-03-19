@@ -462,10 +462,24 @@ export default function SearchPage() {
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
               <Search size={24} className="text-stone-500" />
             </div>
-            <p className="mb-1 text-base font-semibold text-stone-950">Sin resultados</p>
-            <p className="text-sm leading-relaxed text-stone-500">
-              No encontramos nada para <strong>"{query}"</strong>. Prueba con otro término.
+            <p className="mb-1 text-base font-semibold text-stone-950">Sin resultados para "{query}"</p>
+            <p className="mb-6 text-sm leading-relaxed text-stone-500">
+              Prueba con otro término o explora estas sugerencias:
             </p>
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-stone-400">Puede que te interese:</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {['Aceite de oliva', 'Jamón ibérico', 'Vino tinto'].map(suggestion => (
+                  <button
+                    key={suggestion}
+                    onClick={() => setQuery(suggestion)}
+                    className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-950 transition-colors hover:bg-stone-50"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
           </motion.div>
         )}
 

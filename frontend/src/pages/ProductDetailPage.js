@@ -450,11 +450,26 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Price */}
-        <div className="mt-3">
+        <div className="mt-3 flex flex-wrap items-baseline gap-2">
           <span className="text-2xl font-bold text-stone-950">
             {displayPrice}
           </span>
-          <span className="ml-1.5 text-[11px] text-stone-500">
+          {(() => {
+            const rawPrice = selectedPack?.price || currentPrice || product?.display_price || product?.price || 0;
+            const origPrice = product?.original_price;
+            if (origPrice && origPrice > rawPrice) {
+              const discountPct = Math.round((1 - rawPrice / origPrice) * 100);
+              const formattedOrig = convertAndFormatPrice(origPrice, product?.display_currency || product?.currency || 'EUR');
+              return (
+                <>
+                  <span className="text-sm line-through text-stone-400">{formattedOrig}</span>
+                  <span className="text-xs font-semibold bg-stone-950 text-white px-1.5 py-0.5 rounded">-{discountPct}%</span>
+                </>
+              );
+            }
+            return null;
+          })()}
+          <span className="text-[11px] text-stone-500">
             {t('productDetail.taxNote', 'IVA no incluido')}
           </span>
         </div>
@@ -476,6 +491,21 @@ export default function ProductDetailPage() {
             </span>
           </div>
         )}
+        {/* Low-stock urgency badge */}
+        {(() => {
+          const stockVal = product?.market_stock ?? product?.stock ?? 100;
+          if (!isOutOfStock && stockVal > 0 && stockVal <= 5) {
+            return (
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-950 animate-pulse" />
+                  Solo quedan {stockVal} unidades
+                </span>
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {/* Shipping */}
         <div className="mt-3 flex items-center gap-2 py-2.5">

@@ -1,7 +1,9 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
+import { ChevronLeft, Store } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfile, useUserFollow } from '../features/user/hooks';
 import { resolveUserImage, useUserHighlightsQuery, userKeys } from '../features/user/queries';
@@ -24,7 +26,14 @@ export default function UserProfilePage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showCreateHighlight, setShowCreateHighlight] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const tabsRef = useRef(null);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 180);
+    window.addEventListener('scroll', handler);
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
 
   const isOwn = currentUser && (
     String(currentUser.user_id) === String(userId) ||
@@ -187,6 +196,47 @@ export default function UserProfilePage() {
         description={user.bio?.slice(0, 160) || `Perfil de ${user.name} en Hispaloshop`}
         image={user.profile_image}
       />
+
+      {/* ── Sticky mini-header (appears after scrolling 180px) ── */}
+      <motion.div
+        initial={{ y: -48, opacity: 0 }}
+        animate={{ y: scrolled ? 0 : -48, opacity: scrolled ? 1 : 0 }}
+        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+        className="fixed top-0 left-0 right-0 z-40 flex h-12 items-center justify-between bg-white/95 backdrop-blur-md border-b border-stone-100 px-3"
+        aria-hidden={!scrolled}
+      >
+        <button
+          onClick={() => navigate(-1)}
+          aria-label="Volver"
+          className="flex items-center justify-center p-2"
+        >
+          <ChevronLeft size={22} className="text-stone-950" />
+        </button>
+        <span className="text-[15px] font-semibold text-stone-950">
+          @{user.username}
+        </span>
+        {!isOwn ? (
+          <button
+            onClick={handleFollowToggle}
+            className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold ${
+              user.is_following
+                ? 'bg-stone-100 text-stone-950'
+                : user.follow_request_pending
+                ? 'bg-stone-100 text-stone-500'
+                : 'bg-stone-950 text-white'
+            }`}
+          >
+            {user.follow_request_pending
+              ? 'Solicitado'
+              : user.is_following
+              ? 'Siguiendo'
+              : 'Seguir'}
+          </button>
+        ) : (
+          <div className="w-10" />
+        )}
+      </motion.div>
+
       <ProfileHeader
         user={user}
         isOwn={isOwn}
@@ -199,6 +249,20 @@ export default function UserProfilePage() {
         onCreateHighlight={() => setShowCreateHighlight(true)}
         onSwitchTab={(tabId) => tabsRef.current?.switchTab(tabId)}
       />
+
+      {/* ── Store link for producers/importers ── */}
+      {(user.role === 'producer' || user.role === 'importer') && (user.store_slug || user.store_id) && (
+        <div className="px-4 pb-2">
+          <a
+            href={`/store/${user.store_slug || user.store_id}`}
+            onClick={(e) => { e.preventDefault(); navigate(`/store/${user.store_slug || user.store_id}`); }}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-950 hover:underline"
+          >
+            <Store size={14} />
+            Ver tienda →
+          </a>
+        </div>
+      )}
 
       <ProfileTabs
         ref={tabsRef}

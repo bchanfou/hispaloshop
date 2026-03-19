@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Video, Circle, ChefHat } from 'lucide-react';
+import { Camera, Video, Circle, ChefHat, Camera as CameraIcon } from 'lucide-react';
 
 const CONTENT_TYPES = [
   // Row 1 — 3 columns
@@ -60,7 +60,70 @@ function ContentTypeButton({ icon, label, primary, isText, onSelect }) {
   );
 }
 
-export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
+function CameraButton({ label, accept, capture, onFile }) {
+  const inputRef = useRef(null);
+
+  const handleChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    onFile(files);
+    e.target.value = '';
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={() => inputRef.current?.click()}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 8,
+        padding: '16px 8px',
+        borderRadius: 'var(--radius-lg)',
+        cursor: 'pointer',
+        transition: 'var(--transition-fast)',
+        background: 'transparent',
+        border: 'none',
+        fontFamily: 'var(--font-sans)',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+      onTouchStart={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
+      onTouchEnd={e => { e.currentTarget.style.background = 'transparent'; }}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        capture={capture}
+        style={{ display: 'none' }}
+        onChange={handleChange}
+      />
+      <div style={{
+        width: 56,
+        height: 56,
+        borderRadius: 'var(--radius-md)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--color-surface)',
+        color: 'var(--color-black)',
+      }}>
+        <CameraIcon size={22} />
+      </div>
+      <span style={{
+        fontSize: 'var(--text-sm)',
+        fontWeight: 500,
+        color: 'var(--color-black)',
+      }}>
+        {label}
+      </span>
+    </button>
+  );
+}
+
+export default function CreateContentSheet({ isOpen, onClose, onSelect, onCameraFile }) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -126,19 +189,50 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
               Crear contenido
             </p>
 
-            {/* Row 1 — 3 columns */}
+            {/* Row 1 — 4 columns: Cámara foto, Post (Galería), Reel, Cámara vídeo */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 8,
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 4,
             }}>
-              {CONTENT_TYPES.slice(0, 3).map(opt => (
-                <ContentTypeButton
-                  key={opt.type}
-                  {...opt}
-                  onSelect={() => onSelect(opt.type)}
-                />
-              ))}
+              {/* Cámara — foto */}
+              <CameraButton
+                label="Cámara"
+                accept="image/*"
+                capture="environment"
+                onFile={(files) => {
+                  onClose();
+                  if (onCameraFile) onCameraFile('post', files);
+                  else onSelect('post');
+                }}
+              />
+
+              {/* Post (Galería) */}
+              <ContentTypeButton
+                type="post"
+                icon={<Camera size={22} />}
+                label="Post"
+                primary={false}
+                onSelect={() => onSelect('post')}
+              />
+
+              {/* Reel (Galería) */}
+              <ContentTypeButton
+                type="reel"
+                icon={<Video size={22} />}
+                label="Reel"
+                primary={false}
+                onSelect={() => onSelect('reel')}
+              />
+
+              {/* Story */}
+              <ContentTypeButton
+                type="story"
+                icon={<Circle size={22} />}
+                label="Story"
+                primary={false}
+                onSelect={() => onSelect('story')}
+              />
             </div>
 
             {/* Row 2 — receta centrada */}

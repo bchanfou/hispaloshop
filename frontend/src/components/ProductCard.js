@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Plus, Star } from 'lucide-react';
+import { Bookmark, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from './ui/ProductImage.tsx';
 import { useAuth } from '../context/AuthContext';
@@ -69,6 +69,14 @@ function ProductCard({ product, variant = 'default' }) {
   const primaryImage = product.images?.[0] || product.image_url || null;
   const isBlocked = isOutOfStock || isUnavailableInCountry;
   const certs = product.certifications || [];
+  const isLowStock = !isOutOfStock && stock > 0 && stock <= 5;
+  const originalPrice = product.original_price;
+  const discountPct = (originalPrice && originalPrice > basePrice)
+    ? Math.round((1 - basePrice / originalPrice) * 100)
+    : null;
+  const formattedOriginalPrice = discountPct
+    ? convertAndFormatPrice(originalPrice, baseCurrency)
+    : null;
 
   const handleAddToCart = async (event) => {
     event.preventDefault();
@@ -102,7 +110,7 @@ function ProductCard({ product, variant = 'default' }) {
         >
           <ProductImage
             src={primaryImage}
-            productName={product.name}
+            productName={product.name || 'Producto'}
             className="h-full w-full"
             imageClassName="group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 33vw, 20vw"
@@ -117,14 +125,27 @@ function ProductCard({ product, variant = 'default' }) {
               Agotado
             </span>
           )}
+          {isLowStock && (
+            <span className="absolute bottom-2 left-2 text-[10px] font-semibold bg-stone-950 text-white px-2 py-0.5 rounded-full">
+              Últimas unidades
+            </span>
+          )}
         </div>
         <div style={{ padding: '8px 8px 10px' }}>
           <p style={{ fontSize: 9, fontWeight: 500, color: 'var(--color-black)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontFamily: 'var(--font-sans)' }}>
             {product.name}
           </p>
-          <p style={{ fontSize: 9, color: 'var(--color-stone)', marginTop: 2, fontFamily: 'var(--font-sans)' }}>
-            {displayPrice}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, flexWrap: 'wrap' }}>
+            <p style={{ fontSize: 9, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+              {displayPrice}
+            </p>
+            {discountPct && (
+              <>
+                <span style={{ fontSize: 8, color: '#a8a29e', textDecoration: 'line-through', fontFamily: 'var(--font-sans)' }}>{formattedOriginalPrice}</span>
+                <span style={{ fontSize: 8, fontWeight: 600, background: '#0c0a09', color: '#fff', padding: '1px 4px', borderRadius: 3, fontFamily: 'var(--font-sans)' }}>-{discountPct}%</span>
+              </>
+            )}
+          </div>
         </div>
       </Link>
     );
@@ -149,7 +170,7 @@ function ProductCard({ product, variant = 'default' }) {
       >
         <ProductImage
           src={primaryImage}
-          productName={product.name}
+          productName={product.name || 'Producto'}
           className="h-full w-full"
           imageClassName="group-hover:scale-[1.03]"
           sizes="(max-width: 768px) 50vw, 25vw"
@@ -175,6 +196,13 @@ function ProductCard({ product, variant = 'default' }) {
             borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
           }}>
             Agotado
+          </span>
+        )}
+
+        {/* Low-stock urgency badge */}
+        {isLowStock && (
+          <span className="absolute bottom-2 left-2 text-[10px] font-semibold bg-stone-950 text-white px-2 py-0.5 rounded-full">
+            Últimas unidades
           </span>
         )}
 
@@ -215,9 +243,21 @@ function ProductCard({ product, variant = 'default' }) {
 
         {/* Price + Add button */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-          <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
-            {displayPrice}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                {displayPrice}
+              </span>
+              {discountPct && (
+                <span className="text-xs font-semibold bg-stone-950 text-white px-1.5 py-0.5 rounded">
+                  -{discountPct}%
+                </span>
+              )}
+            </div>
+            {discountPct && (
+              <span className="line-through text-stone-400 text-xs">{formattedOriginalPrice}</span>
+            )}
+          </div>
           <AddButton
             onAdd={handleAddToCart}
             isDisabled={isBlocked}
@@ -245,6 +285,7 @@ const areProductPropsEqual = (prev, next) => {
     p?.image_url === n?.image_url &&
     p?.images?.[0] === n?.images?.[0] &&
     p?.certifications?.length === n?.certifications?.length &&
+    p?.original_price === n?.original_price &&
     prev.variant === next.variant
   );
 };

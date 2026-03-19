@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Loader2 } from 'lucide-react';
+import { ChevronLeft, Loader2, Film } from 'lucide-react';
 import ReelCard from '../components/feed/ReelCard';
 import apiClient from '../services/api/client';
 
@@ -131,12 +131,20 @@ export default function ReelsPage() {
         >
           <ChevronLeft className="w-[22px] h-[22px] text-white" />
         </button>
-        <span className="text-white/60 text-sm font-sans text-center">
-          No hay reels disponibles ahora mismo
-        </span>
+        <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-2">
+          <Film className="w-9 h-9 text-white/50" />
+        </div>
+        <p className="text-white text-lg font-semibold font-sans text-center">Aún no hay reels</p>
+        <p className="text-white/50 text-sm font-sans text-center -mt-2">Sé el primero en publicar</p>
+        <button
+          onClick={() => navigate('/create/reel')}
+          className="mt-2 text-black text-sm font-semibold font-sans bg-white rounded-full px-6 py-3 border-none cursor-pointer hover:bg-stone-100 transition-colors"
+        >
+          Crear Reel
+        </button>
         <button
           onClick={() => { setLoading(true); setPage(1); setHasMore(true); fetchReels(1); }}
-          className="text-white text-sm font-semibold font-sans bg-white/10 rounded-full px-5 py-2.5 border-none cursor-pointer hover:bg-white/20 transition-colors"
+          className="text-white/50 text-xs font-sans bg-transparent border-none cursor-pointer hover:text-white/80 transition-colors"
         >
           Reintentar
         </button>
@@ -148,6 +156,7 @@ export default function ReelsPage() {
     <div
       ref={containerRef}
       className="h-dvh overflow-y-scroll snap-y snap-mandatory bg-black [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      style={{ scrollBehavior: 'smooth' }}
     >
       {/* Back button */}
       <button
@@ -178,7 +187,7 @@ export default function ReelsPage() {
           key={reel.id || reel.post_id || `reel-${idx}`}
           data-reel-item
           data-index={idx}
-          className="h-dvh snap-start"
+          className="h-dvh snap-start snap-always"
         >
           <ReelCard
             reel={reel}

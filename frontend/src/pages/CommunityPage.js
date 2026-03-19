@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ArrowLeft, Users, Settings, Loader2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Users, Settings, Loader2, RefreshCw, Pin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
@@ -581,6 +581,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
 
 /* ── Post Card ── */
 const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
+  // G4 — pinned indicator rendered above the card wrapper
   const { user } = useAuth();
   const [liked, setLiked] = useState(post.is_liked);
   const [likes, setLikes] = useState(post.likes_count || 0);
@@ -614,6 +615,15 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
   };
 
   return (
+    <div>
+      {/* G4 — Pinned indicator */}
+      {post.is_pinned && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}
+          className="flex items-center gap-1 text-xs text-stone-500 mb-1">
+          <Pin size={12} color="var(--color-stone)" />
+          <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>Fijado</span>
+        </div>
+      )}
     <div style={{
       background: 'var(--color-white)',
       borderRadius: 'var(--radius-xl)',
@@ -715,6 +725,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
           <span style={{ fontSize: 18 }}>↗️</span>
         </button>
       </div>
+    </div>
     </div>
   );
 };

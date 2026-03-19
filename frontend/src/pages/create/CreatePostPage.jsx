@@ -137,6 +137,10 @@ export default function CreatePostPage() {
   const [disableComments, setDisableComments] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
 
+  /* --- auto-save draft --- */
+  const [draftBanner, setDraftBanner] = useState(false);
+  const draftDebounceRef = useRef(null);
+
   /* --- upload progress --- */
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -211,6 +215,38 @@ export default function CreatePostPage() {
     return () => clearTimeout(t);
   }, [activeFilter]);
 
+  /* ── draft: check on mount ── */
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('post_draft');
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      const age = Date.now() - (draft.savedAt || 0);
+      if (age < 24 * 60 * 60 * 1000 && draft.caption) {
+        setDraftBanner(true);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  /* ── draft: auto-save on caption / file changes ── */
+  useEffect(() => {
+    if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current);
+    draftDebounceRef.current = setTimeout(() => {
+      try {
+        if (caption || selectedFiles.length) {
+          localStorage.setItem('post_draft', JSON.stringify({
+            caption,
+            fileCount: selectedFiles.length,
+            savedAt: Date.now(),
+          }));
+        }
+      } catch { /* quota exceeded or private mode */ }
+    }, 2000);
+    return () => {
+      if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current);
+    };
+  }, [caption, selectedFiles]);
+
   /* ── publish ── */
   const [publishSuccess, setPublishSuccess] = useState(false);
 
@@ -240,6 +276,9 @@ export default function CreatePostPage() {
 
       // Haptic feedback
       if (navigator.vibrate) navigator.vibrate(50);
+
+      // Clear draft on successful publish
+      try { localStorage.removeItem('post_draft'); } catch { /* ignore */ }
 
       // Show success animation before redirecting
       setPublishSuccess(true);
@@ -875,6 +914,54 @@ export default function CreatePostPage() {
                 <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             ))}
+          </div>
+        )}
+
+        {/* draft banner */}
+        {draftBanner && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 8,
+            padding: '10px 14px',
+            marginBottom: 12,
+            background: 'var(--color-surface)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-border)',
+            fontFamily: 'var(--font-sans)',
+          }}>
+            <span style={{ fontSize: 13, color: 'var(--color-black)', fontWeight: 500 }}>
+              Tienes un borrador guardado
+            </span>
+            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    const raw = localStorage.getItem('post_draft');
+                    if (raw) {
+                      const draft = JSON.parse(raw);
+                      if (draft.caption) setCaption(draft.caption);
+                    }
+                  } catch { /* ignore */ }
+                  setDraftBanner(false);
+                }}
+                style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                Restaurar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  try { localStorage.removeItem('post_draft'); } catch { /* ignore */ }
+                  setDraftBanner(false);
+                }}
+                style={{ fontSize: 13, color: 'var(--color-stone)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                Descartar
+              </button>
+            </div>
           </div>
         )}
 

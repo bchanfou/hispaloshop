@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
+import PostDetailModal from '../components/feed/PostDetailModal';
 import SEO from '../components/SEO';
 import { CATEGORY_GROUPS } from '../constants/categories';
 import { toast } from 'sonner';
@@ -42,6 +43,10 @@ export default function DiscoverPage() {
   const { user } = useAuth();
   const { country } = useLocale?.() || {};
   const userCountry = user?.country || country || 'ES';
+
+  /* ── ui states ── */
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [contentTab, setContentTab] = useState('posts');
 
   /* ── data states ── */
   const [trending, setTrending] = useState([]);
@@ -161,6 +166,12 @@ export default function DiscoverPage() {
     return grid;
   }, [loadingProducts, products, eliteStores]);
 
+  /* ── category navigate with scroll ── */
+  const handleCategoryClick = useCallback((slug) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate(`/explore/category/${slug}`);
+  }, [navigate]);
+
   /* ── render ── */
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
@@ -182,7 +193,7 @@ export default function DiscoverPage() {
         </button>
 
         {/* ─── SECTION PILLS ─── */}
-        <div className="mb-5 flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+        <div className="mb-3 flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
           {SECTION_PILLS.map(pill => (
             <button key={pill.id} onClick={() => navigate(pill.to)} className={pillCls(false)}>
               {pill.icon} {pill.label}
@@ -193,6 +204,33 @@ export default function DiscoverPage() {
               <ClipboardList size={14} /> Catálogo B2B
             </button>
           )}
+        </div>
+
+        {/* ─── CONTENT TABS ─── */}
+        <div className="-mx-4 mb-4 flex gap-1 border-b border-stone-100 px-4">
+          {[
+            { key: 'posts', label: 'Posts' },
+            { key: 'reels', label: 'Reels' },
+            { key: 'products', label: 'Productos' },
+            { key: 'recipes', label: 'Recetas' },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => {
+                if (tab.key === 'reels') { navigate('/reels'); return; }
+                if (tab.key === 'products') { navigate('/products'); return; }
+                if (tab.key === 'recipes') { navigate('/recipes'); return; }
+                setContentTab(tab.key);
+              }}
+              className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                contentTab === tab.key
+                  ? 'border-stone-950 text-stone-950'
+                  : 'border-transparent text-stone-400'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* ─── ① TENDENCIAS HOY ─── */}
@@ -310,7 +348,7 @@ export default function DiscoverPage() {
           <span className="mb-3 block text-[10px] font-semibold uppercase tracking-wider text-stone-500">Categorías</span>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {CATEGORY_GROUPS.map(grp => (
-              <button key={grp.slug} onClick={() => navigate(`/explore/category/${grp.slug}`)} className={pillCls(false)}>
+              <button key={grp.slug} onClick={() => handleCategoryClick(grp.slug)} className={pillCls(false)}>
                 {grp.emoji} {grp.label}
               </button>
             ))}
@@ -502,6 +540,10 @@ export default function DiscoverPage() {
         )}
 
       </div>
+
+      {selectedPost && (
+        <PostDetailModal post={selectedPost} onClose={() => setSelectedPost(null)} />
+      )}
     </div>
   );
 }

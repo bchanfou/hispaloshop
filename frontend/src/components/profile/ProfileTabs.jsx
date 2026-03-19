@@ -234,7 +234,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       );
     }
     return (
-      <div className="grid grid-cols-3 gap-px bg-stone-100">
+      <div className="grid grid-cols-3 gap-0.5">
         {items.map((post, i) => {
           const src = (post.images?.length > 0 && post.images[0]) || post.image_url;
           const hasMultiple = post.images?.length > 1;
@@ -251,7 +251,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
                 src={src}
                 alt={post.caption ? post.caption.slice(0, 80) : 'Publicación'}
                 loading="lazy"
-                className="block h-full w-full object-cover"
+                className="w-full h-full object-cover"
               />
               {hasMultiple && <MultiImageBadge />}
             </div>
@@ -272,7 +272,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       );
     }
     return (
-      <div className="grid grid-cols-3 gap-px bg-stone-100">
+      <div className="grid grid-cols-3 gap-0.5">
         {items.map((reel, i) => {
           const src = reel.thumbnail_url || reel.cover_url || reel.image_url || '';
           return (
@@ -403,7 +403,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       return <EmptyState icon={Bookmark} title="Nada guardado todavía" />;
     }
     return (
-      <div className="grid grid-cols-3 gap-px bg-stone-100">
+      <div className="grid grid-cols-3 gap-0.5">
         {items.map((item, i) => {
           const src = (item.images?.length > 0 && item.images[0]) || item.image_url;
           return (
@@ -419,7 +419,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
                 src={src}
                 alt="Publicación guardada"
                 loading="lazy"
-                className="block h-full w-full object-cover"
+                className="w-full h-full object-cover"
               />
             </div>
           );
