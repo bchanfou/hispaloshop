@@ -20,6 +20,8 @@ import {
   Pause,
   Play,
   Download,
+  Phone,
+  MoreVertical,
 } from 'lucide-react';
 import { useChatContext } from '@/context/chat/ChatProvider';
 import { useAuth } from '@/context/AuthContext';
@@ -70,8 +72,9 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
   const isOnline = conversation?.online || status?.online;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-stone-100 bg-white/95 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] font-apple backdrop-blur-xl">
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-30 border-b border-stone-100 bg-white/95 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] font-apple backdrop-blur-md">
+      <div className="flex items-center gap-2">
+        {/* Left: back button */}
         <button
           onClick={() => navigate(-1)}
           className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-transparent text-stone-950 active:bg-stone-100"
@@ -80,17 +83,18 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
           <ArrowLeft size={22} />
         </button>
 
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-200">
+        {/* Center: avatar + name */}
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-stone-200">
             {conversation?.avatar_url ? (
               <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-[15px] font-semibold text-stone-500">
+              <div className="flex h-full w-full items-center justify-center text-[13px] font-semibold text-stone-500">
                 {(conversation?.name || '?')[0]?.toUpperCase()}
               </div>
             )}
             {isOnline && (
-              <span className="absolute bottom-0 right-0 h-[10px] w-[10px] rounded-full border-2 border-white bg-stone-950" />
+              <span className="absolute bottom-0 right-0 h-[9px] w-[9px] rounded-full border-2 border-white bg-stone-950" />
             )}
           </div>
 
@@ -108,13 +112,31 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
           </div>
         </div>
 
-        <button
-          onClick={onToggleSearch}
-          className={`flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full active:bg-stone-100 ${showSearch ? 'text-stone-950' : 'text-stone-500'}`}
-          aria-label="Buscar"
-        >
-          <Search size={20} />
-        </button>
+        {/* Right: search + phone (disabled) + more */}
+        <div className="flex shrink-0 items-center gap-0.5">
+          <button
+            onClick={onToggleSearch}
+            className={`flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full active:bg-stone-100 ${showSearch ? 'text-stone-950' : 'text-stone-500'}`}
+            aria-label="Buscar"
+          >
+            <Search size={20} />
+          </button>
+
+          <button
+            disabled
+            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-300 cursor-not-allowed"
+            aria-label="Llamar (próximamente)"
+          >
+            <Phone size={20} />
+          </button>
+
+          <button
+            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
+            aria-label="Más opciones"
+          >
+            <MoreVertical size={20} />
+          </button>
+        </div>
 
       </div>
 
@@ -869,7 +891,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
   const fmtSecs = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   return (
-    <div className="shrink-0 border-t border-stone-100 bg-white font-apple" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
+    <div className="sticky bottom-0 shrink-0 border-t border-stone-100 bg-white font-apple" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
       {/* Reply preview bar */}
       <AnimatePresence>
         {replyTo && (
@@ -920,7 +942,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
               onKeyDown={handleKeyDown}
               placeholder="Mensaje..."
               rows={1}
-              className="w-full min-h-[44px] max-h-[120px] resize-none rounded-3xl border border-stone-200 bg-white px-4 py-2.5 text-[15px] leading-[22px] text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-200"
+              className="w-full min-h-[44px] max-h-[120px] resize-none rounded-full bg-stone-50 px-4 py-2.5 text-sm text-stone-950 outline-none placeholder:text-stone-400"
             />
           </div>
 

@@ -4,6 +4,8 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import { Search, MessageCircle, PenSquare, Trash2 } from 'lucide-react';
 import { useChatContext } from '@/context/chat/ChatProvider';
 
+const SWIPE_HINT_KEY = 'chat_swipe_hint_shown';
+
 const FILTERS = [
   { key: 'all',    label: 'Todos' },
   { key: 'b2c',    label: 'Tiendas' },
@@ -92,12 +94,12 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) 
               className={`h-12 w-12 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
             />
           ) : (
-            <div className={`flex h-12 w-12 items-center justify-center bg-[#2E7D52] text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+            <div className={`flex h-12 w-12 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
               {getInitial(name)}
             </div>
           )}
           {online && (
-            <span className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-stone-50 bg-green-500" />
+            <span className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-stone-50 bg-stone-950" />
           )}
         </div>
 
@@ -119,12 +121,23 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) 
         )}
 
         <div className="mt-0.5 flex items-center justify-between gap-2">
-          <span className={`truncate text-[13px] leading-[18px] ${isTyping ? 'italic text-[#2E7D52]' : isUnread ? 'font-medium text-stone-950' : 'text-stone-500'}`}>
-            {isTyping ? 'Escribiendo...' : last_message || 'Sin mensajes aún'}
-          </span>
+          {isTyping ? (
+            <span className="text-stone-950 italic text-xs font-medium flex items-center gap-1">
+              <span className="inline-flex gap-0.5">
+                {[0, 1, 2].map(i => (
+                  <span key={i} className="w-1 h-1 rounded-full bg-stone-950 animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
+                ))}
+              </span>
+              Escribiendo
+            </span>
+          ) : (
+            <span className={`truncate text-[13px] leading-[18px] ${isUnread ? 'font-medium text-stone-950' : 'text-stone-500'}`}>
+              {last_message || 'Sin mensajes aún'}
+            </span>
+          )}
 
           {isUnread && (
-            <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-[#2E7D52] px-1 text-[11px] font-semibold leading-none text-white animate-pulse">
+            <span className="flex h-[20px] min-w-[20px] shrink-0 items-center justify-center rounded-full bg-stone-950 px-1 text-[11px] font-semibold leading-none text-white">
               {unread_count > 99 ? '99+' : unread_count}
             </span>
           )}
@@ -141,11 +154,22 @@ export default function ChatsPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
   const debounceRef = useRef(null);
 
   useEffect(() => {
     reloadConversations();
   }, [reloadConversations]);
+
+  // Show swipe hint once per device
+  useEffect(() => {
+    if (!localStorage.getItem(SWIPE_HINT_KEY)) {
+      setShowSwipeHint(true);
+      localStorage.setItem(SWIPE_HINT_KEY, '1');
+      const t = setTimeout(() => setShowSwipeHint(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, []);
 
   const handleSearchChange = useCallback((e) => {
     const value = e.target.value;
@@ -210,6 +234,21 @@ export default function ChatsPage() {
         </label>
       </div>
 
+      {/* Swipe hint — shown once */}
+      <AnimatePresence>
+        {showSwipeHint && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="text-xs text-stone-400 text-center py-1"
+          >
+            ← Desliza para eliminar conversaciones
+          </motion.p>
+        )}
+      </AnimatePresence>
+
       {/* Filter pills */}
       <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3 pt-1">
         {FILTERS.map((f) => {
@@ -240,11 +279,17 @@ export default function ChatsPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="flex flex-col items-center justify-center gap-3 pt-28"
+              className="flex flex-col items-center justify-center gap-3 pt-28 px-6"
             >
-              <MessageCircle size={48} className="text-stone-400" strokeWidth={1.5} />
-              <span className="text-base font-medium text-stone-500">No tienes mensajes</span>
-              <span className="text-[13px] text-stone-400">Inicia una conversación</span>
+              <MessageCircle size={48} className="text-stone-300" strokeWidth={1.5} />
+              <span className="text-base font-semibold text-stone-950">Aún no tienes mensajes</span>
+              <span className="text-[13px] text-stone-500 text-center">Empieza una conversación con productores, influencers y más</span>
+              <button
+                onClick={() => navigate('/chat/new')}
+                className="mt-2 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white active:opacity-80"
+              >
+                Nueva conversación
+              </button>
             </motion.div>
           ) : (
             <motion.div
