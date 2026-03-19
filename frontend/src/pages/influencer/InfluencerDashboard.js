@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2, HelpCircle, Building2, X, Handshake, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 import InternalChat from '../../components/InternalChat';
@@ -243,6 +243,7 @@ function CreateCodeCard({ onCodeCreated }) {
 }
 
 export default function InfluencerDashboard() {
+  const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
   const { t } = useTranslation();
   const { convertAndFormatPrice } = useLocale();
@@ -371,6 +372,52 @@ export default function InfluencerDashboard() {
           </p>
         </div>
 
+        {/* Hero Balance Card */}
+        <div className="mb-6 bg-stone-950 text-white rounded-2xl p-5">
+          <p className="text-xs text-white/60 mb-1">Balance disponible</p>
+          <p className="text-3xl font-bold">{convertAndFormatPrice(asNumber(dashboard.available_balance))}</p>
+          {dashboard.payment_schedule?.available_soon > 0 && (
+            <p className="text-xs text-white/40 mt-1">
+              +{convertAndFormatPrice(asNumber(dashboard.payment_schedule.available_soon))} próximamente
+            </p>
+          )}
+          {dashboard.payment_schedule?.pending_amount > 0 && (
+            <p className="text-[10px] text-white/30 mt-0.5" title="Las comisiones están disponibles 15 días después de la venta">
+              {convertAndFormatPrice(asNumber(dashboard.payment_schedule.pending_amount))} en retención (15 días)
+            </p>
+          )}
+          {(dashboard.available_balance || 0) >= MINIMUM_WITHDRAWAL && (
+            <button
+              onClick={() => navigate('/influencer/withdrawal')}
+              className="mt-3 text-xs bg-white text-stone-950 px-4 py-1.5 rounded-full font-medium"
+            >
+              Retirar fondos
+            </button>
+          )}
+        </div>
+
+        {/* Compact Tier Progress */}
+        {dashboard.current_tier && (
+          <div className="mb-6 p-4 rounded-2xl" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>
+                Nivel actual: <span style={{ color: 'var(--color-black)' }}>{dashboard.current_tier}</span>
+              </p>
+              {tierPercent > 0 && (
+                <p className="text-xs font-bold" style={{ color: 'var(--color-black)' }}>{tierPercent}% comisión</p>
+              )}
+            </div>
+            {dashboard.tier_progress !== undefined && (
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--color-surface)' }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, dashboard.tier_progress || 0)}%`, background: 'var(--color-black)' }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Email Verification Banner */}
         {!emailVerified && (
           <EmailVerificationBanner user={user} onVerified={handleEmailVerified} />
@@ -423,43 +470,12 @@ export default function InfluencerDashboard() {
                   : '—'}
               </p>
             </div>
-            <div className="rounded-xl border-2 border-stone-500 bg-white p-4">
+            <div className="rounded-xl border border-stone-200 bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Comisiones 30d</p>
               <p className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>{convertAndFormatPrice(Number(dashboard.stats.earned_30d || 0))}</p>
             </div>
           </div>
         )}
-
-        {/* === BLACK BALANCE CARD === */}
-        <div className="mb-6 p-6" style={{ background: 'var(--color-black)', borderRadius: 'var(--radius-xl)' }}>
-          <p className="text-sm mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>Balance disponible</p>
-          <p className="font-bold mb-2" style={{ color: '#fff', fontSize: '26px' }}>{convertAndFormatPrice(asNumber(dashboard.available_balance))}</p>
-          {dashboard.payment_schedule?.available_soon > 0 && (
-            <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              +{convertAndFormatPrice(asNumber(dashboard.payment_schedule.available_soon))} disponible en los próximos días
-            </p>
-          )}
-          {dashboard.payment_schedule?.next_payment_date && (
-            <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              Próximo pago: {new Date(dashboard.payment_schedule.next_payment_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-            </p>
-          )}
-          {dashboard.payment_schedule?.pending_amount > 0 && (
-            <p className="text-[10px] mb-3" style={{ color: 'rgba(255,255,255,0.3)' }} title="Las comisiones están disponibles 15 días después de la venta para cubrir posibles devoluciones">
-              {convertAndFormatPrice(asNumber(dashboard.payment_schedule.pending_amount))} en retención (disponible tras 15 días de la venta)
-            </p>
-          )}
-          {/* "Solicitar cobro" */}
-          {(dashboard.available_balance || 0) >= MINIMUM_WITHDRAWAL && (
-            <button
-              onClick={scrollToWithdrawals}
-              className="px-5 py-2 text-sm font-medium transition-colors"
-              style={{ background: '#fff', color: 'var(--color-black)', borderRadius: 'var(--radius-full)' }}
-            >
-              Solicitar cobro →
-            </button>
-          )}
-        </div>
 
         {/* Product Performance */}
         <div className="mb-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
@@ -1038,7 +1054,7 @@ export default function InfluencerDashboard() {
                 const statusMap = {
                   proposed: { label: 'Pendiente', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
                   active: { label: 'Activa', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
-                  declined: { label: 'Rechazada', bg: '#f5f5f4', color: '#57534e' },
+                  declined: { label: 'Rechazada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
                   sample_sent: { label: 'Muestra enviada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
                   sample_received: { label: 'Muestra recibida', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
                 };

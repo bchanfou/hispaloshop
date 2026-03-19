@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import {
@@ -524,6 +524,7 @@ function B2BOperationsSection() {
 
 // ===== MAIN COMPONENT =====
 export default function ProducerOverview() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
   const [stats, setStats] = useState(null);
@@ -692,6 +693,14 @@ export default function ProducerOverview() {
       bgColor: 'var(--color-surface)',
       iconColor: 'var(--color-stone)'
     },
+    {
+      icon: TrendingUp,
+      label: 'Ver analíticas',
+      description: 'Métricas y pagos',
+      to: '/producer/payments',
+      bgColor: 'var(--color-surface)',
+      iconColor: 'var(--color-stone)'
+    },
   ];
 
   return (
@@ -739,6 +748,22 @@ export default function ProducerOverview() {
           )}
         </div>
       </div>
+      {/* Pending orders alert — prominent top card */}
+      {stats?.pending_orders > 0 && (
+        <div className="bg-stone-950 text-white rounded-2xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold">{stats.pending_orders} pedido{stats.pending_orders > 1 ? 's' : ''} pendiente{stats.pending_orders > 1 ? 's' : ''}</p>
+            <p className="text-xs text-white/70">Requieren tu atención</p>
+          </div>
+          <button
+            onClick={() => navigate('/producer/orders?filter=pending')}
+            className="text-xs bg-white text-stone-950 px-3 py-1.5 rounded-full font-medium"
+          >
+            Ver →
+          </button>
+        </div>
+      )}
+
       {/* Verification banners */}
       {verificationStatus && !verificationStatus.is_verified && (
         <Link
@@ -1146,8 +1171,8 @@ export default function ProducerOverview() {
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-black)' }}>
           {t('producer.quickActions')}
         </h2>
-        <div className="grid grid-cols-3 gap-4">
-          {quickActions.map((action, idx) => (
+        <div className="grid grid-cols-2 gap-4">
+          {quickActions.slice(0, 4).map((action, idx) => (
             <Link
               key={idx}
               to={action.to}
