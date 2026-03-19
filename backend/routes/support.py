@@ -268,7 +268,7 @@ async def admin_send_message(
         "notification_id": str(uuid.uuid4()),
         "type": "admin_replied",
         "case_id": case_id,
-        "user_id": case["user_id"],
+        "user_id": case.get("user_id", ""),
         "created_at": now,
         "read": False,
     })

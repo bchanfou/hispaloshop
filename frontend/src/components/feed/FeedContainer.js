@@ -41,7 +41,7 @@ function FeedContainer({ activeTab: tabProp }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream)]">
+    <div className="min-h-screen bg-white">
       {/* Stories */}
       <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleStoryClick} />
 

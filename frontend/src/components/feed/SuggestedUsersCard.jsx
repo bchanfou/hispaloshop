@@ -78,7 +78,7 @@ export default function SuggestedUsersCard() {
   if (!currentUser || dismissed || loading || users.length === 0) return null;
 
   return (
-    <div className="border-b border-stone-200 bg-white py-4">
+    <div className="border-b border-stone-100 bg-white py-4">
       {/* Header */}
       <div className="flex items-center justify-between px-4 mb-3">
         <p className="text-[13px] font-semibold text-stone-950">Sugeridos para ti</p>
@@ -109,7 +109,7 @@ export default function SuggestedUsersCard() {
           return (
             <div
               key={user.user_id}
-              className="flex w-[140px] shrink-0 flex-col items-center rounded-xl border border-stone-200 bg-stone-50 p-3"
+              className="flex w-[140px] shrink-0 flex-col items-center rounded-xl border border-stone-100 bg-white p-3"
             >
               {/* Avatar */}
               <button
@@ -141,8 +141,8 @@ export default function SuggestedUsersCard() {
                 disabled={isFollowed}
                 className={`flex w-full min-h-[36px] items-center justify-center gap-1 rounded-full text-[11px] font-semibold border-none cursor-pointer transition-colors ${
                   isFollowed
-                    ? 'bg-stone-200 text-stone-500'
-                    : 'bg-stone-950 text-white hover:bg-stone-800'
+                    ? 'bg-stone-100 text-stone-500'
+                    : 'bg-[#0095F6] text-white hover:bg-[#1877F2]'
                 }`}
               >
                 {isFollowed ? 'Siguiendo' : (

@@ -21,7 +21,7 @@ export default function HomePage() {
   );
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-cream)]">
+    <div className="relative min-h-screen overflow-x-hidden bg-white">
       <SEO
         title="Hispaloshop - Productos reales y productores honestos"
         description="Social commerce alimentario para descubrir productores honestos, comprar con claridad y hablar con la comunidad."

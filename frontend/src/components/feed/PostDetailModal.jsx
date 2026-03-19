@@ -48,7 +48,7 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
           >
             <Heart
               size={12}
-              className={liked ? 'text-stone-950 fill-stone-950' : 'text-stone-400'}
+              className={liked ? 'text-[#FF3040] fill-[#FF3040]' : 'text-stone-400'}
               strokeWidth={1.8}
             />
             {(comment.likes_count || 0) > 0 && (
@@ -323,7 +323,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
                   {sending ? (
                     <Loader2 size={16} className="text-stone-400 animate-spin" />
                   ) : (
-                    <Send size={16} className="text-stone-950" />
+                    <Send size={16} className="text-[#0095F6]" />
                   )}
                 </button>
               </div>

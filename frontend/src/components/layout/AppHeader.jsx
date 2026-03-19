@@ -39,9 +39,9 @@ export default function AppHeader() {
         position: 'sticky',
         top: 0,
         zIndex: 'var(--z-sticky, 40)',
-        background: 'var(--color-cream, #fafaf9)',
-        borderBottom: scrolled ? '1px solid var(--color-border, #e7e5e4)' : '1px solid transparent',
-        boxShadow: scrolled ? 'var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.05))' : 'none',
+        background: '#ffffff',
+        borderBottom: scrolled ? '1px solid #f5f5f4' : '1px solid transparent',
+        boxShadow: scrolled ? '0 1px 3px rgba(0,0,0,0.04)' : 'none',
         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
         fontFamily: 'var(--font-sans)',
       }}
@@ -63,7 +63,7 @@ export default function AppHeader() {
             <Logo variant="icon" theme="light" size={28} />
           </Link>
           {isHome ? (
-            <div style={{ display: 'flex', alignItems: 'center', borderRadius: 9999, background: 'var(--color-surface)', padding: 3 }}>
+            <div style={{ display: 'flex', alignItems: 'center', borderRadius: 9999, background: '#f5f5f4', padding: 3 }}>
               {[{ id: 'foryou', label: 'Para ti' }, ...(isAuthenticated ? [{ id: 'following', label: 'Siguiendo' }] : [])].map((tab) => (
                 <button
                   key={tab.id}
@@ -78,10 +78,10 @@ export default function AppHeader() {
                     border: 'none',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    background: activeTab === tab.id ? 'var(--color-white)' : 'transparent',
+                    background: activeTab === tab.id ? '#ffffff' : 'transparent',
                     fontWeight: activeTab === tab.id ? 600 : 400,
-                    color: activeTab === tab.id ? 'var(--color-black)' : 'var(--color-stone)',
-                    boxShadow: activeTab === tab.id ? 'var(--shadow-xs)' : 'none',
+                    color: activeTab === tab.id ? '#0c0a09' : '#78716c',
+                    boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                   }}
                 >
                   {tab.label}
@@ -168,8 +168,8 @@ const redBadgeStyle = {
   alignItems: 'center',
   justifyContent: 'center',
   borderRadius: 'var(--radius-full)',
-  background: 'var(--color-red)',
-  color: 'var(--color-white)',
+  background: '#FF3040',
+  color: '#ffffff',
   fontSize: 9,
   fontWeight: 800,
   padding: '0 4px',

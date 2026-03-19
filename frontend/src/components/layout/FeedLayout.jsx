@@ -10,7 +10,7 @@ export default function FeedLayout({ children }) {
   return (
     <div className="feed-layout-wrapper" style={{
       width: '100%',
-      background: 'var(--color-cream)',
+      background: '#ffffff',
     }}>
       <style>{`
         .feed-layout {

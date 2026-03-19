@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 
 const ringClasses = {
   placeholder: 'border-2 border-dashed border-stone-200 bg-stone-50',
-  unseen: 'border-2 border-solid border-stone-950',
+  unseen: 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px]',
   seen: 'border-2 border-solid border-stone-200',
 };
 
@@ -29,12 +29,12 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
     >
       <div className="relative">
       <div
-        className={`w-[62px] h-[62px] rounded-full flex items-center justify-center ${ringClass} ${hasUnseenStory ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}
+        className={`w-[62px] h-[62px] rounded-full flex items-center justify-center ${ringClass}`}
       >
         {showPlaceholder ? (
           <Plus size={18} className="text-stone-950" />
         ) : (
-          <div className="w-[54px] h-[54px] rounded-full overflow-hidden bg-white flex items-center justify-center">
+          <div className={`rounded-full overflow-hidden bg-white flex items-center justify-center ${hasUnseenStory ? 'w-[56px] h-[56px]' : 'w-[54px] h-[54px]'}`}>
             {avatarUrl ? (
               <img
                 src={avatarUrl}
@@ -51,7 +51,7 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
         )}
       </div>
       {itemsCount > 1 && hasUnseenStory && (
-        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-stone-950 text-white text-[8px] font-bold flex items-center justify-center border border-white">
+        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#0095F6] text-white text-[8px] font-bold flex items-center justify-center border border-white">
           {itemsCount}
         </span>
       )}

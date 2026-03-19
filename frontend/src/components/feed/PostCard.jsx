@@ -38,7 +38,7 @@ if (typeof document !== 'undefined' && !document.getElementById('postcard-heart-
       70%  { opacity: 1; transform: scale(1); }
       100% { opacity: 0; transform: scale(1); }
     }
-    .postcard-heart-active { animation: postcard-heart-pop 0.9s ease forwards; }
+    .postcard-heart-active { animation: postcard-heart-pop 0.9s ease forwards; color: #FF3040; fill: #FF3040; }
   `;
   document.head.appendChild(style);
 }
@@ -48,7 +48,7 @@ function renderCaption(text) {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} className="text-stone-500">{part}</span>
+      <span key={i} className="text-[#00376B]">{part}</span>
     ) : (
       <React.Fragment key={i}>{part}</React.Fragment>
     ),
@@ -222,7 +222,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
   if (deleted) return null;
 
   return (
-    <article className="border-b border-stone-200 bg-white font-sans relative">
+    <article className="border-b border-stone-100 bg-white font-sans relative">
       {/* ---- Options menu ---- */}
       {showMenu && (
         <>
@@ -312,7 +312,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
         <div
           onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
           className={`flex shrink-0 items-center justify-center rounded-full cursor-pointer ${
-            hasStory ? 'h-9 w-9 bg-stone-950 p-0.5' : 'h-9 w-9'
+            hasStory ? 'h-9 w-9 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px]' : 'h-9 w-9'
           }`}
           role="link"
           aria-label={`Ver perfil de ${user.name}`}
@@ -419,7 +419,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
             <div className="absolute inset-0 z-[2] flex items-center justify-center pointer-events-none">
               <Heart
                 size={72}
-                className={`fill-stone-950 text-stone-950 ${showHeartAnim ? 'postcard-heart-active' : 'opacity-0'}`}
+                className={`fill-[#FF3040] text-[#FF3040] ${showHeartAnim ? 'postcard-heart-active' : 'opacity-0'}`}
               />
             </div>
           )}
@@ -447,7 +447,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
                       style={{
                         width: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
                         height: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
-                        background: i === carouselIndex ? 'var(--color-black, #0c0a09)' : 'var(--color-border, #d6d3d1)',
+                        background: i === carouselIndex ? '#0095F6' : '#d6d3d1',
                         opacity: dist > 2 ? 0.5 : 1,
                       }}
                     />
@@ -463,7 +463,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
       <div className="flex items-center gap-4 px-3 py-2">
         <button
           className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer transition-transform duration-150 active:scale-110 ${
-            liked ? 'text-stone-950' : 'text-stone-500'
+            liked ? 'text-[#FF3040]' : 'text-stone-950'
           }`}
           onClick={handleLike}
           aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
@@ -480,7 +480,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
         </button>
 
         <button
-          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-500 transition-transform duration-150"
+          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950 transition-transform duration-150"
           onClick={() => onComment?.(post.id)}
           aria-label={`Comentar · ${commentsCount}`}
         >
@@ -491,7 +491,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
         </button>
 
         <button
-          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-500 transition-transform duration-150"
+          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950 transition-transform duration-150"
           onClick={handleShare}
           aria-label="Compartir"
         >
@@ -500,7 +500,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
 
         <button
           className={`ml-auto flex min-h-[44px] items-center bg-transparent border-none py-2.5 cursor-pointer ${
-            effectiveSaved ? 'text-stone-950' : 'text-stone-500'
+            effectiveSaved ? 'text-stone-950' : 'text-stone-950'
           }`}
           onClick={handleSave}
           aria-label={effectiveSaved ? 'Quitar guardado' : 'Guardar'}

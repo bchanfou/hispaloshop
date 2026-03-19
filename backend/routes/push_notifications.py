@@ -34,7 +34,7 @@ async def subscribe_push(request: Request, user: User = Depends(get_current_user
         raise HTTPException(status_code=400, detail="Invalid subscription")
 
     await db.push_subscriptions.update_one(
-        {"user_id": user.user_id, "endpoint": subscription["endpoint"]},
+        {"user_id": user.user_id, "endpoint": subscription.get("endpoint")},
         {"$set": {
             "user_id": user.user_id,
             "subscription": subscription,
