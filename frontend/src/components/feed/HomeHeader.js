@@ -5,8 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 
 /**
- * HomeHeader v3 — Para ti / Siguiendo pill toggle + notification bell
- * Logo + cart are already in AppHeader
+ * HomeHeader v4 — H logo left | Para ti / Siguiendo toggle centered | Bell right
  */
 export default function HomeHeader({ activeTab, onTabChange }) {
   const navigate = useNavigate();
@@ -24,13 +23,16 @@ export default function HomeHeader({ activeTab, onTabChange }) {
 
   return (
     <div
-      className="flex items-center justify-between bg-[var(--color-cream)] px-4 pb-1 pt-2"
+      className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-100/80 flex items-center justify-between px-4 pb-1 pt-2"
       data-testid="home-header"
     >
-      {/* Spacer to keep pill centred */}
-      <div className="w-11" aria-hidden="true" />
+      {/* H logo — left anchor */}
+      <span className="text-base font-black tracking-tighter text-stone-950 w-11 flex items-center">
+        H
+      </span>
 
-      <div className="flex items-center rounded-full bg-[var(--color-surface)] p-[3px]">
+      {/* Para ti / Siguiendo pill toggle — centered */}
+      <div className="flex items-center rounded-full bg-stone-100 p-[3px]">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -40,8 +42,8 @@ export default function HomeHeader({ activeTab, onTabChange }) {
               onClick={() => onTabChange(tab.id)}
               className={`min-h-[44px] rounded-full px-4 text-[13px] font-sans transition-all duration-200 ${
                 isActive
-                  ? 'bg-[var(--color-white)] font-semibold text-[var(--color-black)] shadow-sm'
-                  : 'bg-transparent font-normal text-[var(--color-stone)]'
+                  ? 'bg-white font-semibold text-stone-950 shadow-sm'
+                  : 'bg-transparent font-normal text-stone-500'
               }`}
             >
               {tab.label}
@@ -50,7 +52,7 @@ export default function HomeHeader({ activeTab, onTabChange }) {
         })}
       </div>
 
-      {/* Notification bell */}
+      {/* Notification bell — right anchor */}
       <button
         type="button"
         onClick={() => navigate('/notifications')}

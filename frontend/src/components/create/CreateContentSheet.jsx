@@ -1,129 +1,50 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { Camera, Video, Circle, ChefHat, Camera as CameraIcon } from 'lucide-react';
+import { ImagePlus, Video, Layers, ChefHat } from 'lucide-react';
 
 const CONTENT_TYPES = [
-  // Row 1 — 3 columns
-  { type: 'post',  icon: <Camera size={22} />, label: 'Post',   primary: false },
-  { type: 'reel',  icon: <Video size={22} />, label: 'Reel',   primary: false },
-  { type: 'story', icon: <Circle size={22} />, label: 'Story',  primary: false },
-  // Row 2 — receta centrada
-  { type: 'recipe', icon: <ChefHat size={22} />, label: 'Receta', primary: true },
+  {
+    type: 'post',
+    label: 'Post',
+    icon: <ImagePlus size={22} color="white" />,
+    iconBg: 'bg-stone-950',
+  },
+  {
+    type: 'reel',
+    label: 'Reel',
+    icon: <Video size={22} color="white" />,
+    iconBg: 'bg-stone-800',
+  },
+  {
+    type: 'story',
+    label: 'Story',
+    icon: <Layers size={22} color="white" />,
+    iconBg: 'bg-stone-700',
+  },
+  {
+    type: 'recipe',
+    label: 'Receta',
+    icon: <ChefHat size={22} color="white" />,
+    iconBg: 'bg-stone-600',
+  },
 ];
 
-function ContentTypeButton({ icon, label, primary, isText, onSelect }) {
+function ContentTypeButton({ label, icon, iconBg, onSelect }) {
   return (
     <button
       type="button"
       onClick={onSelect}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 8,
-        padding: '16px 8px',
-        borderRadius: 'var(--radius-lg)',
-        cursor: 'pointer',
-        transition: 'var(--transition-fast)',
-        background: 'transparent',
-        border: 'none',
-        fontFamily: 'var(--font-sans)',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-      onTouchStart={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
-      onTouchEnd={e => { e.currentTarget.style.background = 'transparent'; }}
+      className="flex flex-col items-center justify-center gap-2 aspect-square rounded-2xl bg-stone-50 hover:bg-stone-100 active:scale-95 transition-all"
     >
-      <div style={{
-        width: 56,
-        height: 56,
-        borderRadius: 'var(--radius-md)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: isText ? 22 : 26,
-        fontWeight: isText ? 700 : 400,
-        background: primary ? 'var(--color-black)' : 'var(--color-surface)',
-        color: primary ? '#fff' : 'var(--color-black)',
-      }}>
-        {isText ? 'Aa' : icon}
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${iconBg}`}>
+        {icon}
       </div>
-      <span style={{
-        fontSize: 'var(--text-sm)',
-        fontWeight: 500,
-        color: 'var(--color-black)',
-      }}>
-        {label}
-      </span>
+      <span className="text-sm font-medium text-stone-700">{label}</span>
     </button>
   );
 }
 
-function CameraButton({ label, accept, capture, onFile }) {
-  const inputRef = useRef(null);
-
-  const handleChange = (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    onFile(files);
-    e.target.value = '';
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={() => inputRef.current?.click()}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 8,
-        padding: '16px 8px',
-        borderRadius: 'var(--radius-lg)',
-        cursor: 'pointer',
-        transition: 'var(--transition-fast)',
-        background: 'transparent',
-        border: 'none',
-        fontFamily: 'var(--font-sans)',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-      onTouchStart={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
-      onTouchEnd={e => { e.currentTarget.style.background = 'transparent'; }}
-    >
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        capture={capture}
-        style={{ display: 'none' }}
-        onChange={handleChange}
-      />
-      <div style={{
-        width: 56,
-        height: 56,
-        borderRadius: 'var(--radius-md)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--color-surface)',
-        color: 'var(--color-black)',
-      }}>
-        <CameraIcon size={22} />
-      </div>
-      <span style={{
-        fontSize: 'var(--text-sm)',
-        fontWeight: 500,
-        color: 'var(--color-black)',
-      }}>
-        {label}
-      </span>
-    </button>
-  );
-}
-
-export default function CreateContentSheet({ isOpen, onClose, onSelect, onCameraFile }) {
+export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -157,95 +78,30 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect, onCamera
               duration: 0.3,
               ease: [0.32, 0.72, 0, 1],
             }}
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl px-5 pt-3 max-h-72"
             style={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
               zIndex: 'var(--z-modal)',
-              background: 'var(--color-white)',
-              borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0',
-              padding: '12px 20px 32px',
-              paddingBottom: 'calc(32px + env(safe-area-inset-bottom, 0px))',
-              fontFamily: 'var(--font-sans)',
+              paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
             }}
           >
-            {/* Handle */}
-            <div style={{
-              width: 36,
-              height: 4,
-              background: 'var(--color-border)',
-              borderRadius: 'var(--radius-full)',
-              margin: '0 auto 20px',
-            }} />
+            {/* Drag handle */}
+            <div className="w-9 h-1 bg-stone-200 rounded-full mx-auto mb-4" />
 
             {/* Title */}
-            <p style={{
-              fontSize: 'var(--text-md)',
-              fontWeight: 500,
-              color: 'var(--color-black)',
-              margin: '0 0 24px',
-            }}>
-              Crear contenido
-            </p>
+            <p className="text-base font-semibold text-stone-950 mb-4">Crear</p>
 
-            {/* Row 1 — 4 columns: Cámara foto, Post (Galería), Reel, Cámara vídeo */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 4,
-            }}>
-              {/* Cámara — foto */}
-              <CameraButton
-                label="Cámara"
-                accept="image/*"
-                capture="environment"
-                onFile={(files) => {
-                  onClose();
-                  if (onCameraFile) onCameraFile('post', files);
-                  else onSelect('post');
-                }}
-              />
-
-              {/* Post (Galería) */}
-              <ContentTypeButton
-                type="post"
-                icon={<Camera size={22} />}
-                label="Post"
-                primary={false}
-                onSelect={() => onSelect('post')}
-              />
-
-              {/* Reel (Galería) */}
-              <ContentTypeButton
-                type="reel"
-                icon={<Video size={22} />}
-                label="Reel"
-                primary={false}
-                onSelect={() => onSelect('reel')}
-              />
-
-              {/* Story */}
-              <ContentTypeButton
-                type="story"
-                icon={<Circle size={22} />}
-                label="Story"
-                primary={false}
-                onSelect={() => onSelect('story')}
-              />
-            </div>
-
-            {/* Row 2 — receta centrada */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginTop: 8,
-            }}>
-              {CONTENT_TYPES.slice(3).map(opt => (
+            {/* 2×2 grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {CONTENT_TYPES.map((opt) => (
                 <ContentTypeButton
                   key={opt.type}
-                  {...opt}
-                  onSelect={() => onSelect(opt.type)}
+                  label={opt.label}
+                  icon={opt.icon}
+                  iconBg={opt.iconBg}
+                  onSelect={() => {
+                    onClose();
+                    onSelect(opt.type);
+                  }}
                 />
               ))}
             </div>

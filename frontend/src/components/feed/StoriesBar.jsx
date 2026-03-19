@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Plus } from 'lucide-react';
 import StoryRing from './StoryRing';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -61,6 +61,12 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
     return null;
   }
 
+  // Determine if the current user has an active story in the fetched list
+  const selfStory = currentUser
+    ? stories.find(s => s.user_id === currentUser.id || s.user_id === currentUser._id)
+    : null;
+  const hasActiveStory = !!selfStory;
+
   return (
     <div
       className="scrollbar-hide flex gap-3 overflow-x-auto overscroll-x-contain px-4 py-3"
@@ -70,33 +76,41 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
     >
       {/* Self ring — only when authenticated */}
       {currentUser && (
-        <StoryRing
-          user={currentUser}
-          isSelf
-          hasUnseenStory={false}
-          onClick={onCreateStory}
-        />
+        <div className="relative shrink-0">
+          <StoryRing
+            user={currentUser}
+            isSelf
+            hasUnseenStory={false}
+            onClick={onCreateStory}
+          />
+          {/* + overlay when user has no active story */}
+          {!hasActiveStory && (
+            <div className="absolute bottom-0 right-0 w-5 h-5 bg-stone-950 rounded-full flex items-center justify-center pointer-events-none">
+              <Plus size={10} color="white" />
+            </div>
+          )}
+        </div>
       )}
 
       {loading
-        ? Array.from({ length: 5 }).map((_, i) => (
+        ? Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="flex shrink-0 flex-col items-center gap-1 w-[68px]"
+              className="flex shrink-0 flex-col items-center gap-1 w-[52px]"
               aria-hidden="true"
             >
               <div
-                className="animate-pulse-slow h-[62px] w-[62px] rounded-full bg-stone-100"
+                className="animate-pulse-slow h-[52px] w-[52px] rounded-full bg-stone-100"
               />
             </div>
           ))
         : error ? (
             <button
               onClick={fetchStories}
-              className="flex shrink-0 flex-col items-center gap-1 w-[68px] bg-transparent border-none cursor-pointer"
+              className="flex shrink-0 flex-col items-center gap-1 w-[52px] bg-transparent border-none cursor-pointer"
               aria-label="Reintentar cargar historias"
             >
-              <div className="h-[62px] w-[62px] rounded-full bg-stone-100 flex items-center justify-center">
+              <div className="h-[52px] w-[52px] rounded-full bg-stone-100 flex items-center justify-center">
                 <RefreshCw size={18} className="text-stone-400" />
               </div>
               <span className="text-[10px] text-stone-400">Reintentar</span>
