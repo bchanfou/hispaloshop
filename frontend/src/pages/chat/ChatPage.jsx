@@ -6,7 +6,6 @@ import {
   Package,
   ChevronRight,
   ArrowUp,
-  Plus,
   Check,
   CheckCheck,
   Image,
@@ -20,7 +19,6 @@ import {
   Pause,
   Play,
   Download,
-  Phone,
   MoreVertical,
 } from 'lucide-react';
 import { useChatContext } from '@/context/chat/ChatProvider';
@@ -28,6 +26,7 @@ import { useAuth } from '@/context/AuthContext';
 import apiClient from '@/services/api/client';
 import CollabProposalCard from '@/components/chat/collab/CollabProposalCard';
 import AffiliateLinkCard from '@/components/chat/collab/AffiliateLinkCard';
+import ProductCardMessage from '@/components/chat/ProductCardMessage';
 import SampleShipmentCard from '@/components/chat/collab/SampleShipmentCard';
 
 /* ────────── Date helpers ────────── */
@@ -67,9 +66,10 @@ function formatOnlineStatus(lastSeen) {
 /* ================================================================
    ChatHeader
    ================================================================ */
-function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, searchQuery, onSearchChange }) {
+function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, searchQuery, onSearchChange, onDeleteConversation }) {
   const status = formatOnlineStatus(conversation?.last_seen);
   const isOnline = conversation?.online || status?.online;
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 border-b border-stone-100 bg-white/95 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] font-apple backdrop-blur-md">
@@ -94,17 +94,17 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
               </div>
             )}
             {isOnline && (
-              <span className="absolute bottom-0 right-0 h-[9px] w-[9px] rounded-full border-2 border-white bg-stone-950" />
+              <span className="absolute bottom-0 right-0 h-[9px] w-[9px] rounded-full border-2 border-white bg-[#2E7D52]" />
             )}
           </div>
 
-          <div className="min-w-0">
+          <div className="min-w-0" onClick={() => { const uid = conversation?.other_user_id || conversation?.user2_id; if (uid) navigate(`/${uid}`); }} role="button" tabIndex={0}>
             <p className="truncate text-base font-semibold leading-5 text-stone-950">
               {conversation?.name || 'Chat'}
             </p>
             <div className="mt-0.5 flex items-center gap-1">
               {isOnline ? (
-                <span className="text-xs font-medium text-stone-950">En línea</span>
+                <span className="text-xs font-medium text-[#2E7D52]">En línea</span>
               ) : (
                 <span className="text-xs text-stone-500">{status?.text || ''}</span>
               )}
@@ -112,7 +112,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
           </div>
         </div>
 
-        {/* Right: search + phone (disabled) + more */}
+        {/* Right: search + more */}
         <div className="flex shrink-0 items-center gap-0.5">
           <button
             onClick={onToggleSearch}
@@ -123,20 +123,43 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
           </button>
 
           <button
-            disabled
-            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-300 cursor-not-allowed"
-            aria-label="Llamar (próximamente)"
-          >
-            <Phone size={20} />
-          </button>
-
-          <button
+            onClick={() => setShowMenu((s) => !s)}
             className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
             aria-label="Más opciones"
           >
             <MoreVertical size={20} />
           </button>
         </div>
+
+        {/* More options dropdown */}
+        <AnimatePresence>
+          {showMenu && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowMenu(false)}
+                className="fixed inset-0 z-40"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-4 top-full z-50 mt-1 w-48 overflow-hidden rounded-2xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)] font-apple"
+              >
+                <button
+                  onClick={() => { setShowMenu(false); onDeleteConversation?.(); }}
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-[13px] font-medium text-stone-500 active:bg-stone-50"
+                >
+                  <Trash2 size={16} />
+                  Eliminar conversación
+                </button>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
       </div>
 
@@ -373,11 +396,20 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
     );
   }
 
-  /* Product card placeholder */
+  /* Product card */
   if (message.message_type === 'product_card') {
     return (
       <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
-        <div className="max-w-[75%] rounded-xl bg-stone-100 p-3">Producto compartido</div>
+        <div className="max-w-[75%]">
+          <ProductCardMessage product={message.metadata?.product || message.product || { name: message.content || 'Producto compartido' }} />
+          <ReactionBar reactions={message.reactions} />
+          {showTimestamp && (
+            <div className={`mt-1 flex items-center gap-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+              <span className="text-[11px] text-stone-500">{formatTime(ts)}</span>
+              {isOwn && <ReadReceiptTicks message={message} />}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -653,7 +685,7 @@ function NewMessagesPill({ onClick }) {
 /* ================================================================
    MessageContextMenu
    ================================================================ */
-function MessageContextMenu({ contextMenu, onClose, userId, onReact, onReply }) {
+function MessageContextMenu({ contextMenu, onClose, userId, onReact, onReply, onDelete }) {
   if (!contextMenu) return null;
   const { message, x, y } = contextMenu;
   const isOwnMsg = String(message.sender_id || message.user_id) === String(userId);
@@ -665,7 +697,7 @@ function MessageContextMenu({ contextMenu, onClose, userId, onReact, onReply }) 
     { label: 'Reaccionar', icon: null, isReaction: true, action: () => {} },
     { label: 'Responder', icon: Reply, action: () => { onReply?.(message); onClose(); } },
   ];
-  if (canDelete) options.push({ label: 'Eliminar', icon: Trash2, danger: true, action: () => onClose() });
+  if (canDelete) options.push({ label: 'Eliminar', icon: Trash2, danger: true, action: () => { onDelete?.(message); onClose(); } });
 
   const reactions = ['❤️', '😂', '👍', '😮', '😢', '🙏'];
 
@@ -929,12 +961,14 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
           </button>
         </div>
       ) : (
-        <div className="flex items-end gap-2 px-3 pt-2">
-          <button onClick={handleImagePick} className="mb-1 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:opacity-60" aria-label="Adjuntar imagen">
-            <Plus size={22} />
+        <div className="flex items-end gap-1.5 px-3 pt-2">
+          {/* Camera/Attach — Instagram style */}
+          <button onClick={handleImagePick} className="mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75" aria-label="Adjuntar imagen">
+            <Image size={20} />
           </button>
 
-          <div className="min-h-[44px] flex-1">
+          {/* Input container — rounded pill with embedded mic/gallery */}
+          <div className="flex min-h-[44px] flex-1 items-end rounded-full border border-stone-200 bg-white">
             <textarea
               ref={textareaRef}
               value={text}
@@ -942,8 +976,17 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
               onKeyDown={handleKeyDown}
               placeholder="Mensaje..."
               rows={1}
-              className="w-full min-h-[44px] max-h-[120px] resize-none rounded-full bg-stone-50 px-4 py-2.5 text-sm text-stone-950 outline-none placeholder:text-stone-400"
+              className="min-h-[44px] max-h-[120px] flex-1 resize-none bg-transparent px-4 py-2.5 text-sm text-stone-950 outline-none placeholder:text-stone-400"
             />
+            {!hasText && (
+              <button
+                onClick={startRecording}
+                className="mb-1 mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-400 active:bg-stone-50"
+                aria-label="Nota de voz"
+              >
+                <Mic size={18} />
+              </button>
+            )}
           </div>
 
           <AnimatePresence mode="wait">
@@ -955,23 +998,23 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 onClick={handleSend}
-                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75"
+                className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75"
                 aria-label="Enviar"
               >
                 <ArrowUp size={20} />
               </motion.button>
             ) : (
               <motion.button
-                key="mic"
+                key="heart"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                onClick={startRecording}
-                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-500 active:bg-stone-50"
-                aria-label="Nota de voz"
+                onClick={() => onSend('❤️')}
+                className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-stone-950 active:scale-125 active:opacity-75"
+                aria-label="Enviar corazón"
               >
-                <Mic size={20} />
+                <span className="text-[22px] leading-none">❤️</span>
               </motion.button>
             )}
           </AnimatePresence>
@@ -992,6 +1035,7 @@ export default function ChatPage() {
     messages, loadMessages, sendMessage, sendTyping, markAsRead,
     typingUsers, conversations, sendReaction,
     loadOlderMessages, hasMoreMessages, loadingMore,
+    deleteConversation,
   } = useChatContext();
 
   const [localMessages, setLocalMessages] = useState([]);
@@ -1169,6 +1213,27 @@ export default function ChatPage() {
   const scrollToBottom = useCallback(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); setShowNewPill(false); }, []);
   const handleContextMenu = useCallback((message, x, y) => setContextMenu({ message, x, y }), []);
 
+  // Handle delete entire conversation
+  const handleDeleteConversation = useCallback(async () => {
+    if (!conversationId) return;
+    await deleteConversation(conversationId);
+    navigate('/messages', { replace: true });
+  }, [conversationId, deleteConversation, navigate]);
+
+  // Handle message delete (optimistic + API)
+  const handleDeleteMessage = useCallback(async (message) => {
+    const msgId = message.message_id || message.id;
+    setLocalMessages((prev) => prev.filter((m) => (m.message_id || m.id) !== msgId));
+    try {
+      await apiClient.delete(`/chat/messages/${msgId}`);
+    } catch {
+      // Re-add on failure
+      setLocalMessages((prev) => [...prev, message].sort((a, b) =>
+        new Date(a.created_at || a.timestamp) - new Date(b.created_at || b.timestamp)
+      ));
+    }
+  }, []);
+
   const groupedMessages = useMemo(() => {
     const source = localMessages;
     const result = [];
@@ -1224,6 +1289,7 @@ export default function ChatPage() {
         onToggleSearch={() => { setShowSearch(s => !s); if (showSearch) setSearchQuery(''); }}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onDeleteConversation={handleDeleteConversation}
       />
       <ContextBanner orderId={conversation?.order_id} navigate={navigate} />
 
@@ -1285,6 +1351,7 @@ export default function ChatPage() {
             userId={user?.id}
             onReact={handleReact}
             onReply={handleReply}
+            onDelete={handleDeleteMessage}
           />
         )}
       </AnimatePresence>

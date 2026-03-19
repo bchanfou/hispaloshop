@@ -423,6 +423,28 @@ async def react_to_message(message_id: str, request: Request, user: User = Depen
     return {"message_id": message_id, "reactions": reactions}
 
 
+# ──────────── Delete single message ────────────
+
+@router.delete("/chat/messages/{message_id}")
+async def delete_message(message_id: str, user: User = Depends(get_current_user)):
+    """Delete a single message (only by sender, within 5 minutes)"""
+    message = await db.chat_messages.find_one({"message_id": message_id})
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+
+    if message.get("sender_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Can only delete your own messages")
+
+    created_at = message.get("created_at")
+    if isinstance(created_at, str):
+        created_at = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+    if created_at and (datetime.now(timezone.utc) - created_at).total_seconds() > 300:
+        raise HTTPException(status_code=403, detail="Can only delete messages within 5 minutes")
+
+    await db.chat_messages.delete_one({"message_id": message_id})
+    return {"success": True, "message_id": message_id}
+
+
 # ──────────── File uploads ────────────
 
 @router.post("/chat/conversations/{conversation_id}/upload-image")

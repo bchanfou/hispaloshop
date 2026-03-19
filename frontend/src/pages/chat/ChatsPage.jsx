@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Search, MessageCircle, PenSquare, Trash2 } from 'lucide-react';
+import { Search, MessageCircle, PenSquare, Trash2, ArrowLeft } from 'lucide-react';
 import { useChatContext } from '@/context/chat/ChatProvider';
 
 const SWIPE_HINT_KEY = 'chat_swipe_hint_shown';
@@ -91,15 +91,15 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) 
             <img
               src={avatar_url}
               alt={name}
-              className={`h-12 w-12 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
+              className={`h-14 w-14 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
             />
           ) : (
-            <div className={`flex h-12 w-12 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+            <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
               {getInitial(name)}
             </div>
           )}
           {online && (
-            <span className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-stone-50 bg-stone-950" />
+            <span className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-white bg-[#2E7D52]" />
           )}
         </div>
 
@@ -203,36 +203,81 @@ export default function ChatsPage() {
     return result;
   }, [conversations, activeFilter, debouncedQuery]);
 
+  const onlineConversations = useMemo(() =>
+    (conversations || []).filter((c) => c.online),
+  [conversations]);
+
   const isEmpty = filteredConversations.length === 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-white font-apple">
-      {/* TopBar */}
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl">
-        <h1 className="text-[22px] font-bold text-stone-950">Mensajes</h1>
+      {/* TopBar — Instagram style */}
+      <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
+          aria-label="Volver"
+        >
+          <ArrowLeft size={22} />
+        </button>
+        <h1 className="flex-1 text-[22px] font-bold text-stone-950">Mensajes</h1>
 
         <button
           className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
           aria-label="Nuevo mensaje"
-          onClick={() => navigate('/chat/new')}
+          onClick={() => navigate('/messages/new')}
         >
           <PenSquare size={22} strokeWidth={1.8} />
         </button>
       </div>
 
       {/* Search bar */}
-      <div className="px-4 pb-2">
+      <div className="px-4 pb-2 pt-2">
         <label className="flex h-[36px] items-center gap-2 rounded-[10px] bg-stone-100 px-3">
-          <Search size={18} className="text-stone-500" strokeWidth={2} />
+          <Search size={16} className="text-stone-400" strokeWidth={2} />
           <input
             type="text"
             value={searchQuery}
             onChange={handleSearchChange}
-            placeholder="Buscar conversaciones..."
+            placeholder="Buscar"
             className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
           />
         </label>
       </div>
+
+      {/* Active Now row — Instagram-style online contacts */}
+      {onlineConversations.length > 0 && (
+        <div className="border-b border-stone-100 pb-3 pt-1">
+          <div className="scrollbar-hide flex gap-4 overflow-x-auto px-4">
+            {onlineConversations.map((conv) => {
+              const isStore = conv.type === 'b2c' || conv.type === 'b2b';
+              return (
+                <button
+                  key={conv.id}
+                  onClick={() => navigate(`/messages/${conv.id}`)}
+                  className="flex w-[58px] shrink-0 flex-col items-center gap-1"
+                >
+                  <div className="relative">
+                    {conv.avatar_url ? (
+                      <img
+                        src={conv.avatar_url}
+                        alt={conv.name}
+                        className={`h-14 w-14 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
+                      />
+                    ) : (
+                      <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+                        {getInitial(conv.name)}
+                      </div>
+                    )}
+                    <span className="absolute -bottom-0.5 -right-0.5 h-[12px] w-[12px] rounded-full border-2 border-white bg-[#2E7D52]" />
+                  </div>
+                  <span className="w-full truncate text-center text-[11px] text-stone-500">{(conv.name || '').split(' ')[0]}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Swipe hint — shown once */}
       <AnimatePresence>
@@ -285,7 +330,7 @@ export default function ChatsPage() {
               <span className="text-base font-semibold text-stone-950">Aún no tienes mensajes</span>
               <span className="text-[13px] text-stone-500 text-center">Empieza una conversación con productores, influencers y más</span>
               <button
-                onClick={() => navigate('/chat/new')}
+                onClick={() => navigate('/messages/new')}
                 className="mt-2 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white active:opacity-80"
               >
                 Nueva conversación
@@ -304,12 +349,12 @@ export default function ChatsPage() {
                   <ConversationItem
                     conversation={conv}
                     index={i}
-                    onClick={() => navigate(`/chat/${conv.id}`)}
+                    onClick={() => navigate(`/messages/${conv.id}`)}
                     onDelete={() => deleteConversation(conv.id)}
                     isTyping={!!typingUsers[conv.id]}
                   />
                   {i < filteredConversations.length - 1 && (
-                    <div className="ml-[72px] mr-4 h-px bg-stone-100/80" />
+                    <div className="ml-[84px] mr-4 h-px bg-stone-100/80" />
                   )}
                 </React.Fragment>
               ))}
