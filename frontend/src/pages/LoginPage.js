@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
 import { setToken } from '../lib/auth';
+import Logo from '../components/brand/Logo.jsx';
 
 const ROLE_DESTINATIONS = {
   customer:    '/',
@@ -61,14 +62,10 @@ export default function LoginPage() {
       });
 
       if (data?.user) {
-        // Save token for API client Bearer header — cookie is set automatically by server
-        // NOTE: token in localStorage is accessible via XSS; cookie (httpOnly) is not.
-        // This is kept for backward compatibility with the Bearer auth path.
         if (data.session_token || data.access_token) {
           setToken(data.session_token || data.access_token, data.refresh_token);
         }
 
-        // Multi-account support
         if (addAccount) {
           let accounts = [];
           try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
@@ -79,7 +76,6 @@ export default function LoginPage() {
           }
         }
 
-        // Redirect logic
         if (intendedRoute) {
           navigate(intendedRoute, { replace: true });
           return;
@@ -138,59 +134,35 @@ export default function LoginPage() {
     if (loginError) setLoginError('');
   };
 
-  const inputStyle = {
-    width: '100%', height: 48, padding: '0 16px',
-    fontSize: 15, fontFamily: 'var(--font-sans)',
-    border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-lg)',
-    background: 'var(--color-white)',
-    color: 'var(--color-black)',
-    outline: 'none',
-    transition: 'var(--transition-fast)',
-  };
-
-  const labelStyle = {
-    display: 'block', fontSize: 13, fontWeight: 600,
-    color: 'var(--color-black)', marginBottom: 6,
-    fontFamily: 'var(--font-sans)',
-  };
-
   return (
     <>
-      {/* Header */}
-      <h1 style={{
-        fontSize: 'var(--text-2xl, 24px)', fontWeight: 600,
-        color: 'var(--color-black)', textAlign: 'center',
-        margin: 0, fontFamily: 'var(--font-sans)',
-      }}>
+      {/* Logo */}
+      <div className="flex justify-center mb-8">
+        <Logo variant="full" theme="light" size={110} />
+      </div>
+
+      {/* Heading */}
+      <h1 className="text-2xl font-black tracking-tight text-stone-950 text-center mb-1">
         Bienvenido
       </h1>
-      <p style={{
-        fontSize: 'var(--text-base, 16px)', color: 'var(--color-stone)',
-        textAlign: 'center', marginTop: 4, marginBottom: 32,
-        fontFamily: 'var(--font-sans)',
-      }}>
+      <p className="text-sm text-stone-500 text-center mb-8">
         Entra en tu cuenta
       </p>
 
-      {/* Google OAuth */}
+      {/* Session expired message */}
+      {sessionExpired && (
+        <p className="text-sm text-stone-950 text-center px-4 py-3 mb-6 bg-stone-100 rounded-xl">
+          Tu sesión ha expirado. Inicia sesión de nuevo.
+        </p>
+      )}
+
+      {/* Social login — Google */}
       <button
         type="button"
         onClick={handleGoogleLogin}
-        style={{
-          width: '100%', height: 48,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-          background: 'var(--color-white)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          fontSize: 15, fontWeight: 600,
-          color: 'var(--color-black)',
-          cursor: 'pointer',
-          fontFamily: 'var(--font-sans)',
-          transition: 'var(--transition-fast)',
-        }}
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-3 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -199,91 +171,84 @@ export default function LoginPage() {
         Continuar con Google
       </button>
 
+      {/* Social login — Apple */}
+      <button
+        type="button"
+        onClick={() => toast('Apple Sign-In próximamente')}
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-6 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors"
+      >
+        <svg width="16" height="18" viewBox="0 0 17 20" fill="currentColor" aria-hidden="true">
+          <path d="M13.54 10.58c-.01-1.63.72-2.86 2.2-3.76-.83-1.2-2.08-1.86-3.72-1.98-1.56-.12-3.27.92-3.89.92-.66 0-2.13-.88-3.27-.88C2.78 4.92.5 6.88.5 10.79c0 1.15.21 2.34.63 3.57.56 1.62 2.58 5.6 4.7 5.54 1.1-.03 1.87-.78 3.28-.78 1.36 0 2.08.78 3.27.76 2.15-.04 3.94-3.63 4.47-5.25-2.85-1.35-2.82-3.96-2.8-4.05zM11.04 3.45C12.22 2.06 12.1.8 12.07.5c-1.07.06-2.31.74-3.03 1.57-.78.88-1.24 1.97-1.14 3.2 1.17.09 2.24-.53 3.14-1.82z" />
+        </svg>
+        Continuar con Apple
+      </button>
+
       {/* Divider */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 16,
-        margin: '20px 0',
-      }}>
-        <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
-        <span style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>o</span>
-        <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
+      <div className="flex items-center gap-4 mb-6">
+        <div className="flex-1 h-px bg-stone-200" />
+        <span className="text-xs text-stone-400">o continúa con email</span>
+        <div className="flex-1 h-px bg-stone-200" />
       </div>
 
-      {/* Session expired message */}
-      {sessionExpired && (
-        <p style={{
-          fontSize: 13, color: 'var(--color-black)',
-          textAlign: 'center', padding: '10px 14px', marginBottom: 16,
-          background: 'var(--color-surface, #f5f5f4)',
-          borderRadius: 'var(--radius-md)',
-          fontFamily: 'var(--font-sans)',
-        }}>
-          Tu sesión ha expirado. Inicia sesión de nuevo.
-        </p>
-      )}
-
       {/* Form */}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         {/* Email */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Email o usuario</label>
+        <div className="mb-5">
+          <label className="block text-xs font-semibold text-stone-950 mb-2 tracking-wide uppercase">
+            Email o usuario
+          </label>
           <input
             type="text"
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
             placeholder="hola@ejemplo.com"
             autoComplete="email"
-            style={{
-              ...inputStyle,
-              ...(errors.email ? { borderColor: 'var(--color-red)' } : {}),
-            }}
+            className={`w-full bg-transparent border-0 border-b pb-2 text-[15px] text-stone-950 placeholder:text-stone-400 outline-none transition-colors focus:outline-none ${
+              errors.email
+                ? 'border-red-500 focus:border-red-500'
+                : 'border-stone-200 focus:border-stone-950'
+            }`}
           />
           {errors.email && (
-            <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.email}</p>
+            <p className="text-xs text-red-500 mt-1.5">{errors.email}</p>
           )}
         </div>
 
         {/* Password */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Contraseña</label>
-          <div style={{ position: 'relative' }}>
+        <div className="mb-5">
+          <label className="block text-xs font-semibold text-stone-950 mb-2 tracking-wide uppercase">
+            Contraseña
+          </label>
+          <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={(e) => handleChange('password', e.target.value)}
               placeholder="Tu contraseña"
               autoComplete="current-password"
-              style={{
-                ...inputStyle,
-                paddingRight: 48,
-                ...(errors.password ? { borderColor: 'var(--color-red)' } : {}),
-              }}
+              className={`w-full bg-transparent border-0 border-b pb-2 text-[15px] text-stone-950 placeholder:text-stone-400 outline-none transition-colors focus:outline-none pr-10 ${
+                errors.password
+                  ? 'border-red-500 focus:border-red-500'
+                  : 'border-stone-200 focus:border-stone-950'
+              }`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute', right: 14, top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--color-stone)', padding: 4, display: 'flex',
-              }}
+              className="absolute right-0 bottom-2 text-stone-400 hover:text-stone-700 transition-colors"
               tabIndex={-1}
               aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
           </div>
           {errors.password && (
-            <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.password}</p>
+            <p className="text-xs text-red-500 mt-1.5">{errors.password}</p>
           )}
-          <div style={{ textAlign: 'right', marginTop: 8 }}>
+          <div className="text-right mt-2">
             <Link
               to="/forgot-password"
-              style={{
-                fontSize: 'var(--text-sm, 14px)', color: 'var(--color-stone)',
-                textDecoration: 'none', fontFamily: 'var(--font-sans)',
-              }}
+              className="text-xs text-stone-500 hover:text-stone-950 transition-colors"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -292,13 +257,7 @@ export default function LoginPage() {
 
         {/* Login error */}
         {loginError && (
-          <p style={{
-            fontSize: 13, color: 'var(--color-red)',
-            textAlign: 'center', padding: '10px 14px', marginBottom: 16,
-            background: 'var(--color-red-light)',
-            borderRadius: 'var(--radius-md)',
-            fontFamily: 'var(--font-sans)',
-          }}>
+          <p className="text-sm text-red-600 text-center px-4 py-3 mb-4 bg-red-50 rounded-xl">
             {loginError}
           </p>
         )}
@@ -307,35 +266,20 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: '100%', height: 48,
-            background: 'var(--color-black)',
-            color: 'var(--color-white)',
-            border: 'none', borderRadius: 'var(--radius-lg)',
-            fontSize: 15, fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            fontFamily: 'var(--font-sans)',
-            transition: 'var(--transition-fast)',
-          }}
+          className="w-full bg-stone-950 text-white py-3 rounded-full font-medium text-[15px] flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2"
         >
-          {loading ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Entrar'}
+          {loading ? <Loader2 size={18} className="animate-spin" /> : 'Entrar'}
         </button>
       </form>
 
       {/* Footer */}
-      <p style={{
-        textAlign: 'center', marginTop: 24,
-        fontSize: 'var(--text-sm, 14px)', color: 'var(--color-stone)',
-        fontFamily: 'var(--font-sans)',
-      }}>
+      <p className="text-center mt-6 text-sm text-stone-500">
         ¿No tienes cuenta?{' '}
         <Link
           to="/register"
-          style={{ color: 'var(--color-black)', fontWeight: 600, textDecoration: 'none' }}
+          className="text-stone-950 font-semibold hover:underline"
         >
-          Crear cuenta
+          Regístrate
         </Link>
       </p>
     </>

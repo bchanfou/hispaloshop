@@ -3,6 +3,23 @@ import { ImageOff } from 'lucide-react';
 import { sanitizeImageUrl } from '../utils/helpers';
 
 /**
+ * Adds f_auto,q_auto to Cloudinary URLs that don't already have transformations.
+ * This enables automatic WebP/AVIF delivery and quality optimisation.
+ *
+ * Input:  https://res.cloudinary.com/xxx/image/upload/photo.jpg
+ * Output: https://res.cloudinary.com/xxx/image/upload/f_auto,q_auto/photo.jpg
+ */
+function applyCloudinaryOptimisation(url) {
+  if (!url) return url;
+  if (!url.includes('cloudinary.com')) return url;
+  // Already has a transformation segment after /upload/ — don't double-insert
+  if (/\/upload\/[^/]+_[^/]+\//.test(url) || url.includes('/upload/f_auto')) return url;
+  // Only apply to common raster formats
+  if (!/\.(jpe?g|png|webp|gif)(\?|$)/i.test(url)) return url;
+  return url.replace('/upload/', '/upload/f_auto,q_auto/');
+}
+
+/**
  * SmartImage - Image component with fallback and lazy loading
  * Shows a placeholder with initials when the image fails to load
  */
@@ -17,7 +34,7 @@ export default function SmartImage({
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const safeSrc = sanitizeImageUrl(src);
+  const safeSrc = applyCloudinaryOptimisation(sanitizeImageUrl(src));
 
   // Reset error/loading states when src changes
   useEffect(() => {

@@ -93,6 +93,26 @@ export default function AppLayout({ children }) {
     }
   }, [location.pathname, user?.country]);
 
+  // Scroll restoration on route change
+  useEffect(() => {
+    // Don't scroll on hash-only changes (e.g. /profile#posts)
+    if (location.hash !== '') return;
+
+    // Save scroll position for previous route so back navigation can restore it
+    const prevKey = prevPathRef.current;
+    if (prevKey) {
+      sessionStorage.setItem(`scroll:${prevKey}`, String(window.scrollY));
+    }
+
+    // Try to restore saved position for this route (back navigation)
+    const saved = sessionStorage.getItem(`scroll:${location.key}`);
+    if (saved !== null) {
+      window.scrollTo(0, parseInt(saved, 10));
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash, location.key]);
+
   if (hideChrome) {
     return <>{children}</>;
   }

@@ -2252,6 +2252,116 @@ async def reorder_order(order_id: str, user: User = Depends(get_current_user)):
 
     return {"success": True, "items_added": len(line_items)}
 
+
+@router.post("/customer/orders/{order_id}/reorder")
+async def customer_reorder(order_id: str, user: User = Depends(get_current_user)):
+    """Reorder from a past order — customer-prefixed route used by the new frontend."""
+    order = await db.orders.find_one({"order_id": order_id, "user_id": user.user_id})
+    if not order:
+        # Try by _id for legacy numeric/ObjectId order IDs
+        try:
+            from bson import ObjectId
+            order = await db.orders.find_one({"_id": ObjectId(order_id), "user_id": user.user_id})
+        except Exception:
+            pass
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    line_items = order.get("line_items", order.get("items", []))
+    if not line_items:
+        return {"success": False, "reason": "empty_order"}
+
+    cart = await db.carts.find_one({"user_id": user.user_id, "status": "active"})
+    cart_items = list(cart.get("items", [])) if cart else []
+
+    for item in line_items:
+        product_id = item.get("product_id")
+        quantity = int(item.get("quantity", 1) or 1)
+        if not product_id or quantity <= 0:
+            continue
+
+        unit_price = int(item.get("price_cents", 0) or item.get("unit_price_cents", 0) or 0)
+        cart_items.append({
+            "product_id": product_id,
+            "product_name": item.get("name") or item.get("product_name"),
+            "product_image": item.get("image") or item.get("product_image"),
+            "seller_id": item.get("producer_id") or item.get("seller_id"),
+            "seller_type": "producer",
+            "quantity": quantity,
+            "unit_price_cents": unit_price,
+            "total_price_cents": unit_price * quantity,
+            "variant_id": item.get("variant_id"),
+            "pack_id": item.get("pack_id"),
+            "added_at": datetime.now(timezone.utc),
+        })
+
+    if cart:
+        await db.carts.update_one(
+            {"_id": cart["_id"]},
+            {"$set": {"items": cart_items, "updated_at": datetime.now(timezone.utc)}},
+        )
+    else:
+        await db.carts.insert_one({
+            "user_id": user.user_id,
+            "tenant_id": getattr(user, "country", None) or "ES",
+            "status": "active",
+            "items": cart_items,
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        })
+
+    return {"success": True, "items_added": len(line_items)}
+
+
+@router.patch("/producer/orders/{order_id}/status")
+async def update_producer_order_status(order_id: str, body: dict, user: User = Depends(get_current_user)):
+    """Producer updates the status of one of their orders (PATCH variant used by new frontend)."""
+    producer_id = user.user_id
+    new_status = body.get("status")
+    allowed = ["confirmed", "shipped", "preparing", "cancelled"]
+    if new_status not in allowed:
+        raise HTTPException(status_code=400, detail=f"Status must be one of: {allowed}")
+
+    # Resolve order by order_id string or ObjectId
+    order = await db.orders.find_one({"order_id": order_id})
+    if not order:
+        try:
+            from bson import ObjectId
+            order = await db.orders.find_one({"_id": ObjectId(order_id)})
+        except Exception:
+            pass
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    # Verify this producer has at least one item in the order
+    line_items = order.get("line_items", order.get("items", []))
+    producer_ids = [item.get("producer_id") for item in line_items]
+    if producer_id not in producer_ids:
+        # Fall back to checking via products owned by producer
+        product_ids_in_order = {item.get("product_id") for item in line_items if item.get("product_id")}
+        if product_ids_in_order:
+            owned = await db.products.count_documents({"producer_id": producer_id, "product_id": {"$in": list(product_ids_in_order)}})
+            if owned == 0:
+                raise HTTPException(status_code=403, detail="Not your order")
+        else:
+            raise HTTPException(status_code=403, detail="Not your order")
+
+    update_fields: Dict[str, Any] = {
+        "status": new_status,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if new_status == "shipped":
+        if body.get("tracking_url"):
+            update_fields["tracking_url"] = body["tracking_url"]
+        if body.get("tracking_number"):
+            update_fields["tracking_number"] = body["tracking_number"]
+        update_fields["shipped_at"] = datetime.now(timezone.utc).isoformat()
+
+    await db.orders.update_one({"_id": order["_id"]}, {"$set": update_fields})
+    return {"success": True, "status": new_status}
+
+
 @router.put("/orders/{order_id}/status")
 async def update_order_status(order_id: str, update: OrderStatusUpdate, user: User = Depends(get_current_user)):
     """Update order status with tracking info and send email notification"""

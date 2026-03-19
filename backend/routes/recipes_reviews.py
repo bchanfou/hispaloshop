@@ -160,8 +160,16 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
     return recipe
 
 @router.get("/recipes")
-async def get_recipes(q: Optional[str] = None, tag: Optional[str] = None, difficulty: Optional[str] = None, limit: int = 20):
-    """Get recipes with filters."""
+async def get_recipes(
+    q: Optional[str] = None,
+    tag: Optional[str] = None,
+    difficulty: Optional[str] = None,
+    limit: int = 20,
+    exclude: Optional[str] = None,
+):
+    """Get recipes with filters. `exclude` omits a single recipe by recipe_id or ObjectId."""
+    from bson import ObjectId
+
     query = {"status": "active"}
     if q:
         query["title"] = {"$regex": re.escape(q), "$options": "i"}
@@ -169,6 +177,15 @@ async def get_recipes(q: Optional[str] = None, tag: Optional[str] = None, diffic
         query["tags"] = tag
     if difficulty:
         query["difficulty"] = difficulty
+    if exclude:
+        # Try ObjectId first; fall back to recipe_id string match
+        exclude_filter: dict = {}
+        try:
+            exclude_filter = {"_id": {"$ne": ObjectId(exclude)}}
+        except Exception:
+            # Not a valid ObjectId — treat as recipe_id string
+            exclude_filter = {"recipe_id": {"$ne": exclude}}
+        query.update(exclude_filter)
     try:
         recipes = await db.recipes.find(query, {"_id": 0}).sort("likes_count", -1).limit(limit).to_list(limit)
         return recipes

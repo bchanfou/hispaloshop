@@ -8,7 +8,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Wheat, Star, Globe, Droplets, Package, Leaf, UtensilsCrossed, Baby, PawPrint } from 'lucide-react';
+import { ShoppingCart, Wheat, Star, Globe, Droplets, Package, Leaf, UtensilsCrossed, Baby, PawPrint, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { useSaveOnboardingMutation } from '../../features/onboarding/queries';
@@ -62,36 +62,24 @@ function TogglePill({ emoji, icon, label, selected, variant, onClick }) {
   const styles = useMemo(() => {
     if (!selected) {
       return {
-        background: 'var(--color-white)',
-        border: '1px solid var(--color-border)',
-        color: 'var(--color-black)',
+        background: '#ffffff',
+        border: '1px solid #e7e5e4',
+        color: '#44403c',
       };
     }
-    if (variant === 'diet') {
-      return {
-        background: 'var(--color-black)',
-        border: '1px solid var(--color-black)',
-        color: '#fff',
-      };
-    }
-    if (variant === 'allergy') {
-      return {
-        background: 'var(--color-surface-alt, #f5f5f4)',
-        border: '1px solid var(--color-black)',
-        color: 'var(--color-black)',
-      };
-    }
-    // interests
+    // All selected variants: stone-950 bg, white text
     return {
-      background: 'var(--color-surface-alt, #f5f5f4)',
-      border: '1px solid var(--color-border, #e7e5e4)',
-      color: 'var(--color-black)',
+      background: '#0c0a09',
+      border: '1px solid #0c0a09',
+      color: '#ffffff',
     };
-  }, [selected, variant]);
+  }, [selected]);
 
   return (
     <motion.button
       whileTap={{ scale: 0.95 }}
+      animate={{ scale: selected ? 1.05 : 1 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
       onClick={onClick}
       style={{
         ...styles,
@@ -101,13 +89,16 @@ function TogglePill({ emoji, icon, label, selected, variant, onClick }) {
         fontWeight: 500,
         fontFamily: 'var(--font-sans)',
         cursor: 'pointer',
-        transition: 'all 0.2s ease',
         display: 'inline-flex',
         alignItems: 'center',
         gap: 6,
       }}
     >
-      <span style={{ fontSize: 15, display: 'inline-flex', alignItems: 'center' }}>{icon || emoji}</span>
+      {selected ? (
+        <Check size={12} strokeWidth={3} style={{ flexShrink: 0 }} />
+      ) : (
+        <span style={{ fontSize: 15, display: 'inline-flex', alignItems: 'center' }}>{icon || emoji}</span>
+      )}
       {label}
     </motion.button>
   );
