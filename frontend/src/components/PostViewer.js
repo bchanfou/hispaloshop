@@ -2,15 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Heart, MessageCircle, Share2, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-function timeAgo(dateString) {
-  if (!dateString) return '';
-  const diff = (Date.now() - new Date(dateString).getTime()) / 1000;
-  if (diff < 60) return 'ahora';
-  if (diff < 3600) return `hace ${Math.floor(diff / 60)}m`;
-  if (diff < 86400) return `hace ${Math.floor(diff / 3600)}h`;
-  return `hace ${Math.floor(diff / 86400)}d`;
-}
+import { timeAgo } from '../utils/time';
 
 export default function PostViewer({ post, posts = [], profile, onClose, onLike, onComment }) {
   const navigate = useNavigate();

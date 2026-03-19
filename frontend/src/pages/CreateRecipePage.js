@@ -88,7 +88,7 @@ export default function CreateRecipePage() {
 
   const handleMainImage = async (file) => {
     if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
-    if (file.size > 8 * 1024 * 1024) { toast.error(t('social.maxSize10', 'El tamano maximo es 10MB')); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error(t('social.maxSize10', 'El tamano maximo es 10MB')); return; }
     try { updateRecipe('image_url', await fileToDataUrl(file)); } catch { toast.error('No hemos podido cargar la imagen'); }
   };
 
@@ -220,7 +220,7 @@ export default function CreateRecipePage() {
           {recipe.ingredients.map((ingredient, index) => (
             <div key={`${ingredient.name}-${index}`} className={`flex items-center gap-2.5 py-2 ${index < recipe.ingredients.length - 1 ? 'border-b border-stone-200' : ''}`}>
               {ingredient.product_id && (ingredient.product?.images?.[0] || ingredient.product?.image) && (
-                <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} className="h-7 w-7 shrink-0 rounded-xl object-cover" />
+                <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} loading="lazy" className="h-7 w-7 shrink-0 rounded-xl object-cover" />
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">

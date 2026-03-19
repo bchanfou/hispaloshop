@@ -176,7 +176,7 @@ export default function ProductDetailOverlay({
 
   return (
     <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-    <div role="dialog" aria-modal="true" aria-label={product.name} className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
+    <div role="dialog" aria-modal="true" aria-label={product?.name || 'Producto'} className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
       {/* Backdrop */}
       <button
         type="button"
@@ -191,7 +191,7 @@ export default function ProductDetailOverlay({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-stone-100 px-5 py-3.5">
           <h2 className="text-[15px] font-semibold leading-tight text-stone-950 line-clamp-1">
-            {product.name}
+            {product?.name || 'Producto'}
           </h2>
           <button
             type="button"
@@ -300,7 +300,7 @@ export default function ProductDetailOverlay({
                 {/* Botón único añadir */}
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <span className="text-[13px] text-stone-500">Añadir al carrito</span>
-                  <AddButton onAdd={handleAddToCart} isDisabled={product?.stock === 0 || product?.is_out_of_stock} />
+                  <AddButton onAdd={handleAddToCart} isDisabled={product?.is_out_of_stock || (product?.track_stock !== false && (product?.market_stock ?? product?.stock ?? 100) <= 0)} />
                 </div>
               </div>
 

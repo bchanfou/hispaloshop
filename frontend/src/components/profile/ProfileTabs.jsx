@@ -282,7 +282,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/reels?user=${userId}`); }}
               role="button"
               tabIndex={0}
-              className="relative aspect-[9/16] cursor-pointer overflow-hidden bg-black"
+              className="relative aspect-square cursor-pointer overflow-hidden bg-black"
             >
               <img
                 src={src}

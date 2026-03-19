@@ -2,19 +2,9 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Heart, Send } from 'lucide-react';
 import apiClient from '../../services/api/client';
+import { timeAgo } from '../../utils/time';
 
 const STORY_DURATION = 5000;
-
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'ahora';
-  if (mins < 60) return `${mins}m`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h`;
-  return `${Math.floor(hrs / 24)}d`;
-}
 
 export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const navigate = useNavigate();

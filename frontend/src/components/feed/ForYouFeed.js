@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, Sparkles } from 'lucide-react';
+import { AlertCircle, Check, Sparkles } from 'lucide-react';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
 import PostDetailModal from './PostDetailModal';
@@ -145,19 +145,20 @@ export default function ForYouFeed() {
           estimatedItemSize={520}
           itemContent={(index, post) => {
             const isReel = post.video_url || post.type === 'reel';
-            const animDelay = index < 5 ? index * 0.05 : 0;
+            const shouldAnimate = index < 5;
+            const animDelay = shouldAnimate ? index * 0.05 : 0;
 
             // Inject suggested users after every 5th post (position 4, 14, 24...)
             const showSuggestions = index === 4 || (index > 4 && (index - 4) % 10 === 0);
 
+            const motionProps = shouldAnimate
+              ? { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay } }
+              : {};
+
             if (isReel) {
               return (
                 <div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay }}
-                  >
+                  <motion.div {...motionProps}>
                     <ReelCard
                       reel={{
                         id: post.id,
@@ -190,11 +191,7 @@ export default function ForYouFeed() {
             return (
               <div>
                 {showSuggestions && <SuggestedUsersCard />}
-                <motion.div
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay }}
-                >
+                <motion.div {...motionProps}>
                   <PostCard
                     post={{
                       id: post.id,
@@ -230,9 +227,19 @@ export default function ForYouFeed() {
           overscan={3}
           style={{ height: 'calc(100vh - var(--header-height, 56px) - var(--bottom-nav-height, 64px))' }}
           components={{
-            Footer: () => feedQuery.isFetchingNextPage
-              ? <FeedSkeleton count={2} />
-              : null,
+            Footer: () => {
+              if (feedQuery.isFetchingNextPage) return <FeedSkeleton count={2} />;
+              if (!hasMore && allPosts.length > 0) return (
+                <div className="flex flex-col items-center gap-2 py-10">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-stone-200">
+                    <Check className="h-7 w-7 text-stone-400" />
+                  </div>
+                  <p className="text-[14px] font-semibold text-stone-950">{t('feed.caughtUp.title', 'Estás al día')}</p>
+                  <p className="text-[13px] text-stone-400">{t('feed.caughtUp.description', 'Has visto todas las publicaciones nuevas')}</p>
+                </div>
+              );
+              return null;
+            },
           }}
         />
       )}

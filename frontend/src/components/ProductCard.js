@@ -236,12 +236,15 @@ const areProductPropsEqual = (prev, next) => {
     (p?.product_id || p?.id) === (n?.product_id || n?.id) &&
     p?.price === n?.price &&
     p?.display_price === n?.display_price &&
+    p?.display_currency === n?.display_currency &&
     p?.stock === n?.stock &&
     p?.market_stock === n?.market_stock &&
+    p?.available_in_country === n?.available_in_country &&
     p?.average_rating === n?.average_rating &&
     p?.name === n?.name &&
     p?.image_url === n?.image_url &&
     p?.images?.[0] === n?.images?.[0] &&
+    p?.certifications?.length === n?.certifications?.length &&
     prev.variant === next.variant
   );
 };

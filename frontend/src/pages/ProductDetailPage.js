@@ -218,15 +218,15 @@ export default function ProductDetailPage() {
   };
 
   const displayPrice = convertAndFormatPrice(
-    (selectedPack?.price || currentPrice || product?.price || 0),
-    product?.currency || 'EUR'
+    (selectedPack?.price || currentPrice || product?.display_price || product?.price || 0),
+    product?.display_currency || product?.currency || 'EUR'
   );
   const totalPrice = convertAndFormatPrice(
-    (selectedPack?.price || currentPrice || product?.price || 0) * quantity,
-    product?.currency || 'EUR'
+    (selectedPack?.price || currentPrice || product?.display_price || product?.price || 0) * quantity,
+    product?.display_currency || product?.currency || 'EUR'
   );
   const isFreeShipping = !product?.shipping_cost || product?.shipping_cost === 0;
-  const images = product?.images || [];
+  const images = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
   const primaryImage = images[0] || product?.image_url || null;
 
   // ── Loading state ──
@@ -318,13 +318,13 @@ export default function ProductDetailPage() {
       </header>
 
       {/* ── Image Gallery — 1:1 scroll-snap ── */}
-      <section aria-label="Galería de imágenes del producto" className="relative w-full bg-stone-100">
+      <section aria-label={`Galería de imágenes de ${product.name || 'producto'}`} className="relative w-full bg-stone-100">
         <div
           ref={galleryRef}
           onScroll={handleGalleryScroll}
           className="flex overflow-x-auto scrollbar-hide [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch]"
         >
-          {(images.length > 0 ? images : primaryImage ? [primaryImage] : []).map((img, i) => (
+          {(images.length > 0 ? images : primaryImage ? [primaryImage] : [null]).map((img, i) => (
             <div
               key={img || i}
               className="relative aspect-square w-full flex-[0_0_100%] [scroll-snap-align:start]"
@@ -483,7 +483,7 @@ export default function ProductDetailPage() {
           <span className="text-[13px] font-medium text-stone-950">
             {isFreeShipping
               ? t('products.freeShipping', 'Envío gratis')
-              : `${t('products.shippingCost', 'Envío')}: ${convertAndFormatPrice(product.shipping_cost, product.currency || 'EUR')}`
+              : `${t('products.shippingCost', 'Envío')}: ${convertAndFormatPrice(product.shipping_cost, product.display_currency || product.currency || 'EUR')}`
             }
           </span>
         </div>
@@ -553,12 +553,12 @@ export default function ProductDetailPage() {
                     </span>
                     {calculateSavings(pack, selectedVariant) && (
                       <span className="rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
-                        Ahorra {convertAndFormatPrice(calculateSavings(pack, selectedVariant), 'EUR')}
+                        Ahorra {convertAndFormatPrice(calculateSavings(pack, selectedVariant), product?.display_currency || product?.currency || 'EUR')}
                       </span>
                     )}
                   </div>
                   <span className="text-sm font-semibold text-stone-950">
-                    {convertAndFormatPrice(pack.price, 'EUR')}
+                    {convertAndFormatPrice(pack.price, product?.display_currency || product?.currency || 'EUR')}
                   </span>
                 </button>
               );
@@ -893,7 +893,7 @@ export default function ProductDetailPage() {
                     <div>
                       <span className="text-[11px] text-stone-500">Precio mayorista</span>
                       <p className="mt-0.5 text-sm font-semibold text-stone-950">
-                        {convertAndFormatPrice(product.b2b_settings.wholesale_price, product.currency || 'EUR')} / ud
+                        {convertAndFormatPrice(product.b2b_settings.wholesale_price, product.display_currency || product.currency || 'EUR')} / ud
                       </p>
                     </div>
                   )}
@@ -969,7 +969,7 @@ export default function ProductDetailPage() {
                     {rp.name}
                   </p>
                   <p className="text-[13px] font-bold text-stone-950">
-                    {convertAndFormatPrice(rp.price, rp.currency || 'EUR')}
+                    {convertAndFormatPrice(rp.display_price || rp.price || 0, rp.display_currency || rp.currency || 'EUR')}
                   </p>
                 </Link>
               );

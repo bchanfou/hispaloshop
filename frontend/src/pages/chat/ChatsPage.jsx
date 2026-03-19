@@ -40,7 +40,7 @@ function formatTimestamp(ts) {
   return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
-function ConversationItem({ conversation, index, onClick, onDelete }) {
+function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) {
   const {
     name,
     avatar_url,
@@ -119,12 +119,12 @@ function ConversationItem({ conversation, index, onClick, onDelete }) {
         )}
 
         <div className="mt-0.5 flex items-center justify-between gap-2">
-          <span className={`truncate text-[13px] leading-[18px] ${isUnread ? 'font-medium text-stone-950' : 'text-stone-500'}`}>
-            {last_message || 'Sin mensajes aún'}
+          <span className={`truncate text-[13px] leading-[18px] ${isTyping ? 'italic text-[#2E7D52]' : isUnread ? 'font-medium text-stone-950' : 'text-stone-500'}`}>
+            {isTyping ? 'Escribiendo...' : last_message || 'Sin mensajes aún'}
           </span>
 
           {isUnread && (
-            <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-[#2E7D52] px-1 text-[11px] font-semibold leading-none text-white">
+            <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-[#2E7D52] px-1 text-[11px] font-semibold leading-none text-white animate-pulse">
               {unread_count > 99 ? '99+' : unread_count}
             </span>
           )}
@@ -137,7 +137,7 @@ function ConversationItem({ conversation, index, onClick, onDelete }) {
 
 export default function ChatsPage() {
   const navigate = useNavigate();
-  const { conversations, reloadConversations, deleteConversation } = useChatContext();
+  const { conversations, reloadConversations, deleteConversation, typingUsers } = useChatContext();
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -261,6 +261,7 @@ export default function ChatsPage() {
                     index={i}
                     onClick={() => navigate(`/chat/${conv.id}`)}
                     onDelete={() => deleteConversation(conv.id)}
+                    isTyping={!!typingUsers[conv.id]}
                   />
                   {i < filteredConversations.length - 1 && (
                     <div className="ml-[72px] mr-4 h-px bg-stone-100/80" />

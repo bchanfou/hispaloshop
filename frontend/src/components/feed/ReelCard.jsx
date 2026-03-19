@@ -54,7 +54,9 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     setLiked(reel.liked ?? reel.is_liked ?? false);
     setLikesCount(reel.likes ?? reel.likes_count ?? 0);
   }, [reel.liked, reel.is_liked, reel.likes, reel.likes_count]);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(() => {
+    try { return localStorage.getItem('hsp_reel_muted') !== 'false'; } catch { return true; }
+  });
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -70,6 +72,9 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     };
   }, []);
 
+  // Track view (fire once per mount)
+  const viewTrackedRef = useRef(false);
+
   // IntersectionObserver auto play/pause
   useEffect(() => {
     const video = videoRef.current;
@@ -81,6 +86,12 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         if (entry.isIntersecting) {
           video.play().catch(() => { setPlaying(false); });
           setPlaying(true);
+          // Track view once when reel becomes visible
+          if (!viewTrackedRef.current) {
+            viewTrackedRef.current = true;
+            const reelId = reel.id || reel.reel_id || reel.post_id;
+            if (reelId) apiClient.post(`/reels/${reelId}/view`).catch(() => {});
+          }
         } else {
           video.pause();
           setPlaying(false);
@@ -91,7 +102,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
     observer.observe(container);
     return () => observer.disconnect();
-  }, []);
+  }, [reel.id, reel.reel_id, reel.post_id]);
 
   // Pause on tab switch (visibilitychange)
   useEffect(() => {
@@ -192,14 +203,25 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     if (!video) return;
     video.muted = !video.muted;
     setMuted(video.muted);
+    try { localStorage.setItem('hsp_reel_muted', String(video.muted)); } catch {}
   }, []);
 
-  const handleLike = useCallback(() => {
+  const handleLike = useCallback(async () => {
+    const prev = liked;
     const next = !liked;
     setLiked(next);
     setLikesCount((c) => (next ? c + 1 : c - 1));
-    onLike?.(reel.id, next);
-  }, [liked, reel.id, onLike]);
+    const reelId = reel.id || reel.reel_id || reel.post_id;
+    try {
+      await apiClient.post(`/reels/${reelId}/like`);
+    } catch {
+      // Rollback on failure
+      setLiked(prev);
+      setLikesCount((c) => (prev ? c + 1 : c - 1));
+      toast.error('Error al dar me gusta');
+    }
+    onLike?.(reelId, next);
+  }, [liked, reel.id, reel.reel_id, reel.post_id, onLike]);
 
   // Single tap = play/pause (250ms debounce), double-tap = like
   const handleVideoTap = useCallback(() => {
@@ -210,9 +232,14 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     if (isDoubleTap) {
       clearTimeout(singleTapTimer.current);
       if (!liked) {
+        const reelId = reel.id || reel.reel_id || reel.post_id;
         setLiked(true);
         setLikesCount((c) => c + 1);
-        onLike?.(reel.id, true);
+        apiClient.post(`/reels/${reelId}/like`).catch(() => {
+          setLiked(false);
+          setLikesCount((c) => c - 1);
+        });
+        onLike?.(reelId, true);
       }
       setShowDoubleTapHeart(true);
       clearTimeout(doubleTapHeartTimer.current);
@@ -230,9 +257,9 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
   const videoUrl = reel.video_url || reel.videoUrl;
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
-  const avatarUrl = reel.user?.avatar_url || reel.user?.avatar || reel.user?.profile_image;
+  const avatarUrl = reel.user?.avatar_url || reel.user?.avatar || reel.user?.profile_image || reel.user_profile_image;
   const reelCommentsCount = reel.comments_count ?? reel.comments ?? 0;
-  const product = reel.products?.[0] || reel.productTag || null;
+  const product = reel.products?.[0] || reel.tagged_products?.[0] || reel.tagged_product || reel.productTag || null;
 
   return (
     <div
@@ -242,19 +269,32 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       }`}
     >
       {/* Video */}
-      <video
-        ref={videoRef}
-        src={videoUrl}
-        poster={thumbnailUrl}
-        className="absolute inset-0 w-full h-full object-cover"
-        loop
-        playsInline
-        muted={muted}
-        preload={priority ? 'auto' : 'none'}
-        onClick={handleVideoTap}
-        onLoadedMetadata={() => { if (videoRef.current) setVideoDuration(videoRef.current.duration); }}
-        aria-label={playing ? 'Pausar vídeo' : 'Reproducir vídeo'}
-      />
+      {videoUrl ? (
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          poster={thumbnailUrl || undefined}
+          className="absolute inset-0 w-full h-full object-cover"
+          loop
+          playsInline
+          muted={muted}
+          preload={priority ? 'metadata' : 'none'}
+          onClick={handleVideoTap}
+          onLoadedMetadata={() => { if (videoRef.current) setVideoDuration(videoRef.current.duration); }}
+          aria-label={playing ? 'Pausar vídeo' : 'Reproducir vídeo'}
+        />
+      ) : (
+        <div
+          className="absolute inset-0 w-full h-full bg-stone-900 flex items-center justify-center"
+          onClick={handleVideoTap}
+        >
+          {thumbnailUrl ? (
+            <img src={thumbnailUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <Play size={48} className="text-white/30" />
+          )}
+        </div>
+      )}
 
       {/* Duration badge */}
       {videoDuration > 0 && !playing && (
@@ -321,20 +361,21 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         {/* Avatar + follow */}
         <div className="relative flex flex-col items-center">
           <div
-            onClick={(e) => { e.stopPropagation(); navigate(`/${reel.user?.username || reel.user?.id}`); }}
+            onClick={(e) => { e.stopPropagation(); const target = reel.user?.username || reel.user?.id || reel.user?.user_id; if (target) navigate(`/${target}`); }}
             className="cursor-pointer"
             role="link"
-            aria-label={`Ver perfil de ${reel.user?.name || 'usuario'}`}
+            aria-label={`Ver perfil de ${reel.user?.name || reel.user?.full_name || 'usuario'}`}
           >
             {avatarUrl ? (
               <img
                 src={avatarUrl}
-                alt={reel.user?.name || 'Usuario'}
+                alt={reel.user?.name || reel.user?.full_name || 'Usuario'}
                 className="w-10 h-10 rounded-full object-cover border-2 border-white bg-white/20"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
             ) : (
               <div className="w-10 h-10 rounded-full border-2 border-white bg-white/20 flex items-center justify-center text-sm font-bold text-white">
-                {(reel.user?.name || '?')[0].toUpperCase()}
+                {(reel.user?.name || reel.user?.full_name || '?')[0].toUpperCase()}
               </div>
             )}
           </div>
@@ -355,7 +396,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
                       toast.success('Solicitud enviada');
                     } else {
                       setIsFollowing(true);
-                      toast.success('Siguiendo a ' + (reel.user?.name || 'usuario'));
+                      toast.success('Siguiendo a ' + (reel.user?.name || reel.user?.full_name || 'usuario'));
                     }
                   } catch {
                     toast.error('No se pudo seguir al usuario');
@@ -402,7 +443,8 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         <button
           className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
           onClick={async () => {
-            const url = `${window.location.origin}/reels/${reel.id}`;
+            const reelId = reel.id || reel.reel_id || reel.post_id;
+            const url = `${window.location.origin}/reels/${reelId}`;
             try {
               if (navigator.share) {
                 await navigator.share({ title: reel.caption || 'Reel', url });
@@ -413,7 +455,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
             } catch {
               // User cancelled share dialog
             }
-            onShare?.(reel.id);
+            onShare?.(reelId);
           }}
           aria-label="Compartir"
         >
@@ -424,12 +466,13 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         <button
           className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
           aria-label={saved ? 'Quitar guardado' : 'Guardar'}
+          aria-pressed={saved}
           onClick={async () => {
             const next = !saved;
             setSaved(next);
             try {
-              // Backend toggles save state on POST (no separate DELETE endpoint)
-              await apiClient.post(`/posts/${reel.id}/save`);
+              const reelId = reel.id || reel.reel_id || reel.post_id;
+              await apiClient.post(`/posts/${reelId}/save`);
             } catch {
               setSaved(!next); // rollback
               toast.error('Error al guardar');
@@ -450,10 +493,10 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       >
         <button
           className="text-[15px] font-semibold text-white font-sans mb-1.5 bg-transparent border-none p-0 cursor-pointer text-left"
-          onClick={() => navigate(`/${reel.user?.username || reel.user?.id}`)}
-          aria-label={`Ver perfil de ${reel.user?.name || 'usuario'}`}
+          onClick={() => { const target = reel.user?.username || reel.user?.id || reel.user?.user_id; if (target) navigate(`/${target}`); }}
+          aria-label={`Ver perfil de ${reel.user?.name || reel.user?.full_name || 'usuario'}`}
         >
-          {reel.user?.name}
+          {reel.user?.name || reel.user?.full_name || 'Usuario'}
         </button>
         {reel.caption && (
           <div className="text-[13px] text-white/85 font-sans line-clamp-2 leading-[1.4] mb-1.5">

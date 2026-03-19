@@ -378,7 +378,7 @@ export default function BottomNavBar() {
             <MessageCircle className={`h-[26px] w-[26px] ${isChatActive ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             {unreadCount > 0 && (
               <span
-                className="absolute top-1 right-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full px-0.5"
+                className="absolute top-1 right-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full px-0.5 animate-pulse"
                 style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)', background: 'var(--color-red)' }}
               >
                 {unreadCount > 9 ? '9+' : unreadCount}

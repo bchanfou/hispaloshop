@@ -3,8 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import {
   ArrowLeft,
-  MoreVertical,
-  Phone,
   Package,
   ChevronRight,
   ArrowUp,
@@ -117,12 +115,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
         >
           <Search size={20} />
         </button>
-        <button
-          className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-500 active:bg-stone-100"
-          aria-label="Más opciones"
-        >
-          <MoreVertical size={20} />
-        </button>
+
       </div>
 
       <AnimatePresence>
@@ -225,16 +218,26 @@ function ReactionBar({ reactions }) {
 /* ================================================================
    AudioPlayer — mini player for voice messages
    ================================================================ */
-function AudioPlayer({ url, duration, isOwn }) {
+const SPEED_OPTIONS = [1, 1.5, 2];
+
+const AudioPlayer = React.memo(function AudioPlayer({ url, duration, isOwn }) {
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [speed, setSpeed] = useState(1);
 
   const toggle = () => {
     if (!audioRef.current) return;
     if (playing) { audioRef.current.pause(); }
     else { audioRef.current.play().catch(() => {}); }
     setPlaying(!playing);
+  };
+
+  const cycleSpeed = () => {
+    const idx = SPEED_OPTIONS.indexOf(speed);
+    const next = SPEED_OPTIONS[(idx + 1) % SPEED_OPTIONS.length];
+    setSpeed(next);
+    if (audioRef.current) audioRef.current.playbackRate = next;
   };
 
   useEffect(() => {
@@ -261,18 +264,24 @@ function AudioPlayer({ url, duration, isOwn }) {
         </div>
       </div>
       <span className={`text-[11px] ${isOwn ? 'text-white/70' : 'text-stone-500'}`}>{fmt(duration || 0)}</span>
+      {playing && (
+        <button onClick={cycleSpeed} className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${isOwn ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-700'}`}>
+          {speed}x
+        </button>
+      )}
     </div>
   );
-}
+});
 
 /* ================================================================
    MessageBubble — with reactions, reply preview, swipe-to-reply,
    audio messages, and sending state
    ================================================================ */
-function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastInGroup, isMiddleInGroup, onImageTap, onContextMenu: onCtxMenu, onReply, searchHighlight }) {
+const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastInGroup, isMiddleInGroup, onImageTap, onContextMenu: onCtxMenu, onReply, onReact, searchHighlight }) {
   const rawTs = message?.created_at || message?.timestamp;
   const ts = rawTs ? new Date(rawTs) : new Date();
   const touchTimerRef = useRef(null);
+  const lastTapRef = useRef(0);
   const dragX = useMotionValue(0);
   const replyIconOpacity = useTransform(dragX, [0, 60], [0, 1]);
 
@@ -298,7 +307,16 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
   };
   const handleTouchEndOrMove = () => clearTimeout(touchTimerRef.current);
 
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      onReact?.(message, '❤️');
+    }
+    lastTapRef.current = now;
+  };
+
   const touchProps = {
+    onClick: handleDoubleTap,
     onContextMenu: handleContextMenu,
     onTouchStart: handleTouchStart,
     onTouchEnd: handleTouchEndOrMove,
@@ -451,7 +469,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
         dragSnapToOrigin
         style={{ x: dragX }}
         onDragEnd={(_, info) => {
-          if (info.offset.x > 60 && onReply) onReply(message);
+          if (info.offset.x > 25 && onReply) onReply(message);
         }}
         {...touchProps}
       >
@@ -459,7 +477,15 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
       </motion.div>
     </div>
   );
-}
+}, (prev, next) => {
+  return prev.message === next.message
+    && prev.isOwn === next.isOwn
+    && prev.isConsecutive === next.isConsecutive
+    && prev.isFirstInGroup === next.isFirstInGroup
+    && prev.isLastInGroup === next.isLastInGroup
+    && prev.isMiddleInGroup === next.isMiddleInGroup
+    && prev.searchHighlight === next.searchHighlight;
+});
 
 /* ================================================================
    Collab message wrappers
@@ -751,6 +777,12 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
   const timerRef = useRef(null);
   const fileInputRef = useRef(null);
   const recordingSecsRef = useRef(0);
+
+  // Auto-focus the input when the component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => textareaRef.current?.focus(), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => () => { clearTimeout(typingTimeoutRef.current); clearInterval(timerRef.current); }, []);
 
@@ -1115,15 +1147,8 @@ export default function ChatPage() {
   const scrollToBottom = useCallback(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); setShowNewPill(false); }, []);
   const handleContextMenu = useCallback((message, x, y) => setContextMenu({ message, x, y }), []);
 
-  // Filter messages for search (Q6)
-  const filteredMessages = useMemo(() => {
-    if (!searchQuery.trim()) return localMessages;
-    const q = searchQuery.toLowerCase();
-    return localMessages.filter(m => (m.content || '').toLowerCase().includes(q));
-  }, [localMessages, searchQuery]);
-
   const groupedMessages = useMemo(() => {
-    const source = searchQuery.trim() ? filteredMessages : localMessages;
+    const source = localMessages;
     const result = [];
     let lastDate = null;
     let lastSender = null;
@@ -1163,7 +1188,7 @@ export default function ChatPage() {
       lastTime = msgDate;
     }
     return result;
-  }, [localMessages, filteredMessages, searchQuery, user]);
+  }, [localMessages, user]);
 
   return (
     <div
@@ -1207,6 +1232,7 @@ export default function ChatPage() {
                   onImageTap={setLightboxImage}
                   onContextMenu={handleContextMenu}
                   onReply={handleReply}
+                  onReact={handleReact}
                   searchHighlight={searchQuery.trim() || null}
                 />
           )}

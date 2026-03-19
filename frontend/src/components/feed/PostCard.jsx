@@ -1,27 +1,14 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { timeAgo } from '../../utils/time';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function timeAgo(dateString) {
-  if (!dateString) return '';
-  const now = Date.now();
-  const then = new Date(dateString).getTime();
-  const diffSec = Math.floor((now - then) / 1000);
-  if (diffSec < 60) return 'hace 1m';
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `hace ${diffMin}m`;
-  const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24) return `hace ${diffH}h`;
-  const diffD = Math.floor(diffH / 24);
-  return `hace ${diffD}d`;
-}
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
@@ -59,7 +46,7 @@ function renderCaption(text) {
 // PostCard
 // ---------------------------------------------------------------------------
 
-function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority = false }) {
+function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, priority = false }) {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 
@@ -154,11 +141,16 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
     onShare?.(post.id);
   }, [post.id, onShare]);
 
+  const scrollThrottleRef = useRef(null);
   const handleScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const idx = Math.round(el.scrollLeft / el.clientWidth);
-    setCarouselIndex(idx);
+    if (scrollThrottleRef.current) return;
+    scrollThrottleRef.current = requestAnimationFrame(() => {
+      const el = scrollRef.current;
+      if (!el) { scrollThrottleRef.current = null; return; }
+      const idx = Math.round(el.scrollLeft / el.clientWidth);
+      setCarouselIndex(idx);
+      scrollThrottleRef.current = null;
+    });
   }, []);
 
   const [localCaption, setLocalCaption] = useState(null); // null = use prop
@@ -202,12 +194,12 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
 
   // ---- derived (accept both prop schemas) --------------------------------
 
-  const images = (() => {
+  const images = useMemo(() => {
     if (Array.isArray(post.images) && post.images.length > 0) return post.images;
     if (Array.isArray(post.media) && post.media.length > 0) return post.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean);
     if (post.image_url) return [post.image_url];
     return [];
-  })();
+  }, [post.images, post.media, post.image_url]);
   const hasMultiple = images.length > 1;
   const user = post.user ?? {};
   const avatarUrl = user.avatar_url || user.avatar || user.profile_image;
@@ -396,6 +388,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
                   alt={`Post ${post.id} imagen ${i + 1}`}
                   className="block w-full aspect-square object-cover"
                   loading={(i === 0 && priority) || Math.abs(i - carouselIndex) <= 1 ? 'eager' : 'lazy'}
+                  decoding="async"
                 />
               </div>
             ))}
@@ -639,4 +632,4 @@ const arePostPropsEqual = (prev, next) => {
   );
 };
 
-export default React.memo(PostCard, arePostPropsEqual);
+export default React.memo(PostCardInner, arePostPropsEqual);

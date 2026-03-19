@@ -73,7 +73,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       <button type="button" className="absolute inset-0 bg-black/70" onClick={onClose} aria-label="Cerrar lista de compra" />
       <div className="relative z-10 flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-[32px] bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-stone-200 px-5 py-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-stone-400">Comprar ingredientes</p>
             <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">Lista de compra</h2>
@@ -89,14 +89,14 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
         </div>
 
         <div className="overflow-y-auto px-5 py-5">
-          <div className="mb-4 flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-3">
+          <div className="mb-4 flex items-center justify-between rounded-2xl border border-stone-200 bg-stone-50 p-3">
             <span className="text-sm font-medium text-stone-700">Raciones</span>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setServings((value) => Math.max(1, value - 1))} aria-label="Menos raciones" className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700">
+              <button type="button" onClick={() => setServings((value) => Math.max(1, value - 1))} aria-label="Menos raciones" className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 cursor-pointer">
                 <Minus className="h-4 w-4" />
               </button>
               <span className="w-8 text-center text-sm font-semibold text-stone-950">{servings}</span>
-              <button type="button" onClick={() => setServings((value) => value + 1)} aria-label="Más raciones" className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700">
+              <button type="button" onClick={() => setServings((value) => value + 1)} aria-label="Más raciones" className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 cursor-pointer">
                 <Plus className="h-4 w-4" />
               </button>
             </div>
@@ -109,7 +109,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
           ) : (
             <div className="space-y-3">
               {(preview?.items || []).map((item) => (
-                <div key={item.product_id} className="flex items-center gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-3">
+                <div key={item.product_id} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-3">
                   <div className="h-14 w-14 overflow-hidden rounded-xl bg-white">
                     {(item.image || item.product_image) ? <img src={resolveUserImage(item.image || item.product_image)} alt={item.name} loading="lazy" className="h-full w-full object-cover" /> : null}
                   </div>
@@ -122,7 +122,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
                       type="button"
                       onClick={() => setQuantities((current) => ({ ...current, [item.product_id]: Math.max(1, (current[item.product_id] || item.quantity || 1) - 1) }))}
                       aria-label={`Menos ${item.name}`}
-                      className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700"
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 cursor-pointer"
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
@@ -131,7 +131,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
                       type="button"
                       onClick={() => setQuantities((current) => ({ ...current, [item.product_id]: (current[item.product_id] || item.quantity || 1) + 1 }))}
                       aria-label={`Más ${item.name}`}
-                      className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700"
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 cursor-pointer"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -142,16 +142,16 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
           )}
         </div>
 
-        <div className="border-t border-stone-100 px-5 py-4">
+        <div className="border-t border-stone-200 px-5 py-4">
           <div className="mb-3 flex items-center justify-between text-sm">
             <span className="text-stone-500">Total estimado</span>
-            <span className="font-semibold text-stone-950">€{total.toFixed(2)}</span>
+            <span className="font-semibold text-stone-950">{total.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</span>
           </div>
           <button
             type="button"
             onClick={handleSubmit}
             disabled={submitting || loading || !(preview?.items || []).length}
-            className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="h-11 w-full rounded-full border-none bg-stone-950 text-sm font-semibold text-white cursor-pointer hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
             Añadir todo al carrito

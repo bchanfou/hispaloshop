@@ -48,8 +48,8 @@ const AddToCartButton = ({
         if (mountedRef.current) {
           setState('idle');
           setQuantity(1);
-          addingRef.current = false;
         }
+        addingRef.current = false;
       }, 2000);
       return true;
     } catch (error) {
@@ -95,7 +95,8 @@ const AddToCartButton = ({
     return (
       <motion.button
         onClick={handleBuyNow}
-        disabled={state === 'loading'}
+        disabled={state === 'loading' || !productId}
+        aria-label="Comprar ahora"
         className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-50`}
         whileTap={{ scale: 0.98 }}
       >
@@ -131,7 +132,8 @@ const AddToCartButton = ({
       
       <motion.button
         onClick={handleAdd}
-        disabled={state === 'loading'}
+        disabled={state === 'loading' || !productId}
+        aria-label={state === 'success' ? 'Producto añadido' : state === 'loading' ? 'Añadiendo al carrito' : 'Añadir al carrito'}
         className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-50 ${
           state === 'success' ? 'bg-stone-700' : ''
         } ${inCartQuantity > 0 && state === 'idle' ? 'bg-stone-700' : ''}`}

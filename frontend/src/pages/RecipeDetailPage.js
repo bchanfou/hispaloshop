@@ -27,6 +27,7 @@ function Topbar({ title, onBack, right }) {
   return (
     <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
       <button
+        type="button"
         onClick={onBack}
         aria-label="Volver"
         className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
@@ -139,6 +140,7 @@ export default function RecipeDetailPage() {
         onBack={() => navigate(-1)}
         right={
           <button
+            type="button"
             onClick={async () => {
               const next = !saved;
               setSaved(next);
@@ -167,7 +169,7 @@ export default function RecipeDetailPage() {
       {/* ── Hero Image ── */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100">
         {recipe.image_url ? (
-          <img src={resolveUserImage(recipe.image_url)} alt={recipe.title} className="block h-full w-full object-cover" />
+          <img src={resolveUserImage(recipe.image_url)} alt={recipe.title} loading="lazy" className="block h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <ChefHat size={48} className="text-stone-400" />
@@ -209,6 +211,7 @@ export default function RecipeDetailPage() {
           <span className="text-sm font-semibold text-stone-950">Porciones</span>
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setPortions(p => Math.max(1, p - 1))}
               disabled={portions <= 1}
               aria-label="Menos porciones"
@@ -218,6 +221,7 @@ export default function RecipeDetailPage() {
             </button>
             <span className="min-w-[24px] text-center text-lg font-bold text-stone-950">{portions}</span>
             <button
+              type="button"
               onClick={() => setPortions(p => p + 1)}
               aria-label="Más porciones"
               className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-950 cursor-pointer"
@@ -233,7 +237,8 @@ export default function RecipeDetailPage() {
           <div className="flex flex-col gap-2">
             {(recipe.ingredients || []).map((ing, i) => {
               const hasProduct = ing.product || ing.product_id;
-              const quantity = ing.quantity ? (parseFloat(ing.quantity) * ratio).toFixed(ing.quantity % 1 === 0 && ratio === Math.round(ratio) ? 0 : 1) : '';
+              const rawQty = parseFloat(ing.quantity);
+              const quantity = ing.quantity && !isNaN(rawQty) ? (rawQty * ratio).toFixed(rawQty % 1 === 0 && ratio === Math.round(ratio) ? 0 : 1) : (ing.quantity || '');
               const displayQty = [quantity, ing.unit, ing.name].filter(Boolean).join(' ');
 
               return (
@@ -253,11 +258,12 @@ export default function RecipeDetailPage() {
                       </button>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-[13px] font-medium text-stone-950">{ing.product.name}</p>
-                        {ing.product.price && (
-                          <p className="mt-0.5 text-xs text-stone-500">{Number(ing.product.price).toFixed(2)}€</p>
+                        {ing.product.price != null && (
+                          <p className="mt-0.5 text-xs text-stone-500">{Number(ing.product.price).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p>
                         )}
                       </div>
                       <button
+                        type="button"
                         onClick={() => handleAddSingle(ing)}
                         aria-label={`Añadir ${ing.product?.name || 'producto'} al carrito`}
                         className="flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-stone-950 px-3.5 text-xs font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors"
@@ -276,7 +282,7 @@ export default function RecipeDetailPage() {
               whileTap={{ scale: 0.97 }}
               onClick={handleAddAllToCart}
               disabled={addingAll}
-              className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-none bg-stone-950 p-3.5 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}
+              className={`mt-3 flex w-full items-center justify-center gap-2 rounded-full border-none bg-stone-950 p-3.5 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}
             >
               <ShoppingCart size={18} />
               {addingAll ? 'Añadiendo...' : `Añadir todos al carrito (${taggedIngredients.length})`}
@@ -313,6 +319,50 @@ export default function RecipeDetailPage() {
             ))}
           </div>
         </section>
+
+        {/* ── Nutritional Info ── */}
+        {recipe.nutrition && (
+          <section className="mb-5">
+            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Información nutricional</h2>
+            <p className="mb-2 text-[11px] text-stone-400">Por ración</p>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { key: 'calories', label: 'Calorías', unit: 'kcal' },
+                { key: 'protein', label: 'Proteína', unit: 'g' },
+                { key: 'carbs', label: 'Carbohidratos', unit: 'g' },
+                { key: 'fat', label: 'Grasa', unit: 'g' },
+              ].map(({ key, label, unit }) => {
+                const val = recipe.nutrition?.[key];
+                if (val == null) return null;
+                return (
+                  <div key={key} className="rounded-xl border border-stone-200 bg-white p-2.5 text-center">
+                    <p className="text-[15px] font-bold text-stone-950">{val}</p>
+                    <p className="text-[10px] text-stone-400">{unit}</p>
+                    <p className="mt-0.5 text-[10px] font-medium text-stone-500">{label}</p>
+                  </div>
+                );
+              })}
+            </div>
+            {recipe.nutrition?.fiber != null && (
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {[
+                  { key: 'fiber', label: 'Fibra', unit: 'g' },
+                  { key: 'sugar', label: 'Azúcar', unit: 'g' },
+                  { key: 'sodium', label: 'Sodio', unit: 'mg' },
+                ].map(({ key, label, unit }) => {
+                  const val = recipe.nutrition?.[key];
+                  if (val == null) return null;
+                  return (
+                    <div key={key} className="rounded-xl border border-stone-200 bg-white p-2 text-center">
+                      <p className="text-[13px] font-semibold text-stone-950">{val}{unit}</p>
+                      <p className="text-[10px] text-stone-400">{label}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* ── Chef Tips ── */}
         {recipe.tips && (

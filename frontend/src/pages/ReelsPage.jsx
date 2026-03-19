@@ -107,7 +107,7 @@ export default function ReelsPage() {
 
   const handleLike = useCallback(async (reelId) => {
     try {
-      await apiClient.post(`/posts/${reelId}/like`);
+      await apiClient.post(`/reels/${reelId}/like`);
     } catch {
       // Optimistic UI already updated in ReelCard
     }
@@ -129,7 +129,7 @@ export default function ReelsPage() {
           className="fixed top-[max(1rem,env(safe-area-inset-top))] left-4 z-[100] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
           aria-label="Volver"
         >
-          <ChevronLeft className="w-5.5 h-5.5 text-white" />
+          <ChevronLeft className="w-[22px] h-[22px] text-white" />
         </button>
         <span className="text-white/60 text-sm font-sans text-center">
           No hay reels disponibles ahora mismo
@@ -155,7 +155,7 @@ export default function ReelsPage() {
         className="fixed top-[max(1rem,env(safe-area-inset-top))] left-4 z-[100] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
         aria-label="Volver"
       >
-        <ChevronLeft className="w-5.5 h-5.5 text-white" />
+        <ChevronLeft className="w-[22px] h-[22px] text-white" />
       </button>
 
       {/* Category tabs */}
@@ -183,7 +183,7 @@ export default function ReelsPage() {
           <ReelCard
             reel={reel}
             isActive={idx === activeIndex}
-            onLike={() => handleLike(reel.id || reel.post_id)}
+            onLike={() => handleLike(reel.id || reel.reel_id || reel.post_id)}
             priority={idx <= 1}
           />
         </div>

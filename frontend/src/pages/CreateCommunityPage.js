@@ -1,9 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+
+// Pre-declare slugify so it's available before the component body
+function slugify(text) {
+  return (text || '').toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
 
 const EMOJIS = ['🌿', '🫙', '🧀', '🫒', '🍯', '👨‍🍳', '💪', '🌾', '🥗', '🌶️', '🍎', '🐟', '🌱', '🏔️', '🇪🇸'];
 const CATEGORIES = [
@@ -130,7 +138,11 @@ export default function CreateCommunityPage() {
 
   const create = async () => {
     if (!form.name.trim()) { toast.error('El nombre es obligatorio'); return; }
+    if (form.name.trim().length < 3) { toast.error('El nombre debe tener al menos 3 caracteres'); return; }
     if (!form.slug.trim()) { toast.error('La URL es obligatoria'); return; }
+    if (form.slug.trim().length < 3) { toast.error('La URL debe tener al menos 3 caracteres'); return; }
+    if (!/^[a-z0-9]/.test(form.slug)) { toast.error('La URL debe empezar con una letra o número'); return; }
+    if (isUploadingCover) { toast.error('Espera a que se suba la imagen'); return; }
     setIsCreating(true);
     try {
       const payload = {
@@ -199,7 +211,7 @@ export default function CreateCommunityPage() {
               </div>
             )}
           </div>
-          <input type="file" accept="image/*" onChange={handleCover} style={{ display: 'none' }} />
+          <input type="file" accept="image/*" onChange={handleCover} style={{ display: 'none' }} aria-label="Subir foto de portada" />
         </label>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -294,6 +306,8 @@ export default function CreateCommunityPage() {
               {EMOJIS.map(em => (
                 <button key={em} type="button"
                   onClick={() => update('emoji', em)}
+                  aria-label={`Seleccionar icono ${em}`}
+                  aria-pressed={form.emoji === em}
                   style={{
                     width: 40, height: 40, borderRadius: 8,
                     background: form.emoji === em ? 'var(--color-surface)' : 'var(--color-white)',
@@ -341,6 +355,7 @@ export default function CreateCommunityPage() {
                 }}>
                   #{tag}
                   <button type="button" onClick={() => update('tags', form.tags.filter(t => t !== tag))}
+                    aria-label={`Eliminar etiqueta ${tag}`}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--color-stone)', padding: 0, lineHeight: 1 }}>
                     ×
                   </button>
@@ -389,9 +404,3 @@ export default function CreateCommunityPage() {
   );
 }
 
-function slugify(text) {
-  return text.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
-}

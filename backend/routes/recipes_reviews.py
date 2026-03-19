@@ -39,7 +39,7 @@ async def _match_ingredient_product(name: str):
     product = await db.products.find_one(
         {
             "$and": [
-                {"$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]},
+                {"$or": [{"status": "active"}, {"approved": True}]},
                 {
                     "$or": [
                         {"name": {"$regex": regex, "$options": "i"}},
@@ -82,7 +82,11 @@ async def _build_shopping_list(recipe: Dict[str, object], servings_multiplier: f
         if not product:
             continue
 
-        quantity = max(1, int(round(float(ing.get("quantity_value", 1) or 1) * servings_multiplier)))
+        raw_qty = ing.get("quantity_value") or ing.get("quantity") or 1
+        try:
+            quantity = max(1, int(round(float(raw_qty) * servings_multiplier)))
+        except (ValueError, TypeError):
+            quantity = 1
         items.append(
             {
                 "product_id": product.get("product_id"),
@@ -100,6 +104,13 @@ async def _build_shopping_list(recipe: Dict[str, object], servings_multiplier: f
 async def create_recipe(request: Request, user: User = Depends(get_current_user)):
     """Create a recipe with ingredients mapped to products."""
     body = await request.json()
+    title = (body.get("title") or "").strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Title is required")
+    if not body.get("ingredients"):
+        raise HTTPException(status_code=400, detail="At least one ingredient is required")
+    if not body.get("steps"):
+        raise HTTPException(status_code=400, detail="At least one step is required")
     ingredients = []
     for ingredient in body.get("ingredients", []):
         item = dict(ingredient)
@@ -195,13 +206,14 @@ async def get_recipe(recipe_id: str):
     # Map ingredients to actual products
     enriched_ingredients = []
     for ing in recipe.get("ingredients", []):
-        mapped = {"name": ing.get("name", ""), "quantity": ing.get("quantity", ""), "unit": ing.get("unit", "")}
+        mapped = {"name": ing.get("name", ""), "quantity": ing.get("quantity", ""), "unit": ing.get("unit", ""), "product_id": ing.get("product_id")}
         prod = None
         if ing.get("product_id"):
             prod = await db.products.find_one({"product_id": ing["product_id"], "$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]}, {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "stock": 1, "producer_id": 1})
         if not prod and ing.get("name"):
             prod = await _match_ingredient_product(ing.get("name", ""))
         if prod:
+            mapped["product_id"] = prod.get("product_id") or mapped.get("product_id")
             mapped["product"] = prod
             mapped["matched_product"] = {
                 "product_id": prod.get("product_id"),
@@ -213,6 +225,28 @@ async def get_recipe(recipe_id: str):
     
     recipe["ingredients"] = enriched_ingredients
     return recipe
+
+@router.post("/recipes/{recipe_id}/save")
+async def save_recipe(recipe_id: str, user: User = Depends(get_current_user)):
+    """Save a recipe to the user's saved list."""
+    recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0, "recipe_id": 1})
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    existing = await db.saved_recipes.find_one({"user_id": user.user_id, "recipe_id": recipe_id})
+    if existing:
+        return {"saved": True}
+    await db.saved_recipes.insert_one({
+        "user_id": user.user_id,
+        "recipe_id": recipe_id,
+        "saved_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"saved": True}
+
+@router.delete("/recipes/{recipe_id}/save")
+async def unsave_recipe(recipe_id: str, user: User = Depends(get_current_user)):
+    """Remove a recipe from the user's saved list."""
+    await db.saved_recipes.delete_one({"user_id": user.user_id, "recipe_id": recipe_id})
+    return {"saved": False}
 
 @router.get("/recipes/{recipe_id}/shopping-list-preview")
 async def get_shopping_list_preview(recipe_id: str, servings: Optional[int] = Query(default=None)):

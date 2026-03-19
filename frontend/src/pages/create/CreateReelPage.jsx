@@ -147,8 +147,11 @@ export default function CreateReelPage() {
     const v = videoRef.current;
     if (!v) return;
     const dur = v.duration;
+    if (dur > 60) {
+      toast.error('El vídeo no puede superar los 60 segundos. Recórtalo antes de subirlo.');
+    }
     setDuration(dur);
-    setTrimEnd(dur);
+    setTrimEnd(Math.min(dur, 60));
 
     // Extract frames for filter thumbnail + trim timeline (non-blocking)
     const captureFrames = async () => {
@@ -267,7 +270,10 @@ export default function CreateReelPage() {
   const [publishSuccess, setPublishSuccess] = useState(false);
 
   const handlePublish = useCallback(async () => {
-    if (!videoFile) return;
+    if (!videoFile) {
+      toast.error('No hay vídeo seleccionado');
+      return;
+    }
     setPublishing(true);
     setUploadProgress(0);
     try {
@@ -323,7 +329,7 @@ export default function CreateReelPage() {
             className="bg-transparent border-none cursor-pointer p-1"
             aria-label="Cerrar"
           >
-            <X className="text-white w-5.5 h-5.5" />
+            <X className="text-white w-[22px] h-[22px]" />
           </button>
           <span className="text-white text-[15px] font-medium">Nuevo Reel</span>
           <div className="w-[30px]" />
@@ -407,7 +413,7 @@ export default function CreateReelPage() {
             className="bg-transparent border-none cursor-pointer p-1"
             aria-label="Volver"
           >
-            <X className="text-white w-5.5 h-5.5" />
+            <X className="text-white w-[22px] h-[22px]" />
           </button>
           <span className="text-white text-[15px] font-medium">Editar Reel</span>
           <button
@@ -434,6 +440,7 @@ export default function CreateReelPage() {
             loop
             playsInline
             muted={isMuted}
+            preload="metadata"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             className="w-full h-full object-cover"
@@ -692,7 +699,7 @@ export default function CreateReelPage() {
                     max={100}
                     value={volume}
                     onChange={(e) => setVolume(Number(e.target.value))}
-                    className="flex-1 accent-stone-50"
+                    className="flex-1 accent-stone-950"
                     aria-label="Volumen del audio original"
                   />
                   <Volume2 size={14} className="text-white/40 shrink-0" />
@@ -793,7 +800,7 @@ export default function CreateReelPage() {
                       max={48}
                       value={textSize}
                       onChange={(e) => setTextSize(Number(e.target.value))}
-                      className="flex-1 accent-stone-50"
+                      className="flex-1 accent-stone-950"
                       aria-label="Tamaño de texto"
                     />
                     <span className="text-white text-sm font-semibold">A</span>
@@ -862,7 +869,7 @@ export default function CreateReelPage() {
           className="bg-transparent border-none cursor-pointer p-1"
           aria-label="Volver al editor"
         >
-          <ChevronLeft className="text-stone-950 w-5.5 h-5.5" />
+          <ChevronLeft className="text-stone-950 w-[22px] h-[22px]" />
         </button>
         <span className="text-stone-950 text-[15px] font-semibold">
           Detalles del Reel
@@ -950,7 +957,7 @@ export default function CreateReelPage() {
         {/* Video preview small */}
         <div className="aspect-[9/16] max-h-[200px] bg-black rounded-xl overflow-hidden self-center shadow-lg">
           <video
-            src={videoUrl}
+            src={videoUrl || undefined}
             className="w-full h-full object-cover"
             style={{
               filter: activeFilter === 'none' ? 'none' : activeFilter,

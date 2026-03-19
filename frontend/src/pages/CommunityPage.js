@@ -1,16 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ArrowLeft, Users, Settings, Loader2 } from 'lucide-react';
+import { ArrowLeft, Users, Settings, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
 function formatRelativeTime(dateStr) {
   if (!dateStr) return '';
   const diff = Date.now() - new Date(dateStr).getTime();
+  if (diff < 0) return 'ahora';
   const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'ahora';
   if (mins < 60) return `hace ${mins}m`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `hace ${hours}h`;
@@ -39,12 +41,50 @@ export default function CommunityPage() {
   const [tab, setTab] = useState('feed');
   const { user } = useAuth();
 
-  const { data: community, isLoading, refetch } = useQuery({
+  const { data: community, isLoading, isError, refetch } = useQuery({
     queryKey: ['community', slug],
     queryFn: () => apiClient.get(`/communities/${slug}`),
   });
 
   const font = { fontFamily: 'var(--font-sans)' };
+
+  if (isError) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 40,
+          background: 'var(--color-white)',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+        }}>
+          <button onClick={() => navigate(-1)}
+            aria-label="Volver"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ArrowLeft size={22} color="var(--color-black)" />
+          </button>
+          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad</span>
+        </div>
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', gap: 12, padding: '60px 16px',
+        }}>
+          <Users size={56} color="var(--color-stone)" strokeWidth={1} />
+          <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Error al cargar la comunidad</p>
+          <button onClick={() => refetch()}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '10px 24px', background: 'var(--color-white)',
+              color: 'var(--color-black)', borderRadius: 'var(--radius-full, 999px)',
+              border: '1px solid var(--color-border)',
+              fontSize: 14, fontWeight: 600, cursor: 'pointer',
+            }}
+            aria-label="Reintentar carga">
+            <RefreshCw size={14} /> Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -142,7 +182,7 @@ export default function CommunityPage() {
           aspectRatio: '3/1', overflow: 'hidden',
           background: community.cover_image
             ? 'var(--color-surface)'
-            : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][community.name.charCodeAt(0) % 5],
+            : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
         }}>
           {community.cover_image ? (
             <img src={community.cover_image} alt=""
@@ -248,18 +288,25 @@ const JoinButton = ({ communityId, isMember, onToggle }) => {
   const [joined, setJoined] = useState(isMember);
   const [loading, setLoading] = useState(false);
 
+  // Sync with prop when server data refreshes
+  useEffect(() => { setJoined(isMember); }, [isMember]);
+
   const toggle = async () => {
+    if (loading) return;
+    const wasJoined = joined;
+    // Optimistic
+    setJoined(!wasJoined);
     setLoading(true);
     try {
-      if (joined) {
+      if (wasJoined) {
         await apiClient.delete(`/communities/${communityId}/join`);
       } else {
         await apiClient.post(`/communities/${communityId}/join`);
       }
-      setJoined(!joined);
       onToggle?.();
     } catch {
-      toast.error('Error');
+      setJoined(wasJoined);
+      toast.error('Error al actualizar membresía');
     } finally {
       setLoading(false);
     }
@@ -270,6 +317,7 @@ const JoinButton = ({ communityId, isMember, onToggle }) => {
       whileTap={{ scale: 0.94 }}
       onClick={toggle}
       disabled={loading}
+      aria-label={joined ? 'Salir de la comunidad' : 'Unirse a la comunidad'}
       style={{
         padding: '8px 20px', borderRadius: 'var(--radius-full, 999px)',
         border: joined ? '1px solid var(--color-border)' : 'none',
@@ -290,16 +338,16 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
   const [showPostForm, setShowPostForm] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, refetch: refetchQuery } = useInfiniteQuery({
     queryKey: ['community-feed', communityId],
     queryFn: ({ pageParam = 1 }) =>
       apiClient.get(`/communities/${communityId}/posts?page=${pageParam}&limit=10`),
-    getNextPageParam: last => last.has_more ? last.page + 1 : undefined,
+    getNextPageParam: last => last?.has_more ? (last?.page || 1) + 1 : undefined,
     enabled: !!communityId,
   });
 
   const refetchFeed = () => queryClient.invalidateQueries({ queryKey: ['community-feed', communityId] });
-  const posts = data?.pages.flatMap(p => p.posts) ?? [];
+  const posts = data?.pages?.flatMap(p => p?.posts || []) ?? [];
 
   return (
     <div style={{ padding: '12px 16px' }}>
@@ -337,6 +385,24 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
             animation: 'pulse 1.5s ease-in-out infinite',
           }} />
         ))
+      ) : isError ? (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', gap: 8, padding: '40px 0', color: 'var(--color-stone)',
+        }}>
+          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>Error al cargar posts</p>
+          <button onClick={() => refetchQuery()}
+            aria-label="Reintentar carga de posts"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '8px 16px', borderRadius: 'var(--radius-full, 999px)',
+              border: '1px solid var(--color-border)', background: 'var(--color-white)',
+              color: 'var(--color-black)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              fontFamily: 'var(--font-sans)',
+            }}>
+            <RefreshCw size={13} /> Reintentar
+          </button>
+        </div>
       ) : posts.length === 0 ? (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -583,7 +649,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
         </Link>
         {(isOwn || isAdmin) && (
           <button onClick={deletePost}
-            aria-label="Opciones"
+            aria-label="Eliminar post"
             style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--color-stone)', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             ···
           </button>
@@ -600,7 +666,8 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
       )}
 
       {post.image_url && (
-        <img src={post.image_url} alt=""
+        <img src={post.image_url} alt="Imagen del post"
+          loading="lazy"
           style={{ width: '100%', display: 'block', maxHeight: 400, objectFit: 'cover' }} />
       )}
 
@@ -609,6 +676,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
         <motion.button
           whileTap={{ scale: 0.85 }}
           onClick={toggleLike}
+          aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5,
@@ -631,9 +699,14 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 
         <button
           onClick={async () => {
-            await navigator.clipboard.writeText(`${window.location.origin}/community-posts/${postId}`);
-            toast.success('Enlace copiado');
+            try {
+              await navigator.clipboard.writeText(`${window.location.origin}/community-posts/${postId}`);
+              toast.success('Enlace copiado');
+            } catch {
+              toast.error('No se pudo copiar el enlace');
+            }
           }}
+          aria-label="Compartir post"
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5,
@@ -648,53 +721,118 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 
 /* ── Members Tab ── */
 const CommunityMembers = ({ communityId }) => {
-  const { data } = useQuery({
-    queryKey: ['community-members', communityId],
-    queryFn: () => apiClient.get(`/communities/${communityId}/members?limit=30`),
+  const { user } = useAuth();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['community-members', communityId, page],
+    queryFn: () => apiClient.get(`/communities/${communityId}/members?limit=30&page=${page}`),
   });
 
   const members = data?.members || [];
+  const hasMore = data?.has_more || false;
+
+  const handleFollow = async (e, member) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await apiClient.post(`/users/${member.user_id}/follow`);
+      toast.success(`Siguiendo a ${member.username || 'usuario'}`);
+    } catch {
+      toast.error('Error al seguir');
+    }
+  };
 
   return (
     <div style={{ padding: '12px 16px' }}>
-      {members.length === 0 ? (
+      {isLoading ? (
+        Array(4).fill(0).map((_, i) => (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0',
+            borderBottom: '1px solid var(--color-border)',
+          }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ width: 100, height: 14, borderRadius: 4, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite', marginBottom: 4 }} />
+              <div style={{ width: 60, height: 10, borderRadius: 4, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+            </div>
+          </div>
+        ))
+      ) : isError ? (
+        <div style={{ textAlign: 'center', padding: '24px 0' }}>
+          <p style={{ color: 'var(--color-stone)', fontSize: 14, marginBottom: 8 }}>Error al cargar miembros</p>
+          <button onClick={() => refetch()}
+            aria-label="Reintentar carga de miembros"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '8px 16px', borderRadius: 'var(--radius-full, 999px)',
+              border: '1px solid var(--color-border)', background: 'var(--color-white)',
+              color: 'var(--color-black)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              fontFamily: 'var(--font-sans)',
+            }}>
+            <RefreshCw size={13} /> Reintentar
+          </button>
+        </div>
+      ) : members.length === 0 ? (
         <p style={{ textAlign: 'center', padding: '24px 0', color: 'var(--color-stone)', fontSize: 14 }}>
           Sin miembros todavía
         </p>
       ) : (
-        members.map(member => (
-          <Link key={member.id || member._id || member.user_id} to={`/${member.username}`}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              padding: '12px 0',
-              borderBottom: '1px solid var(--color-border)',
-              textDecoration: 'none', color: 'inherit',
-            }}>
-            <img
-              src={member.avatar_url || `https://ui-avatars.com/api/?name=${member.username}&size=44`}
-              style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0 }} alt="" />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
-                {member.username}
-              </p>
-              <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
-                {member.is_admin && '👑 Admin'}
-                {member.is_seller && (member.is_admin ? ' · ' : '') + '✓ Vendedor'}
-              </p>
-            </div>
-            <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        <>
+          {members.map(member => {
+            const isOwnProfile = user?.id === member.user_id || user?.user_id === member.user_id;
+            return (
+              <Link key={member.id || member._id || member.user_id} to={`/${member.username || member.user_id}`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '12px 0',
+                  borderBottom: '1px solid var(--color-border)',
+                  textDecoration: 'none', color: 'inherit',
+                }}>
+                <img
+                  src={member.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username || 'U')}&size=44`}
+                  style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0 }}
+                  alt={member.username ? `Avatar de ${member.username}` : ''}
+                  loading="lazy" />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                    {member.username || 'Usuario'}
+                  </p>
+                  <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
+                    {member.is_admin && '👑 Admin'}
+                    {member.is_seller && (member.is_admin ? ' · ' : '') + '✓ Vendedor'}
+                  </p>
+                </div>
+                {!isOwnProfile && (
+                  <button
+                    onClick={(e) => handleFollow(e, member)}
+                    aria-label={`Seguir a ${member.username || 'usuario'}`}
+                    style={{
+                      padding: '6px 14px', borderRadius: 'var(--radius-full, 999px)',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-white)', color: 'var(--color-black)',
+                      fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      fontFamily: 'var(--font-sans)', flexShrink: 0,
+                    }}>
+                    Seguir
+                  </button>
+                )}
+              </Link>
+            );
+          })}
+          {hasMore && (
+            <button onClick={() => setPage(p => p + 1)}
               style={{
-                padding: '6px 14px', borderRadius: 'var(--radius-full, 999px)',
+                width: '100%', marginTop: 8, padding: '10px',
+                borderRadius: 'var(--radius-full, 999px)',
                 border: '1px solid var(--color-border)',
-                background: 'var(--color-white)', color: 'var(--color-black)',
-                fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                fontFamily: 'var(--font-sans)', flexShrink: 0,
+                background: 'var(--color-white)', color: 'var(--color-stone)',
+                fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
               }}>
-              Seguir
+              Ver más miembros
             </button>
-          </Link>
-        ))
+          )}
+        </>
       )}
     </div>
   );
@@ -719,7 +857,7 @@ const CommunityAbout = ({ community }) => (
       borderRadius: 'var(--radius-xl)', padding: 16, marginBottom: 20,
     }}>
       {[
-        { label: 'Fundada', value: new Date(community.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) },
+        { label: 'Fundada', value: community.created_at ? new Date(community.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : '—' },
         { label: 'Miembros', value: community.member_count?.toLocaleString() },
         { label: 'Posts', value: community.post_count?.toLocaleString() },
         { label: 'Creada por', value: `@${community.creator_username}` },

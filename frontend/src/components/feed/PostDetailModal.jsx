@@ -5,16 +5,7 @@ import { X, Heart, Send, Trash2, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
-
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
-  if (diff < 60) return 'ahora';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
-  return `${Math.floor(diff / 604800)}sem`;
-}
+import { timeAgo } from '../../utils/time';
 
 /* ── Single comment row (memoized) ── */
 const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike, liked }) {

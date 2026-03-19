@@ -70,7 +70,7 @@ async def list_communities(
 ):
     db = get_db()
     user = await get_optional_user(request) if request else None
-    user_id = getattr(user, "user_id", None)
+    user_id = getattr(user, "user_id", None) if user else None
 
     query = {"is_active": {"$ne": False}}
 
@@ -95,12 +95,17 @@ async def list_communities(
     async for doc in cursor:
         c = _str_id(doc)
         c["is_member"] = False
-        if user_id:
-            mem = await db.community_members.find_one(
-                {"community_id": c["id"], "user_id": user_id}
-            )
-            c["is_member"] = mem is not None
         communities.append(c)
+
+    # Batch membership check instead of N+1 queries
+    if user_id and communities:
+        community_ids = [c["id"] for c in communities]
+        memberships = await db.community_members.find(
+            {"community_id": {"$in": community_ids}, "user_id": user_id}
+        ).to_list(len(community_ids))
+        member_set = {m["community_id"] for m in memberships}
+        for c in communities:
+            c["is_member"] = c["id"] in member_set
 
     return {"communities": communities}
 
@@ -129,7 +134,7 @@ async def my_communities(request: Request):
 async def get_community(slug: str, request: Request):
     db = get_db()
     user = await get_optional_user(request)
-    user_id = getattr(user, "user_id", None)
+    user_id = getattr(user, "user_id", None) if user else None
 
     doc = await db.communities.find_one({"slug": slug})
     if not doc:
@@ -251,6 +256,11 @@ async def leave_community(community_id: str, request: Request):
     community = await db.communities.find_one({"_id": _oid(community_id)})
     if not community:
         raise HTTPException(404, "Community not found")
+
+    # Prevent creator from leaving their own community
+    creator_id = community.get("creator_id")
+    if creator_id and creator_id == getattr(user, "user_id", None):
+        raise HTTPException(400, "El creador no puede abandonar su comunidad")
 
     cid = str(community["_id"])
     result = await db.community_members.delete_one(
@@ -461,12 +471,19 @@ async def delete_post(post_id: str, request: Request):
     if not is_author and not is_admin:
         raise HTTPException(403, "No tienes permisos para eliminar este post")
 
-    await db.community_posts.update_one(
-        {"_id": post["_id"]}, {"$set": {"status": "removed"}}
-    )
-    await db.communities.update_one(
-        {"_id": _oid(post["community_id"])}, {"$inc": {"post_count": -1}}
-    )
+    # Only decrement if post wasn't already removed (prevent double-delete)
+    if post.get("status") != "removed":
+        await db.community_posts.update_one(
+            {"_id": post["_id"]}, {"$set": {"status": "removed"}}
+        )
+        # Use $max to prevent post_count going negative
+        community_doc = await db.communities.find_one({"_id": _oid(post["community_id"])})
+        if community_doc:
+            current_count = community_doc.get("post_count", 0)
+            await db.communities.update_one(
+                {"_id": _oid(post["community_id"])},
+                {"$set": {"post_count": max(0, current_count - 1)}}
+            )
 
     return {"ok": True}
 
@@ -474,7 +491,7 @@ async def delete_post(post_id: str, request: Request):
 # ── MEMBERS ──────────────────────────────────────────────
 
 @router.get("/communities/{community_id}/members")
-async def get_members(community_id: str, limit: int = 30):
+async def get_members(community_id: str, page: int = 1, limit: int = 30):
     db = get_db()
 
     community = await db.communities.find_one({"_id": _oid(community_id)})
@@ -482,14 +499,18 @@ async def get_members(community_id: str, limit: int = 30):
         raise HTTPException(404, "Community not found")
 
     cid = str(community["_id"])
+    skip = (max(1, page) - 1) * limit
     cursor = (
         db.community_members.find({"community_id": cid})
         .sort("is_admin", -1)
-        .limit(limit)
+        .skip(skip)
+        .limit(limit + 1)
     )
+    raw = await cursor.to_list(limit + 1)
+    has_more = len(raw) > limit
     members = []
-    async for doc in cursor:
+    for doc in raw[:limit]:
         m = _str_id(doc)
         members.append(m)
 
-    return {"members": members}
+    return {"members": members, "page": page, "has_more": has_more}

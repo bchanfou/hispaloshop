@@ -48,7 +48,6 @@ def send_email(to, subject, html):
 
 def generate_store_slug(name: str) -> str:
     """Generate URL-friendly slug from store name"""
-    import unicodedata
     # Normalize unicode characters (remove accents)
     slug = unicodedata.normalize('NFD', name.lower())
     slug = ''.join(c for c in slug if unicodedata.category(c) != 'Mn')
@@ -494,14 +493,14 @@ async def notify_store_followers(store_id: str, product_name: str, product_id: s
                 try:
                     html = f'''
                     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #8B7355;">¡Nuevo producto en {store["name"]}!</h2>
+                        <h2 style="color: #0c0a09;">¡Nuevo producto en {store["name"]}!</h2>
                         <p>Hola {user.get("name", "")},</p>
                         <p>Una tienda que sigues ha añadido un nuevo producto:</p>
                         <div style="background: #f5f5f4; padding: 16px; border-radius: 8px; margin: 16px 0;">
                             <h3 style="margin: 0 0 8px 0; color: #1c1917;">{product_name}</h3>
                             <p style="margin: 0; color: #78716c;">de {store["name"]}</p>
                         </div>
-                        <a href="{FRONTEND_URL}/products/{product_id}" style="display: inline-block; background: #8B7355; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Ver producto</a>
+                        <a href="{FRONTEND_URL}/products/{product_id}" style="display: inline-block; background: #0c0a09; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Ver producto</a>
                         <p style="color: #a8a29e; font-size: 12px; margin-top: 24px;">
                             Recibes este email porque sigues a {store["name"]} en Hispaloshop.
                             <a href="{FRONTEND_URL}/store/{store['slug']}">Dejar de seguir</a>

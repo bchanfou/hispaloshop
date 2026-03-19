@@ -141,7 +141,11 @@ export default function FollowersPage() {
 
   const handleLoadMore = useCallback(() => fetchUsers(page + 1, true), [fetchUsers, page]);
 
+  const followInFlightRef = useRef(new Set());
+
   const handleFollow = useCallback(async (targetId) => {
+    if (followInFlightRef.current.has(targetId)) return;
+    followInFlightRef.current.add(targetId);
     // Optimistic update
     setUsers(prev => prev.map(u => {
       const uid = u.user_id || u.id;
@@ -156,10 +160,14 @@ export default function FollowersPage() {
         return uid === targetId ? { ...u, is_following: false } : u;
       }));
       toast.error('Error al seguir usuario');
+    } finally {
+      followInFlightRef.current.delete(targetId);
     }
   }, []);
 
   const handleUnfollow = useCallback(async (targetId) => {
+    if (followInFlightRef.current.has(targetId)) return;
+    followInFlightRef.current.add(targetId);
     // Optimistic update
     setUsers(prev => prev.map(u => {
       const uid = u.user_id || u.id;
@@ -174,6 +182,8 @@ export default function FollowersPage() {
         return uid === targetId ? { ...u, is_following: true } : u;
       }));
       toast.error('Error al dejar de seguir');
+    } finally {
+      followInFlightRef.current.delete(targetId);
     }
   }, []);
 

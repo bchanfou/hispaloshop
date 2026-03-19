@@ -267,6 +267,7 @@ export default function RecipesPage() {
           />
           {searchInput && (
             <button
+              type="button"
               onClick={() => setSearchInput('')}
               aria-label="Borrar búsqueda"
               className="absolute right-1.5 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border-none bg-stone-100 cursor-pointer text-stone-500"
@@ -297,6 +298,7 @@ export default function RecipesPage() {
           )}
           {hasFilters && (
             <button
+              type="button"
               onClick={clearFilters}
               className="border-none bg-transparent text-xs font-semibold text-stone-500 cursor-pointer hover:text-stone-700"
             >
@@ -317,6 +319,7 @@ export default function RecipesPage() {
             <ChefHat size={56} className="text-stone-300" strokeWidth={1} />
             <p className="text-[15px] text-stone-500">No pudimos cargar las recetas</p>
             <button
+              type="button"
               onClick={handleRetry}
               className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors"
             >
@@ -329,6 +332,7 @@ export default function RecipesPage() {
             <p className="text-[15px] text-stone-500">No se encontraron recetas</p>
             {hasFilters && (
               <button
+                type="button"
                 onClick={clearFilters}
                 className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors"
               >

@@ -5,18 +5,9 @@ import PostCard from '../components/feed/PostCard';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
+import { timeAgo } from '../utils/time';
 
 const font = { fontFamily: 'var(--font-sans)' };
-
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
-  if (diff < 60) return 'ahora';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
-  return `${Math.floor(diff / 604800)}sem`;
-}
 
 export default function PostDetailPage() {
   const { postId } = useParams();

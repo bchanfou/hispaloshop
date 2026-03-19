@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Search, ChevronRight, Users, X } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Search, ChevronRight, Users, X, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
@@ -37,7 +37,9 @@ export default function CommunitiesExplorePage() {
   const { user } = useAuth();
   const debouncedSearch = useDebounce(searchInput, 400);
 
-  const { data, isLoading } = useQuery({
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['communities-explore', debouncedSearch, filter],
     queryFn: () => apiClient.get(`/communities?q=${encodeURIComponent(debouncedSearch)}&filter=${filter}&limit=24`),
   });
@@ -47,6 +49,11 @@ export default function CommunitiesExplorePage() {
     queryFn: () => apiClient.get('/communities/me'),
     enabled: !!user,
   });
+
+  const invalidateCommunities = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['communities-explore'] });
+    queryClient.invalidateQueries({ queryKey: ['my-communities'] });
+  }, [queryClient]);
 
   const canCreate = (user?.follower_count >= 100) || user?.is_verified_seller;
   const communities = data?.communities || [];
@@ -99,6 +106,8 @@ export default function CommunitiesExplorePage() {
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
+              aria-label={`Filtrar: ${f.label}`}
+              aria-pressed={active}
               className={`shrink-0 cursor-pointer whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors ${
                 active
                   ? 'border-stone-950 bg-stone-950 text-white'
@@ -175,6 +184,18 @@ export default function CommunitiesExplorePage() {
                 <div key={i} className="h-[200px] animate-pulse rounded-xl bg-stone-100" />
               ))}
             </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16">
+              <Users size={56} className="text-stone-400" strokeWidth={1} />
+              <p className="text-center text-[15px] text-stone-500">Error al cargar comunidades</p>
+              <button
+                onClick={() => refetch()}
+                className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 cursor-pointer"
+                aria-label="Reintentar carga"
+              >
+                <RefreshCw size={14} /> Reintentar
+              </button>
+            </div>
           ) : communities.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 py-16">
               <Users size={56} className="text-stone-500" strokeWidth={1} />
@@ -196,7 +217,7 @@ export default function CommunitiesExplorePage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2, delay: Math.min(i * 0.04, 0.3) }}
                 >
-                  <CommunityCard community={c} />
+                  <CommunityCard community={c} onToggled={invalidateCommunities} />
                 </motion.div>
               ))}
             </div>
@@ -235,22 +256,31 @@ const MyCommunityPill = ({ community }) => (
 );
 
 /* ── Card for 2-column grid ── */
-const CommunityCard = ({ community }) => {
+const CommunityCard = React.memo(({ community, onToggled }) => {
   const [joined, setJoined] = useState(!!community.is_member);
+  const [memberCount, setMemberCount] = useState(community.member_count || 0);
   const [isToggling, setIsToggling] = useState(false);
 
   const toggle = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isToggling) return;
+    // Optimistic update
+    const wasJoined = joined;
+    setJoined(!wasJoined);
+    setMemberCount(c => wasJoined ? Math.max(0, c - 1) : c + 1);
     setIsToggling(true);
     try {
-      if (joined) {
+      if (wasJoined) {
         await apiClient.delete(`/communities/${community.id || community._id}/join`);
       } else {
         await apiClient.post(`/communities/${community.id || community._id}/join`);
       }
-      setJoined(!joined);
+      onToggled?.();
     } catch {
+      // Rollback
+      setJoined(wasJoined);
+      setMemberCount(community.member_count || 0);
       toast.error('Error al actualizar membresía');
     } finally {
       setIsToggling(false);
@@ -287,12 +317,13 @@ const CommunityCard = ({ community }) => {
           )}
           <p className="mb-2 flex items-center gap-1 text-[10px] text-stone-500">
             <Users size={10} />
-            {community.member_count?.toLocaleString()} miembros
+            {memberCount?.toLocaleString()} miembros
           </p>
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={toggle}
             disabled={isToggling}
+            aria-label={joined ? `Salir de ${community.name || 'comunidad'}` : `Unirse a ${community.name || 'comunidad'}`}
             className={`w-full cursor-pointer rounded-full border py-1.5 text-xs font-semibold transition-colors ${
               joined
                 ? 'border-stone-200 bg-white text-stone-500'
@@ -305,7 +336,7 @@ const CommunityCard = ({ community }) => {
       </div>
     </Link>
   );
-};
+});
 
 /* ── Row for "my communities" list ── */
 const CommunityRow = ({ community }) => (

@@ -165,6 +165,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
               type="button"
               onClick={() => removeImage(index)}
               className="absolute top-1 right-1 p-1 bg-stone-950 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label={`Eliminar imagen ${index + 1}`}
               title="Remove image"
             >
               <X className="w-3 h-3" />
@@ -216,13 +217,14 @@ function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpda
   const { updateStock, updateStockLoading } = useProducerProductMutations();
 
   const handleSave = async () => {
-    if (stock < 0) {
+    const parsedStock = parseInt(stock, 10);
+    if (isNaN(parsedStock) || parsedStock < 0) {
       toast.error(t('producerProducts.stockNegative'));
       return;
     }
-    
+
     try {
-      await updateStock({ productId, stock });
+      await updateStock({ productId, stock: parsedStock });
       toast.success(t('producerProducts.stockUpdated'));
       setEditing(false);
       onUpdate();
@@ -337,7 +339,7 @@ export default function ProducerProducts() {
     shipping_cost: '',
     free_shipping_min_qty: '',
     // Inventory
-    stock: '0',
+    stock: '100',
     // B2B wholesale
     b2b_enabled: false,
     b2b_moq: '',
@@ -375,6 +377,24 @@ export default function ProducerProducts() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Name validation
+    if (!formData.name?.trim()) {
+      toast.error('El nombre del producto es obligatorio');
+      return;
+    }
+
+    // Category validation
+    if (!formData.category_id) {
+      toast.error('Selecciona una categoría');
+      return;
+    }
+
+    // Country origin validation
+    if (!formData.country_origin) {
+      toast.error('Selecciona el país de origen');
+      return;
+    }
 
     // Price validation
     const parsedPrice = parseFloat(formData.price);
@@ -486,7 +506,7 @@ export default function ProducerProducts() {
       packs: [],
       shipping_cost: '',
       free_shipping_min_qty: '',
-      stock: '0',
+      stock: '100',
       b2b_enabled: false,
       b2b_moq: '',
       b2b_tiers: [],
@@ -497,10 +517,6 @@ export default function ProducerProducts() {
   };
 
   const startEdit = (product) => {
-    if (product.approved) {
-      toast.error(t('producerProducts.cannotEditApproved'));
-      return;
-    }
     setEditingProduct(product);
     // Normalize images to always be an array
     const productImages = Array.isArray(product.images) 
@@ -1263,7 +1279,7 @@ export default function ProducerProducts() {
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-xl bg-stone-100 overflow-hidden shrink-0">
                         {product.images?.[0] && (
-                          <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                          <img src={product.images[0]} alt={product.name || 'Producto'} className="w-full h-full object-cover" loading="lazy" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1285,11 +1301,9 @@ export default function ProducerProducts() {
                       <button type="button" onClick={() => window.open(`/products/${product.product_id}`, '_blank')} data-testid={`view-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors">
                         <Eye className="w-3.5 h-3.5 mr-1" /> Ver
                       </button>
-                      {!product.approved && (
-                        <button type="button" onClick={() => startEdit(product)} data-testid={`edit-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors">
-                          <Edit className="w-3.5 h-3.5 mr-1" /> Editar
-                        </button>
-                      )}
+                      <button type="button" onClick={() => startEdit(product)} data-testid={`edit-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors">
+                        <Edit className="w-3.5 h-3.5 mr-1" /> Editar
+                      </button>
                       <button type="button" onClick={() => window.open(`/producer/products/${product.product_id}/countries`, '_self')} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">
                         <Globe className="w-3.5 h-3.5 mr-1" /> Países
                       </button>
@@ -1330,7 +1344,7 @@ export default function ProducerProducts() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden">
                           {product.images?.[0] && (
-                            <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                            <img src={product.images[0]} alt={product.name || 'Producto'} className="w-full h-full object-cover" loading="lazy" />
                           )}
                         </div>
                         <div>
@@ -1400,15 +1414,14 @@ export default function ProducerProducts() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        {!product.approved && (
-                          <button
-                            type="button"
-                            onClick={() => startEdit(product)}
-                            className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => startEdit(product)}
+                          aria-label={`Editar ${product.name || 'producto'}`}
+                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>

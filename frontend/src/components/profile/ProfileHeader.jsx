@@ -436,6 +436,14 @@ export default function ProfileHeader({
                 más
               </button>
             )}
+            {user.bio.length > 150 && bioExpanded && (
+              <button
+                onClick={() => setBioExpanded(false)}
+                className="ml-0.5 text-[14px] text-stone-400"
+              >
+                menos
+              </button>
+            )}
           </div>
         )}
 

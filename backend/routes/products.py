@@ -314,19 +314,31 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
     # Add country-specific pricing info
     product["target_markets"] = get_product_target_markets(product)
     if country:
-        country_prices = product.get("country_prices", {})
-        
-        # Check if available in country (or has no restrictions)
-        is_available = is_product_available_in_country(product, country)
-        product["is_available_in_country"] = is_available
-        
-        if country in country_prices:
-            product["display_price"] = country_prices[country]
-            product["display_currency"] = product.get("country_currency", {}).get(country, "EUR")
+        inv = product.get("inventory_by_country", [])
+        # Check inventory_by_country first (new system), then country_prices (legacy)
+        market = next((m for m in inv if m["country_code"] == country and m.get("active")), None) if inv else None
+        if market:
+            product["display_price"] = market.get("price", product.get("price", 0))
+            product["display_currency"] = market.get("currency", "EUR")
+            product["available_in_country"] = True
+            product["is_available_in_country"] = True
+            product["market_stock"] = market.get("stock", 0)
+            product["delivery_sla"] = market.get("delivery_sla_hours", 48)
         else:
-            product["display_price"] = product.get("price", 0)
-            product["display_currency"] = "EUR"
-    
+            country_prices = product.get("country_prices", {})
+            is_available = is_product_available_in_country(product, country)
+            product["is_available_in_country"] = is_available
+            product["available_in_country"] = is_available if len(inv) == 0 else False
+
+            if country in country_prices:
+                product["display_price"] = country_prices[country]
+                product["display_currency"] = product.get("country_currency", {}).get(country, "EUR")
+            else:
+                product["display_price"] = product.get("price", 0)
+                product["display_currency"] = "EUR"
+    else:
+        product["available_in_country"] = True
+
     return product
 
 @router.post("/products")
@@ -575,6 +587,7 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
                 pack_dict["discount_percentage"] = discount_pct
             packs_data.append(pack_dict)
 
+    target_markets = normalize_markets(input.target_markets or ([input.country_origin] if input.country_origin else []))
     update_data = {
         "name": input.name,
         "description": input.description,
@@ -591,7 +604,11 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
         "nutritional_info": input.nutritional_info.dict() if input.nutritional_info else None,
         "flavor": input.flavor,
         "parent_product_id": input.parent_product_id,
-        "packs": packs_data
+        "packs": packs_data,
+        # Market & stock fields
+        "target_markets": target_markets,
+        "available_countries": target_markets,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
     }
     
     if content_changed:
@@ -684,11 +701,6 @@ async def delete_product(product_id: str, user: User = Depends(get_current_user)
     await db.affiliate_links.update_many(
         {"product_id": product_id},
         {"$set": {"status": "product_deleted", "deleted_at": datetime.now(timezone.utc).isoformat()}}
-    )
-    # Remove from embedded cart items (new cart system stores items inside carts doc)
-    await db.carts.update_many(
-        {"items.product_id": product_id},
-        {"$pull": {"items": {"product_id": product_id}}}
     )
 
     # Remove from any posts that tagged this product
