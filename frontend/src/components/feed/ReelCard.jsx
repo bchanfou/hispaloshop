@@ -13,6 +13,7 @@ import {
   VolumeX,
   Send,
   X as XIcon,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
@@ -37,6 +38,8 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [sendingComment, setSendingComment] = useState(false);
+  const [likedComments, setLikedComments] = useState(new Set());
+  const [replyTo, setReplyTo] = useState(null);
   const [isFollowing, setIsFollowing] = useState(reel.is_following ?? false);
   const videoRef = useRef(null);
   const containerRef = useRef(null);
@@ -180,12 +183,15 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     setSendingComment(true);
     try {
       const reelId = reel.id || reel.reel_id || reel.post_id;
-      await apiClient.post(`/reels/${reelId}/comments`, { text: newComment.trim() });
+      const payload = { text: newComment.trim() };
+      if (replyTo) payload.reply_to = replyTo.commentId;
+      await apiClient.post(`/reels/${reelId}/comments`, payload);
       setNewComment('');
+      setReplyTo(null);
       fetchComments();
     } catch { toast.error('Error al comentar'); }
     finally { setSendingComment(false); }
-  }, [newComment, sendingComment, reel, fetchComments]);
+  }, [newComment, sendingComment, reel, replyTo, fetchComments]);
 
   const openComments = useCallback(() => {
     setShowComments(true);
@@ -196,6 +202,28 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
   const closeComments = useCallback(() => {
     setShowComments(false);
+    setReplyTo(null);
+  }, []);
+
+  const handleLikeComment = useCallback(async (commentId) => {
+    setLikedComments(prev => {
+      const next = new Set(prev);
+      next.has(commentId) ? next.delete(commentId) : next.add(commentId);
+      return next;
+    });
+    try { await apiClient.post(`/comments/${commentId}/like`); } catch {}
+  }, []);
+
+  const handleDeleteComment = useCallback(async (commentId) => {
+    try {
+      await apiClient.delete(`/comments/${commentId}`);
+      setComments(prev => prev.filter(c => (c.comment_id || c.id || c._id) !== commentId));
+    } catch { toast.error('Error al eliminar'); }
+  }, []);
+
+  const handleReplyComment = useCallback((commentId, username) => {
+    setReplyTo({ commentId, username });
+    setNewComment(`@${username} `);
   }, []);
 
   const toggleMute = useCallback(() => {
@@ -544,7 +572,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       {showComments && (
         <div className="absolute inset-0 z-[10] flex flex-col justify-end" onClick={closeComments}>
           <div
-            className="bg-stone-950/95 backdrop-blur-xl rounded-t-2xl max-h-[55vh] flex flex-col"
+            className="bg-stone-950/95 backdrop-blur-xl rounded-t-2xl max-h-[60vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -563,26 +591,63 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
               ) : comments.length === 0 ? (
                 <p className="text-center text-white/40 text-sm py-8">Sé el primero en comentar</p>
               ) : (
-                comments.map((c, i) => (
-                  <div key={c.id || c._id || i} className="flex gap-2.5 py-2.5">
-                    <div className="w-7 h-7 rounded-full bg-white/20 shrink-0 flex items-center justify-center text-white text-[10px] font-semibold overflow-hidden">
-                      {c.user?.avatar_url ? (
-                        <img src={c.user.avatar_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        (c.user?.name || '?').charAt(0).toUpperCase()
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-semibold text-white">{c.user?.name || c.user_name || 'Usuario'}</span>
-                        <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
+                comments.map((c, i) => {
+                  const cId = c.comment_id || c.id || c._id;
+                  const cName = c.user?.name || c.user_name || c.username || 'Usuario';
+                  const isOwn = currentUser?.user_id === c.user_id;
+                  return (
+                    <div key={cId || i} className="flex gap-2.5 py-2.5 group">
+                      <div className="w-8 h-8 rounded-full bg-white/20 shrink-0 flex items-center justify-center text-white text-[10px] font-semibold overflow-hidden">
+                        {(c.user?.avatar_url || c.user_profile_image || c.avatar_url) ? (
+                          <img src={c.user?.avatar_url || c.user_profile_image || c.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          cName.charAt(0).toUpperCase()
+                        )}
                       </div>
-                      <p className="text-[13px] text-white/80 mt-0.5 leading-[1.4]">{c.text || c.content}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] text-white/90 leading-[1.4]">
+                          <span className="font-semibold text-white mr-1.5">{cName}</span>
+                          {c.text || c.content}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
+                          <button
+                            onClick={() => handleLikeComment(cId)}
+                            className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[28px]"
+                          >
+                            <Heart size={12} className={likedComments.has(cId) ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white/40'} strokeWidth={1.8} />
+                            {(c.likes_count || 0) > 0 && <span className="text-[10px] text-white/40">{c.likes_count}</span>}
+                          </button>
+                          <button
+                            onClick={() => handleReplyComment(cId, cName)}
+                            className="bg-transparent border-none cursor-pointer p-0 text-[10px] text-white/40 font-semibold hover:text-white/70 min-h-[28px] flex items-center"
+                          >
+                            Responder
+                          </button>
+                          {isOwn && (
+                            <button
+                              onClick={() => handleDeleteComment(cId)}
+                              className="bg-transparent border-none cursor-pointer p-0 min-h-[28px] flex items-center"
+                            >
+                              <Trash2 size={12} className="text-white/30 hover:text-white/60" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
+            {/* Reply indicator */}
+            {replyTo && (
+              <div className="flex items-center justify-between px-4 py-1.5 border-t border-white/10">
+                <span className="text-[11px] text-white/50">Respondiendo a <span className="font-semibold text-white/70">@{replyTo.username}</span></span>
+                <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0">
+                  <XIcon size={12} className="text-white/40" />
+                </button>
+              </div>
+            )}
             {/* Input */}
             <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10">
               <input

@@ -434,7 +434,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                 <img
                   src={src}
                   alt={`Post ${post.id} imagen ${i + 1}`}
-                  className="block w-full aspect-square object-cover"
+                  className="block w-full aspect-[4/5] object-cover"
                   loading={(i === 0 && priority) || Math.abs(i - carouselIndex) <= 1 ? 'eager' : 'lazy'}
                   decoding="async"
                 />
@@ -470,16 +470,16 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             </div>
           )}
 
-          {/* Dots (Q10 — animated, max 5 visible) */}
+          {/* Dots — overlaid on image bottom */}
           {hasMultiple && (
-            <div className="flex justify-center gap-1 py-2">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[1] flex items-center gap-1">
               {images.map((_, i) => {
                 const dist = Math.abs(i - carouselIndex);
                 if (images.length > 5 && dist > 2 && i !== 0 && i !== images.length - 1) return null;
                 return (
                   <button
                     key={i}
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-transparent border-none p-0 cursor-pointer"
+                    className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent border-none p-0 cursor-pointer"
                     aria-label={`Imagen ${i + 1} de ${images.length}`}
                     onClick={() => {
                       scrollRef.current?.scrollTo({
@@ -491,9 +491,9 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                     <span
                       className="block rounded-full transition-all duration-200"
                       style={{
-                        width: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
-                        height: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
-                        background: i === carouselIndex ? '#0A0A0A' : '#d6d3d1',
+                        width: i === carouselIndex ? 6 : dist === 1 ? 4 : 3,
+                        height: i === carouselIndex ? 6 : dist === 1 ? 4 : 3,
+                        background: i === carouselIndex ? '#fff' : 'rgba(255,255,255,0.5)',
                         opacity: dist > 2 ? 0.5 : 1,
                       }}
                     />

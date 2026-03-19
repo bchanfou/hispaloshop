@@ -1,13 +1,74 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Heart, Send, Loader2, Trash2 } from 'lucide-react';
-import PostCard from '../components/feed/PostCard';
+import { ChevronLeft, Heart, MessageCircle, Share2, Bookmark, Send, Loader2, Trash2, MoreHorizontal, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
 import { timeAgo } from '../utils/time';
 
-const font = { fontFamily: 'var(--font-sans)' };
+/* ── Render caption with hashtags/mentions ── */
+function renderCaption(text, navigate) {
+  if (!text) return null;
+  const parts = text.split(/(#\w+|@\w+)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('#')) {
+      return (
+        <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline"
+          onClick={() => navigate?.(`/explore?tag=${encodeURIComponent(part.slice(1))}`)}
+        >{part}</span>
+      );
+    }
+    if (part.startsWith('@')) {
+      return (
+        <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline"
+          onClick={() => navigate?.(`/${part.slice(1)}`)}
+        >{part}</span>
+      );
+    }
+    return <React.Fragment key={i}>{part}</React.Fragment>;
+  });
+}
+
+/* ── Image carousel ── */
+function PostCarousel({ images, userName }) {
+  const [idx, setIdx] = useState(0);
+  const scrollRef = useRef(null);
+  const hasMultiple = images.length > 1;
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setIdx(Math.round(el.scrollLeft / el.clientWidth));
+  }, []);
+
+  if (!images.length) return <div className="w-full aspect-square bg-stone-100" />;
+
+  return (
+    <div className="relative w-full bg-black">
+      <div
+        ref={scrollRef}
+        className={`w-full aspect-square scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto' : 'overflow-hidden'}`}
+        onScroll={handleScroll}
+      >
+        {images.map((src, i) => (
+          <div key={typeof src === 'string' ? src : i} className="min-w-full snap-start flex items-center justify-center aspect-square">
+            <img
+              src={src}
+              alt={`${userName} imagen ${i + 1}`}
+              className="w-full h-full object-cover"
+              loading={i === 0 ? 'eager' : 'lazy'}
+            />
+          </div>
+        ))}
+      </div>
+      {hasMultiple && (
+        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5 z-[2]">
+          <span className="text-[11px] text-white font-semibold tabular-nums">{idx + 1}/{images.length}</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PostDetailPage() {
   const { postId } = useParams();
@@ -21,6 +82,10 @@ export default function PostDetailPage() {
   const [newComment, setNewComment] = useState('');
   const [sending, setSending] = useState(false);
   const [likedComments, setLikedComments] = useState(new Set());
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [saved, setSaved] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -32,24 +97,34 @@ export default function PostDetailPage() {
     return () => { active = false; };
   }, [postId]);
 
+  useEffect(() => {
+    if (!post) return;
+    setLiked(post.liked ?? post.is_liked ?? false);
+    setLikesCount(post.likes ?? post.likes_count ?? 0);
+    setSaved(post.saved ?? post.is_saved ?? false);
+  }, [post]);
+
   const fetchComments = useCallback(() => {
     setCommentsLoading(true);
     apiClient.get(`/posts/${postId}/comments?limit=50`)
-      .then((data) => setComments(Array.isArray(data) ? data : []))
+      .then((data) => setComments(Array.isArray(data) ? data : data?.comments || []))
       .catch(() => setComments([]))
       .finally(() => setCommentsLoading(false));
   }, [postId]);
 
-  useEffect(() => { fetchComments(); }, [fetchComments]);
+  useEffect(() => { if (post) fetchComments(); }, [post, fetchComments]);
 
   const handleSendComment = async () => {
     const text = newComment.trim();
     if (!text || sending) return;
     setSending(true);
     try {
-      const comment = await apiClient.post(`/posts/${postId}/comments`, { text });
+      const payload = { text };
+      if (replyTo) payload.reply_to = replyTo.commentId;
+      const comment = await apiClient.post(`/posts/${postId}/comments`, payload);
       setComments(prev => [comment, ...prev]);
       setNewComment('');
+      setReplyTo(null);
       setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
     } catch {
       toast.error('Error al enviar comentario');
@@ -61,34 +136,55 @@ export default function PostDetailPage() {
   const handleDeleteComment = async (commentId) => {
     try {
       await apiClient.delete(`/comments/${commentId}`);
-      setComments(prev => prev.filter(c => c.comment_id !== commentId));
+      setComments(prev => prev.filter(c => (c.comment_id || c.id) !== commentId));
       setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
     } catch {
       toast.error('Error al eliminar comentario');
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendComment();
+  const handleLikeComment = async (commentId) => {
+    setLikedComments(prev => {
+      const next = new Set(prev);
+      next.has(commentId) ? next.delete(commentId) : next.add(commentId);
+      return next;
+    });
+    try { await apiClient.post(`/comments/${commentId}/like`); } catch {}
+  };
+
+  const handleLikePost = async () => {
+    setLiked(l => !l);
+    setLikesCount(c => liked ? Math.max(0, c - 1) : c + 1);
+    try { await apiClient.post(`/posts/${postId}/like`); } catch {
+      setLiked(l => !l);
+      setLikesCount(c => liked ? c + 1 : Math.max(0, c - 1));
     }
   };
 
-  /* ── Loading state ── */
+  const handleSavePost = async () => {
+    setSaved(s => !s);
+    try { await apiClient.post(`/posts/${postId}/save`); } catch { setSaved(s => !s); }
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/posts/${postId}`;
+    try {
+      if (navigator.share) await navigator.share({ title: 'HispaloShop', url });
+      else { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); }
+    } catch {}
+  };
+
+  const handleReply = useCallback((commentId, username) => {
+    setReplyTo({ commentId, username });
+    setNewComment(`@${username} `);
+    inputRef.current?.focus();
+  }, []);
+
+  /* ── Loading ── */
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'var(--color-cream)',
-      }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: '50%',
-          border: '2px solid var(--color-border)',
-          borderTopColor: 'var(--color-black)',
-          animation: 'spin 0.8s linear infinite',
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F6F2]">
+        <Loader2 size={28} className="text-stone-400 animate-spin" />
       </div>
     );
   }
@@ -96,19 +192,11 @@ export default function PostDetailPage() {
   /* ── Not found ── */
   if (!post) {
     return (
-      <div style={{
-        minHeight: '100vh', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', gap: 12,
-        background: 'var(--color-cream)', ...font,
-      }}>
-        <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Post no encontrado</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-[#F7F6F2]">
+        <p className="text-[15px] text-stone-500">Post no encontrado</p>
         <button
           onClick={() => navigate('/')}
-          style={{
-            padding: '10px 24px', background: 'var(--color-black)', color: 'var(--color-white)',
-            border: 'none', borderRadius: 'var(--radius-full)',
-            fontSize: 13, fontWeight: 600, cursor: 'pointer', ...font,
-          }}
+          className="px-6 py-2.5 bg-stone-950 text-white rounded-full text-[13px] font-semibold border-none cursor-pointer"
         >
           Volver al feed
         </button>
@@ -116,304 +204,231 @@ export default function PostDetailPage() {
     );
   }
 
-  const commentsCount = post.comments_count || comments.length;
+  const images = (() => {
+    if (Array.isArray(post?.media) && post.media.length > 0) return post.media.map(m => typeof m === 'string' ? m : m?.url).filter(Boolean);
+    if (Array.isArray(post?.images) && post.images.length > 0) return post.images;
+    if (post?.image_url) return [post.image_url];
+    return [];
+  })();
+
+  const userObj = post?.user || {};
+  const avatarUrl = userObj.avatar_url || userObj.avatar || userObj.profile_image || post?.user_profile_image;
+  const userName = userObj.name || post?.user_name || 'Usuario';
+  const commentsCount = post.comments_count ?? comments.length;
 
   return (
-    <div style={{ background: 'var(--color-cream)', minHeight: '100vh', paddingBottom: 72, ...font }}>
-      {/* ── Topbar ── */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
-        height: 52, display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px',
-      }}>
-        <button
-          onClick={() => navigate(-1)}
-          aria-label="Volver"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
-        >
-          <ArrowLeft size={22} color="var(--color-black)" />
+    <div className="min-h-screen bg-[#F7F6F2] pb-20 font-sans">
+      {/* ── Top bar ── */}
+      <header className="sticky top-0 z-40 bg-white border-b border-stone-100 h-12 flex items-center gap-3 px-4" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <button onClick={() => navigate(-1)} aria-label="Volver" className="bg-transparent border-none cursor-pointer p-1 flex items-center -ml-1">
+          <ChevronLeft size={24} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Publicación</span>
+        <span className="text-[15px] font-semibold text-stone-950 tracking-tight">Publicación</span>
       </header>
 
-      {/* ── Post ── */}
-      <PostCard
-        post={post}
-        onLike={() => apiClient.post(`/posts/${postId}/like`).catch((err) => toast.error('Error al dar me gusta'))}
-        onComment={() => inputRef.current?.focus()}
-        onSave={() => apiClient.post(`/posts/${postId}/save`).catch((err) => toast.error('Error al guardar'))}
-        onShare={async () => {
-          const postUrl = `${window.location.origin}/posts/${postId}`;
-          if (navigator.share) {
-            await navigator.share({ title: 'Hispaloshop', text: 'Mira esta publicación', url: postUrl }).catch(() => {});
-          } else if (navigator.clipboard?.writeText) {
-            await navigator.clipboard.writeText(postUrl);
-            toast.success('Enlace copiado');
-          }
-        }}
-      />
+      {/* ── Post content ── */}
+      <div className="max-w-[600px] mx-auto bg-white sm:mt-4 sm:rounded-xl sm:shadow-sm sm:border sm:border-stone-100">
+        {/* Header */}
+        <div className="flex items-center gap-2.5 px-4 py-3">
+          <Link to={`/${userObj.username || userObj.id || post.user_id}`} className="shrink-0">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </Link>
+          <div className="min-w-0 flex-1">
+            <Link to={`/${userObj.username || userObj.id || post.user_id}`} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
+              {userName}
+            </Link>
+            {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
+          </div>
+          <button className="bg-transparent border-none cursor-pointer p-1" aria-label="Más opciones">
+            <MoreHorizontal size={20} className="text-stone-500" />
+          </button>
+        </div>
 
-      {/* ── Comments Section ── */}
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px' }}>
+        {/* Image */}
+        <PostCarousel images={images} userName={userName} />
+
+        {/* Actions row */}
+        <div className="flex items-center px-3 py-2">
+          <div className="flex items-center gap-3">
+            <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-[#FF3040]' : 'text-stone-950'}`} aria-label="Me gusta">
+              <Heart size={24} fill={liked ? 'currentColor' : 'none'} />
+            </button>
+            <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Comentar">
+              <MessageCircle size={24} />
+            </button>
+            <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Compartir">
+              <Share2 size={24} />
+            </button>
+          </div>
+          <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label={saved ? 'Quitar guardado' : 'Guardar'}>
+            <Bookmark size={24} fill={saved ? 'currentColor' : 'none'} />
+          </button>
+        </div>
+
+        {/* Likes */}
+        {likesCount > 0 && (
+          <p className="px-4 pb-1 text-[13px] font-semibold text-stone-950">
+            {likesCount.toLocaleString()} Me gusta
+          </p>
+        )}
+
+        {/* Caption */}
+        {(post.caption || post.content) && (
+          <div className="px-4 pb-2">
+            <p className="text-[13px] leading-relaxed text-stone-950">
+              <Link to={`/${userObj.username || userObj.id || post.user_id}`} className="font-semibold text-stone-950 no-underline hover:underline mr-1.5">
+                {userName}
+              </Link>
+              {renderCaption(post.caption || post.content, navigate)}
+            </p>
+          </div>
+        )}
+
+        {/* Time */}
+        <p className="px-4 pb-3 text-[11px] text-stone-400">{timeAgo(post.created_at)}</p>
+      </div>
+
+      {/* ── Comments section ── */}
+      <div className="max-w-[600px] mx-auto mt-2 bg-white sm:rounded-xl sm:shadow-sm sm:border sm:border-stone-100">
         {/* Label */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '20px 0 12px' }}>
-          <span style={{
-            fontSize: 11, fontWeight: 700, color: 'var(--color-stone)',
-            letterSpacing: '0.08em', textTransform: 'uppercase',
-          }}>
-            Comentarios
-          </span>
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-stone-100">
+          <span className="text-[12px] font-semibold text-stone-500 uppercase tracking-wider">Comentarios</span>
           {commentsCount > 0 && (
-            <span style={{
-              fontSize: 11, fontWeight: 700, color: 'var(--color-white)',
-              background: 'var(--color-black)', borderRadius: 'var(--radius-full, 999px)',
-              padding: '2px 8px', minWidth: 20, textAlign: 'center',
-            }}>
+            <span className="text-[11px] font-bold text-white bg-stone-950 rounded-full px-2 py-0.5 min-w-[20px] text-center">
               {commentsCount}
             </span>
           )}
         </div>
 
         {/* Comments list */}
-        {commentsLoading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[0, 1, 2].map(i => (
-              <div key={i} style={{ display: 'flex', gap: 10 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite',
-                }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{
-                    width: 100, height: 12, borderRadius: 4, marginBottom: 6,
-                    background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite',
-                  }} />
-                  <div style={{
-                    width: '80%', height: 12, borderRadius: 4,
-                    background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite',
-                  }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : comments.length === 0 ? (
-          <div style={{
-            textAlign: 'center', padding: '32px 16px',
-            color: 'var(--color-stone)', fontSize: 14,
-          }}>
-            Sé el primero en comentar
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {comments.map((c) => {
-              const isOwn = user?.user_id === c.user_id;
-              return (
-                <div key={c.comment_id} style={{
-                  display: 'flex', gap: 10, padding: '10px 0',
-                  borderBottom: '1px solid var(--color-border)',
-                }}>
-                  {/* Avatar */}
-                  <Link to={`/user/${c.user_name || c.user_id}`} style={{ flexShrink: 0 }}>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: '50%',
-                      background: 'var(--color-surface)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 13, fontWeight: 700, color: 'var(--color-stone)',
-                      overflow: 'hidden',
-                    }}>
-                      {c.avatar_url ? (
-                        <img src={c.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        (c.user_name || '?')[0].toUpperCase()
-                      )}
-                    </div>
-                  </Link>
-
-                  {/* Body */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                      <Link
-                        to={`/user/${c.user_name || c.user_id}`}
-                        style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)', textDecoration: 'none' }}
-                      >
-                        @{c.user_name || 'usuario'}
-                      </Link>
-                      {c.user_id === post.user_id && (
-                        <span style={{
-                          fontSize: 9, fontWeight: 700, color: 'var(--color-white)',
-                          background: '#0c0a09', borderRadius: 999,
-                          padding: '1px 6px', lineHeight: '14px',
-                        }}>
-                          Autor
-                        </span>
-                      )}
-                      <span style={{ fontSize: 11, color: 'var(--color-stone)' }}>
-                        {timeAgo(c.created_at)}
-                      </span>
-                      {c.edited_at && (
-                        <span style={{ fontSize: 10, color: 'var(--color-stone)', fontStyle: 'italic' }}>
-                          editado
-                        </span>
-                      )}
-                    </div>
-                    <p style={{
-                      fontSize: 14, color: 'var(--color-black)',
-                      margin: 0, lineHeight: 1.45, wordBreak: 'break-word',
-                    }}>
-                      {c.text}
-                    </p>
-                  </div>
-
-                  {/* Actions (like + delete) */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingTop: 2 }}>
-                    <button
-                      onClick={() => setLikedComments(prev => {
-                        const next = new Set(prev);
-                        if (next.has(c.comment_id)) next.delete(c.comment_id);
-                        else next.add(c.comment_id);
-                        return next;
-                      })}
-                      aria-label={likedComments.has(c.comment_id) ? 'Quitar me gusta' : 'Me gusta'}
-                      style={{
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        padding: 4, display: 'flex',
-                      }}
-                    >
-                      <Heart
-                        size={14}
-                        color={likedComments.has(c.comment_id) ? '#ef4444' : 'var(--color-stone)'}
-                        fill={likedComments.has(c.comment_id) ? '#ef4444' : 'none'}
-                        style={{ transition: 'color 0.2s, fill 0.2s' }}
-                      />
-                    </button>
-                    {isOwn && (
-                      <button
-                        onClick={() => { if (window.confirm('¿Eliminar este comentario?')) handleDeleteComment(c.comment_id); }}
-                        aria-label="Eliminar comentario"
-                        style={{
-                          background: 'none', border: 'none', cursor: 'pointer',
-                          padding: 4, opacity: 0.4, display: 'flex',
-                        }}
-                      >
-                        <Trash2 size={14} color="var(--color-stone)" />
-                      </button>
-                    )}
+        <div className="px-4">
+          {commentsLoading ? (
+            <div className="space-y-3 py-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex gap-3 animate-pulse">
+                  <div className="h-8 w-8 rounded-full bg-stone-100 shrink-0" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-3 w-24 bg-stone-100 rounded" />
+                    <div className="h-3 w-full bg-stone-100 rounded" />
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* ── Sticky Comment Input ── */}
-      {isAuthenticated ? (
-        <div style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-          background: 'var(--color-white)',
-          borderTop: '1px solid var(--color-border)',
-          paddingBottom: 'max(4px, env(safe-area-inset-bottom))',
-        }}>
-          {/* Emoji quick reactions */}
-          <div style={{ display: 'flex', gap: 4, padding: '4px 16px 0' }}>
-            {['\u2764\uFE0F', '\uD83D\uDD25', '\uD83D\uDE0D', '\uD83E\uDD24', '\uD83D\uDC4F', '\uD83D\uDE2E'].map((emoji) => (
-              <button key={emoji} onClick={() => setNewComment(prev => prev + emoji)} style={{ fontSize: 18, background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}>{emoji}</button>
-            ))}
-          </div>
-
-          {/* Input row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 16px' }}>
-            {/* User avatar */}
-            <div style={{
-              width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-              background: 'var(--color-surface)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 13, fontWeight: 700, color: 'var(--color-stone)',
-              overflow: 'hidden',
-            }}>
-              {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                (user?.name || '?')[0].toUpperCase()
-              )}
+              ))}
             </div>
+          ) : comments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <p className="text-[14px] font-semibold text-stone-950">Sin comentarios aún</p>
+              <p className="text-[12px] text-stone-400 mt-1">Sé el primero en comentar</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-stone-50">
+              {comments.map(c => {
+                const cId = c.comment_id || c.id;
+                const isOwn = user?.user_id === c.user_id;
+                const avatar = c.user_profile_image || c.avatar || c.avatar_url;
+                const cName = c.user_name || c.username || 'usuario';
 
-            <input
-              ref={inputRef}
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Añade un comentario..."
-              aria-label="Escribe un comentario"
-              maxLength={500}
-              style={{
-                flex: 1, height: 40, padding: '0 14px',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-full, 999px)',
-                fontSize: 14, color: 'var(--color-black)',
-                background: 'var(--color-surface)',
-                outline: 'none', ...font,
-              }}
-            />
-
-            <button
-              onClick={handleSendComment}
-              disabled={!newComment.trim() || sending}
-              aria-label="Enviar comentario"
-              style={{
-                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                background: newComment.trim() ? 'var(--color-black)' : 'var(--color-surface)',
-                border: 'none', cursor: newComment.trim() ? 'pointer' : 'default',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background 0.2s',
-              }}
-            >
-              {sending ? (
-                <Loader2 size={16} color="var(--color-white)" style={{ animation: 'spin 1s linear infinite' }} />
-              ) : (
-                <Send size={16} color={newComment.trim() ? 'var(--color-white)' : 'var(--color-stone)'} />
-              )}
-            </button>
-          </div>
-
-          {/* Character counter */}
-          {newComment.length > 0 && (
-            <div style={{ fontSize: 11, color: '#a8a29e', textAlign: 'right', padding: '0 16px 2px' }}>
-              {newComment.length}/500
+                return (
+                  <div key={cId} className="flex gap-3 py-3 group">
+                    <Link to={`/${c.username || c.user_id}`} className="shrink-0">
+                      {avatar ? (
+                        <img src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
+                          {cName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] leading-relaxed text-stone-950">
+                        <Link to={`/${c.username || c.user_id}`} className="font-semibold text-stone-950 no-underline hover:underline mr-1.5">
+                          {cName}
+                        </Link>
+                        {c.user_id === post.user_id && (
+                          <span className="text-[9px] font-bold text-white bg-stone-950 rounded-full px-1.5 py-0.5 mr-1.5 align-middle">Autor</span>
+                        )}
+                        {c.text || c.content}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="text-[11px] text-stone-400">{timeAgo(c.created_at)}</span>
+                        <button
+                          onClick={() => handleLikeComment(cId)}
+                          className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[32px]"
+                        >
+                          <Heart size={12} className={likedComments.has(cId) ? 'text-[#FF3040] fill-[#FF3040]' : 'text-stone-400'} strokeWidth={1.8} />
+                          {(c.likes_count || 0) > 0 && <span className="text-[11px] text-stone-400">{c.likes_count}</span>}
+                        </button>
+                        <button
+                          onClick={() => handleReply(cId, cName)}
+                          className="bg-transparent border-none cursor-pointer p-0 text-[11px] text-stone-400 font-semibold hover:text-stone-600 min-h-[32px] flex items-center"
+                        >
+                          Responder
+                        </button>
+                        {isOwn && (
+                          <button
+                            onClick={() => handleDeleteComment(cId)}
+                            className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={12} className="text-stone-400 hover:text-stone-700" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
-      ) : (
-        <div style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-          background: 'var(--color-white)',
-          borderTop: '1px solid var(--color-border)',
-          padding: '12px 16px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
-          textAlign: 'center',
-        }}>
-          <p style={{ fontSize: 14, color: 'var(--color-stone)', margin: '0 0 8px' }}>
-            Inicia sesión para comentar
-          </p>
-          <Link
-            to="/login"
-            style={{
-              display: 'inline-flex', padding: '8px 24px',
-              background: 'var(--color-black)', color: 'var(--color-white)',
-              borderRadius: 'var(--radius-full, 999px)',
-              fontSize: 13, fontWeight: 600, textDecoration: 'none',
-            }}
-          >
-            Iniciar sesión
-          </Link>
+      </div>
+
+      {/* ── Sticky comment input ── */}
+      {isAuthenticated && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-100" style={{ paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}>
+          {replyTo && (
+            <div className="flex items-center justify-between px-4 py-1.5 bg-stone-50 text-[12px] text-stone-500">
+              <span>Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username}</span></span>
+              <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0">
+                <X size={14} className="text-stone-400" />
+              </button>
+            </div>
+          )}
+          <div className="flex items-center gap-3 px-4 py-3">
+            {(user?.avatar_url || user?.avatar || user?.profile_image) ? (
+              <img src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500 shrink-0">
+                {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
+              </div>
+            )}
+            <input
+              ref={inputRef}
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendComment(); } }}
+              placeholder="Añade un comentario..."
+              className="flex-1 bg-transparent border-none outline-none text-[13px] text-stone-950 placeholder:text-stone-400 font-sans min-h-[36px]"
+              disabled={sending}
+            />
+            <button
+              onClick={handleSendComment}
+              disabled={!newComment.trim() || sending}
+              className="flex items-center justify-center bg-transparent border-none cursor-pointer disabled:opacity-30 transition-opacity px-1"
+            >
+              {sending ? (
+                <Loader2 size={16} className="text-stone-400 animate-spin" />
+              ) : (
+                <span className="text-[13px] font-semibold text-stone-950">Enviar</span>
+              )}
+            </button>
+          </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-      `}</style>
     </div>
   );
 }

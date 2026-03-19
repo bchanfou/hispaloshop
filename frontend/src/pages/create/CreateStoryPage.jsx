@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Type, Tag, Check, Search, ShoppingBag, Pencil, Undo2, Redo2 } from 'lucide-react';
+import { X, Type, Tag, Check, Search, ShoppingBag, Pencil, Undo2, Redo2, MapPin, Link2, AtSign, HelpCircle, Trash2 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -66,6 +66,12 @@ export default function CreateStoryPage() {
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOption1, setPollOption1] = useState('');
   const [pollOption2, setPollOption2] = useState('');
+  const [mentionDraft, setMentionDraft] = useState('');
+  const [linkDraft, setLinkDraft] = useState('');
+  const [locationDraft, setLocationDraft] = useState('');
+  const [questionDraft, setQuestionDraft] = useState('');
+  const [showTrashZone, setShowTrashZone] = useState(false);
+  const [overTrash, setOverTrash] = useState(false);
   const [drawMode, setDrawMode] = useState(false);
   const [drawColor, setDrawColor] = useState('#ffffff');
   const [drawWidth, setDrawWidth] = useState(4);
@@ -288,6 +294,8 @@ export default function CreateStoryPage() {
         setFn((prev) => prev.map((item) => item.id === id ? { ...item, x: lastX, y: lastY } : item));
       }
       dragRef.current = { type: null, id: null, active: false, el: null, lastX: 50, lastY: 50 };
+      setShowTrashZone(false);
+      setOverTrash(false);
     };
     document.addEventListener('mousemove', handleGlobalMouseMove);
     document.addEventListener('mouseup', handleGlobalMouseUp);
@@ -419,6 +427,59 @@ export default function CreateStoryPage() {
                 ctx.fillText(opt, x, y + 16 + i * 22);
               });
             }
+          } else if (s.type === 'question') {
+            const w = 180, h = 70;
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.beginPath(); ctx.roundRect(x - w/2, y - h/2, w, h, 16); ctx.fill();
+            ctx.fillStyle = '#2E7D52';
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Hazme una pregunta', x, y - 18);
+            ctx.fillStyle = '#0a0a0a';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText(s.content, x, y);
+            ctx.fillStyle = '#f5f5f4';
+            ctx.beginPath(); ctx.roundRect(x - 70, y + 10, 140, 20, 10); ctx.fill();
+            ctx.fillStyle = '#a8a29e';
+            ctx.font = '11px sans-serif';
+            ctx.fillText('Escribe tu respuesta...', x, y + 22);
+          } else if (s.type === 'mention') {
+            ctx.font = 'bold 14px sans-serif';
+            const label = '@' + s.content;
+            const measured = ctx.measureText(label);
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.beginPath(); ctx.roundRect(x - measured.width/2 - 14, y - 13, measured.width + 28, 26, 13); ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+          } else if (s.type === 'location') {
+            ctx.font = 'bold 14px sans-serif';
+            const measured = ctx.measureText(s.content);
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.beginPath(); ctx.roundRect(x - measured.width/2 - 20, y - 13, measured.width + 40, 26, 13); ctx.fill();
+            ctx.fillStyle = '#2E7D52';
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('📍', x - measured.width/2 - 10, y);
+            ctx.fillStyle = '#0a0a0a';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(s.content, x + 5, y);
+          } else if (s.type === 'link') {
+            const label = s.content.replace(/^https?:\/\//, '');
+            ctx.font = 'bold 12px sans-serif';
+            const measured = ctx.measureText(label);
+            const tw = Math.min(measured.width, 160);
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.beginPath(); ctx.roundRect(x - tw/2 - 18, y - 13, tw + 36, 26, 13); ctx.fill();
+            ctx.fillStyle = '#2E7D52';
+            ctx.font = '13px sans-serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('🔗', x - tw/2 - 8, y);
+            ctx.fillStyle = '#0a0a0a';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(label.length > 22 ? label.slice(0,22) + '…' : label, x + 5, y);
           } else {
             // badge, phrase, product
             ctx.fillStyle = 'rgba(0,0,0,0.6)';
@@ -579,15 +640,26 @@ export default function CreateStoryPage() {
                 ...(t.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
                 ...(t.style === 'outline' ? { WebkitTextStroke: `2px ${t.color}` } : {}),
               }}
-              onTouchMove={(e) => handleOverlayDragDOM(e.currentTarget, e)}
+              onTouchStart={() => setShowTrashZone(true)}
+              onTouchMove={(e) => {
+                handleOverlayDragDOM(e.currentTarget, e);
+                // Check if over trash zone (bottom 15% of screen)
+                const touch = e.touches?.[0];
+                if (touch) setOverTrash(touch.clientY > window.innerHeight * 0.85);
+              }}
               onTouchEnd={() => {
-                if (dragRef.current.active) {
+                setShowTrashZone(false);
+                if (overTrash && dragRef.current.active) {
+                  setTextOverlays((prev) => prev.filter((item) => item.id !== t.id));
+                  setOverTrash(false);
+                } else if (dragRef.current.active) {
                   setTextOverlays((prev) => prev.map((item) => item.id === t.id ? { ...item, x: dragRef.current.lastX, y: dragRef.current.lastY } : item));
-                  dragRef.current = { type: null, id: null, active: false, el: null, lastX: 50, lastY: 50 };
                 }
+                dragRef.current = { type: null, id: null, active: false, el: null, lastX: 50, lastY: 50 };
               }}
               onMouseDown={(e) => {
                 e.currentTarget.style.willChange = 'left, top';
+                setShowTrashZone(true);
                 dragRef.current = { type: 'text', id: t.id, active: true, el: e.currentTarget, lastX: t.x, lastY: t.y };
               }}
             >
@@ -617,15 +689,25 @@ export default function CreateStoryPage() {
                 left: `${s.x}%`,
                 top: `${s.y}%`,
               }}
-              onTouchMove={(e) => handleOverlayDragDOM(e.currentTarget, e)}
+              onTouchStart={() => setShowTrashZone(true)}
+              onTouchMove={(e) => {
+                handleOverlayDragDOM(e.currentTarget, e);
+                const touch = e.touches?.[0];
+                if (touch) setOverTrash(touch.clientY > window.innerHeight * 0.85);
+              }}
               onTouchEnd={() => {
-                if (dragRef.current.active) {
+                setShowTrashZone(false);
+                if (overTrash && dragRef.current.active) {
+                  setStickerOverlays((prev) => prev.filter((item) => item.id !== s.id));
+                  setOverTrash(false);
+                } else if (dragRef.current.active) {
                   setStickerOverlays((prev) => prev.map((item) => item.id === s.id ? { ...item, x: dragRef.current.lastX, y: dragRef.current.lastY } : item));
-                  dragRef.current = { type: null, id: null, active: false, el: null, lastX: 50, lastY: 50 };
                 }
+                dragRef.current = { type: null, id: null, active: false, el: null, lastX: 50, lastY: 50 };
               }}
               onMouseDown={(e) => {
                 e.currentTarget.style.willChange = 'left, top';
+                setShowTrashZone(true);
                 dragRef.current = { type: 'sticker', id: s.id, active: true, el: e.currentTarget, lastX: s.x, lastY: s.y };
               }}
             >
@@ -666,6 +748,29 @@ export default function CreateStoryPage() {
                     )}
                     <span className="text-[9px] text-stone-400 font-medium">Ver producto →</span>
                   </div>
+                </div>
+              ) : s.type === 'question' ? (
+                <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-3 shadow-lg w-[200px] text-center">
+                  <p className="text-[10px] font-bold text-[#2E7D52] mb-1.5">Hazme una pregunta</p>
+                  <p className="text-[12px] font-bold text-stone-950 mb-2">{s.content}</p>
+                  <div className="bg-stone-100 rounded-xl py-2.5 px-3 text-[11px] text-stone-400">
+                    Escribe tu respuesta...
+                  </div>
+                </div>
+              ) : s.type === 'mention' ? (
+                <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-sm text-white text-sm px-3 py-2 rounded-full shadow-lg">
+                  <AtSign size={14} className="text-white/80" />
+                  <span className="font-semibold">{s.content}</span>
+                </div>
+              ) : s.type === 'link' ? (
+                <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-xl text-stone-950 text-[11px] px-3 py-2 rounded-full shadow-lg max-w-[180px]">
+                  <Link2 size={14} className="text-[#2E7D52] shrink-0" />
+                  <span className="font-semibold truncate">{s.content.replace(/^https?:\/\//, '')}</span>
+                </div>
+              ) : s.type === 'location' ? (
+                <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-xl text-stone-950 text-sm px-3 py-2 rounded-full shadow-lg">
+                  <MapPin size={14} className="text-[#2E7D52]" />
+                  <span className="font-semibold">{s.content}</span>
                 </div>
               ) : (
                 s.content
@@ -722,6 +827,18 @@ export default function CreateStoryPage() {
 
       {/* Right toolbar */}
       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
+
+      {/* Drag-to-trash zone */}
+      {showTrashZone && (
+        <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-[15] flex items-center justify-center gap-2 px-6 py-3 rounded-full transition-all duration-200 ${
+          overTrash ? 'bg-red-500 scale-110' : 'bg-black/60 backdrop-blur-sm'
+        }`}>
+          <Trash2 size={20} className={overTrash ? 'text-white' : 'text-white/70'} />
+          <span className={`text-sm font-medium ${overTrash ? 'text-white' : 'text-white/70'}`}>
+            {overTrash ? 'Soltar para eliminar' : 'Arrastra aquí para eliminar'}
+          </span>
+        </div>
+      )}
         {[
           { key: 'text', icon: <Type size={20} className="text-white" />, label: 'Añadir texto' },
           { key: 'sticker', icon: <span className="text-xl">🌿</span>, label: 'Añadir sticker' },
@@ -852,12 +969,16 @@ export default function CreateStoryPage() {
       {activePanel === 'sticker' && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 rounded-t-hs-xl z-20 flex flex-col gap-3 max-h-[50vh] overflow-auto">
           {/* Tabs */}
-          <div className="flex border-b border-white/15" role="tablist" aria-label="Tipo de sticker">
+          <div className="flex border-b border-white/15 overflow-x-auto" role="tablist" aria-label="Tipo de sticker">
             {[
               { key: 'culinarios', label: 'Culinarios' },
               { key: 'certificaciones', label: 'Certificaciones' },
               { key: 'frases', label: 'Frases' },
               { key: 'encuesta', label: 'Encuesta' },
+              { key: 'mencion', label: '@Mención' },
+              { key: 'enlace', label: 'Enlace' },
+              { key: 'ubicacion', label: 'Ubicación' },
+              { key: 'pregunta', label: 'Pregunta' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -963,10 +1084,118 @@ export default function CreateStoryPage() {
               </button>
             </div>
           )}
+
+          {/* Mención tab */}
+          {stickerTab === 'mencion' && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+                <AtSign size={16} className="text-white/40 shrink-0" />
+                <input
+                  value={mentionDraft}
+                  onChange={(e) => setMentionDraft(e.target.value.replace(/\s/g, '').slice(0, 30))}
+                  placeholder="nombre_de_usuario"
+                  className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (!mentionDraft.trim()) return;
+                  addSticker(`@${mentionDraft}`, 'mention');
+                  setMentionDraft('');
+                }}
+                disabled={!mentionDraft.trim()}
+                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${!mentionDraft.trim() ? 'opacity-40' : ''}`}
+              >
+                Añadir mención
+              </button>
+            </div>
+          )}
+
+          {/* Enlace tab */}
+          {stickerTab === 'enlace' && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+                <Link2 size={16} className="text-white/40 shrink-0" />
+                <input
+                  value={linkDraft}
+                  onChange={(e) => setLinkDraft(e.target.value.slice(0, 200))}
+                  placeholder="https://..."
+                  className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (!linkDraft.trim()) return;
+                  addSticker(linkDraft.startsWith('http') ? linkDraft : `https://${linkDraft}`, 'link');
+                  setLinkDraft('');
+                }}
+                disabled={!linkDraft.trim()}
+                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${!linkDraft.trim() ? 'opacity-40' : ''}`}
+              >
+                Añadir enlace
+              </button>
+            </div>
+          )}
+
+          {/* Ubicación tab */}
+          {stickerTab === 'ubicacion' && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+                <MapPin size={16} className="text-white/40 shrink-0" />
+                <input
+                  value={locationDraft}
+                  onChange={(e) => setLocationDraft(e.target.value.slice(0, 60))}
+                  placeholder="Sevilla, España"
+                  className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (!locationDraft.trim()) return;
+                  addSticker(locationDraft, 'location');
+                  setLocationDraft('');
+                }}
+                disabled={!locationDraft.trim()}
+                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${!locationDraft.trim() ? 'opacity-40' : ''}`}
+              >
+                Añadir ubicación
+              </button>
+            </div>
+          )}
+
+          {/* Pregunta tab */}
+          {stickerTab === 'pregunta' && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+                <HelpCircle size={16} className="text-white/40 shrink-0" />
+                <input
+                  value={questionDraft}
+                  onChange={(e) => setQuestionDraft(e.target.value.slice(0, 80))}
+                  placeholder="Hazme una pregunta..."
+                  className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (!questionDraft.trim()) return;
+                  setStickerOverlays(prev => [...prev, {
+                    id: Date.now(),
+                    content: questionDraft,
+                    type: 'question',
+                    x: 50,
+                    y: 50,
+                  }]);
+                  setQuestionDraft('');
+                }}
+                disabled={!questionDraft.trim()}
+                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${!questionDraft.trim() ? 'opacity-40' : ''}`}
+              >
+                Añadir pregunta
+              </button>
+            </div>
+          )}
         </div>
       )}
-
-      {/* Product panel */}
       {activePanel === 'product' && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl p-4 rounded-t-hs-xl z-20 flex flex-col gap-3 max-h-[55vh]">
           <div className="flex items-center gap-2">

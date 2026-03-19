@@ -113,6 +113,7 @@ export default function CreatePostPage() {
   const [previewIndex, setPreviewIndex] = useState(0);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+  const [uploadTab, setUploadTab] = useState('foto');
 
   /* --- step 2 state --- */
   const [activeFilter, setActiveFilter] = useState(FILTERS[0]);
@@ -335,160 +336,143 @@ export default function CreatePostPage() {
   /* ── computed filter string ── */
   const filterCSS = buildFilterCSS(activeFilter, filterIntensity, adjustments);
 
-  /* ══════════════════════ STEP 1 ══════════════════════ */
+  /* ══════════════════════ STEP 1 — Camera-first (Instagram-style) ══════════════════════ */
   if (step === 1) {
+    const hasFiles = selectedFiles.length > 0;
+
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
-        {/* top bar */}
-        <div style={{ background: 'rgba(0,0,0,0.8)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
-          <button onClick={() => {
-            if (selectedFiles.length > 0 || caption.trim()) {
-              if (!window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
-            }
-            navigate(-1);
-          }} aria-label="Cerrar" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
-            <X size={22} color="#fff" />
-          </button>
-          <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
+      <div className="fixed inset-0 z-50 bg-black flex flex-col" style={{ fontFamily: 'var(--font-sans)', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-4 shrink-0" style={{ height: 52 }}>
           <button
-            disabled={!selectedFiles.length}
+            onClick={() => {
+              if (hasFiles && !window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
+              navigate(-1);
+            }}
+            className="bg-transparent border-none cursor-pointer p-1"
+            aria-label="Cerrar"
+          >
+            <X size={22} className="text-white" />
+          </button>
+          <span className="text-white text-[15px] font-medium tracking-tight">Nueva publicación</span>
+          <button
+            disabled={!hasFiles}
             onClick={() => setStep(2)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-white)', opacity: selectedFiles.length ? 1 : 0.4 }}
+            className="bg-transparent border-none cursor-pointer text-[13px] font-semibold text-white transition-opacity"
+            style={{ opacity: hasFiles ? 1 : 0.35 }}
           >
             Siguiente →
           </button>
         </div>
 
-        {/* preview */}
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          style={{ width: '100%', aspectRatio: '1/1', maxHeight: '45vh', background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', flexShrink: 0 }}
-        >
-          {previewUrls[previewIndex] ? (
-            <img src={previewUrls[previewIndex]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <Image size={48} color="rgba(255,255,255,0.3)" />
-              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>Toca para añadir foto</span>
+        {hasFiles ? (
+          <>
+            {/* Preview image */}
+            <div className="relative flex-1 flex items-center justify-center bg-[#111] overflow-hidden shrink-0" style={{ maxHeight: '52vh' }}>
+              <img src={previewUrls[previewIndex]} alt="" className="w-full h-full object-cover" />
+              {selectedFiles.length > 1 && (
+                <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                  {previewIndex + 1} / {selectedFiles.length}
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* gallery bar */}
-        <div style={{ background: 'rgba(0,0,0,0.8)', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-          <span style={{ fontSize: 13, color: '#fff', fontWeight: 500 }}>
-            {selectedFiles.length > 0 ? `${selectedFiles.length} seleccionada${selectedFiles.length > 1 ? 's' : ''}` : 'Recientes'} ▼
-          </span>
-          <button onClick={() => cameraInputRef.current?.click()} aria-label="Abrir cámara" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Camera size={18} className="text-white" /></button>
-        </div>
+            {/* Reorder strip */}
+            {selectedFiles.length > 1 && (
+              <div className="bg-black/80 px-4 py-2 flex gap-1.5 overflow-x-auto shrink-0">
+                {previewUrls.map((url, i) => (
+                  <div
+                    key={i}
+                    draggable
+                    onDragStart={(e) => { e.dataTransfer.setData('text/plain', String(i)); }}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                      if (isNaN(from) || from === i) return;
+                      setSelectedFiles((prev) => { const arr = [...prev]; const [moved] = arr.splice(from, 1); arr.splice(i, 0, moved); return arr; });
+                      setPreviewIndex(i);
+                    }}
+                    onClick={() => setPreviewIndex(i)}
+                    className="relative shrink-0 cursor-grab overflow-hidden rounded-lg transition-transform"
+                    style={{ width: 44, height: 44, border: previewIndex === i ? '2px solid #fff' : '2px solid transparent' }}
+                  >
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <span className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-stone-950 text-white text-[9px] font-bold flex items-center justify-center">{i + 1}</span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i)); if (previewIndex >= selectedFiles.length - 1) setPreviewIndex(Math.max(0, selectedFiles.length - 2)); }}
+                      aria-label={`Quitar imagen ${i + 1}`}
+                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/70 text-white text-[10px] border-none cursor-pointer flex items-center justify-center p-0"
+                    >×</button>
+                  </div>
+                ))}
+              </div>
+            )}
 
-        {/* Reorder strip — shows selected images as draggable thumbnails */}
-        {selectedFiles.length > 1 && (
-          <div style={{ background: 'rgba(0,0,0,0.8)', padding: '4px 16px 8px', display: 'flex', gap: 6, overflowX: 'auto', flexShrink: 0 }}>
-            {previewUrls.map((url, i) => (
-              <div
-                key={i}
-                draggable
-                onDragStart={(e) => { e.dataTransfer.setData('text/plain', String(i)); }}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
-                  if (isNaN(from) || from === i) return;
-                  setSelectedFiles((prev) => {
-                    const arr = [...prev];
-                    const [moved] = arr.splice(from, 1);
-                    arr.splice(i, 0, moved);
-                    return arr;
-                  });
-                  setPreviewIndex(i);
-                }}
-                onClick={() => setPreviewIndex(i)}
-                style={{
-                  position: 'relative',
-                  width: 44,
-                  height: 44,
-                  borderRadius: 8,
-                  overflow: 'hidden',
-                  flexShrink: 0,
-                  cursor: 'grab',
-                  border: previewIndex === i ? '2px solid #fff' : '2px solid transparent',
-                }}
-              >
-                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <span style={{
-                  position: 'absolute',
-                  top: 2,
-                  left: 2,
-                  width: 16,
-                  height: 16,
-                  borderRadius: '50%',
-                  background: '#0c0a09',
-                  color: '#fff',
-                  fontSize: 9,
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  {i + 1}
-                </span>
-                {/* Remove button */}
+            {/* Bottom action bar — add more media */}
+            <div className="bg-black/80 px-4 py-3 flex items-center justify-between shrink-0">
+              <span className="text-white/40 text-xs font-medium">{selectedFiles.length} / 10</span>
+              <div className="flex gap-2">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i));
-                    if (previewIndex >= selectedFiles.length - 1) setPreviewIndex(Math.max(0, selectedFiles.length - 2));
-                  }}
-                  aria-label={`Quitar imagen ${i + 1}`}
-                  style={{
-                    position: 'absolute',
-                    top: 2,
-                    right: 2,
-                    width: 16,
-                    height: 16,
-                    borderRadius: '50%',
-                    background: 'rgba(0,0,0,0.7)',
-                    color: '#fff',
-                    fontSize: 10,
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 0,
-                  }}
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border-none text-[12px] font-medium py-2 px-3.5 rounded-full cursor-pointer transition-colors min-h-[40px]"
                 >
-                  ×
+                  <Camera size={15} /> Foto
+                </button>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border-none text-[12px] font-medium py-2 px-3.5 rounded-full cursor-pointer transition-colors min-h-[40px]"
+                >
+                  <Image size={15} /> Galería
                 </button>
               </div>
-            ))}
-          </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Tabs — Foto / Galería */}
+            <div className="flex gap-2 justify-center px-4 pb-4 pt-2">
+              {['foto', 'galeria'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setUploadTab(tab)}
+                  className={`border-none rounded-full px-5 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors min-h-[44px] ${
+                    uploadTab === tab ? 'bg-white text-black' : 'bg-transparent text-white/60'
+                  }`}
+                >
+                  {tab === 'foto' ? 'Foto' : 'Galería'}
+                </button>
+              ))}
+            </div>
+
+            {/* Center content */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 px-8">
+              {uploadTab === 'foto'
+                ? <Camera size={48} className="text-white/25" />
+                : <Image size={48} className="text-white/25" />
+              }
+              <span className="text-base text-white font-medium">
+                {uploadTab === 'foto' ? 'Toma una foto' : 'Selecciona imágenes'}
+              </span>
+              <span className="text-xs text-white/40 text-center">
+                {uploadTab === 'foto' ? 'Captura directamente desde tu cámara' : 'Hasta 10 imágenes · JPG, PNG o WebP'}
+              </span>
+              <button
+                onClick={() =>
+                  uploadTab === 'foto' ? cameraInputRef.current?.click() : fileInputRef.current?.click()
+                }
+                className="bg-white text-black border-none text-sm font-semibold py-3 px-7 rounded-full cursor-pointer mt-2 transition-all hover:bg-white/90 active:scale-95 min-h-[44px]"
+                aria-label={uploadTab === 'foto' ? 'Abrir cámara para tomar foto' : 'Elegir imágenes de la galería'}
+              >
+                {uploadTab === 'foto' ? 'Abrir cámara' : 'Elegir de la galería'}
+              </button>
+            </div>
+          </>
         )}
 
-        {/* gallery grid */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
-            {previewUrls.map((url, i) => (
-              <div
-                key={i}
-                onClick={() => setPreviewIndex(i)}
-                style={{ position: 'relative', aspectRatio: '1/1', cursor: 'pointer', overflow: 'hidden' }}
-              >
-                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                {i === previewIndex && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Check size={22} color="var(--color-white)" />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* hidden inputs */}
-        <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFiles} style={{ display: 'none' }} />
-        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFiles} style={{ display: 'none' }} />
+        {/* Hidden inputs */}
+        <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFiles} className="hidden" />
       </div>
     );
   }

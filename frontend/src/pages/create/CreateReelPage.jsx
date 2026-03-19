@@ -368,7 +368,7 @@ export default function CreateReelPage() {
               className={`border-none rounded-full px-5 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors min-h-[44px] ${
                 uploadTab === tab
                   ? 'bg-white text-black'
-                  : 'bg-transparent text-white'
+                  : 'bg-transparent text-white/60'
               }`}
             >
               {tab === 'subir' ? 'Subir' : 'Grabar'}
@@ -389,7 +389,7 @@ export default function CreateReelPage() {
             onClick={() =>
               uploadTab === 'subir' ? fileInputRef.current?.click() : cameraInputRef.current?.click()
             }
-            className="bg-[#2E7D52] text-white border-none text-sm font-semibold py-3 px-6 rounded-full cursor-pointer mt-2 transition-colors hover:bg-[#1F5C3B] active:bg-[#1a5035]"
+            className="bg-white text-black border-none text-sm font-semibold py-3 px-6 rounded-full cursor-pointer mt-2 transition-all hover:bg-white/90 active:scale-95 min-h-[44px]"
             aria-label={uploadTab === 'subir' ? 'Elegir video de la galería' : 'Abrir cámara para grabar'}
           >
             {uploadTab === 'subir' ? 'Elegir de la galería' : 'Abrir cámara'}
@@ -1022,7 +1022,7 @@ export default function CreateReelPage() {
             onClick={() => setAudience('public')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-medium cursor-pointer transition-all ${
               audience === 'public'
-                ? 'bg-stone-950 text-white border-2 border-stone-950'
+                ? 'bg-[#2E7D52] text-white border-2 border-[#2E7D52]'
                 : 'bg-transparent text-stone-950 border-[1.5px] border-stone-200'
             }`}
           >
@@ -1032,7 +1032,7 @@ export default function CreateReelPage() {
             onClick={() => setAudience('followers')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-medium cursor-pointer transition-all ${
               audience === 'followers'
-                ? 'bg-stone-950 text-white border-2 border-stone-950'
+                ? 'bg-[#2E7D52] text-white border-2 border-[#2E7D52]'
                 : 'bg-transparent text-stone-950 border-[1.5px] border-stone-200'
             }`}
           >
@@ -1101,6 +1101,48 @@ export default function CreateReelPage() {
             : 'Publicar ahora'}
         </button>
       </div>
+
+      {/* Product search modal */}
+      {showProductSearch && (
+        <div className="fixed inset-0 z-60 bg-black/50 flex items-end justify-center">
+          <div className="bg-white w-full max-h-[70vh] rounded-t-2xl flex flex-col overflow-hidden">
+            <div className="flex items-center px-4 py-3 border-b border-stone-200 gap-2">
+              <Search size={18} className="text-stone-400" />
+              <input
+                value={productQuery}
+                onChange={(e) => setProductQuery(e.target.value)}
+                placeholder="Buscar producto..."
+                aria-label="Buscar producto para etiquetar"
+                autoFocus
+                className="flex-1 border-none outline-none text-sm font-sans"
+              />
+              <button onClick={() => { setShowProductSearch(false); setProductQuery(''); setProductResults([]); }} className="bg-transparent border-none cursor-pointer" aria-label="Cerrar">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+              {productResults.map((p) => (
+                <button
+                  key={p.id || p._id}
+                  onClick={() => {
+                    if (taggedProducts.length < 5 && !taggedProducts.find((t) => t.id === (p.id || p._id))) {
+                      setTaggedProducts((prev) => [...prev, { id: p.id || p._id, name: p.name || p.title }]);
+                    }
+                    setShowProductSearch(false); setProductQuery(''); setProductResults([]);
+                  }}
+                  className="flex items-center gap-2.5 w-full px-2 py-2.5 bg-transparent border-none border-b border-stone-100 cursor-pointer text-left text-[13px] hover:bg-stone-50 transition-colors"
+                >
+                  {(p.image || p.thumbnail) && <img src={p.image || p.thumbnail} alt="" className="w-9 h-9 rounded-lg object-cover" />}
+                  <span>{p.name || p.title}</span>
+                </button>
+              ))}
+              {productQuery && productResults.length === 0 && (
+                <p className="text-center text-stone-400 text-sm py-5">Sin resultados</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

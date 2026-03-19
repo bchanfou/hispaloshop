@@ -700,7 +700,7 @@ function AppRouter() {
                 )}
               />
 
-              <Route path="/reels" element={<Navigate to="/" replace />} />
+              <Route path="/reels" element={<ReelsPage />} />
               <Route path="/feed" element={<Navigate to="/" replace />} />
               <Route path="/chat" element={<ChatContainer />} />
               <Route path="/messages" element={<ChatsPage />} />
