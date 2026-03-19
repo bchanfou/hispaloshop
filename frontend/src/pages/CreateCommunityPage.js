@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
@@ -29,6 +29,83 @@ const FormField = ({ label, hint, children }) => (
   </div>
 );
 
+const STONE_COVER_COLORS = ['#d6d3d1', '#a8a29e', '#78716c', '#57534e', '#44403c'];
+
+/* ── Live Preview Card ── */
+const CommunityPreviewCard = ({ form, coverPreview }) => {
+  const coverColor = STONE_COVER_COLORS[(form.name.charCodeAt(0) || 100) % 5];
+  return (
+    <div style={{
+      borderRadius: 'var(--radius-xl)',
+      border: '1px solid var(--color-border)',
+      background: 'var(--color-white)',
+      overflow: 'hidden',
+      fontFamily: 'var(--font-sans)',
+    }}>
+      {/* Cover */}
+      <div style={{
+        aspectRatio: '3/1', overflow: 'hidden',
+        background: coverPreview ? 'var(--color-surface)' : coverColor,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40,
+        position: 'relative',
+      }}>
+        {coverPreview ? (
+          <img src={coverPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        ) : (
+          form.emoji || '🌿'
+        )}
+        {/* Gradient overlay */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)',
+        }} />
+        {/* Name overlay */}
+        <div style={{ position: 'absolute', bottom: 8, left: 12, right: 12 }}>
+          <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: 0, textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+            {form.name || 'Nombre de la comunidad'}
+          </p>
+        </div>
+        {/* Category badge */}
+        {form.category && (
+          <span style={{
+            position: 'absolute', top: 8, left: 8,
+            background: 'rgba(0,0,0,0.6)', color: '#fff',
+            fontSize: 9, fontWeight: 800, padding: '2px 6px',
+            borderRadius: 4, letterSpacing: '0.05em', textTransform: 'uppercase',
+          }}>
+            {form.category}
+          </span>
+        )}
+      </div>
+
+      <div style={{ padding: '10px 12px' }}>
+        {form.description ? (
+          <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '0 0 8px', lineHeight: 1.4 }}>
+            {form.description.slice(0, 80)}{form.description.length > 80 ? '…' : ''}
+          </p>
+        ) : (
+          <p style={{ fontSize: 11, color: 'var(--color-border)', margin: '0 0 8px', fontStyle: 'italic' }}>
+            Sin descripción todavía
+          </p>
+        )}
+        <p style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 4, margin: '0 0 10px' }}>
+          <Users size={11} style={{ flexShrink: 0 }} />
+          0 miembros
+        </p>
+        <button disabled style={{
+          width: '100%', padding: '7px 0',
+          background: 'var(--color-black)', color: '#fff',
+          border: 'none', borderRadius: 'var(--radius-full)',
+          fontSize: 12, fontWeight: 600, cursor: 'default',
+          opacity: 0.85, fontFamily: 'var(--font-sans)',
+        }}>
+          Unirse
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function CreateCommunityPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -41,6 +118,7 @@ export default function CreateCommunityPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [coverPreview, setCoverPreview] = useState(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const canCreate = (user?.follower_count >= 100) || user?.is_verified_seller;
 
@@ -176,10 +254,39 @@ export default function CreateCommunityPage() {
         <Link to="/communities" style={{ color: 'var(--color-black)', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={20} />
         </Link>
-        <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Nueva comunidad</h1>
+        <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', flex: 1 }}>Nueva comunidad</h1>
       </div>
 
-      <div style={{ maxWidth: 540, margin: '0 auto', padding: 16, paddingBottom: 100 }}>
+      {/* ── Mobile: collapsible preview toggle ── */}
+      <div className="md:hidden" style={{ padding: '10px 16px 0', maxWidth: 540, margin: '0 auto' }}>
+        <button
+          type="button"
+          onClick={() => setShowPreview(v => !v)}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '10px 14px',
+            background: 'var(--color-white)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-xl)',
+            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+            fontSize: 13, fontWeight: 600, color: 'var(--color-black)',
+          }}
+          aria-expanded={showPreview}
+        >
+          <span>Ver vista previa</span>
+          {showPreview ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+        {showPreview && (
+          <div style={{ marginTop: 10 }}>
+            <CommunityPreviewCard form={form} coverPreview={coverPreview} />
+          </div>
+        )}
+      </div>
+
+      {/* ── Desktop: two-column layout ── */}
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: 16, paddingBottom: 100, display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+      {/* Form column */}
+      <div style={{ flex: 1, minWidth: 0 }}>
 
         {/* Cover */}
         <label style={{ display: 'block', marginBottom: 16, cursor: 'pointer' }}>
@@ -399,6 +506,19 @@ export default function CreateCommunityPage() {
             {isCreating ? 'Creando...' : 'Crear comunidad'}
           </button>
         </div>
+      </div>
+
+      {/* Desktop: sticky preview column */}
+      <div className="hidden md:block" style={{ width: 280, flexShrink: 0, position: 'sticky', top: 80, alignSelf: 'flex-start' }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-stone)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>
+          Vista previa
+        </p>
+        <CommunityPreviewCard form={form} coverPreview={coverPreview} />
+        <p style={{ fontSize: 11, color: 'var(--color-stone)', textAlign: 'center', marginTop: 8, fontFamily: 'var(--font-sans)' }}>
+          Así verán tu comunidad los demás
+        </p>
+      </div>
+
       </div>
     </div>
   );

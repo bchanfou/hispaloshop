@@ -40,11 +40,46 @@ export default function CommunityPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('feed');
   const { user } = useAuth();
+  const [showNewPostsPill, setShowNewPostsPill] = useState(false);
+  const queryClient = useQueryClient();
+  const hiddenAtRef = useRef(null);
 
   const { data: community, isLoading, isError, refetch } = useQuery({
     queryKey: ['community', slug],
     queryFn: () => apiClient.get(`/communities/${slug}`),
   });
+
+  /* Track last visit and show "new posts" pill on return from background */
+  const communityId = community?.id || community?._id;
+  useEffect(() => {
+    if (!communityId) return;
+    const storageKey = `community_last_visit_${communityId}`;
+    // Record visit time when page becomes visible
+    localStorage.setItem(storageKey, Date.now());
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        hiddenAtRef.current = Date.now();
+      } else if (document.visibilityState === 'visible') {
+        const hiddenDuration = hiddenAtRef.current ? Date.now() - hiddenAtRef.current : 0;
+        if (hiddenDuration > 30000) {
+          setShowNewPostsPill(true);
+        }
+        hiddenAtRef.current = null;
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [communityId]);
+
+  const handleNewPostsPill = useCallback(() => {
+    setShowNewPostsPill(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    queryClient.invalidateQueries({ queryKey: ['community-feed', communityId] });
+    if (communityId) {
+      localStorage.setItem(`community_last_visit_${communityId}`, Date.now());
+    }
+  }, [communityId, queryClient]);
 
   const font = { fontFamily: 'var(--font-sans)' };
 
@@ -274,6 +309,37 @@ export default function CommunityPage() {
           <CommunityAbout community={community} />
         )}
       </div>
+
+      {/* ── New posts pill ── */}
+      <AnimatePresence>
+        {showNewPostsPill && tab === 'feed' && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.25 }}
+            style={{ position: 'fixed', top: 110, left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}
+          >
+            <button
+              onClick={handleNewPostsPill}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '10px 20px',
+                background: 'var(--color-black)', color: 'var(--color-white)',
+                borderRadius: 'var(--radius-full, 999px)',
+                border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: 600,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                fontFamily: 'var(--font-sans)',
+                whiteSpace: 'nowrap',
+              }}
+              aria-label="Ver nuevos posts"
+            >
+              ↑ Ver nuevos posts
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ShoppingBag, MapPin, Package, Truck, Check, Clock, X, ExternalLink, Loader2, Send, Search } from 'lucide-react';
+import { ShoppingBag, MapPin, Package, Truck, Check, Clock, X, ExternalLink, Loader2, Send, Search, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
@@ -269,6 +269,7 @@ export default function ProducerOrders() {
   };
 
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
+  const [quickUpdatingId, setQuickUpdatingId] = useState(null);
 
   const handleUpdateStatus = async (order, newStatus) => {
     if (updatingOrderId) return; // prevent double-click
@@ -286,6 +287,31 @@ export default function ProducerOrders() {
       toast.error(msg);
     } finally {
       setUpdatingOrderId(null);
+    }
+  };
+
+  // Quick inline status update using PATCH endpoint
+  const handleQuickStatus = async (order, newStatus) => {
+    if (quickUpdatingId === order.order_id) return;
+    if (newStatus === 'shipped') {
+      // Open the ship modal for tracking URL
+      handleShipOrder(order);
+      return;
+    }
+    setQuickUpdatingId(order.order_id);
+    try {
+      await apiClient.patch(`/producer/orders/${order.order_id}/status`, { status: newStatus });
+      toast.success(`${t('orders.orderUpdatedTo')}: ${statusLabels[newStatus] || newStatus}`);
+      setOrders(orders.map(o =>
+        o.order_id === order.order_id
+          ? { ...o, status: newStatus, updated_at: new Date().toISOString() }
+          : o
+      ));
+    } catch (error) {
+      const msg = error.message || t('orders.errorUpdating');
+      toast.error(msg);
+    } finally {
+      setQuickUpdatingId(null);
     }
   };
 
@@ -449,6 +475,34 @@ export default function ProducerOrders() {
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
                       {getStatusLabel(order.status, t)}
                     </span>
+
+                    {/* Quick inline action buttons */}
+                    {order.status === 'pending' && (
+                      <button
+                        onClick={() => handleQuickStatus(order, 'confirmed')}
+                        disabled={quickUpdatingId === order.order_id}
+                        className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full border border-stone-200 hover:bg-stone-50 transition-colors disabled:opacity-50"
+                        data-testid={`quick-confirm-${order.order_id}`}
+                      >
+                        {quickUpdatingId === order.order_id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Zap className="w-3 h-3" />
+                        )}
+                        Confirmar
+                      </button>
+                    )}
+                    {order.status === 'confirmed' && (
+                      <button
+                        onClick={() => handleQuickStatus(order, 'shipped')}
+                        disabled={quickUpdatingId === order.order_id}
+                        className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full border border-stone-200 hover:bg-stone-50 transition-colors disabled:opacity-50"
+                        data-testid={`quick-ship-inline-${order.order_id}`}
+                      >
+                        <Truck className="w-3 h-3" />
+                        Marcar enviado
+                      </button>
+                    )}
 
                     {/* Action Buttons */}
                     {canUpdate && nextStatus && (

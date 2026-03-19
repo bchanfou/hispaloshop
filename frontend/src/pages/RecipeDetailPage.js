@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ChefHat, Clock3, Users, ShoppingCart, Minus, Plus, Bookmark, Loader2, User } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft, ChefHat, Clock3, Users, ShoppingCart, Minus, Plus, Bookmark, Loader2, User, Share2, ArrowUp, ListPlus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
@@ -52,16 +52,36 @@ export default function RecipeDetailPage() {
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [saved, setSaved] = useState(false);
   const [addingAll, setAddingAll] = useState(false);
+  const [similarRecipes, setSimilarRecipes] = useState([]);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const pageRef = useRef(null);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     apiClient.get(`/recipes/${recipeId}`)
-      .then(data => { if (active) { setRecipe(data || null); setPortions(data?.servings || 1); } })
+      .then(data => { if (active) { setRecipe(data || null); setPortions(data?.servings || 1); setSaved(data?.is_saved || false); } })
       .catch(() => { if (active) { setRecipe(null); toast.error('Receta no encontrada'); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [recipeId]);
+
+  /* Fetch similar recipes once recipe is loaded */
+  useEffect(() => {
+    if (!recipe?.category) return;
+    let active = true;
+    apiClient.get(`/recipes?category=${encodeURIComponent(recipe.category)}&limit=3&exclude=${recipeId}`)
+      .then(data => { if (active) setSimilarRecipes(Array.isArray(data) ? data : (data?.recipes || [])); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [recipe?.category, recipeId]);
+
+  /* Scroll-to-top visibility */
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const steps = useMemo(() => (recipe?.steps || []).map(normalizeStep), [recipe?.steps]);
   const baseServings = recipe?.servings || 1;
@@ -102,6 +122,38 @@ export default function RecipeDetailPage() {
     }
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: recipe?.title || 'Receta', url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success('Enlace copiado');
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success('Enlace copiado');
+      } catch {
+        toast.error('No se pudo copiar el enlace');
+      }
+    }
+  };
+
+  const handleAddToShoppingList = (ingredient) => {
+    const name = [ingredient.quantity, ingredient.unit, ingredient.name].filter(Boolean).join(' ');
+    // Store in localStorage shopping list
+    try {
+      const existing = JSON.parse(localStorage.getItem('shopping_list') || '[]');
+      if (!existing.some(i => i.name === ingredient.name)) {
+        existing.push({ name: ingredient.name, display: name, added_at: Date.now() });
+        localStorage.setItem('shopping_list', JSON.stringify(existing));
+      }
+    } catch {}
+    toast.success('Añadido a la lista');
+  };
+
   /* ── Loading ── */
   if (loading) {
     return (
@@ -139,24 +191,34 @@ export default function RecipeDetailPage() {
         title={recipe.title}
         onBack={() => navigate(-1)}
         right={
-          <button
-            type="button"
-            onClick={async () => {
-              const next = !saved;
-              setSaved(next);
-              try {
-                if (next) await apiClient.post(`/recipes/${recipeId}/save`);
-                else await apiClient.delete(`/recipes/${recipeId}/save`);
-              } catch {
-                setSaved(!next);
-                toast.error('Error al guardar');
-              }
-            }}
-            aria-label={saved ? 'Quitar guardado' : 'Guardar receta'}
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
-          >
-            <Bookmark size={22} fill={saved ? 'currentColor' : 'none'} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label="Compartir receta"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
+            >
+              <Share2 size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                const next = !saved;
+                setSaved(next);
+                try {
+                  if (next) await apiClient.post(`/recipes/${recipeId}/save`);
+                  else await apiClient.delete(`/recipes/${recipeId}/save`);
+                } catch {
+                  setSaved(!next);
+                  toast.error('Error al guardar');
+                }
+              }}
+              aria-label={saved ? 'Quitar guardado' : 'Guardar receta'}
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
+            >
+              <Bookmark size={22} fill={saved ? 'currentColor' : 'none'} />
+            </button>
+          </div>
         }
       />
 
@@ -243,7 +305,15 @@ export default function RecipeDetailPage() {
 
               return (
                 <div key={i} className={`rounded-xl border p-3 ${hasProduct ? 'border-stone-200 bg-stone-50' : 'border-stone-200 bg-white'}`}>
-                  <p className="text-sm font-medium text-stone-950">{displayQty}</p>
+                  <button
+                    type="button"
+                    onClick={() => handleAddToShoppingList(ing)}
+                    className="flex w-full items-center justify-between gap-2 border-none bg-transparent p-0 text-left cursor-pointer group"
+                    aria-label={`Añadir ${ing.name || displayQty} a la lista de la compra`}
+                  >
+                    <p className="text-sm font-medium text-stone-950">{displayQty}</p>
+                    <ListPlus size={14} className="shrink-0 text-stone-300 group-hover:text-stone-500 transition-colors" />
+                  </button>
 
                   {ing.product && (
                     <div className="mt-2 flex items-center gap-2.5 rounded-xl border border-stone-200 bg-white p-2">
@@ -387,6 +457,38 @@ export default function RecipeDetailPage() {
             ))}
           </div>
         )}
+
+        {/* ── Recetas similares ── */}
+        {similarRecipes.length > 0 && (
+          <section className="mb-5">
+            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Recetas similares</h2>
+            <div className="flex flex-col gap-2">
+              {similarRecipes.map(sr => (
+                <Link
+                  key={sr.recipe_id}
+                  to={`/recipes/${sr.recipe_id}`}
+                  className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-2.5 no-underline hover:shadow-sm transition-shadow"
+                >
+                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-stone-100">
+                    {sr.image_url ? (
+                      <img src={resolveUserImage(sr.image_url)} alt={sr.title} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <ChefHat size={20} className="text-stone-300" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-stone-950">{sr.title}</p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-stone-500">
+                      <Clock3 size={11} /> {sr.time_minutes || 0} min
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       {selectedProduct && (
@@ -395,6 +497,23 @@ export default function RecipeDetailPage() {
       {showShoppingList && (
         <RecipeShoppingListOverlay recipeId={recipeId} defaultServings={recipe?.servings || 1} onClose={() => setShowShoppingList(false)} />
       )}
+
+      {/* ── Scroll to top ── */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Volver arriba"
+            className="fixed bottom-24 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-stone-950 text-white shadow-lg border-none cursor-pointer hover:bg-stone-800 transition-colors"
+          >
+            <ArrowUp size={18} />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

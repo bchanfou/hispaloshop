@@ -179,9 +179,17 @@ export default function CommunitiesExplorePage() {
         {/* ── Grid ── */}
         {filter !== 'joined' && (
           isLoading ? (
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5" aria-busy="true" aria-label="Cargando comunidades">
               {Array(6).fill(0).map((_, i) => (
-                <div key={i} className="h-[200px] animate-pulse rounded-xl bg-stone-100" />
+                <div key={i} aria-hidden="true" className="overflow-hidden rounded-xl border border-stone-100 bg-white">
+                  {/* Cover placeholder */}
+                  <div className="aspect-[16/7] animate-pulse bg-stone-100" />
+                  <div className="p-2.5 flex flex-col gap-2">
+                    <div className="h-3 w-3/4 animate-pulse rounded-full bg-stone-100" />
+                    <div className="h-2.5 w-1/2 animate-pulse rounded-full bg-stone-100" />
+                    <div className="h-7 w-full animate-pulse rounded-full bg-stone-100" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : isError ? (
@@ -198,15 +206,27 @@ export default function CommunitiesExplorePage() {
             </div>
           ) : communities.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 py-16">
-              <Users size={56} className="text-stone-500" strokeWidth={1} />
-              <p className="text-center text-[15px] text-stone-500">
-                {searchInput ? 'Sin resultados' : 'Sin comunidades todavía'}
+              <Users size={56} className="text-stone-300" strokeWidth={1} />
+              <p className="text-center text-[15px] font-semibold text-stone-950">
+                {filter !== 'all' && !searchInput
+                  ? 'No hay comunidades en esta categoría'
+                  : searchInput
+                  ? 'Sin resultados para tu búsqueda'
+                  : 'Sin comunidades todavía'}
               </p>
-              {canCreate && !searchInput && (
-                <Link to="/communities/new" className="rounded-xl bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white no-underline">
-                  Crea la primera
-                </Link>
-              )}
+              <p className="text-center text-[13px] text-stone-500">
+                {filter !== 'all' && !searchInput
+                  ? '¿Por qué no creas la primera?'
+                  : searchInput
+                  ? 'Prueba con otros términos'
+                  : 'Sé el primero en crear una'}
+              </p>
+              <button
+                onClick={() => navigate('/communities/create')}
+                className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors"
+              >
+                Crear comunidad
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-2.5">

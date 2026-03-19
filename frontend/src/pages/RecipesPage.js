@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ChefHat, Clock3, Users, Loader2, Plus, User, ShoppingCart, X } from 'lucide-react';
+import { Search, ChefHat, Clock3, Clock, Users, Loader2, Plus, User, ShoppingCart, X, Bookmark } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
@@ -29,8 +29,8 @@ const DIET_PILLS = [
 ];
 
 const DIFFICULTY_CLASSES = {
-  easy: { pill: 'bg-stone-200/50 text-stone-600', label: 'Fácil' },
-  medium: { pill: 'bg-stone-300/40 text-stone-700', label: 'Media' },
+  easy: { pill: 'bg-stone-100 text-stone-600', label: 'Fácil' },
+  medium: { pill: 'bg-stone-100 text-stone-700', label: 'Medio' },
   hard: { pill: 'bg-stone-950 text-stone-50', label: 'Difícil' },
 };
 
@@ -65,9 +65,16 @@ function RecipeCard({ recipe }) {
               <ChefHat size={32} className="text-stone-400" />
             </div>
           )}
+          {/* Difficulty badge */}
           <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold ${diff.pill}`}>
             {diff.label}
           </span>
+          {/* Saved bookmark */}
+          {recipe.is_saved && (
+            <span className="absolute right-2 bottom-2 flex items-center justify-center rounded-full bg-white/90 p-1 shadow-sm">
+              <Bookmark size={12} className="text-stone-950" fill="currentColor" />
+            </span>
+          )}
           {hasProducts && (
             <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-bold text-white">
               <ShoppingCart size={10} /> Comprable
@@ -81,11 +88,17 @@ function RecipeCard({ recipe }) {
             {recipe.title}
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            {recipe.cook_time ? (
+              <span className="flex items-center gap-1 text-[11px] text-stone-500">
+                <Clock size={11} /> {recipe.cook_time} min
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-[11px] text-stone-500">
+                <Clock3 size={11} /> {recipe.time_minutes || 0} min
+              </span>
+            )}
             <span className="flex items-center gap-1 text-[11px] text-stone-500">
-              <Clock3 size={11} /> {recipe.time_minutes || 0} min
-            </span>
-            <span className="flex items-center gap-1 text-[11px] text-stone-500">
-              <Users size={11} /> {recipe.servings || 1}
+              <Users size={11} /> {recipe.servings || 1} personas
             </span>
           </div>
           {recipe.author_name && (

@@ -135,8 +135,10 @@ const AddToCartButton = ({
         disabled={state === 'loading' || !productId}
         aria-label={state === 'success' ? 'Producto añadido' : state === 'loading' ? 'Añadiendo al carrito' : 'Añadir al carrito'}
         className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-50 ${
-          state === 'success' ? 'bg-stone-700' : ''
+          state === 'success' ? '!bg-stone-950 !text-white' : ''
         } ${inCartQuantity > 0 && state === 'idle' ? 'bg-stone-700' : ''}`}
+        animate={state === 'success' ? { scale: [1, 1.15, 1] } : {}}
+        transition={state === 'success' ? { duration: 0.35, ease: 'easeOut' } : {}}
         whileTap={{ scale: 0.98 }}
       >
         <AnimatePresence mode="wait">
@@ -152,9 +154,10 @@ const AddToCartButton = ({
           ) : state === 'success' ? (
             <motion.div
               key="success"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
             >
               <Check className={style.icon} />
             </motion.div>

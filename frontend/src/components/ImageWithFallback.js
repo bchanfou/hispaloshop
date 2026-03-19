@@ -1,24 +1,30 @@
 import { useState } from 'react';
+import { ImageOff } from 'lucide-react';
 
-const placeholderImages = {
-  product: 'https://via.placeholder.com/400x400?text=Producto',
-  avatar: 'https://via.placeholder.com/100x100?text=User',
-  store: 'https://via.placeholder.com/800x400?text=Tienda',
-  banner: 'https://via.placeholder.com/1200x400?text=Banner',
-};
-
-export function ImageWithFallback({ 
-  src, 
-  alt, 
+export function ImageWithFallback({
+  src,
+  alt,
   type = 'product',
   className,
-  ...props 
+  ...props
 }) {
   const [error, setError] = useState(false);
 
+  if (error || !src) {
+    return (
+      <div
+        className={`flex items-center justify-center bg-stone-100 ${className || ''}`}
+        aria-label={alt || type}
+        role="img"
+      >
+        <ImageOff className="h-6 w-6 text-stone-400" strokeWidth={1.5} />
+      </div>
+    );
+  }
+
   return (
     <img
-      src={error ? placeholderImages[type] : (src || placeholderImages[type])}
+      src={src}
       alt={alt}
       className={className}
       onError={() => setError(true)}

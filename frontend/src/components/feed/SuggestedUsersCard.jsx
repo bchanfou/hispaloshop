@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { X, UserPlus } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 
@@ -62,6 +64,7 @@ export default function SuggestedUsersCard() {
     } catch {
       // Rollback on failure
       setFollowedIds(prev => { const next = new Set(prev); next.delete(userId); return next; });
+      toast.error('No se pudo seguir al usuario. Inténtalo de nuevo.');
     }
   }, []);
 
@@ -136,7 +139,8 @@ export default function SuggestedUsersCard() {
               </span>
 
               {/* Follow button */}
-              <button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => !isFollowed && handleFollow(user.user_id)}
                 disabled={isFollowed}
                 className={`flex w-full min-h-[36px] items-center justify-center gap-1 rounded-full text-[11px] font-semibold border-none cursor-pointer transition-colors ${
@@ -150,7 +154,7 @@ export default function SuggestedUsersCard() {
                     <UserPlus size={12} /> Seguir
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
           );
         })}

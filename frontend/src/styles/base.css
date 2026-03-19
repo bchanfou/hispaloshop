@@ -42,8 +42,14 @@ button, input, textarea, select {
   font: inherit;
   color: inherit;
   border: none;
-  outline: none;
   background: none;
+}
+
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none;
 }
 
 button {
@@ -55,8 +61,12 @@ ul, ol {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-black);
+  outline: 2px solid #0c0a09;
   outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 ::selection {

@@ -6,7 +6,7 @@ import {
   Package, FileCheck, ShoppingBag, CreditCard,
   AlertCircle, Users, TrendingUp, Heart, Star,
   Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle, Handshake,
-  PenTool, FileText, Lock, KeyRound
+  PenTool, FileText, Lock, KeyRound, ArrowUp, ArrowDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -17,6 +17,21 @@ import HealthScoreHero from '../../components/dashboard/HealthScoreHero';
 import StatCardMobile from '../../components/dashboard/StatCardMobile';
 import QuickActionsMobile from '../../components/dashboard/QuickActionsMobile';
 import { asNumber } from '../../utils/safe';
+
+// ===== TREND BADGE =====
+function TrendBadge({ trend }) {
+  if (trend === null || trend === undefined || trend === 0) return null;
+  const isUp = trend > 0;
+  return (
+    <span
+      className="inline-flex items-center gap-0.5 text-[10px] font-semibold"
+      style={{ color: isUp ? 'var(--color-black)' : 'var(--color-stone)' }}
+    >
+      {isUp ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+      {Math.abs(trend).toFixed(1)}%
+    </span>
+  );
+}
 
 // Plan badge styling
 function PlanBadge({ plan }) {
@@ -871,19 +886,57 @@ export default function ProducerOverview() {
       </section>
 
       {/* KPIs grid 2x2 */}
-      <div className="grid grid-cols-2 gap-3">
-        {[
-          { label: t('sellerDashboard.totalSales', 'Ventas'), value: `${asNumber(payments?.total_gross).toFixed(0)}€`, comp: null },
-          { label: t('customerDashboard.orders', 'Pedidos'), value: payments?.pending_orders || 0, comp: null },
-          { label: 'Visitas', value: '—', comp: null },
-          { label: 'Conversión', value: '—', comp: null },
-        ].map((kpi, i) => (
-          <div key={i} className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-            <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{kpi.value}</p>
-            <p className="text-[10px] uppercase mt-1" style={{ color: 'var(--color-stone)' }}>{kpi.label}</p>
+      {(() => {
+        const grossCurr = asNumber(payments?.total_gross);
+        const grossPrev = asNumber(payments?.total_gross_prev);
+        const revTrend = grossPrev > 0 ? ((grossCurr - grossPrev) / grossPrev) * 100 : null;
+
+        const ordersCurr = asNumber(payments?.total_orders_current || payments?.pending_orders);
+        const ordersPrev = asNumber(payments?.total_orders_prev);
+        const ordersTrend = ordersPrev > 0 ? ((ordersCurr - ordersPrev) / ordersPrev) * 100 : null;
+
+        const visitsCurr = asNumber(payments?.visits_current || stats?.visits_current);
+        const visitsPrev = asNumber(payments?.visits_prev || stats?.visits_prev);
+        const visitsTrend = visitsPrev > 0 ? ((visitsCurr - visitsPrev) / visitsPrev) * 100 : null;
+
+        const kpis = [
+          {
+            label: t('sellerDashboard.totalSales', 'Ventas'),
+            value: `${grossCurr.toFixed(0)}€`,
+            trend: revTrend,
+          },
+          {
+            label: t('customerDashboard.orders', 'Pedidos'),
+            value: payments?.pending_orders || 0,
+            trend: ordersTrend,
+          },
+          {
+            label: 'Visitas',
+            value: visitsCurr > 0 ? visitsCurr : '—',
+            trend: visitsTrend,
+          },
+          {
+            label: 'Conversión',
+            value: '—',
+            trend: null,
+          },
+        ];
+        return (
+          <div className="grid grid-cols-2 gap-3">
+            {kpis.map((kpi, i) => (
+              <div key={i} className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+                <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{kpi.value}</p>
+                <p className="text-[10px] uppercase mt-1" style={{ color: 'var(--color-stone)' }}>{kpi.label}</p>
+                {kpi.trend !== null && (
+                  <div className="mt-1 flex justify-center">
+                    <TrendBadge trend={kpi.trend} />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        );
+      })()}
 
       {/* Net earnings */}
       <div className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>

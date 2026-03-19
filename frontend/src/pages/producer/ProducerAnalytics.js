@@ -68,16 +68,37 @@ export default function ProducerAnalytics() {
   if (loading) {
     return (
       <div className="space-y-4 pt-6">
-        <div className="h-10 w-48 bg-stone-100 rounded-xl animate-pulse" />
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="h-8 w-36 animate-pulse bg-stone-100 rounded-xl" />
+          <div className="h-9 w-40 animate-pulse bg-stone-100 rounded-xl" />
+        </div>
+        {/* Revenue + orders KPI cards */}
         <div className="grid grid-cols-2 gap-3">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-stone-200 p-5 space-y-3">
-              <div className="h-3 w-16 bg-stone-100 rounded animate-pulse" />
-              <div className="h-6 w-24 bg-stone-100 rounded animate-pulse" />
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-white rounded-xl border border-stone-200 p-5 space-y-3 h-32">
+              <div className="h-3 w-16 animate-pulse bg-stone-100 rounded-xl" />
+              <div className="h-7 w-24 animate-pulse bg-stone-100 rounded-xl" />
+              <div className="h-3 w-12 animate-pulse bg-stone-100 rounded-xl" />
             </div>
           ))}
         </div>
-        <div className="bg-white rounded-xl border border-stone-200 p-4 h-48 animate-pulse" />
+        {/* Chart skeleton */}
+        <div className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
+          <div className="h-4 w-32 animate-pulse bg-stone-100 rounded-xl" />
+          <div className="h-48 animate-pulse bg-stone-100 rounded-xl" />
+        </div>
+        {/* Table skeleton */}
+        <div className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
+          <div className="h-4 w-40 animate-pulse bg-stone-100 rounded-xl" />
+          {[1, 2, 3, 4, 5].map(i => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-8 h-8 shrink-0 animate-pulse bg-stone-100 rounded-xl" />
+              <div className="h-6 flex-1 animate-pulse bg-stone-100 rounded-xl" />
+              <div className="h-6 w-16 shrink-0 animate-pulse bg-stone-100 rounded-xl" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

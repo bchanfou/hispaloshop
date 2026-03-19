@@ -1,18 +1,46 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 /**
  * BackButton - A consistent back navigation button that preserves user context
- * Uses history.back() / navigate(-1) to return to actual previous view
+ * Uses history.back() / navigate(-1) to return to actual previous view.
+ * On mobile (<768px), also supports swipe-right-from-left-edge to go back.
  */
-export default function BackButton({ 
-  className = '', 
+export default function BackButton({
+  className = '',
   label = 'Back',
   showLabel = true,
   size = 'default' // 'small', 'default', 'large'
 }) {
   const navigate = useNavigate();
+  const touchStartX = useRef(null);
+
+  useEffect(() => {
+    if (window.innerWidth >= 768) return;
+
+    const handleTouchStart = (e) => {
+      const x = e.touches[0].clientX;
+      touchStartX.current = x < 20 ? x : null;
+    };
+
+    const handleTouchEnd = (e) => {
+      if (touchStartX.current === null) return;
+      const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+      if (deltaX > 60) {
+        navigate(-1);
+      }
+      touchStartX.current = null;
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [navigate]);
 
   const handleBack = () => {
     // Use navigate(-1) to go back in history, preserving context
