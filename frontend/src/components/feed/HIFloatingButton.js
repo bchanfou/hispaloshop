@@ -18,7 +18,7 @@ function HIFloatingButton({ onClick, hasNewMessages = false }) {
           <span className="absolute -top-1 -right-1 z-10 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#FF3040]" />
         )}
 
-        <div className="w-12 h-12 bg-gradient-to-tr from-purple-600 via-pink-500 to-orange-400 rounded-full shadow-[0_8px_24px_rgba(131,58,180,0.3)] flex items-center justify-center">
+        <div className="w-12 h-12 bg-stone-950 rounded-full shadow-[0_8px_24px_rgba(10,10,10,0.25)] flex items-center justify-center">
           <Sparkles className="w-5 h-5 text-white" />
         </div>
       </div>

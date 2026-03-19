@@ -224,7 +224,7 @@ async def get_products(
         {"producer_id": {"$in": producer_ids}},
         {"producer_id": 1, "slug": 1}
     ).to_list(len(producer_ids))
-    producer_slug_map = {s["producer_id"]: s["slug"] for s in store_profiles}
+    producer_slug_map = {s.get("producer_id", ""): s.get("slug", "") for s in store_profiles}
     
     # Enrich products with producer_slug
     for product in products:

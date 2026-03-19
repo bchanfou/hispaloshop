@@ -53,7 +53,7 @@ async def get_order(order_id: str, user: User = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Order not found")
     
     # Check authorization
-    if user.role == "customer" and order["user_id"] != user.user_id:
+    if user.role == "customer" and order.get("user_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
     return order

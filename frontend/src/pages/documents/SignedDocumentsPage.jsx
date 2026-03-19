@@ -314,7 +314,7 @@ function ContractCard({ contract, onVerify }) {
         {contract.total_amount > 0 && (
           <div className="flex items-center justify-between text-xs">
             <span style={{ color: V2.stone }}>Importe</span>
-            <span style={{ color: V2.black, fontWeight: 500 }}>{contract.total_amount.toFixed(2)}€</span>
+            <span style={{ color: V2.black, fontWeight: 500 }}>{(Number(contract.total_amount) || 0).toFixed(2)}€</span>
           </div>
         )}
         <div className="flex items-center justify-between text-xs">

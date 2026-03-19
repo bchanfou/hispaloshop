@@ -92,7 +92,7 @@ function ConversationItem({ conversation, index, onClick, onDelete }) {
               className={`h-12 w-12 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
             />
           ) : (
-            <div className={`flex h-12 w-12 items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+            <div className={`flex h-12 w-12 items-center justify-center bg-[#2E7D52] text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
               {getInitial(name)}
             </div>
           )}
@@ -124,7 +124,7 @@ function ConversationItem({ conversation, index, onClick, onDelete }) {
           </span>
 
           {isUnread && (
-            <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-[#0095F6] px-1 text-[11px] font-semibold leading-none text-white">
+            <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-[#2E7D52] px-1 text-[11px] font-semibold leading-none text-white">
               {unread_count > 99 ? '99+' : unread_count}
             </span>
           )}
@@ -220,7 +220,7 @@ export default function ChatsPage() {
               onClick={() => setActiveFilter(f.key)}
               className={`shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${
                 isActive
-                  ? 'bg-[#0095F6] text-white'
+                  ? 'bg-stone-950 text-white'
                   : 'bg-stone-100 text-stone-500 active:bg-stone-200'
               }`}
             >

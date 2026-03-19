@@ -412,7 +412,7 @@ async def apply_coupon(
     if coupon_type == "percentage":
         discount_cents = subtotal * coupon.get("value", 0) // 100
     elif coupon_type == "fixed":
-        discount_cents = int(coupon.get("value", 0) * 100)
+        discount_cents = int(round(coupon.get("value", 0) * 100))
     elif coupon_type == "free_shipping":
         # Se maneja en checkout
         pass

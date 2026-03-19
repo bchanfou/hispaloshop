@@ -441,8 +441,8 @@ async def run_full_verification(user_id: str) -> dict:
                 "read": False,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[VERIFICATION] Could not send rejection notification to {user_id}: {e}")
 
     elif cif_ok and facility_ok and has_valid_cert and not any_low_confidence and not any_cert_low:
         # APPROVED
@@ -466,8 +466,8 @@ async def run_full_verification(user_id: str) -> dict:
                 "read": False,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[VERIFICATION] Could not send approval notification to {user_id}: {e}")
 
     elif any_low_confidence or any_cert_low:
         # Manual review needed

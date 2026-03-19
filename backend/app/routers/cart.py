@@ -100,12 +100,12 @@ async def get_cart(user: User = Depends(get_current_user)):
     enriched_items = []
     for item in cart_items:
         product = await db.products.find_one(
-            {"product_id": item["product_id"]}, 
+            {"product_id": item.get("product_id", "")},
             {"_id": 0, "stock": 1, "track_stock": 1}
         )
         item["stock"] = product.get("stock", 0) if product else 0
         item["track_stock"] = product.get("track_stock", True) if product else True
-        item["stock_available"] = not product.get("track_stock", True) or item["stock"] >= item["quantity"]
+        item["stock_available"] = not product.get("track_stock", True) or item["stock"] >= item.get("quantity", 0)
         enriched_items.append(item)
     
     applied_discount = await db.cart_discounts.find_one({"user_id": user.user_id}, {"_id": 0})
@@ -202,8 +202,8 @@ async def add_to_cart(input: CartAddInput, user: User = Depends(get_current_user
         cart_item = {
             "user_id": user.user_id,
             "product_id": input.product_id,
-            "product_name": product["name"],
-            "producer_id": product["producer_id"],
+            "product_name": product.get("name", ""),
+            "producer_id": product.get("producer_id", ""),
             "price": price,
             "currency": currency,
             "quantity": input.quantity,
@@ -274,15 +274,15 @@ async def validate_cart_country(country: str, user: User = Depends(get_current_u
     issues = []
     for item in cart_items:
         product = await db.products.find_one(
-            {"product_id": item["product_id"]},
+            {"product_id": item.get("product_id", "")},
             {"_id": 0, "available_countries": 1, "name": 1}
         )
         if product:
             available = product.get("available_countries", [])
             if available and country not in available:
                 issues.append({
-                    "product_id": item["product_id"],
-                    "product_name": product["name"],
+                    "product_id": item.get("product_id", ""),
+                    "product_name": product.get("name", ""),
                     "issue": f"Not available in {country}"
                 })
     

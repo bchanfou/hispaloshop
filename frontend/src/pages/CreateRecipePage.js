@@ -220,7 +220,7 @@ export default function CreateRecipePage() {
           {recipe.ingredients.map((ingredient, index) => (
             <div key={`${ingredient.name}-${index}`} className={`flex items-center gap-2.5 py-2 ${index < recipe.ingredients.length - 1 ? 'border-b border-stone-200' : ''}`}>
               {ingredient.product_id && (ingredient.product?.images?.[0] || ingredient.product?.image) && (
-                <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} className="h-7 w-7 shrink-0 rounded-lg object-cover" />
+                <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} className="h-7 w-7 shrink-0 rounded-xl object-cover" />
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">

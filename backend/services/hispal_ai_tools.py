@@ -117,7 +117,7 @@ async def add_to_cart_db(db, user_id, product_id, quantity):
     total = 0
     for item in updated_cart.get("items", []):
         try:
-            p = await db.products.find_one({"_id": ObjectId(item["product_id"])})
+            p = await db.products.find_one({"_id": ObjectId(item.get("product_id", ""))})
             if p:
                 total += p.get("price", 0) * item.get("quantity", 1)
         except Exception:
@@ -180,12 +180,12 @@ async def get_cart_summary_db(db, user_id):
     total = 0
     for item in cart.get("items", []):
         try:
-            p = await db.products.find_one({"_id": ObjectId(item["product_id"])})
+            p = await db.products.find_one({"_id": ObjectId(item.get("product_id", ""))})
             if p:
                 qty = item.get("quantity", 1)
                 price = p.get("price", 0)
                 items.append({
-                    "product_id": item["product_id"],
+                    "product_id": item.get("product_id", ""),
                     "name": p.get("name", ""),
                     "price": price,
                     "quantity": qty,

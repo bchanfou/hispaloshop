@@ -82,7 +82,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
         </button>
 
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#2E7D52]">
             {conversation?.avatar_url ? (
               <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
@@ -256,7 +256,7 @@ function AudioPlayer({ url, duration, isOwn }) {
       </button>
       <div className="flex-1">
         <div className={`h-1 rounded-full ${isOwn ? 'bg-white/30' : 'bg-stone-200'}`}>
-          <div className={`h-1 rounded-full transition-[width] ${isOwn ? 'bg-white' : 'bg-[#0095F6]'}`} style={{ width: `${progress * 100}%` }} />
+          <div className={`h-1 rounded-full transition-[width] ${isOwn ? 'bg-white' : 'bg-[#2E7D52]'}`} style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
       <span className={`text-[11px] ${isOwn ? 'text-white/70' : 'text-stone-500'}`}>{fmt(duration || 0)}</span>
@@ -385,7 +385,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
         <div className="max-w-[75%]">
           <div
             className={`min-w-[200px] px-3.5 py-2.5 font-apple ${
-              isOwn ? 'bg-[#0095F6] text-white' : 'bg-[#EFEFEF] text-stone-950'
+              isOwn ? 'bg-[#2E7D52] text-white' : 'bg-[#EFEFEF] text-stone-950'
             }`}
             style={{ borderRadius: bubbleRadius }}
           >
@@ -408,7 +408,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
     <div className="max-w-[75%]">
       <div
         className={`break-words px-3.5 py-2.5 text-[15px] leading-[21px] font-apple ${
-          isOwn ? 'bg-[#0095F6] text-white' : 'bg-[#EFEFEF] text-stone-950'
+          isOwn ? 'bg-[#2E7D52] text-white' : 'bg-[#EFEFEF] text-stone-950'
         }`}
         style={{ borderRadius: bubbleRadius }}
       >
@@ -593,7 +593,7 @@ function NewMessagesPill({ onClick }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       onClick={onClick}
-      className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full bg-[#0095F6] px-4 py-1.5 text-[13px] font-semibold text-white shadow-[0_4px_12px_rgba(0,149,246,0.3)]"
+      className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full bg-[#2E7D52] px-4 py-1.5 text-[13px] font-semibold text-white shadow-[0_4px_12px_rgba(46,125,82,0.3)]"
     >
       <span className="text-[15px]">↓</span> Nuevos mensajes
     </motion.button>
@@ -647,7 +647,7 @@ function MessageContextMenu({ contextMenu, onClose, userId, onReact, onReply }) 
             <button
               key={opt.label}
               onClick={opt.action}
-              className={`flex h-10 w-full items-center gap-2.5 rounded-lg px-2 text-[13px] font-medium transition-colors hover:bg-stone-50 ${
+              className={`flex h-10 w-full items-center gap-2.5 rounded-xl px-2 text-[13px] font-medium transition-colors hover:bg-stone-50 ${
                 opt.danger ? 'text-red-600' : 'text-stone-950'
               }`}
             >
@@ -702,7 +702,7 @@ function EmptyConversation({ conversation, onSendSuggestion }) {
 
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 font-apple">
-      <div className="mb-3 h-16 w-16 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400">
+      <div className="mb-3 h-16 w-16 overflow-hidden rounded-full bg-[#2E7D52]">
         {conversation?.avatar_url ? (
           <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" />
         ) : (
@@ -725,7 +725,7 @@ function EmptyConversation({ conversation, onSendSuggestion }) {
           <button
             key={text}
             onClick={() => onSendSuggestion(text)}
-            className="rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-[#0095F6] active:bg-stone-200"
+            className="rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-[#2E7D52] active:bg-stone-200"
           >
             {text}
           </button>
@@ -868,13 +868,13 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
             <motion.span animate={{ opacity: [1, 0.3] }} transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }} className="h-2.5 w-2.5 rounded-full bg-red-500" />
             <span className="text-sm font-medium text-stone-950">{fmtSecs(recordingSecs)}</span>
           </div>
-          <button onClick={stopRecording} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[#0095F6] text-white active:opacity-75" aria-label="Enviar nota de voz">
+          <button onClick={stopRecording} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[#2E7D52] text-white active:opacity-75" aria-label="Enviar nota de voz">
             <ArrowUp size={20} />
           </button>
         </div>
       ) : (
         <div className="flex items-end gap-2 px-3 pt-2">
-          <button onClick={handleImagePick} className="mb-1 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-[#0095F6] active:opacity-60" aria-label="Adjuntar imagen">
+          <button onClick={handleImagePick} className="mb-1 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-[#2E7D52] active:opacity-60" aria-label="Adjuntar imagen">
             <Plus size={22} />
           </button>
 
@@ -886,7 +886,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
               onKeyDown={handleKeyDown}
               placeholder="Mensaje..."
               rows={1}
-              className="w-full min-h-[44px] max-h-[120px] resize-none rounded-3xl border border-stone-200 bg-white px-4 py-2.5 text-[15px] leading-[22px] text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-300"
+              className="w-full min-h-[44px] max-h-[120px] resize-none rounded-3xl border border-stone-200 bg-white px-4 py-2.5 text-[15px] leading-[22px] text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-200"
             />
           </div>
 
@@ -899,7 +899,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 onClick={handleSend}
-                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-[#0095F6] text-white active:opacity-75"
+                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-[#2E7D52] text-white active:opacity-75"
                 aria-label="Enviar"
               >
                 <ArrowUp size={20} />
@@ -1183,7 +1183,7 @@ export default function ChatPage() {
           {/* Pagination spinner (Q10) */}
           {loadingMore && (
             <div className="flex justify-center py-3">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-950" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
             </div>
           )}
 

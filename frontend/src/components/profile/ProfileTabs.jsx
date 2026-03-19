@@ -326,7 +326,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') handleProductClick(); }}
               role="button"
               tabIndex={0}
-              className="cursor-pointer overflow-hidden rounded-lg border border-stone-200 bg-white"
+              className="cursor-pointer overflow-hidden rounded-xl border border-stone-200 bg-white"
             >
               <img
                 src={src}
@@ -371,7 +371,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') navigate(recipeUrl); }}
               role="button"
               tabIndex={0}
-              className="cursor-pointer overflow-hidden rounded-lg border border-stone-200 bg-white"
+              className="cursor-pointer overflow-hidden rounded-xl border border-stone-200 bg-white"
             >
               <img
                 src={src}

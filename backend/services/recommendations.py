@@ -226,7 +226,7 @@ class RecommendationEngine:
         scored_products.sort(key=lambda x: x["similarity"], reverse=True)
         
         # Obtener datos completos de productos top
-        top_ids = [p["product_id"] for p in scored_products[:limit]]
+        top_ids = [p.get("product_id", "") for p in scored_products[:limit]]
         if not top_ids:
             return []
         

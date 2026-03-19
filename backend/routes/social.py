@@ -81,17 +81,17 @@ async def _hydrate_tagged_products(tag_refs: List[Dict[str, object]]) -> List[Di
         {"product_id": {"$in": product_ids}},
         {"_id": 0, "product_id": 1, "name": 1, "price": 1, "currency": 1, "images": 1, "producer_id": 1, "store_id": 1},
     ).to_list(len(product_ids))
-    product_map = {item["product_id"]: item for item in products}
+    product_map = {item.get("product_id", ""): item for item in products}
 
     hydrated = []
     for ref in tag_refs:
-        product = product_map.get(ref["product_id"])
+        product = product_map.get(ref.get("product_id", ""))
         if not product:
             continue
         hydrated.append(
             {
-                "product_id": product["product_id"],
-                "id": product["product_id"],
+                "product_id": product.get("product_id", ""),
+                "id": product.get("product_id", ""),
                 "name": product.get("name", ""),
                 "price": product.get("price", 0),
                 "currency": product.get("currency", "EUR"),
@@ -730,7 +730,7 @@ async def get_user_profile(user_id: str, request: Request):
                     total_sales += item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
 
         products = await db.products.find({"producer_id": actual_user_id}, {"_id": 0, "product_id": 1}).to_list(100)
-        product_ids = [p["product_id"] for p in products]
+        product_ids = [p["product_id"] for p in products if p.get("product_id")]
         avg_rating = 0
         review_count = 0
         if product_ids:
@@ -1729,7 +1729,7 @@ async def get_social_feed(
             {"product_id": {"$in": all_product_ids}},
             {"_id": 0, "product_id": 1, "price": 1, "stock": 1, "images": 1, "name": 1, "track_stock": 1}
         ).to_list(100)
-        product_cache = {p["product_id"]: p for p in prod_docs}
+        product_cache = {p.get("product_id", ""): p for p in prod_docs}
 
     # Batch fetch reviews aggregated by product
     review_cache = {}
@@ -1832,7 +1832,7 @@ async def search_products_for_tagging(q: str = "", limit: int = 5, user: User = 
     if q:
         query["name"] = {"$regex": re.escape(q), "$options": "i"}
     products = await db.products.find(query, {"_id": 0, "product_id": 1, "name": 1, "price": 1, "currency": 1, "images": 1}).limit(limit).to_list(limit)
-    return [{"product_id": p["product_id"], "name": p.get("name", ""), "price": p.get("price", 0), "currency": p.get("currency", "EUR"), "image": p.get("images", [None])[0]} for p in products]
+    return [{"product_id": p.get("product_id", ""), "name": p.get("name", ""), "price": p.get("price", 0), "currency": p.get("currency", "EUR"), "image": (p.get("images") or [None])[0]} for p in products]
 
 
 # ── Autocomplete: hashtags + users ────────────────────────────
@@ -2211,11 +2211,11 @@ async def get_discovered_products(limit: int = Query(default=6, ge=1, le=12)):
     rows = await db.intelligence_signals.aggregate(pipeline).to_list(limit)
     product_ids = [row["_id"] for row in rows if row.get("_id")]
     products = await db.products.find({"product_id": {"$in": product_ids}}, {"_id": 0}).to_list(limit)
-    product_map = {item["product_id"]: item for item in products}
+    product_map = {item.get("product_id", ""): item for item in products}
     return {
         "items": [
             {
-                **product_map[row["_id"]],
+                **product_map.get(row["_id"], {}),
                 "content_mentions": row.get("count", 0),
                 "last_seen": row.get("last_seen"),
             }
@@ -2262,7 +2262,7 @@ async def get_producer_demand_signals(user: User = Depends(get_current_user)):
     ).to_list(5)
 
     products = await db.products.find({"product_id": {"$in": [row["_id"] for row in tag_rows]}}, {"_id": 0, "product_id": 1, "name": 1, "images": 1}).to_list(5)
-    product_map = {item["product_id"]: item for item in products}
+    product_map = {item.get("product_id", ""): item for item in products}
 
     return {
         "trending_ingredients": [{"name": row["_id"], "count": row["count"]} for row in ingredient_rows],

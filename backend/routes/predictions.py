@@ -149,7 +149,7 @@ async def get_purchase_predictions(user: User = Depends(get_current_user)):
         {"product_id": {"$in": list(product_ids)}},
         {"_id": 0, "product_id": 1, "images": 1, "category": 1, "price": 1, "name": 1}
     ).to_list(200)
-    products_map = {p["product_id"]: p for p in products}
+    products_map = {p.get("product_id", ""): p for p in products}
 
     predictions = calculate_predictions(orders, products_map)
 

@@ -242,12 +242,12 @@ async def get_importer_orders(user: User = Depends(get_current_user)):
         importer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == user.user_id]
         if importer_items:
             importer_orders.append({
-                "order_id": order["order_id"],
+                "order_id": order.get("order_id", ""),
                 "customer_name": order.get("user_name", "Unknown"),
                 "shipping_address": order.get("shipping_address", {}),
                 "items": importer_items,
                 "total": sum(item.get("subtotal", item.get("price", 0) * item.get("quantity", 1)) for item in importer_items),
-                "status": order["status"],
+                "status": order.get("status", ""),
                 "tracking_number": order.get("tracking_number"),
                 "tracking_url": order.get("tracking_url"),
                 "status_history": order.get("status_history", []),

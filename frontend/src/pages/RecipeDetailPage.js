@@ -241,11 +241,11 @@ export default function RecipeDetailPage() {
                   <p className="text-sm font-medium text-stone-950">{displayQty}</p>
 
                   {ing.product && (
-                    <div className="mt-2 flex items-center gap-2.5 rounded-lg border border-stone-200 bg-white p-2">
+                    <div className="mt-2 flex items-center gap-2.5 rounded-xl border border-stone-200 bg-white p-2">
                       <button
                         type="button"
                         onClick={() => setSelectedProduct(ing.product)}
-                        className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-stone-100 border-none cursor-pointer p-0"
+                        className="h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-stone-100 border-none cursor-pointer p-0"
                       >
                         {ing.product.images?.[0] && (
                           <img src={resolveUserImage(ing.product.images[0])} alt="" className="h-full w-full object-cover" />
@@ -303,7 +303,7 @@ export default function RecipeDetailPage() {
                   <div className="min-w-0 flex-1">
                     {step.text && <p className="text-sm leading-relaxed text-stone-950">{step.text}</p>}
                     {step.image_url && (
-                      <div className="mt-2.5 overflow-hidden rounded-lg">
+                      <div className="mt-2.5 overflow-hidden rounded-xl">
                         <img src={resolveUserImage(step.image_url)} alt={`Paso ${i + 1}`} loading="lazy" className="block h-[180px] w-full object-cover" />
                       </div>
                     )}

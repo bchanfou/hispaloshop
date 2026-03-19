@@ -1319,7 +1319,7 @@ async def update_influencer_tiers():
                 await create_notification(
                     user_id=inf_id,
                     title=f"¡Has alcanzado el nivel {tier_labels.get(new_tier, new_tier)}!",
-                    body=f"Ahora ganas un {int(new_rate * 100)}% de comisión en cada venta",
+                    body=f"Ahora ganas un {int(round(new_rate * 100))}% de comisión en cada venta",
                     notification_type="tier_upgraded",
                     data={"new_tier": new_tier, "commission_rate": new_rate},
                     action_url="/influencer/dashboard",

@@ -67,7 +67,7 @@ function CategoryPills({ selectedCategory, onSelect }) {
               <div
                 className={`relative flex h-[72px] w-[72px] items-center justify-center rounded-2xl border transition-all duration-200 md:h-20 md:w-20 ${
                   isSelected
-                    ? 'border-[#0095F6] bg-[#0095F6] text-white shadow-[0_12px_26px_-20px_rgba(0,149,246,0.5)]'
+                    ? 'border-stone-950 bg-stone-950 text-white shadow-[0_12px_26px_-20px_rgba(10,10,10,0.3)]'
                     : 'border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100'
                 }`}
               >

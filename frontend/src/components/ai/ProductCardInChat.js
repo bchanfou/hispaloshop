@@ -30,7 +30,7 @@ export default function ProductCardInChat({ product, onAddToCart, onViewProduct 
         {product.rating > 0 && (
           <div className="mt-0.5 flex items-center gap-1">
             <Star className="h-3 w-3 fill-stone-950 text-stone-950" />
-            <span className="text-xs text-stone-600">{product.rating.toFixed(1)}</span>
+            <span className="text-xs text-stone-600">{Number(product.rating).toFixed(1)}</span>
           </div>
         )}
 

@@ -48,7 +48,7 @@ function renderCaption(text) {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} className="text-[#00376B]">{part}</span>
+      <span key={i} className="text-[#3060A0]">{part}</span>
     ) : (
       <React.Fragment key={i}>{part}</React.Fragment>
     ),
@@ -312,7 +312,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
         <div
           onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
           className={`flex shrink-0 items-center justify-center rounded-full cursor-pointer ${
-            hasStory ? 'h-9 w-9 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px]' : 'h-9 w-9'
+            hasStory ? 'h-9 w-9 bg-[#2E7D52] p-[2px]' : 'h-9 w-9'
           }`}
           role="link"
           aria-label={`Ver perfil de ${user.name}`}
@@ -447,7 +447,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
                       style={{
                         width: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
                         height: i === carouselIndex ? 7 : dist === 1 ? 5 : 4,
-                        background: i === carouselIndex ? '#0095F6' : '#d6d3d1',
+                        background: i === carouselIndex ? '#0A0A0A' : '#d6d3d1',
                         opacity: dist > 2 ? 0.5 : 1,
                       }}
                     />

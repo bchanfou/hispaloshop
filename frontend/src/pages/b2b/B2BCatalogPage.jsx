@@ -379,7 +379,7 @@ export default function B2BCatalogPage() {
 
                   <div style={metaRow}>
                     <span style={metaPrice}>
-                      {Number(item.wholesale_price).toFixed(2)}€ / ud
+                      {(Number(item.wholesale_price) || 0).toFixed(2)}€ / ud
                     </span>
                     <span style={metaText}>
                       Mínimo {item.moq ?? item.min_order_quantity ?? 1} unidades

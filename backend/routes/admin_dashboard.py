@@ -494,11 +494,11 @@ async def get_payments_by_producer(producer_id: str, user: User = Depends(get_cu
         producer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == producer_id]
         if producer_items:
             producer_orders.append({
-                "order_id": order["order_id"],
+                "order_id": order.get("order_id", ""),
                 "items": producer_items,
                 "total": sum(item.get("amount", 0) for item in producer_items),
-                "status": order["status"],
-                "created_at": order["created_at"]
+                "status": order.get("status", ""),
+                "created_at": order.get("created_at", "")
             })
     return producer_orders
 
@@ -770,7 +770,7 @@ async def global_search(q: str, user: User = Depends(get_current_user)):
         {"_id": 0, "user_id": 1, "name": 1, "email": 1, "role": 1}
     ).limit(5).to_list(5)
     for u in users:
-        results.append({"type": "user", "id": u["user_id"], "title": u["name"], "subtitle": f"{u['email']} ({u['role']})", "url": f"/super-admin/users"})
+        results.append({"type": "user", "id": u.get("user_id", ""), "title": u.get("name", ""), "subtitle": f"{u.get('email', '')} ({u.get('role', '')})", "url": f"/super-admin/users"})
     
     # Products
     products = await db.products.find(
@@ -778,7 +778,7 @@ async def global_search(q: str, user: User = Depends(get_current_user)):
         {"_id": 0, "product_id": 1, "name": 1, "producer_name": 1}
     ).limit(5).to_list(5)
     for p in products:
-        results.append({"type": "product", "id": p["product_id"], "title": p["name"], "subtitle": p.get("producer_name", ""), "url": f"/products/{p['product_id']}"})
+        results.append({"type": "product", "id": p.get("product_id", ""), "title": p.get("name", ""), "subtitle": p.get("producer_name", ""), "url": f"/products/{p.get('product_id', '')}"})
     
     # Orders
     orders = await db.orders.find(
@@ -786,7 +786,7 @@ async def global_search(q: str, user: User = Depends(get_current_user)):
         {"_id": 0, "order_id": 1, "user_name": 1, "total_amount": 1, "status": 1}
     ).limit(5).to_list(5)
     for o in orders:
-        results.append({"type": "order", "id": o["order_id"], "title": f"#{o['order_id'][-8:]}", "subtitle": f"{o['user_name']} - {o.get('total_amount',0)}€ ({o['status']})", "url": f"/super-admin"})
+        results.append({"type": "order", "id": o.get("order_id", ""), "title": f"#{str(o.get('order_id', ''))[-8:]}", "subtitle": f"{o.get('user_name', '')} - {o.get('total_amount',0)}€ ({o.get('status', '')})", "url": f"/super-admin"})
     
     return {"results": results, "query": q}
 

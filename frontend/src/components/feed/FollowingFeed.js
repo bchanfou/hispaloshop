@@ -34,7 +34,7 @@ function EmptyFollowing() {
       <button
         type="button"
         onClick={() => navigate('/discover')}
-        className="mt-5 rounded-full bg-[#0095F6] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1877F2] active:scale-95"
+        className="mt-5 rounded-full bg-[#2E7D52] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1F5C3B] active:scale-95"
       >
         {t('feed.discoverUsers', 'Descubrir usuarios')}
       </button>
@@ -117,7 +117,7 @@ function FollowingFeed() {
         <button
           type="button"
           onClick={() => feedQuery.refetch()}
-          className="mt-5 rounded-full bg-[#0095F6] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1877F2] active:scale-95"
+          className="mt-5 rounded-full bg-[#2E7D52] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1F5C3B] active:scale-95"
         >
           {t('common.retry', 'Reintentar')}
         </button>

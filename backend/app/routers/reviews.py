@@ -83,7 +83,7 @@ async def create_review(input: ReviewCreateInput, user: User = Depends(get_curre
         raise HTTPException(status_code=403, detail="You can only review products from delivered orders")
     
     # Check if product was in order
-    product_in_order = any(item["product_id"] == input.product_id for item in order.get("items", []))
+    product_in_order = any(item.get("product_id") == input.product_id for item in order.get("items", []))
     if not product_in_order:
         raise HTTPException(status_code=403, detail="Product not found in this order")
     
@@ -137,15 +137,15 @@ async def can_review_product(product_id: str, user: User = Depends(get_current_u
     eligible_orders = []
     for order in orders:
         for item in order.get("items", []):
-            if item["product_id"] == product_id:
+            if item.get("product_id") == product_id:
                 # Check if not already reviewed
                 existing = await db.reviews.find_one({
                     "product_id": product_id,
-                    "order_id": order["order_id"],
+                    "order_id": order.get("order_id", ""),
                     "user_id": user.user_id
                 })
                 if not existing:
-                    eligible_orders.append(order["order_id"])
+                    eligible_orders.append(order.get("order_id", ""))
     
     return {
         "can_review": len(eligible_orders) > 0,

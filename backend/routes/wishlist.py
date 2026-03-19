@@ -21,7 +21,7 @@ async def get_wishlist(user: User = Depends(get_current_user)):
         {"user_id": user.user_id}, {"_id": 0}
     ).sort("added_at", -1).to_list(200)
 
-    product_ids = [e["product_id"] for e in entries]
+    product_ids = [e["product_id"] for e in entries if e.get("product_id")]
     if not product_ids:
         return []
 
@@ -32,14 +32,14 @@ async def get_wishlist(user: User = Depends(get_current_user)):
          "$or": [{"approved": True}, {"status": "active"}]},
         {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "image_urls": 1, "approved": 1, "stock": 1, "track_stock": 1}
     ).to_list(200)
-    product_map = {p["product_id"]: p for p in products}
+    product_map = {p.get("product_id", ""): p for p in products}
 
     result = []
     for e in entries:
-        prod = product_map.get(e["product_id"])
+        prod = product_map.get(e.get("product_id", ""))
         if prod:
             result.append({
-                "product_id": e["product_id"],
+                "product_id": e.get("product_id", ""),
                 "added_at": e.get("added_at"),
                 "name": prod.get("name"),
                 "price": prod.get("price"),

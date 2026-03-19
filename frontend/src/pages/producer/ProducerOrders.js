@@ -510,9 +510,9 @@ export default function ProducerOrders() {
                       <div className="space-y-2">
                         {order.line_items?.map((item, idx) => (
                           <div key={idx} className="flex items-center gap-3 p-2 bg-stone-50 rounded-xl">
-                            {item.image && (
+                            {(item.image || item.product_image) && (
                               <img
-                                src={item.image}
+                                src={item.image || item.product_image}
                                 alt={item.product_name}
                                 className="w-12 h-12 rounded-xl object-cover"
                               />

@@ -147,7 +147,7 @@ function SearchPanel({ open, onClose }) {
         <div className="flex-1 overflow-y-auto px-2">
           {loading && (
             <div className="flex items-center justify-center py-8">
-              <div className="h-5 w-5 border-2 border-stone-300 border-t-stone-950 rounded-full animate-spin" />
+              <div className="h-5 w-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
             </div>
           )}
 
@@ -186,15 +186,15 @@ function SearchPanel({ open, onClose }) {
                 className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer transition-colors"
               >
                 {item.images?.[0] ? (
-                  <img src={item.images[0]} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                  <img src={item.images[0]} alt="" className="h-10 w-10 rounded-xl object-cover" />
                 ) : (
-                  <div className="h-10 w-10 rounded-lg bg-stone-100 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-xl bg-stone-100 flex items-center justify-center">
                     <ShoppingCart size={14} className="text-stone-400" />
                   </div>
                 )}
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-stone-950 truncate">{item.name}</p>
-                  {item.price != null && <p className="text-xs text-stone-500">{Number(item.price).toFixed(2)} €</p>}
+                  {(item.unit_price_cents != null || item.price != null) && <p className="text-xs text-stone-500">{(item.unit_price_cents != null ? (item.unit_price_cents / 100).toFixed(2) : Number(item.price).toFixed(2))} €</p>}
                 </div>
               </button>
             );
@@ -208,7 +208,7 @@ function SearchPanel({ open, onClose }) {
                 <button
                   key={i}
                   onClick={() => { setQuery(term); doSearch(term); }}
-                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer text-sm text-stone-700 transition-colors"
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer text-sm text-stone-700 transition-colors"
                 >
                   <Search size={14} className="text-stone-400 flex-shrink-0" />
                   <span className="truncate">{term}</span>
@@ -254,7 +254,7 @@ export default function SideNav() {
       >
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 px-5 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 bg-stone-50">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-stone-200 bg-stone-50">
             <Logo variant="icon" theme="light" size={20} />
           </div>
           <span className="text-[15px] font-semibold tracking-tight text-stone-950">Hispaloshop</span>

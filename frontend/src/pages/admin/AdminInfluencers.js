@@ -152,15 +152,15 @@ export default function AdminInfluencers() {
           </div>
           <div className="bg-white rounded-xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Total Sales</p>
-            <p className="text-2xl font-semibold">€{stats.total_sales_generated.toFixed(2)}</p>
+            <p className="text-2xl font-semibold">€{(stats.total_sales_generated || 0).toFixed(2)}</p>
           </div>
           <div className="bg-white rounded-xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Total Commissions</p>
-            <p className="text-2xl font-semibold">€{stats.total_commissions_earned.toFixed(2)}</p>
+            <p className="text-2xl font-semibold">€{(stats.total_commissions_earned || 0).toFixed(2)}</p>
           </div>
           <div className="bg-white rounded-xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Pending Payouts</p>
-            <p className="text-2xl font-semibold text-stone-700">€{stats.total_pending_payouts.toFixed(2)}</p>
+            <p className="text-2xl font-semibold text-stone-700">€{(stats.total_pending_payouts || 0).toFixed(2)}</p>
           </div>
         </div>
       )}

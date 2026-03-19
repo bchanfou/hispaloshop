@@ -341,15 +341,15 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
             return {"success": False, "message": "Tu carrito está vacío."}
         
         # Find most expensive
-        most_expensive = max(cart_items, key=lambda x: x["price"])
-        
+        most_expensive = max(cart_items, key=lambda x: x.get("price", 0))
+
         await db.cart_items.delete_one({
             "user_id": user.user_id,
-            "product_id": most_expensive["product_id"]
+            "product_id": most_expensive.get("product_id", "")
         })
-        
-        results["message"] = f"He eliminado {most_expensive['product_name']} (el más caro)."
-        results["affected"].append(most_expensive["product_id"])
+
+        results["message"] = f"He eliminado {most_expensive.get('product_name', '')} (el más caro)."
+        results["affected"].append(most_expensive.get("product_id", ""))
         
     elif input.action == "remove_last":
         cart_items = await db.cart_items.find(
@@ -363,11 +363,11 @@ async def ai_smart_cart_action(input: AISmartCartAction, user: User = Depends(ge
         last_item = cart_items[0]
         await db.cart_items.delete_one({
             "user_id": user.user_id,
-            "product_id": last_item["product_id"]
+            "product_id": last_item.get("product_id", "")
         })
-        
-        results["message"] = f"He eliminado {last_item['product_name']} (el último añadido)."
-        results["affected"].append(last_item["product_id"])
+
+        results["message"] = f"He eliminado {last_item.get('product_name', '')} (el último añadido)."
+        results["affected"].append(last_item.get("product_id", ""))
         
     elif input.action == "double_all":
         await db.cart_items.update_many(

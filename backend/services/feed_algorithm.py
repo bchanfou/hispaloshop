@@ -80,7 +80,7 @@ class FeedAlgorithm:
         # Batch fetch all unique author docs
         author_ids = list({str(c.get("author_id", "")) for c in candidates if c.get("author_id")})
         author_docs = await db.users.find({"user_id": {"$in": author_ids}}, {"_id": 0, "user_id": 1, "country": 1}).to_list(200)
-        author_cache = {a["user_id"]: a for a in author_docs}
+        author_cache = {a.get("user_id", ""): a for a in author_docs}
 
         # Batch fetch all unique product categories from tagged_products
         all_tagged_pids = []

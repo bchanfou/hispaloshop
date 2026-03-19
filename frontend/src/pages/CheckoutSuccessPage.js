@@ -175,7 +175,7 @@ export default function CheckoutSuccessPage() {
           >
             {items.map((item, i) => (
               <div key={item.product_id || item.id || `item-${i}`} className={`flex items-center gap-2.5 py-2 ${i < items.length - 1 ? 'border-b border-stone-200' : ''}`}>
-                <div className="w-11 h-11 rounded-lg bg-stone-100 overflow-hidden flex-shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
                   {(item.image || item.product_image) && (
                     <img src={item.image || item.product_image} alt={item.name || item.product_name || ''} className="w-full h-full object-cover" />
                   )}

@@ -182,7 +182,7 @@ export default function CommunitiesExplorePage() {
                 {searchInput ? 'Sin resultados' : 'Sin comunidades todavía'}
               </p>
               {canCreate && !searchInput && (
-                <Link to="/communities/new" className="rounded-lg bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white no-underline">
+                <Link to="/communities/new" className="rounded-xl bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white no-underline">
                   Crea la primera
                 </Link>
               )}

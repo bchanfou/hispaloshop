@@ -548,7 +548,7 @@ export default function CreateReelPage() {
 
             {/* Selected region border */}
             <div
-              className="absolute top-0 bottom-0 border-2 border-white/90 rounded-lg z-[2]"
+              className="absolute top-0 bottom-0 border-2 border-white/90 rounded-xl z-[2]"
               style={{
                 left: duration > 0 ? `${(trimStart / duration) * 100}%` : '0%',
                 right: duration > 0 ? `${(1 - (trimEnd || duration) / duration) * 100}%` : '0%',

@@ -92,8 +92,8 @@ export default function ReviewModal({ open, onClose, order }) {
                               : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                           }`}
                         >
-                          {item.image && (
-                            <img src={item.image} alt="" className="w-6 h-6 rounded object-cover" />
+                          {(item.image || item.product_image) && (
+                            <img src={item.image || item.product_image} alt="" className="w-6 h-6 rounded object-cover" />
                           )}
                           <span className="truncate max-w-[120px]">{item.name || item.product_name}</span>
                         </button>

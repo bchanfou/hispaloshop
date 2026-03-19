@@ -48,7 +48,7 @@ async def get_certified_products():
     if not certs:
         return {"products": []}
 
-    product_ids = list({c["product_id"] for c in certs})
+    product_ids = list({c["product_id"] for c in certs if c.get("product_id")})
     products = await db.products.find(
         {"product_id": {"$in": product_ids}, **_public_product_filter()},
         {"_id": 0, "product_id": 1, "name": 1, "images": 1, "image_urls": 1,
@@ -64,12 +64,12 @@ async def get_certified_products():
             {"store_id": {"$in": store_ids}},
             {"_id": 0, "store_id": 1, "name": 1}
         ).to_list(500)
-        stores = {s["store_id"]: s["name"] for s in store_docs}
+        stores = {s.get("store_id", ""): s.get("name", "") for s in store_docs}
 
     result = []
     for p in products:
         result.append({
-            "product_id": p["product_id"],
+            "product_id": p.get("product_id", ""),
             "name": p.get("name", ""),
             "images": p.get("images") or p.get("image_urls") or [],
             "country_origin": p.get("country_origin", ""),
@@ -460,7 +460,7 @@ async def get_all_translation_status():
         translated = list(p.get('translated_fields', {}).keys())
         missing = [l for l in TRANSLATION_LANGUAGES if l != source_lang and l not in translated]
         status.append({
-            "product_id": p["product_id"],
+            "product_id": p.get("product_id", ""),
             "name": p.get("name", "Unknown"),
             "source_language": source_lang,
             "translated_count": len(translated),
@@ -515,7 +515,7 @@ async def run_batch_translation(job_id: str):
         completed = 0
         
         for product in products:
-            product_id = product["product_id"]
+            product_id = product.get("product_id", "")
             source_lang = product.get("source_language", "en")
             existing_translations = list(product.get("translated_fields", {}).keys())
             

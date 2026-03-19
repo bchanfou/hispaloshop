@@ -50,12 +50,12 @@ async def create_checkout(
     line_items = []
     for item in cart_items:
         line_items.append({
-            "product_id": item["product_id"],
+            "product_id": item.get("product_id", ""),
             "producer_id": item.get("producer_id"),
-            "name": item["product_name"],
-            "price": item["price"],
+            "name": item.get("product_name", ""),
+            "price": item.get("price", 0),
             "currency": item.get("currency", "EUR"),
-            "quantity": item["quantity"],
+            "quantity": item.get("quantity", 1),
             "image": item.get("image"),
             "variant_id": item.get("variant_id"),
             "variant_name": item.get("variant_name"),
@@ -262,21 +262,21 @@ async def checkout_status(
         payment_status = session.payment_status
         
         # Update order if paid
-        if payment_status == "paid" and order["status"] == "pending":
+        if payment_status == "paid" and order.get("status") == "pending":
             await db.orders.update_one(
-                {"order_id": order["order_id"]},
+                {"order_id": order.get("order_id", "")},
                 {"$set": {
                     "status": "confirmed",
                     "payment_status": "paid",
                     "paid_at": datetime.now(timezone.utc).isoformat()
                 }}
             )
-            
+
             # Record payment transaction
             await db.payment_transactions.insert_one({
                 "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
-                "order_id": order["order_id"],
-                "amount": order["total_amount"],
+                "order_id": order.get("order_id", ""),
+                "amount": order.get("total_amount", 0),
                 "currency": order.get("currency", "EUR"),
                 "status": "completed",
                 "stripe_session_id": session_id,
@@ -286,21 +286,21 @@ async def checkout_status(
             # Update stock
             for item in order.get("line_items", []):
                 await db.products.update_one(
-                    {"product_id": item["product_id"], "track_stock": True},
-                    {"$inc": {"stock": -item["quantity"]}}
+                    {"product_id": item.get("product_id", ""), "track_stock": True},
+                    {"$inc": {"stock": -item.get("quantity", 0)}}
                 )
         
         return {
             "status": payment_status,
-            "order_status": order["status"],
-            "order_id": order["order_id"]
+            "order_status": order.get("status", ""),
+            "order_id": order.get("order_id", "")
         }
-        
+
     except Exception as e:
         logger.error(f"[CHECKOUT STATUS] Error: {e}")
         return {
             "status": "unknown",
-            "order_status": order["status"],
-            "order_id": order["order_id"],
+            "order_status": order.get("status", ""),
+            "order_id": order.get("order_id", ""),
             "error": str(e)
         }

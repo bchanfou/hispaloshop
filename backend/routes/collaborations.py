@@ -92,7 +92,7 @@ async def create_collaboration(body: CreateCollabBody, current_user=Depends(get_
     if body.commission_pct / 100 < std_rate:
         raise HTTPException(
             status_code=400,
-            detail=f"La comisión no puede ser inferior al tier ({int(std_rate * 100)}%)",
+            detail=f"La comisión no puede ser inferior al tier ({int(round(std_rate * 100))}%)",
         )
 
     # Get influencer user info for name

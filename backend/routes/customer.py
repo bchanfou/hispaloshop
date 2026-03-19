@@ -67,7 +67,7 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
         if not product or product.get("status") != "active":
             continue
 
-        product_id = item["product_id"]
+        product_id = item.get("product_id", "")
         quantity = item.get("quantity", 1)
         unit_price_cents = item.get("price_cents") or int(round((item.get("price", 0)) * 100))
         # Prefer current product price over stale order price

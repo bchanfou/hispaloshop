@@ -61,7 +61,7 @@ export default function WishlistPage() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {items.map(item => {
-          const img = getImgUrl(item.image);
+          const img = getImgUrl(item.image || item.product_image);
           const productPath = `/products/${item.product_id}`;
           return (
             <div key={item.product_id} className="flex items-center gap-3 bg-white border border-stone-200 rounded-xl p-3 hover:shadow-sm transition-shadow" data-testid={`wishlist-item-${item.product_id}`}>
@@ -70,7 +70,7 @@ export default function WishlistPage() {
               </Link>
               <div className="flex-1 min-w-0">
                 <Link to={productPath} className="text-sm font-medium text-stone-900 hover:underline line-clamp-1">{item.name}</Link>
-                <p className="text-sm font-semibold text-stone-700 mt-0.5">{item.price ? `${item.price.toFixed(2)} EUR` : ''}</p>
+                <p className="text-sm font-semibold text-stone-700 mt-0.5">{item.price ? `${Number(item.price).toFixed(2)} EUR` : ''}</p>
                 <p className="text-[10px] text-stone-400">{item.added_at ? new Date(item.added_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : ''}</p>
               </div>
               <button onClick={() => remove(item.product_id)} className="p-2 text-stone-400 hover:text-stone-950 hover:bg-stone-100 rounded-xl transition-colors" data-testid={`remove-wishlist-${item.product_id}`}>

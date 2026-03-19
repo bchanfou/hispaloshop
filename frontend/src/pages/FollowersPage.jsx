@@ -260,7 +260,7 @@ export default function FollowersPage() {
                       style={{
                         display: 'flex', alignItems: 'center', gap: 6,
                         padding: '7px 16px', flexShrink: 0,
-                        background: u.is_following ? 'var(--color-surface)' : '#0095F6',
+                        background: u.is_following ? 'var(--color-surface)' : '#2E7D52',
                         color: u.is_following ? 'var(--color-black)' : 'var(--color-white)',
                         border: u.is_following ? '1px solid var(--color-border)' : 'none',
                         borderRadius: 'var(--radius-lg)',

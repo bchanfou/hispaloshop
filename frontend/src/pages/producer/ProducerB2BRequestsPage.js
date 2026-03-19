@@ -311,7 +311,7 @@ function RequestCard({ request, onAction }) {
             Oferta enviada. Esperando aprobación y pago del importador.
             {request.confirmed_unit_price && (
               <p className="font-bold text-stone-950 mt-1">
-                Precio ofertado: {request.confirmed_unit_price.toFixed(2)}€/{request.unit}
+                Precio ofertado: {(Number(request.confirmed_unit_price) || 0).toFixed(2)}€/{request.unit}
               </p>
             )}
           </div>

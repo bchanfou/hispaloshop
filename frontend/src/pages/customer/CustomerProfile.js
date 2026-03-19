@@ -325,7 +325,7 @@ export default function CustomerProfile() {
   if (loading) {
     return (
       <div className="py-12 space-y-4 max-w-xl animate-pulse">
-        <div className="h-8 w-48 bg-stone-100 rounded-lg" />
+        <div className="h-8 w-48 bg-stone-100 rounded-xl" />
         <div className="h-4 w-72 bg-stone-100 rounded" />
         <div className="h-48 bg-stone-100 rounded-xl mt-6" />
       </div>

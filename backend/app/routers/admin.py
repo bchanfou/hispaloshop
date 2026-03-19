@@ -289,11 +289,11 @@ async def get_payments_by_producer(
         ]
         if producer_items:
             producer_orders.append({
-                "order_id": order["order_id"],
+                "order_id": order.get("order_id", ""),
                 "items": producer_items,
                 "total": sum(item.get("amount", 0) for item in producer_items),
-                "status": order["status"],
-                "created_at": order["created_at"]
+                "status": order.get("status", ""),
+                "created_at": order.get("created_at", "")
             })
     return producer_orders
 

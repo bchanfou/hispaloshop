@@ -83,7 +83,7 @@ async def get_all_stores(
             {"subscription_plan": plan.lower()},
             {"_id": 0, "user_id": 1}
         ).to_list(500)
-        plan_user_ids = [u["user_id"] for u in plan_users]
+        plan_user_ids = [u["user_id"] for u in plan_users if u.get("user_id")]
         if plan_user_ids:
             query["producer_id"] = {"$in": plan_user_ids}
         else:
@@ -150,8 +150,8 @@ async def get_store_by_slug(slug: str):
         {"producer_id": store["producer_id"], **_public_product_filter()},
         {"product_id": 1}
     ).to_list(1000)
-    product_ids = [p["product_id"] for p in products]
-    
+    product_ids = [p["product_id"] for p in products if p.get("product_id")]
+
     if product_ids:
         reviews = await db.reviews.find(
             {"product_id": {"$in": product_ids}, "approved": True}
@@ -253,8 +253,8 @@ async def get_store_certificates(slug: str):
         {"producer_id": store["producer_id"]},
         {"product_id": 1}
     ).to_list(1000)
-    product_ids = [p["product_id"] for p in products]
-    
+    product_ids = [p["product_id"] for p in products if p.get("product_id")]
+
     certificates = await db.certificates.find(
         {"product_id": {"$in": product_ids}, "approved": True},
         {"_id": 0}

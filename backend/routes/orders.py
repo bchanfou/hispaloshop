@@ -132,8 +132,9 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
         )
         return
 
+    order_id = order.get("order_id", "")
     existing = await db.influencer_commissions.find_one(
-        {"order_id": order["order_id"], "influencer_id": influencer_id},
+        {"order_id": order_id, "influencer_id": influencer_id},
         {"_id": 0, "commission_id": 1},
     )
     if existing:
@@ -148,7 +149,7 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
     commission_record = {
         "commission_id": f"comm_{uuid.uuid4().hex[:12]}",
         "influencer_id": influencer_id,
-        "order_id": order["order_id"],
+        "order_id": order_id,
         "discount_code": order.get("influencer_discount_code"),
         "order_total": _round_money(order.get("total_amount", 0)),
         "order_value": order_value,
@@ -175,11 +176,11 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
                 "read": False,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             })
-    except Exception:
-        pass  # Non-critical — don't block order flow
+    except Exception as e:
+        logger.warning(f"[COMMISSION] Non-critical notification error for order {order_id}: {e}")
 
     await db.orders.update_one(
-        {"order_id": order["order_id"]},
+        {"order_id": order_id},
         {"$set": {
             "influencer_commission_amount": influencer_amount,
             "influencer_commission_status": "pending",
@@ -425,10 +426,10 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     
     if order.get("status") in ("paid", "confirmed", "preparing", "shipped", "delivered"):
         if order.get("transfers_executed"):
-            logger.info(f"[PAYMENT] Order {order['order_id']} already fully processed")
+            logger.info(f"[PAYMENT] Order {order.get('order_id', '?')} already fully processed")
             return
 
-    order_id = order["order_id"]
+    order_id = order.get("order_id", "")
 
     # Atomic lock: claim processing ownership to prevent webhook+poll double processing.
     # Only the first caller that transitions status from 'pending'/'pending_payment' wins.
@@ -450,8 +451,8 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     try:
         _session_obj = stripe.checkout.Session.retrieve(session_id)
         stripe_payment_intent_id = getattr(_session_obj, "payment_intent", None)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"[PAYMENT] Could not retrieve Stripe session {session_id}: {e}")
     await db.payment_transactions.update_one(
         {"session_id": session_id},
         {"$set": {"status": "paid", "payment_status": "paid",
@@ -523,8 +524,8 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
                     "created_at": datetime.now(timezone.utc).isoformat(),
                     "data": {"order_id": order_id},
                 })
-    except Exception:
-        pass  # Non-critical
+    except Exception as e:
+        logger.warning(f"[PAYMENT] Non-critical producer notification error for {order_id}: {e}")
 
     # 3. Atomic discount usage increment — prevents exceeding usage_limit under concurrency
     if order.get("discount_info"):

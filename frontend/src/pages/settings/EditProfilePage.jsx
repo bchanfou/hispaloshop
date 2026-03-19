@@ -212,7 +212,7 @@ export default function EditProfilePage() {
               value={form.username}
               onChange={e => handleUsernameChange(e.target.value)}
               maxLength={30}
-              className={`h-11 w-full rounded-lg border pl-[30px] pr-9 text-sm text-stone-950 outline-none ${usernameBorderClass}`}
+              className={`h-11 w-full rounded-xl border pl-[30px] pr-9 text-sm text-stone-950 outline-none ${usernameBorderClass}`}
             />
             {usernameStatus === 'checking' && (
               <Loader2 size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin text-stone-500" />
@@ -239,7 +239,7 @@ export default function EditProfilePage() {
             maxLength={150}
             placeholder="Cuéntanos sobre ti..."
             rows={3}
-            className="w-full resize-none rounded-lg border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
+            className="w-full resize-none rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
           />
           <p className="mt-1 text-right text-[11px] text-stone-500">
             {form.bio.length}/150
@@ -266,7 +266,7 @@ export default function EditProfilePage() {
           <input
             value={user?.email || ''}
             readOnly
-            className="h-11 w-full rounded-lg border border-stone-200 bg-stone-100 px-3.5 text-sm text-stone-500 outline-none"
+            className="h-11 w-full rounded-xl border border-stone-200 bg-stone-100 px-3.5 text-sm text-stone-500 outline-none"
           />
           <p className="mt-1 text-[11px] text-stone-400">El email no se puede cambiar desde aquí</p>
         </div>
@@ -298,7 +298,7 @@ export default function EditProfilePage() {
               <input
                 value={form.company_cif}
                 readOnly={!!user?.is_verified}
-                className={`h-11 w-full rounded-lg border border-stone-200 px-3.5 text-sm outline-none ${
+                className={`h-11 w-full rounded-xl border border-stone-200 px-3.5 text-sm outline-none ${
                   user?.is_verified
                     ? 'bg-stone-100 text-stone-500'
                     : 'bg-white text-stone-950'
@@ -316,7 +316,7 @@ export default function EditProfilePage() {
                 maxLength={500}
                 placeholder="Describe tu tienda, tus productos, tu historia..."
                 rows={4}
-                className="w-full resize-none rounded-lg border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
+                className="w-full resize-none rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
               />
               <p className="mt-1 text-right text-[11px] text-stone-500">
                 {form.store_description.length}/500
@@ -340,7 +340,7 @@ function FormField({ label, value, onChange, type = 'text', placeholder }) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-11 w-full rounded-lg border border-stone-200 px-3.5 text-sm text-stone-950 outline-none placeholder:text-stone-400"
+        className="h-11 w-full rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 outline-none placeholder:text-stone-400"
       />
     </div>
   );

@@ -605,7 +605,7 @@ async def get_influencer_tiers():
             {
                 "key": tier,
                 "label": INFLUENCER_TIERS[tier]["name"],
-                "commission": f"{int(INFLUENCER_TIERS[tier]['commission_rate'] * 100)}%",
+                "commission": f"{int(round(INFLUENCER_TIERS[tier]['commission_rate'] * 100))}%",
                 "min_gmv_cents": INFLUENCER_TIERS[tier]["min_gmv_cents"],
                 "min_followers": INFLUENCER_TIERS[tier].get("min_followers", 0),
             }

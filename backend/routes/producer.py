@@ -131,12 +131,12 @@ async def get_producer_orders(
         producer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == user.user_id]
         if producer_items:
             producer_orders.append({
-                "order_id": order["order_id"],
+                "order_id": order.get("order_id", ""),
                 "customer_name": order.get("user_name", "Unknown"),
                 "shipping_address": order.get("shipping_address", {}),
                 "items": producer_items,
                 "total": sum(item.get("subtotal", item.get("price", 0) * item.get("quantity", 1)) for item in producer_items),
-                "status": order["status"],
+                "status": order.get("status", ""),
                 "tracking_number": order.get("tracking_number"),
                 "tracking_url": order.get("tracking_url"),
                 "status_history": order.get("status_history", []),
@@ -280,7 +280,7 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
         # Recent orders (last 20)
         if len(recent_orders) < 20:
             recent_orders.append({
-                "order_id": order["order_id"],
+                "order_id": order.get("order_id", ""),
                 "date": order.get("created_at", ""),
                 "status": order.get("status", "unknown"),
                 "customer_name": order.get("user_name", "Unknown"),

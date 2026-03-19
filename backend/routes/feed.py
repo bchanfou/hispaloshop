@@ -269,8 +269,8 @@ async def _hydrate_feed_users(items, current_user=None, following_ids=None):
         try:
             story_results = await db.user_posts.aggregate(story_pipeline).to_list(len(author_ids))
             story_authors = {s["_id"] for s in story_results}
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[FEED] Story aggregation failed: {e}")
 
     # Check like status for current user
     liked_ids = set()

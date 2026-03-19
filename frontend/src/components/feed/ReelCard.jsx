@@ -323,10 +323,10 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
               <img
                 src={avatarUrl}
                 alt={reel.user?.name || 'Usuario'}
-                className="w-10 h-10 rounded-full object-cover border-2 border-white bg-stone-800"
+                className="w-10 h-10 rounded-full object-cover border-2 border-white bg-white/20"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full border-2 border-white bg-stone-800 flex items-center justify-center text-sm font-bold text-white">
+              <div className="w-10 h-10 rounded-full border-2 border-white bg-white/20 flex items-center justify-center text-sm font-bold text-white">
                 {(reel.user?.name || '?')[0].toUpperCase()}
               </div>
             )}
@@ -452,7 +452,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
             <img
               src={product.image || product.thumbnail}
               alt={product.name || product.title}
-              className="w-9 h-9 rounded-lg object-cover shrink-0 bg-stone-700"
+              className="w-9 h-9 rounded-xl object-cover shrink-0 bg-white/20"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           )}
@@ -500,7 +500,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
               ) : (
                 comments.map((c, i) => (
                   <div key={c.id || c._id || i} className="flex gap-2.5 py-2.5">
-                    <div className="w-7 h-7 rounded-full bg-stone-700 shrink-0 flex items-center justify-center text-white text-[10px] font-semibold overflow-hidden">
+                    <div className="w-7 h-7 rounded-full bg-white/20 shrink-0 flex items-center justify-center text-white text-[10px] font-semibold overflow-hidden">
                       {c.user?.avatar_url ? (
                         <img src={c.user.avatar_url} alt="" className="w-full h-full object-cover" />
                       ) : (

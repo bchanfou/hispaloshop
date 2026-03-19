@@ -206,7 +206,7 @@ export default function CustomerOverview() {
             {wishlist.map(item => (
               <Link key={item.product_id} to={`/products/${item.product_id}`} className="shrink-0 w-[140px] overflow-hidden transition-all group" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
                 <div className="aspect-square overflow-hidden" style={{ background: 'var(--color-surface)' }}>
-                  {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <Heart className="w-6 h-6 m-auto mt-10" style={{ color: 'var(--color-stone)' }} />}
+                  {(item.image || item.product_image) ? <img src={item.image || item.product_image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <Heart className="w-6 h-6 m-auto mt-10" style={{ color: 'var(--color-stone)' }} />}
                 </div>
                 <div className="p-2.5">
                   <p className="text-xs font-medium truncate" style={{ color: 'var(--color-black)' }}>{item.name}</p>

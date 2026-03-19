@@ -320,7 +320,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center text-white text-xs font-semibold">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-xs font-semibold">
               {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
             </div>
           )}
@@ -450,7 +450,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         >
           <Heart
             size={24}
-            className={liked ? 'text-stone-950 fill-stone-950' : 'text-white'}
+            className={liked ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white'}
             strokeWidth={liked ? 0 : 1.5}
           />
         </button>

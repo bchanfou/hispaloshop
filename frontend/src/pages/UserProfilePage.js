@@ -144,9 +144,9 @@ export default function UserProfilePage() {
           <div className="mt-3 h-3.5 w-1/3 bg-stone-100 rounded animate-pulse" />
           <div className="mt-2 h-3 w-[60%] bg-stone-100 rounded animate-pulse" />
           <div className="mt-3 flex gap-1.5">
-            <div className="h-[34px] flex-1 bg-stone-100 rounded-lg animate-pulse" />
-            <div className="h-[34px] flex-1 bg-stone-100 rounded-lg animate-pulse" />
-            <div className="h-[34px] w-[34px] bg-stone-100 rounded-lg animate-pulse" />
+            <div className="h-[34px] flex-1 bg-stone-100 rounded-xl animate-pulse" />
+            <div className="h-[34px] flex-1 bg-stone-100 rounded-xl animate-pulse" />
+            <div className="h-[34px] w-[34px] bg-stone-100 rounded-xl animate-pulse" />
           </div>
         </div>
         <div className="mt-2 flex border-t border-stone-200">

@@ -377,7 +377,7 @@ export default function ProfileHeader({
               <button
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Cambiar foto de perfil"
-                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#0095f6] shadow-sm"
+                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#2E7D52] shadow-sm"
               >
                 <Plus size={14} className="text-white" strokeWidth={3} />
               </button>
@@ -522,16 +522,16 @@ export default function ProfileHeader({
       <div className="flex gap-1.5 px-4 pb-3">
         {isOwn ? (
           <>
-            <button onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-lg bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <button onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Editar perfil
             </button>
-            <button onClick={shareProfile} className="min-h-[34px] flex-1 rounded-lg bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <button onClick={shareProfile} className="min-h-[34px] flex-1 rounded-xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Compartir perfil
             </button>
             <button
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
-              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-stone-100"
+              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
             </button>
@@ -549,12 +549,12 @@ export default function ProfileHeader({
                   ? `Solicitar seguir a ${user?.name}`
                   : `Seguir a ${user?.name}`
               }
-              className={`min-h-[34px] flex-1 rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
+              className={`min-h-[34px] flex-1 rounded-xl px-3 py-1.5 text-[13px] font-semibold ${
                 user?.is_following
                   ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
                   ? 'bg-stone-100 text-stone-500'
-                  : 'bg-[#0095f6] text-white'
+                  : 'bg-[#2E7D52] text-white'
               }`}
             >
               {user?.follow_request_pending
@@ -569,7 +569,7 @@ export default function ProfileHeader({
               onClick={onMessage}
               aria-label="Enviar mensaje"
               disabled={user?.is_private && !user?.is_following}
-              className={`flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
+              className={`flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
                 user?.is_private && !user?.is_following ? 'opacity-40 cursor-not-allowed' : ''
               }`}
             >
@@ -579,7 +579,7 @@ export default function ProfileHeader({
             {showStoreButton && (
               <button
                 onClick={() => navigate(`/store/${user?.store_slug || user?.username}`)}
-                className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
+                className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
               >
                 <Store size={15} />
                 Tienda
@@ -588,7 +588,7 @@ export default function ProfileHeader({
             <button
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
-              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-stone-100"
+              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
             </button>
@@ -627,7 +627,7 @@ export default function ProfileHeader({
               <button
                 onClick={onCreateHighlight || (() => toast('Próximamente'))}
                 aria-label="Crear historia destacada"
-                className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full border border-stone-300"
+                className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full border border-stone-200"
               >
                 <Plus size={22} className="text-stone-400" />
               </button>
