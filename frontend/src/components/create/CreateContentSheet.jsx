@@ -8,9 +8,8 @@ const CONTENT_TYPES = [
   { type: 'post',  icon: <Camera size={22} />, label: 'Post',   primary: false },
   { type: 'reel',  icon: <Video size={22} />, label: 'Reel',   primary: false },
   { type: 'story', icon: <Circle size={22} />, label: 'Story',  primary: false },
-  // Row 2 — 2 columns (centrado)
+  // Row 2 — receta centrada
   { type: 'recipe', icon: <ChefHat size={22} />, label: 'Receta', primary: true },
-  { type: 'text',   icon: null, label: 'Texto',  primary: false, isText: true },
 ];
 
 function ContentTypeButton({ icon, label, primary, isText, onSelect }) {
@@ -142,15 +141,11 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
               ))}
             </div>
 
-            {/* Row 2 — 2 columns centrado */}
+            {/* Row 2 — receta centrada */}
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: 8,
+              display: 'flex',
+              justifyContent: 'center',
               marginTop: 8,
-              maxWidth: '66.6%',
-              marginLeft: 'auto',
-              marginRight: 'auto',
             }}>
               {CONTENT_TYPES.slice(3).map(opt => (
                 <ContentTypeButton

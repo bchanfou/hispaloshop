@@ -11,8 +11,8 @@ const BG_OPTIONS = [
   { id: 'white', label: '□', type: 'color', value: '#ffffff' },
   { id: 'crema', label: '■', type: 'color', value: '#fafaf9' },
   { id: 'oscuro', label: '■', type: 'color', value: '#1c1917' },
-  { id: 'grad-stone', label: '∇', type: 'gradient', value: 'linear-gradient(135deg, #1c1917, #57534e)' },
-  { id: 'grad-tierra', label: '∇', type: 'gradient', value: 'linear-gradient(135deg, #78716c, #d6d3d1)' },
+  { id: 'verde', label: '■', type: 'color', value: '#2E7D52' },
+  { id: 'terracota', label: '■', type: 'color', value: '#78716c' },
 ];
 
 const EMOJIS_CULINARIOS = ['🫒', '🍯', '🧀', '🥘', '🌿', '🍅', '👨‍🍳', '🥩', '🫙', '🍋', '🧅', '🫚'];
@@ -48,6 +48,8 @@ export default function CreateStoryPage() {
   const [background, setBackground] = useState('black');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
   const [textOverlays, setTextOverlays] = useState([]);
   const [stickerOverlays, setStickerOverlays] = useState([]);
   const [activePanel, setActivePanel] = useState(null);
@@ -106,18 +108,18 @@ export default function CreateStoryPage() {
   const dragRef = useRef({ type: null, id: null, active: false });
   const productSearchTimer = useRef(null);
 
-  // Cleanup object URL on unmount to prevent memory leak
+  // Cleanup object URLs on unmount to prevent memory leak
   useEffect(() => {
     return () => {
       if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+      if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
     };
-  }, [imagePreviewUrl]);
+  }, [imagePreviewUrl, videoPreviewUrl]);
 
   const selectedBg = BG_OPTIONS.find((b) => b.id === background);
 
   const getCanvasBg = () => {
     if (imagePreviewUrl) return { backgroundImage: `url(${imagePreviewUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' };
-    if (selectedBg?.type === 'gradient') return { background: selectedBg.value };
     if (selectedBg?.type === 'color') return { background: selectedBg.value };
     return { background: '#000' };
   };
@@ -125,8 +127,19 @@ export default function CreateStoryPage() {
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImageFile(file);
-    setImagePreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
+    if (file.type.startsWith('video/')) {
+      // Video story
+      setVideoFile(file);
+      setVideoPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
+      setImageFile(null);
+      setImagePreviewUrl(null);
+    } else {
+      // Image story
+      setImageFile(file);
+      setImagePreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
+      setVideoFile(null);
+      setVideoPreviewUrl(null);
+    }
   }, []);
 
   const handleBgSelect = useCallback((bg) => {
@@ -141,6 +154,8 @@ export default function CreateStoryPage() {
     setBackground(bg.id);
     setImageFile(null);
     setImagePreviewUrl(null);
+    setVideoFile(null);
+    setVideoPreviewUrl(null);
   }, []);
 
   const addTextOverlay = useCallback(() => {
@@ -287,13 +302,144 @@ export default function CreateStoryPage() {
   const handlePublish = useCallback(async () => {
     setPublishing(true);
     try {
-      if (!imageFile) {
-        toast.error('Añade una imagen a tu historia');
+      if (!imageFile && !videoFile && !textOverlays.length && !stickerOverlays.length) {
+        toast.error('Añade contenido a tu historia');
         setPublishing(false);
         return;
       }
+
       const fd = new FormData();
-      fd.append('file', imageFile);
+
+      if (videoFile) {
+        // Video story — send video file + overlays as JSON metadata
+        fd.append('file', videoFile);
+        if (textOverlays.length || stickerOverlays.length || drawPaths.length) {
+          fd.append('overlays_json', JSON.stringify({
+            texts: textOverlays,
+            stickers: stickerOverlays,
+            draws: drawPaths.length,
+          }));
+        }
+      } else {
+        // Image story — composite overlays into a single image via canvas
+        const canvas = document.createElement('canvas');
+        const canvasEl = canvasRef.current;
+        if (!canvasEl) { setPublishing(false); return; }
+        const rect = canvasEl.getBoundingClientRect();
+        const scale = 2; // 2x resolution for quality
+        canvas.width = rect.width * scale;
+        canvas.height = rect.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scale, scale);
+
+        // Draw background
+        if (imagePreviewUrl) {
+          const img = new window.Image();
+          img.crossOrigin = 'anonymous';
+          await new Promise((resolve) => { img.onload = resolve; img.onerror = resolve; img.src = imagePreviewUrl; });
+          ctx.drawImage(img, 0, 0, rect.width, rect.height);
+        } else {
+          const bgColor = selectedBg?.value || '#000';
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, rect.width, rect.height);
+        }
+
+        // Draw draw paths
+        for (const path of drawPaths) {
+          if (path.points.length < 2) continue;
+          ctx.beginPath();
+          ctx.strokeStyle = path.color;
+          ctx.lineWidth = path.width;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.moveTo(path.points[0].x, path.points[0].y);
+          for (let i = 1; i < path.points.length; i++) {
+            ctx.lineTo(path.points[i].x, path.points[i].y);
+          }
+          ctx.stroke();
+        }
+
+        // Draw text overlays
+        for (const t of textOverlays) {
+          const x = (t.x / 100) * rect.width;
+          const y = (t.y / 100) * rect.height;
+          ctx.font = `bold ${t.size}px ${FONTS_MAP[t.font] || 'sans-serif'}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          if (t.style === 'box') {
+            const measured = ctx.measureText(t.text);
+            const pw = 10; const ph = 4;
+            ctx.fillStyle = 'rgba(0,0,0,0.75)';
+            ctx.beginPath();
+            ctx.roundRect(x - measured.width / 2 - pw, y - t.size / 2 - ph, measured.width + pw * 2, t.size + ph * 2, 6);
+            ctx.fill();
+          }
+          if (t.style === 'outline') {
+            ctx.strokeStyle = t.color;
+            ctx.lineWidth = 2;
+            ctx.strokeText(t.text, x, y);
+          } else {
+            ctx.fillStyle = t.color;
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetY = 1;
+            ctx.fillText(t.text, x, y);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+          }
+        }
+
+        // Draw sticker overlays (text-based stickers)
+        for (const s of stickerOverlays) {
+          const x = (s.x / 100) * rect.width;
+          const y = (s.y / 100) * rect.height;
+          if (s.type === 'emoji') {
+            ctx.font = '36px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(s.content, x, y);
+          } else if (s.type === 'poll') {
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.beginPath();
+            ctx.roundRect(x - 90, y - 40, 180, 80, 16);
+            ctx.fill();
+            ctx.fillStyle = '#0a0a0a';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(s.content, x, y - 15);
+            if (s.options) {
+              s.options.forEach((opt, i) => {
+                ctx.fillStyle = '#f5f5f4';
+                ctx.beginPath();
+                ctx.roundRect(x - 75, y + 5 + i * 22, 150, 18, 9);
+                ctx.fill();
+                ctx.fillStyle = '#0a0a0a';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText(opt, x, y + 16 + i * 22);
+              });
+            }
+          } else {
+            // badge, phrase, product
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.font = '500 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const measured = ctx.measureText(s.content);
+            ctx.beginPath();
+            ctx.roundRect(x - measured.width / 2 - 12, y - 12, measured.width + 24, 24, 12);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(s.content, x, y);
+          }
+        }
+
+        // Export canvas to blob
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+        const compositeFile = new File([blob], 'story.jpg', { type: 'image/jpeg' });
+        fd.append('file', compositeFile);
+      }
+
       fd.append('caption', '');
       await apiClient.post('/stories', fd);
       if (navigator.vibrate) navigator.vibrate(50);
@@ -306,15 +452,15 @@ export default function CreateStoryPage() {
       toast.error('Error al publicar la historia');
       setPublishing(false);
     }
-  }, [imageFile, background, textOverlays, stickerOverlays, navigate]);
+  }, [imageFile, videoFile, background, textOverlays, stickerOverlays, drawPaths, imagePreviewUrl, selectedBg, navigate]);
 
   return (
     <div className="fixed inset-0 z-50 bg-black font-sans flex flex-col">
       {/* Publish success overlay */}
       {publishSuccess && (
         <div className="fixed inset-0 z-[70] bg-black flex flex-col items-center justify-center gap-4" style={{ animation: 'fadeIn 0.3s ease' }}>
-          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
-            <Check size={28} className="text-stone-950" strokeWidth={2.5} />
+          <div className="w-16 h-16 rounded-full bg-[#2E7D52] flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+            <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
           <span className="text-base font-semibold text-white">¡Historia publicada!</span>
         </div>
@@ -328,14 +474,14 @@ export default function CreateStoryPage() {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"
         onChange={handleFileSelect}
         className="hidden"
       />
       <input
         ref={cameraInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"
         capture="environment"
         onChange={handleFileSelect}
         className="hidden"
@@ -345,7 +491,7 @@ export default function CreateStoryPage() {
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
         <button
           onClick={() => {
-            if (imageFile || textOverlays.length > 0 || stickerOverlays.length > 0) {
+            if (imageFile || videoFile || textOverlays.length > 0 || stickerOverlays.length > 0) {
               if (!window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
             }
             navigate(-1);
@@ -366,8 +512,8 @@ export default function CreateStoryPage() {
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className={`bg-stone-950 text-white border-none text-[13px] font-semibold px-4 py-2 rounded-full transition-opacity ${
-            publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-stone-800'
+          className={`bg-[#2E7D52] text-white border-none text-[13px] font-semibold px-4 py-2 rounded-full transition-opacity ${
+            publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-[#1F5C3B]'
           }`}
         >
           {publishing ? '...' : 'Publicar'}
@@ -406,6 +552,18 @@ export default function CreateStoryPage() {
           className="relative aspect-[9/16] max-h-[80vh] w-auto h-full rounded-hs-xl overflow-hidden"
           style={getCanvasBg()}
         >
+          {/* Video preview */}
+          {videoPreviewUrl && (
+            <video
+              src={videoPreviewUrl}
+              className="absolute inset-0 w-full h-full object-cover z-[1]"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          )}
+
           {/* Text overlays — positions must be inline (dynamic %) */}
           {textOverlays.map((t) => (
             <div
@@ -552,7 +710,7 @@ export default function CreateStoryPage() {
           )}
 
           {/* Empty state */}
-          {!imagePreviewUrl && textOverlays.length === 0 && stickerOverlays.length === 0 && (
+          {!imagePreviewUrl && !videoPreviewUrl && textOverlays.length === 0 && stickerOverlays.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-white/20 text-sm">
                 Añade contenido a tu historia
@@ -682,7 +840,7 @@ export default function CreateStoryPage() {
           {/* Confirm button */}
           <button
             onClick={addTextOverlay}
-            className="bg-white text-black border-none rounded-full py-3 text-sm font-semibold cursor-pointer flex items-center justify-center gap-1.5"
+            className="bg-[#2E7D52] text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer flex items-center justify-center gap-1.5 hover:bg-[#1F5C3B] transition-colors"
           >
             <Check size={16} />
             Confirmar
@@ -799,7 +957,7 @@ export default function CreateStoryPage() {
                   setPollQuestion(''); setPollOption1(''); setPollOption2('');
                 }}
                 disabled={!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()}
-                className={`bg-white text-black border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer ${(!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()) ? 'opacity-40' : ''}`}
+                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${(!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()) ? 'opacity-40' : ''}`}
               >
                 Añadir encuesta
               </button>

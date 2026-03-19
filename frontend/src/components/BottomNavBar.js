@@ -356,7 +356,7 @@ export default function BottomNavBar() {
             className="relative flex h-full items-center justify-center active:opacity-60"
           >
             <div
-              className="flex items-center justify-center rounded-full shadow-md transition-all active:scale-90 bg-stone-950"
+              className="flex items-center justify-center rounded-full shadow-md transition-all active:scale-90 bg-[#2E7D52]"
               style={{ width: 42, height: 42, marginTop: -12 }}
             >
               <Plus className="h-5 w-5 text-white" strokeWidth={2.2} />

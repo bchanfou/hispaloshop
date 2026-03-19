@@ -132,6 +132,9 @@ export default function CreatePostPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [location, setLocation] = useState('');
   const [audience, setAudience] = useState('public'); // 'public' | 'followers'
+  const [hideLikes, setHideLikes] = useState(false);
+  const [disableComments, setDisableComments] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   /* --- upload progress --- */
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -222,6 +225,8 @@ export default function CreatePostPage() {
       if (selectedFiles.length > 1) fd.append('post_type', 'carousel');
       if (location.trim()) fd.append('location', location.trim());
       if (audience) fd.append('audience', audience);
+      if (hideLikes) fd.append('hide_likes', 'true');
+      if (disableComments) fd.append('disable_comments', 'true');
 
       // Upload with progress tracking
       const res = await apiClient.post('/posts', fd, {
@@ -956,6 +961,28 @@ export default function CreatePostPage() {
 
         {/* AI suggest */}
         <button
+          onClick={async () => {
+            if (aiLoading) return;
+            setAiLoading(true);
+            try {
+              const res = await apiClient.post('/ai/suggest-content', {
+                context: caption || 'publicación de producto gourmet',
+                type: 'caption',
+              });
+              const suggestion = res?.suggestion || res?.data?.suggestion || res?.text || res?.data?.text;
+              if (suggestion) {
+                setCaption((prev) => prev ? `${prev}\n\n${suggestion}` : suggestion);
+                toast.success('Sugerencia añadida');
+              } else {
+                toast.error('No se pudo generar una sugerencia');
+              }
+            } catch {
+              toast.error('Error al conectar con David AI');
+            } finally {
+              setAiLoading(false);
+            }
+          }}
+          disabled={aiLoading}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -966,11 +993,12 @@ export default function CreatePostPage() {
             borderRadius: 'var(--radius-full)',
             padding: '8px 16px',
             border: 'none',
-            cursor: 'pointer',
+            cursor: aiLoading ? 'wait' : 'pointer',
             marginBottom: 16,
+            opacity: aiLoading ? 0.6 : 1,
           }}
         >
-          <Sparkles size={14} style={{ marginRight: 6, flexShrink: 0 }} /> Sugerir con David AI
+          <Sparkles size={14} style={{ marginRight: 6, flexShrink: 0 }} /> {aiLoading ? 'Generando...' : 'Sugerir con David AI'}
         </button>
 
         {/* tag products */}
@@ -1050,8 +1078,8 @@ export default function CreatePostPage() {
                 gap: 6,
                 padding: '10px 0',
                 borderRadius: 'var(--radius-full)',
-                border: audience === 'public' ? '2px solid var(--color-black)' : '1.5px solid var(--color-border)',
-                background: audience === 'public' ? 'var(--color-black)' : 'transparent',
+                border: audience === 'public' ? '2px solid #2E7D52' : '1.5px solid var(--color-border)',
+                background: audience === 'public' ? '#2E7D52' : 'transparent',
                 color: audience === 'public' ? '#fff' : 'var(--color-black)',
                 fontSize: 13,
                 fontWeight: 500,
@@ -1071,8 +1099,8 @@ export default function CreatePostPage() {
                 gap: 6,
                 padding: '10px 0',
                 borderRadius: 'var(--radius-full)',
-                border: audience === 'followers' ? '2px solid var(--color-black)' : '1.5px solid var(--color-border)',
-                background: audience === 'followers' ? 'var(--color-black)' : 'transparent',
+                border: audience === 'followers' ? '2px solid #2E7D52' : '1.5px solid var(--color-border)',
+                background: audience === 'followers' ? '#2E7D52' : 'transparent',
                 color: audience === 'followers' ? '#fff' : 'var(--color-black)',
                 fontSize: 13,
                 fontWeight: 500,
@@ -1083,6 +1111,28 @@ export default function CreatePostPage() {
               <Lock size={14} /> Solo seguidores
             </button>
           </div>
+        </div>
+
+        {/* advanced settings */}
+        <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+            <span style={{ fontSize: 13, color: 'var(--color-black)' }}>Ocultar recuento de «Me gusta»</span>
+            <input
+              type="checkbox"
+              checked={hideLikes}
+              onChange={(e) => setHideLikes(e.target.checked)}
+              style={{ accentColor: '#2E7D52', width: 18, height: 18 }}
+            />
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+            <span style={{ fontSize: 13, color: 'var(--color-black)' }}>Desactivar comentarios</span>
+            <input
+              type="checkbox"
+              checked={disableComments}
+              onChange={(e) => setDisableComments(e.target.checked)}
+              style={{ accentColor: '#2E7D52', width: 18, height: 18 }}
+            />
+          </label>
         </div>
       </div>
 
@@ -1145,7 +1195,7 @@ export default function CreatePostPage() {
       {/* Publish success overlay */}
       {publishSuccess && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'var(--color-white)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, animation: 'fadeIn 0.3s ease' }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--color-black)', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#2E7D52', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
             <Check size={28} color="#fff" strokeWidth={2.5} />
           </div>
           <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)' }}>¡Publicado!</span>
@@ -1157,7 +1207,7 @@ export default function CreatePostPage() {
         {/* Upload progress bar */}
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
           <div style={{ width: '100%', height: 3, background: '#e7e5e4', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
-            <div style={{ height: '100%', background: '#0c0a09', borderRadius: 2, width: `${uploadProgress}%`, transition: 'width 0.3s ease' }} />
+            <div style={{ height: '100%', background: '#2E7D52', borderRadius: 2, width: `${uploadProgress}%`, transition: 'width 0.3s ease' }} />
           </div>
         )}
         <button
@@ -1165,7 +1215,7 @@ export default function CreatePostPage() {
           disabled={publishing}
           style={{
             width: '100%',
-            background: 'var(--color-black)',
+            background: '#2E7D52',
             color: '#fff',
             fontSize: 15,
             fontWeight: 600,
@@ -1180,8 +1230,8 @@ export default function CreatePostPage() {
             gap: 8,
             transition: 'var(--transition-fast)',
           }}
-          onMouseEnter={(e) => { if (!publishing) e.currentTarget.style.opacity = '0.9'; }}
-          onMouseLeave={(e) => { if (!publishing) e.currentTarget.style.opacity = '1'; }}
+          onMouseEnter={(e) => { if (!publishing) e.currentTarget.style.background = '#1F5C3B'; }}
+          onMouseLeave={(e) => { if (!publishing) e.currentTarget.style.background = '#2E7D52'; }}
         >
           {publishing && (
             <span

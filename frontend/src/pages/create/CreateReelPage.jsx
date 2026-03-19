@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check, Video } from 'lucide-react';
+import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check, Video, Search, Tag } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -53,6 +53,12 @@ export default function CreateReelPage() {
   const [publishing, setPublishing] = useState(false);
   const [location, setLocation] = useState('');
   const [audience, setAudience] = useState('public');
+  const [taggedProducts, setTaggedProducts] = useState([]);
+  const [showProductSearch, setShowProductSearch] = useState(false);
+  const [productQuery, setProductQuery] = useState('');
+  const [productResults, setProductResults] = useState([]);
+  const [coverFromGallery, setCoverFromGallery] = useState(null);
+  const coverInputRef = useRef(null);
 
   const [isMuted, setIsMuted] = useState(true);
   const [volume, setVolume] = useState(100);
@@ -269,6 +275,18 @@ export default function CreateReelPage() {
 
   const [publishSuccess, setPublishSuccess] = useState(false);
 
+  // Product search with debounce
+  useEffect(() => {
+    if (!showProductSearch || !productQuery.trim()) { setProductResults([]); return; }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await apiClient.get(`/products/search?q=${encodeURIComponent(productQuery)}`);
+        setProductResults(res?.results || res?.data?.results || res?.data || (Array.isArray(res) ? res : []));
+      } catch { setProductResults([]); }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [productQuery, showProductSearch]);
+
   const handlePublish = useCallback(async () => {
     if (!videoFile) {
       toast.error('No hay vídeo seleccionado');
@@ -292,6 +310,12 @@ export default function CreateReelPage() {
       }
       if (textOverlays.length > 0) {
         fd.append('text_overlays_json', JSON.stringify(textOverlays));
+      }
+      if (taggedProducts.length) {
+        fd.append('tagged_products_json', JSON.stringify(taggedProducts.map((p) => ({ product_id: p.id }))));
+      }
+      if (coverFromGallery) {
+        fd.append('cover_image', coverFromGallery);
       }
       const res = await apiClient.post('/reels', fd, {
         onUploadProgress: (e) => {
@@ -365,7 +389,7 @@ export default function CreateReelPage() {
             onClick={() =>
               uploadTab === 'subir' ? fileInputRef.current?.click() : cameraInputRef.current?.click()
             }
-            className="bg-white text-black border-none text-sm font-semibold py-3 px-6 rounded-full cursor-pointer mt-2 transition-colors hover:bg-stone-100 active:bg-stone-200"
+            className="bg-[#2E7D52] text-white border-none text-sm font-semibold py-3 px-6 rounded-full cursor-pointer mt-2 transition-colors hover:bg-[#1F5C3B] active:bg-[#1a5035]"
             aria-label={uploadTab === 'subir' ? 'Elegir video de la galería' : 'Abrir cámara para grabar'}
           >
             {uploadTab === 'subir' ? 'Elegir de la galería' : 'Abrir cámara'}
@@ -878,8 +902,23 @@ export default function CreateReelPage() {
       </div>
 
       <div className="flex-1 overflow-auto p-4 flex flex-col gap-5">
-        {/* Caption */}
-        <div>
+        {/* Caption with hashtag/mention highlighting */}
+        <div className="relative">
+          {/* Highlight backdrop */}
+          <div
+            aria-hidden="true"
+            className="absolute top-0 left-0 right-0 px-3.5 py-3 text-sm font-sans leading-relaxed whitespace-pre-wrap break-words text-transparent pointer-events-none box-border border border-transparent"
+          >
+            {caption.split(/(#\w+|@\w+)/g).map((part, i) =>
+              part.startsWith('#') ? (
+                <span key={i} className="text-[#2E7D52] font-semibold">{part}</span>
+              ) : part.startsWith('@') ? (
+                <span key={i} className="text-stone-600 font-semibold">{part}</span>
+              ) : (
+                <span key={i}>{part}</span>
+              )
+            )}
+          </div>
           <textarea
             value={caption}
             onChange={(e) => { if (e.target.value.length <= 2200) setCaption(e.target.value); }}
@@ -887,6 +926,7 @@ export default function CreateReelPage() {
             rows={4}
             maxLength={2200}
             className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border"
+            style={{ background: 'transparent', position: 'relative', caretColor: '#0a0a0a' }}
             aria-label="Descripción del reel"
           />
           <div className={`text-right text-xs mt-1 ${caption.length > 2000 ? 'text-stone-950' : 'text-stone-400'}`}>
@@ -894,7 +934,29 @@ export default function CreateReelPage() {
           </div>
         </div>
 
-        {/* Thumbnail selector */}
+        {/* Product tagging */}
+        <div>
+          <button
+            onClick={() => setShowProductSearch(true)}
+            className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-xl px-3.5 py-2.5 text-[13px] text-left cursor-pointer"
+          >
+            🏷️ Etiquetar producto
+          </button>
+          {taggedProducts.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {taggedProducts.map((p) => (
+                <span key={p.id} className="bg-stone-100 border border-stone-200 rounded-full px-2.5 py-1 text-xs flex items-center gap-1">
+                  {p.name}
+                  <button onClick={() => setTaggedProducts((prev) => prev.filter((x) => x.id !== p.id))} className="bg-transparent border-none cursor-pointer p-0" aria-label={`Quitar ${p.name}`}>
+                    <X size={12} className="text-stone-400" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Thumbnail selector + cover from gallery */}
         <div>
           <label className="text-[13px] font-semibold text-stone-950 mb-2 block">
             Portada
@@ -915,6 +977,30 @@ export default function CreateReelPage() {
                 </span>
               </button>
             ))}
+            {/* Cover from gallery */}
+            <button
+              onClick={() => coverInputRef.current?.click()}
+              className={`w-14 h-20 rounded-xl bg-stone-100 shrink-0 flex flex-col items-center justify-center p-1 overflow-hidden border-2 cursor-pointer ${
+                coverFromGallery ? 'border-[#2E7D52]' : 'border-dashed border-stone-300'
+              }`}
+              aria-label="Portada desde galería"
+            >
+              {coverFromGallery ? (
+                <img src={URL.createObjectURL(coverFromGallery)} alt="Cover" className="w-full h-full object-cover rounded-lg" />
+              ) : (
+                <>
+                  <span className="text-stone-400 text-lg">+</span>
+                  <span className="text-[8px] text-stone-400">Galería</span>
+                </>
+              )}
+            </button>
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) setCoverFromGallery(f); e.target.value = ''; }}
+              className="hidden"
+            />
           </div>
         </div>
 
@@ -975,7 +1061,7 @@ export default function CreateReelPage() {
       {/* Publish success overlay */}
       {publishSuccess && (
         <div className="fixed inset-0 z-[70] bg-white flex flex-col items-center justify-center gap-4 animate-[fadeIn_0.3s_ease]">
-          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
+          <div className="w-16 h-16 rounded-full bg-[#2E7D52] flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
             <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
           <span className="text-base font-semibold text-stone-950">¡Reel publicado!</span>
@@ -993,7 +1079,7 @@ export default function CreateReelPage() {
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
           <div className="w-full h-[3px] bg-stone-200 rounded-full mb-3 overflow-hidden">
             <div
-              className="h-full bg-stone-950 rounded-full transition-[width] duration-300 ease-out"
+              className="h-full bg-[#2E7D52] rounded-full transition-[width] duration-300 ease-out"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
@@ -1001,7 +1087,7 @@ export default function CreateReelPage() {
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 flex items-center justify-center gap-2 ${
+          className={`w-full bg-[#2E7D52] text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-[#1F5C3B] flex items-center justify-center gap-2 ${
             publishing ? 'opacity-60 cursor-not-allowed' : ''
           }`}
         >
