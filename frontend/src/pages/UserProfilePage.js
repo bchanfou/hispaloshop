@@ -256,6 +256,7 @@ export default function UserProfilePage() {
         isFollowing={Boolean(user.is_following)}
         onPostClick={(post) => setSelectedPost(post)}
         onProductClick={(product) => setSelectedProduct(product)}
+        onFollow={handleFollowToggle}
       />
 
       {showCreateHighlight && (

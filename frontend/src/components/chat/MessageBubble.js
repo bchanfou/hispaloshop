@@ -181,14 +181,14 @@ function MessageBubble({ message, isFirstInGroup, onReact, onSwipeRight }) {
         transition={{ duration: 0.18, ease: 'easeOut' }}
         className={`group flex ${isUser ? 'justify-end' : 'justify-start'} ${isFirstInGroup ? 'mt-4' : 'mt-1.5'}`}
       >
-        <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} max-w-[92%] items-end gap-3 sm:max-w-[82%]`}>
+        <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} max-w-[75%] items-end gap-3`}>
           {!isUser ? (
             <div className="mb-1 flex-shrink-0">
               {isFirstInGroup ? <HAAvatar /> : <div className="w-9" />}
             </div>
           ) : null}
 
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-col">
             {/* Bubble with reaction picker */}
             <div className="relative">
               <AnimatePresence>
@@ -202,52 +202,61 @@ function MessageBubble({ message, isFirstInGroup, onReact, onSwipeRight }) {
               </AnimatePresence>
 
               <div
-                className={`px-5 py-4 cursor-pointer select-none ${
+                className={`px-4 py-3 cursor-pointer select-none break-words ${
                   isUser
-                    ? 'rounded-3xl rounded-br-lg bg-[linear-gradient(180deg,#1b1b1b_0%,#0e0e0e_100%)] text-white shadow-[0_16px_34px_rgba(15,15,15,0.18)]'
-                    : 'rounded-3xl rounded-bl-lg border border-[#e6dece] bg-[linear-gradient(180deg,#fffdfa_0%,#fbf8f2_100%)] text-stone-950 shadow-[0_12px_28px_rgba(30,25,20,0.06)]'
+                    ? 'rounded-2xl rounded-br-sm bg-stone-950 text-white'
+                    : 'rounded-2xl rounded-bl-sm bg-stone-100 text-stone-950'
                 }`}
+                style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
                 onPointerLeave={handlePointerLeave}
                 onContextMenu={handleContextMenu}
               >
                 {isUser ? (
-                  <p className="whitespace-pre-wrap text-[16px] leading-7 tracking-[-0.01em] text-white">{message.content}</p>
+                  <p className="whitespace-pre-wrap break-words text-[15px] leading-6 tracking-[-0.01em] text-white"
+                     style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                    {message.content}
+                  </p>
                 ) : (
                   <div
-                    className="text-[17px] leading-8 tracking-[-0.01em] text-stone-900"
+                    className="break-words text-[15px] leading-6 tracking-[-0.01em] text-stone-950"
+                    style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
                     dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}
                   />
                 )}
+
+                {/* Timestamp + read receipt — inside bubble, bottom-right */}
+                <div className={`mt-1 flex items-center gap-1 ${isUser ? 'justify-end' : 'justify-end'}`}>
+                  <span className={`text-[10px] ${isUser ? 'text-white/60' : 'text-stone-400'}`}>
+                    {timestamp}
+                  </span>
+                  {isOwn && (
+                    <CheckCheck
+                      size={10}
+                      className={isRead ? (isOwn ? 'text-white/60' : 'text-stone-400') : (isOwn ? 'text-white/40' : 'text-stone-300')}
+                      aria-label={isRead ? 'Leído' : 'Entregado'}
+                    />
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Reactions display */}
             <ReactionPills reactions={message.reactions} />
 
-            {/* Timestamp + read receipt + copy */}
-            <div className={`mt-1.5 flex items-center gap-2 px-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
-              <p className={`${isUser ? 'text-stone-500' : 'text-stone-400'} text-[11px] font-medium tracking-[0.02em]`}>
-                {timestamp}
-              </p>
-              {isOwn && (
-                <CheckCheck
-                  size={12}
-                  className={isRead ? 'text-stone-600' : 'text-stone-300'}
-                  aria-label={isRead ? 'Leído' : 'Entregado'}
-                />
-              )}
-              {!isUser ? (
+            {/* Copy button for assistant messages — below bubble */}
+            {!isUser && (
+              <div className="mt-1 flex items-center px-1">
                 <button
                   onClick={handleCopy}
                   title="Copiar"
-                  className="rounded-full p-1.5 text-stone-400 transition-colors hover:bg-white/80 hover:text-stone-700"
+                  className="rounded-full p-1 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
                 >
-                  {copied ? <Check className="h-3.5 w-3.5 text-stone-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? <Check className="h-3 w-3 text-stone-600" /> : <Copy className="h-3 w-3" />}
                 </button>
-              ) : null}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

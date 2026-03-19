@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AnimatePresence, motion, useDragControls } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, MessageCircle, Plus, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import InternalChat from './InternalChat';
 import CreateContentSheet from './create/CreateContentSheet';
 import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
@@ -51,14 +50,10 @@ export default function BottomNavBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { conversations, reloadConversations } = useInternalChatData();
-  const [activePanel, setActivePanel] = useState(null);
-  const [initialChatUserId, setInitialChatUserId] = useState(null);
   const [messageToast, setMessageToast] = useState(null);
-  const [showContentSheet,      setShowContentSheet]      = useState(false);
+  const [showContentSheet, setShowContentSheet] = useState(false);
   const [profileAvatarError, setProfileAvatarError] = useState(false);
   const toastTimeoutRef = useRef(null);
-  const chatDragControls = useDragControls();
-  const activePanelRef = useRef(null);
   const conversationsRef = useRef(conversations);
 
   const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
@@ -72,10 +67,6 @@ export default function BottomNavBar() {
     enabled: !!user,
   });
   const hasChatUnread = (unreadChatData?.total ?? 0) > 0;
-
-  useEffect(() => {
-    activePanelRef.current = activePanel;
-  }, [activePanel]);
 
   useEffect(() => {
     conversationsRef.current = conversations;
@@ -99,19 +90,17 @@ export default function BottomNavBar() {
 
   const openMessageToast = useCallback(() => {
     if (!messageToast?.senderId) return;
-    setInitialChatUserId(messageToast.senderId);
-    setActivePanel('chat');
     dismissMessageToast();
-  }, [dismissMessageToast, messageToast]);
+    navigate('/chat');
+  }, [dismissMessageToast, messageToast, navigate]);
 
   useEffect(() => {
-    const handleOpenChat = (event) => {
-      setInitialChatUserId(event.detail?.userId || null);
-      setActivePanel('chat');
+    const handleOpenChat = () => {
+      navigate('/chat');
     };
 
     const handleToggleChat = () => {
-      setActivePanel((prev) => (prev === 'chat' ? null : 'chat'));
+      navigate('/chat');
     };
 
     // Lanzado desde HomeHeader (botón ✏) y FeedContainer (historias)
@@ -156,7 +145,7 @@ export default function BottomNavBar() {
         const currentConversation = conversationsRef.current.find(
           (conversation) => conversation.conversation_id === payload.conversation_id
         );
-        const chatOpen = activePanelRef.current === 'chat' || location.pathname === '/chat';
+        const chatOpen = location.pathname === '/chat';
 
         reloadConversations();
 
@@ -212,11 +201,6 @@ export default function BottomNavBar() {
 
   if (shouldHide) return null;
 
-  const closePanel = () => {
-    setActivePanel(null);
-    setInitialChatUserId(null);
-  };
-
   const handlePostButton = () => {
     if (!user) { navigate('/login'); return; }
     setShowContentSheet(true);
@@ -228,15 +212,6 @@ export default function BottomNavBar() {
       navigate('/create/recipe');
     } else {
       navigate(`/create/${type}`);
-    }
-  };
-
-  const togglePanel = (panel) => {
-    if (activePanel === panel) {
-      closePanel();
-    } else {
-      setInitialChatUserId(null);
-      setActivePanel(panel);
     }
   };
 
@@ -255,8 +230,7 @@ export default function BottomNavBar() {
 
   const isHome       = location.pathname === '/';
   const isExplore    = location.pathname.startsWith('/discover') || location.pathname.startsWith('/products');
-  const isReels      = location.pathname.startsWith('/reels');
-  const isChatActive = activePanel === 'chat';
+  const isChatActive = location.pathname === '/chat' || location.pathname.startsWith('/chat/');
   const isProfile    = profileUsername
     ? (location.pathname.toLowerCase() === `/${profileUsername}` || location.pathname.startsWith('/profile/') || location.pathname.startsWith('/settings/'))
     : (location.pathname === '/profile' || location.pathname.startsWith('/profile/') || location.pathname.startsWith('/settings/'));
@@ -265,55 +239,6 @@ export default function BottomNavBar() {
   return (
     <>
       <MessageToast notification={messageToast} onClose={dismissMessageToast} onOpen={openMessageToast} />
-
-      <AnimatePresence>
-        {activePanel === 'chat' ? (
-          <>
-            {/* Backdrop mobile */}
-            <motion.div
-              key="chat-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 bg-black/30 md:hidden"
-              onClick={closePanel}
-            />
-
-            {/* Panel */}
-            <motion.div
-              key="chat-panel"
-              initial={{ y: '100%', opacity: 0.6 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 34, stiffness: 300, mass: 0.8 }}
-              drag="y"
-              dragControls={chatDragControls}
-              dragListener={false}
-              dragConstraints={{ top: 0 }}
-              dragElastic={{ top: 0, bottom: 0.3 }}
-              onDragEnd={(_, info) => {
-                if (info.offset.y > 90 || info.velocity.y > 450) closePanel();
-              }}
-              className="fixed bottom-0 left-0 right-0 z-[51] flex flex-col rounded-t-[28px] bg-white shadow-2xl md:inset-auto md:bottom-[70px] md:right-4 md:h-[550px] md:w-[380px] md:rounded-2xl md:border md:border-stone-200"
-              data-testid="chat-panel"
-            >
-              {/* Drag handle — solo mobile */}
-              <div
-                onPointerDown={(e) => chatDragControls.start(e)}
-                className="flex cursor-grab touch-none items-center justify-center py-2.5 active:cursor-grabbing md:hidden"
-                aria-hidden="true"
-              >
-                <div className="h-[5px] w-10 rounded-full bg-stone-200" />
-              </div>
-
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                <InternalChat isEmbedded={true} onClose={closePanel} initialChatUserId={initialChatUserId} />
-              </div>
-            </motion.div>
-          </>
-        ) : null}
-      </AnimatePresence>
 
       <CreateContentSheet
         isOpen={showContentSheet}
@@ -387,7 +312,7 @@ export default function BottomNavBar() {
           {/* 4 — Chats */}
           <button
             type="button"
-            onClick={() => { if (!user) { navigate('/login'); return; } togglePanel('chat'); }}
+            onClick={() => { if (!user) { navigate('/login'); return; } navigate('/chat'); }}
             aria-label={t('bottomNav.chats', 'Chats')}
             data-testid="bottom-nav-chats"
             className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"

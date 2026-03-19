@@ -10,6 +10,7 @@ import {
   Film,
   Lock,
   Play,
+  X,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
@@ -83,7 +84,7 @@ function EmptyState({ icon: Icon, title, buttonLabel, onButtonClick }) {
       {buttonLabel && (
         <button
           onClick={onButtonClick}
-          className="mt-4 rounded-full bg-[#2E7D52] px-6 py-2.5 text-[13px] font-semibold text-white transition-all duration-150 hover:bg-[#1F5C3B] active:scale-95"
+          className="mt-3 rounded-full bg-stone-950 px-5 py-2 text-sm font-medium text-white transition-all duration-150 active:scale-95"
         >
           {buttonLabel}
         </button>
@@ -113,11 +114,13 @@ const ProfileTabs = forwardRef(function ProfileTabs({
   isFollowing = false,
   onPostClick,
   onProductClick,
+  onFollow,
 }, ref) {
   const navigate = useNavigate();
 
   const tabs = getTabsForRole(role, isOwn);
   const [activeTab, setActiveTab] = useState('posts');
+  const [selectedReel, setSelectedReel] = useState(null);
 
   // Expose switchTab to parent via ref (Q9)
   useImperativeHandle(ref, () => ({
@@ -278,8 +281,8 @@ const ProfileTabs = forwardRef(function ProfileTabs({
           return (
             <div
               key={reel.id || reel.reel_id || i}
-              onClick={() => navigate(`/reels?user=${userId}`)}
-              onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/reels?user=${userId}`); }}
+              onClick={() => setSelectedReel(reel)}
+              onKeyDown={(e) => { if (e.key === 'Enter') setSelectedReel(reel); }}
               role="button"
               tabIndex={0}
               className="relative aspect-square cursor-pointer overflow-hidden bg-black"
@@ -308,7 +311,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     if (loading.products && !items) return <SkeletonGrid count={6} columns={2} />;
     if (!items || items.length === 0) {
       return isOwn ? (
-        <EmptyState icon={Package} title="Publica tu primer producto" buttonLabel="Publicar producto" onButtonClick={() => navigate('/producer/products')} />
+        <EmptyState icon={Package} title="Publica tu primer producto" buttonLabel="Añadir producto" onButtonClick={() => navigate('/producer/products/new')} />
       ) : (
         <EmptyState icon={Package} title="Sin productos" />
       );
@@ -449,6 +452,14 @@ const ProfileTabs = forwardRef(function ProfileTabs({
           <p className="mt-1 max-w-[260px] text-[13px] text-stone-500">
             Sigue esta cuenta para ver sus publicaciones, recetas y productos.
           </p>
+          {!isOwn && (
+            <button
+              onClick={onFollow}
+              className="mt-4 px-6 py-2.5 bg-stone-950 text-white text-sm font-medium rounded-full"
+            >
+              Seguir para ver
+            </button>
+          )}
         </div>
       </div>
     );
@@ -467,6 +478,40 @@ const ProfileTabs = forwardRef(function ProfileTabs({
           </div>
         )}
       </div>
+
+      {/* Fullscreen reel overlay */}
+      {selectedReel && (
+        <div className="fixed inset-0 z-50 bg-stone-950 flex flex-col">
+          {/* Close button */}
+          <button
+            onClick={() => setSelectedReel(null)}
+            aria-label="Cerrar"
+            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+          >
+            <X size={20} className="text-white" />
+          </button>
+          {/* Video */}
+          <video
+            src={selectedReel.video_url || selectedReel.media_url}
+            autoPlay
+            loop
+            playsInline
+            className="w-full h-full object-contain"
+          />
+          {/* Metadata */}
+          {selectedReel.caption && (
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-stone-950/80 to-transparent">
+              <p className="text-white text-sm line-clamp-2">{selectedReel.caption}</p>
+              {selectedReel.views != null && (
+                <p className="mt-1 flex items-center gap-1 text-[12px] text-stone-300">
+                  <Play size={12} fill="currentColor" />
+                  {formatViews(selectedReel.views)} visualizaciones
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 });
