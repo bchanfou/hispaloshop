@@ -83,7 +83,7 @@ function EmptyState({ icon: Icon, title, buttonLabel, onButtonClick }) {
       {buttonLabel && (
         <button
           onClick={onButtonClick}
-          className="mt-4 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-all duration-150 hover:bg-stone-800 active:scale-95"
+          className="mt-4 rounded-full bg-[#2E7D52] px-6 py-2.5 text-[13px] font-semibold text-white transition-all duration-150 hover:bg-[#1F5C3B] active:scale-95"
         >
           {buttonLabel}
         </button>
@@ -212,7 +212,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
             }`}
           >
             {isActive && (
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-stone-950" />
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-stone-950 transition-all duration-300" />
             )}
             <TabIcon size={24} />
           </button>

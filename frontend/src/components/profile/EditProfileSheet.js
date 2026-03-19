@@ -168,7 +168,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                 type="button"
                 onClick={handleSave}
                 disabled={isPending || usernameStatus === 'checking'}
-                className="flex items-center gap-1 text-[14px] font-semibold text-stone-950 disabled:opacity-50 active:opacity-50"
+                className="flex items-center gap-1 text-[14px] font-semibold text-[#2E7D52] disabled:opacity-50 active:opacity-50"
               >
                 {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Guardar
@@ -181,7 +181,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
               {/* Avatar section */}
               <div className="flex flex-col items-center py-6">
                 <div className="relative">
-                  <div className="h-[90px] w-[90px] overflow-hidden rounded-full bg-stone-100 ring-[2px] ring-stone-950 ring-offset-[3px] ring-offset-white">
+                  <div className="h-[90px] w-[90px] overflow-hidden rounded-full bg-stone-100 ring-[2px] ring-[#2E7D52] ring-offset-[3px] ring-offset-white">
                     {avatarSrc ? (
                       <img
                         src={avatarSrc}

@@ -35,7 +35,7 @@ function UserRow({ user, onToggleFollow, isMutating, currentUserId }) {
           )}
         </div>
         {user.is_verified ? (
-          <span className="absolute -bottom-0.5 -right-0.5 flex h-[14px] w-[14px] items-center justify-center rounded-full bg-stone-950 text-[7px] font-bold text-white ring-2 ring-white">
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-[14px] w-[14px] items-center justify-center rounded-full bg-[#0095F6] text-[7px] font-bold text-white ring-2 ring-white">
             ✓
           </span>
         ) : null}
@@ -61,7 +61,7 @@ function UserRow({ user, onToggleFollow, isMutating, currentUserId }) {
           className={`shrink-0 rounded-full px-4 py-[7px] text-[13px] font-medium transition-all ${
             user.is_following
               ? 'border border-stone-200 bg-white text-stone-950 hover:bg-stone-50'
-              : 'bg-stone-950 text-white hover:bg-stone-800'
+              : 'bg-[#2E7D52] text-white hover:bg-[#1F5C3B]'
           } ${isMutating ? 'opacity-60' : ''}`}
         >
           {user.is_following ? 'Siguiendo' : 'Seguir'}

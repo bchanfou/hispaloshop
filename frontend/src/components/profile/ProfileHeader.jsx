@@ -20,7 +20,10 @@ import {
   Star,
   ShoppingBag,
   UserPlus,
+  Flag,
+  ShieldBan,
 } from 'lucide-react';
+import apiClient from '../../services/api/client';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -95,7 +98,7 @@ function SocialIcon({ href, label, children }) {
 
 /* ── Instagram‑style story ring gradient ─────────────────────────── */
 
-const STORY_RING_GRADIENT = 'conic-gradient(from 180deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #8a3ab9, #4c68d7, #6dc993, #f09433)';
+const STORY_RING_GRADIENT = '#2E7D52';
 
 /* ── blue verified badge SVG (Instagram style) ───────────────────── */
 
@@ -111,7 +114,7 @@ function VerifiedBadge({ size = 14 }) {
     >
       <path
         d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67 2.63 13.43 1.75 12 1.75S9.33 2.63 8.66 3.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z"
-        fill="#292524"
+        fill="#0095F6"
       />
       <path
         d="M9.5 12.5l2 2 4-4.5"
@@ -377,7 +380,7 @@ export default function ProfileHeader({
               <button
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Cambiar foto de perfil"
-                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm"
+                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#2E7D52] shadow-sm"
               >
                 <Plus size={14} className="text-white" strokeWidth={3} />
               </button>
@@ -498,7 +501,7 @@ export default function ProfileHeader({
                 onClick={async () => {
                   try { await navigator.clipboard.writeText(user.discount_code); toast.success('Código copiado: ' + user.discount_code); } catch { toast.error('No se pudo copiar'); }
                 }}
-                className="inline-flex items-center gap-1 rounded-full bg-stone-950 px-3 py-1 text-[11px] font-semibold text-white"
+                className="inline-flex items-center gap-1 rounded-full bg-[#2E7D52] px-3 py-1 text-[11px] font-semibold text-white"
               >
                 <Copy size={10} />
                 {user.discount_code}
@@ -562,7 +565,7 @@ export default function ProfileHeader({
                   ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
                   ? 'bg-stone-100 text-stone-500'
-                  : 'bg-stone-950 text-white'
+                  : 'bg-[#2E7D52] text-white hover:bg-[#1F5C3B]'
               }`}
             >
               {user?.follow_request_pending
@@ -698,8 +701,20 @@ export default function ProfileHeader({
 
               <div className="my-3 h-px bg-stone-200" />
 
-              <OptionRow label={`Bloquear a @${user?.username}`} muted onClick={() => { toast('Próximamente'); setShowOptionsSheet(false); }} />
-              <OptionRow label="Reportar cuenta" muted onClick={() => { toast('Próximamente'); setShowOptionsSheet(false); }} />
+              <OptionRow label={`Bloquear a @${user?.username}`} icon={<ShieldBan size={20} />} muted onClick={async () => {
+                try {
+                  await apiClient.post(`/users/${user?.user_id}/block`);
+                  toast.success(`Has bloqueado a @${user?.username}`);
+                } catch { toast.error('Error al bloquear'); }
+                setShowOptionsSheet(false);
+              }} />
+              <OptionRow label="Reportar cuenta" icon={<Flag size={20} />} muted onClick={async () => {
+                try {
+                  await apiClient.post(`/users/${user?.user_id}/report`, { reason: 'inappropriate' });
+                  toast.success('Reporte enviado');
+                } catch { toast.error('Error al reportar'); }
+                setShowOptionsSheet(false);
+              }} />
             </motion.div>
           </>
         )}
