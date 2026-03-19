@@ -14,8 +14,8 @@ import { firstToken } from '../../utils/safe';
 function StatusDot({ active }) {
   return (
     <span className="relative flex h-2.5 w-2.5">
-      {active ? <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-stone-500 opacity-75" /> : null}
-      <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ring-4 ring-white/70 ${active ? 'bg-stone-500' : 'bg-stone-500'}`} />
+      {active ? <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-stone-950 opacity-75" /> : null}
+      <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ring-4 ring-white/70 ${active ? 'bg-stone-950' : 'bg-stone-300'}`} />
     </span>
   );
 }

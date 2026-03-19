@@ -5,8 +5,6 @@ import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
-const font = { fontFamily: 'var(--font-sans)' };
-
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -16,6 +14,69 @@ function useDebounce(value, delay) {
   return debounced;
 }
 
+/* ── Memoized user row to avoid re-renders on list update ── */
+const UserRow = React.memo(function UserRow({ u, isMe, onFollow, onUnfollow }) {
+  const userId = u.user_id || u.id;
+  return (
+    <div className="flex items-center gap-3 border-b border-stone-100 py-3">
+      {/* Avatar */}
+      <Link to={`/${u.username || userId}`} className="shrink-0">
+        <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-stone-100">
+          {(u.avatar_url || u.profile_image) ? (
+            <img
+              src={u.avatar_url || u.profile_image}
+              alt={`Foto de ${u.full_name || u.username || 'usuario'}`}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <span className="text-base font-bold text-stone-400">
+              {(u.full_name || u.username || '?')[0].toUpperCase()}
+            </span>
+          )}
+        </div>
+      </Link>
+
+      {/* Name */}
+      <Link to={`/${u.username || userId}`} className="min-w-0 flex-1 no-underline">
+        <p className="truncate text-sm font-semibold text-stone-950">
+          {u.full_name || u.username || 'Usuario'}
+          {u.is_verified && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="ml-1 inline-block align-middle" aria-label="Cuenta verificada">
+              <path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67 2.63 13.43 1.75 12 1.75S9.33 2.63 8.66 3.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z" fill="#292524"/>
+              <path d="M9.5 12.5l2 2 4-4.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+        </p>
+        {u.username && (
+          <p className="mt-0.5 truncate text-xs text-stone-500">
+            @{u.username}
+          </p>
+        )}
+      </Link>
+
+      {/* Action button */}
+      {!isMe && (
+        <button
+          onClick={() => u.is_following ? onUnfollow(userId) : onFollow(userId)}
+          aria-label={u.is_following ? `Dejar de seguir a ${u.full_name || u.username}` : `Seguir a ${u.full_name || u.username}`}
+          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-1.5 text-[13px] font-semibold transition-colors ${
+            u.is_following
+              ? 'border border-stone-200 bg-stone-100 text-stone-950'
+              : 'bg-stone-950 text-white'
+          }`}
+        >
+          {u.is_following ? (
+            <><UserCheck size={14} /> Siguiendo</>
+          ) : (
+            <><UserPlus size={14} /> Seguir</>
+          )}
+        </button>
+      )}
+    </div>
+  );
+});
+
 export default function FollowersPage() {
   const { username } = useParams();
   const navigate = useNavigate();
@@ -23,8 +84,8 @@ export default function FollowersPage() {
   const inputRef = useRef(null);
 
   // Determine tab from URL path
-  const isFollowing = window.location.pathname.includes('/following');
-  const [tab, setTab] = useState(isFollowing ? 'following' : 'followers');
+  const isFollowingPath = window.location.pathname.includes('/following');
+  const [tab, setTab] = useState(isFollowingPath ? 'following' : 'followers');
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 400);
 
@@ -78,72 +139,80 @@ export default function FollowersPage() {
     fetchUsers(1);
   }, [fetchUsers]);
 
-  const handleLoadMore = () => fetchUsers(page + 1, true);
+  const handleLoadMore = useCallback(() => fetchUsers(page + 1, true), [fetchUsers, page]);
 
-  const handleFollow = async (targetId) => {
+  const handleFollow = useCallback(async (targetId) => {
+    // Optimistic update
+    setUsers(prev => prev.map(u => {
+      const uid = u.user_id || u.id;
+      return uid === targetId ? { ...u, is_following: true } : u;
+    }));
     try {
       await apiClient.post(`/users/${targetId}/follow`);
-      setUsers(prev => prev.map(u =>
-        u.id === targetId ? { ...u, is_following: true } : u
-      ));
     } catch {
+      // Revert on error
+      setUsers(prev => prev.map(u => {
+        const uid = u.user_id || u.id;
+        return uid === targetId ? { ...u, is_following: false } : u;
+      }));
       toast.error('Error al seguir usuario');
     }
-  };
+  }, []);
 
-  const handleUnfollow = async (targetId) => {
+  const handleUnfollow = useCallback(async (targetId) => {
+    // Optimistic update
+    setUsers(prev => prev.map(u => {
+      const uid = u.user_id || u.id;
+      return uid === targetId ? { ...u, is_following: false } : u;
+    }));
     try {
       await apiClient.delete(`/users/${targetId}/follow`);
-      setUsers(prev => prev.map(u =>
-        u.id === targetId ? { ...u, is_following: false } : u
-      ));
     } catch {
+      // Revert on error
+      setUsers(prev => prev.map(u => {
+        const uid = u.user_id || u.id;
+        return uid === targetId ? { ...u, is_following: true } : u;
+      }));
       toast.error('Error al dejar de seguir');
     }
-  };
+  }, []);
 
-  const isOwnProfile = user?.username === username || user?.user_id === username;
   const hasMore = users.length < total;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div className="min-h-screen bg-white">
       {/* ── Topbar ── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
-          <button onClick={() => navigate(-1)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
-            <ArrowLeft size={22} color="var(--color-black)" />
+      <div className="sticky top-0 z-40 border-b border-stone-200 bg-white">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Volver"
+            className="flex p-1"
+          >
+            <ArrowLeft size={22} className="text-stone-950" />
           </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>
+          <span className="text-[17px] font-bold text-stone-950">
             @{username}
           </span>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)' }}>
+        <div className="flex border-b border-stone-200" role="tablist">
           {['followers', 'following'].map(t => (
             <button
               key={t}
               onClick={() => { setTab(t); setSearch(''); }}
-              style={{
-                flex: 1, padding: '10px 0',
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: 14, fontWeight: tab === t ? 700 : 500,
-                color: tab === t ? 'var(--color-black)' : 'var(--color-stone)',
-                borderBottom: tab === t ? '2px solid var(--color-black)' : '2px solid transparent',
-                ...font,
-              }}
+              role="tab"
+              aria-selected={tab === t}
+              className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                tab === t
+                  ? 'border-b-2 border-stone-950 font-bold text-stone-950'
+                  : 'border-b-2 border-transparent text-stone-500'
+              }`}
             >
               {t === 'followers' ? 'Seguidores' : 'Siguiendo'}
               {!loading && tab === t && (
-                <span style={{
-                  marginLeft: 6, fontSize: 12, fontWeight: 700,
-                  color: tab === t ? 'var(--color-black)' : 'var(--color-stone)',
-                }}>
+                <span className="ml-1.5 text-xs font-bold">
                   {total}
                 </span>
               )}
@@ -152,149 +221,80 @@ export default function FollowersPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '12px 16px 80px' }}>
+      <div className="mx-auto max-w-[600px] px-4 pb-20 pt-3">
         {/* ── Search ── */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          background: 'var(--color-surface)',
-          borderRadius: 'var(--radius-full, 999px)',
-          padding: '8px 14px', marginBottom: 16,
-        }}>
-          <Search size={16} color="var(--color-stone)" style={{ flexShrink: 0 }} />
+        <div className="mb-4 flex items-center gap-2 rounded-full bg-stone-100 px-3.5 py-2">
+          <Search size={16} className="shrink-0 text-stone-400" />
           <input
             ref={inputRef}
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar..."
-            style={{
-              flex: 1, border: 'none', outline: 'none',
-              background: 'transparent', fontSize: 14,
-              color: 'var(--color-black)', ...font,
-            }}
+            aria-label="Buscar usuarios"
+            className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
           />
           {search && (
             <button
               onClick={() => { setSearch(''); inputRef.current?.focus(); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+              aria-label="Borrar búsqueda"
+              className="flex p-0"
             >
-              <X size={16} color="var(--color-stone)" />
+              <X size={16} className="text-stone-400" />
             </button>
           )}
         </div>
 
-        {/* ── Loading ── */}
+        {/* ── Loading skeleton ── */}
         {loading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          <div>
             {[0, 1, 2, 3, 4].map(i => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--color-border)' }}>
-                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ width: 120, height: 14, borderRadius: 6, background: 'var(--color-surface)', marginBottom: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
-                  <div style={{ width: 80, height: 12, borderRadius: 6, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div key={i} className="flex items-center gap-3 border-b border-stone-100 py-3">
+                <div className="h-11 w-11 animate-pulse rounded-full bg-stone-100" />
+                <div className="flex-1">
+                  <div className="mb-1.5 h-3.5 w-[120px] animate-pulse rounded bg-stone-100" />
+                  <div className="h-3 w-[80px] animate-pulse rounded bg-stone-100" />
                 </div>
-                <div style={{ width: 80, height: 32, borderRadius: 'var(--radius-lg)', background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div className="h-8 w-20 animate-pulse rounded-xl bg-stone-100" />
               </div>
             ))}
           </div>
         ) : users.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', margin: '0 0 4px' }}>
+          <div className="px-5 py-10 text-center">
+            <p className="text-[15px] font-semibold text-stone-950">
               {search ? 'Sin resultados' : tab === 'followers' ? 'Sin seguidores' : 'No sigue a nadie'}
             </p>
-            <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: 0 }}>
+            <p className="mt-1 text-[13px] text-stone-500">
               {search ? 'Prueba con otro término' : tab === 'followers' ? 'Aún no tiene seguidores' : 'Aún no sigue a nadie'}
             </p>
           </div>
         ) : (
           <>
             {users.map(u => {
-              const isMe = u.id === user?.user_id;
+              const userId = u.user_id || u.id;
+              const isMe = userId === user?.user_id;
               return (
-                <div key={u.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '12px 0', borderBottom: '1px solid var(--color-border)',
-                }}>
-                  {/* Avatar */}
-                  <Link to={`/${u.username || u.id}`} style={{ flexShrink: 0 }}>
-                    <div style={{
-                      width: 44, height: 44, borderRadius: '50%',
-                      background: 'var(--color-surface)',
-                      overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {u.avatar_url ? (
-                        <img src={u.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-stone)' }}>
-                          {(u.full_name || u.username || '?')[0].toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-
-                  {/* Name */}
-                  <Link to={`/${u.username || u.id}`} style={{ flex: 1, minWidth: 0, textDecoration: 'none' }}>
-                    <p style={{
-                      fontSize: 14, fontWeight: 600, color: 'var(--color-black)', margin: 0,
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {u.full_name || u.username || 'Usuario'}
-                      {u.is_verified && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginLeft: 4, display: 'inline-block', verticalAlign: 'middle' }}><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67 2.63 13.43 1.75 12 1.75S9.33 2.63 8.66 3.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z" fill="#3897f0"/><path d="M9.5 12.5l2 2 4-4.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      )}
-                    </p>
-                    {u.username && (
-                      <p style={{
-                        fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0',
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        @{u.username}
-                      </p>
-                    )}
-                  </Link>
-
-                  {/* Action button */}
-                  {!isMe && (
-                    <button
-                      onClick={() => u.is_following ? handleUnfollow(u.id) : handleFollow(u.id)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        padding: '7px 16px', flexShrink: 0,
-                        background: u.is_following ? 'var(--color-surface)' : '#2E7D52',
-                        color: u.is_following ? 'var(--color-black)' : 'var(--color-white)',
-                        border: u.is_following ? '1px solid var(--color-border)' : 'none',
-                        borderRadius: 'var(--radius-lg)',
-                        fontSize: 13, fontWeight: 600, cursor: 'pointer', ...font,
-                      }}
-                    >
-                      {u.is_following ? (
-                        <><UserCheck size={14} /> Siguiendo</>
-                      ) : (
-                        <><UserPlus size={14} /> Seguir</>
-                      )}
-                    </button>
-                  )}
-                </div>
+                <UserRow
+                  key={userId}
+                  u={u}
+                  isMe={isMe}
+                  onFollow={handleFollow}
+                  onUnfollow={handleUnfollow}
+                />
               );
             })}
 
             {/* Load more */}
             {hasMore && (
-              <div style={{ textAlign: 'center', paddingTop: 16 }}>
+              <div className="pt-4 text-center">
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  style={{
-                    padding: '10px 28px', background: 'var(--color-white)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-full, 999px)',
-                    fontSize: 13, fontWeight: 600, color: 'var(--color-black)',
-                    cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8,
-                    ...font,
-                  }}
+                  aria-label="Cargar más usuarios"
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-7 py-2.5 text-[13px] font-semibold text-stone-950 transition-colors hover:bg-stone-50 disabled:opacity-50"
                 >
                   {loadingMore ? (
-                    <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                    <Loader2 size={14} className="animate-spin" />
                   ) : (
                     'Cargar más'
                   )}
@@ -304,11 +304,6 @@ export default function FollowersPage() {
           </>
         )}
       </div>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
-      `}</style>
     </div>
   );
 }

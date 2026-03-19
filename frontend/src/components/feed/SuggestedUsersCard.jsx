@@ -142,7 +142,7 @@ export default function SuggestedUsersCard() {
                 className={`flex w-full min-h-[36px] items-center justify-center gap-1 rounded-full text-[11px] font-semibold border-none cursor-pointer transition-colors ${
                   isFollowed
                     ? 'bg-stone-100 text-stone-500'
-                    : 'bg-[#2E7D52] text-white hover:bg-[#1F5C3B]'
+                    : 'bg-stone-950 text-white hover:bg-stone-800'
                 }`}
               >
                 {isFollowed ? 'Siguiendo' : (

@@ -82,11 +82,10 @@ export default function UserProfilePage() {
     if (!user || followLoading) return;
     try {
       await toggleFollow();
-      refetch();
     } catch {
       toast.error('Error al actualizar');
     }
-  }, [user, followLoading, toggleFollow, refetch]);
+  }, [user, followLoading, toggleFollow]);
 
   const handleAvatarChange = useCallback(async (file) => {
     try {
@@ -255,8 +254,8 @@ function CreateHighlightSheet({ onClose, onCreate }) {
   const [title, setTitle] = useState('');
 
   return (
-    <div className="fixed inset-0 z-[9998]">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+    <div className="fixed inset-0 z-[9998]" role="dialog" aria-modal="true" aria-label="Nuevo destacado">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
       <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white px-5 pb-8 pt-4">
         <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
         <div className="mb-4 text-base font-semibold">Nuevo destacado</div>

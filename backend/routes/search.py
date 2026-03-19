@@ -31,7 +31,7 @@ async def _search_products(db, q: str, limit: int, country: Optional[str]):
                     {"description": {"$regex": q, "$options": "i"}},
                     {"category": {"$regex": q, "$options": "i"}},
                 ],
-                "status": "active",
+                "status": {"$in": ["active", "approved"]},
                 **({"target_markets": country} if country else {}),
             }
         },
@@ -41,10 +41,13 @@ async def _search_products(db, q: str, limit: int, country: Optional[str]):
                 "product_id": {"$toString": "$_id"},
                 "name": 1,
                 "price": 1,
+                "display_price": 1,
                 "currency": 1,
+                "display_currency": 1,
                 "images": 1,
                 "category": 1,
                 "country_origin": 1,
+                "created_at": 1,
                 "_id": 0,
             }
         },
@@ -96,9 +99,12 @@ async def _search_stores(db, q: str, limit: int):
             "$project": {
                 "store_id": {"$toString": "$_id"},
                 "name": 1,
+                "slug": 1,
+                "store_slug": 1,
                 "cover_image": 1,
                 "profile_image": 1,
                 "location": 1,
+                "followers_count": 1,
                 "_id": 0,
             }
         },
@@ -126,7 +132,9 @@ async def _search_users(db, q: str, limit: int):
                 "name": 1,
                 "username": 1,
                 "profile_image": 1,
+                "avatar": 1,
                 "role": 1,
+                "bio": 1,
                 "followers_count": 1,
                 "_id": 0,
             }

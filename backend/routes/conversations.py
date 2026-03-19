@@ -203,7 +203,7 @@ async def send_message(conversation_id: str, input: MessageInput, background_tas
                     <div style="background-color: #FAF7F2; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
                         <h2 style="color: #1C1C1C; margin: 0 0 15px 0;">💬 Nuevo mensaje</h2>
                         <p style="color: #4A4A4A; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-                            <strong>{sender_name}</strong> te ha enviado un mensaje:
+                            <strong>{html_module.escape(sender_name)}</strong> te ha enviado un mensaje:
                         </p>
                         <div style="background-color: white; border-radius: 8px; padding: 15px; border-left: 4px solid #1C1C1C;">
                             <p style="color: #1C1C1C; font-size: 14px; margin: 0; font-style: italic;">

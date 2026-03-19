@@ -56,7 +56,7 @@ async def get_user_conversations(user: User = Depends(get_current_user)):
             "other_user_id": other_participant["user_id"] if other_participant else None,
             "other_user_name": other_participant["name"] if other_participant else "Unknown",
             "other_user_role": other_participant["role"] if other_participant else None,
-            "other_user_avatar": other_participant.get("avatar"),
+            "other_user_avatar": other_participant.get("avatar") if other_participant else None,
             "last_message": decrypt_message_dict(last_msg) if last_msg else None,
             "unread_count": unread,
             "created_at": conv.get("created_at"),

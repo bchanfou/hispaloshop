@@ -207,8 +207,8 @@ export default function CustomerProfile() {
 
   // Account management functions
   const handleDeleteAccount = async () => {
-    if (deleteConfirmation !== 'DELETE') {
-      toast.error(t('profile.typeDelete', 'Please type DELETE to confirm'));
+    if (deleteConfirmation !== 'BORRAR') {
+      toast.error(t('profile.typeDelete', 'Escribe BORRAR para confirmar'));
       return;
     }
 
@@ -535,7 +535,7 @@ export default function CustomerProfile() {
             <textarea
               value={preferences.goals}
               onChange={(e) => setPreferences({ ...preferences, goals: e.target.value })}
-              className="w-full px-4 py-2 rounded-xl border border-stone-200 min-h-[100px]"
+              className="w-full px-4 py-2 rounded-xl border border-stone-200 min-h-[100px] text-stone-950 outline-none focus:border-stone-950"
               placeholder={t('profile.healthGoalsPlaceholder', 'Ej: pérdida de peso, ganar músculo, salud cardiovascular...')}
             />
           </div>
@@ -917,7 +917,7 @@ export default function CustomerProfile() {
               </button>
               <button
                 onClick={handleDeleteAccount}
-                disabled={deleting || deleteConfirmation !== 'DELETE' || !deletePassword}
+                disabled={deleting || deleteConfirmation !== 'BORRAR' || !deletePassword}
                 className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
                 data-testid="confirm-delete-btn"
               >

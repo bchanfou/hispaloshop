@@ -24,10 +24,13 @@ export default function EditProfilePage() {
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
   const canSave = hasChanges() && !saving && usernameStatus !== 'taken';
 
-  /* cleanup username debounce timer on unmount */
+  /* cleanup username debounce timer + blob URL on unmount */
   useEffect(() => {
-    return () => { if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current); };
-  }, []);
+    return () => {
+      if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current);
+      if (avatarPreview && avatarPreview.startsWith('blob:')) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
 
   useEffect(() => {
     if (!user) return;
@@ -340,7 +343,7 @@ function FormField({ label, value, onChange, type = 'text', placeholder }) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-11 w-full rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 outline-none placeholder:text-stone-400"
+        className="h-11 w-full rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 outline-none focus:border-stone-950 placeholder:text-stone-400"
       />
     </div>
   );

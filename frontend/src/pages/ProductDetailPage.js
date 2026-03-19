@@ -131,19 +131,19 @@ export default function ProductDetailPage() {
     };
   }, []);
 
-  // Fetch related products
+  // Fetch related products — use dedicated discovery endpoint
   useEffect(() => {
-    if (!product?.category_id) return;
+    if (!productId) return;
     let cancelled = false;
-    apiClient.get(`/products?category=${product.category_id}&limit=8`)
+    apiClient.get(`/discovery/related-products/${productId}`, { params: { limit: 6 } })
       .then((res) => {
         if (cancelled) return;
         const items = res?.products || res?.items || res || [];
-        setRelatedProducts(items.filter((p) => (p.product_id || p.id) !== productId).slice(0, 6));
+        setRelatedProducts(Array.isArray(items) ? items.slice(0, 6) : []);
       })
       .catch(() => { if (!cancelled) setRelatedProducts([]); });
     return () => { cancelled = true; };
-  }, [product?.category_id, productId]);
+  }, [productId]);
 
   // Gallery scroll handler — throttled with rAF to avoid setState on every pixel
   const handleGalleryScroll = useCallback(() => {
@@ -232,8 +232,20 @@ export default function ProductDetailPage() {
   // ── Loading state ──
   if (loading) {
     return (
-      <div role="status" aria-label="Cargando producto" className="flex min-h-screen items-center justify-center bg-[var(--color-cream)]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
+      <div role="status" aria-label="Cargando producto" className="min-h-screen bg-stone-50">
+        <div className="aspect-square w-full animate-pulse bg-stone-100" />
+        <div className="px-4 pt-4">
+          <div className="mb-2 h-6 w-3/4 animate-pulse rounded-lg bg-stone-100" />
+          <div className="mb-3 h-4 w-1/3 animate-pulse rounded-lg bg-stone-100" />
+          <div className="mb-3 h-8 w-1/4 animate-pulse rounded-lg bg-stone-100" />
+          <div className="mt-4 flex items-center gap-3">
+            <div className="h-12 w-12 animate-pulse rounded-full bg-stone-100" />
+            <div className="flex-1">
+              <div className="mb-1 h-4 w-1/2 animate-pulse rounded-lg bg-stone-100" />
+              <div className="h-3 w-1/3 animate-pulse rounded-lg bg-stone-100" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -241,7 +253,7 @@ export default function ProductDetailPage() {
   // ── Not found ──
   if (!product) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-cream)] p-8 text-center">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-stone-50 p-8 text-center">
         <p className="mb-4 text-base text-stone-500">
           {t('productDetail.notFound')}
         </p>
@@ -257,7 +269,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream)] pb-[100px]">
+    <div className="min-h-screen bg-stone-50 pb-[100px]">
       <SEO
         title={product.name || 'Producto'}
         description={product.description?.slice(0, 160) || ''}
@@ -267,7 +279,7 @@ export default function ProductDetailPage() {
       />
 
       {/* ── TopBar ── */}
-      <header className="sticky top-0 z-50 bg-[var(--color-cream)]">
+      <header className="sticky top-0 z-50 bg-stone-50">
         <div className="flex h-[52px] items-center justify-between px-4">
           <button
             type="button"

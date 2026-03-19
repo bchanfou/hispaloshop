@@ -142,10 +142,13 @@ export default function useHispalAI() {
         storeMessages(next);
         return next;
       });
-    } catch {
+    } catch (err) {
+      const is429 = err?.response?.status === 429 || err?.status === 429;
       const errorMessage = {
         role: 'assistant',
-        content: 'Lo siento, ha ocurrido un error. Inténtalo de nuevo.',
+        content: is429
+          ? 'Demasiadas solicitudes. Espera un momento antes de volver a preguntar.'
+          : 'Lo siento, ha ocurrido un error. Inténtalo de nuevo.',
         timestamp: new Date().toISOString(),
         toolCalls: [],
       };

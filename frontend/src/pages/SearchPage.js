@@ -80,8 +80,8 @@ function SuggestedPeopleSection() {
               </Link>
               <button
                 onClick={() => handleFollow(u.user_id)}
-                className={`min-h-[36px] shrink-0 rounded-full px-3.5 text-[11px] font-semibold border-none cursor-pointer transition-colors ${
-                  isFollowed ? 'bg-stone-100 text-stone-500 hover:bg-stone-200' : 'bg-stone-950 text-white hover:bg-stone-800'
+                className={`min-h-[36px] shrink-0 rounded-full px-3.5 text-[11px] font-semibold cursor-pointer transition-colors ${
+                  isFollowed ? 'border border-stone-200 bg-white text-stone-950 hover:bg-stone-50' : 'border-none bg-stone-950 text-white hover:bg-stone-800'
                 }`}
               >
                 {isFollowed ? 'Siguiendo' : 'Seguir'}
@@ -308,6 +308,7 @@ export default function SearchPage() {
     setQuery(term);
     saveHistory(term);
     setHistory(getHistory());
+    executeSearch(term);
   };
 
   const handleClearHistory = () => {
@@ -540,7 +541,7 @@ export default function SearchPage() {
                 {trending.map(term => (
                   <button
                     key={term}
-                    onClick={() => setQuery(term)}
+                    onClick={() => { setQuery(term); saveHistory(term); setHistory(getHistory()); executeSearch(term); }}
                     className="min-h-[44px] cursor-pointer rounded-full border border-stone-200 bg-white px-3.5 py-2.5 text-[13px] capitalize text-stone-950"
                   >
                     {term}

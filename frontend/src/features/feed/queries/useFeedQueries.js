@@ -43,7 +43,15 @@ function normalizeFeedPage(data, pageParam, limit = 20) {
       : Array.isArray(data?.data?.posts)
         ? data.data.posts
         : [];
-  const items = rawItems.map(normalizeFeedItem).filter((post) => Boolean(post.id));
+  const normalized = rawItems.map(normalizeFeedItem).filter((post) => Boolean(post.id));
+  // Deduplicate within a single page response
+  const seenIds = new Set();
+  const items = normalized.filter((post) => {
+    const key = String(post.id);
+    if (seenIds.has(key)) return false;
+    seenIds.add(key);
+    return true;
+  });
 
   const hasMore = Boolean(
     data?.has_more ??

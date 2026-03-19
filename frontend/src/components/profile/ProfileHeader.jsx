@@ -111,7 +111,7 @@ function VerifiedBadge({ size = 14 }) {
     >
       <path
         d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67 2.63 13.43 1.75 12 1.75S9.33 2.63 8.66 3.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z"
-        fill="#3897f0"
+        fill="#292524"
       />
       <path
         d="M9.5 12.5l2 2 4-4.5"
@@ -377,7 +377,7 @@ export default function ProfileHeader({
               <button
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Cambiar foto de perfil"
-                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#2E7D52] shadow-sm"
+                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm"
               >
                 <Plus size={14} className="text-white" strokeWidth={3} />
               </button>
@@ -459,7 +459,7 @@ export default function ProfileHeader({
           <div className="mt-2 flex flex-wrap items-center gap-3">
             {user.seller_stats.avg_rating > 0 && (
               <span className="flex items-center gap-1 text-xs text-stone-600">
-                <Star size={12} className="fill-amber-400 text-amber-400" />
+                <Star size={12} className="fill-stone-950 text-stone-950" />
                 {user.seller_stats.avg_rating} ({user.seller_stats.review_count})
               </span>
             )}
@@ -554,7 +554,7 @@ export default function ProfileHeader({
                   ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
                   ? 'bg-stone-100 text-stone-500'
-                  : 'bg-[#2E7D52] text-white'
+                  : 'bg-stone-950 text-white'
               }`}
             >
               {user?.follow_request_pending
@@ -637,7 +637,7 @@ export default function ProfileHeader({
 
           {highlights.map((hl, i) => (
             <div key={hl.highlight_id || hl.id || i} className="flex shrink-0 flex-col items-center gap-1.5">
-              <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-stone-100 ring-[1.5px] ring-stone-300 ring-offset-2 ring-offset-white">
+              <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-stone-100 ring-[1.5px] ring-stone-200 ring-offset-2 ring-offset-white">
                 {(hl.cover_url || hl.image) ? (
                   <img src={hl.cover_url || hl.image} alt={hl.title} className="h-[64px] w-[64px] rounded-full object-cover" />
                 ) : (

@@ -48,7 +48,7 @@ function renderCaption(text) {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} className="text-[#3060A0]">{part}</span>
+      <span key={i} className="text-stone-500 font-medium">{part}</span>
     ) : (
       <React.Fragment key={i}>{part}</React.Fragment>
     ),
@@ -122,17 +122,22 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
     const next = !effectiveSaved;
     setSavePending(next);
     try {
-      if (next) {
-        await apiClient.post(`/posts/${post.id}/save`);
-      } else {
-        await apiClient.delete(`/posts/${post.id}/save`);
-      }
+      // Backend toggles save state on POST (no separate DELETE endpoint)
+      await apiClient.post(`/posts/${post.id}/save`);
       onSave?.(post.id);
+      // Keep optimistic value until prop syncs (onSave may trigger cache update)
     } catch {
       setSavePending(null); // rollback to prop value
       toast.error('Error al guardar');
     }
   }, [effectiveSaved, onSave, post.id]);
+
+  // Reset optimistic override when prop value catches up
+  React.useEffect(() => {
+    if (savePending !== null && savePending === saved) {
+      setSavePending(null);
+    }
+  }, [saved, savePending]);
 
   // Share — uses ref for always-fresh caption
   const handleShare = useCallback(async () => {
@@ -312,7 +317,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
         <div
           onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
           className={`flex shrink-0 items-center justify-center rounded-full cursor-pointer ${
-            hasStory ? 'h-9 w-9 bg-[#2E7D52] p-[2px]' : 'h-9 w-9'
+            hasStory ? 'h-9 w-9 bg-stone-950 p-[2px]' : 'h-9 w-9'
           }`}
           role="link"
           aria-label={`Ver perfil de ${user.name}`}
@@ -544,7 +549,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority
               className="min-h-[44px] bg-transparent border-none p-0 py-1 text-sm text-stone-500 cursor-pointer font-[inherit]"
               onClick={() => setExpanded(true)}
             >
-              ... Ver m&aacute;s
+              ... Ver más
             </button>
           )}
         </div>

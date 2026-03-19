@@ -378,12 +378,19 @@ async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] =
 
     # Diversify: max 2 consecutive from same author
     result = []
-    author_run = {}
+    seen_ids = set()
+    author_count = {}
     for _, item in scored:
+        item_id = item.get("id") or item.get("post_id") or item.get("reel_id")
+        # Deduplicate items
+        if item_id and item_id in seen_ids:
+            continue
         uid = item.get("user_id", "")
-        author_run[uid] = author_run.get(uid, 0) + 1
-        if author_run[uid] <= 2:
+        author_count[uid] = author_count.get(uid, 0) + 1
+        if author_count[uid] <= 2:
             result.append(item)
+            if item_id:
+                seen_ids.add(item_id)
         if len(result) >= limit:
             break
 
@@ -426,10 +433,21 @@ async def feed_following(request: Request, limit: int = 20, cursor: Optional[str
         r.setdefault("id", r.get("reel_id") or r.get("id"))
         r.setdefault("video_url", r.get("video_url") or r.get("url"))
 
-    # Merge and sort by created_at DESC
+    # Merge, deduplicate, and sort by created_at DESC
     combined = posts + reels
     combined.sort(key=lambda x: x.get("created_at", ""), reverse=True)
-    result = combined[:limit]
+    seen_ids = set()
+    deduped = []
+    for item in combined:
+        item_id = item.get("id") or item.get("post_id") or item.get("reel_id")
+        if item_id and item_id in seen_ids:
+            continue
+        if item_id:
+            seen_ids.add(item_id)
+        deduped.append(item)
+        if len(deduped) >= limit:
+            break
+    result = deduped
 
     # Hydrate user info
     result = await _hydrate_feed_users(result, current_user, set(following_ids))

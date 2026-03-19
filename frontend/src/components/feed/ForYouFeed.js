@@ -20,12 +20,18 @@ export default function ForYouFeed() {
   const queryClient = useQueryClient();
   const feedQuery = useForYouFeed();
   const likeMutation = useLikePost();
-  const allPosts = useMemo(
-    () => (feedQuery.data?.pages || []).flatMap((page) => page?.items || []).filter((p) => p?.id),
-    [feedQuery.data]
-  );
+  const allPosts = useMemo(() => {
+    const raw = (feedQuery.data?.pages || []).flatMap((page) => page?.items || []).filter((p) => p?.id);
+    const seen = new Set();
+    return raw.filter((p) => {
+      const key = String(p.id);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [feedQuery.data]);
   const hasMore = Boolean(feedQuery.hasNextPage);
-  const isLoading = feedQuery.isLoading || feedQuery.isFetchingNextPage;
+  const isInitialLoading = feedQuery.isLoading;
   const error = feedQuery.error;
 
   // Post detail modal state
@@ -71,6 +77,9 @@ export default function ForYouFeed() {
 
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(postUrl);
+        // Provide feedback when using clipboard fallback (no native share sheet)
+        const { toast } = await import('sonner');
+        toast.success(t('common.linkCopied', 'Enlace copiado'));
       }
     } catch {
       // User cancelled share dialog — ignore
@@ -90,7 +99,7 @@ export default function ForYouFeed() {
         <button
           type="button"
           onClick={() => feedQuery.refetch()}
-          className="mt-5 rounded-full bg-[#2E7D52] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1F5C3B] active:scale-95"
+          className="mt-5 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
         >
           {t('common.retry', 'Reintentar')}
         </button>
@@ -107,7 +116,7 @@ export default function ForYouFeed() {
       {...handlers}
     >
       <PullIndicator progress={progress} isRefreshing={refreshing} />
-      {isLoading && allPosts.length === 0 ? (
+      {isInitialLoading && allPosts.length === 0 ? (
         <div aria-busy="true" aria-label="Cargando publicaciones">
           <FeedSkeleton count={3} />
         </div>
@@ -125,7 +134,7 @@ export default function ForYouFeed() {
           <button
             type="button"
             onClick={() => navigate('/discover')}
-            className="mt-5 rounded-full bg-[#2E7D52] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1F5C3B] active:scale-95"
+            className="mt-5 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
           >
             {t('feed.explore', 'Descubrir')}
           </button>

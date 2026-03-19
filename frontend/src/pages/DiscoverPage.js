@@ -69,7 +69,7 @@ export default function DiscoverPage() {
     let active = true;
 
     apiClient.get('/discovery/trending', { params: { type: 'products', limit: 4 } })
-      .then(data => { if (active) setTrending(Array.isArray(data) ? data.slice(0, 4) : data?.products?.slice(0, 4) || []); })
+      .then(data => { if (active) setTrending(Array.isArray(data) ? data.slice(0, 4) : (data?.items || data?.products || []).slice(0, 4)); })
       .catch(() => {})
       .finally(() => { if (active) setLoadingTrending(false); });
 
@@ -78,7 +78,7 @@ export default function DiscoverPage() {
         const list = Array.isArray(data) ? data : data?.stores || [];
         if (active) setEliteStores(list);
       })
-      .catch(() => {});
+      .catch(() => { /* elite stores are non-critical */ });
 
     apiClient.get('/recipes', { params: { sort: 'popular', limit: 6 } })
       .then(data => {
@@ -93,10 +93,11 @@ export default function DiscoverPage() {
         const list = Array.isArray(data) ? data : data?.users || [];
         if (active) setSuggestedUsers(list.slice(0, 5));
       })
-      .catch(() => {});
+      .catch(() => { /* suggested users are non-critical */ });
 
     return () => { active = false; };
-  }, [userCountry, user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userCountry, user?.user_id]);
 
   /* ── elite auto-rotate ── */
   const advanceElite = useCallback(() => {
@@ -215,15 +216,25 @@ export default function DiscoverPage() {
                 <ProductCard key={p.product_id || p.id} product={p} />
               ))}
             </div>
-          ) : (
-            !loadingProducts && products.length > 0 && (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
-                {products.slice(0, 4).map(p => (
-                  <ProductCard key={p.product_id || p.id} product={p} />
-                ))}
-              </div>
-            )
-          )}
+          ) : loadingProducts ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="overflow-hidden rounded-xl border border-stone-200 bg-white">
+                  <div className="aspect-square animate-pulse bg-stone-100" />
+                  <div className="p-3">
+                    <div className="mb-1.5 h-3 w-[70%] animate-pulse rounded bg-stone-100" />
+                    <div className="h-2.5 w-[40%] animate-pulse rounded bg-stone-100" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
+              {products.slice(0, 4).map(p => (
+                <ProductCard key={p.product_id || p.id} product={p} />
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {/* ─── ② DESTACADO ELITE (auto-rotate) ─── */}
@@ -307,6 +318,22 @@ export default function DiscoverPage() {
         </div>
 
         {/* ─── ④ TIENDAS QUE TE GUSTARÁN ─── */}
+        {loadingStores && (
+          <div className="mb-6">
+            <span className="mb-3 block text-[10px] font-semibold uppercase tracking-wider text-stone-500">Tiendas que te gustarán</span>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="w-[180px] shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white">
+                  <div className="h-[90px] animate-pulse bg-stone-100" />
+                  <div className="px-3 pb-3 pt-5">
+                    <div className="mb-1.5 h-3 w-[70%] animate-pulse rounded bg-stone-100" />
+                    <div className="h-2.5 w-[40%] animate-pulse rounded bg-stone-100" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {!loadingStores && stores.length > 0 && (
           <div className="mb-6">
             <div className="mb-3 flex items-center justify-between">

@@ -57,7 +57,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
 
   return (
     <div
-      className="scrollbar-hide flex gap-3 overflow-x-auto px-4 py-3"
+      className="scrollbar-hide flex gap-3 overflow-x-auto overscroll-x-contain px-4 py-3"
       role="region"
       aria-label="Historias"
       tabIndex={0}

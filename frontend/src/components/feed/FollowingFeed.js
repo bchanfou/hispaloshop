@@ -34,7 +34,7 @@ function EmptyFollowing() {
       <button
         type="button"
         onClick={() => navigate('/discover')}
-        className="mt-5 rounded-full bg-[#2E7D52] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1F5C3B] active:scale-95"
+        className="mt-5 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
       >
         {t('feed.discoverUsers', 'Descubrir usuarios')}
       </button>
@@ -48,12 +48,18 @@ function FollowingFeed() {
   const queryClient = useQueryClient();
   const feedQuery = useFollowingFeed();
   const likeMutation = useLikePost();
-  const allPosts = useMemo(
-    () => (feedQuery.data?.pages || []).flatMap((page) => page?.items || []).filter((p) => p?.id),
-    [feedQuery.data]
-  );
+  const allPosts = useMemo(() => {
+    const raw = (feedQuery.data?.pages || []).flatMap((page) => page?.items || []).filter((p) => p?.id);
+    const seen = new Set();
+    return raw.filter((p) => {
+      const key = String(p.id);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [feedQuery.data]);
   const hasMore = Boolean(feedQuery.hasNextPage);
-  const isLoading = feedQuery.isLoading || feedQuery.isFetchingNextPage;
+  const isInitialLoading = feedQuery.isLoading;
   const error = feedQuery.error;
 
   const [modalPost, setModalPost] = useState(null);
@@ -98,6 +104,8 @@ function FollowingFeed() {
 
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(postUrl);
+        const { toast } = await import('sonner');
+        toast.success(t('common.linkCopied', 'Enlace copiado'));
       }
     } catch {
       // User cancelled share dialog — ignore
@@ -117,7 +125,7 @@ function FollowingFeed() {
         <button
           type="button"
           onClick={() => feedQuery.refetch()}
-          className="mt-5 rounded-full bg-[#2E7D52] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1F5C3B] active:scale-95"
+          className="mt-5 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
         >
           {t('common.retry', 'Reintentar')}
         </button>
@@ -138,7 +146,7 @@ function FollowingFeed() {
       {...handlers}
     >
       <PullIndicator progress={progress} isRefreshing={refreshing} />
-      {isLoading && allPosts.length === 0 ? (
+      {isInitialLoading && allPosts.length === 0 ? (
         <div aria-busy="true" aria-label="Cargando publicaciones">
           <FeedSkeleton count={3} />
         </div>

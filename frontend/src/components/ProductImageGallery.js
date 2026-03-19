@@ -91,8 +91,8 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
           <>
             <button
               onClick={goToPrev}
-              className={`absolute left-2 top-1/2 -translate-y-1/2 w-11 h-11 md:hidden rounded-full bg-white/90 shadow-md flex items-center justify-center transition-opacity ${
-                selectedImageIndex === 0 ? 'opacity-30' : 'opacity-100'
+              className={`absolute left-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 shadow-md flex items-center justify-center transition-opacity ${
+                selectedImageIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'
               }`}
               disabled={selectedImageIndex === 0}
               aria-label="Imagen anterior"
@@ -101,8 +101,8 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
             </button>
             <button
               onClick={goToNext}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 md:hidden rounded-full bg-white/90 shadow-md flex items-center justify-center transition-opacity ${
-                selectedImageIndex === productImages.length - 1 ? 'opacity-30' : 'opacity-100'
+              className={`absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 shadow-md flex items-center justify-center transition-opacity ${
+                selectedImageIndex === productImages.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'
               }`}
               disabled={selectedImageIndex === productImages.length - 1}
               aria-label="Imagen siguiente"
@@ -113,12 +113,12 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
         )}
 
         {showThumbnails && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 md:hidden">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-0.5 md:hidden">
             {productImages.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedImageIndex(idx)}
-                className="flex items-center justify-center w-6 h-6"
+                className="flex items-center justify-center w-11 h-11"
                 aria-label={`Ir a imagen ${idx + 1}`}
               >
                 <span

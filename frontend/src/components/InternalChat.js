@@ -114,7 +114,11 @@ function ChatAvatar({ src, name, size = 'h-11 w-11', alt }) {
 
 function MessageStatus({ message, isOwn }) {
   const status = (message?.status || '').toLowerCase();
-  const label = status === 'read' ? 'Leído' : 'No leído';
+  const label =
+    status === 'read' ? 'Leído'
+      : status === 'delivered' ? 'Entregado'
+        : status === 'sent' ? 'Enviado'
+          : '';
 
   return (
     <div
@@ -123,7 +127,7 @@ function MessageStatus({ message, isOwn }) {
       }`}
     >
       <span>{formatTime(message?.read_at || message?.delivered_at || message?.created_at)}</span>
-      {isOwn ? <span>{label}</span> : null}
+      {isOwn && label ? <span>{label}</span> : null}
     </div>
   );
 }
@@ -152,7 +156,7 @@ function ReplyPreviewInline({ preview }) {
   );
 }
 
-function MessageBubble({ message, isOwn, onReply }) {
+const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onReply }) {
   const [reaction, setReaction]       = useState(null);
   const [showPicker, setShowPicker]   = useState(false);
   const [showReplyBtn, setShowReplyBtn] = useState(false);
@@ -276,6 +280,7 @@ function MessageBubble({ message, isOwn, onReply }) {
                 src={message.image_url}
                 alt="Imagen compartida en el chat"
                 loading="lazy"
+                onError={(e) => { e.target.alt = 'No se pudo cargar la imagen'; e.target.className = 'hidden'; }}
                 className="max-w-[260px] object-cover"
               />
             </div>
@@ -317,7 +322,7 @@ function MessageBubble({ message, isOwn, onReply }) {
       </div>
     </motion.div>
   );
-}
+});
 
 function TypingIndicator() {
   return (
@@ -890,20 +895,6 @@ export default function InternalChat({
     };
   }, []);
 
-  useEffect(() => {
-    activeConversationRef.current = selectedConversationId;
-  }, [selectedConversationId]);
-
-  // Keep refs in sync — avoids WebSocket effect depending on callback identity
-  useEffect(() => { markIncomingReadRef.current = markIncomingMessagesAsRead; }, [markIncomingMessagesAsRead]);
-  useEffect(() => { scheduleReloadRef.current = scheduleReloadConversations; }, [scheduleReloadConversations]);
-
-  useEffect(() => {
-    if (!selectedConversationId && sortedConversations.length > 0 && !initialChatUserId) {
-      setSelectedConversationId(sortedConversations[0].conversation_id);
-    }
-  }, [initialChatUserId, selectedConversationId, sortedConversations]);
-
   const scheduleReloadConversations = useCallback(() => {
     if (conversationsReloadTimeoutRef.current) {
       window.clearTimeout(conversationsReloadTimeoutRef.current);
@@ -946,6 +937,20 @@ export default function InternalChat({
     },
     [scheduleReloadConversations, selectedConversationId, user?.user_id]
   );
+
+  useEffect(() => {
+    activeConversationRef.current = selectedConversationId;
+  }, [selectedConversationId]);
+
+  // Keep refs in sync — avoids WebSocket effect depending on callback identity
+  useEffect(() => { markIncomingReadRef.current = markIncomingMessagesAsRead; }, [markIncomingMessagesAsRead]);
+  useEffect(() => { scheduleReloadRef.current = scheduleReloadConversations; }, [scheduleReloadConversations]);
+
+  useEffect(() => {
+    if (!selectedConversationId && sortedConversations.length > 0 && !initialChatUserId) {
+      setSelectedConversationId(sortedConversations[0].conversation_id);
+    }
+  }, [initialChatUserId, selectedConversationId, sortedConversations]);
 
   const loadConversation = useCallback(
     async (conversationId) => {
@@ -1018,88 +1023,118 @@ export default function InternalChat({
     const token = getToken();
     if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
 
-    const socket = new WebSocket(getWSUrl('/ws/chat'));
-    wsRef.current = socket;
+    let reconnectAttempts = 0;
+    let reconnectTimer = null;
+    let intentionalClose = false;
 
-    socket.onopen = () => {
-      socket.send(JSON.stringify({ type: 'auth', token }));
-      if (activeConversationRef.current) {
-        socket.send(JSON.stringify({ type: 'join_conversation', conversation_id: activeConversationRef.current }));
-      }
-    };
+    function connect() {
+      const socket = new WebSocket(getWSUrl('/ws/chat'));
+      wsRef.current = socket;
 
-    socket.onmessage = async (event) => {
-      try {
-        const payload = JSON.parse(event.data);
-
-        if (payload.type === 'typing') {
-          if (payload.conversation_id === activeConversationRef.current && payload.user_id !== user.user_id) {
-            setTypingUserId(payload.is_typing ? payload.user_id : null);
-            if (typingClearRef.current) window.clearTimeout(typingClearRef.current);
-            if (payload.is_typing) {
-              typingClearRef.current = window.setTimeout(() => setTypingUserId(null), 3000);
-            }
-          }
-          return;
+      socket.onopen = () => {
+        reconnectAttempts = 0;
+        socket.send(JSON.stringify({ type: 'auth', token }));
+        if (activeConversationRef.current) {
+          socket.send(JSON.stringify({ type: 'join_conversation', conversation_id: activeConversationRef.current }));
         }
+      };
 
-        if (payload.type === 'message_read' || payload.type === 'read_receipt') {
-          const changedConversation = payload.conversation_id;
-          if (changedConversation === activeConversationRef.current) {
-            setMessages((current) => {
-              const nextMessages = current.map((message) =>
-                message.sender_id === user.user_id
-                  ? { ...message, status: 'read', read_at: payload.read_at || new Date().toISOString() }
-                  : message
-              );
-              messagesCacheRef.current.set(changedConversation, nextMessages);
-              return nextMessages;
-            });
-          }
-          scheduleReloadRef.current?.();
-          return;
-        }
+      socket.onmessage = async (event) => {
+        try {
+          const payload = JSON.parse(event.data);
 
-        if (payload.type === 'new_message') {
-          const incomingMessage = payload.message;
-          const incomingConversation = payload.conversation_id;
-
-          scheduleReloadRef.current?.();
-
-          if (incomingConversation === activeConversationRef.current && incomingMessage) {
-            setMessages((current) => {
-              if (current.some((message) => message.message_id === incomingMessage.message_id)) {
-                return current;
+          if (payload.type === 'typing') {
+            if (payload.conversation_id === activeConversationRef.current && payload.user_id !== user.user_id) {
+              setTypingUserId(payload.is_typing ? payload.user_id : null);
+              if (typingClearRef.current) window.clearTimeout(typingClearRef.current);
+              if (payload.is_typing) {
+                typingClearRef.current = window.setTimeout(() => setTypingUserId(null), 3000);
               }
-              const nextMessages = [...current, incomingMessage];
-              messagesCacheRef.current.set(incomingConversation, nextMessages);
-              return nextMessages;
-            });
+            }
+            return;
+          }
 
-            if (incomingMessage.sender_id !== user.user_id) {
-              markIncomingReadRef.current?.([incomingMessage], incomingConversation);
+          if (payload.type === 'message_read' || payload.type === 'read_receipt') {
+            const changedConversation = payload.conversation_id;
+            if (changedConversation === activeConversationRef.current) {
+              setMessages((current) => {
+                const nextMessages = current.map((message) =>
+                  message.sender_id === user.user_id
+                    ? { ...message, status: 'read', read_at: payload.read_at || new Date().toISOString() }
+                    : message
+                );
+                messagesCacheRef.current.set(changedConversation, nextMessages);
+                return nextMessages;
+              });
+            }
+            scheduleReloadRef.current?.();
+            return;
+          }
+
+          if (payload.type === 'new_message') {
+            const incomingMessage = payload.message;
+            const incomingConversation = payload.conversation_id;
+
+            scheduleReloadRef.current?.();
+
+            if (incomingConversation === activeConversationRef.current && incomingMessage) {
+              setMessages((current) => {
+                if (current.some((message) => message.message_id === incomingMessage.message_id)) {
+                  return current;
+                }
+                const nextMessages = [...current, incomingMessage];
+                messagesCacheRef.current.set(incomingConversation, nextMessages);
+                return nextMessages;
+              });
+
+              if (incomingMessage.sender_id !== user.user_id) {
+                markIncomingReadRef.current?.([incomingMessage], incomingConversation);
+              }
             }
           }
+        } catch {
+          // WebSocket message processing error — silently ignored in production
         }
-      } catch {
-        // WebSocket message processing error — silently ignored in production
-      }
-    };
+      };
+
+      socket.onclose = () => {
+        wsRef.current = null;
+        if (!intentionalClose && reconnectAttempts < 8) {
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+          reconnectAttempts += 1;
+          reconnectTimer = window.setTimeout(connect, delay);
+        }
+      };
+
+      socket.onerror = () => {
+        // onclose will fire after onerror, triggering reconnect
+      };
+    }
+
+    connect();
 
     return () => {
+      intentionalClose = true;
+      if (reconnectTimer) window.clearTimeout(reconnectTimer);
       if (typingClearRef.current) window.clearTimeout(typingClearRef.current);
       if (conversationsReloadTimeoutRef.current) {
         window.clearTimeout(conversationsReloadTimeoutRef.current);
       }
-      socket.close();
-      wsRef.current = null;
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
     };
   }, [user?.user_id]);
 
+  // Scroll to bottom is handled by Virtuoso followOutput="smooth".
+  // This explicit scroll is a fallback for typing indicator toggling.
+  // visibleTimeline is a useMemo defined further down; effects run after render
+  // so the value is always available at effect-execution time.
   useEffect(() => {
     if (virtuosoRef.current && messages.length > 0) {
       virtuosoRef.current.scrollToIndex({
-        index: visibleTimeline.length - 1,
+        index: Math.max(0, messages.length - 1),
         behavior: 'smooth',
       });
     }
@@ -1576,7 +1611,7 @@ export default function InternalChat({
               </div>
             </div>
 
-            <div className="relative flex-1 bg-white">
+            <div className="relative flex-1 bg-white" role="log" aria-live="polite" aria-label="Mensajes de la conversación">
               {loadingMessages ? (
                 <LoadingConversationSkeleton />
               ) : visibleMessages.length > 0 ? (

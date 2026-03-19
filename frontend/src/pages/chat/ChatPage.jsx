@@ -45,6 +45,7 @@ function formatDateSeparator(date) {
 }
 
 function formatTime(date) {
+  if (!date || Number.isNaN(date.getTime())) return '';
   return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -82,16 +83,16 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
         </button>
 
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#2E7D52]">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-200">
             {conversation?.avatar_url ? (
-              <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" />
+              <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-[15px] font-semibold text-stone-500">
                 {(conversation?.name || '?')[0]?.toUpperCase()}
               </div>
             )}
             {isOnline && (
-              <span className="absolute bottom-0 right-0 h-[10px] w-[10px] rounded-full border-2 border-white bg-green-500" />
+              <span className="absolute bottom-0 right-0 h-[10px] w-[10px] rounded-full border-2 border-white bg-stone-950" />
             )}
           </div>
 
@@ -101,7 +102,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
             </p>
             <div className="mt-0.5 flex items-center gap-1">
               {isOnline ? (
-                <span className="text-xs font-medium text-green-600">En línea</span>
+                <span className="text-xs font-medium text-stone-950">En línea</span>
               ) : (
                 <span className="text-xs text-stone-500">{status?.text || ''}</span>
               )}
@@ -256,7 +257,7 @@ function AudioPlayer({ url, duration, isOwn }) {
       </button>
       <div className="flex-1">
         <div className={`h-1 rounded-full ${isOwn ? 'bg-white/30' : 'bg-stone-200'}`}>
-          <div className={`h-1 rounded-full transition-[width] ${isOwn ? 'bg-white' : 'bg-[#2E7D52]'}`} style={{ width: `${progress * 100}%` }} />
+          <div className={`h-1 rounded-full transition-[width] ${isOwn ? 'bg-white' : 'bg-stone-950'}`} style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
       <span className={`text-[11px] ${isOwn ? 'text-white/70' : 'text-stone-500'}`}>{fmt(duration || 0)}</span>
@@ -269,7 +270,8 @@ function AudioPlayer({ url, duration, isOwn }) {
    audio messages, and sending state
    ================================================================ */
 function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastInGroup, isMiddleInGroup, onImageTap, onContextMenu: onCtxMenu, onReply, searchHighlight }) {
-  const ts = new Date(message.created_at || message.timestamp);
+  const rawTs = message?.created_at || message?.timestamp;
+  const ts = rawTs ? new Date(rawTs) : new Date();
   const touchTimerRef = useRef(null);
   const dragX = useMotionValue(0);
   const replyIconOpacity = useTransform(dragX, [0, 60], [0, 1]);
@@ -311,7 +313,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
     return (
       <>
         {text.slice(0, idx)}
-        <mark className="rounded bg-yellow-200 px-0.5">{text.slice(idx, idx + searchHighlight.length)}</mark>
+        <mark className="rounded bg-stone-200 px-0.5">{text.slice(idx, idx + searchHighlight.length)}</mark>
         {text.slice(idx + searchHighlight.length)}
       </>
     );
@@ -351,7 +353,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
             onClick={() => message.image_url && onImageTap?.(message.image_url)}
           >
             {message.image_url ? (
-              <img src={message.image_url} alt="" className="block h-auto w-full" loading="lazy" />
+              <img src={message.image_url} alt="Imagen en chat" className="block h-auto w-full" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
             ) : (
               <div className="flex h-[180px] w-[240px] items-center justify-center text-stone-500">
                 <Image size={32} />
@@ -385,7 +387,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
         <div className="max-w-[75%]">
           <div
             className={`min-w-[200px] px-3.5 py-2.5 font-apple ${
-              isOwn ? 'bg-[#2E7D52] text-white' : 'bg-[#EFEFEF] text-stone-950'
+              isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
             }`}
             style={{ borderRadius: bubbleRadius }}
           >
@@ -408,7 +410,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
     <div className="max-w-[75%]">
       <div
         className={`break-words px-3.5 py-2.5 text-[15px] leading-[21px] font-apple ${
-          isOwn ? 'bg-[#2E7D52] text-white' : 'bg-[#EFEFEF] text-stone-950'
+          isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
         }`}
         style={{ borderRadius: bubbleRadius }}
       >
@@ -421,7 +423,7 @@ function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastIn
             <span className="block truncate">{replyPreview.content || ''}</span>
           </div>
         )}
-        {highlightText(message.content)}
+        {highlightText(message.content || '')}
       </div>
       <ReactionBar reactions={message.reactions} />
       {showTimestamp && (
@@ -568,7 +570,7 @@ function CollabSampleMessage({ message, isOwn, gap, touchProps }) {
    ================================================================ */
 function TypingIndicator() {
   return (
-    <div className="mt-3 flex justify-start px-4">
+    <div className="mt-3 flex justify-start px-4" aria-live="polite" aria-label="Escribiendo">
       <div className="flex items-center gap-1 rounded-[20px] rounded-bl-[4px] border border-stone-100 bg-stone-50 px-4 py-3">
         {[0, 1, 2].map((i) => (
           <motion.span
@@ -593,7 +595,7 @@ function NewMessagesPill({ onClick }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       onClick={onClick}
-      className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full bg-[#2E7D52] px-4 py-1.5 text-[13px] font-semibold text-white shadow-[0_4px_12px_rgba(46,125,82,0.3)]"
+      className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full bg-stone-950 px-4 py-1.5 text-[13px] font-semibold text-white shadow-[0_4px_12px_rgba(12,10,9,0.25)]"
     >
       <span className="text-[15px]">↓</span> Nuevos mensajes
     </motion.button>
@@ -648,7 +650,7 @@ function MessageContextMenu({ contextMenu, onClose, userId, onReact, onReply }) 
               key={opt.label}
               onClick={opt.action}
               className={`flex h-10 w-full items-center gap-2.5 rounded-xl px-2 text-[13px] font-medium transition-colors hover:bg-stone-50 ${
-                opt.danger ? 'text-red-600' : 'text-stone-950'
+                opt.danger ? 'text-stone-500' : 'text-stone-950'
               }`}
             >
               {Icon && <Icon size={16} />}
@@ -702,11 +704,11 @@ function EmptyConversation({ conversation, onSendSuggestion }) {
 
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 font-apple">
-      <div className="mb-3 h-16 w-16 overflow-hidden rounded-full bg-[#2E7D52]">
+      <div className="mb-3 h-16 w-16 overflow-hidden rounded-full bg-stone-200">
         {conversation?.avatar_url ? (
-          <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" />
+          <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-stone-500">
+          <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-stone-600">
             {(name[0] || '?').toUpperCase()}
           </div>
         )}
@@ -725,7 +727,7 @@ function EmptyConversation({ conversation, onSendSuggestion }) {
           <button
             key={text}
             onClick={() => onSendSuggestion(text)}
-            className="rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-[#2E7D52] active:bg-stone-200"
+            className="rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-stone-950 active:bg-stone-200"
           >
             {text}
           </button>
@@ -861,20 +863,20 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
 
       {isRecording ? (
         <div className="flex items-center gap-3 px-3 pt-2">
-          <button onClick={cancelRecording} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-red-500 active:bg-red-50" aria-label="Cancelar">
+          <button onClick={cancelRecording} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-500 active:bg-stone-50" aria-label="Cancelar">
             <X size={20} />
           </button>
           <div className="flex flex-1 items-center gap-2">
-            <motion.span animate={{ opacity: [1, 0.3] }} transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }} className="h-2.5 w-2.5 rounded-full bg-red-500" />
+            <motion.span animate={{ opacity: [1, 0.3] }} transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }} className="h-2.5 w-2.5 rounded-full bg-stone-950" />
             <span className="text-sm font-medium text-stone-950">{fmtSecs(recordingSecs)}</span>
           </div>
-          <button onClick={stopRecording} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[#2E7D52] text-white active:opacity-75" aria-label="Enviar nota de voz">
+          <button onClick={stopRecording} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75" aria-label="Enviar nota de voz">
             <ArrowUp size={20} />
           </button>
         </div>
       ) : (
         <div className="flex items-end gap-2 px-3 pt-2">
-          <button onClick={handleImagePick} className="mb-1 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-[#2E7D52] active:opacity-60" aria-label="Adjuntar imagen">
+          <button onClick={handleImagePick} className="mb-1 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:opacity-60" aria-label="Adjuntar imagen">
             <Plus size={22} />
           </button>
 
@@ -899,7 +901,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 onClick={handleSend}
-                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-[#2E7D52] text-white active:opacity-75"
+                className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75"
                 aria-label="Enviar"
               >
                 <ArrowUp size={20} />
@@ -1178,7 +1180,7 @@ export default function ChatPage() {
       />
       <ContextBanner orderId={conversation?.order_id} navigate={navigate} />
 
-      <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-white">
+      <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-white" role="log" aria-live="polite" aria-label="Mensajes">
         <div className="pb-4 pt-2">
           {/* Pagination spinner (Q10) */}
           {loadingMore && (

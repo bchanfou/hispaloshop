@@ -168,7 +168,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                 type="button"
                 onClick={handleSave}
                 disabled={isPending || usernameStatus === 'checking'}
-                className="flex items-center gap-1 text-[14px] font-semibold text-[#2E7D52] disabled:opacity-50 active:opacity-50"
+                className="flex items-center gap-1 text-[14px] font-semibold text-stone-950 disabled:opacity-50 active:opacity-50"
               >
                 {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Guardar
@@ -221,7 +221,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                   type="button"
                   onClick={() => avatarInputRef.current?.click()}
                   disabled={uploadingAvatar}
-                  className="mt-2 text-[13px] font-semibold text-[#2E7D52] active:opacity-50 disabled:opacity-50"
+                  className="mt-2 text-[13px] font-semibold text-stone-950 active:opacity-50 disabled:opacity-50"
                 >
                   {uploadingAvatar ? 'Subiendo...' : 'Cambiar foto'}
                 </button>

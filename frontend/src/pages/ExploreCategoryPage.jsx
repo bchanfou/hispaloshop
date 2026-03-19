@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Package } from 'lucide-react';
+import { ArrowLeft, Search, Package, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
@@ -11,7 +11,9 @@ export default function ExploreCategoryPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [activeSubSlug, setActiveSubSlug] = useState(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   const group = useMemo(() => getGroupBySlug(slug), [slug]);
 
@@ -32,6 +34,7 @@ export default function ExploreCategoryPage() {
     }
 
     setLoading(true);
+    setError(false);
     const categoryParam = effectiveActiveSubSlug || (subcategories.length > 0 ? subcategories[0].slug : slug);
 
     apiClient
@@ -43,13 +46,13 @@ export default function ExploreCategoryPage() {
         }
       })
       .catch(() => {
-        if (!cancelled) setProducts([]);
+        if (!cancelled) { setProducts([]); setError(true); }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [activeSubSlug, subcategories, slug]);
+  }, [activeSubSlug, subcategories, slug, retryKey]);
 
   if (!group) {
     return (
@@ -119,6 +122,19 @@ export default function ExploreCategoryPage() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-stone-100" />
             ))}
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16">
+            <Package size={48} className="text-stone-300" strokeWidth={1.5} />
+            <p className="text-center text-[15px] text-stone-500">
+              No se pudieron cargar los productos
+            </p>
+            <button
+              onClick={() => setRetryKey(k => k + 1)}
+              className="mt-1 flex items-center gap-1.5 rounded-full bg-stone-950 px-5 py-2.5 text-[13px] font-semibold text-white"
+            >
+              <RefreshCw size={14} /> Reintentar
+            </button>
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16">

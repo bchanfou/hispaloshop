@@ -323,7 +323,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
                   {sending ? (
                     <Loader2 size={16} className="text-stone-400 animate-spin" />
                   ) : (
-                    <Send size={16} className="text-[#2E7D52]" />
+                    <Send size={16} className="text-stone-950" />
                   )}
                 </button>
               </div>

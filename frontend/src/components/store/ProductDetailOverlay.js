@@ -306,9 +306,9 @@ export default function ProductDetailOverlay({
 
               {/* Info cards */}
               <div className="grid gap-2.5">
-                <InfoRow label="Ingredientes" value={product.ingredients} />
-                <InfoRow label="Valores nutricionales" value={product.nutritional_info || product.nutritional_values} />
-                <InfoRow label="Alérgenos" value={product.allergens} icon={AlertTriangle} />
+                <InfoRow label="Ingredientes" value={Array.isArray(product.ingredients) ? product.ingredients.map(i => typeof i === 'object' ? i.name : i).join(', ') : product.ingredients} />
+                <InfoRow label="Valores nutricionales" value={typeof (product.nutritional_info || product.nutritional_values) === 'object' && !Array.isArray(product.nutritional_info || product.nutritional_values) ? Object.entries(product.nutritional_info || product.nutritional_values).map(([k,v]) => `${k}: ${v}`).join(', ') : (product.nutritional_info || product.nutritional_values)} />
+                <InfoRow label="Alérgenos" value={Array.isArray(product.allergens) ? product.allergens.join(', ') : product.allergens} icon={AlertTriangle} />
               </div>
             </div>
           </div>

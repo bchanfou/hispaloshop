@@ -181,7 +181,7 @@ export default function HispalAI() {
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto px-4 py-4">
+              <div className="flex-1 overflow-y-auto px-4 py-4" role="log" aria-live="polite" aria-label="Mensajes de David AI">
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center pt-8">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
@@ -234,12 +234,12 @@ export default function HispalAI() {
                           ) : (
                             <div
                               className="text-[15px] leading-relaxed"
-                              dangerouslySetInnerHTML={{ __html: parseMarkdownSafe(msg.content) }}
+                              dangerouslySetInnerHTML={{ __html: parseMarkdownSafe(msg.content || '') }}
                             />
                           )}
-                          {msg.timestamp && (
+                          {msg.timestamp && !Number.isNaN(new Date(msg.timestamp).getTime()) && (
                             <p className={`mt-1 text-[11px] ${isUser ? 'text-stone-400' : 'text-stone-400'}`}>
-                              {new Date(msg.timestamp).toLocaleTimeString([], {
+                              {new Date(msg.timestamp).toLocaleTimeString('es-ES', {
                                 hour: '2-digit',
                                 minute: '2-digit',
                               })}

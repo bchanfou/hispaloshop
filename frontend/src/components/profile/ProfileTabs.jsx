@@ -377,7 +377,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
                 src={src}
                 alt={recipe.name || recipe.title || 'Receta'}
                 loading="lazy"
-                className="block aspect-[4/3] w-full rounded-t-lg object-cover"
+                className="block aspect-[4/3] w-full rounded-t-xl object-cover"
               />
               <div className="p-2">
                 <p className="truncate text-[13px] font-medium text-stone-950">

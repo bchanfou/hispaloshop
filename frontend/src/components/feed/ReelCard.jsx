@@ -46,7 +46,14 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
   const [liked, setLiked] = useState(reel.liked ?? reel.is_liked ?? false);
   const [likesCount, setLikesCount] = useState(reel.likes ?? reel.likes_count ?? 0);
+  const [saved, setSaved] = useState(reel.saved ?? reel.is_saved ?? false);
   const [playing, setPlaying] = useState(false);
+
+  // Sync local state when props change (e.g. from React Query cache update)
+  useEffect(() => {
+    setLiked(reel.liked ?? reel.is_liked ?? false);
+    setLikesCount(reel.likes ?? reel.likes_count ?? 0);
+  }, [reel.liked, reel.is_liked, reel.likes, reel.likes_count]);
   const [muted, setMuted] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
@@ -376,7 +383,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         >
           <Heart
             size={28}
-            className={liked ? 'text-white fill-white' : 'text-white'}
+            className={liked ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white'}
           />
           <span className="text-xs text-white font-sans leading-none">{likesCount}</span>
         </button>
@@ -395,12 +402,16 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         <button
           className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
           onClick={async () => {
-            const url = `${window.location.origin}/posts/${reel.id}`;
-            if (navigator.share) {
-              try { await navigator.share({ title: reel.caption || 'Reel', url }); } catch {}
-            } else {
-              await navigator.clipboard?.writeText(url);
-              toast.success('Enlace copiado');
+            const url = `${window.location.origin}/reels/${reel.id}`;
+            try {
+              if (navigator.share) {
+                await navigator.share({ title: reel.caption || 'Reel', url });
+              } else {
+                await navigator.clipboard?.writeText(url);
+                toast.success('Enlace copiado');
+              }
+            } catch {
+              // User cancelled share dialog
             }
             onShare?.(reel.id);
           }}
@@ -412,9 +423,20 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         {/* Bookmark */}
         <button
           className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
-          aria-label="Guardar"
+          aria-label={saved ? 'Quitar guardado' : 'Guardar'}
+          onClick={async () => {
+            const next = !saved;
+            setSaved(next);
+            try {
+              // Backend toggles save state on POST (no separate DELETE endpoint)
+              await apiClient.post(`/posts/${reel.id}/save`);
+            } catch {
+              setSaved(!next); // rollback
+              toast.error('Error al guardar');
+            }
+          }}
         >
-          <Bookmark size={28} className="text-white" />
+          <Bookmark size={28} fill={saved ? 'currentColor' : 'none'} className="text-white" />
         </button>
       </div>
 
@@ -468,7 +490,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
           </div>
           <button
             className="bg-white text-stone-950 text-[13px] font-semibold font-sans py-2 px-4 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-100 active:bg-stone-200 transition-colors"
-            onClick={() => navigate(`/product/${product.id || product.product_id}`)}
+            onClick={() => navigate(`/products/${product.id || product.product_id}`)}
           >
             Añadir
           </button>
