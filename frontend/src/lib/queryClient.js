@@ -6,23 +6,39 @@ const GLOBAL_RETRY_COUNT = 1;
 
 const retryDelay = (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000);
 
+/**
+ * Only retry on 5xx / network errors, never on 4xx (client errors).
+ * @param {number} failureCount
+ * @param {Error} error
+ * @returns {boolean}
+ */
+function shouldRetry(failureCount, error) {
+  if (failureCount >= GLOBAL_RETRY_COUNT) return false;
+  const status = error?.status ?? 0;
+  // Don't retry client errors (400-499)
+  if (status >= 400 && status < 500) return false;
+  // Don't retry cancelled requests
+  if (error?.code === 'ERR_CANCELED') return false;
+  return true;
+}
+
 const defaultQueryConfig = {
   feed: {
     staleTime: 60 * 1000,
     gcTime: GLOBAL_GC_TIME,
-    retry: GLOBAL_RETRY_COUNT,
+    retry: shouldRetry,
     retryDelay,
   },
   product: {
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
-    retry: GLOBAL_RETRY_COUNT,
+    retry: shouldRetry,
     retryDelay,
   },
   catalog: {
     staleTime: 10 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    retry: GLOBAL_RETRY_COUNT,
+    retry: shouldRetry,
     retryDelay,
   },
   search: {
@@ -33,7 +49,7 @@ const defaultQueryConfig = {
   user: {
     staleTime: 5 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
-    retry: GLOBAL_RETRY_COUNT,
+    retry: shouldRetry,
     refetchOnWindowFocus: true,
   },
   cart: {
@@ -60,11 +76,10 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: GLOBAL_STALE_TIME,
       gcTime: GLOBAL_GC_TIME,
-      retry: GLOBAL_RETRY_COUNT,
+      retry: shouldRetry,
       retryDelay,
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      suspense: false,
     },
     mutations: {
       retry: false,

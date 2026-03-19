@@ -9,9 +9,12 @@ Plans:
 """
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from core.database import get_db
+
+logger = logging.getLogger(__name__)
 
 
 # ── Plan shipping config ─────────────────────────────────────
@@ -53,12 +56,12 @@ def calculate_store_shipping(
     # Progress toward free shipping
     progress_pct = 0
     remaining_cents = 0
-    if threshold is not None:
+    if threshold is not None and threshold > 0:
         if is_free:
             progress_pct = 100
         else:
-            progress_pct = min(99, int((store_subtotal_cents / threshold) * 100))
-            remaining_cents = threshold - store_subtotal_cents
+            progress_pct = min(99, int(round((store_subtotal_cents / threshold) * 100)))
+            remaining_cents = max(0, threshold - store_subtotal_cents)
 
     return {
         "shipping_cents": shipping_cents,
@@ -88,12 +91,17 @@ async def calculate_cart_shipping(items: list[dict]) -> dict[str, Any]:
     seller_ids = [s for s in stores if s != "unknown"]
     seller_docs: dict[str, dict] = {}
     if seller_ids:
-        cursor = db.users.find(
-            {"user_id": {"$in": seller_ids}},
-            {"_id": 0, "user_id": 1, "subscription": 1, "business_name": 1, "name": 1, "avatar": 1},
-        )
-        async for doc in cursor:
-            seller_docs[doc["user_id"]] = doc
+        try:
+            cursor = db.users.find(
+                {"user_id": {"$in": seller_ids}},
+                {"_id": 0, "user_id": 1, "subscription": 1, "business_name": 1, "name": 1, "avatar": 1},
+            )
+            async for doc in cursor:
+                uid = doc.get("user_id")
+                if uid:
+                    seller_docs[uid] = doc
+        except Exception as e:
+            logger.error("[SHIPPING] Failed to fetch seller docs: %s", e)
 
     # Per-store breakdown
     breakdown: list[dict] = []
@@ -103,8 +111,8 @@ async def calculate_cart_shipping(items: list[dict]) -> dict[str, Any]:
     for sid, sitems in stores.items():
         doc = seller_docs.get(sid, {})
         plan = (doc.get("subscription") or {}).get("plan", "FREE")
-        store_subtotal = sum(i.get("total_price_cents", 0) for i in sitems)
-        store_item_count = sum(i.get("quantity", 0) for i in sitems)
+        store_subtotal = sum(int(i.get("total_price_cents", 0) or 0) for i in sitems)
+        store_item_count = sum(int(i.get("quantity", 0) or 0) for i in sitems)
 
         result = calculate_store_shipping(plan, store_subtotal)
 

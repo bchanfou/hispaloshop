@@ -171,6 +171,10 @@ async def write_ledger_event(
     if extra:
         entry.update(extra)
 
-    await db.financial_ledger.insert_one(entry)
+    try:
+        await db.financial_ledger.insert_one(entry)
+    except Exception as e:
+        logger.error(f"[LEDGER] CRITICAL — Failed to write ledger entry for order {order_id}: {e}")
+        raise
     logger.info(f"[LEDGER] {event_type} for order {order_id}: {product_subtotal} {currency}")
     return entry

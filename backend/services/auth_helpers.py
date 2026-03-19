@@ -3,8 +3,8 @@ Auth helpers: password hashing, verification tokens, email sending.
 Shared by server.py and routes/auth.py.
 """
 import hashlib
+import secrets
 import uuid
-import random
 import os
 import logging
 import bcrypt as _bcrypt
@@ -34,9 +34,15 @@ def _legacy_sha256(password: str) -> str:
 
 
 def verify_password(password: str, stored_hash: str) -> bool:
-    if stored_hash.startswith('$2b$') or stored_hash.startswith('$2a$'):
-        return _bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
-    return _legacy_sha256(password) == stored_hash
+    if not password or not stored_hash:
+        return False
+    try:
+        if stored_hash.startswith('$2b$') or stored_hash.startswith('$2a$'):
+            return _bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
+        return _legacy_sha256(password) == stored_hash
+    except (ValueError, TypeError) as e:
+        logger.error(f"[AUTH] Password verification error: {e}")
+        return False
 
 
 def needs_rehash(stored_hash: str) -> bool:
@@ -48,7 +54,7 @@ def generate_verification_token() -> str:
 
 
 def generate_verification_code() -> str:
-    return str(random.randint(100000, 999999))
+    return str(secrets.randbelow(900000) + 100000)
 
 
 def send_email(to: str, subject: str, html: str):

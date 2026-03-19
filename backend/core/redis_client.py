@@ -48,6 +48,18 @@ class RedisManager:
                 expires_at = now + timedelta(seconds=window)
             current += 1
             self._local_rate_fallback[redis_key] = (current, expires_at)
+
+            # Prevent unbounded memory growth: evict expired entries periodically
+            if len(self._local_rate_fallback) > 10_000:
+                expired_keys = [k for k, (_, exp) in self._local_rate_fallback.items() if now > exp]
+                for k in expired_keys:
+                    del self._local_rate_fallback[k]
+                # If still too large after evicting expired, drop oldest half
+                if len(self._local_rate_fallback) > 10_000:
+                    sorted_keys = sorted(self._local_rate_fallback, key=lambda k: self._local_rate_fallback[k][1])
+                    for k in sorted_keys[:len(sorted_keys) // 2]:
+                        del self._local_rate_fallback[k]
+
             return current <= max_requests
 
     async def set_user_online(self, user_id: UUID, socket_id: str) -> None:

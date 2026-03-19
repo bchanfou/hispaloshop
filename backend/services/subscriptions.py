@@ -176,7 +176,8 @@ def calculate_dynamic_commission(
         modifiers.append(CommissionModifier(type="ai_adoption", description="Adopcion de HI AI", delta=-0.002))
 
     final_rate = max(base_rate + sum(m.delta for m in modifiers), 0.10)
-    platform_fee = round(order_total * final_rate, 2)
+    platform_fee_cents = int(round(order_total * final_rate * 100))
+    platform_fee = round(platform_fee_cents / 100, 2)
     seller_amount = round(order_total - platform_fee, 2)
     return {
         "base_rate": base_rate,
@@ -214,6 +215,10 @@ async def ensure_stripe_products(db):
         logger.info(f"[SUBSCRIPTIONS] Loaded existing Stripe price IDs")
         return
 
+    if not stripe.api_key:
+        logger.error("[SUBSCRIPTIONS] STRIPE_SECRET_KEY not configured, cannot create products")
+        return
+
     try:
         product = stripe.Product.create(
             name="Hispaloshop Seller Plan",
@@ -247,8 +252,10 @@ async def ensure_stripe_products(db):
             }},
             upsert=True
         )
+    except stripe.error.StripeError as e:
+        logger.error(f"[SUBSCRIPTIONS] Stripe API error creating products: {e}")
     except Exception as e:
-        logger.error(f"[SUBSCRIPTIONS] Failed to create Stripe products: {e}")
+        logger.error(f"[SUBSCRIPTIONS] Unexpected error creating Stripe products: {e}")
 
 
 def get_seller_commission_rate(plan: str) -> float:
@@ -259,7 +266,11 @@ def get_seller_commission_rate(plan: str) -> float:
 def get_influencer_commission_rate(tier: str) -> float:
     """Get commission rate for an influencer tier."""
     normalized = normalize_influencer_tier(tier)
-    return INFLUENCER_TIERS[normalized]["commission_rate"]
+    tier_data = INFLUENCER_TIERS.get(normalized)
+    if not tier_data:
+        logger.warning("[SUBSCRIPTIONS] Unknown influencer tier '%s', falling back to hercules", tier)
+        tier_data = INFLUENCER_TIERS.get("hercules", {})
+    return tier_data.get("commission_rate", 0.0)
 
 
 async def calculate_order_commissions(db, order: dict) -> dict:
@@ -276,8 +287,9 @@ async def calculate_order_commissions(db, order: dict) -> dict:
         for item in order.get("line_items", [])
     ), 2)
     discount_amount = round(order.get("discount_amount", 0), 2)
-    # Discount ratio: proportion of gross subtotal that was discounted
+    # Discount ratio: proportion of gross subtotal that was discounted (guard against zero)
     discount_ratio = (discount_amount / gross_subtotal) if gross_subtotal > 0 and discount_amount > 0 else 0.0
+    discount_ratio = min(discount_ratio, 1.0)  # Cap at 100% to prevent negative GMV
 
     # Get seller(s) from line items
     seller_ids = set(item.get("producer_id") for item in order.get("line_items", []))

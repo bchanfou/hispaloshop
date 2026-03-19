@@ -24,8 +24,10 @@ export function getRefreshToken() {
  * Guardar tokens
  */
 export function setToken(accessToken, refreshToken) {
-  localStorage.setItem(TOKEN_KEY, accessToken);
-  if (refreshToken) {
+  if (accessToken && typeof accessToken === 'string') {
+    localStorage.setItem(TOKEN_KEY, accessToken);
+  }
+  if (refreshToken && typeof refreshToken === 'string') {
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   }
 }
@@ -69,7 +71,10 @@ export function isAuthenticated() {
  */
 export function decodeToken(token) {
   try {
-    const base64Url = token.split('.')[1];
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64Url = parts[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(
       atob(base64)
@@ -77,7 +82,9 @@ export function decodeToken(token) {
         .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
         .join('')
     );
-    return JSON.parse(jsonPayload);
+    const payload = JSON.parse(jsonPayload);
+    if (!payload || typeof payload !== 'object') return null;
+    return payload;
   } catch (error) {
     return null;
   }
@@ -87,7 +94,9 @@ export function decodeToken(token) {
  * Verificar si token está expirado
  */
 export function isTokenExpired(token) {
+  if (!token) return true;
   const decoded = decodeToken(token);
   if (!decoded || !decoded.exp) return true;
-  return decoded.exp * 1000 < Date.now();
+  // Add 30-second buffer to avoid using nearly-expired tokens
+  return decoded.exp * 1000 < Date.now() + 30000;
 }

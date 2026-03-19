@@ -17,19 +17,31 @@ const ZERO_DECIMAL_CURRENCIES = ['JPY', 'KRW', 'VND', 'CLP'];
 export function formatCurrency(amount, currencyCode, currencies = {}) {
   const currency = currencies[currencyCode] || {};
   const symbol = currency.symbol || currencyCode;
-  
+
+  // Guard against non-numeric amounts
+  const safeAmount = Number.isFinite(amount) ? amount : (Number.isFinite(Number(amount)) ? Number(amount) : 0);
+
   // Determine decimal places
   const decimals = ZERO_DECIMAL_CURRENCIES.includes(currencyCode) ? 0 : 2;
-  
-  // Format the number
-  const formatted = amount.toFixed(decimals);
-  
-  // Add thousand separators for readability
-  const parts = formatted.split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  const withSeparators = parts.join('.');
-  
-  return `${symbol}${withSeparators}`;
+
+  // Use Intl.NumberFormat for locale-aware formatting when available
+  try {
+    // Map currency codes to likely locales for proper formatting
+    const localeMap = { EUR: 'es-ES', USD: 'en-US', GBP: 'en-GB', JPY: 'ja-JP', KRW: 'ko-KR', CNY: 'zh-CN', INR: 'hi-IN' };
+    const locale = localeMap[currencyCode] || 'es-ES';
+    const formatted = new Intl.NumberFormat(locale, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }).format(safeAmount);
+    return `${symbol}${formatted}`;
+  } catch {
+    // Fallback manual formatting
+    const formatted = safeAmount.toFixed(decimals);
+    const parts = formatted.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const withSeparators = parts.join('.');
+    return `${symbol}${withSeparators}`;
+  }
 }
 
 /**
@@ -41,40 +53,43 @@ export function formatCurrency(amount, currencyCode, currencies = {}) {
  * @returns {number} Converted amount
  */
 export function convertPrice(amount, fromCurrency, toCurrency, exchangeRates) {
+  // Guard against non-numeric amounts
+  const safeAmount = Number.isFinite(amount) ? amount : (Number.isFinite(Number(amount)) ? Number(amount) : 0);
+
   if (!exchangeRates || !exchangeRates.rates) {
-    return amount; // Fallback: no conversion
+    return safeAmount; // Fallback: no conversion
   }
   
   // If same currency, no conversion needed
   if (fromCurrency === toCurrency) {
-    return amount;
+    return safeAmount;
   }
-  
+
   const rates = exchangeRates.rates;
   const baseCurrency = exchangeRates.base || 'EUR';
-  
+
   // Convert to base currency (EUR) first
-  let amountInBase = amount;
+  let amountInBase = safeAmount;
   if (fromCurrency !== baseCurrency) {
     const fromRate = rates[fromCurrency];
-    if (!fromRate) {
+    if (!fromRate || fromRate === 0) {
       console.warn(`Exchange rate not found for ${fromCurrency}`);
-      return amount;
+      return safeAmount;
     }
-    amountInBase = amount / fromRate;
+    amountInBase = safeAmount / fromRate;
   }
-  
+
   // Convert from base to target currency
   if (toCurrency === baseCurrency) {
     return amountInBase;
   }
-  
+
   const toRate = rates[toCurrency];
   if (!toRate) {
     console.warn(`Exchange rate not found for ${toCurrency}`);
-    return amount;
+    return safeAmount;
   }
-  
+
   return amountInBase * toRate;
 }
 

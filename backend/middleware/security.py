@@ -2,11 +2,15 @@
 Middleware de seguridad para Hispaloshop API.
 Fase 0: Security headers, rate limiting, y protecciones básicas.
 """
+import logging
+import os
 import time
 from fastapi import Request, HTTPException
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
+
+logger = logging.getLogger("hispaloshop")
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -28,7 +32,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         
         # HTTPS Strict Transport Security (enabled in production)
-        import os
         if os.environ.get("ENV", "development").lower() == "production":
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
 
@@ -44,9 +47,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; "
             "media-src 'self' blob: https://res.cloudinary.com; "
             "connect-src 'self' wss: ws: https://api.anthropic.com https://api.stripe.com https://*.hispaloshop.com "
-            "https://*.i.posthog.com https://us.i.posthog.com https://api.giphy.com https://upload.cloudinary.com https://*.sentry.io; "
+            "https://*.i.posthog.com https://us.i.posthog.com https://api.giphy.com https://upload.cloudinary.com https://*.sentry.io "
+            "https://accounts.google.com https://oauth2.googleapis.com; "
             "worker-src 'self' blob:; "
-            "frame-src https://js.stripe.com https://hooks.stripe.com https://maps.google.com https://www.google.com; "
+            "frame-src https://js.stripe.com https://hooks.stripe.com https://maps.google.com https://www.google.com https://accounts.google.com; "
             "object-src 'none'; "
             "base-uri 'self'; "
             "form-action 'self'"
@@ -72,80 +76,93 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """
-    Rate limiting simple en memoria.
+    Rate limiting simple en memoria con sliding-window counters.
     NOTA: En producción usar Redis para rate limiting distribuido.
     """
-    
+
+    # Hard cap on tracked clients to prevent unbounded memory growth.
+    _MAX_CLIENTS = 50_000
+
     def __init__(self, app, requests_per_minute: int = 100, burst_size: int = 10):
         super().__init__(app)
         self.requests_per_minute = requests_per_minute
         self.burst_size = burst_size
-        self.requests = {}  # {client_id: [(timestamp, count)]}
-    
+        # Sliding window: {client_id: [timestamp, ...]}  (one entry per request)
+        self.requests: dict[str, list[float]] = {}
+        self._last_full_cleanup = 0.0
+
     def _get_client_id(self, request: Request) -> str:
         """Identifica al cliente por IP solamente (User-Agent es spoofeable)."""
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
             return forwarded.split(",")[0].strip()
         return request.client.host if request.client else "unknown"
-    
+
     async def dispatch(self, request: Request, call_next):
         client_id = self._get_client_id(request)
         now = time.time()
-        
-        # Limpiar requests antiguos (> 1 minuto)
-        if client_id in self.requests:
-            self.requests[client_id] = [
-                (ts, count) for ts, count in self.requests[client_id]
-                if now - ts < 60
-            ]
-        
-        # Contar requests recientes
-        recent_requests = sum(
-            count for ts, count in self.requests.get(client_id, [])
-        )
-        
-        # Verificar burst (requests muy rápidos)
-        very_recent = sum(
-            count for ts, count in self.requests.get(client_id, [])
-            if now - ts < 5  # últimos 5 segundos
-        )
-        
+
+        # Periodic full cleanup every 60s to evict stale clients
+        if now - self._last_full_cleanup > 60:
+            self._cleanup_all(now)
+            self._last_full_cleanup = now
+
+        # Evict oldest client if we hit the hard cap (prevent memory exhaustion)
+        if client_id not in self.requests and len(self.requests) >= self._MAX_CLIENTS:
+            self._evict_oldest(now)
+
+        # Get or create client window, prune entries older than 60s
+        timestamps = self.requests.get(client_id, [])
+        cutoff = now - 60
+        timestamps = [ts for ts in timestamps if ts > cutoff]
+
+        # Verificar burst (requests muy rápidos — last 5 seconds)
+        burst_cutoff = now - 5
+        very_recent = sum(1 for ts in timestamps if ts > burst_cutoff)
+
         if very_recent >= self.burst_size:
-            raise HTTPException(
+            self.requests[client_id] = timestamps
+            return Response(
+                content='{"detail":"Rate limit exceeded (burst). Please slow down."}',
                 status_code=429,
-                detail="Rate limit exceeded (burst). Please slow down."
+                media_type="application/json",
             )
-        
-        if recent_requests >= self.requests_per_minute:
-            raise HTTPException(
+
+        if len(timestamps) >= self.requests_per_minute:
+            self.requests[client_id] = timestamps
+            return Response(
+                content='{"detail":"Rate limit exceeded. Please slow down."}',
                 status_code=429,
-                detail=f"Rate limit exceeded ({self.requests_per_minute} requests/minute). Please slow down."
+                media_type="application/json",
             )
-        
+
         # Registrar request
-        if client_id not in self.requests:
-            self.requests[client_id] = []
-        self.requests[client_id].append((now, 1))
-        
-        # Limpiar memoria periódicamente (cada 100 requests únicos)
-        if len(self.requests) > 10000:
-            self._cleanup_old_entries(now)
-        
+        timestamps.append(now)
+        self.requests[client_id] = timestamps
+
         return await call_next(request)
-    
-    def _cleanup_old_entries(self, now: float):
-        """Limpia entradas antiguas para evitar memory leak"""
-        to_remove = []
-        for client_id, requests in self.requests.items():
-            recent = [(ts, count) for ts, count in requests if now - ts < 60]
-            if not recent:
-                to_remove.append(client_id)
-            else:
-                self.requests[client_id] = recent
-        
-        for client_id in to_remove[:1000]:  # Limpiar máximo 1000
-            del self.requests[client_id]
+
+    def _cleanup_all(self, now: float):
+        """Remove all stale clients in one pass."""
+        cutoff = now - 60
+        stale = [cid for cid, ts_list in self.requests.items() if not ts_list or ts_list[-1] <= cutoff]
+        for cid in stale:
+            del self.requests[cid]
+
+    def _evict_oldest(self, now: float):
+        """Evict the least-recently-active 10% of clients."""
+        cutoff = now - 60
+        # First try removing fully expired entries
+        stale = [cid for cid, ts_list in self.requests.items() if not ts_list or ts_list[-1] <= cutoff]
+        if stale:
+            for cid in stale:
+                del self.requests[cid]
+            return
+        # If all are active, remove the 10% with oldest last-request
+        by_age = sorted(self.requests.items(), key=lambda kv: kv[1][-1] if kv[1] else 0)
+        to_remove = max(1, len(by_age) // 10)
+        for cid, _ in by_age[:to_remove]:
+            del self.requests[cid]
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
@@ -162,10 +179,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         # Calcular duración
         duration = time.time() - start_time
         
-        import os
-        import logging
-        logger = logging.getLogger("hispaloshop")
-
         # Log all requests in development
         if os.getenv("ENV") == "development" or os.getenv("DEBUG") == "true":
             print(f"[{request.method}] {request.url.path} - {response.status_code} ({duration:.3f}s)")

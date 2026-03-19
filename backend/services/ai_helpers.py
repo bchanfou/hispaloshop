@@ -2,6 +2,7 @@
 AI Signal Inference Engine - Extract structured signals from chat interactions.
 Extracted from server.py.
 """
+import json
 import os
 import logging
 import uuid
@@ -79,17 +80,23 @@ If no signals detected, return empty arrays. Be conservative with sensitive sign
 
         # Call GPT-4o for inference
         client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        completion = await client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a signal extraction engine. Return only valid JSON. Never include raw user text in output."},
-                {"role": "user", "content": inference_prompt},
-            ],
-        )
+        try:
+            completion = await client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "You are a signal extraction engine. Return only valid JSON. Never include raw user text in output."},
+                    {"role": "user", "content": inference_prompt},
+                ],
+            )
+        except Exception as api_err:
+            logger.error(f"OpenAI API call failed for user {user_id}: {api_err}")
+            return
+        if not completion.choices or not completion.choices[0].message.content:
+            logger.warning(f"Empty OpenAI response for user {user_id}")
+            return
         response = completion.choices[0].message.content
-        
+
         # Parse JSON response
-        import json
         try:
             # Clean response - sometimes GPT adds markdown
             clean_response = response.strip()

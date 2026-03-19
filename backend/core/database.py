@@ -32,11 +32,18 @@ db = client[settings.DB_NAME]
 async def connect_db():
     """Verifica conexión a MongoDB y crea índices en startup."""
     # No reasignar client/db — los routes ya capturaron la referencia al importar.
-    await client.admin.command('ping')
+    try:
+        await client.admin.command('ping')
+    except Exception as exc:
+        logger.critical("FATAL: Cannot connect to MongoDB (%s): %s", settings.MONGO_URL.split("@")[-1], exc)
+        raise RuntimeError(f"MongoDB connection failed: {exc}") from exc
     logger.info("OK: Connected to MongoDB: %s", settings.DB_NAME)
 
     # Crear índices críticos
-    await _create_indexes()
+    try:
+        await _create_indexes()
+    except Exception as exc:
+        logger.error("Index creation failed (non-fatal): %s", exc)
 
 
 async def disconnect_db():

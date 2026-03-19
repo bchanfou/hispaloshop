@@ -28,12 +28,12 @@ type ProductImageProps = React.HTMLAttributes<HTMLDivElement> & {
 };
 
 const FALLBACK_GRADIENTS = [
-  'from-amber-200 via-orange-100 to-rose-200',
-  'from-emerald-200 via-lime-100 to-teal-200',
-  'from-sky-200 via-cyan-100 to-indigo-200',
-  'from-fuchsia-200 via-rose-100 to-orange-100',
-  'from-violet-200 via-purple-100 to-sky-100',
-  'from-yellow-200 via-amber-100 to-lime-100',
+  'from-stone-200 via-stone-100 to-stone-200',
+  'from-stone-100 via-stone-50 to-stone-200',
+  'from-stone-200 via-stone-50 to-stone-100',
+  'from-stone-100 via-stone-200 to-stone-100',
+  'from-stone-50 via-stone-100 to-stone-200',
+  'from-stone-200 via-stone-100 to-stone-50',
 ];
 
 const getInitials = (value: string) => {

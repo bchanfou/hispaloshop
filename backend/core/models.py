@@ -2,9 +2,13 @@
 All Pydantic models for Hispaloshop.
 Single source of truth — imported by server.py and all route modules.
 """
-from pydantic import BaseModel, ConfigDict, Field, EmailStr, validator
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, validator, field_validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta, timezone
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 # ── User & Auth ──────────────────────────────────────────────
@@ -22,7 +26,7 @@ class User(BaseModel):
     picture: Optional[str] = None
     email_verified: bool = False
     password_hash: Optional[str] = None
-    created_at: datetime
+    created_at: datetime = Field(default_factory=_utcnow)
     updated_at: Optional[datetime] = None
     onboarding_completed: bool = False
     onboarding_step: int = 1

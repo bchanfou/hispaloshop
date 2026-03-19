@@ -34,6 +34,7 @@ function normalizeApiError(error) {
   const apiError = new Error(message);
   apiError.name = 'ApiClientError';
   apiError.status = error?.response?.status ?? 0;
+  apiError.code = error?.code ?? null;
   apiError.data = error?.response?.data ?? null;
   return apiError;
 }

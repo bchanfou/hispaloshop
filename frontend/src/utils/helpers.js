@@ -11,6 +11,10 @@ export const sanitizeImageUrl = (url) => {
   let normalized = url.trim();
   if (!normalized) return null;
 
+  // Block javascript: and data: (except images) protocol URLs to prevent XSS
+  if (/^javascript:/i.test(normalized)) return null;
+  if (/^data:(?!image\/)/i.test(normalized)) return null;
+
   if (normalized.startsWith('data:image/')) return normalized;
 
   const embeddedAbsolute = normalized.match(/(https?:\/\/[^\s"'<>]+)/i);

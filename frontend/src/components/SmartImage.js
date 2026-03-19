@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ImageOff } from 'lucide-react';
+import { sanitizeImageUrl } from '../utils/helpers';
 
 /**
  * SmartImage - Image component with fallback and lazy loading
@@ -15,6 +16,14 @@ export default function SmartImage({
 }) {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const safeSrc = sanitizeImageUrl(src);
+
+  // Reset error/loading states when src changes
+  useEffect(() => {
+    setError(false);
+    setLoading(true);
+  }, [safeSrc]);
 
   // Generate initials from alt text or fallbackText
   const getInitials = () => {
@@ -42,13 +51,13 @@ export default function SmartImage({
     return colors[hash % colors.length];
   };
 
-  if (error || !src) {
+  if (error || !safeSrc) {
     return (
-      <div 
+      <div
         className={`flex items-center justify-center ${getColor()} ${className} ${fallbackClassName}`}
-        title={alt}
+        title={alt || 'Imagen'}
         role="img"
-        aria-label={alt}
+        aria-label={alt || 'Imagen'}
       >
         <span className="font-semibold text-lg select-none">
           {getInitials()}
@@ -65,8 +74,8 @@ export default function SmartImage({
         </div>
       )}
       <img
-        src={src}
-        alt={alt}
+        src={safeSrc}
+        alt={alt || 'Imagen'}
         className={`${className} ${loading ? 'hidden' : ''}`}
         onLoad={() => setLoading(false)}
         onError={() => {
