@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X, Flag, UserMinus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
@@ -30,16 +30,36 @@ if (typeof document !== 'undefined' && !document.getElementById('postcard-heart-
   document.head.appendChild(style);
 }
 
-function renderCaption(text) {
+function renderCaption(text, navigate) {
   if (!text) return null;
-  const parts = text.split(/(#\w+)/g);
-  return parts.map((part, i) =>
-    part.startsWith('#') ? (
-      <span key={i} className="text-stone-500 font-medium">{part}</span>
-    ) : (
-      <React.Fragment key={i}>{part}</React.Fragment>
-    ),
-  );
+  const parts = text.split(/(#\w+|@\w+)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('#')) {
+      return (
+        <span
+          key={i}
+          className="text-[#2E7D52] font-medium cursor-pointer hover:underline"
+          role="link"
+          onClick={(e) => { e.stopPropagation(); navigate?.(`/explore?tag=${encodeURIComponent(part.slice(1))}`); }}
+        >
+          {part}
+        </span>
+      );
+    }
+    if (part.startsWith('@')) {
+      return (
+        <span
+          key={i}
+          className="text-[#2E7D52] font-medium cursor-pointer hover:underline"
+          role="link"
+          onClick={(e) => { e.stopPropagation(); navigate?.(`/${part.slice(1)}`); }}
+        >
+          {part}
+        </span>
+      );
+    }
+    return <React.Fragment key={i}>{part}</React.Fragment>;
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -251,6 +271,34 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             >
               Copiar enlace
             </button>
+            {!isOwner && (
+              <>
+                <button
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  onClick={async () => {
+                    try {
+                      await apiClient.post(`/users/${user.id || user.user_id}/unfollow`);
+                      toast.success(`Has dejado de seguir a ${user.name}`);
+                    } catch { /* ignore */ }
+                    setShowMenu(false);
+                  }}
+                >
+                  <UserMinus size={16} /> Dejar de seguir
+                </button>
+                <button
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  onClick={async () => {
+                    try {
+                      await apiClient.post(`/posts/${post.id}/report`, { reason: 'inappropriate' });
+                      toast.success('Reporte enviado');
+                    } catch { toast.error('Error al reportar'); }
+                    setShowMenu(false);
+                  }}
+                >
+                  <Flag size={16} /> Reportar
+                </button>
+              </>
+            )}
           </div>
         </>
       )}
@@ -416,7 +464,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           {showHeartAnim && (
             <div className="absolute inset-0 z-[2] flex items-center justify-center pointer-events-none">
               <Heart
-                size={72}
+                size={50}
                 className={`fill-[#FF3040] text-[#FF3040] ${showHeartAnim ? 'postcard-heart-active' : 'opacity-0'}`}
               />
             </div>
@@ -535,7 +583,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         <div className="px-4 pb-2 text-sm leading-[1.45] text-stone-950">
           <div className={shouldClamp ? 'line-clamp-3' : ''}>
             <span className="mr-1 font-semibold">{user.name}</span>
-            {renderCaption(captionText)}
+            {renderCaption(captionText, navigate)}
           </div>
           {shouldClamp && (
             <button
