@@ -205,7 +205,13 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const closeComments = useCallback(() => {
     setShowComments(false);
     setReplyTo(null);
-  }, []);
+    // Resume video playback when closing comments
+    const video = videoRef.current;
+    if (video && isActive) {
+      video.play().catch(() => {});
+      setPlaying(true);
+    }
+  }, [isActive]);
 
   const handleLikeComment = useCallback(async (commentId) => {
     setLikedComments(prev => {
@@ -371,23 +377,23 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       {/* Gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent pointer-events-none" />
 
-      {/* Mute toggle */}
+      {/* Mute toggle — positioned near bottom-right like Instagram */}
       <button
         onClick={toggleMute}
-        className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 z-10 w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
+        className={`absolute right-4 z-10 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center ${embedded ? 'bottom-14' : 'bottom-[180px]'}`}
         aria-label={muted ? 'Activar sonido' : 'Silenciar'}
       >
         {muted ? (
-          <VolumeX className="w-5 h-5 text-white" />
+          <VolumeX className="w-4 h-4 text-white" />
         ) : (
-          <Volume2 className="w-5 h-5 text-white" />
+          <Volume2 className="w-4 h-4 text-white" />
         )}
       </button>
 
       {/* Actions column */}
       <div
-        className={`absolute right-4 flex flex-col gap-5 items-center z-[2] ${
-          embedded ? 'bottom-20' : 'bottom-[120px]'
+        className={`absolute right-3 flex flex-col gap-5 items-center z-[2] ${
+          embedded ? 'bottom-20' : 'bottom-[100px]'
         }`}
       >
         {/* Avatar + follow */}
@@ -418,20 +424,23 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
             return (
               <button
                 className="absolute -bottom-3 w-11 h-11 rounded-full bg-transparent border-none flex items-center justify-center"
-                aria-label={isFollowing ? 'Siguiendo' : 'Seguir'}
+                aria-label={isFollowing ? 'Dejar de seguir' : 'Seguir'}
                 onClick={async (e) => {
                   e.stopPropagation();
-                  if (isFollowing) return;
                   try {
-                    const res = await apiClient.post(`/users/${reelUserId}/follow`, {});
-                    if (res?.status === 'pending') {
-                      toast.success('Solicitud enviada');
+                    if (isFollowing) {
+                      await apiClient.post(`/users/${reelUserId}/unfollow`, {});
+                      setIsFollowing(false);
                     } else {
-                      setIsFollowing(true);
-                      toast.success('Siguiendo a ' + (reel.user?.name || reel.user?.full_name || 'usuario'));
+                      const res = await apiClient.post(`/users/${reelUserId}/follow`, {});
+                      if (res?.status === 'pending') {
+                        toast.success('Solicitud enviada');
+                      } else {
+                        setIsFollowing(true);
+                      }
                     }
                   } catch {
-                    toast.error('No se pudo seguir al usuario');
+                    toast.error(isFollowing ? 'No se pudo dejar de seguir' : 'No se pudo seguir al usuario');
                   }
                 }}
               >
@@ -504,7 +513,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
             setSaved(next);
             try {
               const reelId = reel.id || reel.reel_id || reel.post_id;
-              await apiClient.post(`/posts/${reelId}/save`);
+              await apiClient.post(`/reels/${reelId}/save`);
             } catch {
               setSaved(!next); // rollback
               toast.error('Error al guardar');
@@ -663,6 +672,20 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
                 })
               )}
             </div>
+            {/* Emoji quick-react row — Instagram style */}
+            <div className="flex items-center justify-between px-6 py-2.5 border-t border-white/10">
+              {['❤️', '🙌', '🔥', '👏', '😢', '😍', '😮', '😂'].map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => {
+                    setNewComment((prev) => prev + emoji);
+                  }}
+                  className="text-[24px] leading-none bg-transparent border-none cursor-pointer p-1 active:scale-125 transition-transform"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
             {/* Reply indicator */}
             {replyTo && (
               <div className="flex items-center justify-between px-4 py-1.5 border-t border-white/10">
@@ -674,11 +697,15 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
             )}
             {/* Input */}
             <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10">
+              {/* Current user avatar */}
+              {currentUser?.avatar_url && (
+                <img src={currentUser.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
+              )}
               <input
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
                 onKeyDown={(e) => { if (e.key === 'Enter') submitComment(); }}
-                placeholder="Añade un comentario..."
+                placeholder="Únete a la conversación..."
                 className="flex-1 bg-white/10 text-white border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
                 aria-label="Escribir comentario"
               />
@@ -746,9 +773,9 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         </div>
       )}
 
-      {/* Progress bar — clickable to seek */}
+      {/* Progress bar — thin Instagram-style */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-2 bg-white/20 z-[3] cursor-pointer"
+        className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/20 z-[3] cursor-pointer"
         onClick={(e) => {
           const video = videoRef.current;
           if (!video || !video.duration) return;

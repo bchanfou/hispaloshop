@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Loader2, Film } from 'lucide-react';
+import { ArrowLeft, Loader2, Film, ChevronDown } from 'lucide-react';
 import ReelCard from '../components/feed/ReelCard';
 import apiClient from '../services/api/client';
 
@@ -116,7 +116,7 @@ export default function ReelsPage() {
   if (loading && reels.length === 0) {
     return (
       <div className="h-dvh bg-black flex items-center justify-center" role="status" aria-label="Cargando reels">
-        <Loader2 className="w-8 h-8 text-white/30 animate-spin" />
+        <Loader2 className="w-7 h-7 text-white/40 animate-spin" />
       </div>
     );
   }
@@ -126,10 +126,10 @@ export default function ReelsPage() {
       <div className="h-dvh bg-black flex flex-col items-center justify-center gap-4 px-8">
         <button
           onClick={() => navigate(-1)}
-          className="fixed top-[max(1rem,env(safe-area-inset-top))] left-4 z-[100] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
+          className="fixed top-[max(1rem,env(safe-area-inset-top))] left-4 z-[100] w-10 h-10 rounded-full bg-transparent flex items-center justify-center"
           aria-label="Volver"
         >
-          <ChevronLeft className="w-[22px] h-[22px] text-white" />
+          <ArrowLeft className="w-[22px] h-[22px] text-white" />
         </button>
         <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-2">
           <Film className="w-9 h-9 text-white/50" />
@@ -152,34 +152,62 @@ export default function ReelsPage() {
     );
   }
 
+  const [showTabMenu, setShowTabMenu] = useState(false);
+  const activeTabLabel = REEL_TABS.find((t) => t.key === activeTab)?.label || 'Para ti';
+
   return (
     <div
       ref={containerRef}
       className="h-dvh overflow-y-scroll snap-y snap-mandatory bg-black [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       style={{ scrollBehavior: 'smooth' }}
     >
-      {/* Back button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="fixed top-[max(1rem,env(safe-area-inset-top))] left-4 z-[100] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
-        aria-label="Volver"
-      >
-        <ChevronLeft className="w-[22px] h-[22px] text-white" />
-      </button>
-
-      {/* Category tabs */}
-      <div className="fixed top-12 left-0 right-0 z-[90] flex gap-1 px-4 py-2 bg-black/60 backdrop-blur-lg">
-        {REEL_TABS.map((tab) => (
+      {/* Header — Instagram Reels style */}
+      <div className="fixed top-0 left-0 right-0 z-[100] pt-[max(12px,env(safe-area-inset-top))]">
+        <div className="flex items-center justify-between px-4 pb-2">
           <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`rounded-full px-4 py-2 text-[13px] font-semibold cursor-pointer transition-colors border-none ${
-              activeTab === tab.key ? 'bg-white text-black' : 'bg-white/10 text-white'
-            }`}
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center"
+            aria-label="Volver"
           >
-            {tab.label}
+            <ArrowLeft className="w-[22px] h-[22px] text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]" />
           </button>
-        ))}
+
+          <span className="text-[17px] font-bold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">Reels</span>
+
+          <div className="w-10 h-10" />
+        </div>
+
+        {/* Tab dropdown — "Para ti ∨" style */}
+        <div className="relative inline-flex ml-4">
+          <button
+            onClick={() => setShowTabMenu((s) => !s)}
+            className="flex items-center gap-1 rounded-full bg-black/40 backdrop-blur-sm px-3 py-1.5 text-[13px] font-semibold text-white border-none cursor-pointer"
+          >
+            {activeTabLabel}
+            <ChevronDown size={14} className={`text-white/70 transition-transform ${showTabMenu ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showTabMenu && (
+            <>
+              <div className="fixed inset-0 z-[89]" onClick={() => setShowTabMenu(false)} />
+              <div className="absolute top-full left-0 mt-1 z-[90] w-40 rounded-2xl bg-stone-950/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden">
+                {REEL_TABS.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => { setActiveTab(tab.key); setShowTabMenu(false); }}
+                    className={`w-full text-left px-4 py-3 text-[13px] font-medium border-none cursor-pointer transition-colors ${
+                      activeTab === tab.key
+                        ? 'bg-white/10 text-white font-semibold'
+                        : 'bg-transparent text-white/70 hover:bg-white/5'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {reels.map((reel, idx) => (
