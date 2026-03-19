@@ -15,31 +15,7 @@ import {
 } from '../hooks/api/useNotifications';
 import apiClient from '../services/api/client';
 
-// ── Category mapping for filter pills ────────────────────────────
-const TYPE_TO_CATEGORY = {
-  // Social
-  like: 'social', comment: 'social', follow: 'social', review: 'social',
-  new_follower: 'social', post_liked: 'social', post_commented: 'social', mentioned: 'social',
-  // Pedidos
-  order_update: 'pedidos', purchase: 'pedidos',
-  order_confirmed: 'pedidos', order_preparing: 'pedidos', order_shipped: 'pedidos',
-  order_delivered: 'pedidos', new_order: 'pedidos', order_review_request: 'pedidos',
-  order_received: 'pedidos',
-  // Ofertas / Influencer / B2B
-  offer: 'ofertas',
-  commission_earned: 'ofertas', tier_upgraded: 'ofertas', payout_sent: 'ofertas',
-  b2b_offer_received: 'ofertas', b2b_offer_accepted: 'ofertas',
-  b2b_contract_ready: 'ofertas', b2b_contract_signed: 'ofertas',
-  b2b_payment_received: 'ofertas', b2b_request_rejected: 'ofertas',
-  // Sistema
-  support_reply: 'sistema', system: 'sistema',
-  verification_approved: 'sistema', verification_rejected: 'sistema',
-  certificate_expiring: 'sistema',
-  moderation_hidden: 'sistema', moderation_restored: 'sistema',
-  fiscal_certificate_ok: 'sistema',
-};
-
-// ── Icon map by notification type (v2 tokens) ────────────────────
+// ── Icon map by notification type ────────────────────────────────
 const TYPE_META = {
   // Social
   like:            { icon: Heart,          category: 'social' },
@@ -90,16 +66,7 @@ const CATEGORY_ICON_STYLE = {
   sistema: { bg: 'var(--color-surface)', color: 'var(--color-stone)', Icon: Info },
 };
 
-// ── Filter pills (legacy category pills) ────────────────────────────────────────────
-const FILTERS = [
-  { key: 'todo', label: 'Todo' },
-  { key: 'pedidos', label: 'Pedidos' },
-  { key: 'social', label: 'Social' },
-  { key: 'ofertas', label: 'Ofertas' },
-  { key: 'sistema', label: 'Sistema' },
-];
-
-// ── Tab definitions (G2) ────────────────────────────────────────────────────────
+// ── Tab definitions ──────────────────────────────────────────────
 const TABS = [
   { key: 'all', label: 'Todo' },
   { key: 'interactions', label: 'Interacciones' },
@@ -119,21 +86,20 @@ function filterByTab(notifs, tab) {
   return notifs;
 }
 
-// ── Grouping logic (G1) ─────────────────────────────────────────────────────────
+// ── Grouping logic ───────────────────────────────────────────────
 const GROUPABLE_TYPES = new Set(['like', 'post_liked', 'follow', 'new_follower']);
 const WITHIN_24H = 24 * 60 * 60 * 1000;
 
 function groupNotifications(notifs) {
   const now = Date.now();
-  const buckets = {}; // key -> [notif, ...]
-  const order = [];   // preserves first-seen order
+  const buckets = {};
+  const order = [];
 
   for (const n of notifs) {
     const age = now - new Date(n.created_at).getTime();
     const isRecent = age < WITHIN_24H;
     const entityId = n.entity_id || n.data?.entity_id || n.data?.post_id || null;
 
-    // Only group likes/follows that have entity_id and are within 24h
     if (isRecent && GROUPABLE_TYPES.has(n.type) && entityId) {
       const bucketKey = `${n.type}::${entityId}`;
       if (!buckets[bucketKey]) {
@@ -162,7 +128,7 @@ function groupNotifications(notifs) {
   return result;
 }
 
-// ── Relative time helper ──────────────────────────────────────────
+// ── Relative time helper ─────────────────────────────────────────
 function relativeTime(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins  = Math.floor(diff / 60000);
@@ -186,54 +152,7 @@ function dateGroup(dateStr) {
   return 'Anterior';
 }
 
-// ── Stacked avatars (G1) ────────────────────────────────────────────────────────
-function StackedAvatars({ members }) {
-  const shown = members.slice(0, 3);
-  const extra = members.length - shown.length;
-  return (
-    <div className="flex items-center flex-shrink-0" style={{ position: 'relative', width: shown.length * 18 + 10 }}>
-      {shown.map((n, i) => {
-        const avatar = n.actor_avatar || n.data?.actor_avatar || n.sender_avatar;
-        const name   = n.actor_username || n.data?.actor_username || '';
-        return (
-          <div
-            key={n.notification_id || n._id || i}
-            style={{
-              position: 'absolute',
-              left: i * 18,
-              zIndex: shown.length - i,
-              width: 28, height: 28,
-              borderRadius: '50%',
-              border: '2px solid var(--color-white)',
-              overflow: 'hidden',
-              background: 'var(--color-surface)',
-              flexShrink: 0,
-            }}
-          >
-            {avatar
-              ? <img src={avatar} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <div style={{ width: '100%', height: '100%', background: 'var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 600, color: 'var(--color-stone)' }}>{name[0]?.toUpperCase() || '?'}</div>
-            }
-          </div>
-        );
-      })}
-      {extra > 0 && (
-        <div style={{
-          position: 'absolute', left: shown.length * 18,
-          zIndex: 0, width: 20, height: 20,
-          borderRadius: '50%', border: '2px solid var(--color-white)',
-          background: 'var(--color-surface)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 9, fontWeight: 700, color: 'var(--color-stone)',
-        }}>
-          +{extra}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Grouped notification row (G1) ──────────────────────────────────────────────
+// ── Grouped notification row (simplified: 1 avatar + count text) ─
 function GroupedNotifRow({ group, onRead }) {
   const navigate = useNavigate();
   const { members, type } = group;
@@ -242,19 +161,18 @@ function GroupedNotifRow({ group, onRead }) {
   const isLike   = type === 'like' || type === 'post_liked';
   const isFollow = type === 'follow' || type === 'new_follower';
 
-  const names = members
-    .slice(0, 2)
-    .map(n => n.actor_username || n.data?.actor_username || 'Alguien')
-    .join(', ');
-  const others = count - 2;
+  const firstName = first.actor_username || first.data?.actor_username || 'Alguien';
+  const others = count - 1;
 
   let text = '';
   if (isLike) {
     text = others > 0
-      ? `${names} y otras ${others} personas les gustó tu publicación`
-      : `${names} les gustó tu publicación`;
+      ? `${firstName} y otras ${others} personas les gustó tu publicación`
+      : `${firstName} les gustó tu publicación`;
   } else if (isFollow) {
-    text = `${names}${others > 0 ? ` y ${others} más` : ''} han empezado a seguirte`;
+    text = others > 0
+      ? `${firstName} y ${others} más han empezado a seguirte`
+      : `${firstName} ha empezado a seguirte`;
   } else {
     text = first.title || `${count} nuevas notificaciones`;
   }
@@ -271,7 +189,11 @@ function GroupedNotifRow({ group, onRead }) {
     if (url) navigate(url);
   };
 
-  // thumbnail from first member
+  // First actor avatar
+  const avatar = first.actor_avatar || first.data?.actor_avatar || first.sender_avatar;
+  const avatarName = first.actor_username || first.data?.actor_username || '';
+
+  // Thumbnail from first member
   const thumb = first.entity_thumbnail || first.thumbnail || first.image;
   const hasThumb = ['post', 'product', 'reel'].includes(first.entity_type) && thumb;
 
@@ -290,9 +212,12 @@ function GroupedNotifRow({ group, onRead }) {
       }}
       onClick={handleClick}
     >
-      {/* Stacked avatars */}
-      <div style={{ position: 'relative', height: 32, width: Math.min(members.length, 3) * 18 + 10, flexShrink: 0 }}>
-        <StackedAvatars members={members} />
+      {/* Single avatar (first actor only) */}
+      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0" style={{ background: 'var(--color-surface)' }}>
+        {avatar
+          ? <img src={avatar} alt={avatarName} className="w-full h-full object-cover" />
+          : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-stone)' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
+        }
       </div>
 
       {/* Text */}
@@ -310,16 +235,16 @@ function GroupedNotifRow({ group, onRead }) {
         </p>
       </div>
 
-      {/* Thumbnail (G5) */}
+      {/* Thumbnail */}
       {hasThumb ? (
         <img
           src={thumb}
           alt=""
-          style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
+          className="w-11 h-11 rounded-xl object-cover flex-shrink-0"
         />
       ) : (
         ['post', 'product', 'reel'].includes(first.entity_type) && (
-          <div style={{ width: 48, height: 48, borderRadius: 8, background: 'var(--color-surface)', flexShrink: 0 }} />
+          <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: 'var(--color-surface)' }} />
         )
       )}
     </motion.div>
@@ -355,14 +280,14 @@ function NotifSkeleton() {
 // ── Single notification row ───────────────────────────────────────
 function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   const meta = TYPE_META[notif.type] || TYPE_META.system;
-  const category = meta.category || 'sistema';
+  const category = meta?.category || 'sistema';
   const catStyle = CATEGORY_ICON_STYLE[category] || CATEGORY_ICON_STYLE.sistema;
-  const Icon = meta.icon || catStyle.Icon;
+  const Icon = meta?.icon || catStyle.Icon;
   const isRead = !!notif.read_at;
 
   const navigate = useNavigate();
 
-  // G3 — follow-back state
+  // Follow-back state
   const isFollowType = notif.type === 'follow' || notif.type === 'new_follower';
   const actorId = notif.actor_id || notif.data?.actor_id || notif.sender_id;
   const notifKey = notif.notification_id || notif._id;
@@ -389,7 +314,7 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
     if (url) navigate(url);
   };
 
-  // G5 — thumbnail
+  // Thumbnail
   const thumb = notif.entity_thumbnail || notif.thumbnail || notif.image;
   const hasThumb = ['post', 'product', 'reel'].includes(notif.entity_type) && thumb;
   const showThumbPlaceholder = ['post', 'product', 'reel'].includes(notif.entity_type) && !thumb;
@@ -400,7 +325,7 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -40 }}
-      className="flex items-start gap-3 cursor-pointer group"
+      className="flex items-start gap-3 cursor-pointer"
       style={{
         padding: '12px 16px',
         borderLeft: !isRead ? '3px solid var(--color-black)' : '3px solid transparent',
@@ -439,7 +364,7 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         )}
       </div>
 
-      {/* G3 — Follow-back button for follow notifications */}
+      {/* Follow-back button */}
       {isFollowType && actorId && (
         <button
           onClick={handleFollowBack}
@@ -462,49 +387,31 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         </button>
       )}
 
-      {/* G5 — content thumbnail */}
+      {/* Thumbnail */}
       {hasThumb ? (
         <img
           src={thumb}
           alt=""
-          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-          style={{ background: 'var(--color-surface)' }}
+          className="w-11 h-11 rounded-xl object-cover flex-shrink-0"
         />
       ) : showThumbPlaceholder ? (
-        <div className="w-12 h-12 rounded-lg flex-shrink-0" style={{ background: 'var(--color-surface)' }} />
-      ) : (
-        /* Right column: time + delete */
-        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-          <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>
-            {relativeTime(notif.created_at)}
-          </span>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(notif.notification_id || notif._id); }}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
-            style={{ color: 'var(--color-stone)' }}
-            aria-label="Eliminar notificación"
-          >
-            <Trash2 style={{ width: 14, height: 14 }} />
-          </button>
-        </div>
-      )}
+        <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: 'var(--color-surface)' }} />
+      ) : null}
 
-      {/* When thumbnail is shown, show time + delete separately */}
-      {(hasThumb || showThumbPlaceholder) && (
-        <div className="flex flex-col items-end gap-1.5 flex-shrink-0" style={{ marginLeft: -4 }}>
-          <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>
-            {relativeTime(notif.created_at)}
-          </span>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(notif.notification_id || notif._id); }}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
-            style={{ color: 'var(--color-stone)' }}
-            aria-label="Eliminar notificación"
-          >
-            <Trash2 style={{ width: 14, height: 14 }} />
-          </button>
-        </div>
-      )}
+      {/* Right column: time + delete (always visible) */}
+      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+        <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>
+          {relativeTime(notif.created_at)}
+        </span>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(notif.notification_id || notif._id); }}
+          className="p-1 flex items-center justify-center"
+          style={{ color: 'var(--color-stone)', background: 'none', border: 'none', cursor: 'pointer' }}
+          aria-label="Eliminar notificación"
+        >
+          <Trash2 className="text-stone-400 hover:text-stone-600" style={{ width: 14, height: 14 }} />
+        </button>
+      </div>
     </motion.div>
   );
 }
@@ -543,16 +450,15 @@ function EmptyState() {
 export default function NotificationsPage() {
   const navigate  = useNavigate();
   const loaderRef = useRef(null);
-  const [activeFilter, setActiveFilter] = useState('todo');
 
-  // G2 — tab state
+  // Tab state
   const [activeTab, setActiveTab] = useState('all');
 
-  // G3 — follow state (Set of notification ids that have been followed)
+  // Follow state (Set of notification ids that have been followed)
   const [followedIds, setFollowedIds] = useState(new Set());
 
   const {
-    data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage,
+    data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch,
   } = useNotifications();
 
   const { data: unreadData } = useUnreadNotifications();
@@ -567,16 +473,23 @@ export default function NotificationsPage() {
     (p) => p.notifications ?? p.items ?? p ?? []
   ) ?? [];
 
-  // G2 — apply tab filter first
+  // Apply tab filter
   const tabFiltered = filterByTab(notifications, activeTab);
 
-  // Then apply category pill filter
-  const filteredNotifications = activeFilter === 'todo'
-    ? tabFiltered
-    : tabFiltered.filter((n) => (TYPE_TO_CATEGORY[n.type] || 'sistema') === activeFilter);
+  // Group notifications
+  const groupedItems = groupNotifications(tabFiltered);
 
-  // G1 — group notifications
-  const groupedItems = groupNotifications(filteredNotifications);
+  // "Limpiar todo" handler
+  const handleClearAll = async () => {
+    try {
+      // TODO: replace with DELETE /notifications/all when endpoint is available
+      await apiClient.delete('/notifications/all');
+      refetch();
+    } catch {
+      // Fallback: mark all as read
+      markAll();
+    }
+  };
 
   // Infinite scroll observer
   const handleObserver = useCallback(
@@ -596,7 +509,7 @@ export default function NotificationsPage() {
     return () => observer.disconnect();
   }, [handleObserver]);
 
-  // Group by date label (using first item's date for grouped rows)
+  // Group by date label
   const byDate = groupedItems.reduce((acc, item) => {
     const dateStr = item.grouped ? item.members[0].created_at : item.notif.created_at;
     const label = dateGroup(dateStr);
@@ -619,52 +532,61 @@ export default function NotificationsPage() {
         }}
       >
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              aria-label="Volver"
-              className="p-2 -ml-2 rounded-full transition-opacity"
-              style={{ color: 'var(--color-black)' }}
-            >
-              <ArrowLeft style={{ width: 20, height: 20 }} />
-            </button>
-            <div>
-              <h1 style={{
-                fontWeight: 600,
-                color: 'var(--color-black)',
-                fontFamily: 'var(--font-sans)',
-                fontSize: 16,
-              }}>
-                Notificaciones
-              </h1>
-              {unreadCount > 0 && (
-                <p style={{ fontSize: 12, color: 'var(--color-stone)' }}>
-                  {unreadCount} sin leer
-                </p>
-              )}
-            </div>
-          </div>
+          {/* Left: back arrow */}
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Volver"
+            className="p-2 -ml-2 rounded-full transition-opacity"
+            style={{ color: 'var(--color-black)' }}
+          >
+            <ArrowLeft style={{ width: 20, height: 20 }} />
+          </button>
 
-          {unreadCount > 0 && (
+          {/* Center: title */}
+          <h1 style={{
+            fontWeight: 600,
+            color: 'var(--color-black)',
+            fontFamily: 'var(--font-sans)',
+            fontSize: 16,
+          }}>
+            Notificaciones
+          </h1>
+
+          {/* Right: Limpiar | Leído */}
+          <div className="flex items-center gap-1">
             <button
-              onClick={() => markAll()}
-              className="flex items-center gap-1.5 px-3 py-1.5 transition-opacity"
+              onClick={handleClearAll}
+              className="text-xs px-2 py-1 transition-colors"
               style={{
-                fontSize: 12,
                 color: 'var(--color-stone)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
                 fontFamily: 'var(--font-sans)',
               }}
+              aria-label="Limpiar todas las notificaciones"
             >
-              <CheckCheck style={{ width: 14, height: 14 }} />
-              Marcar todo como leído
+              Limpiar
             </button>
-          )}
+            <span style={{ color: 'var(--color-border)', fontSize: 12 }}>|</span>
+            <button
+              onClick={() => markAll()}
+              className="text-xs px-2 py-1 transition-colors"
+              style={{
+                color: 'var(--color-stone)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+              }}
+              aria-label="Marcar todo como leído"
+            >
+              Leído
+            </button>
+          </div>
         </div>
 
-        {/* G2 — Horizontal tabs */}
+        {/* Horizontal tabs */}
         <div
           className="flex border-b"
           style={{ borderColor: 'var(--color-border)' }}
@@ -675,13 +597,13 @@ export default function NotificationsPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="flex-1 py-2.5 text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 transition-colors"
                 style={{
                   fontFamily: 'var(--font-sans)',
                   fontSize: 13,
                   fontWeight: isActive ? 600 : 400,
                   color: isActive ? 'var(--color-black)' : 'var(--color-stone)',
-                  borderBottom: isActive ? '2px solid var(--color-black)' : '2px solid transparent',
+                  borderBottom: isActive ? '2px solid #0c0a09' : '2px solid transparent',
                   background: 'none',
                   border: 'none',
                   borderBottom: isActive ? '2px solid #0c0a09' : '2px solid transparent',
@@ -696,38 +618,6 @@ export default function NotificationsPage() {
             );
           })}
         </div>
-      </div>
-
-      {/* ── Filter pills ──────────────────────────────────────── */}
-      <div
-        className="flex gap-2 px-4 py-3 overflow-x-auto"
-        style={{
-          WebkitOverflowScrolling: 'touch',
-          scrollbarWidth: 'none',
-        }}
-      >
-        {FILTERS.map((f) => {
-          const isActive = activeFilter === f.key;
-          return (
-            <button
-              key={f.key}
-              onClick={() => setActiveFilter(f.key)}
-              className="flex-shrink-0 px-4 py-1.5 transition-colors"
-              style={{
-                borderRadius: 'var(--radius-full)',
-                fontSize: 13,
-                fontWeight: 500,
-                fontFamily: 'var(--font-sans)',
-                cursor: 'pointer',
-                background: isActive ? 'var(--color-black)' : 'var(--color-white)',
-                color: isActive ? '#fff' : 'var(--color-black)',
-                border: isActive ? '1px solid var(--color-black)' : '1px solid var(--color-border)',
-              }}
-            >
-              {f.label}
-            </button>
-          );
-        })}
       </div>
 
       {/* ── Content ───────────────────────────────────────────── */}
