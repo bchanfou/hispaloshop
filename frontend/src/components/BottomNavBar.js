@@ -91,16 +91,16 @@ export default function BottomNavBar() {
   const openMessageToast = useCallback(() => {
     if (!messageToast?.senderId) return;
     dismissMessageToast();
-    navigate('/chat');
+    navigate('/messages');
   }, [dismissMessageToast, messageToast, navigate]);
 
   useEffect(() => {
     const handleOpenChat = () => {
-      navigate('/chat');
+      navigate('/messages');
     };
 
     const handleToggleChat = () => {
-      navigate('/chat');
+      navigate('/messages');
     };
 
     // Lanzado desde HomeHeader (botón ✏) y FeedContainer (historias)
@@ -145,7 +145,7 @@ export default function BottomNavBar() {
         const currentConversation = conversationsRef.current.find(
           (conversation) => conversation.conversation_id === payload.conversation_id
         );
-        const chatOpen = location.pathname === '/chat';
+        const chatOpen = location.pathname === '/messages' || location.pathname.startsWith('/messages/');
 
         reloadConversations();
 
@@ -230,7 +230,7 @@ export default function BottomNavBar() {
 
   const isHome       = location.pathname === '/';
   const isExplore    = location.pathname.startsWith('/discover') || location.pathname.startsWith('/products');
-  const isChatActive = location.pathname === '/chat' || location.pathname.startsWith('/chat/');
+  const isChatActive = location.pathname === '/messages' || location.pathname.startsWith('/messages/');
   const isProfile    = profileUsername
     ? (location.pathname.toLowerCase() === `/${profileUsername}` || location.pathname.startsWith('/profile/') || location.pathname.startsWith('/settings/'))
     : (location.pathname === '/profile' || location.pathname.startsWith('/profile/') || location.pathname.startsWith('/settings/'));
@@ -312,7 +312,7 @@ export default function BottomNavBar() {
           {/* 4 — Chats */}
           <button
             type="button"
-            onClick={() => { if (!user) { navigate('/login'); return; } navigate('/chat'); }}
+            onClick={() => { if (!user) { navigate('/login'); return; } navigate('/messages'); }}
             aria-label={t('bottomNav.chats', 'Chats')}
             data-testid="bottom-nav-chats"
             className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
