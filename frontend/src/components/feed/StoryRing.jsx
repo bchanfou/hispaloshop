@@ -25,7 +25,7 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
       role="button"
       tabIndex={0}
       aria-label={isSelf ? 'Crear tu historia' : `Ver historia de ${label}`}
-      className="flex flex-col items-center gap-1 cursor-pointer w-16 shrink-0 transition-transform duration-150 hover:scale-105 active:scale-95"
+      className="flex flex-col items-center gap-1 cursor-pointer w-16 shrink-0 snap-center transition-transform duration-150 hover:scale-105 active:scale-95"
     >
       <div className="relative">
       <div
@@ -59,9 +59,9 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
 
       <span
         title={label}
-        className="text-[11px] text-stone-950 font-sans overflow-hidden text-ellipsis whitespace-nowrap max-w-[60px] text-center"
+        className="text-[11px] text-stone-950 font-sans overflow-hidden text-ellipsis whitespace-nowrap max-w-[58px] text-center"
       >
-        {label.length > 8 ? label.slice(0, 8) + '...' : label}
+        {label}
       </span>
     </div>
   );

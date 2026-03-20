@@ -94,7 +94,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
               </div>
             )}
             {isOnline && (
-              <span className="absolute bottom-0 right-0 h-[9px] w-[9px] rounded-full border-2 border-white bg-[#2E7D52]" />
+              <span className="absolute bottom-0 right-0 h-[9px] w-[9px] rounded-full border-2 border-white bg-stone-950" />
             )}
           </div>
 
@@ -104,7 +104,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
             </p>
             <div className="mt-0.5 flex items-center gap-1">
               {isOnline ? (
-                <span className="text-xs font-medium text-[#2E7D52]">En línea</span>
+                <span className="text-xs font-medium text-stone-950">En línea</span>
               ) : (
                 <span className="text-xs text-stone-500">{status?.text || ''}</span>
               )}

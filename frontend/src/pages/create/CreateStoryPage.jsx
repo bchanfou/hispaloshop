@@ -11,7 +11,7 @@ const BG_OPTIONS = [
   { id: 'white', label: '□', type: 'color', value: '#ffffff' },
   { id: 'crema', label: '■', type: 'color', value: '#fafaf9' },
   { id: 'oscuro', label: '■', type: 'color', value: '#1c1917' },
-  { id: 'verde', label: '■', type: 'color', value: '#2E7D52' },
+  { id: 'verde', label: '■', type: 'color', value: '#44403c' },
   { id: 'terracota', label: '■', type: 'color', value: '#78716c' },
 ];
 
@@ -431,7 +431,7 @@ export default function CreateStoryPage() {
             const w = 180, h = 70;
             ctx.fillStyle = 'rgba(255,255,255,0.95)';
             ctx.beginPath(); ctx.roundRect(x - w/2, y - h/2, w, h, 16); ctx.fill();
-            ctx.fillStyle = '#2E7D52';
+            ctx.fillStyle = '#0c0a09';
             ctx.font = 'bold 10px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('Hazme una pregunta', x, y - 18);
@@ -457,7 +457,7 @@ export default function CreateStoryPage() {
             const measured = ctx.measureText(s.content);
             ctx.fillStyle = 'rgba(255,255,255,0.95)';
             ctx.beginPath(); ctx.roundRect(x - measured.width/2 - 20, y - 13, measured.width + 40, 26, 13); ctx.fill();
-            ctx.fillStyle = '#2E7D52';
+            ctx.fillStyle = '#0c0a09';
             ctx.font = '14px sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
             ctx.fillText('📍', x - measured.width/2 - 10, y);
@@ -472,7 +472,7 @@ export default function CreateStoryPage() {
             const tw = Math.min(measured.width, 160);
             ctx.fillStyle = 'rgba(255,255,255,0.95)';
             ctx.beginPath(); ctx.roundRect(x - tw/2 - 18, y - 13, tw + 36, 26, 13); ctx.fill();
-            ctx.fillStyle = '#2E7D52';
+            ctx.fillStyle = '#0c0a09';
             ctx.font = '13px sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
             ctx.fillText('🔗', x - tw/2 - 8, y);
@@ -520,7 +520,7 @@ export default function CreateStoryPage() {
       {/* Publish success overlay */}
       {publishSuccess && (
         <div className="fixed inset-0 z-[70] bg-black flex flex-col items-center justify-center gap-4" style={{ animation: 'fadeIn 0.3s ease' }}>
-          <div className="w-16 h-16 rounded-full bg-[#2E7D52] flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
             <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
           <span className="text-base font-semibold text-white">¡Historia publicada!</span>
@@ -573,8 +573,8 @@ export default function CreateStoryPage() {
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className={`bg-[#2E7D52] text-white border-none text-[13px] font-semibold px-4 py-2 rounded-full transition-opacity ${
-            publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-[#1F5C3B]'
+          className={`bg-stone-950 text-white border-none text-[13px] font-semibold px-4 py-2 rounded-full transition-opacity ${
+            publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-stone-800'
           }`}
         >
           {publishing ? '...' : 'Publicar'}
@@ -751,7 +751,7 @@ export default function CreateStoryPage() {
                 </div>
               ) : s.type === 'question' ? (
                 <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-3 shadow-lg w-[200px] text-center">
-                  <p className="text-[10px] font-bold text-[#2E7D52] mb-1.5">Hazme una pregunta</p>
+                  <p className="text-[10px] font-bold text-stone-950 mb-1.5">Hazme una pregunta</p>
                   <p className="text-[12px] font-bold text-stone-950 mb-2">{s.content}</p>
                   <div className="bg-stone-100 rounded-xl py-2.5 px-3 text-[11px] text-stone-400">
                     Escribe tu respuesta...
@@ -764,12 +764,12 @@ export default function CreateStoryPage() {
                 </div>
               ) : s.type === 'link' ? (
                 <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-xl text-stone-950 text-[11px] px-3 py-2 rounded-full shadow-lg max-w-[180px]">
-                  <Link2 size={14} className="text-[#2E7D52] shrink-0" />
+                  <Link2 size={14} className="text-stone-950 shrink-0" />
                   <span className="font-semibold truncate">{s.content.replace(/^https?:\/\//, '')}</span>
                 </div>
               ) : s.type === 'location' ? (
                 <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-xl text-stone-950 text-sm px-3 py-2 rounded-full shadow-lg">
-                  <MapPin size={14} className="text-[#2E7D52]" />
+                  <MapPin size={14} className="text-stone-950" />
                   <span className="font-semibold">{s.content}</span>
                 </div>
               ) : (
@@ -957,7 +957,7 @@ export default function CreateStoryPage() {
           {/* Confirm button */}
           <button
             onClick={addTextOverlay}
-            className="bg-[#2E7D52] text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer flex items-center justify-center gap-1.5 hover:bg-[#1F5C3B] transition-colors"
+            className="bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer flex items-center justify-center gap-1.5 hover:bg-stone-800 transition-colors"
           >
             <Check size={16} />
             Confirmar
@@ -1078,7 +1078,7 @@ export default function CreateStoryPage() {
                   setPollQuestion(''); setPollOption1(''); setPollOption2('');
                 }}
                 disabled={!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()}
-                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${(!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()) ? 'opacity-40' : ''}`}
+                className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${(!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()) ? 'opacity-40' : ''}`}
               >
                 Añadir encuesta
               </button>
@@ -1104,7 +1104,7 @@ export default function CreateStoryPage() {
                   setMentionDraft('');
                 }}
                 disabled={!mentionDraft.trim()}
-                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${!mentionDraft.trim() ? 'opacity-40' : ''}`}
+                className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!mentionDraft.trim() ? 'opacity-40' : ''}`}
               >
                 Añadir mención
               </button>
@@ -1130,7 +1130,7 @@ export default function CreateStoryPage() {
                   setLinkDraft('');
                 }}
                 disabled={!linkDraft.trim()}
-                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${!linkDraft.trim() ? 'opacity-40' : ''}`}
+                className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!linkDraft.trim() ? 'opacity-40' : ''}`}
               >
                 Añadir enlace
               </button>
@@ -1156,7 +1156,7 @@ export default function CreateStoryPage() {
                   setLocationDraft('');
                 }}
                 disabled={!locationDraft.trim()}
-                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${!locationDraft.trim() ? 'opacity-40' : ''}`}
+                className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!locationDraft.trim() ? 'opacity-40' : ''}`}
               >
                 Añadir ubicación
               </button>
@@ -1188,7 +1188,7 @@ export default function CreateStoryPage() {
                   setQuestionDraft('');
                 }}
                 disabled={!questionDraft.trim()}
-                className={`bg-[#2E7D52] text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#1F5C3B] transition-colors ${!questionDraft.trim() ? 'opacity-40' : ''}`}
+                className={`bg-stone-950 text-white border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors ${!questionDraft.trim() ? 'opacity-40' : ''}`}
               >
                 Añadir pregunta
               </button>

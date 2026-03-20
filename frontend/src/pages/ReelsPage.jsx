@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, Film } from 'lucide-react';
 import ReelCard from '../components/feed/ReelCard';
+import SlideTabIndicator from '../components/motion/SlideTabIndicator';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
 
@@ -177,19 +178,14 @@ export default function ReelsPage() {
             <ArrowLeft className="w-5 h-5 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]" />
           </button>
           <div className="flex gap-0 overflow-x-auto scrollbar-hide flex-1">
-            {REEL_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex-shrink-0 px-3 py-2 text-[13px] font-semibold transition-colors whitespace-nowrap border-none cursor-pointer bg-transparent ${
-                  activeTab === tab.key
-                    ? 'text-white border-b-2 border-white'
-                    : 'text-white/55'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            <SlideTabIndicator
+              tabs={REEL_TABS.map(t => ({ id: t.key, label: t.label }))}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              variant="pill"
+              layoutId="reels-tab"
+              className="flex-1"
+            />
           </div>
         </div>
       </div>

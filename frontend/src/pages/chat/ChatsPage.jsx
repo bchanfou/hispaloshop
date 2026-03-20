@@ -99,7 +99,7 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) 
             </div>
           )}
           {online && (
-            <span className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-white bg-[#2E7D52]" />
+            <span className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-white bg-stone-950" />
           )}
         </div>
 
@@ -269,7 +269,7 @@ export default function ChatsPage() {
                         {getInitial(conv.name)}
                       </div>
                     )}
-                    <span className="absolute -bottom-0.5 -right-0.5 h-[12px] w-[12px] rounded-full border-2 border-white bg-[#2E7D52]" />
+                    <span className="absolute -bottom-0.5 -right-0.5 h-[12px] w-[12px] rounded-full border-2 border-white bg-stone-950" />
                   </div>
                   <span className="w-full truncate text-center text-[11px] text-stone-500">{(conv.name || '').split(' ')[0]}</span>
                 </button>

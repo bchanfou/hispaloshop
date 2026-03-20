@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import AppHeader from './AppHeader';
-// SideNav disabled — mobile-first layout
+import PageTransition from '../motion/PageTransition';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { trackPageVisit } from '../../utils/analytics';
@@ -51,27 +52,14 @@ function EmailVerificationBanner() {
   }, []);
 
   return (
-    <div style={{
-      background: '#f5f5f4',
-      borderBottom: '1px solid #e7e5e4',
-      padding: '10px 16px',
-      display: 'flex', alignItems: 'center',
-      justifyContent: 'space-between', gap: 12,
-      fontSize: 13,
-    }}>
-      <span style={{ color: '#0c0a09' }}>
+    <div className="bg-stone-50 border-b border-stone-200 px-4 py-2.5 flex items-center justify-between gap-3 text-[13px]">
+      <span className="text-stone-950">
         Verifica tu email para activar todas las funciones
       </span>
       <button
         onClick={resend}
         disabled={sending}
-        style={{
-          background: 'none', border: 'none',
-          cursor: 'pointer', fontWeight: 600,
-          color: '#0c0a09',
-          fontSize: 13, whiteSpace: 'nowrap',
-          opacity: sending ? 0.5 : 1,
-        }}
+        className="bg-transparent border-none cursor-pointer font-semibold text-stone-950 text-[13px] whitespace-nowrap disabled:opacity-50"
       >
         {sending ? 'Enviando...' : 'Reenviar →'}
       </button>
@@ -136,7 +124,11 @@ export default function AppLayout({ children }) {
           paddingBottom: 'calc(50px + env(safe-area-inset-bottom, 0px))',
         }}
       >
-        {children}
+        <AnimatePresence mode="wait">
+          <PageTransition key={location.pathname}>
+            {children}
+          </PageTransition>
+        </AnimatePresence>
       </main>
     </>
   );

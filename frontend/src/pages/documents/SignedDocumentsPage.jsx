@@ -16,7 +16,7 @@ import apiClient from '@/services/api/client';
 
 const V2 = {
   black: '#0A0A0A',
-  cream: '#F7F6F2',
+  cream: '#ffffff',
   stone: '#8A8881',
   white: '#FFFFFF',
   border: '#E5E2DA',

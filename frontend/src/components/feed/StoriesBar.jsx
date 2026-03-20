@@ -70,14 +70,14 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
 
   return (
     <div
-      className="scrollbar-hide flex gap-3 overflow-x-auto overscroll-x-contain px-3 py-2"
+      className="scrollbar-hide flex gap-3 overflow-x-auto overscroll-x-contain snap-x snap-mandatory px-3 py-2"
       role="region"
       aria-label="Historias"
       tabIndex={0}
     >
       {/* Self ring — only when authenticated */}
       {currentUser && (
-        <div className="relative shrink-0">
+        <div className="relative shrink-0 snap-center">
           <StoryRing
             user={currentUser}
             isSelf
@@ -97,18 +97,18 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
         ? Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="flex shrink-0 flex-col items-center gap-1 w-16"
+              className="flex shrink-0 snap-center flex-col items-center gap-1 w-16"
               aria-hidden="true"
             >
               <div
-                className="animate-pulse-slow h-16 w-16 rounded-full bg-stone-100"
+                className="animate-pulse h-16 w-16 rounded-full bg-stone-100"
               />
             </div>
           ))
         : error ? (
             <button
               onClick={fetchStories}
-              className="flex shrink-0 flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
+              className="flex shrink-0 snap-center flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
               aria-label="Reintentar cargar historias"
             >
               <div className="h-16 w-16 rounded-full bg-stone-100 flex items-center justify-center">

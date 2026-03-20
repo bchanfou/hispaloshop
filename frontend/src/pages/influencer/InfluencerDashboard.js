@@ -454,25 +454,25 @@ export default function InfluencerDashboard() {
         {/* === KPI CARDS ROW === */}
         {dashboard.stats && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            <div className="rounded-xl border border-stone-200 bg-white p-4">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Clics 30d</p>
-              <p className="text-xl font-bold" style={{ color: '#0c0a09' }}>{dashboard.stats.clicks_30d || 0}</p>
+              <p className="text-xl font-bold text-stone-950">{dashboard.stats.clicks_30d || 0}</p>
             </div>
-            <div className="rounded-xl border border-stone-200 bg-white p-4">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Ventas 30d</p>
-              <p className="text-xl font-bold" style={{ color: '#0c0a09' }}>{dashboard.stats.sales_30d || 0}</p>
+              <p className="text-xl font-bold text-stone-950">{dashboard.stats.sales_30d || 0}</p>
             </div>
-            <div className="rounded-xl border border-stone-200 bg-white p-4">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Conversión</p>
-              <p className="text-xl font-bold" style={{ color: '#0c0a09' }}>
+              <p className="text-xl font-bold text-stone-950">
                 {(dashboard.stats.clicks_30d || 0) > 0
                   ? `${((dashboard.stats.sales_30d || 0) / dashboard.stats.clicks_30d * 100).toFixed(1)}%`
                   : '—'}
               </p>
             </div>
-            <div className="rounded-xl border border-stone-200 bg-white p-4">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Comisiones 30d</p>
-              <p className="text-xl font-bold" style={{ color: '#0c0a09' }}>{convertAndFormatPrice(Number(dashboard.stats.earned_30d || 0))}</p>
+              <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(dashboard.stats.earned_30d || 0))}</p>
             </div>
           </div>
         )}

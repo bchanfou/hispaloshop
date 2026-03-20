@@ -949,9 +949,9 @@ export default function ProducerOverview() {
         return (
           <div className="grid grid-cols-2 gap-3">
             {kpis.map((kpi, i) => (
-              <div key={i} className="p-4 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
-                <p className="text-2xl font-bold" style={{ color: '#0c0a09' }}>{kpi.value}</p>
-                <p className="text-[10px] uppercase mt-1" style={{ color: '#78716c' }}>{kpi.label}</p>
+              <div key={i} className="p-4 text-center bg-white border border-stone-200 rounded-2xl">
+                <p className="text-2xl font-bold text-stone-950">{kpi.value}</p>
+                <p className="text-[10px] uppercase mt-1 text-stone-500">{kpi.label}</p>
                 {kpi.trend !== null && (
                   <div className="mt-1 flex justify-center">
                     <TrendBadge trend={kpi.trend} />
@@ -964,9 +964,9 @@ export default function ProducerOverview() {
       })()}
 
       {/* Net earnings */}
-      <div className="p-4 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
-        <p className="text-2xl font-bold" style={{ color: '#0c0a09' }}>{asNumber(payments?.total_net).toFixed(0)}€</p>
-        <p className="text-[10px] uppercase mt-1" style={{ color: '#78716c' }}>{t('sellerDashboard.earned', 'Ganado neto')}</p>
+      <div className="p-4 text-center bg-white border border-stone-200 rounded-2xl">
+        <p className="text-2xl font-bold text-stone-950">{asNumber(payments?.total_net).toFixed(0)}€</p>
+        <p className="text-[10px] uppercase mt-1 text-stone-500">{t('sellerDashboard.earned', 'Ganado neto')}</p>
       </div>
 
       {/* Sales Chart — 30 days */}

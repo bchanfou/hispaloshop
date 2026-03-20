@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
 import { AlertTriangle, Award, ChevronLeft, ChevronRight, Plus, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -178,15 +179,23 @@ export default function ProductDetailOverlay({
     <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div role="dialog" aria-modal="true" aria-label={product?.name || 'Producto'} className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
       {/* Backdrop */}
-      <button
+      <motion.button
         type="button"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         className="absolute inset-0 bg-black/65 backdrop-blur-[2px]"
         onClick={onClose}
         aria-label="Cerrar"
       />
 
       {/* Panel */}
-      <div className="relative z-10 flex max-h-[90vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl">
+      <motion.div
+        initial={{ y: '100%' }}
+        animate={{ y: 0, transition: { type: 'spring', damping: 28, stiffness: 300 } }}
+        exit={{ y: '100%', transition: { duration: 0.22 } }}
+        className="relative z-10 flex max-h-[90vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl"
+      >
 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-stone-100 px-5 py-3.5">
@@ -362,7 +371,7 @@ export default function ProductDetailOverlay({
             )}
           </section>
         </div>
-      </div>
+      </motion.div>
     </div>
     </FocusTrap>
   );

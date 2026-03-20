@@ -146,11 +146,11 @@ export default function EditProfilePage() {
   const usernameBorderClass = usernameStatus === 'taken'
     ? 'border-red-400'
     : usernameStatus === 'available'
-      ? 'border-[#2E7D52]'
+      ? 'border-stone-950'
       : 'border-stone-200';
 
   return (
-    <div className="min-h-screen bg-[#F7F6F2]">
+    <div className="min-h-screen bg-white">
       {/* Topbar */}
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button
@@ -168,7 +168,7 @@ export default function EditProfilePage() {
           disabled={!canSave}
           className={`rounded-full px-4 py-1.5 text-[13px] font-semibold transition-all duration-150 ${
             canSave
-              ? 'bg-[#2E7D52] text-white hover:bg-[#1F5C3B]'
+              ? 'bg-stone-950 text-white hover:bg-stone-800'
               : 'bg-stone-100 text-stone-500'
           } disabled:opacity-50`}
         >
@@ -221,7 +221,7 @@ export default function EditProfilePage() {
               <Loader2 size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin text-stone-500" />
             )}
             {usernameStatus === 'available' && (
-              <Check size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#2E7D52]" />
+              <Check size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-950" />
             )}
             {usernameStatus === 'taken' && (
               <X size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-red-500" />

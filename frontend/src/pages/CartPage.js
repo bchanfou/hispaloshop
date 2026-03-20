@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { toast } from 'sonner';
 import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Minus, Check, Clock, RefreshCw, Truck, Package, Calendar } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
 
 /* ── ShippingProgressBar — per-store free-shipping progress ── */
@@ -432,15 +433,13 @@ export default function CartPage() {
         {cartLoading ? (
           <p className="text-stone-500 text-center py-12">{t('common.loading')}</p>
         ) : cartItems.length === 0 ? (
-          <div className="flex flex-col items-center py-16 text-center">
-            <p className="mb-4 text-[14px] text-stone-400">{t('cart.empty')}</p>
-            <button
-              type="button"
-              onClick={() => navigate('/products')}
-              className="rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
-            >
-              {t('cart.continueShopping')}
-            </button>
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Package size={48} className="text-stone-300 mb-4" />
+            <p className="text-lg font-semibold text-stone-950 mb-1">Tu carrito esta vacio</p>
+            <p className="text-sm text-stone-500 mb-6">Descubre productos increibles de productores locales</p>
+            <motion.button whileTap={{ scale: 0.96 }} onClick={() => navigate('/explore')} className="bg-stone-950 text-white rounded-full px-8 py-3 text-sm font-semibold hover:bg-stone-800 transition-colors">
+              Explorar productos
+            </motion.button>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -469,11 +468,17 @@ export default function CartPage() {
                       <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{producerName}</span>
                       <span className="text-xs text-stone-400">· {items.length} {items.length === 1 ? 'producto' : 'productos'}</span>
                     </div>
+                    <AnimatePresence>
                     {items.map((item) => {
                       const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
                       const itemKey = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
                       return (
-                        <div
+                        <motion.div
+                          layout
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -100 }}
+                          transition={{ type: 'spring', damping: 25 }}
                           key={itemKey}
                           className={`flex items-start gap-3 rounded-xl border bg-white p-3 md:items-center md:gap-6 md:p-6 ${hasStockIssue ? 'border-stone-950 bg-stone-100' : 'border-stone-200'}`}
                           data-testid={`cart-item-${itemKey}`}
@@ -492,24 +497,26 @@ export default function CartPage() {
                             )}
                             <div className="flex items-center justify-between mt-1 md:mt-2">
                               <div className="flex items-center gap-3">
-                                <div className="flex items-center bg-stone-100 rounded-xl">
-                                  <button
+                                <div className="flex items-center gap-2">
+                                  <motion.button
+                                    whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-l-xl transition-colors"
+                                    className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-colors"
                                     aria-label={`Disminuir cantidad de ${item.product_name}`}
                                   >
-                                    <Minus className="w-4 h-4 text-stone-950" />
-                                  </button>
-                                  <span className="w-8 text-center text-sm font-medium text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
-                                  <button
+                                    <Minus className="w-3.5 h-3.5 text-stone-950" />
+                                  </motion.button>
+                                  <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
+                                  <motion.button
+                                    whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-r-xl transition-colors"
+                                    className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-colors"
                                     aria-label={`Aumentar cantidad de ${item.product_name}`}
                                   >
-                                    <Plus className="w-4 h-4 text-stone-950" />
-                                  </button>
+                                    <Plus className="w-3.5 h-3.5 text-stone-950" />
+                                  </motion.button>
                                 </div>
                                 <p className="text-sm font-bold text-stone-950 md:text-base">
                                   {convertAndFormatPrice((item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0)) * item.quantity, item.currency || 'EUR')}
@@ -541,9 +548,10 @@ export default function CartPage() {
                           >
                             <Trash2 className="w-5 h-5" />
                           </button>
-                        </div>
+                        </motion.div>
                       );
                     })}
+                    </AnimatePresence>
                   </div>
                 ))}
 
@@ -807,6 +815,25 @@ export default function CartPage() {
           </div>
         )}
       </div>
+
+      {/* Sticky mobile total bar */}
+      {!cartLoading && cartItems.length > 0 && (
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-stone-200 px-4 py-4 lg:hidden z-30">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm text-stone-500">{t('cart.total')}</span>
+            <span className="text-lg font-bold text-stone-950">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            type="button"
+            onClick={handleCheckout}
+            disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
+            className={`w-full rounded-full py-3.5 text-[14px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+          >
+            {checkoutLoading ? t('common.loading') : t('cart.checkout')}
+          </motion.button>
+        </div>
+      )}
     </div>
   );
 }

@@ -12,9 +12,9 @@ import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListO
 import SEO from '../components/SEO';
 
 const DIFFICULTY_CLASSES = {
-  easy: { pill: 'bg-stone-200/50 text-stone-600', label: 'Fácil' },
-  medium: { pill: 'bg-stone-300/40 text-stone-700', label: 'Media' },
-  hard: { pill: 'bg-stone-950 text-stone-50', label: 'Difícil' },
+  easy: { pill: 'bg-stone-100 text-stone-600', label: 'Fácil' },
+  medium: { pill: 'bg-stone-100 text-stone-700', label: 'Media' },
+  hard: { pill: 'bg-stone-950 text-white', label: 'Difícil' },
 };
 
 function normalizeStep(step) {
@@ -157,7 +157,7 @@ export default function RecipeDetailPage() {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fafaf9] font-sans">
+      <div className="min-h-screen bg-white font-sans">
         <Topbar title="Receta" onBack={() => navigate(-1)} />
         <div className="flex justify-center p-12">
           <Loader2 size={28} className="animate-spin text-stone-400" />
@@ -169,7 +169,7 @@ export default function RecipeDetailPage() {
   /* ── Not found ── */
   if (!recipe) {
     return (
-      <div className="min-h-screen bg-[#fafaf9] font-sans">
+      <div className="min-h-screen bg-white font-sans">
         <Topbar title="Receta" onBack={() => navigate(-1)} />
         <div className="flex flex-col items-center gap-3 px-4 py-16">
           <ChefHat size={56} className="text-stone-300" strokeWidth={1} />
@@ -185,7 +185,7 @@ export default function RecipeDetailPage() {
   const diff = DIFFICULTY_CLASSES[recipe.difficulty] || DIFFICULTY_CLASSES.easy;
 
   return (
-    <div className="min-h-screen bg-[#fafaf9] font-sans">
+    <div className="min-h-screen bg-white font-sans">
       {/* ── Topbar ── */}
       <Topbar
         title={recipe.title}
@@ -229,7 +229,7 @@ export default function RecipeDetailPage() {
       />
 
       {/* ── Hero Image ── */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100">
+      <div className="relative aspect-[16/9] w-full overflow-hidden bg-stone-100">
         {recipe.image_url ? (
           <img src={resolveUserImage(recipe.image_url)} alt={recipe.title} loading="lazy" className="block h-full w-full object-cover" />
         ) : (
@@ -243,11 +243,11 @@ export default function RecipeDetailPage() {
       <div className="mx-auto max-w-[600px] px-4 pb-24">
         {/* ── Title + Meta ── */}
         <div className="py-4">
-          <h1 className="mb-2.5 text-[22px] font-bold leading-tight text-stone-950">{recipe.title}</h1>
+          <h1 className="mb-3 text-2xl font-bold leading-tight text-stone-950">{recipe.title}</h1>
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${diff.pill}`}>{diff.label}</span>
-            <span className="flex items-center gap-1 text-xs text-stone-500"><Clock3 size={13} /> {recipe.time_minutes || 0} min</span>
-            <span className="flex items-center gap-1 text-xs text-stone-500"><Users size={13} /> {recipe.servings || 1} porciones</span>
+            <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${diff.pill}`}>{diff.label}</span>
+            <span className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600"><Clock3 size={13} /> {recipe.time_minutes || 0} min</span>
+            <span className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600"><Users size={13} /> {recipe.servings || 1} porciones</span>
           </div>
 
           {recipe.author_name && (

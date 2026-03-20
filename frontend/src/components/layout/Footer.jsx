@@ -4,17 +4,17 @@ import { Instagram } from 'lucide-react';
 import Logo from '../brand/Logo';
 
 const COUNTRIES = [
-  { code: 'ES', flag: '🇪🇸', name: 'España', active: true },
-  { code: 'FR', flag: '🇫🇷', name: 'France', active: true },
-  { code: 'KR', flag: '🇰🇷', name: '한국', active: false, label: 'Beta' },
-  { code: 'IT', flag: '🇮🇹', name: 'Italia', active: false },
-  { code: 'PT', flag: '🇵🇹', name: 'Portugal', active: false },
-  { code: 'DE', flag: '🇩🇪', name: 'Deutschland', active: false },
+  { code: 'ES', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espa\u00f1a', active: true },
+  { code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'France', active: true },
+  { code: 'KR', flag: '\u{1F1F0}\u{1F1F7}', name: '\uD55C\uAD6D', active: false, label: 'Beta' },
+  { code: 'IT', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italia', active: false },
+  { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugal', active: false },
+  { code: 'DE', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutschland', active: false },
 ];
 
 const LEGAL_LINKS = [
   { label: 'Privacidad', to: '/privacy' },
-  { label: 'Términos', to: '/terms' },
+  { label: 'T\u00e9rminos', to: '/terms' },
   { label: 'Cookies', to: '/terms' },
   { label: 'Contacto', to: '/contact' },
 ];
@@ -44,144 +44,63 @@ export default function Footer() {
   }, [dropdownOpen]);
 
   return (
-    <footer style={{
-      background: '#0A0A0A',
-      borderTop: '0.5px solid #1A1A1A',
-      padding: '40px 16px',
-      fontFamily: 'inherit',
-    }}>
-      <div className="footer-container" style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <style>{`
-          .footer-grid {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-            text-align: center;
-          }
-          @media (min-width: 768px) {
-            .footer-grid {
-              display: grid !important;
-              grid-template-columns: 200px 1fr 200px !important;
-              align-items: center;
-              text-align: left;
-              gap: 0;
-            }
-          }
-        `}</style>
+    <footer className="bg-stone-950 border-t border-stone-800 px-6 py-10 md:py-16">
+      <div className="max-w-6xl mx-auto">
 
-        <div className="footer-grid">
+        {/* Main grid: logo | legal links | country + social */}
+        <div className="flex flex-col items-center gap-6 text-center md:grid md:grid-cols-[200px_1fr_200px] md:items-center md:text-left md:gap-0">
+
           {/* Logo + wordmark */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="flex items-center gap-2">
             <Logo variant="icon" theme="dark" size={28} />
-            <span style={{ fontSize: 17, fontWeight: 600, color: '#fff' }}>
+            <span className="text-[17px] font-semibold text-white">
               hispaloshop
             </span>
           </div>
 
           {/* Legal links */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 4,
-            flexWrap: 'wrap',
-          }}>
+          <div className="flex items-center justify-center gap-1 flex-wrap">
             {LEGAL_LINKS.map((link, i) => (
               <React.Fragment key={link.to + i}>
                 <Link
                   to={link.to}
-                  style={{
-                    fontSize: '14px',
-                    color: 'rgba(255,255,255,0.4)',
-                    textDecoration: 'none',
-                    transition: 'color all 0.15s ease',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
-                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+                  className="text-sm text-stone-400 hover:text-white transition-colors"
                 >
                   {link.label}
                 </Link>
                 {i < LEGAL_LINKS.length - 1 && (
-                  <span style={{ color: 'rgba(255,255,255,0.2)', margin: '0 4px' }}>·</span>
+                  <span className="text-stone-700 mx-1">&middot;</span>
                 )}
               </React.Fragment>
             ))}
           </div>
 
           {/* Country + Social */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            justifyContent: 'flex-end',
-          }}>
+          <div className="flex items-center gap-3 justify-center md:justify-end">
             {/* Country selector */}
-            <div ref={dropdownRef} style={{ position: 'relative' }}>
+            <div ref={dropdownRef} className="relative">
               <button
                 onClick={() => setDropdownOpen(v => !v)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '9999px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '0.5px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(255,255,255,0.6)',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
+                className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-stone-400 text-sm cursor-pointer flex items-center gap-1.5"
               >
-                {selectedCountry.flag} {selectedCountry.name} ▼
+                {selectedCountry.flag} {selectedCountry.name} &#9660;
               </button>
 
               {dropdownOpen && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: 'calc(100% + 8px)',
-                  right: 0,
-                  width: 200,
-                  background: '#1A1A1A',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  zIndex: 50,
-                  boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-                }}>
+                <div className="absolute bottom-[calc(100%+8px)] right-0 w-[200px] bg-stone-900 border border-white/10 rounded-xl overflow-hidden z-50 shadow-lg">
                   {COUNTRIES.map(c => (
                     <button
                       key={c.code}
-                      onClick={() => selectCountry(c.code)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: 'none',
-                        background: country === c.code ? 'rgba(255,255,255,0.08)' : 'transparent',
-                        cursor: c.active ? 'pointer' : 'default',
-                        opacity: c.active ? 1 : 0.5,
-                        fontFamily: 'inherit',
-                        fontSize: '14px',
-                        color: c.active ? '#fff' : 'rgba(255,255,255,0.5)',
-                        fontWeight: c.active ? 600 : 400,
-                        textAlign: 'left',
-                      }}
+                      onClick={() => c.active && selectCountry(c.code)}
+                      className={`flex items-center gap-2 w-full px-3 py-2.5 border-none text-left text-sm ${
+                        country === c.code ? 'bg-white/[0.08]' : 'bg-transparent'
+                      } ${c.active ? 'cursor-pointer text-white font-semibold' : 'cursor-default text-stone-500 font-normal opacity-50'}`}
                     >
                       <span>{c.flag}</span>
-                      <span style={{ flex: 1 }}>{c.name}</span>
+                      <span className="flex-1">{c.name}</span>
                       {!c.active && (
-                        <span style={{
-                          fontSize: 10, fontWeight: 600,
-                          padding: '2px 6px',
-                          borderRadius: '9999px',
-                          background: 'rgba(255,255,255,0.1)',
-                          color: 'rgba(255,255,255,0.4)',
-                        }}>
-                          {c.label || 'Próx.'}
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-white/10 text-stone-500">
+                          {c.label || 'Pr\u00f3x.'}
                         </span>
                       )}
                     </button>
@@ -191,91 +110,50 @@ export default function Footer() {
             </div>
 
             {/* Social icons */}
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div className="flex gap-3 items-center">
               <a
-                href="#"
+                href="/"
                 aria-label="Instagram"
-                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color all 0.15s ease', display: 'flex' }}
-                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+                className="text-stone-400 hover:text-white transition-colors flex"
               >
                 <Instagram size={18} />
               </a>
               <a
-                href="#"
+                href="/"
                 aria-label="TikTok"
-                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color all 0.15s ease', display: 'flex' }}
-                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+                className="text-stone-400 hover:text-white transition-colors flex"
               >
-                <span style={{ fontSize: 16, lineHeight: 1 }}>TK</span>
+                <span className="text-base leading-none">TK</span>
               </a>
               <a
-                href="#"
+                href="/"
                 aria-label="LinkedIn"
-                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color all 0.15s ease', display: 'flex' }}
-                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+                className="text-stone-400 hover:text-white transition-colors flex"
               >
-                <span style={{ fontSize: 16, lineHeight: 1, fontWeight: 700 }}>in</span>
+                <span className="text-base leading-none font-bold">in</span>
               </a>
             </div>
           </div>
         </div>
 
         {/* App Store + Google Play (mobile-centered) */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 12,
-          marginTop: 32,
-        }}>
-          <div style={{
-            width: 140, height: 40,
-            borderRadius: '12px',
-            border: '0.5px solid rgba(255,255,255,0.15)',
-            background: '#0A0A0A',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-          }}>
-            <span style={{ fontSize: 16 }}>🍎</span>
-            <span style={{ fontSize: 12, color: '#fff', fontWeight: 500 }}>App Store</span>
+        <div className="flex justify-center gap-3 mt-8">
+          <div className="w-[140px] h-10 rounded-xl border border-white/[0.15] bg-stone-950 flex items-center justify-center gap-1.5">
+            <span className="text-base">{'\u{1F34E}'}</span>
+            <span className="text-xs text-white font-medium">App Store</span>
           </div>
-          <div style={{
-            width: 140, height: 40,
-            borderRadius: '12px',
-            border: '0.5px solid rgba(255,255,255,0.15)',
-            background: '#0A0A0A',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-          }}>
-            <span style={{ fontSize: 16 }}>▶</span>
-            <span style={{ fontSize: 12, color: '#fff', fontWeight: 500 }}>Google Play</span>
+          <div className="w-[140px] h-10 rounded-xl border border-white/[0.15] bg-stone-950 flex items-center justify-center gap-1.5">
+            <span className="text-base">&#9654;</span>
+            <span className="text-xs text-white font-medium">Google Play</span>
           </div>
         </div>
-        <p style={{
-          textAlign: 'center',
-          fontSize: 11,
-          color: 'rgba(255,255,255,0.2)',
-          marginTop: 8,
-          marginBottom: 0,
-        }}>
-          Próximamente
+        <p className="text-center text-[11px] text-stone-700 mt-2 mb-0">
+          Pr&oacute;ximamente
         </p>
 
         {/* Copyright */}
-        <p style={{
-          textAlign: 'center',
-          fontSize: '11px',
-          color: 'rgba(255,255,255,0.25)',
-          marginTop: 24,
-          marginBottom: 0,
-        }}>
-          © 2026 Hispaloshop SL · Todos los derechos reservados
+        <p className="mt-12 pt-6 border-t border-stone-800 text-center text-xs text-stone-500 mb-0">
+          &copy; 2026 Hispaloshop SL &middot; Todos los derechos reservados
         </p>
       </div>
     </footer>

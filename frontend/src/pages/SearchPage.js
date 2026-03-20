@@ -5,6 +5,7 @@ import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, Trendi
 import apiClient from '../services/api/client';
 import { useLocale } from '../context/LocaleContext';
 import SEO from '../components/SEO';
+import SlideTabIndicator from '../components/motion/SlideTabIndicator';
 import { toast } from 'sonner';
 
 const HISTORY_KEY = 'hispal_search_history';
@@ -299,7 +300,7 @@ export default function SearchPage() {
             <ArrowLeft size={20} className="text-stone-950" />
           </button>
 
-          <div className="flex flex-1 items-center gap-2 rounded-full bg-stone-100 px-3.5 h-10">
+          <div className="flex flex-1 items-center gap-2 rounded-xl bg-stone-100 border-none px-4 py-3">
             <Search size={16} className="shrink-0 text-stone-400" />
             <input
               ref={inputRef}

@@ -22,6 +22,7 @@ import {
   Flag,
   ShieldBan,
 } from 'lucide-react';
+import AnimatedNumber from '../motion/AnimatedNumber';
 import apiClient from '../../services/api/client';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
@@ -97,7 +98,7 @@ function SocialIcon({ href, label, children }) {
 
 /* ── Instagram‑style story ring gradient ─────────────────────────── */
 
-const STORY_RING_GRADIENT = '#0c0a09';
+const STORY_RING_GRADIENT = 'linear-gradient(135deg, #0c0a09 0%, #78716c 50%, #d6d3d1 100%)';
 
 /* ── verified badge SVG ──────────────────────────────────────────── */
 
@@ -445,7 +446,7 @@ export default function ProfileHeader({
               onKeyDown={stat.link ? (e) => { if (e.key === 'Enter') navigate(stat.link); } : undefined}
               className={stat.link ? 'cursor-pointer' : ''}
             >
-              <div className="text-[17px] font-bold text-stone-950 leading-tight">{formatCount(stat.value)}</div>
+              <AnimatedNumber value={stat.value} className="text-[17px] font-bold text-stone-950 leading-tight" />
               <div className="text-[13px] text-stone-500 mt-0.5">{stat.label}</div>
             </div>
           ))}
@@ -571,23 +572,27 @@ export default function ProfileHeader({
       <div className="flex gap-1.5 px-4 pb-3">
         {isOwn ? (
           <>
-            <button onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Editar perfil
-            </button>
-            <button onClick={shareProfile} className="min-h-[34px] flex-1 rounded-xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={shareProfile} className="min-h-[34px] flex-1 rounded-xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Compartir perfil
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
               className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
-            </button>
+            </motion.button>
           </>
         ) : (
           <>
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={onFollowToggle}
               aria-label={
                 user?.follow_request_pending
@@ -613,8 +618,10 @@ export default function ProfileHeader({
                 : user?.is_private
                 ? 'Solicitar'
                 : 'Seguir'}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={onMessage}
               aria-label="Enviar mensaje"
               disabled={user?.is_private && !user?.is_following}
@@ -624,23 +631,27 @@ export default function ProfileHeader({
             >
               <MessageCircle size={15} />
               {!showStoreButton && 'Mensaje'}
-            </button>
+            </motion.button>
             {showStoreButton && (
-              <button
+              <motion.button
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', damping: 20, stiffness: 400 }}
                 onClick={() => navigate(`/store/${user?.store_slug || user?.username}`)}
                 className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
               >
                 <Store size={15} />
                 Tienda
-              </button>
+              </motion.button>
             )}
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
               className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
-            </button>
+            </motion.button>
           </>
         )}
       </div>

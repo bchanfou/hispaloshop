@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ChevronLeft, Image, Check, Type, Crop, Sliders, Search, MapPin, Globe, Lock, Camera, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
@@ -556,17 +557,34 @@ export default function CreatePostPage() {
               }
             }}
           >
-            <img
-              src={previewUrls[previewIndex]}
-              alt=""
-              style={{ width: '100%', height: '100%', objectFit: 'cover', filter: filterCSS, transition: 'filter 0.2s' }}
-            />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeFilter.name}
+                initial={{ opacity: 0.7 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <img
+                  src={previewUrls[previewIndex]}
+                  alt=""
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', filter: filterCSS, transition: 'filter 0.2s' }}
+                />
+              </motion.div>
+            </AnimatePresence>
             {/* filter name overlay */}
-            {showFilterName && activeFilter.name !== 'Natural' && (
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '6px 16px', borderRadius: '9999px', fontSize: 13, fontWeight: 600, pointerEvents: 'none', zIndex: 3 }}>
-                {activeFilter.emoji} {activeFilter.name}
-              </div>
-            )}
+            <AnimatePresence>
+              {showFilterName && activeFilter.name !== 'Natural' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '6px 16px', borderRadius: '9999px', fontSize: 13, fontWeight: 600, pointerEvents: 'none', zIndex: 3 }}
+                >
+                  {activeFilter.emoji} {activeFilter.name}
+                </motion.div>
+              )}
+            </AnimatePresence>
             {/* vignette overlay */}
             {adjustments.vignette > 0 && (
               <div style={{ position: 'absolute', inset: 0, ...buildVignetteStyle(adjustments.vignette) }} />
@@ -1149,8 +1167,8 @@ export default function CreatePostPage() {
                 gap: 6,
                 padding: '10px 0',
                 borderRadius: '9999px',
-                border: audience === 'public' ? '2px solid #2E7D52' : '1.5px solid #e7e5e4',
-                background: audience === 'public' ? '#2E7D52' : 'transparent',
+                border: audience === 'public' ? '2px solid #0c0a09' : '1.5px solid #e7e5e4',
+                background: audience === 'public' ? '#0c0a09' : 'transparent',
                 color: audience === 'public' ? '#fff' : '#0c0a09',
                 fontSize: 13,
                 fontWeight: 500,
@@ -1170,8 +1188,8 @@ export default function CreatePostPage() {
                 gap: 6,
                 padding: '10px 0',
                 borderRadius: '9999px',
-                border: audience === 'followers' ? '2px solid #2E7D52' : '1.5px solid #e7e5e4',
-                background: audience === 'followers' ? '#2E7D52' : 'transparent',
+                border: audience === 'followers' ? '2px solid #0c0a09' : '1.5px solid #e7e5e4',
+                background: audience === 'followers' ? '#0c0a09' : 'transparent',
                 color: audience === 'followers' ? '#fff' : '#0c0a09',
                 fontSize: 13,
                 fontWeight: 500,
@@ -1192,7 +1210,7 @@ export default function CreatePostPage() {
               type="checkbox"
               checked={hideLikes}
               onChange={(e) => setHideLikes(e.target.checked)}
-              style={{ accentColor: '#2E7D52', width: 18, height: 18 }}
+              style={{ accentColor: '#0c0a09', width: 18, height: 18 }}
             />
           </label>
           <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
@@ -1201,7 +1219,7 @@ export default function CreatePostPage() {
               type="checkbox"
               checked={disableComments}
               onChange={(e) => setDisableComments(e.target.checked)}
-              style={{ accentColor: '#2E7D52', width: 18, height: 18 }}
+              style={{ accentColor: '#0c0a09', width: 18, height: 18 }}
             />
           </label>
         </div>
@@ -1266,7 +1284,7 @@ export default function CreatePostPage() {
       {/* Publish success overlay */}
       {publishSuccess && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, animation: 'fadeIn 0.3s ease' }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#2E7D52', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#0c0a09', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
             <Check size={28} color="#fff" strokeWidth={2.5} />
           </div>
           <span style={{ fontSize: 16, fontWeight: 600, color: '#0c0a09' }}>¡Publicado!</span>
@@ -1278,7 +1296,7 @@ export default function CreatePostPage() {
         {/* Upload progress bar */}
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
           <div style={{ width: '100%', height: 3, background: '#e7e5e4', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
-            <div style={{ height: '100%', background: '#2E7D52', borderRadius: 2, width: `${uploadProgress}%`, transition: 'width 0.3s ease' }} />
+            <div style={{ height: '100%', background: '#0c0a09', borderRadius: 2, width: `${uploadProgress}%`, transition: 'width 0.3s ease' }} />
           </div>
         )}
         <button
@@ -1286,7 +1304,7 @@ export default function CreatePostPage() {
           disabled={publishing}
           style={{
             width: '100%',
-            background: '#2E7D52',
+            background: '#0c0a09',
             color: '#fff',
             fontSize: 15,
             fontWeight: 600,
@@ -1301,8 +1319,8 @@ export default function CreatePostPage() {
             gap: 8,
             transition: 'all 0.15s ease',
           }}
-          onMouseEnter={(e) => { if (!publishing) e.currentTarget.style.background = '#1F5C3B'; }}
-          onMouseLeave={(e) => { if (!publishing) e.currentTarget.style.background = '#2E7D52'; }}
+          onMouseEnter={(e) => { if (!publishing) e.currentTarget.style.background = '#292524'; }}
+          onMouseLeave={(e) => { if (!publishing) e.currentTarget.style.background = '#0c0a09'; }}
         >
           {publishing && (
             <span

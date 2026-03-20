@@ -216,7 +216,7 @@ export default function UserProfilePage() {
   /* ── Loading skeleton ── */
   if (isLoading) {
     return (
-      <div aria-busy="true" aria-label="Cargando perfil" className="min-h-screen bg-[#F7F6F2]">
+      <div aria-busy="true" aria-label="Cargando perfil" className="min-h-screen bg-white">
         <div className="h-[52px] bg-white border-b border-stone-200" />
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center gap-5">
@@ -257,7 +257,7 @@ export default function UserProfilePage() {
   /* ── 404 state ── */
   if (!user && !isLoading) {
     return (
-      <div className="min-h-screen bg-[#F7F6F2] flex flex-col items-center justify-center gap-4 p-6">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 p-6">
         <p className="text-lg font-semibold text-stone-950">Usuario no encontrado</p>
         <p className="text-sm text-stone-500">Este perfil no existe o ha sido eliminado.</p>
         <button
@@ -271,7 +271,7 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F6F2] pb-20">
+    <div className="min-h-screen bg-white pb-20">
       <SEO
         title={`${user.name || user.username} — Hispaloshop`}
         description={user.bio?.slice(0, 160) || `Perfil de ${user.name} en Hispaloshop`}

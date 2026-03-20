@@ -1,7 +1,7 @@
 import React from 'react';
 
 const V2 = {
-  cream: '#F7F6F2',
+  cream: '#ffffff',
   black: '#0A0A0A',
   green: '#0c0a09',
   stone: '#8A8881',

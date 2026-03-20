@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 /* ── Design tokens ──────────────────────────────────────── */
 const T = {
-  black: '#0A0A0A', cream: '#F7F6F2', stone: '#8A8881',
+  black: '#0A0A0A', cream: '#ffffff', stone: '#8A8881',
   white: '#FFFFFF', border: '#E5E2DA', surface: '#F0EDE8',
   green: '#0c0a09', greenLight: '#f5f5f4',
   amber: '#78716c', amberLight: '#fafaf9',

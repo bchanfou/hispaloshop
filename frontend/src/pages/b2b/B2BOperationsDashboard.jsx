@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 /* ── V2 Design Tokens ── */
 const T = {
   black: '#0A0A0A',
-  cream: '#F7F6F2',
+  cream: '#ffffff',
   stone: '#8A8881',
   white: '#FFFFFF',
   border: '#E5E2DA',

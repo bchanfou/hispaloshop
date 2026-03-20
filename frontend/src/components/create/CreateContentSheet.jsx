@@ -1,6 +1,7 @@
 import React from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ImagePlus, Video, Layers, ChefHat } from 'lucide-react';
+import BottomSheet from '../motion/BottomSheet';
 
 const CONTENT_TYPES = [
   {
@@ -29,85 +30,37 @@ const CONTENT_TYPES = [
   },
 ];
 
-function ContentTypeButton({ label, icon, iconBg, onSelect }) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className="flex flex-col items-center justify-center gap-2 aspect-square rounded-2xl bg-stone-50 hover:bg-stone-100 active:scale-95 transition-all"
-    >
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${iconBg}`}>
-        {icon}
-      </div>
-      <span className="text-sm font-medium text-stone-700">{label}</span>
-    </button>
-  );
-}
-
 export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Overlay */}
-          <motion.div
-            key="create-sheet-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={onClose}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(10,10,10,0.5)',
-              backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)',
-              zIndex: '49',
-            }}
-          />
+    <BottomSheet isOpen={isOpen} onClose={onClose} maxHeight="auto">
+      <div className="px-5 pb-6" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))' }}>
+        {/* Title */}
+        <p className="text-base font-semibold text-stone-950 mb-4">Crear</p>
 
-          {/* Sheet */}
-          <motion.div
-            key="create-sheet"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{
-              type: 'tween',
-              duration: 0.3,
-              ease: [0.32, 0.72, 0, 1],
-            }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl px-5 pt-3 max-h-72"
-            style={{
-              zIndex: '50',
-              paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
-            }}
-          >
-            {/* Drag handle */}
-            <div className="w-9 h-1 bg-stone-200 rounded-full mx-auto mb-4" />
-
-            {/* Title */}
-            <p className="text-base font-semibold text-stone-950 mb-4">Crear</p>
-
-            {/* 2×2 grid */}
-            <div className="grid grid-cols-2 gap-3">
-              {CONTENT_TYPES.map((opt) => (
-                <ContentTypeButton
-                  key={opt.type}
-                  label={opt.label}
-                  icon={opt.icon}
-                  iconBg={opt.iconBg}
-                  onSelect={() => {
-                    onClose();
-                    onSelect(opt.type);
-                  }}
-                />
-              ))}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        {/* 2x2 grid */}
+        <div className="grid grid-cols-2 gap-3">
+          {CONTENT_TYPES.map((opt, index) => (
+            <motion.button
+              key={opt.type}
+              type="button"
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, type: 'spring', damping: 20 }}
+              onClick={() => {
+                onClose();
+                onSelect(opt.type);
+              }}
+              className="flex flex-col items-center justify-center gap-2 aspect-square rounded-2xl bg-stone-50 hover:bg-stone-100 active:scale-95 transition-all"
+            >
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${opt.iconBg}`}>
+                {opt.icon}
+              </div>
+              <span className="text-sm font-medium text-stone-700">{opt.label}</span>
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    </BottomSheet>
   );
 }

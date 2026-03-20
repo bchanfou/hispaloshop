@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { ChevronLeft, Heart, MessageCircle, Share2, Bookmark, Send, Loader2, Trash2, MoreHorizontal, X, Pencil, Flag, UserMinus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
 import { timeAgo } from '../utils/time';
+import BottomSheet from '../components/motion/BottomSheet';
 
 /* ── Render caption with hashtags/mentions ── */
 function renderCaption(text, navigate) {
@@ -64,6 +66,13 @@ function PostCarousel({ images, userName }) {
       {hasMultiple && (
         <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5 z-[2]">
           <span className="text-[11px] text-white font-semibold tabular-nums">{idx + 1}/{images.length}</span>
+        </div>
+      )}
+      {hasMultiple && (
+        <div className="flex justify-center gap-1.5 py-2 bg-white">
+          {images.map((_, i) => (
+            <div key={i} className={`rounded-full transition-all duration-200 ${i === idx ? 'w-2 h-2 bg-stone-950' : 'w-1.5 h-1.5 bg-stone-300'}`} />
+          ))}
         </div>
       )}
     </div>
@@ -214,8 +223,23 @@ export default function PostDetailPage() {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F6F2]">
-        <Loader2 size={28} className="text-stone-400 animate-spin" />
+      <div className="min-h-screen bg-white">
+        {/* Header skeleton */}
+        <div className="flex items-center gap-3 px-4 py-3">
+          <div className="w-8 h-8 rounded-full bg-stone-100 animate-pulse" />
+          <div className="flex-1"><div className="w-24 h-3 bg-stone-100 rounded animate-pulse" /></div>
+        </div>
+        {/* Image skeleton */}
+        <div className="aspect-square bg-stone-100 animate-pulse" />
+        {/* Actions skeleton */}
+        <div className="flex gap-4 px-4 py-3">
+          {[1,2,3,4].map(i => <div key={i} className="w-6 h-6 bg-stone-100 rounded animate-pulse" />)}
+        </div>
+        {/* Caption skeleton */}
+        <div className="px-4 space-y-2">
+          <div className="w-3/4 h-3 bg-stone-100 rounded animate-pulse" />
+          <div className="w-1/2 h-3 bg-stone-100 rounded animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -223,7 +247,7 @@ export default function PostDetailPage() {
   /* ── Not found ── */
   if (!post) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-[#F7F6F2]">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-white">
         <p className="text-[15px] text-stone-500">Post no encontrado</p>
         <button
           onClick={() => navigate('/')}
@@ -248,7 +272,7 @@ export default function PostDetailPage() {
   const commentsCount = post.comments_count ?? comments.length;
 
   return (
-    <div className="min-h-screen bg-[#F7F6F2] pb-20 font-sans">
+    <div className="min-h-screen bg-white pb-20 font-sans">
       {/* ── Top bar ── */}
       <header className="sticky top-0 z-40 bg-white border-b border-stone-100 h-12 flex items-center gap-3 px-4" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <button onClick={() => navigate(-1)} aria-label="Volver" className="bg-transparent border-none cursor-pointer p-1 flex items-center -ml-1">
@@ -279,54 +303,52 @@ export default function PostDetailPage() {
           <button className="bg-transparent border-none cursor-pointer p-1 relative" aria-label="Más opciones" onClick={() => setShowMenu(v => !v)}>
             <MoreHorizontal size={20} className="text-stone-500" />
           </button>
-          {showMenu && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-              <div className="absolute right-4 top-12 z-50 bg-white rounded-xl shadow-lg border border-stone-200 py-1 min-w-[180px]">
-                {isOwner && (
-                  <>
-                    <button
-                      className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
-                      onClick={() => { setEditCaption(localCaption ?? post.caption ?? post.content ?? ''); setShowEditCaption(true); setShowMenu(false); }}
-                    >
-                      <Pencil size={16} /> Editar
-                    </button>
-                    <button
-                      className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
-                      onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
-                    >
-                      <Trash2 size={16} /> Eliminar
-                    </button>
-                  </>
-                )}
-                <button
-                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
-                  onClick={() => {
-                    navigator.clipboard?.writeText(`${window.location.origin}/posts/${postId}`);
-                    toast.success('Enlace copiado');
-                    setShowMenu(false);
-                  }}
-                >
-                  Copiar enlace
-                </button>
-                {!isOwner && (
-                  <button
-                    className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
-                    onClick={async () => {
-                      try {
-                        await apiClient.post(`/posts/${postId}/report`, { reason: 'inappropriate' });
-                        toast.success('Reporte enviado');
-                      } catch { toast.error('Error al reportar'); }
-                      setShowMenu(false);
-                    }}
-                  >
-                    <Flag size={16} /> Reportar
-                  </button>
-                )}
-              </div>
-            </>
-          )}
         </div>
+
+        <BottomSheet isOpen={showMenu} onClose={() => setShowMenu(false)}>
+          <div className="px-5 pb-6 pt-2">
+            {isOwner && (
+              <>
+                <button
+                  className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
+                  onClick={() => { setEditCaption(localCaption ?? post.caption ?? post.content ?? ''); setShowEditCaption(true); setShowMenu(false); }}
+                >
+                  <Pencil size={20} /> Editar
+                </button>
+                <button
+                  className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
+                  onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
+                >
+                  <Trash2 size={20} /> Eliminar
+                </button>
+              </>
+            )}
+            <button
+              className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
+              onClick={() => {
+                navigator.clipboard?.writeText(`${window.location.origin}/posts/${postId}`);
+                toast.success('Enlace copiado');
+                setShowMenu(false);
+              }}
+            >
+              Copiar enlace
+            </button>
+            {!isOwner && (
+              <button
+                className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
+                onClick={async () => {
+                  try {
+                    await apiClient.post(`/posts/${postId}/report`, { reason: 'inappropriate' });
+                    toast.success('Reporte enviado');
+                  } catch { toast.error('Error al reportar'); }
+                  setShowMenu(false);
+                }}
+              >
+                <Flag size={20} /> Reportar
+              </button>
+            )}
+          </div>
+        </BottomSheet>
 
         {/* Image */}
         <PostCarousel images={images} userName={userName} />

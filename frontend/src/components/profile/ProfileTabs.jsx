@@ -19,8 +19,11 @@ import {
   MoreHorizontal,
   Trash2,
   Pencil,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import SlideTabIndicator from '../motion/SlideTabIndicator';
 import apiClient from '../../services/api/client';
 
 const ALL_TABS = [
@@ -209,29 +212,13 @@ const ProfileTabs = forwardRef(function ProfileTabs({
 
   /* ── Tab bar (Instagram: indicator at top) ── */
   const tabBar = (
-    <div role="tablist" className="sticky top-[52px] z-30 flex border-t border-stone-200 bg-white">
-      {tabs.map((tab) => {
-        const isActive = activeTab === tab.id;
-        const TabIcon = tab.icon;
-        return (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            aria-label={tab.label}
-            aria-selected={isActive}
-            role="tab"
-            className={`relative flex flex-1 items-center justify-center py-2.5 transition-colors duration-150 ${
-              isActive ? 'text-stone-950' : 'text-stone-400'
-            }`}
-          >
-            {isActive && (
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-stone-950 transition-all duration-300" />
-            )}
-            <TabIcon size={24} />
-          </button>
-        );
-      })}
-    </div>
+    <SlideTabIndicator
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      layoutId="profile-tab"
+      className="sticky top-[52px] z-30 border-t border-stone-200 bg-white"
+    />
   );
 
   /* ── Content renderers ── */
@@ -258,7 +245,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(post, items); }}
               role="button"
               tabIndex={0}
-              className="relative aspect-square cursor-pointer overflow-hidden bg-white"
+              className="relative aspect-square cursor-pointer overflow-hidden bg-white active:scale-[0.97] active:opacity-80 transition-transform"
             >
               <img
                 src={src}
@@ -295,7 +282,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') { setSelectedReel(reel); setReelIndex(i); } }}
               role="button"
               tabIndex={0}
-              className="relative aspect-square cursor-pointer overflow-hidden bg-black"
+              className="relative aspect-square cursor-pointer overflow-hidden bg-black active:scale-[0.97] active:opacity-80 transition-transform"
             >
               <img
                 src={src}
@@ -524,6 +511,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
   const [saved, setSaved] = useState(reel.is_saved ?? false);
   const [showMenu, setShowMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [muted, setMuted] = useState(true);
   const reelId = reel.id || reel.reel_id;
 
   // Reset state when reel changes
@@ -637,6 +625,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
         src={reel.video_url || reel.media_url}
         autoPlay
         loop
+        muted={muted}
         playsInline
         className="w-full h-full object-contain"
       />
@@ -659,6 +648,13 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
         </button>
         <button onClick={handleSave} className="flex flex-col items-center bg-transparent border-none cursor-pointer">
           <Bookmark size={24} fill={saved ? 'white' : 'none'} className="text-white" />
+        </button>
+        <button
+          onClick={() => setMuted((m) => !m)}
+          aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+          className="flex flex-col items-center bg-transparent border-none cursor-pointer"
+        >
+          {muted ? <VolumeX size={24} className="text-white" /> : <Volume2 size={24} className="text-white" />}
         </button>
       </div>
 

@@ -169,7 +169,7 @@ export default function CommunityPage() {
           <p style={{ fontSize: 15, color: '#78716c' }}>Comunidad no encontrada</p>
           <Link to="/communities" style={{
             padding: '10px 24px', background: '#0c0a09',
-            color: '#ffffff', borderRadius: '14px',
+            color: '#ffffff', borderRadius: '9999px',
             fontSize: 14, fontWeight: 600, textDecoration: 'none',
           }}>
             Volver a comunidades
@@ -211,62 +211,45 @@ export default function CommunityPage() {
         )}
       </div>
 
-      {/* ── Cover Image (3:1) ── */}
-      <div style={{ position: 'relative' }}>
-        <div style={{
-          aspectRatio: '3/1', overflow: 'hidden',
+      {/* ── Cover Image (16:9) ── */}
+      <div className="relative">
+        <div className="aspect-[16/9] overflow-hidden" style={{
           background: community.cover_image
             ? '#f5f5f4'
             : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
         }}>
           {community.cover_image ? (
-            <img src={community.cover_image} alt=""
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={community.cover_image} alt="" className="block h-full w-full object-cover" />
           ) : (
-            <div style={{
-              width: '100%', height: '100%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56,
-            }}>
+            <div className="flex h-full w-full items-center justify-center text-[56px]">
               {community.emoji || '🌿'}
             </div>
           )}
-          {/* Gradient overlay */}
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)',
-          }} />
-          {/* Name + stats overlay */}
-          <div style={{ position: 'absolute', bottom: 12, left: 16, right: 16 }}>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#ffffff', margin: '0 0 4px', textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/50 to-transparent" />
+          <div className="absolute bottom-3 left-4 right-4">
+            <h1 className="text-xl font-bold text-white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
               {community.name}
             </h1>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
-              {community.member_count?.toLocaleString()} miembros · @{community.creator_username}
+            <p className="mt-0.5 text-[13px] text-white/85">
+              {community.member_count?.toLocaleString()} miembros
             </p>
           </div>
         </div>
       </div>
 
       {/* ── Info + Join ── */}
-      <div style={{ padding: '12px 16px 0', maxWidth: 600, margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+      <div className="mx-auto max-w-[600px] px-4 pt-3">
+        <div className="flex items-start justify-between gap-3 mb-2">
           {community.description && (
-            <p style={{ fontSize: 14, color: '#0c0a09', lineHeight: 1.5, margin: 0, flex: 1, marginRight: 12 }}>
-              {community.description}
-            </p>
+            <p className="flex-1 text-sm text-stone-600 leading-snug m-0">{community.description}</p>
           )}
           <JoinButton communityId={community.id || community._id} isMember={isMember} onToggle={refetch} />
         </div>
 
         {community.tags?.length > 0 && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+          <div className="scrollbar-hide flex gap-1.5 overflow-x-auto pb-1">
             {community.tags.map(tag => (
-              <span key={tag} style={{
-                fontSize: 11, padding: '3px 10px',
-                borderRadius: '9999px',
-                background: '#f5f5f4',
-                color: '#78716c', ...font,
-              }}>
+              <span key={tag} className="shrink-0 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] text-stone-500">
                 #{tag}
               </span>
             ))}
@@ -275,23 +258,15 @@ export default function CommunityPage() {
       </div>
 
       {/* ── Tabs ── */}
-      <div style={{
-        display: 'flex', borderBottom: '1px solid #e7e5e4',
-        background: '#ffffff',
-        position: 'sticky', top: 50, zIndex: 39,
-        maxWidth: 600, margin: '0 auto',
-      }}>
+      <div className="sticky top-[50px] z-[39] mx-auto flex max-w-[600px] border-b border-stone-200 bg-white">
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            style={{
-              flex: 1, padding: '12px 0',
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: tab === t.id ? 600 : 400,
-              color: tab === t.id ? '#0c0a09' : '#78716c',
-              borderBottom: tab === t.id ? '2px solid #0c0a09' : '2px solid transparent',
-              transition: 'all 0.15s ease', ...font,
-            }}>
+            className={`flex-1 cursor-pointer border-b-2 bg-transparent py-3 text-sm transition-colors ${
+              tab === t.id
+                ? 'border-stone-950 font-semibold text-stone-950'
+                : 'border-transparent text-stone-500'
+            }`}
+            style={{ fontFamily: 'inherit' }}>
             {t.label}
           </button>
         ))}

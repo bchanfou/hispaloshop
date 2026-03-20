@@ -6,6 +6,7 @@ import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
+import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import PostDetailModal from '../components/feed/PostDetailModal';
 import SEO from '../components/SEO';
@@ -37,9 +38,13 @@ function ExploreGridItem({ item, index, onClick }) {
   const isLarge = index % 5 === 0;
 
   return (
-    <button
+    <motion.button
       type="button"
       onClick={() => onClick(item)}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.35, delay: index < 12 ? index * 0.05 : 0 }}
       className={`relative overflow-hidden bg-stone-100 ${isLarge ? 'row-span-2' : ''}`}
       style={{ aspectRatio: isLarge ? undefined : '1/1' }}
     >
@@ -55,7 +60,7 @@ function ExploreGridItem({ item, index, onClick }) {
           <ShoppingBag size={24} className="text-stone-300" />
         </div>
       )}
-    </button>
+    </motion.button>
   );
 }
 
@@ -249,13 +254,9 @@ export default function DiscoverPage() {
 
   /* ── loading skeleton grid ── */
   const SkeletonGrid = () => (
-    <div className="grid grid-cols-3 gap-0.5">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0.5">
       {Array.from({ length: 12 }).map((_, i) => (
-        <div
-          key={i}
-          className={`animate-pulse bg-stone-200 ${i % 5 === 0 ? 'row-span-2' : ''}`}
-          style={{ aspectRatio: i % 5 === 0 ? undefined : '1/1', minHeight: i % 5 === 0 ? 0 : undefined }}
-        />
+        <div key={i} className="aspect-square bg-stone-100 animate-pulse" />
       ))}
     </div>
   );
@@ -281,16 +282,26 @@ export default function DiscoverPage() {
       </div>
 
       {/* ─── FILTER PILLS ─── */}
-      <div className="flex gap-2 overflow-x-auto px-3 py-2 scrollbar-hide">
+      <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-3 py-2 scrollbar-hide">
         {CATEGORY_GROUPS.map(grp => {
           const Icon = getCategoryIcon(grp.icon);
+          const isActive = activeCategory === grp.slug;
           return (
             <button
               key={grp.slug}
               onClick={() => handleCategoryClick(grp.slug)}
-              className={pillCls(activeCategory === grp.slug)}
+              className={`relative flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap snap-center ${isActive ? '' : 'bg-stone-100'}`}
             >
-              <Icon size={14} /> {grp.label}
+              {isActive && (
+                <motion.div
+                  layoutId="discover-pill"
+                  className="absolute inset-0 rounded-full bg-stone-950"
+                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                />
+              )}
+              <span className={`relative z-10 flex items-center gap-1.5 transition-colors ${isActive ? 'text-white' : 'text-stone-700'}`}>
+                <Icon size={14} /> {grp.label}
+              </span>
             </button>
           );
         })}

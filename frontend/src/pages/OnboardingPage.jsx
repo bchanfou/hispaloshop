@@ -30,9 +30,9 @@ const PREFERENCES = [
 ];
 
 const slideVariants = {
-  enter: (dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
+  enter: (dir) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit: (dir) => ({ x: dir < 0 ? 300 : -300, opacity: 0 }),
+  exit: (dir) => ({ x: dir < 0 ? 80 : -80, opacity: 0 }),
 };
 
 export default function OnboardingPage() {
@@ -117,17 +117,38 @@ export default function OnboardingPage() {
     );
   }
 
-  /* ── Stepper dots ── */
-  const Stepper = () => (
-    <div style={{ display: 'flex', justifyContent: 'center', gap: 8, padding: '16px 0' }}>
-      {[1, 2, 3, 4].map(s => (
-        <div key={s} style={{
-          width: 8, height: 8, borderRadius: '50%',
-          background: s === screen ? '#0c0a09' : 'transparent',
-          border: s === screen ? 'none' : '1.5px solid #e7e5e4',
-          transition: 'all 0.3s ease',
-        }} />
-      ))}
+  /* ── Progress bar (animated) ── */
+  const totalSteps = 4;
+  const progressPercent = (screen / totalSteps) * 100;
+
+  const ProgressBar = () => (
+    <div style={{ padding: '16px 0' }}>
+      <div style={{
+        height: 3, borderRadius: 9999, background: '#e7e5e4',
+        overflow: 'hidden', width: '100%', maxWidth: 200,
+        margin: '0 auto',
+      }}>
+        <motion.div
+          animate={{ width: progressPercent + '%' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          style={{
+            height: '100%', borderRadius: 9999,
+            background: '#0c0a09',
+          }}
+        />
+      </div>
+      <div style={{
+        display: 'flex', justifyContent: 'center', gap: 8, marginTop: 10,
+      }}>
+        {[1, 2, 3, 4].map(s => (
+          <div key={s} style={{
+            width: s === screen ? 20 : 6,
+            height: 6, borderRadius: 9999,
+            background: s <= screen ? '#0c0a09' : '#e7e5e4',
+            transition: 'all 0.3s ease',
+          }} />
+        ))}
+      </div>
     </div>
   );
 
@@ -161,11 +182,10 @@ export default function OnboardingPage() {
         textAlign: 'center', marginBottom: 48, lineHeight: 1.5,
       }}>
         Conecta directamente con productores locales de alimentación saludable. Sin intermediarios.
-        ¿Quién eres tú?
       </p>
 
       <h3 style={{ color: '#fff', fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
-        Soy...
+        ¿Cómo quieres cambiar el mundo de la comida?
       </h3>
 
       {/* Role cards 2x2 */}
@@ -176,10 +196,12 @@ export default function OnboardingPage() {
         {ROLES.map(role => {
           const isSelected = selectedRole === role.id;
           return (
-            <button
+            <motion.button
               key={role.id}
+              whileTap={{ scale: 0.97 }}
               onClick={() => setSelectedRole(role.id)}
               style={{
+                position: 'relative',
                 background: isSelected ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)',
                 border: isSelected
                   ? '1.5px solid rgba(255,255,255,0.6)'
@@ -191,6 +213,18 @@ export default function OnboardingPage() {
                 transition: 'all 0.15s ease',
               }}
             >
+              {isSelected && (
+                <motion.div
+                  layoutId="role-selection-ring"
+                  style={{
+                    position: 'absolute', inset: -2,
+                    borderRadius: '18px',
+                    border: '2px solid rgba(255,255,255,0.8)',
+                    pointerEvents: 'none',
+                  }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                />
+              )}
               <div style={{ fontSize: 40, marginBottom: 8, display: 'flex', justifyContent: 'center' }}>{role.icon}</div>
               <p style={{
                 fontSize: '16px', fontWeight: 600,
@@ -205,7 +239,7 @@ export default function OnboardingPage() {
               }}>
                 {role.desc}
               </p>
-            </button>
+            </motion.button>
           );
         })}
       </div>
@@ -256,7 +290,7 @@ export default function OnboardingPage() {
           <ArrowLeft size={18} /> Atrás
         </button>
       </div>
-      <Stepper />
+      <ProgressBar />
 
       <div style={{ maxWidth: 440, margin: '0 auto', paddingTop: 16 }}>
         <h2 style={{
@@ -270,7 +304,7 @@ export default function OnboardingPage() {
           fontSize: 15, color: '#78716c',
           textAlign: 'center', marginBottom: 32,
         }}>
-          Personalizamos tu feed para mostrarte productores y productos que encajan contigo
+          Selecciona lo que te hace vibrar
         </p>
 
         {/* Preference pills */}
@@ -281,10 +315,12 @@ export default function OnboardingPage() {
           {PREFERENCES.map(pref => {
             const isSelected = selectedPrefs.includes(pref.id);
             return (
-              <button
+              <motion.button
                 key={pref.id}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => togglePref(pref.id)}
                 style={{
+                  position: 'relative',
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: '10px 16px',
                   borderRadius: '9999px',
@@ -296,9 +332,21 @@ export default function OnboardingPage() {
                   transition: 'all 0.15s ease',
                 }}
               >
+                {isSelected && (
+                  <motion.div
+                    layoutId="pref-selection-ring"
+                    style={{
+                      position: 'absolute', inset: -2,
+                      borderRadius: 9999,
+                      border: '2px solid #0c0a09',
+                      pointerEvents: 'none',
+                    }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                  />
+                )}
                 <span>{pref.icon || pref.emoji}</span>
                 <span>{pref.label}</span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -371,14 +419,14 @@ export default function OnboardingPage() {
             <ArrowLeft size={18} /> Atrás
           </button>
         </div>
-        <Stepper />
+        <ProgressBar />
 
         <div style={{ maxWidth: 440, margin: '0 auto', paddingTop: 16 }}>
           <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0c0a09', textAlign: 'center', marginBottom: 4 }}>
-            Personas para seguir
+            Gente que inspira
           </h2>
           <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', marginBottom: 24, lineHeight: 1.5 }}>
-            Sigue a personas para llenar tu feed con contenido que te interesa
+            Sigue a creadores y productores para llenar tu feed de inspiración
           </p>
 
           {sugLoading ? (
@@ -486,7 +534,7 @@ export default function OnboardingPage() {
                 ¡Todo listo!
               </h2>
               <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', lineHeight: 1.5, marginBottom: 32 }}>
-                Ya puedes descubrir productores locales de alimentación saludable cerca de ti. Sin intermediarios.
+                Personaliza tu experiencia descubriendo productores locales de alimentación saludable cerca de ti.
               </p>
               <button
                 onClick={handleFinish}
@@ -512,7 +560,7 @@ export default function OnboardingPage() {
           return (
             <>
               <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0c0a09', textAlign: 'center', marginBottom: 8 }}>
-                Configura tu tienda
+                Configura tu presencia
               </h2>
               <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', lineHeight: 1.5, marginBottom: 24 }}>
                 Antes de publicar productos necesitamos verificar tu cuenta. Tarda menos de 5 minutos.
@@ -582,7 +630,7 @@ export default function OnboardingPage() {
           return (
             <>
               <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0c0a09', textAlign: 'center', marginBottom: 8 }}>
-                Solicita ser influencer
+                Prepara tu perfil de creador
               </h2>
               <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', lineHeight: 1.5, marginBottom: 24 }}>
                 Necesitamos verificar que cumples los requisitos.
@@ -705,7 +753,7 @@ export default function OnboardingPage() {
             <ArrowLeft size={18} /> Atrás
           </button>
         </div>
-        <Stepper />
+        <ProgressBar />
 
         <div style={{ maxWidth: 440, margin: '0 auto', paddingTop: 24 }}>
           {renderContent()}
@@ -724,7 +772,7 @@ export default function OnboardingPage() {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         >
           {screen === 1 && <Screen1 />}
           {screen === 2 && <Screen2 />}

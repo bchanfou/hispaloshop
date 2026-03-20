@@ -63,7 +63,7 @@ const UserRow = React.memo(function UserRow({ u, isMe, onFollow, onUnfollow }) {
           className={`flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-1.5 text-[13px] font-semibold transition-colors ${
             u.is_following
               ? 'border border-stone-200 bg-stone-100 text-stone-950'
-              : 'bg-[#2E7D52] text-white hover:bg-[#1F5C3B]'
+              : 'bg-stone-950 text-white hover:bg-stone-800'
           }`}
         >
           {u.is_following ? (

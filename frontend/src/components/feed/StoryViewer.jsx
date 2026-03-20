@@ -1,11 +1,26 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { timeAgo } from '../../utils/time';
 
 const STORY_DURATION = 5000;
+
+// 4.4: Hoisted price formatter — avoids re-creating Intl instance every render
+const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+
+// 4.1: Transition variants — crossfade within same user, slide between different users
+const storyVariants = {
+  enter: (ctx) => ctx.isUserChange
+    ? { x: ctx.direction > 0 ? '100%' : '-100%', opacity: 1 }
+    : { opacity: 0, x: 0 },
+  center: { x: 0, opacity: 1 },
+  exit: (ctx) => ctx.isUserChange
+    ? { x: ctx.direction > 0 ? '-100%' : '100%', opacity: 1 }
+    : { opacity: 0, x: 0 },
+};
 
 export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const navigate = useNavigate();
@@ -20,14 +35,15 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [sendingReply, setSendingReply] = useState(false);
   const [muted, setMuted] = useState(true);
   const longPressRef = useRef(null);
-  const intervalRef = useRef(null);
+  const rafRef = useRef(null);
   const isPaused = useRef(false);
-  const touchStartX = useRef(null);
-  const touchStartY = useRef(null);
-  const touchStartTime = useRef(null);
+  const pointerStartX = useRef(null);
+  const pointerStartY = useRef(null);
+  const pointerStartTime = useRef(null);
   const videoRef = useRef(null);
   const replyInputRef = useRef(null);
-  const handledByTouch = useRef(false);
+  const directionRef = useRef(1);
+  const isUserChangeRef = useRef(false);
 
   const currentStory = stories[currentUserIndex];
   const items = currentStory?.items || [];
@@ -42,12 +58,18 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     ? (videoDuration || STORY_DURATION)
     : STORY_DURATION;
 
+  // 4.1: Transition context read from refs during render
+  const transitionCtx = { direction: directionRef.current, isUserChange: isUserChangeRef.current };
+
   const goNext = useCallback(() => {
+    directionRef.current = 1;
     if (currentItemIndex < items.length - 1) {
+      isUserChangeRef.current = false;
       setCurrentItemIndex((i) => i + 1);
       setProgress(0);
       setVideoDuration(null);
     } else if (currentUserIndex < stories.length - 1) {
+      isUserChangeRef.current = true;
       setCurrentUserIndex((u) => u + 1);
       setCurrentItemIndex(0);
       setProgress(0);
@@ -58,11 +80,14 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   }, [currentItemIndex, items.length, currentUserIndex, stories.length, onClose]);
 
   const goPrev = useCallback(() => {
+    directionRef.current = -1;
     if (currentItemIndex > 0) {
+      isUserChangeRef.current = false;
       setCurrentItemIndex((i) => i - 1);
       setProgress(0);
       setVideoDuration(null);
     } else if (currentUserIndex > 0) {
+      isUserChangeRef.current = true;
       const prevUserItems = stories[currentUserIndex - 1]?.items || [];
       setCurrentUserIndex((u) => u - 1);
       // Land on last story of previous user (IG behavior)
@@ -73,6 +98,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   }, [currentItemIndex, currentUserIndex, stories]);
 
   const goNextUser = useCallback(() => {
+    directionRef.current = 1;
+    isUserChangeRef.current = true;
     if (currentUserIndex < stories.length - 1) {
       setCurrentUserIndex((u) => u + 1);
       setCurrentItemIndex(0);
@@ -84,6 +111,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   }, [currentUserIndex, stories.length, onClose]);
 
   const goPrevUser = useCallback(() => {
+    directionRef.current = -1;
+    isUserChangeRef.current = true;
     if (currentUserIndex > 0) {
       setCurrentUserIndex((u) => u - 1);
       setCurrentItemIndex(0);
@@ -92,26 +121,34 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     }
   }, [currentUserIndex]);
 
-  // Timer — progress bar
+  // 4.2: Timer — 60fps progress bar with requestAnimationFrame
   useEffect(() => {
     if (paused || !items.length) return;
     // For video stories, wait until we know the duration
     if (currentItem?.video_url && !videoDuration) return;
 
-    const tick = 100; // 10Hz — smooth enough, half the CPU
-    let elapsed = 0;
+    const startTime = performance.now();
 
-    intervalRef.current = setInterval(() => {
-      if (isPaused.current) return; // J1: hold-to-pause ref gate
-      elapsed += tick;
-      setProgress(Math.min(elapsed / effectiveDuration, 1));
-      if (elapsed >= effectiveDuration) {
-        clearInterval(intervalRef.current);
+    const tick = (now) => {
+      if (isPaused.current) {
+        // Ref gate: skip update during brief hold before React re-renders
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      const elapsed = now - startTime;
+      const p = Math.min(elapsed / effectiveDuration, 1);
+      setProgress(p);
+      if (p < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
         goNext();
       }
-    }, tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
 
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [currentUserIndex, currentItemIndex, paused, items.length, goNext, effectiveDuration, videoDuration, currentItem?.video_url]);
 
   // Reset progress on item change
@@ -126,7 +163,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     return () => {
       document.body.style.overflow = prev;
       clearTimeout(longPressRef.current);
-      clearInterval(intervalRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
@@ -179,50 +216,34 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     }
   }, []);
 
-  // Click handler for mouse-only (desktop). Skipped on touch to prevent double-fire.
-  const handleClick = (e) => {
-    if (handledByTouch.current) {
-      handledByTouch.current = false;
-      return;
-    }
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const threshold = rect.width * 0.4;
-    if (x < threshold) {
-      goPrev();
-    } else {
-      goNext();
-    }
-  };
-
-  // Touch handlers — horizontal swipe between users, vertical swipe to close, long-press to pause
-  const handleTouchStart = (e) => {
-    handledByTouch.current = true;
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-    touchStartTime.current = Date.now();
+  // 4.3: Unified pointer handlers — replaces separate touch/mouse/click handlers
+  const handlePointerDown = (e) => {
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    pointerStartX.current = e.clientX;
+    pointerStartY.current = e.clientY;
+    pointerStartTime.current = Date.now();
     longPressRef.current = setTimeout(() => {
-      isPaused.current = true; // J1
+      isPaused.current = true;
       setPaused(true);
     }, 120);
   };
 
-  const handleTouchEnd = (e) => {
+  const handlePointerUp = (e) => {
     clearTimeout(longPressRef.current);
-    isPaused.current = false; // J1
+    isPaused.current = false;
     setPaused(false);
 
-    if (touchStartX.current === null) return;
+    if (pointerStartX.current === null) return;
 
-    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
-    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
-    const elapsed = Date.now() - (touchStartTime.current || 0);
+    const deltaX = e.clientX - pointerStartX.current;
+    const deltaY = e.clientY - pointerStartY.current;
+    const elapsed = Date.now() - (pointerStartTime.current || 0);
 
     // Swipe down to close
     if (deltaY > 100 && Math.abs(deltaX) < 80) {
       onClose();
-      touchStartX.current = null;
-      touchStartY.current = null;
+      pointerStartX.current = null;
+      pointerStartY.current = null;
       return;
     }
 
@@ -233,15 +254,15 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       } else {
         goPrevUser();
       }
-      touchStartX.current = null;
-      touchStartY.current = null;
+      pointerStartX.current = null;
+      pointerStartY.current = null;
       return;
     }
 
-    // If no significant swipe, treat as tap (only for quick taps)
+    // Tap — no significant swipe, quick press
     if (elapsed < 200 && Math.abs(deltaX) < 15 && Math.abs(deltaY) < 15) {
       const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.changedTouches[0].clientX - rect.left;
+      const x = e.clientX - rect.left;
       const threshold = rect.width * 0.4;
       if (x < threshold) {
         goPrev();
@@ -250,30 +271,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       }
     }
 
-    touchStartX.current = null;
-    touchStartY.current = null;
-  };
-
-  const handleMouseDown = () => {
-    longPressRef.current = setTimeout(() => {
-      isPaused.current = true; // J1
-      setPaused(true);
-    }, 120);
-  };
-
-  const handleMouseUp = () => {
-    clearTimeout(longPressRef.current);
-    isPaused.current = false; // J1
-    setPaused(false);
-  };
-
-  // J1: pointer-based hold-to-pause (covers both mouse and touch on pointer-capable devices)
-  const handlePointerDown = () => {
-    isPaused.current = true;
-  };
-
-  const handlePointerUp = () => {
-    isPaused.current = false;
+    pointerStartX.current = null;
+    pointerStartY.current = null;
   };
 
   // J3: send reply as DM — open/create conversation then navigate to chat
@@ -391,109 +390,118 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       {/* Story content + tap/swipe zones */}
       <div
         className="flex-1 relative flex items-center justify-center overflow-hidden"
-        onClick={handleClick}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
       >
         {/* Bottom gradient for text legibility */}
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/60 to-transparent z-[1] pointer-events-none" />
 
-        {currentItem?.video_url ? (
-          <>
-            <video
-              ref={videoRef}
-              key={currentItem.video_url}
-              src={currentItem.video_url}
-              autoPlay
-              muted={muted}
-              playsInline
-              onLoadedMetadata={handleVideoLoaded}
-              className="w-full h-full object-cover"
-            />
-            <button
-              onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
-              aria-label={muted ? 'Activar sonido' : 'Silenciar'}
-              className="absolute top-16 right-4 z-10 w-9 h-9 rounded-full bg-black/40 flex items-center justify-center"
-            >
-              {muted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
-            </button>
-          </>
-        ) : (
-          <img
-            key={currentItem?.image_url}
-            src={currentItem?.image_url}
-            alt={currentItem?.caption || 'Contenido de la historia'}
-            className="w-full h-full object-cover"
-            draggable={false}
-          />
-        )}
+        {/* 4.1: AnimatePresence — crossfade within user, slide between users */}
+        <AnimatePresence mode="wait" initial={false} custom={transitionCtx}>
+          <motion.div
+            key={`${currentUserIndex}-${currentItemIndex}`}
+            custom={transitionCtx}
+            variants={prefersReducedMotion ? undefined : storyVariants}
+            initial={prefersReducedMotion ? false : 'enter'}
+            animate="center"
+            exit={prefersReducedMotion ? undefined : 'exit'}
+            transition={{ duration: 0.15 }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            {currentItem?.video_url ? (
+              <>
+                <video
+                  ref={videoRef}
+                  key={currentItem.video_url}
+                  src={currentItem.video_url}
+                  autoPlay
+                  muted={muted}
+                  playsInline
+                  onLoadedMetadata={handleVideoLoaded}
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
+                  aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+                  className="absolute top-16 right-4 z-10 w-9 h-9 rounded-full bg-black/40 flex items-center justify-center"
+                >
+                  {muted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
+                </button>
+              </>
+            ) : (
+              <img
+                key={currentItem?.image_url}
+                src={currentItem?.image_url}
+                alt={currentItem?.caption || 'Contenido de la historia'}
+                className="w-full h-full object-cover"
+                draggable={false}
+              />
+            )}
 
-        {/* J5: Viewer count — own stories only */}
-        {isOwnStory && (
-          <div className="absolute bottom-4 left-4 z-[2] flex items-center gap-1 pointer-events-none">
-            <Eye size={14} className="text-white/60" />
-            <span className="text-xs text-white/60 font-sans">
-              {currentItem?.view_count ?? currentStory?.view_count ?? 0} vistas
-            </span>
-          </div>
-        )}
-
-        {/* Product pills */}
-        {currentItem?.products?.length > 0 && (
-          <div className="absolute bottom-10 left-4 right-4 z-[2] flex flex-col gap-2">
-            {currentItem.products.map((product, idx) => (
-              <div
-                key={product.id || product.product_id || idx}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClose();
-                  if (product?.slug || product?.id) {
-                    navigate(`/product/${product.slug || product.id}`);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onClose();
-                    if (product?.slug || product?.id) {
-                      navigate(`/product/${product.slug || product.id}`);
-                    }
-                  }
-                }}
-                className="flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
-                role="link"
-                tabIndex={0}
-                aria-label={`Ver producto: ${product?.name}`}
-              >
-                {(product?.thumbnail || product?.image) && (
-                  <img
-                    src={product.thumbnail || product.image}
-                    alt=""
-                    className="w-8 h-8 rounded-xl object-cover shrink-0"
-                  />
-                )}
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-[13px] text-white font-sans font-medium overflow-hidden text-ellipsis whitespace-nowrap">
-                    {product?.name}
-                  </span>
-                  {product?.price != null && (
-                    <span className="text-[11px] text-white/70 font-semibold font-sans">
-                      {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(product.price)}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[12px] text-white font-semibold font-sans shrink-0 bg-white/20 rounded-full px-2.5 py-1">
-                  Ver →
+            {/* J5: Viewer count — own stories only */}
+            {isOwnStory && (
+              <div className="absolute bottom-4 left-4 z-[2] flex items-center gap-1 pointer-events-none">
+                <Eye size={14} className="text-white/60" />
+                <span className="text-xs text-white/60 font-sans">
+                  {currentItem?.view_count ?? currentStory?.view_count ?? 0} vistas
                 </span>
               </div>
-            ))}
-          </div>
-        )}
+            )}
+
+            {/* Product pills */}
+            {currentItem?.products?.length > 0 && (
+              <div className="absolute bottom-10 left-4 right-4 z-[2] flex flex-col gap-2">
+                {currentItem.products.map((product, idx) => (
+                  <div
+                    key={product.id || product.product_id || idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClose();
+                      if (product?.slug || product?.id) {
+                        navigate(`/product/${product.slug || product.id}`);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onClose();
+                        if (product?.slug || product?.id) {
+                          navigate(`/product/${product.slug || product.id}`);
+                        }
+                      }
+                    }}
+                    className="flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`Ver producto: ${product?.name}`}
+                  >
+                    {(product?.thumbnail || product?.image) && (
+                      <img
+                        src={product.thumbnail || product.image}
+                        alt=""
+                        className="w-8 h-8 rounded-xl object-cover shrink-0"
+                      />
+                    )}
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="text-[13px] text-white font-sans font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+                        {product?.name}
+                      </span>
+                      {product?.price != null && (
+                        <span className="text-[11px] text-white/70 font-semibold font-sans">
+                          {priceFormatter.format(product.price)}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[12px] text-white font-semibold font-sans shrink-0 bg-white/20 rounded-full px-2.5 py-1">
+                      Ver →
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
       </div>
 

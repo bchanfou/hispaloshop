@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, LayoutGroup } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, Film, Plus, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -52,6 +52,9 @@ export default function BottomNavBar() {
   const [profileAvatarError, setProfileAvatarError] = useState(false);
   const toastTimeoutRef = useRef(null);
   const conversationsRef = useRef(conversations);
+  const reconnectAttemptsRef = useRef(0);
+  const reconnectTimerRef = useRef(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
     conversationsRef.current = conversations;
@@ -113,72 +116,100 @@ export default function BottomNavBar() {
     const token = getToken();
     if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
 
-    const socket = new WebSocket(getWSUrl('/ws/chat'));
-    socket.addEventListener('open', () => {
-      socket.send(JSON.stringify({ type: 'auth', token }));
-    });
-    socket.onerror = () => {
-      try { socket.close(); } catch { /* already closed */ }
-    };
+    let disposed = false;
 
-    socket.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data);
-        if (payload.type !== 'new_message') return;
+    const connect = () => {
+      if (disposed) return;
+      const socket = new WebSocket(getWSUrl('/ws/chat'));
+      socketRef.current = socket;
 
-        const incomingMessage = payload.message;
-        const currentConversation = conversationsRef.current.find(
-          (conversation) => conversation.conversation_id === payload.conversation_id
-        );
-        const chatOpen = location.pathname === '/messages' || location.pathname.startsWith('/messages/');
+      socket.addEventListener('open', () => {
+        socket.send(JSON.stringify({ type: 'auth', token }));
+        // Reset backoff on successful connection
+        reconnectAttemptsRef.current = 0;
+      });
 
-        reloadConversations();
+      socket.onerror = () => {
+        try { socket.close(); } catch { /* already closed */ }
+      };
 
-        if (!incomingMessage || incomingMessage.sender_id === user.user_id || chatOpen) {
-          return;
-        }
+      socket.onclose = () => {
+        if (disposed) return;
+        // Exponential backoff: 1s, 2s, 4s, 8s, ... max 30s
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
+        reconnectAttemptsRef.current += 1;
+        reconnectTimerRef.current = window.setTimeout(connect, delay);
+      };
 
-        setMessageToast({
-          conversationId: payload.conversation_id,
-          senderId: currentConversation?.other_user_id || incomingMessage.sender_id,
-          senderName: currentConversation?.other_user_name || incomingMessage.sender_name || 'Nuevo mensaje',
-          avatar: currentConversation?.other_user_avatar || null,
-          preview: incomingMessage.content || 'Te ha enviado una imagen',
-        });
+      socket.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.type !== 'new_message') return;
 
-        // Enhanced toast system (ChatToastContainer)
-        if (window.__hispaloChatToast) {
-          window.__hispaloChatToast({
+          const incomingMessage = payload.message;
+          const currentConversation = conversationsRef.current.find(
+            (conversation) => conversation.conversation_id === payload.conversation_id
+          );
+          const chatOpen = location.pathname === '/messages' || location.pathname.startsWith('/messages/');
+
+          reloadConversations();
+
+          if (!incomingMessage || incomingMessage.sender_id === user.user_id || chatOpen) {
+            return;
+          }
+
+          setMessageToast({
+            conversationId: payload.conversation_id,
             senderId: currentConversation?.other_user_id || incomingMessage.sender_id,
             senderName: currentConversation?.other_user_name || incomingMessage.sender_name || 'Nuevo mensaje',
             avatar: currentConversation?.other_user_avatar || null,
             preview: incomingMessage.content || 'Te ha enviado una imagen',
-            conversationId: payload.conversation_id,
-            type: currentConversation?.conv_type || 'c2c',
           });
-        }
 
-        if (toastTimeoutRef.current) {
-          window.clearTimeout(toastTimeoutRef.current);
-        }
+          // Enhanced toast system (ChatToastContainer)
+          if (window.__hispaloChatToast) {
+            window.__hispaloChatToast({
+              senderId: currentConversation?.other_user_id || incomingMessage.sender_id,
+              senderName: currentConversation?.other_user_name || incomingMessage.sender_name || 'Nuevo mensaje',
+              avatar: currentConversation?.other_user_avatar || null,
+              preview: incomingMessage.content || 'Te ha enviado una imagen',
+              conversationId: payload.conversation_id,
+              type: currentConversation?.conv_type || 'c2c',
+            });
+          }
 
-        toastTimeoutRef.current = window.setTimeout(() => {
-          setMessageToast(null);
-          toastTimeoutRef.current = null;
-        }, 4000);
-      } catch {
-        // silently handled
-      }
+          if (toastTimeoutRef.current) {
+            window.clearTimeout(toastTimeoutRef.current);
+          }
+
+          toastTimeoutRef.current = window.setTimeout(() => {
+            setMessageToast(null);
+            toastTimeoutRef.current = null;
+          }, 4000);
+        } catch {
+          // silently handled
+        }
+      };
     };
 
+    connect();
+
     return () => {
+      disposed = true;
       if (toastTimeoutRef.current) {
         window.clearTimeout(toastTimeoutRef.current);
         toastTimeoutRef.current = null;
       }
-      if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+      if (reconnectTimerRef.current) {
+        window.clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      const socket = socketRef.current;
+      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
         socket.close();
       }
+      socketRef.current = null;
+      reconnectAttemptsRef.current = 0;
     };
     // Only re-create socket when user changes — NOT on route change
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,6 +267,7 @@ export default function BottomNavBar() {
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl"
         data-testid="bottom-nav-bar"
       >
+        <LayoutGroup>
         <div className="grid h-[64px] grid-cols-5 items-stretch px-1">
 
           {/* 1 — Home */}
@@ -244,7 +276,7 @@ export default function BottomNavBar() {
             aria-label={t('bottomNav.home', 'Inicio')}
             data-testid="bottom-nav-home"
             onClick={(e) => handleNavClick(e, isHome)}
-            className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
+            className="relative flex h-full flex-col items-center justify-center gap-0 active:scale-90 transition-transform"
           >
             <Home className={`h-[24px] w-[24px] ${isHome ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             <div className="h-1 flex items-center justify-center mt-0.5">
@@ -264,7 +296,7 @@ export default function BottomNavBar() {
             aria-label={t('bottomNav.explore', 'Explorar')}
             data-testid="bottom-nav-explore"
             onClick={(e) => handleNavClick(e, isExplore)}
-            className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
+            className="relative flex h-full flex-col items-center justify-center gap-0 active:scale-90 transition-transform"
           >
             <Compass className={`h-[24px] w-[24px] ${isExplore ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             <div className="h-1 flex items-center justify-center mt-0.5">
@@ -284,11 +316,10 @@ export default function BottomNavBar() {
             onClick={handlePostButton}
             aria-label={t('bottomNav.create', 'Crear')}
             data-testid="bottom-nav-post"
-            className="relative flex h-full items-center justify-center active:opacity-60"
+            className="relative flex h-full items-center justify-center active:scale-90 transition-transform"
           >
             <div
-              className="flex items-center justify-center rounded-full shadow-lg transition-all active:scale-90 bg-stone-950"
-              style={{ width: 46, height: 46, marginTop: -14 }}
+              className="flex items-center justify-center rounded-full shadow-lg transition-all active:scale-90 bg-stone-950 w-[46px] h-[46px] -mt-3.5"
             >
               <Plus className="h-[22px] w-[22px] text-white" strokeWidth={2.4} />
             </div>
@@ -300,7 +331,7 @@ export default function BottomNavBar() {
             aria-label={t('bottomNav.reels', 'Reels')}
             data-testid="bottom-nav-reels"
             onClick={(e) => handleNavClick(e, isReels)}
-            className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
+            className="relative flex h-full flex-col items-center justify-center gap-0 active:scale-90 transition-transform"
           >
             <Film className={`h-[24px] w-[24px] ${isReels ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             <div className="h-1 flex items-center justify-center mt-0.5">
@@ -320,7 +351,7 @@ export default function BottomNavBar() {
             aria-label={t('bottomNav.profile', 'Perfil')}
             data-testid="bottom-nav-profile"
             onClick={(e) => handleNavClick(e, isProfile)}
-            className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
+            className="relative flex h-full flex-col items-center justify-center gap-0 active:scale-90 transition-transform"
           >
             {profileImage && !profileAvatarError ? (
               <div className={`h-[24px] w-[24px] overflow-hidden rounded-full transition-all ${
@@ -349,6 +380,7 @@ export default function BottomNavBar() {
             </div>
           </Link>
         </div>
+        </LayoutGroup>
 
         {/* Safe area para iPhones con home indicator */}
         <div className="h-[env(safe-area-inset-bottom,0px)]" />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Star, MapPin, Package, Truck, X, Map as MapIcon, List, Navigation } from 'lucide-react';
+import { ArrowLeft, Search, Star, MapPin, Package, Truck, X, Map as MapIcon, List, Navigation, Check } from 'lucide-react';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
@@ -255,59 +255,52 @@ function StoreMap({ stores }) {
 
 function StoreCard({ store }) {
   const slug = store.slug || store.store_slug;
-  const hero = store.hero_image || store.banner_image || store.logo;
   const rating = store.average_rating || store.rating;
+  const category = store.category || store.store_type || '';
 
   return (
     <Link
       to={`/store/${slug}`}
       aria-label={`Tienda ${store.name}`}
-      style={{
-        display: 'block', textDecoration: 'none',
-        borderRadius: '16px', overflow: 'hidden',
-        background: '#ffffff',
-        border: '1px solid #e7e5e4',
-        transition: 'all 0.15s ease',
-      }}
+      className="block rounded-2xl bg-white p-3 no-underline transition-shadow hover:shadow-sm"
     >
-      {/* hero */}
-      <div style={{ aspectRatio: '16/10', background: '#f5f5f4', position: 'relative', overflow: 'hidden' }}>
-        {hero && <img src={hero} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-        {/* logo overlap */}
-        {store.logo && (
-          <img src={store.logo} alt="" style={{
-            position: 'absolute', bottom: -14, left: 12,
-            width: 32, height: 32, borderRadius: '50%', objectFit: 'cover',
-            border: '2px solid #ffffff', background: '#ffffff',
-          }} />
-        )}
-      </div>
-      {/* info */}
-      <div style={{ padding: '18px 12px 12px' }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {store.name}
-        </p>
-        <p style={{ fontSize: 11, color: '#78716c', margin: '3px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
-          <MapPin size={10} /> {store.location || 'España'}
-        </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-          {rating > 0 && (
-            <span style={{ fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Star size={10} style={{ fill: '#0c0a09', color: '#0c0a09' }} />
-              {Number(rating).toFixed(1)}
-            </span>
-          )}
-          {store.product_count > 0 && (
-            <span style={{ fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Package size={10} /> {store.product_count}
-            </span>
-          )}
-          {store.free_shipping && (
-            <span style={{ fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Truck size={10} /> Gratis
+      {/* Avatar + Name row */}
+      <div className="flex items-center gap-2.5">
+        <div className="relative shrink-0">
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-stone-100">
+            {store.logo ? (
+              <img src={store.logo} alt="" loading="lazy" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-lg font-bold text-stone-400">{(store.name || 'T')[0]}</span>
+            )}
+          </div>
+          {store.is_verified && (
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-stone-950">
+              <Check size={10} className="text-white" strokeWidth={3} />
             </span>
           )}
         </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-stone-950">{store.name}</p>
+          {category && (
+            <p className="truncate text-[11px] text-stone-500">{category}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Meta row */}
+      <div className="mt-2 flex items-center gap-3 text-[11px] text-stone-500">
+        {store.product_count > 0 && (
+          <span className="flex items-center gap-1">
+            <Package size={10} /> {store.product_count} productos
+          </span>
+        )}
+        {rating > 0 && (
+          <span className="flex items-center gap-1">
+            <Star size={10} className="fill-stone-950 text-stone-950" />
+            {Number(rating).toFixed(1)}
+          </span>
+        )}
       </div>
     </Link>
   );
@@ -491,7 +484,7 @@ export default function StoresListPage() {
 
   /* ── render ── */
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', fontFamily: 'inherit', paddingBottom: 80 }}>
+    <div style={{ minHeight: '100vh', background: '#ffffff', fontFamily: 'inherit', paddingBottom: 80 }}>
       <SEO title="Tiendas — Hispaloshop" description="Explora tiendas de productores artesanales de alimentación saludable local. Filtra por región y país." />
       <style>{`
         @keyframes storesPulse { 0%,100%{opacity:.4} 50%{opacity:1} }
@@ -526,28 +519,24 @@ export default function StoresListPage() {
       <div style={{ padding: '12px 16px 0' }}>
 
         {/* ── SEARCH ── */}
-        <div style={{ position: 'relative', marginBottom: 12 }}>
-          <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#78716c' }} />
+        <div className="relative mb-3">
+          <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
           <input
             type="text"
-            placeholder="Buscar tiendas…"
+            placeholder="Buscar tiendas..."
             aria-label="Buscar tiendas"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%', height: 44, borderRadius: '9999px',
-              border: '1px solid #e7e5e4', background: '#ffffff',
-              paddingLeft: 42, paddingRight: searchQuery ? 40 : 16,
-              fontSize: 14, fontFamily: 'inherit', color: '#0c0a09', outline: 'none',
-            }}
+            className="h-10 w-full rounded-full border-none bg-stone-100 pl-10 text-sm text-stone-950 outline-none placeholder:text-stone-400"
+            style={{ paddingRight: searchQuery ? 40 : 16, fontFamily: 'inherit' }}
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
               aria-label="Borrar búsqueda"
-              style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border-none bg-stone-200 text-stone-500 cursor-pointer"
             >
-              <X size={16} color="#78716c" />
+              <X size={13} />
             </button>
           )}
         </div>
@@ -659,11 +648,13 @@ export default function StoresListPage() {
               {loading ? (
                 <div className="stores-grid" aria-busy="true" aria-label="Cargando tiendas">
                   {[1,2,3,4,5,6].map(i => (
-                    <div key={i} aria-hidden="true" style={{ borderRadius: '16px', overflow: 'hidden', background: '#ffffff', border: '1px solid #e7e5e4' }}>
-                      <div style={{ aspectRatio: '16/10', background: '#f5f5f4', animation: 'storesPulse 1.5s ease-in-out infinite' }} />
-                      <div style={{ padding: '18px 12px 12px' }}>
-                        <div style={{ height: 12, width: '60%', background: '#f5f5f4', borderRadius: 4, animation: 'storesPulse 1.5s ease-in-out infinite' }} />
-                        <div style={{ height: 10, width: '40%', background: '#f5f5f4', borderRadius: 4, marginTop: 6, animation: 'storesPulse 1.5s ease-in-out infinite' }} />
+                    <div key={i} aria-hidden="true" className="rounded-2xl bg-white p-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-12 w-12 shrink-0 animate-pulse rounded-full bg-stone-100" />
+                        <div className="flex-1">
+                          <div className="mb-1.5 h-3 w-3/5 animate-pulse rounded bg-stone-100" />
+                          <div className="h-2.5 w-2/5 animate-pulse rounded bg-stone-100" />
+                        </div>
                       </div>
                     </div>
                   ))}

@@ -1,156 +1,302 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart, Package, Star, Globe } from 'lucide-react';
-import { InfoNav, Hero, FooterCTA, FadeUp } from '../../components/info/shared';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+  Search,
+  ShoppingBag,
+  Utensils,
+  ShoppingCart,
+  Package,
+  Star,
+  Globe,
+} from 'lucide-react';
+import { InfoNav } from '../../components/info/shared';
 
+/* ─────────────────────────────────────────────
+   Timeline steps
+   ───────────────────────────────────────────── */
+const STEPS = [
+  {
+    icon: Search,
+    num: 1,
+    title: 'Descubre',
+    desc: 'Explora productores artesanales verificados. Filtra por categor\u00eda, certificaci\u00f3n, origen o valores. Cada producto tiene historia.',
+  },
+  {
+    icon: ShoppingBag,
+    num: 2,
+    title: 'Compra',
+    desc: 'A\u00f1ade al carrito, elige env\u00edo y paga en segundos. Directo del productor a tu puerta, sin intermediarios.',
+  },
+  {
+    icon: Utensils,
+    num: 3,
+    title: 'Disfruta',
+    desc: 'Recibe producto fresco con trazabilidad completa. Sabes qui\u00e9n lo hizo, d\u00f3nde y c\u00f3mo. Comida de verdad.',
+  },
+];
+
+/* ─────────────────────────────────────────────
+   Role cards
+   ───────────────────────────────────────────── */
+const ROLES = [
+  {
+    icon: ShoppingCart,
+    role: 'Consumidor',
+    desc: 'Descubre productos aut\u00e9nticos de productores verificados. David AI te recomienda seg\u00fan tus preferencias y alergias.',
+    href: '/explore',
+  },
+  {
+    icon: Package,
+    role: 'Productor',
+    desc: 'Abre tu tienda propia, vende directo y qu\u00e9date con el margen. Sin exclusividades. Sin letra peque\u00f1a.',
+    href: '/productor',
+  },
+  {
+    icon: Star,
+    role: 'Influencer',
+    desc: 'Gana comisiones reales por cada venta con tu c\u00f3digo de afiliado. Tu audiencia conf\u00eda en ti. Monet\u00edzalo.',
+    href: '/influencer',
+  },
+  {
+    icon: Globe,
+    role: 'Importador',
+    desc: 'Accede a un directorio verificado de productores espa\u00f1oles. Contratos digitales, certificaciones y trazabilidad.',
+    href: '/importador',
+  },
+];
+
+/* ─────────────────────────────────────────────
+   QueEsPage component
+   ───────────────────────────────────────────── */
 export default function QueEsPage() {
+  const navigate = useNavigate();
+
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
       <InfoNav activePage="/que-es-hispaloshop" />
 
-      <Hero
-        eyebrow="La plataforma de alimentación sana"
-        headline="Donde el producto artesano encuentra su comprador"
-        sub="Una sola plataforma para descubrir, compartir y comprar alimentos auténticos. Productores, influencers, importadores y consumidores, conectados."
-        cta="Explorar Hispaloshop"
-        ctaHref="/feed"
-      />
-
-      {/* Que es — explicacion en 2 columnas */}
-      <section style={{
-        background: '#fafaf9',
-        padding: 'clamp(56px, 8vw, 96px) 24px',
-      }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <FadeUp>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-              gap: 32,
-            }}>
-              <div>
-                <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)',
-                              fontWeight: 700, color: '#0c0a09',
-                              letterSpacing: '-0.02em', marginBottom: 16 }}>
-                  Instagram se encontró con Amazon. Nació Hispaloshop.
-                </h2>
-                <p style={{ fontSize: 16, color: '#78716c', lineHeight: 1.7 }}>
-                  Hispaloshop es una plataforma de social commerce especializada
-                  en alimentos saludables y artesanales. Los productores publican
-                  su historia, sus productos y su proceso. Los consumidores
-                  descubren, siguen y compran directamente.
-                </p>
-              </div>
-              <div>
-                <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)',
-                              fontWeight: 700, color: '#0c0a09',
-                              letterSpacing: '-0.02em', marginBottom: 16 }}>
-                  Con una IA que conoce lo que comes.
-                </h2>
-                <p style={{ fontSize: 16, color: '#78716c', lineHeight: 1.7 }}>
-                  David AI aprende tus preferencias, alergias y objetivos de
-                  salud. Te recomienda productos reales del catálogo, crea recetas
-                  y puede añadirlos al carrito por ti. El asistente más personal
-                  que ha tenido tu cocina.
-                </p>
-              </div>
-            </div>
-          </FadeUp>
-        </div>
+      {/* ════════════════════════════════════════
+          1. HERO
+         ════════════════════════════════════════ */}
+      <section className="flex flex-col items-center justify-center text-center px-6 pt-28 pb-20 md:pt-36 md:pb-28">
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-xs font-semibold tracking-[0.2em] text-stone-400 uppercase mb-4"
+        >
+          La plataforma de alimentaci&oacute;n real
+        </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
+          className="text-4xl md:text-6xl font-bold text-stone-950 leading-[1.05] tracking-tight max-w-3xl mx-auto mb-5"
+        >
+          Hispaloshop es el mercado donde la comida tiene historia
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+          className="text-lg md:text-xl text-stone-500 max-w-xl mx-auto leading-relaxed"
+        >
+          Una plataforma donde cada producto tiene cara y apellidos. Del campo a tu mesa, sin nadie en medio.
+        </motion.p>
       </section>
 
-      {/* Los 4 roles */}
-      <section style={{
-        background: '#ffffff',
-        padding: 'clamp(56px, 8vw, 96px) 24px',
-      }}>
-        <FadeUp>
-          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
-                        textAlign: 'center', color: '#0c0a09',
-                        letterSpacing: '-0.02em', marginBottom: 48 }}>
+      {/* ════════════════════════════════════════
+          2. THE PROBLEM
+         ════════════════════════════════════════ */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="px-6 py-20 md:py-28 bg-stone-50"
+      >
+        <div className="max-w-3xl mx-auto">
+          <p className="text-xs font-semibold tracking-[0.2em] text-stone-400 uppercase mb-3">
+            EL PROBLEMA
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-stone-950 leading-tight mb-6">
+            El sistema alimentario est&aacute; roto
+          </h2>
+          <div className="space-y-4 text-base md:text-lg text-stone-600 leading-relaxed max-w-2xl">
+            <p>
+              Entre el productor y tu plato hay una cadena de intermediarios que encarece el precio, diluye la calidad y borra la historia de lo que comes.
+            </p>
+            <p>
+              El productor artesanal trabaja 14 horas al d&iacute;a para que otro ponga el precio a su producto. El consumidor paga m&aacute;s por menos calidad. Y nadie sabe de d&oacute;nde viene realmente lo que hay en su nevera.
+            </p>
+            <p className="font-semibold text-stone-950">
+              Eso se acaba.
+            </p>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ════════════════════════════════════════
+          3. THE SOLUTION
+         ════════════════════════════════════════ */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="px-6 py-20 md:py-28 bg-white"
+      >
+        <div className="max-w-3xl mx-auto">
+          <p className="text-xs font-semibold tracking-[0.2em] text-stone-400 uppercase mb-3">
+            LA SOLUCI&Oacute;N
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-stone-950 leading-tight mb-6">
+            Conectamos al que produce con el que come
+          </h2>
+          <div className="space-y-4 text-base md:text-lg text-stone-600 leading-relaxed max-w-2xl">
+            <p>
+              Hispaloshop es una plataforma de social commerce donde los productores artesanales abren su tienda propia, cuentan su historia y venden directamente al consumidor final.
+            </p>
+            <p>
+              Sin intermediarios. Sin comisiones abusivas. Sin algoritmos que entierren tu producto. Cada venta es una conexi&oacute;n directa entre quien cultiva, elabora y produce, y quien quiere comer bien de verdad.
+            </p>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ════════════════════════════════════════
+          4. HOW IT WORKS — 3 step timeline
+         ════════════════════════════════════════ */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="px-6 py-20 md:py-28 bg-stone-950"
+      >
+        <div className="max-w-4xl mx-auto">
+          <p className="text-xs font-semibold tracking-[0.2em] text-stone-500 uppercase mb-3">
+            C&Oacute;MO FUNCIONA
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-14">
+            Tres pasos. Sin complicaciones.
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+            {STEPS.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.12 }}
+                  className="relative"
+                >
+                  {/* Step number + icon */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center">
+                      <Icon size={22} className="text-white" />
+                    </div>
+                    <span className="text-sm font-semibold text-stone-500">
+                      Paso {step.num}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-stone-400 leading-relaxed">
+                    {step.desc}
+                  </p>
+
+                  {/* Connector line (only between steps on desktop) */}
+                  {index < STEPS.length - 1 && (
+                    <div className="hidden md:block absolute top-6 left-[calc(100%+4px)] w-[calc(100%-56px)] h-px bg-white/10" style={{ transform: 'translateX(-50%)' }} />
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ════════════════════════════════════════
+          5. FOR WHOM — 4 role cards
+         ════════════════════════════════════════ */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="px-6 py-20 md:py-28 bg-stone-50"
+      >
+        <div className="max-w-5xl mx-auto">
+          <p className="text-xs font-semibold tracking-[0.2em] text-stone-400 uppercase mb-3 text-center">
+            PARA QUI&Eacute;N ES
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-stone-950 leading-tight mb-14 text-center">
             Una plataforma, cuatro roles
           </h2>
-        </FadeUp>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 16, maxWidth: 900, margin: '0 auto',
-        }}>
-          {[
-            { icon: <ShoppingCart size={20} className="text-stone-950" />, role: 'Consumidor', desc: 'Descubre productos auténticos, sigue a tus productores favoritos y compra con la ayuda de David AI.', href: '/registro' },
-            { icon: <Package size={20} className="text-stone-950" />, role: 'Productor',  desc: 'Vende directamente, construye tu comunidad y exporta al mundo con el Agente Comercial IA.', href: '/productor' },
-            { icon: <Star size={20} className="text-stone-950" />, role: 'Influencer', desc: 'Comparte lo que usas, gana comisiones reales y conecta con marcas que encajan con tu audiencia.', href: '/influencer' },
-            { icon: <Globe size={20} className="text-stone-950" />, role: 'Importador', desc: 'Accede al catálogo español verificado, gestiona certificados y automatiza las órdenes de compra.', href: '/importador' },
-          ].map((r, i) => (
-            <FadeUp key={r.role} delay={i * 0.08}>
-              <Link to={r.href} style={{ textDecoration: 'none' }}>
-                <div style={{
-                  background: '#fafaf9',
-                  borderRadius: 18, padding: '28px 22px',
-                  border: '0.5px solid rgba(0,0,0,0.07)',
-                  cursor: 'pointer', height: '100%',
-                  transition: 'all 0.25s ease',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.09)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {ROLES.map((r, index) => {
+              const Icon = r.icon;
+              return (
+                <motion.div
+                  key={r.role}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.08 }}
+                  onClick={() => navigate(r.href)}
+                  className="bg-white rounded-2xl border border-stone-200 p-6 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
                 >
-                  <div style={{ marginBottom: 14, display: 'flex' }}>{r.icon}</div>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: '#0c0a09',
-                               marginBottom: 10 }}>{r.role}</p>
-                  <p style={{ fontSize: 13, color: '#78716c',
-                               lineHeight: 1.6, margin: 0 }}>{r.desc}</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09',
-                               margin: '14px 0 0' }}>
-                    Saber más →
+                  <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center mb-4">
+                    <Icon size={20} className="text-stone-950" />
+                  </div>
+                  <h3 className="text-lg font-bold text-stone-950 mb-2">
+                    {r.role}
+                  </h3>
+                  <p className="text-sm text-stone-500 leading-relaxed mb-3">
+                    {r.desc}
                   </p>
-                </div>
-              </Link>
-            </FadeUp>
-          ))}
-        </div>
-      </section>
-
-      {/* Por que Espana */}
-      <section style={{
-        background: '#0c0a09',
-        padding: 'clamp(56px, 8vw, 96px) 24px',
-        textAlign: 'center',
-      }}>
-        <FadeUp>
-          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em',
-                       textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
-                       marginBottom: 16 }}>
-            Por qué España
-          </p>
-          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
-                        color: '#ffffff', maxWidth: 620, margin: '0 auto 20px',
-                        letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            El 4º exportador agroalimentario de Europa
-          </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.55)',
-                       maxWidth: 500, margin: '0 auto 40px', lineHeight: 1.6 }}>
-            España exporta más de 74.000 millones de euros en alimentos cada año.
-            Hispaloshop es el canal digital que conecta ese producto con el mundo.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center',
-                         gap: 'clamp(24px, 5vw, 64px)', flexWrap: 'wrap' }}>
-            {[['€74B', 'exportados en 2024'], ['30.000', 'empresas exportadoras'], ['190', 'países destino']].map(([n, l]) => (
-              <div key={l}>
-                <p style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800,
-                             color: '#ffffff', letterSpacing: '-0.03em', margin: 0 }}>{n}</p>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)',
-                             margin: '4px 0 0' }}>{l}</p>
-              </div>
-            ))}
+                  <span className="text-sm font-semibold text-stone-950">
+                    Saber m&aacute;s &rarr;
+                  </span>
+                </motion.div>
+              );
+            })}
           </div>
-        </FadeUp>
-      </section>
+        </div>
+      </motion.section>
 
-      <FooterCTA
-        headline="El mejor alimento artesano está aquí"
-        cta="Empezar gratis"
-        ctaHref="/registro"
-      />
+      {/* ════════════════════════════════════════
+          6. CTA
+         ════════════════════════════════════════ */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="px-6 py-20 md:py-28 bg-stone-950 text-center"
+      >
+        <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4 max-w-lg mx-auto leading-tight">
+          &Uacute;nete a la revoluci&oacute;n
+        </h2>
+        <p className="text-base text-stone-400 mb-10 max-w-md mx-auto leading-relaxed">
+          Miles de productores, creadores y consumidores ya est&aacute;n dentro. &iquest;A qu&eacute; esperas?
+        </p>
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={() => navigate('/register')}
+          className="bg-white text-stone-950 rounded-full px-10 py-4 text-base font-semibold hover:bg-stone-100 transition-colors cursor-pointer"
+        >
+          Crear cuenta gratis &rarr;
+        </motion.button>
+      </motion.section>
     </div>
   );
 }

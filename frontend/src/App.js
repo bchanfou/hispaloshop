@@ -183,6 +183,7 @@ const ChatToastContainer = lazy(() => import('./components/notifications/ChatToa
 const RoleOnboardingPage = lazy(() => import('./pages/auth/RoleOnboardingPage'));
 
 // Landing pages
+const LandingPage = lazy(() => import('./pages/landings/Landing'));
 const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
 const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
@@ -399,6 +400,7 @@ function AppRouter() {
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/que-es" element={<InfoLayout><QueEsPage /></InfoLayout>} />
               <Route path="/que-es-hispaloshop" element={<InfoLayout><QueEsPage /></InfoLayout>} />
+              <Route path="/landing" element={<InfoLayout><LandingPage /></InfoLayout>} />
               <Route path="/ser-influencer" element={<Navigate to="/influencer" replace />} />
               <Route path="/creator" element={<Navigate to="/influencer" replace />} />
               <Route path="/creator/*" element={<Navigate to="/influencer" replace />} />

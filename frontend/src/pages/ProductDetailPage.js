@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import {
   ChevronLeft, Share2, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
@@ -107,6 +107,10 @@ export default function ProductDetailPage() {
   const galleryRef = useRef(null);
   const addedTimerRef = useRef(null);
   const rafRef = useRef(null);
+
+  // Parallax for hero image
+  const { scrollY } = useScroll();
+  const imageY = useTransform(scrollY, [0, 300], [0, -30]);
 
   // Reset transient UI state when navigating between products
   useEffect(() => {
@@ -318,11 +322,11 @@ export default function ProductDetailPage() {
       </header>
 
       {/* ── Image Gallery — 1:1 scroll-snap ── */}
-      <section aria-label={`Galería de imágenes de ${product.name || 'producto'}`} className="relative w-full bg-stone-100">
+      <motion.section aria-label={`Galería de imágenes de ${product.name || 'producto'}`} className="relative w-full bg-stone-100 overflow-hidden" style={{ y: imageY }}>
         <div
           ref={galleryRef}
           onScroll={handleGalleryScroll}
-          className="flex overflow-x-auto scrollbar-hide [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch]"
+          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide [-webkit-overflow-scrolling:touch]"
         >
           {(images.length > 0 ? images : primaryImage ? [primaryImage] : [null]).map((img, i) => (
             <div
@@ -379,7 +383,7 @@ export default function ProductDetailPage() {
             {activeImageIndex + 1}/{images.length}
           </div>
         )}
-      </section>
+      </motion.section>
 
       {/* ── Product Header ── */}
       <div className="px-4 pt-4">
@@ -1028,6 +1032,7 @@ export default function ProductDetailPage() {
             type="button"
             onClick={handleAddToCart}
             disabled={isOutOfStock}
+            whileTap={{ scale: 0.96 }}
             animate={{
               background: addedToCart
                 ? '#0c0a09'

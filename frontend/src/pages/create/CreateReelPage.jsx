@@ -911,7 +911,7 @@ export default function CreateReelPage() {
           >
             {caption.split(/(#\w+|@\w+)/g).map((part, i) =>
               part.startsWith('#') ? (
-                <span key={i} className="text-[#2E7D52] font-semibold">{part}</span>
+                <span key={i} className="text-stone-950 font-semibold">{part}</span>
               ) : part.startsWith('@') ? (
                 <span key={i} className="text-stone-600 font-semibold">{part}</span>
               ) : (
@@ -981,7 +981,7 @@ export default function CreateReelPage() {
             <button
               onClick={() => coverInputRef.current?.click()}
               className={`w-14 h-20 rounded-xl bg-stone-100 shrink-0 flex flex-col items-center justify-center p-1 overflow-hidden border-2 cursor-pointer ${
-                coverFromGallery ? 'border-[#2E7D52]' : 'border-dashed border-stone-300'
+                coverFromGallery ? 'border-stone-950' : 'border-dashed border-stone-300'
               }`}
               aria-label="Portada desde galería"
             >
@@ -1022,7 +1022,7 @@ export default function CreateReelPage() {
             onClick={() => setAudience('public')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-medium cursor-pointer transition-all ${
               audience === 'public'
-                ? 'bg-[#2E7D52] text-white border-2 border-[#2E7D52]'
+                ? 'bg-stone-950 text-white border-2 border-stone-950'
                 : 'bg-transparent text-stone-950 border-[1.5px] border-stone-200'
             }`}
           >
@@ -1032,7 +1032,7 @@ export default function CreateReelPage() {
             onClick={() => setAudience('followers')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-medium cursor-pointer transition-all ${
               audience === 'followers'
-                ? 'bg-[#2E7D52] text-white border-2 border-[#2E7D52]'
+                ? 'bg-stone-950 text-white border-2 border-stone-950'
                 : 'bg-transparent text-stone-950 border-[1.5px] border-stone-200'
             }`}
           >
@@ -1061,7 +1061,7 @@ export default function CreateReelPage() {
       {/* Publish success overlay */}
       {publishSuccess && (
         <div className="fixed inset-0 z-[70] bg-white flex flex-col items-center justify-center gap-4 animate-[fadeIn_0.3s_ease]">
-          <div className="w-16 h-16 rounded-full bg-[#2E7D52] flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
+          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
             <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
           <span className="text-base font-semibold text-stone-950">¡Reel publicado!</span>
@@ -1079,7 +1079,7 @@ export default function CreateReelPage() {
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
           <div className="w-full h-[3px] bg-stone-200 rounded-full mb-3 overflow-hidden">
             <div
-              className="h-full bg-[#2E7D52] rounded-full transition-[width] duration-300 ease-out"
+              className="h-full bg-stone-950 rounded-full transition-[width] duration-300 ease-out"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
@@ -1087,7 +1087,7 @@ export default function CreateReelPage() {
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className={`w-full bg-[#2E7D52] text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-[#1F5C3B] flex items-center justify-center gap-2 ${
+          className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 flex items-center justify-center gap-2 ${
             publishing ? 'opacity-60 cursor-not-allowed' : ''
           }`}
         >

@@ -112,14 +112,16 @@ export default function CustomerOverview() {
         <div className="flex gap-3 px-4 overflow-x-auto scrollbar-hide py-1">
           {[
             { label: 'Pedidos',    value: orders.length,         icon: Package },
+            { label: 'Gastado',    value: convertAndFormatPrice(orders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0), currency), icon: ShoppingBag },
             { label: 'Guardados',  value: wishlist.length,       icon: Heart },
-            { label: 'Siguiendo',  value: followedStores.length, icon: Users },
           ].map(({ label, value, icon: Icon }) => (
             <div
               key={label}
-              className="flex-shrink-0 flex flex-col items-center justify-center bg-stone-50 rounded-2xl px-5 py-3 min-w-[90px]"
+              className="flex-shrink-0 flex flex-col items-center justify-center bg-white border border-stone-200 rounded-2xl px-5 py-3 min-w-[90px]"
             >
-              <Icon size={18} className="text-stone-400 mb-1" />
+              <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center mb-1.5">
+                <Icon size={16} className="text-stone-500" />
+              </div>
               <span className="text-xl font-bold text-stone-950">{value}</span>
               <span className="text-xs text-stone-500">{label}</span>
             </div>
@@ -146,7 +148,7 @@ export default function CustomerOverview() {
                   <Link
                     key={order.id}
                     to={`/customer/orders/${order.id}`}
-                    className="flex items-center gap-3 bg-stone-50 rounded-2xl px-3 py-3 hover:bg-stone-100 transition-colors"
+                    className="flex items-center gap-3 bg-white border border-stone-200 rounded-2xl px-3 py-3 hover:bg-stone-50 transition-colors"
                     data-testid="recent-order-row"
                   >
                     {/* Thumbnail */}
@@ -189,7 +191,7 @@ export default function CustomerOverview() {
           <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
             {quickActions.map(({ label, icon: Icon, path, onClick }) => {
               const inner = (
-                <div className="rounded-2xl bg-stone-50 flex items-center gap-3 px-4 py-3 hover:bg-stone-100 transition-colors w-full text-left">
+                <div className="rounded-2xl bg-white border border-stone-200 flex items-center gap-3 px-4 py-3 hover:bg-stone-50 transition-colors w-full text-left">
                   <Icon size={18} className="text-stone-500 shrink-0" />
                   <span className="text-sm font-medium text-stone-950">{label}</span>
                 </div>

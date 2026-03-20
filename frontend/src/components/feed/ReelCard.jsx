@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Heart,
   MessageCircle,
@@ -23,17 +24,11 @@ import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import BottomSheet from '../motion/BottomSheet';
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
 
-// Inject keyframe once at module level (idempotent)
-if (typeof document !== 'undefined' && !document.getElementById('reelcard-heart-keyframe')) {
-  const style = document.createElement('style');
-  style.id = 'reelcard-heart-keyframe';
-  style.textContent = '@keyframes heartPop { 0% { transform: scale(0); opacity: 1; } 30% { transform: scale(1.2); } 50% { transform: scale(0.95); } 70% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }';
-  document.head.appendChild(style);
-}
 
 export default function ReelCard({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false }) {
   const navigate = useNavigate();
@@ -54,6 +49,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const playIconTimer = useRef(null);
   const lastTapRef = useRef(0);
   const singleTapTimer = useRef(null);
+  const wasPlayingBeforeTap = useRef(null);
 
   const [liked, setLiked] = useState(reel.liked ?? reel.is_liked ?? false);
   const [likesCount, setLikesCount] = useState(reel.likes ?? reel.likes_count ?? 0);
@@ -71,6 +67,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [scrubbing, setScrubbing] = useState(false);
   const [videoDuration, setVideoDuration] = useState(0);
   const [showOwnerMenu, setShowOwnerMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -313,7 +310,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     onLike?.(reelId, next);
   }, [liked, reel.id, reel.reel_id, reel.post_id, onLike]);
 
-  // Single tap = play/pause (250ms debounce), double-tap = like
+  // Single tap = play/pause (immediate), double-tap = like (reverses play toggle)
   const handleVideoTap = useCallback(() => {
     const now = Date.now();
     const isDoubleTap = now - lastTapRef.current < 300;
@@ -321,29 +318,33 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
     if (isDoubleTap) {
       clearTimeout(singleTapTimer.current);
-      if (!liked) {
-        const reelId = reel.id || reel.reel_id || reel.post_id;
-        setLiked(true);
-        setLikesCount((c) => c + 1);
-        apiClient.post(`/reels/${reelId}/like`).catch(() => {
-          setLiked(false);
-          setLikesCount((c) => c - 1);
-        });
-        onLike?.(reelId, true);
+      // Cancel the single tap toggle that already happened
+      if (wasPlayingBeforeTap.current !== null) {
+        const video = videoRef.current;
+        if (video) {
+          if (wasPlayingBeforeTap.current) {
+            video.play().catch(() => {});
+            setPlaying(true);
+          } else {
+            video.pause();
+            setPlaying(false);
+          }
+        }
+        wasPlayingBeforeTap.current = null;
       }
+      // Like
+      if (!liked) { handleLike(); }
       setShowDoubleTapHeart(true);
       clearTimeout(doubleTapHeartTimer.current);
       doubleTapHeartTimer.current = setTimeout(() => setShowDoubleTapHeart(false), 800);
     } else {
-      singleTapTimer.current = setTimeout(() => {
-        if (embedded) {
-          navigate('/reels');
-        } else {
-          togglePlay();
-        }
-      }, 250);
+      // Immediately toggle play/pause
+      const video = videoRef.current;
+      if (embedded) { navigate('/reels'); return; }
+      wasPlayingBeforeTap.current = !video?.paused;
+      togglePlay();
     }
-  }, [liked, reel.id, onLike, togglePlay, embedded, navigate]);
+  }, [liked, handleLike, togglePlay, embedded, navigate]);
 
   const videoUrl = reel.video_url || reel.videoUrl;
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
@@ -446,55 +447,51 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       )}
 
       {/* Edit caption modal */}
-      {showEditCaption && (
-        <div className="absolute inset-0 z-[15] bg-black/60 flex items-end justify-center" onClick={() => setShowEditCaption(false)}>
-          <div className="bg-white w-full rounded-t-2xl p-4 flex flex-col gap-3" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-stone-950">Editar reel</span>
-              <button className="bg-transparent border-none cursor-pointer p-1" onClick={() => setShowEditCaption(false)} aria-label="Cerrar">
-                <XIcon size={18} />
-              </button>
-            </div>
-            <textarea
-              value={editCaption}
-              onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
-              className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
-              aria-label="Editar descripción"
-            />
-            <p className="text-[11px] text-stone-400">El vídeo no se puede cambiar tras publicar.</p>
+      <BottomSheet isOpen={showEditCaption} onClose={() => setShowEditCaption(false)} maxHeight="50vh">
+        <div className="p-4 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-stone-950">Editar reel</span>
+            <button className="bg-transparent border-none cursor-pointer p-1" onClick={() => setShowEditCaption(false)} aria-label="Cerrar">
+              <XIcon size={18} />
+            </button>
+          </div>
+          <textarea
+            value={editCaption}
+            onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
+            className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
+            aria-label="Editar descripción"
+          />
+          <p className="text-[11px] text-stone-400">El vídeo no se puede cambiar tras publicar.</p>
+          <button
+            onClick={handleEditSave}
+            className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
+          >
+            Guardar cambios
+          </button>
+        </div>
+      </BottomSheet>
+
+      {/* Delete confirmation modal */}
+      <BottomSheet isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} maxHeight="50vh">
+        <div className="p-5 flex flex-col gap-3 text-center">
+          <p className="text-base font-semibold text-stone-950">¿Eliminar este reel?</p>
+          <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes.</p>
+          <div className="flex gap-3 mt-2">
             <button
-              onClick={handleEditSave}
-              className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
+              onClick={() => setShowDeleteConfirm(false)}
+              className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
             >
-              Guardar cambios
+              Cancelar
+            </button>
+            <button
+              onClick={handleDeleteReel}
+              className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
+            >
+              Eliminar
             </button>
           </div>
         </div>
-      )}
-
-      {/* Delete confirmation modal */}
-      {showDeleteConfirm && (
-        <div className="absolute inset-0 z-[15] bg-black/60 flex items-end justify-center" onClick={() => setShowDeleteConfirm(false)}>
-          <div className="bg-white w-full rounded-t-2xl p-5 flex flex-col gap-3 text-center" onClick={e => e.stopPropagation()}>
-            <p className="text-base font-semibold text-stone-950">¿Eliminar este reel?</p>
-            <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes.</p>
-            <div className="flex gap-3 mt-2">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleDeleteReel}
-                className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </BottomSheet>
 
       {/* Play/Pause icon — flash on toggle, persistent when paused */}
       <div
@@ -516,15 +513,14 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
       {/* Double-tap heart */}
       {showDoubleTapHeart && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5] motion-reduce:hidden">
-          <Heart
-            size={80}
-            className="text-white fill-white"
-            style={{
-              animation: 'heartPop 0.8s ease-out forwards',
-            }}
-          />
-        </div>
+        <motion.div
+          initial={{ scale: 0, opacity: 1 }}
+          animate={{ scale: [0, 1.3, 0.95, 1], opacity: [1, 1, 1, 0] }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5]"
+        >
+          <Heart size={80} className="text-white fill-white" />
+        </motion.div>
       )}
 
       {/* Gradient */}
@@ -597,7 +593,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
                   }
                 }}
               >
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center ${isFollowing ? 'bg-white' : 'bg-black'}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center ${isFollowing ? 'bg-white' : 'bg-black'}`}>
                   {isFollowing ? (
                     <Check size={12} className="text-black" strokeWidth={3} />
                   ) : (
@@ -770,202 +766,189 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       )}
 
       {/* Comments bottom sheet */}
-      {showComments && (
-        <div className="absolute inset-0 z-[10] flex flex-col justify-end" onClick={closeComments}>
-          <div
-            className="bg-stone-950/95 backdrop-blur-xl rounded-t-2xl max-h-[60vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <span className="text-sm font-semibold text-white">Comentarios</span>
-              <button onClick={closeComments} className="bg-transparent border-none cursor-pointer p-1" aria-label="Cerrar">
-                <XIcon size={18} className="text-white/60" />
-              </button>
-            </div>
-            {/* List */}
-            <div className="flex-1 overflow-y-auto px-4 py-2 min-h-[100px]">
-              {commentsLoading ? (
-                <div className="flex justify-center py-8">
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                </div>
-              ) : comments.length === 0 ? (
-                <p className="text-center text-white/40 text-sm py-8">Sé el primero en comentar</p>
-              ) : (
-                comments.map((c, i) => {
-                  const cId = c.comment_id || c.id || c._id;
-                  const cName = c.user?.name || c.user_name || c.username || 'Usuario';
-                  const isOwn = currentUser?.user_id === c.user_id;
-                  return (
-                    <div key={cId || i} className="flex gap-2.5 py-2.5 group">
-                      <div className="w-8 h-8 rounded-full bg-white/20 shrink-0 flex items-center justify-center text-white text-[10px] font-semibold overflow-hidden">
-                        {(c.user?.avatar_url || c.user_profile_image || c.avatar_url) ? (
-                          <img src={c.user?.avatar_url || c.user_profile_image || c.avatar_url} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          cName.charAt(0).toUpperCase()
+      <BottomSheet isOpen={showComments} onClose={closeComments} maxHeight="60vh" className="!bg-stone-950/95 backdrop-blur-xl">
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+            <span className="text-sm font-semibold text-white">Comentarios</span>
+            <button onClick={closeComments} className="bg-transparent border-none cursor-pointer p-1" aria-label="Cerrar">
+              <XIcon size={18} className="text-white/60" />
+            </button>
+          </div>
+          {/* List */}
+          <div className="flex-1 overflow-y-auto px-4 py-2 min-h-[100px]">
+            {commentsLoading ? (
+              <div className="flex justify-center py-8">
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              </div>
+            ) : comments.length === 0 ? (
+              <p className="text-center text-white/40 text-sm py-8">Sé el primero en comentar</p>
+            ) : (
+              comments.map((c, i) => {
+                const cId = c.comment_id || c.id || c._id;
+                const cName = c.user?.name || c.user_name || c.username || 'Usuario';
+                const isOwn = currentUser?.user_id === c.user_id;
+                return (
+                  <div key={cId || i} className="flex gap-2.5 py-2.5 group">
+                    <div className="w-8 h-8 rounded-full bg-white/20 shrink-0 flex items-center justify-center text-white text-[10px] font-semibold overflow-hidden">
+                      {(c.user?.avatar_url || c.user_profile_image || c.avatar_url) ? (
+                        <img src={c.user?.avatar_url || c.user_profile_image || c.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        cName.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-white/90 leading-[1.4]">
+                        <span className="font-semibold text-white mr-1.5">{cName}</span>
+                        {c.text || c.content}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
+                        <button
+                          onClick={() => handleLikeComment(cId)}
+                          className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[28px]"
+                        >
+                          <Heart size={12} className={likedComments.has(cId) ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white/40'} strokeWidth={1.8} />
+                          {(c.likes_count || 0) > 0 && <span className="text-[10px] text-white/40">{c.likes_count}</span>}
+                        </button>
+                        <button
+                          onClick={() => handleReplyComment(cId, cName)}
+                          className="bg-transparent border-none cursor-pointer p-0 text-[10px] text-white/40 font-semibold hover:text-white/70 min-h-[28px] flex items-center"
+                        >
+                          Responder
+                        </button>
+                        {isOwn && (
+                          <button
+                            onClick={() => handleDeleteComment(cId)}
+                            className="bg-transparent border-none cursor-pointer p-0 min-h-[28px] flex items-center"
+                          >
+                            <Trash2 size={12} className="text-white/30 hover:text-white/60" />
+                          </button>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] text-white/90 leading-[1.4]">
-                          <span className="font-semibold text-white mr-1.5">{cName}</span>
-                          {c.text || c.content}
-                        </p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
-                          <button
-                            onClick={() => handleLikeComment(cId)}
-                            className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[28px]"
-                          >
-                            <Heart size={12} className={likedComments.has(cId) ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white/40'} strokeWidth={1.8} />
-                            {(c.likes_count || 0) > 0 && <span className="text-[10px] text-white/40">{c.likes_count}</span>}
-                          </button>
-                          <button
-                            onClick={() => handleReplyComment(cId, cName)}
-                            className="bg-transparent border-none cursor-pointer p-0 text-[10px] text-white/40 font-semibold hover:text-white/70 min-h-[28px] flex items-center"
-                          >
-                            Responder
-                          </button>
-                          {isOwn && (
-                            <button
-                              onClick={() => handleDeleteComment(cId)}
-                              className="bg-transparent border-none cursor-pointer p-0 min-h-[28px] flex items-center"
-                            >
-                              <Trash2 size={12} className="text-white/30 hover:text-white/60" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
-            {/* Emoji quick-react row — Instagram style */}
-            <div className="flex items-center justify-between px-6 py-2.5 border-t border-white/10">
-              {['❤️', '🙌', '🔥', '👏', '😢', '😍', '😮', '😂'].map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => {
-                    setNewComment((prev) => prev + emoji);
-                  }}
-                  className="text-[24px] leading-none bg-transparent border-none cursor-pointer p-1 active:scale-125 transition-transform"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-            {/* Reply indicator */}
-            {replyTo && (
-              <div className="flex items-center justify-between px-4 py-1.5 border-t border-white/10">
-                <span className="text-[11px] text-white/50">Respondiendo a <span className="font-semibold text-white/70">@{replyTo.username}</span></span>
-                <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0">
-                  <XIcon size={12} className="text-white/40" />
-                </button>
-              </div>
-            )}
-            {/* Input */}
-            <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10">
-              {/* Current user avatar */}
-              {currentUser?.avatar_url && (
-                <img src={currentUser.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
-              )}
-              <input
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
-                onKeyDown={(e) => { if (e.key === 'Enter') submitComment(); }}
-                placeholder="Únete a la conversación..."
-                className="flex-1 bg-white/10 text-white border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
-                aria-label="Escribir comentario"
-              />
-              <button
-                onClick={submitComment}
-                disabled={!newComment.trim() || sendingComment}
-                className={`w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer transition-colors ${
-                  newComment.trim() ? 'bg-white text-stone-950' : 'bg-white/10 text-white/30'
-                }`}
-                aria-label="Enviar comentario"
-              >
-                <Send size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Multi-product bottom sheet */}
-      {showProductSheet && (
-        <div
-          className="absolute inset-0 z-[10] flex flex-col justify-end"
-          onClick={() => setShowProductSheet(false)}
-        >
-          <div
-            className="bg-stone-950/95 backdrop-blur-xl rounded-t-2xl flex flex-col max-h-[55vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <span className="text-sm font-semibold text-white">Productos ({allProducts.length})</span>
-              <button
-                onClick={() => setShowProductSheet(false)}
-                className="bg-transparent border-none cursor-pointer p-1"
-                aria-label="Cerrar"
-              >
-                <XIcon size={18} className="text-white/60" />
-              </button>
-            </div>
-            <div className="overflow-y-auto flex-1 px-4 py-2">
-              {allProducts.map((p, i) => {
-                const pid = p.id || p.product_id;
-                return (
-                  <div
-                    key={pid || i}
-                    className="flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0"
-                  >
-                    <div
-                      className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 shrink-0 cursor-pointer"
-                      onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
-                    >
-                      {(p.image || p.thumbnail) ? (
-                        <img
-                          src={p.image || p.thumbnail}
-                          alt={p.name || p.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => { e.currentTarget.src = ''; e.currentTarget.className = 'w-full h-full bg-white/10'; }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <ShoppingBag size={14} className="text-white/30" />
-                        </div>
-                      )}
-                    </div>
-                    <div
-                      className="flex-1 min-w-0 cursor-pointer"
-                      onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
-                    >
-                      <p className="text-[14px] font-semibold text-white font-sans truncate">{p.name || p.title}</p>
-                      {p.price != null && (
-                        <p className="text-[12px] text-white/60 font-sans mt-0.5">{formatPrice(p.price)}</p>
-                      )}
-                    </div>
-                    <button
-                      className="flex items-center gap-1 bg-white text-stone-950 text-[11px] font-bold font-sans py-1.5 px-3 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-100 active:bg-stone-200 transition-colors disabled:opacity-50"
-                      onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
-                      disabled={addingToCart === pid}
-                      aria-label={`Añadir ${p.name || p.title || 'producto'} al carrito`}
-                    >
-                      <Plus size={12} strokeWidth={2.5} />
-                      {addingToCart === pid ? '…' : 'Añadir'}
-                    </button>
                   </div>
                 );
-              })}
+              })
+            )}
+          </div>
+          {/* Emoji quick-react row — Instagram style */}
+          <div className="flex items-center justify-between px-6 py-2.5 border-t border-white/10 shrink-0">
+            {['❤️', '🙌', '🔥', '👏', '😢', '😍', '😮', '😂'].map((emoji) => (
+              <button
+                key={emoji}
+                onClick={() => {
+                  setNewComment((prev) => prev + emoji);
+                }}
+                className="text-[24px] leading-none bg-transparent border-none cursor-pointer p-1 active:scale-125 transition-transform"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+          {/* Reply indicator */}
+          {replyTo && (
+            <div className="flex items-center justify-between px-4 py-1.5 border-t border-white/10 shrink-0">
+              <span className="text-[11px] text-white/50">Respondiendo a <span className="font-semibold text-white/70">@{replyTo.username}</span></span>
+              <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0">
+                <XIcon size={12} className="text-white/40" />
+              </button>
             </div>
+          )}
+          {/* Input */}
+          <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10 shrink-0">
+            {/* Current user avatar */}
+            {currentUser?.avatar_url && (
+              <img src={currentUser.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
+            )}
+            <input
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
+              onKeyDown={(e) => { if (e.key === 'Enter') submitComment(); }}
+              placeholder="Únete a la conversación..."
+              className="flex-1 bg-white/10 text-white border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+              aria-label="Escribir comentario"
+            />
+            <button
+              onClick={submitComment}
+              disabled={!newComment.trim() || sendingComment}
+              className={`w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer transition-colors ${
+                newComment.trim() ? 'bg-white text-stone-950' : 'bg-white/10 text-white/30'
+              }`}
+              aria-label="Enviar comentario"
+            >
+              <Send size={16} />
+            </button>
           </div>
         </div>
-      )}
+      </BottomSheet>
 
-      {/* Progress bar — thin Instagram-style */}
+      {/* Multi-product bottom sheet */}
+      <BottomSheet isOpen={showProductSheet} onClose={() => setShowProductSheet(false)} maxHeight="55vh" className="!bg-stone-950/95 backdrop-blur-xl">
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+            <span className="text-sm font-semibold text-white">Productos ({allProducts.length})</span>
+            <button
+              onClick={() => setShowProductSheet(false)}
+              className="bg-transparent border-none cursor-pointer p-1"
+              aria-label="Cerrar"
+            >
+              <XIcon size={18} className="text-white/60" />
+            </button>
+          </div>
+          <div className="overflow-y-auto flex-1 px-4 py-2">
+            {allProducts.map((p, i) => {
+              const pid = p.id || p.product_id;
+              return (
+                <div
+                  key={pid || i}
+                  className="flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0"
+                >
+                  <div
+                    className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 shrink-0 cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
+                  >
+                    {(p.image || p.thumbnail) ? (
+                      <img
+                        src={p.image || p.thumbnail}
+                        alt={p.name || p.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.src = ''; e.currentTarget.className = 'w-full h-full bg-white/10'; }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ShoppingBag size={14} className="text-white/30" />
+                      </div>
+                    )}
+                  </div>
+                  <div
+                    className="flex-1 min-w-0 cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
+                  >
+                    <p className="text-[14px] font-semibold text-white font-sans truncate">{p.name || p.title}</p>
+                    {p.price != null && (
+                      <p className="text-[12px] text-white/60 font-sans mt-0.5">{formatPrice(p.price)}</p>
+                    )}
+                  </div>
+                  <button
+                    className="flex items-center gap-1 bg-white text-stone-950 text-[11px] font-bold font-sans py-1.5 px-3 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-100 active:bg-stone-200 transition-colors disabled:opacity-50"
+                    onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
+                    disabled={addingToCart === pid}
+                    aria-label={`Añadir ${p.name || p.title || 'producto'} al carrito`}
+                  >
+                    <Plus size={12} strokeWidth={2.5} />
+                    {addingToCart === pid ? '…' : 'Añadir'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </BottomSheet>
+
+      {/* Progress bar — thin Instagram-style with touch scrubbing */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/20 z-[3] cursor-pointer"
+        className={`absolute bottom-0 left-0 right-0 bg-white/20 z-[3] cursor-pointer transition-[height] duration-150 ${scrubbing ? 'h-[6px]' : 'h-[3px]'}`}
         onClick={(e) => {
           const video = videoRef.current;
           if (!video || !video.duration) return;
@@ -974,6 +957,24 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
           video.currentTime = ratio * video.duration;
           setProgress(ratio);
         }}
+        onTouchStart={(e) => {
+          setScrubbing(true);
+          const video = videoRef.current;
+          if (!video || !video.duration) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const ratio = Math.max(0, Math.min(1, (e.touches[0].clientX - rect.left) / rect.width));
+          video.currentTime = ratio * video.duration;
+          setProgress(ratio);
+        }}
+        onTouchMove={(e) => {
+          const video = videoRef.current;
+          if (!video || !video.duration) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const ratio = Math.max(0, Math.min(1, (e.touches[0].clientX - rect.left) / rect.width));
+          video.currentTime = ratio * video.duration;
+          setProgress(ratio);
+        }}
+        onTouchEnd={() => setScrubbing(false)}
         role="slider"
         aria-label="Progreso del vídeo"
         aria-valuenow={Math.round(progress * 100)}

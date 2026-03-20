@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X, Flag, UserMinus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
@@ -12,23 +13,6 @@ import { timeAgo } from '../../utils/time';
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
-
-// Inject keyframe once at module level (idempotent)
-if (typeof document !== 'undefined' && !document.getElementById('postcard-heart-keyframe')) {
-  const style = document.createElement('style');
-  style.id = 'postcard-heart-keyframe';
-  style.textContent = `
-    @keyframes postcard-heart-pop {
-      0%   { opacity: 0; transform: scale(0.5); }
-      15%  { opacity: 1; transform: scale(1.3); }
-      30%  { opacity: 1; transform: scale(1); }
-      70%  { opacity: 1; transform: scale(1); }
-      100% { opacity: 0; transform: scale(1); }
-    }
-    .postcard-heart-active { animation: postcard-heart-pop 0.9s ease forwards; color: #FF3040; fill: #FF3040; }
-  `;
-  document.head.appendChild(style);
-}
 
 function renderCaption(text, navigate) {
   if (!text) return null;
@@ -239,7 +223,13 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   if (deleted) return null;
 
   return (
-    <article className="border-b border-stone-100 bg-white font-sans relative">
+    <motion.article
+      className="border-b border-stone-100 bg-white font-sans relative"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+    >
       {/* ---- Options menu ---- */}
       {showMenu && (
         <>
@@ -461,14 +451,23 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           )}
 
           {/* Heart animation overlay */}
-          {showHeartAnim && (
-            <div className="absolute inset-0 z-[2] flex items-center justify-center pointer-events-none">
-              <Heart
-                size={50}
-                className={`fill-[#FF3040] text-[#FF3040] ${showHeartAnim ? 'postcard-heart-active' : 'opacity-0'}`}
-              />
-            </div>
-          )}
+          <AnimatePresence>
+            {showHeartAnim && (
+              <motion.div
+                key="double-tap-heart"
+                className="absolute inset-0 z-[2] flex items-center justify-center pointer-events-none"
+                initial={{ scale: 0, opacity: 1 }}
+                animate={{ scale: [0, 1.2, 0.9, 1], opacity: [1, 1, 1, 0] }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              >
+                <Heart
+                  size={80}
+                  className="fill-[#FF3040] text-[#FF3040]"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Dots — overlaid on image bottom */}
           {hasMultiple && (
@@ -476,10 +475,11 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
               {images.map((_, i) => {
                 const dist = Math.abs(i - carouselIndex);
                 if (images.length > 5 && dist > 2 && i !== 0 && i !== images.length - 1) return null;
+                const isActive = i === carouselIndex;
                 return (
                   <button
                     key={i}
-                    className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent border-none p-0 cursor-pointer"
+                    className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent border-none p-0 cursor-pointer relative"
                     aria-label={`Imagen ${i + 1} de ${images.length}`}
                     onClick={() => {
                       scrollRef.current?.scrollTo({
@@ -488,15 +488,24 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                       });
                     }}
                   >
-                    <span
-                      className="block rounded-full transition-all duration-200"
-                      style={{
-                        width: i === carouselIndex ? 6 : dist === 1 ? 4 : 3,
-                        height: i === carouselIndex ? 6 : dist === 1 ? 4 : 3,
-                        background: i === carouselIndex ? '#fff' : 'rgba(255,255,255,0.5)',
+                    <motion.span
+                      className="block rounded-full"
+                      animate={{
+                        width: isActive ? 8 : 6,
+                        height: isActive ? 8 : 6,
+                        background: isActive ? '#fff' : 'rgba(255,255,255,0.5)',
                         opacity: dist > 2 ? 0.5 : 1,
                       }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     />
+                    {isActive && (
+                      <motion.span
+                        layoutId={`postcard-dot-${post.id}`}
+                        className="absolute inset-0 m-auto rounded-full"
+                        style={{ width: 8, height: 8, background: 'transparent', border: '1.5px solid rgba(255,255,255,0.7)' }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -507,8 +516,10 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
       {/* ---- Actions ---- */}
       <div className="flex items-center gap-4 px-3 py-2">
-        <button
-          className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer transition-transform duration-150 active:scale-110 ${
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+          className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer ${
             liked ? 'text-[#FF3040]' : 'text-stone-950'
           }`}
           onClick={handleLike}
@@ -518,15 +529,16 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             size={24}
             fill={liked ? 'currentColor' : 'none'}
             color="currentColor"
-            className={liked ? 'transition-transform duration-200' : ''}
           />
           {likesCount > 0 && (
             <span className="text-[13px] font-semibold text-stone-950">{likesCount}</span>
           )}
-        </button>
+        </motion.button>
 
-        <button
-          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950 transition-transform duration-150"
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
           onClick={() => onComment?.(post.id)}
           aria-label={`Comentar · ${commentsCount}`}
         >
@@ -534,20 +546,22 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           {commentsCount > 0 && (
             <span className="text-[13px] font-semibold text-stone-950">{commentsCount}</span>
           )}
-        </button>
+        </motion.button>
 
-        <button
-          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950 transition-transform duration-150"
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
           onClick={handleShare}
           aria-label="Compartir"
         >
           <Share2 size={24} />
-        </button>
+        </motion.button>
 
-        <button
-          className={`ml-auto flex min-h-[44px] items-center bg-transparent border-none py-2.5 cursor-pointer ${
-            effectiveSaved ? 'text-stone-950' : 'text-stone-950'
-          }`}
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+          className="ml-auto flex min-h-[44px] items-center bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
           onClick={handleSave}
           aria-label={effectiveSaved ? 'Quitar guardado' : 'Guardar'}
         >
@@ -556,7 +570,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             fill={effectiveSaved ? 'currentColor' : 'none'}
             color="currentColor"
           />
-        </button>
+        </motion.button>
       </div>
 
       {/* ---- Liked by context ---- */}
@@ -652,7 +666,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           ))}
         </div>
       )}
-    </article>
+    </motion.article>
   );
 }
 

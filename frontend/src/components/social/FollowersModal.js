@@ -61,7 +61,7 @@ function UserRow({ user, onToggleFollow, isMutating, currentUserId }) {
           className={`shrink-0 rounded-full px-4 py-[7px] text-[13px] font-medium transition-all ${
             user.is_following
               ? 'border border-stone-200 bg-white text-stone-950 hover:bg-stone-50'
-              : 'bg-[#2E7D52] text-white hover:bg-[#1F5C3B]'
+              : 'bg-stone-950 text-white hover:bg-stone-800'
           } ${isMutating ? 'opacity-60' : ''}`}
         >
           {user.is_following ? 'Siguiendo' : 'Seguir'}

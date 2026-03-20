@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Bell, ShoppingCart, Menu } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Bell, ShoppingCart, Menu, Search } from 'lucide-react';
 import HamburgerMenu from './HamburgerMenu';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -9,6 +9,7 @@ import Logo from '../brand/Logo';
 
 export default function AppHeader() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { getTotalItems } = useCart();
   // Only fetch notifications when authenticated — prevents 401 spam
@@ -17,7 +18,6 @@ export default function AppHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const isHome = location.pathname === '/';
   const isAuthenticated = !!user;
 
   const unreadCount = isAuthenticated ? (unreadData?.count ?? 0) : 0;
@@ -32,63 +32,59 @@ export default function AppHeader() {
 
   return (
     <header
-      className=""
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: '40',
-        background: '#ffffff',
-        borderBottom: scrolled ? '1px solid #f5f5f4' : '1px solid transparent',
-        boxShadow: scrolled ? '0 1px 3px rgba(0,0,0,0.04)' : 'none',
-        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-        fontFamily: 'inherit',
-      }}
+      className={`sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b transition-all duration-200 ${
+        scrolled ? 'border-stone-200 shadow-sm' : 'border-transparent'
+      }`}
     >
       {/* Hamburger Menu drawer */}
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
       {/* ── Mobile Header ── */}
-      <div style={{
-        height: 52,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 16px',
-      }}>
+      <div className="flex h-[52px] items-center justify-between px-4">
         {/* Logo + brand name */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', gap: 6 }}>
+        <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-1.5 no-underline">
             <Logo variant="icon" theme="light" size={28} />
-            <span style={{
-              fontSize: 20,
-              fontWeight: 800,
-              color: '#0c0a09',
-              letterSpacing: '-0.02em',
-              textTransform: 'lowercase',
-              fontFamily: 'inherit',
-            }}>
+            <span className="text-xl font-extrabold text-stone-950 tracking-tight lowercase">
               hispaloshop
             </span>
           </Link>
         </div>
 
-        {/* Right icons: notif + cart + hamburger */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        {/* Right icons: search + notif + cart + hamburger */}
+        <div className="flex items-center gap-1">
+          {/* Search */}
+          <button
+            onClick={() => navigate('/search')}
+            aria-label="Buscar"
+            className="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-transparent border-none cursor-pointer p-2 text-stone-950"
+          >
+            <Search size={20} strokeWidth={1.8} />
+          </button>
+
           {/* Notification bell */}
-          <Link to="/notifications" style={{ position: 'relative', ...iconButtonStyle }}>
-            <Bell size={20} color="#0c0a09" strokeWidth={1.8} />
+          <Link
+            to="/notifications"
+            aria-label="Notificaciones"
+            className="relative flex items-center justify-center w-[38px] h-[38px] rounded-full no-underline"
+          >
+            <Bell size={20} className="text-stone-950" strokeWidth={1.8} />
             {unreadCount > 0 && (
-              <span style={redBadgeStyle}>
+              <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-[#FF3040] text-white text-[9px] font-extrabold px-1 leading-none">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </Link>
 
           {/* Cart */}
-          <Link to="/cart" style={{ position: 'relative', ...iconButtonStyle }}>
-            <ShoppingCart size={20} color="#0c0a09" strokeWidth={1.8} />
+          <Link
+            to="/cart"
+            aria-label="Carrito"
+            className="relative flex items-center justify-center w-[38px] h-[38px] rounded-full no-underline"
+          >
+            <ShoppingCart size={20} className="text-stone-950" strokeWidth={1.8} />
             {totalCartItems > 0 && (
-              <span style={blackBadgeStyle}>
+              <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-stone-950 text-white text-[9px] font-extrabold px-1 leading-none">
                 {totalCartItems > 9 ? '9+' : totalCartItems}
               </span>
             )}
@@ -97,71 +93,13 @@ export default function AppHeader() {
           {/* Hamburger — last icon on the right */}
           <button
             onClick={() => setMenuOpen(true)}
-            aria-label="Abrir menú"
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: 38, height: 38, borderRadius: '50%',
-              border: 'none', background: 'transparent', cursor: 'pointer',
-            }}
+            aria-label="Abrir menu"
+            className="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-transparent border-none cursor-pointer"
           >
-            <Menu size={22} color="#0c0a09" strokeWidth={1.8} />
+            <Menu size={22} className="text-stone-950" strokeWidth={1.8} />
           </button>
         </div>
       </div>
-
     </header>
   );
 }
-
-/* ── Shared styles ── */
-const iconButtonStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 38,
-  height: 38,
-  borderRadius: '50%',
-  textDecoration: 'none',
-  border: 'none',
-  background: 'transparent',
-  cursor: 'pointer',
-  transition: 'background 0.1s ease',
-};
-
-const redBadgeStyle = {
-  position: 'absolute',
-  top: 2,
-  right: 2,
-  minWidth: 16,
-  height: 16,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: '9999px',
-  background: '#FF3040',
-  color: '#ffffff',
-  fontSize: 9,
-  fontWeight: 800,
-  padding: '0 4px',
-  lineHeight: 1,
-  fontFamily: 'inherit',
-};
-
-const blackBadgeStyle = {
-  position: 'absolute',
-  top: 2,
-  right: 2,
-  minWidth: 16,
-  height: 16,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: '9999px',
-  background: '#0c0a09',
-  color: '#ffffff',
-  fontSize: 9,
-  fontWeight: 800,
-  padding: '0 4px',
-  lineHeight: 1,
-  fontFamily: 'inherit',
-};
