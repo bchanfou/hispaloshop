@@ -121,9 +121,9 @@ export default function ExploreCategoryPage() {
       {/* Product grid */}
       <div className="px-4 pt-2 pb-20">
         {loading ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-stone-100" />
+              <div key={i} className="animate-pulse rounded-xl bg-stone-100" style={{ aspectRatio: '4/5' }} />
             ))}
           </div>
         ) : error ? (
@@ -151,7 +151,7 @@ export default function ExploreCategoryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4"
+            className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4"
           >
             {products.map((product) => (
               <ProductCard key={product.product_id || product.id} product={product} />

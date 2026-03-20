@@ -269,7 +269,7 @@ const CategoryPage = () => {
             ) : null}
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.product_id || product.id}

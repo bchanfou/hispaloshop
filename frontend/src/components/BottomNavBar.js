@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User } from 'lucide-react';
+import { Home, Compass, Film, Plus, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import CreateContentSheet from './create/CreateContentSheet';
@@ -9,9 +9,6 @@ import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
 import { getWSUrl } from '../services/api/client';
-import { useUnreadNotifications } from '../hooks/api/useNotifications';
-import { useQuery } from '@tanstack/react-query';
-import apiClient from '../services/api/client';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
@@ -55,18 +52,6 @@ export default function BottomNavBar() {
   const [profileAvatarError, setProfileAvatarError] = useState(false);
   const toastTimeoutRef = useRef(null);
   const conversationsRef = useRef(conversations);
-
-  const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
-  const unreadCount = user ? (unreadData?.count ?? 0) : 0;
-
-  // Chat-specific unread DM count
-  const { data: unreadChatData } = useQuery({
-    queryKey: ['unread-chat-count'],
-    queryFn: () => apiClient.get('/chat/unread-count').then((r) => r.data),
-    staleTime: 30000,
-    enabled: !!user,
-  });
-  const hasChatUnread = (unreadChatData?.total ?? 0) > 0;
 
   useEffect(() => {
     conversationsRef.current = conversations;
@@ -230,7 +215,7 @@ export default function BottomNavBar() {
 
   const isHome       = location.pathname === '/';
   const isExplore    = location.pathname.startsWith('/discover') || location.pathname.startsWith('/products');
-  const isChatActive = location.pathname === '/messages' || location.pathname.startsWith('/messages/');
+  const isReels      = location.pathname === '/reels' || location.pathname.startsWith('/reels/');
   const isProfile    = profileUsername
     ? (location.pathname.toLowerCase() === `/${profileUsername}` || location.pathname.startsWith('/profile/') || location.pathname.startsWith('/settings/'))
     : (location.pathname === '/profile' || location.pathname.startsWith('/profile/') || location.pathname.startsWith('/settings/'));
@@ -251,7 +236,7 @@ export default function BottomNavBar() {
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl"
         data-testid="bottom-nav-bar"
       >
-        <div className="grid h-[50px] grid-cols-5 items-stretch px-1">
+        <div className="grid h-[64px] grid-cols-5 items-stretch px-1">
 
           {/* 1 — Home */}
           <Link
@@ -302,37 +287,24 @@ export default function BottomNavBar() {
             className="relative flex h-full items-center justify-center active:opacity-60"
           >
             <div
-              className="flex items-center justify-center rounded-full shadow-md transition-all active:scale-90 bg-stone-950"
-              style={{ width: 42, height: 42, marginTop: -12 }}
+              className="flex items-center justify-center rounded-full shadow-lg transition-all active:scale-90 bg-stone-950"
+              style={{ width: 46, height: 46, marginTop: -14 }}
             >
-              <Plus className="h-5 w-5 text-white" strokeWidth={2.2} />
+              <Plus className="h-[22px] w-[22px] text-white" strokeWidth={2.4} />
             </div>
           </button>
 
-          {/* 4 — Chats */}
-          <button
-            type="button"
-            onClick={() => { if (!user) { navigate('/login'); return; } navigate('/messages'); }}
-            aria-label={t('bottomNav.chats', 'Chats')}
-            data-testid="bottom-nav-chats"
+          {/* 4 — Reels */}
+          <Link
+            to="/reels"
+            aria-label={t('bottomNav.reels', 'Reels')}
+            data-testid="bottom-nav-reels"
+            onClick={(e) => handleNavClick(e, isReels)}
             className="relative flex h-full flex-col items-center justify-center gap-0 active:opacity-60"
           >
-            <div className="relative">
-              <MessageCircle className={`h-[24px] w-[24px] ${isChatActive ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
-              {unreadCount > 0 && (
-                <span
-                  className="absolute -top-1 -right-1.5 flex h-[14px] min-w-[14px] items-center justify-center rounded-full px-0.5 animate-pulse"
-                  style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'inherit', background: '#dc2626' }}
-                >
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-              {hasChatUnread && unreadCount === 0 && (
-                <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-stone-950" />
-              )}
-            </div>
+            <Film className={`h-[24px] w-[24px] ${isReels ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             <div className="h-1 flex items-center justify-center mt-0.5">
-              {isChatActive && (
+              {isReels && (
                 <motion.div
                   layoutId="nav-indicator"
                   className="w-1 h-1 rounded-full bg-stone-950"
@@ -340,7 +312,7 @@ export default function BottomNavBar() {
                 />
               )}
             </div>
-          </button>
+          </Link>
 
           {/* 5 — Perfil */}
           <Link
@@ -383,7 +355,7 @@ export default function BottomNavBar() {
       </nav>
 
       {/* Spacer para que el contenido no quede tapado por la nav */}
-      <div className="h-[calc(50px+env(safe-area-inset-bottom,0px))]" />
+      <div className="h-[calc(64px+env(safe-area-inset-bottom,0px))]" />
     </>
   );
 }

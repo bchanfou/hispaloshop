@@ -3,10 +3,10 @@ import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  X, Home, Search, Store, ShoppingBag, Users, Award,
-  HelpCircle, Sprout, Star, Globe as GlobeIcon,
+  X, Bookmark, Activity, Package,
+  HelpCircle, FileText, Globe as GlobeIcon,
   LayoutDashboard, Settings, LogOut, ChevronDown, Check,
-  ClipboardList, UtensilsCrossed, Package,
+  User,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
@@ -78,7 +78,6 @@ export default function HamburgerMenu({ isOpen, onClose }) {
   };
 
   const dashboardUrl = user ? getDefaultRoute(user, user.onboarding_completed) : '/login';
-  const isB2BUser = user?.role === 'producer' || user?.role === 'importer';
 
   const profileImage = user?.profile_image || user?.avatar_url || null;
   const displayName = user?.name || user?.full_name || user?.username || '';
@@ -158,47 +157,104 @@ export default function HamburgerMenu({ isOpen, onClose }) {
             {/* ── SECTIONS ── */}
             <div style={{ flex: 1, padding: '8px 0' }}>
 
-              {/* ── NAVEGAR ── */}
-              <SectionLabel>NAVEGAR</SectionLabel>
-              <MenuItem to="/" icon={<Home size={20} />} label="Inicio" onClose={onClose} />
-              <MenuItem to="/explore" icon={<Search size={20} />} label="Explorar" onClose={onClose} />
-              <MenuItem to="/stores" icon={<Store size={20} />} label="Tiendas" onClose={onClose} />
-              <MenuItem to="/explore?tab=products" icon={<ShoppingBag size={20} />} label="Productos" onClose={onClose} />
-              <MenuItem to="/recipes" icon={<UtensilsCrossed size={20} />} label="Recetas" onClose={onClose} />
-              <MenuItem to="/communities" icon={<Users size={20} />} label="Comunidades" onClose={onClose} />
-              <MenuItem to="/certificates" icon={<Award size={20} />} label="Certificados digitales" onClose={onClose} />
+              {/* ── CUENTA ── */}
+              <SectionLabel>CUENTA</SectionLabel>
 
-              <Divider />
-
-              {/* ── HISPALOSHOP ── */}
-              <SectionLabel>HISPALOSHOP</SectionLabel>
-              <MenuItem to="/about" icon={<HelpCircle size={20} />} label="¿Qué es Hispaloshop?" onClose={onClose} />
-              <MenuItem to="/productor" icon={<Sprout size={20} />} label="Soy Productor" onClose={onClose} />
-              <MenuItem to="/influencer" icon={<Star size={20} />} label="Soy Influencer" onClose={onClose} />
-              <MenuItem to="/importador" icon={<GlobeIcon size={20} />} label="Soy Importador" onClose={onClose} />
-
-              {/* ── MAYORISTA (B2B) — solo producer/importer ── */}
-              {isB2BUser && (
+              {user ? (
                 <>
-                  <Divider />
-                  <SectionLabel>MAYORISTA</SectionLabel>
-                  <MenuItem to="/b2b/catalog" icon={<ClipboardList size={20} />} label="Catálogo B2B" onClose={onClose}>
-                    <span style={{
-                      fontSize: 9, fontWeight: 700, color: '#fff',
-                      background: '#3b82f6',
-                      borderRadius: '9999px',
-                      padding: '1px 6px', marginLeft: 6,
-                    }}>
-                      B2B
-                    </span>
-                  </MenuItem>
+                  {/* User info row */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 20px',
+                  }}>
+                    {profileImage ? (
+                      <img src={profileImage} alt="" style={{
+                        width: 40, height: 40, borderRadius: '50%', objectFit: 'cover',
+                        border: '1px solid #e7e5e4',
+                      }} />
+                    ) : (
+                      <div style={{
+                        width: 40, height: 40, borderRadius: '50%',
+                        background: '#0c0a09', color: '#fff',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 16, fontWeight: 700,
+                      }}>
+                        {displayName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{
+                        fontSize: 14, fontWeight: 600, color: '#0c0a09',
+                        margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>
+                        {displayName}
+                      </p>
+                      {username && (
+                        <p style={{ fontSize: 12, color: '#78716c', margin: '1px 0 0' }}>
+                          @{username}
+                        </p>
+                      )}
+                    </div>
+                    {user.plan && (
+                      <span style={{
+                        fontSize: 9, fontWeight: 700, color: '#fff',
+                        background: user.plan === 'elite' ? '#0c0a09' : user.plan === 'pro' ? '#78716c' : '#e7e5e4',
+                        borderRadius: '9999px',
+                        padding: '2px 8px',
+                        textTransform: 'uppercase',
+                      }}>
+                        {user.plan}
+                      </span>
+                    )}
+                  </div>
+
+                  <MenuItem to={profileUsername ? `/${profileUsername}` : (profileUserId ? `/profile/${profileUserId}` : '/profile')} icon={<User size={20} />} label="Mi perfil" onClose={onClose} />
+                  <MenuItem to="/settings" icon={<Settings size={20} />} label="Configuración" onClose={onClose} />
+                  <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />
                 </>
+              ) : (
+                <div style={{ padding: '8px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <Link
+                    to="/login"
+                    onClick={onClose}
+                    style={{
+                      display: 'block', textAlign: 'center',
+                      padding: '12px 0', borderRadius: '9999px',
+                      border: '1px solid #e7e5e4',
+                      fontSize: 14, fontWeight: 600, color: '#0c0a09',
+                      textDecoration: 'none', fontFamily: 'inherit',
+                    }}
+                  >
+                    Entrar
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={onClose}
+                    style={{
+                      display: 'block', textAlign: 'center',
+                      padding: '12px 0', borderRadius: '9999px',
+                      background: '#0c0a09', color: '#fff',
+                      fontSize: 14, fontWeight: 600,
+                      textDecoration: 'none', fontFamily: 'inherit',
+                    }}
+                  >
+                    Crear cuenta
+                  </Link>
+                </div>
               )}
 
               <Divider />
 
-              {/* ── PREFERENCIAS ── */}
-              <SectionLabel>PREFERENCIAS</SectionLabel>
+              {/* ── CONTENIDO ── */}
+              <SectionLabel>CONTENIDO</SectionLabel>
+              <MenuItem to="/saved" icon={<Bookmark size={20} />} label="Guardados" onClose={onClose} />
+              <MenuItem to="/orders" icon={<Package size={20} />} label="Mis pedidos" onClose={onClose} />
+              <MenuItem to="/activity" icon={<Activity size={20} />} label="Actividad" onClose={onClose} />
+
+              <Divider />
+
+              {/* ── APLICACIÓN ── */}
+              <SectionLabel>APLICACIÓN</SectionLabel>
 
               {/* País */}
               <AccordionRow
@@ -218,7 +274,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                       isActive={isActive}
                       disabled={disabled}
                       badge={c.status === 'beta' ? 'Beta' : c.status === 'soon' ? 'Próx.' : null}
-                      badgeVariant={c.status === 'beta' ? 'blue' : 'gray'}
+                      badgeVariant={c.status === 'beta' ? 'dark' : 'gray'}
                       onClick={() => {
                         if (disabled) return;
                         locale?.updateCountry?.(c.code);
@@ -282,63 +338,14 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
               <Divider />
 
-              {/* ── CUENTA ── */}
-              <SectionLabel>CUENTA</SectionLabel>
-              {user ? (
+              {/* ── PIE ── */}
+              <SectionLabel>SOPORTE</SectionLabel>
+              <MenuItem to="/about" icon={<HelpCircle size={20} />} label="Ayuda" onClose={onClose} />
+              <MenuItem to="/terms" icon={<FileText size={20} />} label="Términos y condiciones" onClose={onClose} />
+
+              {user && (
                 <>
-                  {/* User info row */}
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '12px 20px',
-                  }}>
-                    {profileImage ? (
-                      <img src={profileImage} alt="" style={{
-                        width: 40, height: 40, borderRadius: '50%', objectFit: 'cover',
-                        border: '1px solid #e7e5e4',
-                      }} />
-                    ) : (
-                      <div style={{
-                        width: 40, height: 40, borderRadius: '50%',
-                        background: '#0c0a09', color: '#fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 16, fontWeight: 700,
-                      }}>
-                        {displayName.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        fontSize: 14, fontWeight: 600, color: '#0c0a09',
-                        margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {displayName}
-                      </p>
-                      {username && (
-                        <p style={{ fontSize: 12, color: '#78716c', margin: '1px 0 0' }}>
-                          @{username}
-                        </p>
-                      )}
-                    </div>
-                    {user.plan && (
-                      <span style={{
-                        fontSize: 9, fontWeight: 700, color: '#fff',
-                        background: user.plan === 'elite' ? '#0c0a09' : user.plan === 'pro' ? '#78716c' : '#e7e5e4',
-                        borderRadius: '9999px',
-                        padding: '2px 8px',
-                        textTransform: 'uppercase',
-                      }}>
-                        {user.plan}
-                      </span>
-                    )}
-                  </div>
-
-                  <MenuItem to={profileUsername ? `/${profileUsername}` : (profileUserId ? `/profile/${profileUserId}` : '/profile')} icon={<Settings size={20} />} label="Mi perfil" onClose={onClose} />
-                  <MenuItem to="/orders" icon={<Package size={20} />} label="Mis pedidos" onClose={onClose} />
-                  <MenuItem to="/settings" icon={<Settings size={20} />} label="Configuración" onClose={onClose} />
-                  <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />
-
                   <Divider />
-
                   <button
                     onClick={handleLogout}
                     style={{
@@ -354,35 +361,6 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     Cerrar sesión
                   </button>
                 </>
-              ) : (
-                <div style={{ padding: '8px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <Link
-                    to="/login"
-                    onClick={onClose}
-                    style={{
-                      display: 'block', textAlign: 'center',
-                      padding: '12px 0', borderRadius: '9999px',
-                      border: '1px solid #e7e5e4',
-                      fontSize: 14, fontWeight: 600, color: '#0c0a09',
-                      textDecoration: 'none', fontFamily: 'inherit',
-                    }}
-                  >
-                    Entrar
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={onClose}
-                    style={{
-                      display: 'block', textAlign: 'center',
-                      padding: '12px 0', borderRadius: '9999px',
-                      background: '#0c0a09', color: '#fff',
-                      fontSize: 14, fontWeight: 600,
-                      textDecoration: 'none', fontFamily: 'inherit',
-                    }}
-                  >
-                    Crear cuenta
-                  </Link>
-                </div>
               )}
             </div>
           </motion.aside>
@@ -515,8 +493,8 @@ function AccordionOption({ label, isActive, disabled, badge, badgeVariant, onCli
           fontSize: 9, fontWeight: 600,
           padding: '1px 6px',
           borderRadius: '9999px',
-          background: badgeVariant === 'blue' ? '#3b82f6' : '#e7e5e4',
-          color: badgeVariant === 'blue' ? '#fff' : '#78716c',
+          background: badgeVariant === 'dark' ? '#0c0a09' : '#e7e5e4',
+          color: badgeVariant === 'dark' ? '#fff' : '#78716c',
         }}>
           {badge}
         </span>

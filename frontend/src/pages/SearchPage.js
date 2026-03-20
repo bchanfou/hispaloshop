@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, UserPlus } from 'lucide-react';
+import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, Hash } from 'lucide-react';
 import apiClient from '../services/api/client';
 import { useLocale } from '../context/LocaleContext';
 import SEO from '../components/SEO';
@@ -25,74 +25,13 @@ const TRENDING_FALLBACK = ['aceite de oliva', 'gazpacho', 'ibérico', 'queso man
 
 const ROLE_LABELS = { producer: 'Productor', influencer: 'Influencer', consumer: 'Consumidor', importer: 'Importador' };
 
-function SuggestedPeopleSection() {
-  const [people, setPeople] = React.useState([]);
-  const [followedIds, setFollowedIds] = React.useState(new Set());
-
-  React.useEffect(() => {
-    let active = true;
-    apiClient.get('/discovery/suggested-users?context=search&limit=6')
-      .then(data => { if (active) setPeople(Array.isArray(data) ? data : data?.users || []); })
-      .catch(() => {});
-    return () => { active = false; };
-  }, []);
-
-  if (people.length === 0) return null;
-
-  const handleFollow = async (userId) => {
-    try {
-      if (followedIds.has(userId)) {
-        await apiClient.delete(`/users/${userId}/follow`);
-        setFollowedIds(prev => { const s = new Set(prev); s.delete(userId); return s; });
-      } else {
-        await apiClient.post(`/users/${userId}/follow`, {});
-        setFollowedIds(prev => new Set([...prev, userId]));
-      }
-    } catch { /* ignore */ }
-  };
-
-  return (
-    <section className="pt-6">
-      <div className="mb-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Users size={16} className="text-stone-500" />
-          <span className="text-[13px] font-bold text-stone-950">Personas populares</span>
-        </div>
-        <Link to="/discover/people" className="text-[12px] font-semibold text-stone-500 no-underline hover:text-stone-700">
-          Ver todos
-        </Link>
-      </div>
-      <div className="flex flex-col gap-2">
-        {people.map(u => {
-          const isFollowed = followedIds.has(u.user_id);
-          return (
-            <div key={u.user_id} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5">
-              <Link to={`/user/${u.username || u.user_id}`} className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-100 block">
-                {u.profile_image ? (
-                  <img src={u.profile_image} alt={u.name} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-sm font-bold text-stone-400">{(u.name || '?')[0].toUpperCase()}</div>
-                )}
-              </Link>
-              <Link to={`/user/${u.username || u.user_id}`} className="min-w-0 flex-1 no-underline">
-                <p className="truncate text-[13px] font-semibold text-stone-950">{u.name}</p>
-                <span className="text-[10px] text-stone-500">{ROLE_LABELS[u.role] || u.role}</span>
-              </Link>
-              <button
-                onClick={() => handleFollow(u.user_id)}
-                className={`min-h-[36px] shrink-0 rounded-full px-3.5 text-[11px] font-semibold cursor-pointer transition-colors ${
-                  isFollowed ? 'border border-stone-200 bg-white text-stone-950 hover:bg-stone-50' : 'border-none bg-stone-950 text-white hover:bg-stone-800'
-                }`}
-              >
-                {isFollowed ? 'Siguiendo' : 'Seguir'}
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
+/* ── pill style helper (same as Discover) ── */
+const pillCls = (active) =>
+  `flex shrink-0 cursor-pointer items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors ${
+    active
+      ? 'bg-stone-950 text-white'
+      : 'bg-stone-100 text-stone-700'
+  }`;
 
 const TABS = [
   { key: 'all', label: 'Todo' },
@@ -102,14 +41,21 @@ const TABS = [
   { key: 'creators', label: 'Personas', icon: Users },
 ];
 
+const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Relevancia' },
+  { value: 'price_asc', label: 'Menor precio' },
+  { value: 'price_desc', label: 'Mayor precio' },
+  { value: 'newest', label: 'Más reciente' },
+];
+
 /* ── Skeleton ── */
 function CardSkeleton() {
   return (
     <div className="overflow-hidden rounded-xl bg-stone-100">
-      <div className="aspect-square animate-pulse bg-stone-200" />
-      <div className="p-3">
-        <div className="mb-2 h-3 w-3/4 animate-pulse rounded-md bg-stone-200" />
-        <div className="h-3 w-1/3 animate-pulse rounded-md bg-stone-100" />
+      <div className="animate-pulse bg-stone-200" style={{ aspectRatio: '4/5' }} />
+      <div className="px-2 py-2">
+        <div className="mb-1.5 h-3 w-3/4 animate-pulse rounded bg-stone-200" />
+        <div className="h-3 w-1/3 animate-pulse rounded bg-stone-100" />
       </div>
     </div>
   );
@@ -120,8 +66,8 @@ function RowSkeleton() {
     <div className="flex items-center gap-3 py-2.5">
       <div className="h-11 w-11 shrink-0 animate-pulse rounded-full bg-stone-200" />
       <div className="flex-1">
-        <div className="mb-1.5 h-3.5 w-2/3 animate-pulse rounded-md bg-stone-200" />
-        <div className="h-3 w-1/3 animate-pulse rounded-md bg-stone-100" />
+        <div className="mb-1.5 h-3.5 w-2/3 animate-pulse rounded bg-stone-200" />
+        <div className="h-3 w-1/3 animate-pulse rounded bg-stone-100" />
       </div>
     </div>
   );
@@ -130,54 +76,51 @@ function RowSkeleton() {
 /* ── Result Components ── */
 function ProductCardLocal({ p }) {
   const { convertAndFormatPrice } = useLocale();
+  const img = p.images?.[0] || p.image_url;
   return (
-    <Link to={`/products/${p.product_id || p.id}`} className="block no-underline">
-      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white transition-shadow">
-        <div className="aspect-square overflow-hidden bg-stone-100">
-          {p.images?.[0] ? (
-            <img src={p.images[0]} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <ShoppingBag size={32} className="text-stone-500" />
-            </div>
-          )}
-        </div>
-        <div className="p-3">
-          <p className="line-clamp-2 text-[13px] font-medium leading-tight text-stone-950">
-            {p.name}
+    <Link to={`/products/${p.product_id || p.id}`} className="group block overflow-hidden rounded-xl bg-white no-underline" style={{ border: '0.5px solid #e7e5e4' }}>
+      <div className="overflow-hidden bg-stone-100" style={{ aspectRatio: '4/5' }}>
+        {img ? (
+          <img src={img} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <ShoppingBag size={24} className="text-stone-300" />
+          </div>
+        )}
+      </div>
+      <div className="px-2 pb-2 pt-1.5">
+        {p.producer_name && (
+          <p className="truncate text-xs text-stone-500">{p.producer_name}</p>
+        )}
+        <p className="truncate text-sm font-semibold text-stone-950 leading-tight">{p.name}</p>
+        {p.price != null && (
+          <p className="mt-0.5 text-sm font-bold text-stone-950">
+            {convertAndFormatPrice(p.display_price || p.price, p.display_currency || p.currency || 'EUR')}
           </p>
-          {p.price != null && (
-            <p className="mt-1 text-[13px] font-bold text-stone-950">
-              {convertAndFormatPrice(p.display_price || p.price, p.display_currency || p.currency || 'EUR')}
-            </p>
-          )}
-        </div>
+        )}
       </div>
     </Link>
   );
 }
 
 function RecipeCard({ r }) {
+  const img = r.cover_image || r.image_url;
   return (
-    <Link to={`/recipes/${r.recipe_id || r.id}`} className="block no-underline">
-      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-        <div className="aspect-square overflow-hidden bg-stone-100">
-          {r.cover_image ? (
-            <img src={r.cover_image} alt={r.title} loading="lazy" className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <ChefHat size={32} className="text-stone-500" />
-            </div>
-          )}
-        </div>
-        <div className="p-3">
-          <p className="line-clamp-2 text-[13px] font-medium leading-tight text-stone-950">
-            {r.title}
-          </p>
-          {r.prep_time_minutes && (
-            <p className="mt-1 text-xs text-stone-500">{r.prep_time_minutes} min</p>
-          )}
-        </div>
+    <Link to={`/recipes/${r.recipe_id || r.id}`} className="group block overflow-hidden rounded-xl bg-white no-underline" style={{ border: '0.5px solid #e7e5e4' }}>
+      <div className="overflow-hidden bg-stone-100" style={{ aspectRatio: '4/5' }}>
+        {img ? (
+          <img src={img} alt={r.title} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <ChefHat size={24} className="text-stone-300" />
+          </div>
+        )}
+      </div>
+      <div className="px-2 pb-2 pt-1.5">
+        <p className="truncate text-sm font-semibold text-stone-950 leading-tight">{r.title}</p>
+        {r.prep_time_minutes && (
+          <p className="mt-0.5 text-xs text-stone-500">{r.prep_time_minutes} min</p>
+        )}
       </div>
     </Link>
   );
@@ -191,22 +134,22 @@ function PersonRow({ person, linkBase }) {
   const isStore = !!person.store_id;
 
   return (
-    <Link to={`${linkBase}${person.slug || person.store_slug || id}`} className="flex items-center gap-3 border-b border-stone-200 py-2.5 no-underline">
+    <Link to={`${linkBase}${person.slug || person.store_slug || id}`} className="flex items-center gap-3 border-b border-stone-100 py-2.5 no-underline last:border-b-0">
       <div className={`flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden bg-stone-100 ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
         {img ? (
           <img src={img} alt={name} loading="lazy" className="h-full w-full object-cover" />
         ) : isStore ? (
-          <Store size={18} className="text-stone-500" />
+          <Store size={18} className="text-stone-400" />
         ) : (
-          <span className="text-sm font-semibold text-stone-500">{(name[0] || '?').toUpperCase()}</span>
+          <span className="text-sm font-semibold text-stone-400">{(name[0] || '?').toUpperCase()}</span>
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-stone-950">{name}</p>
+        <p className="truncate text-sm font-semibold text-stone-950">{name}</p>
         {sub && <p className="mt-0.5 truncate text-xs text-stone-500">{sub}</p>}
       </div>
       {person.followers_count > 0 && (
-        <span className="shrink-0 text-xs text-stone-500">{person.followers_count} seg.</span>
+        <span className="shrink-0 text-xs text-stone-400">{person.followers_count} seg.</span>
       )}
     </Link>
   );
@@ -214,13 +157,13 @@ function PersonRow({ person, linkBase }) {
 
 function SectionHeader({ icon: Icon, label, count }) {
   return (
-    <div className="flex items-center justify-between pb-2.5 pt-5">
+    <div className="flex items-center justify-between pb-2 pt-4">
       <div className="flex items-center gap-2">
-        <Icon size={16} className="text-stone-500" />
+        <Icon size={16} className="text-stone-400" />
         <span className="text-[13px] font-bold text-stone-950">{label}</span>
       </div>
       {count > 0 && (
-        <span className="text-xs text-stone-500">{count} resultados</span>
+        <span className="text-xs text-stone-400">{count}</span>
       )}
     </div>
   );
@@ -341,29 +284,29 @@ export default function SearchPage() {
   const showCreators = (activeTab === 'all' || activeTab === 'creators') && counts.creators > 0;
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-white">
       <SEO title="Buscar — Hispaloshop" description="Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local." />
 
-      {/* ── Search Bar ── */}
-      <div className="sticky top-0 z-40 border-b border-stone-200 bg-white px-4 py-2.5">
-        <form onSubmit={handleSubmit} role="search" aria-label="Buscar en Hispaloshop" className="flex items-center gap-2.5">
+      {/* ── Search Bar (sticky) ── */}
+      <div className="sticky top-0 z-40 bg-white px-3 py-2">
+        <form onSubmit={handleSubmit} role="search" aria-label="Buscar en Hispaloshop" className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => { window.history.length > 1 ? navigate(-1) : navigate('/discover'); }}
             aria-label="Volver"
-            className="flex h-11 w-11 shrink-0 items-center justify-center"
+            className="flex h-10 w-10 shrink-0 items-center justify-center"
           >
-            <ArrowLeft size={22} className="text-stone-950" />
+            <ArrowLeft size={20} className="text-stone-950" />
           </button>
 
-          <div className="flex flex-1 items-center gap-2 rounded-full bg-stone-100 px-3.5 py-2">
-            <Search size={16} className="shrink-0 text-stone-500" />
+          <div className="flex flex-1 items-center gap-2 rounded-full bg-stone-100 px-3.5 h-10">
+            <Search size={16} className="shrink-0 text-stone-400" />
             <input
               ref={inputRef}
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar productos, recetas, tiendas..."
+              placeholder="Buscar"
               autoComplete="off"
               className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
             />
@@ -377,9 +320,9 @@ export default function SearchPage() {
                   type="button"
                   aria-label="Limpiar búsqueda"
                   onClick={() => { setQuery(''); setResults(null); setSearchParams({}); inputRef.current?.focus(); }}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-300"
                 >
-                  <X size={16} className="text-stone-500" />
+                  <X size={12} className="text-white" />
                 </motion.button>
               )}
             </AnimatePresence>
@@ -387,29 +330,24 @@ export default function SearchPage() {
         </form>
       </div>
 
-      <div className="mx-auto max-w-[600px] px-4">
+      <div className="mx-auto max-w-[600px] px-3">
 
-        {/* ── Tabs ── */}
+        {/* ── Tab pills (same style as Discover filter pills) ── */}
         {!loading && hasResults && (
-          <div className="mt-1 flex overflow-x-auto border-b border-stone-200">
+          <div className="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
             {TABS.map(tab => {
-              const active = activeTab === tab.key;
               const count = tab.key === 'all' ? totalCount : counts[tab.key] || 0;
               if (tab.key !== 'all' && count === 0) return null;
               return (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex cursor-pointer items-center gap-1 whitespace-nowrap border-b-2 px-3.5 py-2.5 text-[13px] ${
-                    active
-                      ? 'border-stone-950 font-bold text-stone-950'
-                      : 'border-transparent font-medium text-stone-500'
-                  }`}
+                  className={pillCls(activeTab === tab.key)}
                 >
                   {tab.label}
                   {count > 0 && (
-                    <span className={`min-w-[18px] rounded-full px-1.5 py-px text-center text-[10px] font-bold ${
-                      active ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'
+                    <span className={`ml-1 min-w-[16px] rounded-full px-1 text-center text-[10px] font-bold ${
+                      activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-500'
                     }`}>
                       {count}
                     </span>
@@ -420,20 +358,18 @@ export default function SearchPage() {
           </div>
         )}
 
-        {/* ── Sort bar ── */}
+        {/* ── Sort pills ── */}
         {!loading && hasResults && (activeTab === 'all' || activeTab === 'products') && counts.products > 1 && (
-          <div className="flex items-center justify-end py-2">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              aria-label="Ordenar resultados"
-              className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-950 outline-none"
-            >
-              <option value="relevance">Relevancia</option>
-              <option value="price_asc">Precio: menor a mayor</option>
-              <option value="price_desc">Precio: mayor a menor</option>
-              <option value="newest">Más recientes</option>
-            </select>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {SORT_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setSortBy(opt.value)}
+                className={pillCls(sortBy === opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         )}
 
@@ -444,8 +380,8 @@ export default function SearchPage() {
 
         {/* ── Loading ── */}
         {loading && (
-          <div className="pt-4">
-            <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="pt-2">
+            <div className="mb-4 grid grid-cols-2 gap-2">
               {[0, 1, 2, 3].map(i => <CardSkeleton key={i} />)}
             </div>
             {[0, 1, 2].map(i => <RowSkeleton key={i} />)}
@@ -457,39 +393,36 @@ export default function SearchPage() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center px-5 py-16 text-center"
+            className="flex flex-col items-center px-4 py-16 text-center"
           >
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
-              <Search size={24} className="text-stone-500" />
+              <Search size={24} className="text-stone-400" />
             </div>
             <p className="mb-1 text-base font-semibold text-stone-950">Sin resultados para "{query}"</p>
-            <p className="mb-6 text-sm leading-relaxed text-stone-500">
-              Prueba con otro término o explora estas sugerencias:
+            <p className="mb-6 text-sm text-stone-500">
+              Prueba con otro término
             </p>
-            <div className="flex flex-col items-center gap-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-stone-400">Puede que te interese:</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {['Aceite de oliva', 'Jamón ibérico', 'Vino tinto'].map(suggestion => (
-                  <button
-                    key={suggestion}
-                    onClick={() => setQuery(suggestion)}
-                    className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-950 transition-colors hover:bg-stone-50"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              {['Aceite de oliva', 'Jamón ibérico', 'Vino tinto'].map(suggestion => (
+                <button
+                  key={suggestion}
+                  onClick={() => setQuery(suggestion)}
+                  className={pillCls(false)}
+                >
+                  {suggestion}
+                </button>
+              ))}
             </div>
           </motion.div>
         )}
 
-        {/* ── Results ── */}
+        {/* ── Results — same 3-col grid as Discover ── */}
         {!loading && hasResults && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pb-20">
             {showProducts && (
               <section>
                 <SectionHeader icon={ShoppingBag} label="Productos" count={counts.products} />
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="grid grid-cols-3 gap-2">
                   {sortedProducts.map(p => <ProductCardLocal key={p.product_id || p.id} p={p} />)}
                 </div>
               </section>
@@ -497,7 +430,7 @@ export default function SearchPage() {
             {showRecipes && (
               <section>
                 <SectionHeader icon={ChefHat} label="Recetas" count={counts.recipes} />
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="grid grid-cols-3 gap-2">
                   {results.recipes.map(r => <RecipeCard key={r.recipe_id || r.id} r={r} />)}
                 </div>
               </section>
@@ -521,13 +454,10 @@ export default function SearchPage() {
         {!loading && isEmpty && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pb-20">
             {history.length > 0 && (
-              <section className="pt-5">
-                <div className="mb-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-stone-500" />
-                    <span className="text-[13px] font-bold text-stone-950">Recientes</span>
-                  </div>
-                  <button onClick={handleClearHistory} className="min-h-[44px] px-2 text-xs text-stone-500">
+              <section className="pt-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-[13px] font-bold text-stone-950">Recientes</span>
+                  <button onClick={handleClearHistory} className="px-2 text-xs text-stone-400">
                     Borrar
                   </button>
                 </div>
@@ -536,9 +466,9 @@ export default function SearchPage() {
                     <button
                       key={term}
                       onClick={() => handleHistoryClick(term)}
-                      className="flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-full border-none bg-stone-100 px-3.5 py-2.5 text-[13px] text-stone-950"
+                      className={pillCls(false) + ' gap-1.5'}
                     >
-                      <Clock size={12} className="text-stone-500" />
+                      <Clock size={12} className="text-stone-400" />
                       {term}
                     </button>
                   ))}
@@ -547,24 +477,20 @@ export default function SearchPage() {
             )}
 
             <section className="pt-6">
-              <div className="mb-2.5 flex items-center gap-2">
-                <TrendingUp size={16} className="text-stone-500" />
-                <span className="text-[13px] font-bold text-stone-950">Tendencias</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {trending.map(term => (
+              <span className="mb-3 block text-[13px] font-bold text-stone-950">Tendencias</span>
+              <div className="flex flex-col">
+                {trending.map((term, i) => (
                   <button
                     key={term}
                     onClick={() => { setQuery(term); saveHistory(term); setHistory(getHistory()); executeSearch(term); }}
-                    className="min-h-[44px] cursor-pointer rounded-full border border-stone-200 bg-white px-3.5 py-2.5 text-[13px] capitalize text-stone-950"
+                    className="flex items-center gap-3 py-3 text-left border-b border-stone-100 last:border-b-0"
                   >
-                    {term}
+                    <Hash size={16} className="shrink-0 text-stone-300" />
+                    <span className="text-sm text-stone-950 capitalize">{term}</span>
                   </button>
                 ))}
               </div>
             </section>
-
-            <SuggestedPeopleSection />
           </motion.div>
         )}
       </div>

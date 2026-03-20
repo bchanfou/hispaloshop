@@ -379,13 +379,13 @@ export default function StorePage() {
             )}
 
             {productsQuery.isLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="animate-pulse" style={{ background: '#f5f5f4', borderRadius: '14px', aspectRatio: '3/4' }} />
+                  <div key={i} className="animate-pulse rounded-xl bg-stone-100" style={{ aspectRatio: '4/5' }} />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                 {filteredProducts.map(product => (
                   <ProductCard key={product.product_id || product.id} product={product} />
                 ))}
@@ -401,7 +401,7 @@ export default function StorePage() {
           recipesQuery.isLoading ? (
             <LoadingSpinner />
           ) : recipes.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
               {recipes.map((recipe) => (
                 <button key={recipe.post_id || recipe.id || recipe.recipe_id} type="button"
                   onClick={() => navigate(`/recipes/${recipe.recipe_id || recipe.post_id || recipe.id}`)}

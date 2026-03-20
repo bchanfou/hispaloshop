@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Plus } from 'lucide-react';
+import { Bookmark, Plus, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from './ui/ProductImage.tsx';
 import { useAuth } from '../context/AuthContext';
@@ -28,21 +28,15 @@ function AddButton({ onAdd, isDisabled, testId }) {
       disabled={isDisabled}
       data-testid={testId}
       aria-label="Añadir al carrito"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-none transition-all"
       style={{
-        width: 44, height: 44,
-        borderRadius: '9999px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: 'none',
         cursor: isDisabled ? 'not-allowed' : 'pointer',
-        transition: 'all 0.15s ease',
         background: confirmed ? '#f5f5f4' : isDisabled ? '#f5f5f4' : '#0c0a09',
         color: confirmed ? '#78716c' : isDisabled ? '#78716c' : '#fff',
       }}
     >
       {confirmed ? (
-        <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 12, height: 12 }}>
+        <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 10, height: 10 }}>
           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
         </svg>
       ) : (
@@ -61,14 +55,13 @@ function ProductCard({ product, variant = 'default' }) {
   const basePrice = product.display_price || product.price || 0;
   const baseCurrency = product.display_currency || product.currency || 'EUR';
   const displayPrice = convertAndFormatPrice(basePrice, baseCurrency);
-  if (!productId) return null; // No ID, can't render card
+  if (!productId) return null;
   const trackStock = product.track_stock !== false;
   const stock = product.market_stock ?? product.stock ?? 100;
   const isOutOfStock = trackStock && stock <= 0;
   const isUnavailableInCountry = product.available_in_country === false;
   const primaryImage = product.images?.[0] || product.image_url || null;
   const isBlocked = isOutOfStock || isUnavailableInCountry;
-  const certs = product.certifications || [];
   const isLowStock = !isOutOfStock && stock > 0 && stock <= 5;
   const originalPrice = product.original_price;
   const discountPct = (originalPrice && originalPrice > basePrice)
@@ -77,6 +70,7 @@ function ProductCard({ product, variant = 'default' }) {
   const formattedOriginalPrice = discountPct
     ? convertAndFormatPrice(originalPrice, baseCurrency)
     : null;
+  const rating = product.average_rating || product.rating;
 
   const handleAddToCart = async (event) => {
     event.preventDefault();
@@ -101,12 +95,12 @@ function ProductCard({ product, variant = 'default' }) {
     return (
       <Link
         to={`/products/${productId}`}
-        className="group block overflow-hidden"
-        style={{ borderRadius: '12px', background: '#ffffff', border: '0.5px solid #e7e5e4' }}
+        className="group block overflow-hidden rounded-xl bg-white"
+        style={{ border: '0.5px solid #e7e5e4' }}
         data-testid={`product-card-${productId}`}
       >
-        <div className={`relative aspect-square overflow-hidden ${isBlocked ? 'opacity-60' : ''}`}
-          style={{ background: '#f5f5f4' }}
+        <div className={`relative overflow-hidden ${isBlocked ? 'opacity-60' : ''}`}
+          style={{ aspectRatio: '4/5', background: '#f5f5f4' }}
         >
           <ProductImage
             src={primaryImage}
@@ -116,36 +110,23 @@ function ProductCard({ product, variant = 'default' }) {
             sizes="(max-width: 640px) 33vw, 20vw"
           />
           {isOutOfStock && (
-            <span style={{
-              position: 'absolute', left: 6, top: 6,
-              background: '#0c0a09', color: '#fff',
-              fontSize: 9, fontWeight: 500, padding: '2px 7px',
-              borderRadius: '9999px', fontFamily: 'inherit',
-            }}>
+            <span className="absolute left-1.5 top-1.5 rounded-full bg-stone-950 px-2 py-0.5 text-[9px] font-medium text-white">
               Agotado
             </span>
           )}
           {isLowStock && (
-            <span className="absolute bottom-2 left-2 text-[10px] font-semibold bg-stone-950 text-white px-2 py-0.5 rounded-full">
-              Últimas unidades
+            <span className="absolute bottom-1.5 left-1.5 rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
+              Últimas uds.
             </span>
           )}
         </div>
-        <div style={{ padding: '8px 8px 10px' }}>
-          <p style={{ fontSize: 9, fontWeight: 500, color: '#0c0a09', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontFamily: 'inherit' }}>
+        <div className="px-2 pb-2 pt-1.5">
+          <p className="truncate text-[11px] font-semibold text-stone-950 leading-tight">
             {product.name}
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, flexWrap: 'wrap' }}>
-            <p style={{ fontSize: 9, color: '#78716c', fontFamily: 'inherit' }}>
-              {displayPrice}
-            </p>
-            {discountPct && (
-              <>
-                <span style={{ fontSize: 8, color: '#a8a29e', textDecoration: 'line-through', fontFamily: 'inherit' }}>{formattedOriginalPrice}</span>
-                <span style={{ fontSize: 8, fontWeight: 600, background: '#0c0a09', color: '#fff', padding: '1px 4px', borderRadius: 3, fontFamily: 'inherit' }}>-{discountPct}%</span>
-              </>
-            )}
-          </div>
+          <p className="mt-0.5 text-[11px] font-bold text-stone-950">
+            {displayPrice}
+          </p>
         </div>
       </Link>
     );
@@ -155,18 +136,13 @@ function ProductCard({ product, variant = 'default' }) {
   return (
     <Link
       to={`/products/${productId}`}
-      className="group block overflow-hidden product-card-hover"
-      style={{
-        borderRadius: '16px',
-        background: '#ffffff',
-        border: '0.5px solid #e7e5e4',
-        transition: 'transform all 0.15s ease, box-shadow all 0.15s ease',
-      }}
+      className="group block overflow-hidden rounded-xl bg-white"
+      style={{ border: '0.5px solid #e7e5e4' }}
       data-testid={`product-card-${productId}`}
     >
-      {/* Image */}
-      <div className={`relative aspect-square overflow-hidden ${isBlocked ? 'opacity-60' : ''}`}
-        style={{ background: '#f5f5f4' }}
+      {/* Image — 4:5 aspect ratio */}
+      <div className={`relative overflow-hidden ${isBlocked ? 'opacity-60' : ''}`}
+        style={{ aspectRatio: '4/5', background: '#f5f5f4' }}
       >
         <ProductImage
           src={primaryImage}
@@ -176,86 +152,59 @@ function ProductCard({ product, variant = 'default' }) {
           sizes="(max-width: 768px) 50vw, 25vw"
         />
 
-        {/* Certification badge */}
-        {certs.length > 0 && !isBlocked && (
-          <span style={{
-            position: 'absolute', left: 8, top: 8,
-            background: '#f5f5f4', color: '#0c0a09',
-            fontSize: 9, fontWeight: 500, padding: '2px 7px',
-            borderRadius: '9999px', fontFamily: 'inherit',
-          }}>
-            {String(certs[0]).toLowerCase()}
-          </span>
-        )}
-
         {isOutOfStock && (
-          <span style={{
-            position: 'absolute', left: 8, top: 8,
-            background: '#0c0a09', color: '#fff',
-            fontSize: 9, fontWeight: 500, padding: '2px 7px',
-            borderRadius: '9999px', fontFamily: 'inherit',
-          }}>
+          <span className="absolute left-2 top-2 rounded-full bg-stone-950 px-2 py-0.5 text-[9px] font-medium text-white">
             Agotado
           </span>
         )}
 
-        {/* Low-stock urgency badge */}
         {isLowStock && (
-          <span className="absolute bottom-2 left-2 text-[10px] font-semibold bg-stone-950 text-white px-2 py-0.5 rounded-full">
-            Últimas unidades
+          <span className="absolute bottom-2 left-2 rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
+            Últimas uds.
           </span>
         )}
 
-        {/* Bookmark */}
-        {!isBlocked && (
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            style={{
-              position: 'absolute', right: 8, top: 8,
-              background: 'rgba(255,255,255,0.85)', border: 'none',
-              width: 28, height: 28, borderRadius: '9999px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: '#78716c',
-            }}
-            aria-label="Guardar"
-          >
-            <Bookmark size={14} strokeWidth={1.8} />
-          </button>
+        {discountPct && (
+          <span className="absolute right-2 top-2 rounded-full bg-stone-950 px-1.5 py-0.5 text-[9px] font-bold text-white">
+            -{discountPct}%
+          </span>
         )}
       </div>
 
-      {/* Info */}
-      <div style={{ padding: '10px 12px 12px' }}>
-        <p style={{
-          fontSize: 11, fontWeight: 500, color: '#0c0a09',
-          lineHeight: 1.3, fontFamily: 'inherit',
-          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-        }}>
-          {product.name}
-        </p>
-
+      {/* Info — tight 8px padding */}
+      <div className="px-2 pb-2 pt-1.5">
+        {/* Producer name */}
         {(product.producer_name || product.store_name) && (
-          <p style={{ fontSize: 10, color: '#78716c', marginTop: 2, fontFamily: 'inherit' }}>
+          <p className="truncate text-xs text-stone-500">
             {product.producer_name || product.store_name}
           </p>
         )}
 
-        {/* Price + Add button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#0c0a09', fontFamily: 'inherit' }}>
-                {displayPrice}
-              </span>
-              {discountPct && (
-                <span className="text-xs font-semibold bg-stone-950 text-white px-1.5 py-0.5 rounded">
-                  -{discountPct}%
-                </span>
-              )}
-            </div>
-            {discountPct && (
-              <span className="line-through text-stone-400 text-xs">{formattedOriginalPrice}</span>
+        {/* Product name — 1 line */}
+        <p className="truncate text-sm font-semibold text-stone-950 leading-tight">
+          {product.name}
+        </p>
+
+        {/* Rating stars */}
+        {rating > 0 && (
+          <div className="mt-0.5 flex items-center gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                size={12}
+                className={i < Math.round(rating) ? 'fill-stone-950 text-stone-950' : 'fill-stone-200 text-stone-200'}
+              />
+            ))}
+            <span className="ml-0.5 text-[10px] text-stone-400">{Number(rating).toFixed(1)}</span>
+          </div>
+        )}
+
+        {/* Price row + Add button */}
+        <div className="mt-1 flex items-center justify-between">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm font-bold text-stone-950">{displayPrice}</span>
+            {formattedOriginalPrice && (
+              <span className="text-[10px] text-stone-400 line-through">{formattedOriginalPrice}</span>
             )}
           </div>
           <AddButton
