@@ -150,11 +150,11 @@ export default function StorePage() {
       <div aria-busy="true" aria-label="Cargando tienda" style={{ minHeight: '100vh', background: '#fafaf9',  }}>
         <div style={{ width: '100%', aspectRatio: '3/1', background: '#f5f5f4' }} />
         <div style={{ padding: '0 16px', marginTop: -40 }}>
-          <div className="animate-pulse" style={{ width: 80, height: 80, borderRadius: '14px', background: '#f5f5f4', border: '3px solid #ffffff' }} />
-          <div className="animate-pulse" style={{ marginTop: 12, height: 18, width: '50%', background: '#f5f5f4', borderRadius: 4 }} />
-          <div className="animate-pulse" style={{ marginTop: 8, height: 14, width: '30%', background: '#f5f5f4', borderRadius: 4 }} />
+          <div className="skeleton-shimmer" style={{ width: 80, height: 80, borderRadius: '14px', border: '3px solid #ffffff' }} />
+          <div className="skeleton-shimmer" style={{ marginTop: 12, height: 18, width: '50%', borderRadius: 4 }} />
+          <div className="skeleton-shimmer" style={{ marginTop: 8, height: 14, width: '30%', borderRadius: 4 }} />
           <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-            {[1,2,3].map(i => <div key={i} className="animate-pulse" style={{ flex: 1, height: 40, background: '#f5f5f4', borderRadius: '12px' }} />)}
+            {[1,2,3].map(i => <div key={i} className="skeleton-shimmer" style={{ flex: 1, height: 40, borderRadius: '12px' }} />)}
           </div>
         </div>
       </div>
@@ -181,6 +181,21 @@ export default function StorePage() {
         title={`${store?.name || 'Tienda'} — Hispaloshop`}
         description={store?.tagline || store?.story?.slice(0, 160) || `Tienda de productos artesanales en Hispaloshop`}
         image={store?.hero_image || store?.logo}
+        structuredData={[{
+          '@context': 'https://schema.org',
+          '@type': 'LocalBusiness',
+          name: store?.name,
+          image: store?.hero_image || store?.logo,
+          url: `https://www.hispaloshop.com/store/${storeSlug}`,
+          ...(store?.location && { address: { '@type': 'PostalAddress', addressLocality: store.location } }),
+          ...(avgRating > 0 && {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: avgRating,
+              reviewCount: reviewsTotal || 1,
+            },
+          }),
+        }]}
       />
 
       {/* ── TopBar (over hero) ── */}
@@ -381,7 +396,7 @@ export default function StorePage() {
             {productsQuery.isLoading ? (
               <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="animate-pulse rounded-2xl bg-stone-100" style={{ aspectRatio: '4/5' }} />
+                  <div key={i} className="skeleton-shimmer rounded-2xl" style={{ aspectRatio: '4/5' }} />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (

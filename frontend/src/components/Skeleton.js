@@ -1,6 +1,6 @@
 export function Skeleton({ className }) {
   return (
-    <div className={`animate-pulse bg-stone-100 rounded ${className}`} />
+    <div className={`skeleton-shimmer rounded ${className}`} />
   );
 }
 

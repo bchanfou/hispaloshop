@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useHaptics } from './useHaptics';
 
 const THRESHOLD = 80;
 const MAX_PULL = 120;
@@ -7,9 +8,11 @@ export const usePullToRefresh = (onRefresh) => {
   const [pulling, setPulling] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
+  const { trigger } = useHaptics();
 
   const startY = useRef(0);
   const isDragging = useRef(false);
+  const hapticFired = useRef(false);
 
   const progress = Math.min(pullDistance / THRESHOLD, 1);
 
@@ -18,6 +21,7 @@ export const usePullToRefresh = (onRefresh) => {
     if (el.scrollTop > 0) return;
     startY.current = e.touches[0].clientY;
     isDragging.current = true;
+    hapticFired.current = false;
   }, []);
 
   const onTouchMove = useCallback((e) => {
@@ -33,11 +37,20 @@ export const usePullToRefresh = (onRefresh) => {
     const pull = Math.min(delta * resistance, MAX_PULL);
     setPullDistance(pull);
     setPulling(pull > 0);
-  }, [refreshing]);
+
+    // Haptic feedback when crossing threshold
+    if (pull >= THRESHOLD && !hapticFired.current) {
+      hapticFired.current = true;
+      trigger('medium');
+    } else if (pull < THRESHOLD) {
+      hapticFired.current = false;
+    }
+  }, [refreshing, trigger]);
 
   const onTouchEnd = useCallback(async () => {
     isDragging.current = false;
     if (pullDistance >= THRESHOLD) {
+      trigger('success');
       setRefreshing(true);
       setPullDistance(0);
       setPulling(false);
@@ -50,7 +63,7 @@ export const usePullToRefresh = (onRefresh) => {
       setPullDistance(0);
       setPulling(false);
     }
-  }, [pullDistance, onRefresh]);
+  }, [pullDistance, onRefresh, trigger]);
 
   return {
     pulling,

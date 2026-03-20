@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHaptics } from '../../hooks/useHaptics';
 
-const SPRING = { type: 'spring', damping: 28, stiffness: 300 };
+const SPRING = { type: 'spring', stiffness: 280, damping: 26, mass: 0.9 };
 
 /**
  * BottomSheet — drag-to-dismiss sheet with backdrop.
@@ -54,7 +54,7 @@ export default function BottomSheet({ isOpen, onClose, children, className = '',
             ref={sheetRef}
             initial={{ y: '100%' }}
             animate={{ y: 0, transition: SPRING }}
-            exit={{ y: '100%', transition: { duration: 0.22 } }}
+            exit={{ y: '100%', transition: SPRING }}
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.6 }}

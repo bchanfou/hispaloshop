@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import './App.css';
 import './locales/i18n';
 import { trackPageVisit } from './utils/analytics';
@@ -34,6 +34,7 @@ import { ChatProvider } from './context/chat/ChatProvider';
 import { FeedTabProvider } from './context/FeedTabContext';
 import { UploadQueueProvider } from './context/UploadQueueContext';
 import { usePushNotifications } from './hooks/usePushNotifications';
+import { useNavigationDirection } from './hooks/useNavigationDirection';
 
 // Nuevos providers P12
 import { QueryProvider } from './providers/QueryProvider';
@@ -303,6 +304,7 @@ function AppRouter() {
   const location = useLocation();
   const { user } = useAuth();
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const direction = useNavigationDirection();
 
   usePushNotifications(user);
 
@@ -314,6 +316,8 @@ function AppRouter() {
     return <AuthCallback />;
   }
 
+  const isForward = direction === 'forward';
+
   return (
     <>
       <PageTransitionLoader />
@@ -324,11 +328,12 @@ function AppRouter() {
           <motion.div
             id="main-content"
             key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.28, ease: [0, 0, 0.2, 1] }}
+            initial={{ opacity: 0, x: isForward ? 20 : -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: isForward ? -20 : 20 }}
+            transition={{ type: 'tween', duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
           >
+          <LayoutGroup>
             <Routes location={location}>
               <Route path="/" element={<HomeRoute />} />
               <Route path="/about" element={<Navigate to="/que-es" replace />} />
@@ -735,6 +740,7 @@ function AppRouter() {
               <Route path="/:username/following" element={<FollowersPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
+          </LayoutGroup>
           </motion.div>
         </AnimatePresence>
       </Suspense>

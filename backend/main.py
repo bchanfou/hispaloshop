@@ -280,6 +280,10 @@ app.include_router(superadmin_moderation_router, prefix="/api", tags=["Superadmi
 
 # Notifications Routes (Fase 5) — notifications ya registradas en /api arriba con su propio prefix /notifications
 
+# Sitemap (SEO)
+from routes.sitemap import router as sitemap_router
+app.include_router(sitemap_router, tags=["sitemap"])
+
 # WebSocket Routes (Fase 5)
 from routes.websocket_chat import router as websocket_router
 app.include_router(websocket_router)

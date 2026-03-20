@@ -226,6 +226,35 @@ export default function RecipeDetailPage() {
         title={`${recipe.title} — Receta en Hispaloshop`}
         description={recipe.description?.slice(0, 160) || `Receta de ${recipe.title} con ingredientes artesanales locales`}
         image={recipe.image_url}
+        structuredData={[{
+          '@context': 'https://schema.org',
+          '@type': 'Recipe',
+          name: recipe.title,
+          image: recipe.image_url || undefined,
+          description: recipe.description || undefined,
+          ...(recipe.author_name && { author: { '@type': 'Person', name: recipe.author_name } }),
+          cookTime: recipe.time_minutes ? `PT${recipe.time_minutes}M` : undefined,
+          recipeYield: recipe.servings ? `${recipe.servings} porciones` : undefined,
+          recipeCategory: recipe.category || undefined,
+          recipeIngredient: (recipe.ingredients || []).map(i =>
+            [i.quantity, i.unit, i.name].filter(Boolean).join(' ')
+          ),
+          recipeInstructions: steps.map((s, idx) => ({
+            '@type': 'HowToStep',
+            position: idx + 1,
+            text: s.text,
+            ...(s.image_url && { image: s.image_url }),
+          })),
+          ...(recipe.nutrition && {
+            nutrition: {
+              '@type': 'NutritionInformation',
+              ...(recipe.nutrition.calories != null && { calories: `${recipe.nutrition.calories} kcal` }),
+              ...(recipe.nutrition.protein != null && { proteinContent: `${recipe.nutrition.protein} g` }),
+              ...(recipe.nutrition.carbs != null && { carbohydrateContent: `${recipe.nutrition.carbs} g` }),
+              ...(recipe.nutrition.fat != null && { fatContent: `${recipe.nutrition.fat} g` }),
+            },
+          }),
+        }]}
       />
 
       {/* ── Hero Image ── */}

@@ -8,6 +8,8 @@ import PageTransition from '../motion/PageTransition';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { trackPageVisit } from '../../utils/analytics';
+import { useNavigationDirection } from '../../hooks/useNavigationDirection';
+import { useSwipeBack } from '../../hooks/useSwipeBack';
 
 /**
  * AppLayout — responsive shell for authenticated app pages
@@ -73,6 +75,8 @@ export default function AppLayout({ children }) {
   const { user } = useAuth();
   const hideChrome = useMemo(() => shouldHideChrome(location.pathname), [location.pathname]);
   const prevPathRef = useRef(location.pathname);
+  const direction = useNavigationDirection();
+  const { bind: swipeBind, swipeProgress } = useSwipeBack();
 
   // Track page visits for analytics
   useEffect(() => {
@@ -122,10 +126,25 @@ export default function AppLayout({ children }) {
       </div>
 
       {/* Content area — shifts right on desktop to clear SideNav */}
-      <main className="min-h-screen lg:ml-[220px] pb-[calc(50px+env(safe-area-inset-bottom,0px))] lg:pb-0">
+      <main
+        {...swipeBind()}
+        className="min-h-screen lg:ml-[220px] pb-[calc(50px+env(safe-area-inset-bottom,0px))] lg:pb-0 relative"
+        style={{ touchAction: 'pan-y' }}
+      >
+        {/* Swipe-back edge shadow indicator */}
+        {swipeProgress > 0 && (
+          <div
+            className="fixed inset-y-0 left-0 z-[9990] pointer-events-none"
+            style={{
+              width: `${Math.round(swipeProgress * 40)}px`,
+              background: `linear-gradient(to right, rgba(12,10,9,${swipeProgress * 0.08}), transparent)`,
+              transition: swipeProgress === 0 ? 'opacity 0.15s ease' : 'none',
+            }}
+          />
+        )}
         <div className="mx-auto max-w-[935px]">
           <AnimatePresence mode="wait">
-            <PageTransition key={location.pathname}>
+            <PageTransition key={location.pathname} direction={direction}>
               {children}
             </PageTransition>
           </AnimatePresence>

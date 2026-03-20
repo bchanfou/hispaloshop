@@ -1,7 +1,7 @@
 import React from 'react';
 
 function SkeletonPulse({ className }) {
-  return <div className={`animate-pulse bg-stone-100 rounded ${className}`} />;
+  return <div className={`skeleton-shimmer rounded ${className}`} />;
 }
 
 /**

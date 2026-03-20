@@ -1,6 +1,10 @@
 import { motion } from 'framer-motion';
 
 const PullIndicator = ({ progress, isRefreshing }) => {
+  // Arc length: fills proportionally to pull progress
+  const circumference = 2 * Math.PI * 7; // r=7
+  const arcLength = isRefreshing ? circumference * 0.75 : progress * circumference * 0.75;
+
   return (
     <motion.div
       initial={{ y: -60, opacity: 0 }}
@@ -10,7 +14,7 @@ const PullIndicator = ({ progress, isRefreshing }) => {
       }}
       transition={
         isRefreshing
-          ? { type: 'spring', stiffness: 300, damping: 25 }
+          ? { type: 'spring', stiffness: 300, damping: 20, mass: 0.8 }
           : { type: 'tween', duration: 0 }
       }
       style={{
@@ -43,11 +47,18 @@ const PullIndicator = ({ progress, isRefreshing }) => {
         <circle
           cx="9" cy="9" r="7"
           fill="none"
+          stroke="rgba(255,255,255,0.2)"
+          strokeWidth="2"
+        />
+        <circle
+          cx="9" cy="9" r="7"
+          fill="none"
           stroke="white"
           strokeWidth="2"
           strokeLinecap="round"
-          strokeDasharray="44"
-          strokeDashoffset={isRefreshing ? 11 : 44 - (progress * 33)}
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference - arcLength}
+          style={{ transition: isRefreshing ? 'none' : 'stroke-dashoffset 0.05s ease-out' }}
         />
       </motion.svg>
     </motion.div>

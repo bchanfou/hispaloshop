@@ -485,7 +485,22 @@ export default function StoresListPage() {
   /* ── render ── */
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', fontFamily: 'inherit', paddingBottom: 80 }}>
-      <SEO title="Tiendas — Hispaloshop" description="Explora tiendas de productores artesanales de alimentación saludable local. Filtra por región y país." />
+      <SEO
+        title="Tiendas — Hispaloshop"
+        description="Explora tiendas de productores artesanales de alimentación saludable local. Filtra por región y país."
+        structuredData={stores.length > 0 ? [{
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: 'Tiendas en Hispaloshop',
+          numberOfItems: stores.length,
+          itemListElement: stores.slice(0, 20).map((s, idx) => ({
+            '@type': 'ListItem',
+            position: idx + 1,
+            url: `https://www.hispaloshop.com/store/${s.slug || s.store_slug}`,
+            name: s.name,
+          })),
+        }] : []}
+      />
       <style>{`
         @keyframes storesPulse { 0%,100%{opacity:.4} 50%{opacity:1} }
         .stores-grid { display:grid; gap:12px; grid-template-columns:repeat(2,1fr); }

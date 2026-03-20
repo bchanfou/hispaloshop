@@ -193,7 +193,22 @@ export default function RecipesPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <SEO title="Recetas — Hispaloshop" description="Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta." />
+      <SEO
+        title="Recetas — Hispaloshop"
+        description="Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta."
+        structuredData={recipes.length > 0 ? [{
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: 'Recetas en Hispaloshop',
+          numberOfItems: recipes.length,
+          itemListElement: recipes.slice(0, 20).map((r, idx) => ({
+            '@type': 'ListItem',
+            position: idx + 1,
+            url: `https://www.hispaloshop.com/recipes/${r.recipe_id}`,
+            name: r.title,
+          })),
+        }] : []}
+      />
 
       {/* ── Title bar ── */}
       <div className="flex items-center justify-between px-4 pt-3 pb-1">

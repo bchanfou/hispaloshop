@@ -7,11 +7,19 @@ export default function HomePage() {
     () => [
       {
         '@context': 'https://schema.org',
-        '@type': 'WebPage',
+        '@type': 'WebSite',
         name: 'Hispaloshop',
         url: 'https://www.hispaloshop.com',
         description:
           'Social commerce alimentario para descubrir productores honestos, comprar con claridad y hablar con la comunidad.',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://www.hispaloshop.com/search?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
       },
     ],
     []
