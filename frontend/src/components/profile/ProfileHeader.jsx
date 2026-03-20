@@ -139,6 +139,8 @@ export default function ProfileHeader({
   highlights = [],
   onCreateHighlight,
   onSwitchTab,
+  onViewOwnStory,
+  onViewHighlight,
 }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -300,9 +302,29 @@ export default function ProfileHeader({
                   <button
                     key={acc.user_id || acc.username}
                     onClick={() => {
-                      if (!isActive) {
+                      if (!isActive && acc.token) {
+                        // Save current account before switching
+                        const currentToken = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
+                        if (currentToken && user) {
+                          let existingAccounts = [];
+                          try { existingAccounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { existingAccounts = []; }
+                          const idx = existingAccounts.findIndex(a => a.user_id === user.user_id);
+                          const currentAccObj = {
+                            token: currentToken,
+                            user_id: user.user_id,
+                            username: user.username,
+                            name: user.name,
+                            avatar_url: user.profile_image || user.avatar_url,
+                            role: user.role,
+                          };
+                          if (idx >= 0) existingAccounts[idx] = currentAccObj;
+                          else existingAccounts.push(currentAccObj);
+                          localStorage.setItem('hsp_accounts', JSON.stringify(existingAccounts));
+                        }
+                        // Switch to selected account
+                        localStorage.setItem('hispalo_access_token', acc.token);
                         localStorage.setItem('hsp_token', acc.token);
-                        window.location.reload();
+                        window.location.href = `/profile/${acc.user_id}`;
                       }
                       setShowAccountSwitcher(false);
                     }}
@@ -312,6 +334,7 @@ export default function ProfileHeader({
                       src={acc.avatar_url || '/default-avatar.png'}
                       alt={acc.username}
                       className="h-11 w-11 rounded-full object-cover"
+                      onError={e => { e.target.src = '/default-avatar.png'; }}
                     />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium text-stone-950">{acc.name}</div>
@@ -331,6 +354,24 @@ export default function ProfileHeader({
 
               <button
                 onClick={() => {
+                  // Save current account before adding new one
+                  const currentToken = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
+                  if (currentToken && user) {
+                    let existingAccounts = [];
+                    try { existingAccounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { existingAccounts = []; }
+                    const idx = existingAccounts.findIndex(a => a.user_id === user.user_id);
+                    const currentAccObj = {
+                      token: currentToken,
+                      user_id: user.user_id,
+                      username: user.username,
+                      name: user.name,
+                      avatar_url: user.profile_image || user.avatar_url,
+                      role: user.role,
+                    };
+                    if (idx >= 0) existingAccounts[idx] = currentAccObj;
+                    else existingAccounts.push(currentAccObj);
+                    localStorage.setItem('hsp_accounts', JSON.stringify(existingAccounts));
+                  }
                   setShowAccountSwitcher(false);
                   navigate('/login?add_account=true');
                 }}
@@ -356,7 +397,11 @@ export default function ProfileHeader({
           <img
             src={user?.profile_image || user?.avatar_url || '/default-avatar.png'}
             alt={user?.name}
-            onClick={!isOwn && user?.has_active_story ? () => navigate(`/stories/${user?.user_id}`) : undefined}
+            onClick={
+              user?.has_active_story
+                ? () => onViewOwnStory ? onViewOwnStory() : navigate(`/stories/${user?.user_id}`)
+                : undefined
+            }
             className={`relative h-[86px] w-[86px] rounded-full border-[3px] border-white object-cover ${
               user?.has_active_story ? 'cursor-pointer' : 'ring-1 ring-stone-200'
             }`}
@@ -373,7 +418,7 @@ export default function ProfileHeader({
               <button
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Cambiar foto de perfil"
-                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#2E7D52] shadow-sm"
+                className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm"
               >
                 <Plus size={14} className="text-white" strokeWidth={3} />
               </button>
@@ -636,7 +681,14 @@ export default function ProfileHeader({
           )}
 
           {highlights.map((hl, i) => (
-            <div key={hl.highlight_id || hl.id || i} className="flex shrink-0 flex-col items-center gap-1.5">
+            <div
+              key={hl.highlight_id || hl.id || i}
+              className="flex shrink-0 flex-col items-center gap-1.5 cursor-pointer"
+              onClick={() => onViewHighlight?.(hl)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') onViewHighlight?.(hl); }}
+            >
               <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-stone-100 ring-[1.5px] ring-stone-200 ring-offset-2 ring-offset-white">
                 {(hl.cover_url || hl.image) ? (
                   <img src={hl.cover_url || hl.image} alt={hl.title} className="h-[64px] w-[64px] rounded-full object-cover" />

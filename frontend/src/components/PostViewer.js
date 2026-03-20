@@ -1,51 +1,36 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { X, Heart, MessageCircle, Share2, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { Heart, MessageCircle, Share2, Bookmark, ChevronLeft, ChevronRight, MoreHorizontal, Trash2, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { timeAgo } from '../utils/time';
+import apiClient from '../services/api/client';
 
-export default function PostViewer({ post, posts = [], profile, onClose, onLike, onComment }) {
+export default function PostViewer({ post, posts = [], profile, onClose, onLike, onComment, isOwn = false, onDelete }) {
   const navigate = useNavigate();
-  const [currentIndex, setCurrentIndex] = useState(() => {
+  const [currentIndex] = useState(() => {
     const idx = posts.findIndex((p) => (p.post_id || p.id) === (post?.post_id || post?.id));
     return idx >= 0 ? idx : 0;
   });
-  const [imageIndex, setImageIndex] = useState(0);
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const currentPost = posts[currentIndex] || post;
+  const [showMenu, setShowMenu] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const scrollRef = useRef(null);
 
-  const goNext = useCallback(() => {
-    if (currentIndex < posts.length - 1) {
-      setCurrentIndex((i) => i + 1);
-      setImageIndex(0);
-    }
-  }, [currentIndex, posts.length]);
-
-  const goPrev = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex((i) => i - 1);
-      setImageIndex(0);
-    }
-  }, [currentIndex]);
-
-  // Sync liked/saved state when post changes
+  // Scroll to clicked post on mount
   useEffect(() => {
-    if (currentPost) {
-      setLiked(currentPost.is_liked ?? currentPost.liked ?? false);
-      setSaved(currentPost.is_saved ?? currentPost.saved ?? false);
-    }
-  }, [currentPost]);
+    const container = scrollRef.current;
+    if (!container) return;
+    const target = container.querySelector(`[data-post-index="${currentIndex}"]`);
+    if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handler = (e) => {
       if (e.key === 'Escape') onClose?.();
-      if (e.key === 'ArrowRight') goNext();
-      if (e.key === 'ArrowLeft') goPrev();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [onClose, goNext, goPrev]);
+  }, [onClose]);
 
   if (!currentPost) return null;
 
@@ -61,16 +46,26 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
   const likesCount = currentPost.likes_count ?? currentPost.likes ?? 0;
   const commentsCount = currentPost.comments_count ?? currentPost.comments ?? 0;
 
-  const handleLike = () => {
-    const next = !liked;
-    setLiked(next);
-    onLike?.(currentPost.id || currentPost.post_id);
-  };
+  const handleDelete = useCallback(async (p) => {
+    const postId = p.id || p.post_id;
+    if (!postId) return;
+    setDeleting(true);
+    try {
+      await apiClient.delete(`/posts/${postId}`);
+      toast.success('Publicación eliminada');
+      onDelete?.(postId);
+      if (posts.length <= 1) onClose?.();
+    } catch {
+      toast.error('Error al eliminar');
+    } finally {
+      setDeleting(false);
+      setShowMenu(null);
+    }
+  }, [posts.length, onClose, onDelete]);
 
-  const handleComment = () => {
-    onComment?.(currentPost.id || currentPost.post_id);
-    navigate(`/posts/${currentPost.id || currentPost.post_id}`);
-  };
+  if (!currentPost && (!posts || posts.length === 0)) return null;
+
+  const displayPosts = posts.length > 0 ? posts : [post];
 
   return (
     <motion.div
@@ -78,168 +73,201 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       role="dialog"
-      aria-label="Visor de publicación"
-      style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'rgba(0,0,0,0.9)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontFamily: 'var(--font-sans)',
-      }}
-      onClick={onClose}
+      aria-label="Visor de publicaciones"
+      className="fixed inset-0 z-[9999] bg-white"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: 'var(--color-white)',
-          borderRadius: 'var(--radius-xl)',
-          maxWidth: 480, width: '100%', maxHeight: '90vh',
-          overflow: 'auto',
-        }}
-      >
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', gap: 10 }}>
-          <div
-            onClick={() => { const target = user.username || user.user_id; if (target) { onClose?.(); navigate(`/${target}`); } }}
-            style={{ cursor: 'pointer' }}
-          >
+      {/* Header bar */}
+      <div className="sticky top-0 z-50 flex h-[52px] items-center justify-between border-b border-stone-200 bg-white px-3">
+        <button onClick={onClose} aria-label="Cerrar" className="flex items-center justify-center p-2">
+          <ChevronLeft size={22} className="text-stone-950" />
+        </button>
+        <span className="text-[15px] font-semibold text-stone-950">Publicaciones</span>
+        <div className="w-10" />
+      </div>
+
+      {/* Scrollable feed */}
+      <div ref={scrollRef} className="overflow-y-auto pb-20" style={{ height: 'calc(100dvh - 52px)' }}>
+        {displayPosts.map((p, idx) => (
+          <PostFeedCard
+            key={p.id || p.post_id || idx}
+            post={p}
+            profile={profile}
+            index={idx}
+            isOwn={isOwn}
+            showMenu={showMenu}
+            setShowMenu={setShowMenu}
+            deleting={deleting}
+            onDelete={handleDelete}
+            onLike={onLike}
+            onComment={onComment}
+            onClose={onClose}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ── Individual post card in feed layout ──────────────────────── */
+
+function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setShowMenu, deleting, onDelete, onLike, onComment, onClose }) {
+  const navigate = useNavigate();
+  const [imageIndex, setImageIndex] = useState(0);
+  const [liked, setLiked] = useState(currentPost.is_liked ?? currentPost.liked ?? false);
+  const [saved, setSaved] = useState(currentPost.is_saved ?? currentPost.saved ?? false);
+
+  const images = (() => {
+    if (Array.isArray(currentPost.images) && currentPost.images.length > 0) return currentPost.images;
+    if (Array.isArray(currentPost.media) && currentPost.media.length > 0) return currentPost.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean);
+    if (currentPost.image_url) return [currentPost.image_url];
+    return [];
+  })();
+  const user = currentPost.user || profile || {};
+  const avatarUrl = user.profile_image || user.avatar_url || user.avatar;
+  const caption = currentPost.content ?? currentPost.caption ?? '';
+  const likesCount = currentPost.likes_count ?? currentPost.likes ?? 0;
+  const commentsCount = currentPost.comments_count ?? currentPost.comments ?? 0;
+  const postId = currentPost.id || currentPost.post_id;
+
+  const handleLike = () => {
+    setLiked((l) => !l);
+    onLike?.(postId);
+  };
+
+  const handleComment = () => {
+    onComment?.(postId);
+    onClose?.();
+    navigate(`/posts/${postId}`);
+  };
+
+  return (
+    <div data-post-index={index} className="border-b border-stone-200 bg-white">
+      {/* Post header */}
+      <div className="flex items-center gap-2.5 px-4 py-3">
+        <div
+          onClick={() => { const target = user.username || user.user_id; if (target) { onClose?.(); navigate(`/${target}`); } }}
+          className="cursor-pointer"
+        >
           {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={user.name || 'Avatar'}
-              style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }}
-            />
+            <img src={avatarUrl} alt={user.name || 'Avatar'} className="h-9 w-9 rounded-full object-cover" />
           ) : (
-            <div style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: 'var(--color-border)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, fontWeight: 700, color: 'var(--color-stone)',
-            }}>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 text-sm font-bold text-stone-500">
               {(user.name || '?')[0].toUpperCase()}
             </div>
           )}
-          </div>
-          <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { const target = user.username || user.user_id; if (target) { onClose?.(); navigate(`/${target}`); } }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>{user.name || user.username || 'Usuario'}</p>
-            <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0 }}>{timeAgo(currentPost.created_at || currentPost.timestamp)}</p>
-          </div>
-          <button onClick={onClose} aria-label="Cerrar" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
-            <X size={20} color="var(--color-stone)" />
-          </button>
         </div>
-
-        {/* Image gallery */}
-        {images.length > 0 && (
-          <div style={{ position: 'relative' }}>
-            <img
-              src={images[imageIndex] || images[0]}
-              alt={`Imagen ${imageIndex + 1} de ${images.length}`}
-              loading={imageIndex === 0 ? 'eager' : 'lazy'}
-              style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', display: 'block' }}
-            />
-            {/* Gallery nav arrows */}
-            {images.length > 1 && imageIndex > 0 && (
-              <button
-                onClick={() => setImageIndex((i) => i - 1)}
-                aria-label="Imagen anterior"
-                style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-              >
-                <ChevronLeft size={18} color="var(--color-white)" />
-              </button>
-            )}
-            {images.length > 1 && imageIndex < images.length - 1 && (
-              <button
-                onClick={() => setImageIndex((i) => i + 1)}
-                aria-label="Imagen siguiente"
-                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-              >
-                <ChevronRight size={18} color="var(--color-white)" />
-              </button>
-            )}
-            {/* Gallery dots */}
-            {images.length > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 4, padding: '8px 0' }}>
-                {images.map((_, i) => (
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-stone-950 truncate">{user.name || user.username || 'Usuario'}</p>
+          <p className="text-[11px] text-stone-500">{timeAgo(currentPost.created_at || currentPost.timestamp)}</p>
+        </div>
+        {isOwn && (
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(showMenu === postId ? null : postId)}
+              aria-label="Opciones"
+              className="flex items-center justify-center p-1.5"
+            >
+              <MoreHorizontal size={20} className="text-stone-500" />
+            </button>
+            {showMenu === postId && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(null)} />
+                <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-stone-100 overflow-hidden">
                   <button
-                    key={i}
-                    onClick={() => setImageIndex(i)}
-                    aria-label={`Imagen ${i + 1} de ${images.length}`}
-                    style={{ width: 24, height: 24, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    onClick={() => { onClose?.(); navigate(`/posts/${postId}/edit`); }}
+                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-50"
                   >
-                    <span style={{ width: 6, height: 6, borderRadius: 'var(--radius-full)', background: i === imageIndex ? 'var(--color-black)' : 'var(--color-border)', transition: 'var(--transition-fast)' }} />
+                    <Pencil size={16} /> Editar
                   </button>
-                ))}
-              </div>
+                  <button
+                    onClick={() => onDelete?.(currentPost)}
+                    disabled={deleting}
+                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    <Trash2 size={16} /> {deleting ? 'Eliminando...' : 'Eliminar'}
+                  </button>
+                </div>
+              </>
             )}
-          </div>
-        )}
-
-        {/* Actions — functional */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '8px 16px' }}>
-          <button
-            onClick={handleLike}
-            aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
-          >
-            <Heart size={24} fill={liked ? 'var(--color-black)' : 'none'} color={liked ? 'var(--color-black)' : 'var(--color-stone)'} />
-          </button>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)' }}>{likesCount}</span>
-
-          <button
-            onClick={handleComment}
-            aria-label={`Comentar · ${commentsCount}`}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
-          >
-            <MessageCircle size={24} color="var(--color-stone)" />
-          </button>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)' }}>{commentsCount}</span>
-
-          <button
-            aria-label="Compartir"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
-          >
-            <Share2 size={24} color="var(--color-stone)" />
-          </button>
-
-          <button
-            onClick={() => setSaved((s) => !s)}
-            aria-label={saved ? 'Quitar guardado' : 'Guardar'}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 'auto', display: 'flex' }}
-          >
-            <Bookmark size={24} fill={saved ? 'var(--color-black)' : 'none'} color={saved ? 'var(--color-black)' : 'var(--color-stone)'} />
-          </button>
-        </div>
-
-        {/* Caption */}
-        {caption && (
-          <div style={{ padding: '0 16px 12px' }}>
-            <p style={{ fontSize: 14, color: 'var(--color-black)', margin: 0, lineHeight: 1.5 }}>
-              <strong>{user.name || user.username || ''}</strong>{' '}
-              {caption}
-            </p>
           </div>
         )}
       </div>
 
-      {/* Nav arrows (between posts) */}
-      {posts.length > 1 && currentIndex > 0 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); goPrev(); }}
-          aria-label="Publicación anterior"
-          style={{ position: 'absolute', left: 16, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-        >
-          <ChevronLeft size={24} color="var(--color-white)" />
-        </button>
+      {/* Image gallery */}
+      {images.length > 0 && (
+        <div className="relative">
+          <img
+            src={images[imageIndex] || images[0]}
+            alt={`Imagen ${imageIndex + 1}`}
+            loading={index < 2 ? 'eager' : 'lazy'}
+            className="block w-full aspect-square object-cover"
+          />
+          {images.length > 1 && imageIndex > 0 && (
+            <button
+              onClick={() => setImageIndex((i) => i - 1)}
+              aria-label="Imagen anterior"
+              className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40"
+            >
+              <ChevronLeft size={16} className="text-white" />
+            </button>
+          )}
+          {images.length > 1 && imageIndex < images.length - 1 && (
+            <button
+              onClick={() => setImageIndex((i) => i + 1)}
+              aria-label="Imagen siguiente"
+              className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40"
+            >
+              <ChevronRight size={16} className="text-white" />
+            </button>
+          )}
+          {images.length > 1 && (
+            <div className="flex justify-center gap-1 py-2">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setImageIndex(i)}
+                  aria-label={`Imagen ${i + 1}`}
+                  className="p-0 bg-transparent border-none cursor-pointer"
+                >
+                  <span className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === imageIndex ? 'bg-stone-950' : 'bg-stone-300'}`} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
-      {posts.length > 1 && currentIndex < posts.length - 1 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); goNext(); }}
-          aria-label="Publicación siguiente"
-          style={{ position: 'absolute', right: 16, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-        >
-          <ChevronRight size={24} color="var(--color-white)" />
+
+      {/* Actions */}
+      <div className="flex items-center gap-4 px-4 py-2">
+        <button onClick={handleLike} aria-label="Me gusta" className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1">
+          <Heart size={24} fill={liked ? '#0A0A0A' : 'none'} className={liked ? 'text-stone-950' : 'text-stone-600'} />
         </button>
+        <span className="text-[13px] font-semibold text-stone-950">{likesCount}</span>
+        <button onClick={handleComment} aria-label="Comentar" className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1">
+          <MessageCircle size={24} className="text-stone-600" />
+        </button>
+        <span className="text-[13px] font-semibold text-stone-950">{commentsCount}</span>
+        <button aria-label="Compartir" className="bg-transparent border-none cursor-pointer p-0 flex">
+          <Share2 size={24} className="text-stone-600" />
+        </button>
+        <button
+          onClick={() => setSaved((s) => !s)}
+          aria-label={saved ? 'Quitar guardado' : 'Guardar'}
+          className="bg-transparent border-none cursor-pointer p-0 flex ml-auto"
+        >
+          <Bookmark size={24} fill={saved ? '#0A0A0A' : 'none'} className={saved ? 'text-stone-950' : 'text-stone-600'} />
+        </button>
+      </div>
+
+      {/* Caption */}
+      {caption && (
+        <div className="px-4 pb-3">
+          <p className="text-sm text-stone-950 leading-relaxed">
+            <strong>{user.name || user.username || ''}</strong>{' '}
+            {caption}
+          </p>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }

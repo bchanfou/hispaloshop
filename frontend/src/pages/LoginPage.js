@@ -70,10 +70,20 @@ export default function LoginPage() {
           let accounts = [];
           try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
           const userId = data.user.user_id || data.user.id;
-          if (!accounts.find(a => a.user_id === userId)) {
-            accounts.push({ user_id: userId, email: data.user.email, name: data.user.name });
-            localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
-          }
+          const newToken = data.session_token || data.access_token || localStorage.getItem('hispalo_access_token') || '';
+          const idx = accounts.findIndex(a => a.user_id === userId);
+          const accObj = {
+            token: newToken,
+            user_id: userId,
+            username: data.user.username,
+            name: data.user.name || data.user.full_name,
+            avatar_url: data.user.profile_image || data.user.avatar_url || data.user.picture,
+            email: data.user.email,
+            role: data.user.role,
+          };
+          if (idx >= 0) accounts[idx] = accObj;
+          else accounts.push(accObj);
+          localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
         }
 
         if (intendedRoute) {

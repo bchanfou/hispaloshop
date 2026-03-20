@@ -244,8 +244,8 @@ const ProfileTabs = forwardRef(function ProfileTabs({
           return (
             <div
               key={post.id || post.post_id || i}
-              onClick={() => onPostClick?.(post)}
-              onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(post); }}
+              onClick={() => onPostClick?.(post, items)}
+              onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(post, items); }}
               role="button"
               tabIndex={0}
               className="relative aspect-square cursor-pointer overflow-hidden bg-white"
@@ -412,8 +412,8 @@ const ProfileTabs = forwardRef(function ProfileTabs({
           return (
             <div
               key={item.id || item.post_id || i}
-              onClick={() => onPostClick?.(item)}
-              onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(item); }}
+              onClick={() => onPostClick?.(item, items)}
+              onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(item, items); }}
               role="button"
               tabIndex={0}
               className="relative aspect-square cursor-pointer overflow-hidden"

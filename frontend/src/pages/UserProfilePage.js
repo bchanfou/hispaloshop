@@ -2,8 +2,8 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { ChevronLeft, Store } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, Store, X, Plus, Check, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfile, useUserFollow } from '../features/user/hooks';
 import { resolveUserImage, useUserHighlightsQuery, userKeys } from '../features/user/queries';
@@ -11,6 +11,7 @@ import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileTabs from '../components/profile/ProfileTabs';
 import EditProfileSheet from '../components/profile/EditProfileSheet';
 import PostViewer from '../components/PostViewer';
+import StoryViewer from '../components/feed/StoryViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import OverlayErrorBoundary from '../components/OverlayErrorBoundary';
 import apiClient from '../services/api/client';
@@ -23,9 +24,14 @@ export default function UserProfilePage() {
   const { user: currentUser } = useAuth();
 
   const [selectedPost, setSelectedPost] = useState(null);
+  const [allPosts, setAllPosts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showCreateHighlight, setShowCreateHighlight] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showOwnStory, setShowOwnStory] = useState(false);
+  const [ownStories, setOwnStories] = useState(null);
+  const [viewingHighlight, setViewingHighlight] = useState(null);
+  const [highlightStories, setHighlightStories] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const tabsRef = useRef(null);
 
@@ -75,10 +81,14 @@ export default function UserProfilePage() {
   const { data: highlights = [] } = useUserHighlightsQuery(userId);
   const queryClient = useQueryClient();
 
-  const handleCreateHighlight = useCallback(async (title) => {
+  const handleCreateHighlight = useCallback(async (title, storyIds, coverUrl) => {
     if (!title?.trim()) return;
     try {
-      await apiClient.post('/users/me/highlights', { title: title.trim(), story_ids: [] });
+      await apiClient.post('/users/me/highlights', {
+        title: title.trim(),
+        story_ids: storyIds || [],
+        cover_url: coverUrl || null,
+      });
       queryClient.invalidateQueries({ queryKey: userKeys.highlights(userId) });
       setShowCreateHighlight(false);
       toast.success('Destacado creado');
@@ -86,6 +96,77 @@ export default function UserProfilePage() {
       toast.error('Error al crear destacado');
     }
   }, [userId, queryClient]);
+
+  /* ── View own stories ─────────────────────────────────────────── */
+  const handleViewOwnStory = useCallback(async () => {
+    try {
+      const data = await apiClient.get(`/stories/${user?.user_id || userId}`);
+      const items = Array.isArray(data) ? data : data?.items || data?.stories || [];
+      if (items.length === 0) {
+        toast('No tienes stories activos');
+        return;
+      }
+      setOwnStories([{
+        user_id: user?.user_id,
+        user: { id: user?.user_id, name: user?.name, avatar_url: user?.profile_image, profile_image: user?.profile_image },
+        items: items.map(s => ({
+          id: s.id || s.story_id,
+          story_id: s.id || s.story_id,
+          image_url: s.image_url || s.media_url,
+          video_url: s.video_url,
+          caption: s.caption || s.text,
+          created_at: s.created_at,
+          products: s.products,
+        })),
+      }]);
+      setShowOwnStory(true);
+    } catch {
+      toast.error('Error al cargar tus stories');
+    }
+  }, [user, userId]);
+
+  /* ── View a highlight ─────────────────────────────────────────── */
+  const handleViewHighlight = useCallback(async (highlight) => {
+    const hlId = highlight.highlight_id || highlight.id;
+    try {
+      const data = await apiClient.get(`/users/${userId}/highlights/${hlId}`);
+      const items = data?.stories || data?.items || [];
+      if (items.length === 0) {
+        toast('Este destacado no tiene stories');
+        return;
+      }
+      setHighlightStories([{
+        user_id: user?.user_id,
+        user: { id: user?.user_id, name: user?.name, avatar_url: user?.profile_image, profile_image: user?.profile_image },
+        items: items.map(s => ({
+          id: s.id || s.story_id,
+          story_id: s.id || s.story_id,
+          image_url: s.image_url || s.media_url,
+          video_url: s.video_url,
+          caption: s.caption || s.text,
+          created_at: s.created_at,
+          products: s.products,
+        })),
+      }]);
+      setViewingHighlight(highlight);
+    } catch {
+      toast.error('Error al cargar destacado');
+    }
+  }, [userId, user]);
+
+  /* ── Handle post click (collect all posts for scrolling) ──── */
+  const handlePostClick = useCallback((post, allPostsFromTab) => {
+    setSelectedPost(post);
+    if (allPostsFromTab) setAllPosts(allPostsFromTab);
+  }, []);
+
+  /* ── Handle delete post ───────────────────────────────────── */
+  const handleDeletePost = useCallback((postId) => {
+    setAllPosts(prev => prev.filter(p => (p.id || p.post_id) !== postId));
+    setSelectedPost(null);
+    refetch();
+    queryClient.invalidateQueries({ queryKey: ['users', userId, 'posts'] });
+  }, [refetch, userId, queryClient]);
 
   const handleFollowToggle = useCallback(async () => {
     if (!user || followLoading) return;
@@ -231,6 +312,8 @@ export default function UserProfilePage() {
         highlights={highlights}
         onCreateHighlight={() => setShowCreateHighlight(true)}
         onSwitchTab={(tabId) => tabsRef.current?.switchTab(tabId)}
+        onViewOwnStory={handleViewOwnStory}
+        onViewHighlight={handleViewHighlight}
       />
 
       {/* ── Store link for producers/importers ── */}
@@ -254,7 +337,7 @@ export default function UserProfilePage() {
         isOwn={isOwn}
         isPrivate={Boolean(user.is_private)}
         isFollowing={Boolean(user.is_following)}
-        onPostClick={(post) => setSelectedPost(post)}
+        onPostClick={(post, allPostsArr) => handlePostClick(post, allPostsArr)}
         onProductClick={(product) => setSelectedProduct(product)}
         onFollow={handleFollowToggle}
       />
@@ -279,11 +362,31 @@ export default function UserProfilePage() {
         <OverlayErrorBoundary overlayKey={selectedPost?.post_id || selectedPost?.id} onClose={() => setSelectedPost(null)}>
           <PostViewer
             post={selectedPost}
-            posts={[selectedPost]}
+            posts={allPosts.length > 0 ? allPosts : [selectedPost]}
             profile={{ name: user.name, profile_image: user.profile_image }}
             onClose={() => setSelectedPost(null)}
+            isOwn={isOwn}
+            onDelete={handleDeletePost}
           />
         </OverlayErrorBoundary>
+      )}
+
+      {/* Own story viewer */}
+      {showOwnStory && ownStories && (
+        <StoryViewer
+          stories={ownStories}
+          initialIndex={0}
+          onClose={() => { setShowOwnStory(false); setOwnStories(null); }}
+        />
+      )}
+
+      {/* Highlight story viewer */}
+      {viewingHighlight && highlightStories && (
+        <StoryViewer
+          stories={highlightStories}
+          initialIndex={0}
+          onClose={() => { setViewingHighlight(null); setHighlightStories(null); }}
+        />
       )}
 
       {selectedProduct && (
@@ -296,41 +399,189 @@ export default function UserProfilePage() {
   );
 }
 
-/* ── Inline create-highlight sheet ───────────────────────────────── */
+/* ── Create Highlight Sheet — shows archived stories to select ─── */
 
 function CreateHighlightSheet({ onClose, onCreate }) {
   const [title, setTitle] = useState('');
+  const [archivedStories, setArchivedStories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [coverUrl, setCoverUrl] = useState(null);
+  const [step, setStep] = useState('select'); // 'select' | 'name'
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await apiClient.get('/stories/archive');
+        const items = Array.isArray(data) ? data : data?.stories || data?.items || data?.data || [];
+        if (!cancelled) setArchivedStories(items);
+      } catch {
+        if (!cancelled) setArchivedStories([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const toggleStory = (storyId) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(storyId)) next.delete(storyId);
+      else next.add(storyId);
+      return next;
+    });
+  };
+
+  const handleNext = () => {
+    if (selectedIds.size === 0) {
+      toast('Selecciona al menos un story');
+      return;
+    }
+    // Set first selected as default cover
+    if (!coverUrl) {
+      const first = archivedStories.find(s => selectedIds.has(s.id || s.story_id));
+      if (first) setCoverUrl(first.image_url || first.thumbnail_url || first.media_url);
+    }
+    setStep('name');
+  };
+
+  const handleCreate = () => {
+    if (!title.trim()) return;
+    onCreate(title, Array.from(selectedIds), coverUrl);
+  };
 
   return (
     <div className="fixed inset-0 z-[9998]" role="dialog" aria-modal="true" aria-label="Nuevo destacado">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white px-5 pb-8 pt-4">
-        <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
-        <div className="mb-4 text-base font-semibold">Nuevo destacado</div>
-        <input
-          type="text"
-          placeholder="Nombre del destacado"
-          maxLength={30}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="mb-4 w-full rounded-xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-stone-400"
-          autoFocus
-        />
-        <div className="flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 rounded-xl bg-stone-100 py-3 text-sm font-semibold text-stone-950"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={() => onCreate(title)}
-            disabled={!title.trim()}
-            className="flex-1 rounded-xl bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40"
-          >
-            Crear
-          </button>
-        </div>
+      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white px-5 pb-8 pt-4" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-stone-200 shrink-0" />
+
+        {step === 'select' && (
+          <>
+            <div className="flex items-center justify-between mb-4 shrink-0">
+              <button onClick={onClose} className="text-sm text-stone-500">Cancelar</button>
+              <span className="text-base font-semibold text-stone-950">Seleccionar stories</span>
+              <button onClick={handleNext} className="text-sm font-semibold text-stone-950">Siguiente</button>
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-stone-200 border-t-stone-600" />
+              </div>
+            ) : archivedStories.length === 0 ? (
+              <div className="py-12 text-center">
+                <ImageIcon size={40} className="mx-auto text-stone-300 mb-3" />
+                <p className="text-sm text-stone-500">No tienes stories archivados</p>
+              </div>
+            ) : (
+              <div className="overflow-y-auto flex-1 -mx-1">
+                <div className="grid grid-cols-3 gap-0.5">
+                  {archivedStories.map((story) => {
+                    const sid = story.id || story.story_id;
+                    const thumb = story.image_url || story.thumbnail_url || story.media_url;
+                    const isSelected = selectedIds.has(sid);
+                    return (
+                      <div
+                        key={sid}
+                        onClick={() => toggleStory(sid)}
+                        className="relative aspect-square cursor-pointer overflow-hidden"
+                        role="checkbox"
+                        aria-checked={isSelected}
+                      >
+                        <img
+                          src={thumb}
+                          alt={story.caption || 'Story'}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className={`absolute inset-0 transition-colors ${isSelected ? 'bg-white/30' : ''}`} />
+                        <div className={`absolute top-2 right-2 flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors ${
+                          isSelected ? 'bg-stone-950 border-stone-950' : 'bg-white/60 border-white'
+                        }`}>
+                          {isSelected && <Check size={14} className="text-white" />}
+                        </div>
+                        {story.created_at && (
+                          <span className="absolute bottom-1 left-1 text-[10px] text-white drop-shadow-md">
+                            {new Date(story.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {step === 'name' && (
+          <>
+            <div className="flex items-center justify-between mb-4 shrink-0">
+              <button onClick={() => setStep('select')} className="text-sm text-stone-500">Atrás</button>
+              <span className="text-base font-semibold text-stone-950">Nuevo destacado</span>
+              <div className="w-12" />
+            </div>
+
+            {/* Cover preview */}
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-stone-100 ring-[1.5px] ring-stone-200 ring-offset-2 ring-offset-white">
+                  {coverUrl ? (
+                    <img src={coverUrl} alt="Portada" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon size={28} className="text-stone-400" />
+                    </div>
+                  )}
+                </div>
+                {/* Cover selector */}
+                <button
+                  onClick={() => {
+                    // Cycle through selected stories as cover
+                    const selected = archivedStories.filter(s => selectedIds.has(s.id || s.story_id));
+                    const currentIdx = selected.findIndex(s => (s.image_url || s.thumbnail_url || s.media_url) === coverUrl);
+                    const nextIdx = (currentIdx + 1) % selected.length;
+                    setCoverUrl(selected[nextIdx]?.image_url || selected[nextIdx]?.thumbnail_url || selected[nextIdx]?.media_url);
+                  }}
+                  className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm"
+                  aria-label="Cambiar portada"
+                >
+                  <ImageIcon size={12} className="text-white" />
+                </button>
+              </div>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Nombre del destacado"
+              maxLength={30}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="mb-4 w-full rounded-xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-stone-400"
+              autoFocus
+            />
+
+            <p className="mb-4 text-xs text-stone-500 text-center">{selectedIds.size} stories seleccionados</p>
+
+            <div className="flex gap-2">
+              <button
+                onClick={onClose}
+                className="flex-1 rounded-xl bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={!title.trim()}
+                className="flex-1 rounded-xl bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40"
+              >
+                Crear
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
