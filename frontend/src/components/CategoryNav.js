@@ -99,7 +99,7 @@ export default function CategoryNav({
                 }}
                 className={`group relative snap-start shrink-0 transition-all duration-150 ease-out ${
                   isCatalog
-                    ? `w-[156px] rounded-2xl border bg-white p-4 hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-sm ${
+                    ? `w-[120px] rounded-xl border bg-white px-3 py-3 hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-sm ${
                         isActive ? 'border-stone-950 bg-stone-50 shadow-sm' : 'border-stone-100'
                       }`
                     : `rounded-[1.5rem] border bg-white/85 p-3 transition-all duration-200 hover:bg-white ${category.border} ${
@@ -108,13 +108,13 @@ export default function CategoryNav({
                 }`}
                 data-testid={`category-nav-${category.slug}`}
               >
-                <div className={`flex items-center justify-center rounded-full ${isCatalog ? 'h-11 w-11 bg-stone-100 text-stone-700' : `mx-auto h-14 w-14 ${category.bg}`}`}>
-                  <Icon className={`h-5 w-5 ${isCatalog ? 'text-stone-700' : category.color}`} strokeWidth={1.7} />
+                <div className={`flex items-center justify-center rounded-full ${isCatalog ? 'h-9 w-9 bg-stone-100 text-stone-700' : `mx-auto h-14 w-14 ${category.bg}`}`}>
+                  <Icon className={`h-4 w-4 ${isCatalog ? 'text-stone-700' : category.color}`} strokeWidth={1.7} />
                 </div>
                 <p
                   className={
                     isCatalog
-                      ? 'mt-3 text-left text-sm font-medium text-stone-900'
+                      ? 'mt-2 text-left text-[12px] font-medium leading-tight text-stone-900'
                       : `mt-2 text-center text-xs font-medium leading-4 text-stone-950 transition-all duration-200 ${
                           variant === 'home-minimal' ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : ''
                         }`
@@ -123,8 +123,8 @@ export default function CategoryNav({
                   {isCatalog ? category.label : category.shortLabel}
                 </p>
                 {variant !== 'home-minimal' ? (
-                  <p className={`${isCatalog ? 'mt-1 text-left text-xs text-stone-500' : 'mt-1 text-center text-xs text-stone-500'}`}>
-                    {isCatalog ? `${category.count} productos` : `(${category.count})`}
+                  <p className={`${isCatalog ? 'mt-0.5 text-left text-[10px] text-stone-400' : 'mt-1 text-center text-xs text-stone-500'}`}>
+                    {isCatalog ? `${category.count}` : `(${category.count})`}
                   </p>
                 ) : null}
                 {variant !== 'home-minimal' && category.hasNew && !isCatalog ? (

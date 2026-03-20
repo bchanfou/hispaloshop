@@ -1,28 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import FollowingFeed from './FollowingFeed';
 import ForYouFeed from './ForYouFeed';
 import StoriesBar from './StoriesBar';
 import StoryViewer from './StoryViewer';
 
 /**
- * FeedContainer — recibe activeTab desde HomePage (via HomeHeader)
- * Si no se pasa prop, gestiona su propio estado (fallback).
+ * FeedContainer — unified feed (always ForYouFeed with recommended + followed content)
  */
-function FeedContainer({ activeTab: tabProp }) {
-  // Fallback: estado propio si no llega prop (ej. uso fuera de HomePage)
-  const [localTab, setLocalTab] = useState(() => {
-    try { return localStorage.getItem('feedTab') || 'foryou'; }
-    catch { return 'foryou'; }
-  });
-
-  const activeTab = tabProp ?? localTab;
-
-  // Persist tab preference
-  React.useEffect(() => {
-    try { localStorage.setItem('feedTab', activeTab); } catch {}
-  }, [activeTab]);
-
+function FeedContainer() {
   // Story viewer state
   const [storyViewer, setStoryViewer] = useState(null);
 
@@ -45,22 +29,8 @@ function FeedContainer({ activeTab: tabProp }) {
       {/* Stories */}
       <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleStoryClick} />
 
-      {/* Feed — crossfade al cambiar tab */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -4 }}
-          transition={{ duration: 0.18, ease: [0, 0, 0.2, 1] }}
-        >
-          {activeTab === 'following' ? (
-            <FollowingFeed />
-          ) : (
-            <ForYouFeed />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      {/* Unified Feed */}
+      <ForYouFeed />
 
       {/* Story Viewer (fullscreen modal) */}
       {storyViewer && (

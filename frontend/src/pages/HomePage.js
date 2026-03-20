@@ -1,11 +1,8 @@
 import React, { useMemo } from 'react';
 import { FeedContainer } from '../components/feed';
-import { useFeedTab } from '../context/FeedTabContext';
 import SEO from '../components/SEO';
 
 export default function HomePage() {
-  const { activeTab } = useFeedTab();
-
   const structuredData = useMemo(
     () => [
       {
@@ -30,7 +27,7 @@ export default function HomePage() {
       />
 
       <main id="main-content">
-        <FeedContainer activeTab={activeTab} />
+        <FeedContainer />
       </main>
     </div>
   );

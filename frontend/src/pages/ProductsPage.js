@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List } from 'lucide-react';
+import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List, Globe, Check } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CategoryNav from '../components/CategoryNav';
 import ProductCard from '../components/ProductCard';
@@ -64,6 +64,8 @@ export default function ProductsPage() {
   const { t, i18n } = useTranslation();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const countryDropdownRef = useRef(null);
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('products_view_mode') || 'grid');
   const currentLang = i18n.language || language || 'es';
 
@@ -93,6 +95,18 @@ export default function ProductsPage() {
       document.body.style.overflow = '';
     };
   }, [showMobileFilters]);
+
+  // Close country dropdown on click outside
+  useEffect(() => {
+    if (!showCountryDropdown) return;
+    const handler = (e) => {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target)) {
+        setShowCountryDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showCountryDropdown]);
 
   // Debounced values for search and price (avoid API call per keystroke)
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
@@ -196,28 +210,68 @@ export default function ProductsPage() {
     }));
   };
 
-  const renderOriginSelect = (className) => (
-    <div className="relative">
-      <select
-        className={className}
-        value={filters.origin_country}
-        onChange={(event) => setFilters((prev) => ({ ...prev, origin_country: event.target.value }))}
-        aria-label={t('products.originCountry', 'País de origen')}
-      >
-        <option value="">{t('products.allOrigins', 'Todos los orígenes')}</option>
-        {COUNTRY_GROUPS.map((group) => (
-          <optgroup key={group.region} label={group.region}>
-            {group.countries.map((item) => (
-              <option key={item.code} value={item.code}>
-                {item.name}
-              </option>
-            ))}
-          </optgroup>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-    </div>
-  );
+  const renderOriginSelect = () => {
+    const selectedCountry = allCountries.find((item) => item.code === filters.origin_country);
+    return (
+      <div className="relative" ref={countryDropdownRef}>
+        <button
+          type="button"
+          onClick={() => setShowCountryDropdown((prev) => !prev)}
+          className={`flex min-w-[160px] items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all duration-150 ease-out ${
+            filters.origin_country
+              ? 'border-stone-950 bg-stone-950 text-white'
+              : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+          }`}
+        >
+          <Globe className="h-4 w-4 shrink-0" />
+          <span className="truncate">{selectedCountry ? selectedCountry.name : t('products.allOrigins', 'Todos los orígenes')}</span>
+          <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
+        </button>
+        <AnimatePresence>
+          {showCountryDropdown && (
+            <motion.div
+              initial={{ opacity: 0, y: 4, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 4, scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+              className="absolute left-0 top-full z-50 mt-2 w-[220px] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg"
+            >
+              <div className="max-h-[320px] overflow-y-auto py-2">
+                <button
+                  type="button"
+                  onClick={() => { setFilters((prev) => ({ ...prev, origin_country: '' })); setShowCountryDropdown(false); }}
+                  className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors ${
+                    !filters.origin_country ? 'bg-stone-50 font-semibold text-stone-950' : 'text-stone-700 hover:bg-stone-50'
+                  }`}
+                >
+                  <span>{t('products.allOrigins', 'Todos los orígenes')}</span>
+                  {!filters.origin_country && <Check className="h-4 w-4 text-stone-950" />}
+                </button>
+                {COUNTRY_GROUPS.map((group) => (
+                  <div key={group.region}>
+                    <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400">{group.region}</p>
+                    {group.countries.map((item) => (
+                      <button
+                        key={item.code}
+                        type="button"
+                        onClick={() => { setFilters((prev) => ({ ...prev, origin_country: item.code })); setShowCountryDropdown(false); }}
+                        className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors ${
+                          filters.origin_country === item.code ? 'bg-stone-50 font-semibold text-stone-950' : 'text-stone-700 hover:bg-stone-50'
+                        }`}
+                      >
+                        <span>{item.name}</span>
+                        {filters.origin_country === item.code && <Check className="h-4 w-4 text-stone-950" />}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -319,27 +373,28 @@ export default function ProductsPage() {
 
         <section className="mb-6 hidden rounded-[28px] border border-stone-100 bg-white p-4 shadow-sm lg:block">
           <div className="flex flex-wrap items-center gap-3">
-            {renderOriginSelect('min-w-[160px] appearance-none rounded-full border border-stone-200 bg-white px-4 py-2.5 pr-8 text-sm outline-none transition-all duration-150 ease-out hover:bg-stone-50 focus:border-stone-950')}
+            {renderOriginSelect()}
 
-            <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 transition-all duration-150 ease-out hover:bg-stone-50">
-              <span className="text-xs text-stone-400">{currencySymbol}</span>
+            <div className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2.5 transition-all duration-150 ease-out hover:bg-stone-50">
+              <span className="text-xs font-medium text-stone-400">{currencySymbol}</span>
               <input
                 type="number"
                 placeholder="Mín"
                 value={filters.minPrice}
                 onChange={(event) => setFilters((prev) => ({ ...prev, minPrice: event.target.value }))}
-                className="h-7 w-16 border-0 bg-transparent p-0 text-xs focus:outline-none"
+                className="h-6 w-14 border-0 bg-transparent p-0 text-sm text-stone-950 placeholder:text-stone-300 focus:outline-none"
                 aria-label="Precio mínimo"
               />
-              <span className="text-xs text-stone-300">-</span>
+              <div className="h-px w-3 bg-stone-300" />
               <input
                 type="number"
                 placeholder="Máx"
                 value={filters.maxPrice}
                 onChange={(event) => setFilters((prev) => ({ ...prev, maxPrice: event.target.value }))}
-                className="h-7 w-16 border-0 bg-transparent p-0 text-xs focus:outline-none"
+                className="h-6 w-14 border-0 bg-transparent p-0 text-sm text-stone-950 placeholder:text-stone-300 focus:outline-none"
                 aria-label="Precio máximo"
               />
+              <span className="text-xs font-medium text-stone-400">{currencySymbol}</span>
             </div>
 
             <button

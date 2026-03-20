@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, ChevronRight, Star, Clock, Package } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -26,6 +26,10 @@ const pillCls = (active) =>
       : 'border-stone-200 bg-white text-stone-950'
   }`;
 
+/* ── icon map for category groups ── */
+const CATEGORY_ICON_MAP = { Leaf, Package, Cookie, CupSoda, Baby, PawPrint, Crown };
+const getCategoryIcon = (iconName) => CATEGORY_ICON_MAP[iconName] || Package;
+
 /* ══════════════════════════════════════════
    DiscoverPage
    ══════════════════════════════════════════ */
@@ -38,6 +42,7 @@ export default function DiscoverPage() {
 
   /* ── ui states ── */
   const [selectedPost, setSelectedPost] = useState(null);
+  const [activeSection, setActiveSection] = useState('comunidad');
   const [activeTab, setActiveTab] = useState('trending');
 
   /* ── data states ── */
@@ -307,11 +312,14 @@ export default function DiscoverPage() {
       <div className="mb-6">
         <span className="mb-3 block text-[10px] font-semibold uppercase tracking-wider text-stone-500">Categorías</span>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {CATEGORY_GROUPS.map(grp => (
-            <button key={grp.slug} onClick={() => handleCategoryClick(grp.slug)} className={pillCls(false)}>
-              {grp.emoji} {grp.label}
-            </button>
-          ))}
+          {CATEGORY_GROUPS.map(grp => {
+            const Icon = getCategoryIcon(grp.icon);
+            return (
+              <button key={grp.slug} onClick={() => handleCategoryClick(grp.slug)} className={pillCls(false)}>
+                <Icon size={14} /> {grp.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -499,9 +507,36 @@ export default function DiscoverPage() {
         </button>
       </div>
 
+      {/* ─── SECTION TOGGLE: Comunidad / Producto ─── */}
+      <div className="flex items-center justify-center gap-2 bg-white px-4 pt-3 pb-1">
+        {[
+          { id: 'comunidad', label: 'Comunidad', Icon: Users },
+          { id: 'producto', label: 'Producto', Icon: ShoppingBag },
+        ].map(sec => (
+          <button
+            key={sec.id}
+            onClick={() => {
+              setActiveSection(sec.id);
+              setActiveTab(sec.id === 'comunidad' ? 'trending' : 'trending');
+            }}
+            className={`flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-semibold transition-all ${
+              activeSection === sec.id
+                ? 'bg-stone-950 text-white shadow-sm'
+                : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+            }`}
+          >
+            <sec.Icon size={15} />
+            {sec.label}
+          </button>
+        ))}
+      </div>
+
       {/* ─── UNIFIED TAB BAR ─── */}
       <div className="flex gap-0 border-b border-stone-100 overflow-x-auto scrollbar-hide bg-white">
-        {['Trending', 'Posts', 'Reels', 'Tiendas', 'Recetas'].map(tab => (
+        {(activeSection === 'comunidad'
+          ? ['Trending', 'Posts', 'Reels']
+          : ['Trending', 'Tiendas', 'Recetas']
+        ).map(tab => (
           <button
             key={tab}
             onClick={() => {

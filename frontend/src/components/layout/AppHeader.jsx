@@ -4,7 +4,6 @@ import { Bell, ShoppingCart, Menu } from 'lucide-react';
 import HamburgerMenu from './HamburgerMenu';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { useFeedTab } from '../../context/FeedTabContext';
 import { useUnreadNotifications } from '../../hooks/api/useNotifications';
 import Logo from '../brand/Logo';
 
@@ -18,7 +17,6 @@ export default function AppHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { activeTab, setActiveTab } = useFeedTab();
   const isHome = location.pathname === '/';
   const isAuthenticated = !!user;
 
@@ -57,49 +55,21 @@ export default function AppHeader() {
         justifyContent: 'space-between',
         padding: '0 var(--space-4)',
       }}>
-        {/* Logo + optional feed tabs */}
+        {/* Logo + brand name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', gap: 6 }}>
             <Logo variant="icon" theme="light" size={28} />
+            <span style={{
+              fontSize: 20,
+              fontWeight: 800,
+              color: '#0c0a09',
+              letterSpacing: '-0.02em',
+              textTransform: 'lowercase',
+              fontFamily: 'var(--font-sans)',
+            }}>
+              hispaloshop
+            </span>
           </Link>
-          {isHome ? (
-            <div style={{ display: 'flex', alignItems: 'center', borderRadius: 9999, background: '#f5f5f4', padding: 3 }}>
-              {[{ id: 'foryou', label: 'Para ti' }, ...(isAuthenticated ? [{ id: 'following', label: 'Siguiendo' }] : [])].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    minHeight: 34,
-                    borderRadius: 9999,
-                    padding: '0 14px',
-                    fontSize: 13,
-                    fontFamily: 'var(--font-sans)',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    background: activeTab === tab.id ? '#ffffff' : 'transparent',
-                    fontWeight: activeTab === tab.id ? 600 : 400,
-                    color: activeTab === tab.id ? '#0c0a09' : '#78716c',
-                    boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <Link to="/" style={{ textDecoration: 'none' }}>
-              <span style={{
-                fontSize: 'var(--text-md)',
-                fontWeight: 700,
-                color: 'var(--color-black)',
-                letterSpacing: '-0.01em',
-              }}>
-                Hispaloshop
-              </span>
-            </Link>
-          )}
         </div>
 
         {/* Right icons: notif + cart + hamburger */}

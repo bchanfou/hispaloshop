@@ -19,6 +19,7 @@ import {
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
@@ -34,6 +35,8 @@ if (typeof document !== 'undefined' && !document.getElementById('reelcard-heart-
 export default function ReelCard({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false }) {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const { addToCart } = useCart();
+  const [addingToCart, setAddingToCart] = useState(null);
   const [showComments, setShowComments] = useState(false);
   const [showProductSheet, setShowProductSheet] = useState(false);
   const [comments, setComments] = useState([]);
@@ -298,6 +301,20 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const allProducts = [...(reel.products || []), ...(reel.tagged_products || [])].filter(Boolean);
   const product = allProducts[0] || reel.tagged_product || reel.productTag || null;
   const hasMultipleProducts = allProducts.length > 1;
+
+  const handleAddToCart = useCallback(async (p) => {
+    const productId = p?.product_id || p?.id;
+    if (!productId) return;
+    setAddingToCart(productId);
+    try {
+      await addToCart(productId, 1);
+      toast.success('Añadido al carrito', { duration: 1500 });
+    } catch {
+      toast.error('Error al añadir');
+    } finally {
+      setAddingToCart(null);
+    }
+  }, [addToCart]);
 
   return (
     <div
@@ -571,32 +588,47 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         </button>
       )}
 
-      {/* Product CTA */}
+      {/* Product mini-card — adds to cart without leaving reel */}
       {product && (
-        <div className="absolute bottom-4 left-4 right-4 bg-white/15 backdrop-blur-xl rounded-full p-2 flex items-center z-[2]">
-          {(product.image || product.thumbnail) && (
-            <img
-              src={product.image || product.thumbnail}
-              alt={product.name || product.title}
-              className="w-9 h-9 rounded-xl object-cover shrink-0 bg-white/20"
-              onError={(e) => { e.currentTarget.style.display = 'none'; }}
-            />
-          )}
-          <div className="flex-1 mx-2.5 min-w-0">
+        <div className="absolute bottom-4 left-4 right-4 bg-white/15 backdrop-blur-xl rounded-2xl p-2.5 flex items-center gap-2.5 z-[2]">
+          <div
+            className="w-12 h-12 rounded-xl overflow-hidden bg-white/20 shrink-0 cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); const pid = product.id || product.product_id; if (pid) navigate(`/products/${pid}`); }}
+          >
+            {(product.image || product.thumbnail || product.images?.[0]) ? (
+              <img
+                src={product.image || product.thumbnail || product.images?.[0]}
+                alt={product.name || product.title}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.src = ''; e.currentTarget.className = 'w-full h-full bg-white/20'; }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <ShoppingBag size={16} className="text-white/50" />
+              </div>
+            )}
+          </div>
+          <div
+            className="flex-1 min-w-0 cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); const pid = product.id || product.product_id; if (pid) navigate(`/products/${pid}`); }}
+          >
             <div className="text-[13px] font-semibold text-white font-sans truncate">
               {product.name || product.title}
             </div>
             {product.price != null && (
-              <div className="text-xs text-white/85 font-sans">
+              <div className="text-[12px] text-white/80 font-semibold font-sans">
                 {formatPrice(product.price)}
               </div>
             )}
           </div>
           <button
-            className="bg-white text-stone-950 text-[13px] font-semibold font-sans py-2 px-4 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-100 active:bg-stone-200 transition-colors"
-            onClick={() => navigate(`/products/${product.id || product.product_id}`)}
+            className="bg-white text-stone-950 text-[12px] font-bold font-sans py-2 px-4 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-100 active:bg-stone-200 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+            onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+            disabled={addingToCart === (product.product_id || product.id)}
+            aria-label={`Añadir ${product.name || product.title || 'producto'} al carrito`}
           >
-            Añadir
+            <Plus size={14} strokeWidth={2.5} />
+            {addingToCart === (product.product_id || product.id) ? 'Añadiendo…' : 'Añadir'}
           </button>
         </div>
       )}
@@ -745,29 +777,51 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
               </button>
             </div>
             <div className="overflow-y-auto flex-1 px-4 py-2">
-              {allProducts.map((p, i) => (
-                <button
-                  key={p.id || p.product_id || i}
-                  className="w-full flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0 bg-transparent border-none cursor-pointer text-left hover:bg-white/5 -mx-4 px-4 transition-colors"
-                  onClick={() => { setShowProductSheet(false); navigate(`/products/${p.id || p.product_id}`); }}
-                >
-                  {(p.image || p.thumbnail) && (
-                    <img
-                      src={p.image || p.thumbnail}
-                      alt={p.name || p.title}
-                      className="w-12 h-12 rounded-xl object-cover shrink-0 bg-white/10"
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-semibold text-white font-sans truncate">{p.name || p.title}</p>
-                    {p.price != null && (
-                      <p className="text-[12px] text-white/60 font-sans mt-0.5">{formatPrice(p.price)}</p>
-                    )}
+              {allProducts.map((p, i) => {
+                const pid = p.id || p.product_id;
+                return (
+                  <div
+                    key={pid || i}
+                    className="flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0"
+                  >
+                    <div
+                      className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 shrink-0 cursor-pointer"
+                      onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
+                    >
+                      {(p.image || p.thumbnail) ? (
+                        <img
+                          src={p.image || p.thumbnail}
+                          alt={p.name || p.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.src = ''; e.currentTarget.className = 'w-full h-full bg-white/10'; }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ShoppingBag size={14} className="text-white/30" />
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
+                    >
+                      <p className="text-[14px] font-semibold text-white font-sans truncate">{p.name || p.title}</p>
+                      {p.price != null && (
+                        <p className="text-[12px] text-white/60 font-sans mt-0.5">{formatPrice(p.price)}</p>
+                      )}
+                    </div>
+                    <button
+                      className="flex items-center gap-1 bg-white text-stone-950 text-[11px] font-bold font-sans py-1.5 px-3 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-100 active:bg-stone-200 transition-colors disabled:opacity-50"
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
+                      disabled={addingToCart === pid}
+                      aria-label={`Añadir ${p.name || p.title || 'producto'} al carrito`}
+                    >
+                      <Plus size={12} strokeWidth={2.5} />
+                      {addingToCart === pid ? '…' : 'Añadir'}
+                    </button>
                   </div>
-                  <ShoppingBag size={16} className="text-white/40 shrink-0" />
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Package, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Search, Package, RefreshCw, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Sprout, Apple, Beef, Fish, MilkOff, Egg, Droplets, Wine, Bean, Wheat, Candy, Flame, Nut, Popcorn, CakeSlice, Citrus, Coffee, Droplet, Smile, Dog, Cat, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
 import { getGroupBySlug, getCategoriesByGroup } from '../constants/categories';
+
+const ICON_MAP = { Leaf, Package, Cookie, CupSoda, Baby, PawPrint, Crown, Sprout, Apple, Beef, Fish, MilkOff, Egg, Droplets, Wine, Bean, Wheat, Candy, Flame, Nut, Popcorn, CakeSlice, Citrus, Coffee, Droplet, Smile, Dog, Cat, Award };
+const getIcon = (name) => ICON_MAP[name] || Package;
 
 export default function ExploreCategoryPage() {
   const { slug } = useParams();
@@ -82,7 +85,7 @@ export default function ExploreCategoryPage() {
         >
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span className="text-[22px]">{group.emoji}</span>
+        {React.createElement(getIcon(group.icon), { size: 22, className: 'text-stone-950' })}
         <span className="flex-1 text-[17px] font-bold text-stone-950">{group.label}</span>
         {!loading && products.length > 0 && (
           <span className="text-xs text-stone-500">
@@ -107,7 +110,7 @@ export default function ExploreCategoryPage() {
                     : 'border-stone-200 bg-white text-stone-950'
                 }`}
               >
-                <span>{cat.emoji}</span>
+                {React.createElement(getIcon(cat.icon), { size: 14 })}
                 <span>{cat.label}</span>
               </button>
             );

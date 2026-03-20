@@ -456,7 +456,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
   if (message.message_type === 'audio' && message.audio_url) {
     return (
       <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
-        <div className="max-w-[75%]">
+        <div className="max-w-[85%]">
           <div
             className={`min-w-[200px] px-3.5 py-2.5 font-apple ${
               isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
@@ -479,7 +479,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
 
   /* Default text bubble — with swipe-to-reply */
   const bubbleContent = (
-    <div className="max-w-[75%]">
+    <div className="max-w-[85%]">
       <div
         className={`break-words px-3.5 py-2.5 text-[15px] leading-[21px] font-apple ${
           isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'

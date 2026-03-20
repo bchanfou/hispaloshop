@@ -5,14 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 
 /**
- * HomeHeader v4 — H logo left | Para ti / Siguiendo toggle centered | Bell right
+ * HomeHeader v5 — "hispaloshop" text logo left | Bell right (unified feed, no tabs)
  */
-export default function HomeHeader({ activeTab, onTabChange }) {
+export default function HomeHeader() {
   const navigate = useNavigate();
-  const tabs = [
-    { id: 'foryou', label: 'Para ti' },
-    { id: 'following', label: 'Siguiendo' },
-  ];
 
   const { data: unreadData } = useQuery({
     queryKey: ['notifications-unread-count'],
@@ -26,33 +22,12 @@ export default function HomeHeader({ activeTab, onTabChange }) {
       className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-100/80 flex items-center justify-between px-4 pb-1 pt-2"
       data-testid="home-header"
     >
-      {/* H logo — left anchor */}
-      <span className="text-base font-black tracking-tighter text-stone-950 w-11 flex items-center">
-        H
+      {/* hispaloshop text logo — left */}
+      <span className="text-[22px] font-black tracking-tight text-stone-950 font-apple lowercase">
+        hispaloshop
       </span>
 
-      {/* Para ti / Siguiendo pill toggle — centered */}
-      <div className="flex items-center rounded-full bg-stone-100 p-[3px]">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => onTabChange(tab.id)}
-              className={`min-h-[44px] rounded-full px-4 text-[13px] font-sans transition-all duration-200 ${
-                isActive
-                  ? 'bg-white font-semibold text-stone-950 shadow-sm'
-                  : 'bg-transparent font-normal text-stone-500'
-              }`}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Notification bell — right anchor */}
+      {/* Notification bell — right */}
       <button
         type="button"
         onClick={() => navigate('/notifications')}

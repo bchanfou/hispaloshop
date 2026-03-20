@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, Film, ChevronDown } from 'lucide-react';
 import ReelCard from '../components/feed/ReelCard';
 import apiClient from '../services/api/client';
+import { toast } from 'sonner';
 
 const REEL_TABS = [
   { key: 'foryou', label: 'Para ti' },
@@ -10,6 +11,7 @@ const REEL_TABS = [
   { key: 'recipes', label: 'Recetas' },
   { key: 'producers', label: 'Productores' },
 ];
+const VALID_TABS = new Set(REEL_TABS.map((t) => t.key));
 
 export default function ReelsPage() {
   const navigate = useNavigate();
@@ -18,9 +20,13 @@ export default function ReelsPage() {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('reels_tab') || 'foryou');
+  const [activeTab, setActiveTab] = useState(() => {
+    const stored = localStorage.getItem('reels_tab');
+    return stored && VALID_TABS.has(stored) ? stored : 'foryou';
+  });
   const containerRef = useRef(null);
   const fetchingRef = useRef(false);
+  const [showTabMenu, setShowTabMenu] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('reels_tab', activeTab);
@@ -36,6 +42,7 @@ export default function ReelsPage() {
       setReels((prev) => (p === 1 ? items : [...prev, ...items]));
     } catch {
       setHasMore(false);
+      toast.error('Error al cargar reels');
     } finally {
       setLoading(false);
       fetchingRef.current = false;
@@ -152,7 +159,6 @@ export default function ReelsPage() {
     );
   }
 
-  const [showTabMenu, setShowTabMenu] = useState(false);
   const activeTabLabel = REEL_TABS.find((t) => t.key === activeTab)?.label || 'Para ti';
 
   return (
