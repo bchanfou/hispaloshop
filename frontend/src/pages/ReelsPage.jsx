@@ -11,8 +11,6 @@ const REEL_TABS = [
   { key: 'following', label: 'Siguiendo' },
   { key: 'recipes', label: 'Recetas' },
   { key: 'producers', label: 'Productores' },
-  { key: 'markets', label: 'Mercados' },
-  { key: 'events', label: 'Eventos' },
 ];
 const VALID_TABS = new Set(REEL_TABS.map((t) => t.key));
 

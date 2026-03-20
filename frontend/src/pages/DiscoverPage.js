@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +28,13 @@ const pillCls = (active) =>
   }`;
 
 /* ── icon map for category groups ── */
+const SECTION_SHORTCUTS = [
+  { label: 'Productos', to: '/products', icon: Package },
+  { label: 'Tiendas', to: '/stores', icon: Store },
+  { label: 'Comunidad', to: '/community', icon: Users },
+  { label: 'Recetas', to: '/recipes', icon: ChefHat },
+];
+
 const CATEGORY_ICON_MAP = { Leaf, Package, Cookie, CupSoda, Baby, PawPrint, Crown };
 const getCategoryIcon = (iconName) => CATEGORY_ICON_MAP[iconName] || Package;
 
@@ -305,6 +312,20 @@ export default function DiscoverPage() {
             </button>
           );
         })}
+      </div>
+
+      {/* ─── SECTION SHORTCUTS ─── */}
+      <div className="flex gap-3 overflow-x-auto px-4 py-3 scrollbar-hide">
+        {SECTION_SHORTCUTS.map(({ label, to, icon: Icon }) => (
+          <button
+            key={to}
+            onClick={() => navigate(to)}
+            className="flex w-20 shrink-0 flex-col items-center gap-1.5 rounded-2xl bg-stone-50 py-3 transition-colors hover:bg-stone-100"
+          >
+            <Icon size={22} className="text-stone-500" strokeWidth={1.6} />
+            <span className="text-[11px] font-medium text-stone-700">{label}</span>
+          </button>
+        ))}
       </div>
 
       {/* ─── ELITE CAROUSEL ─── */}

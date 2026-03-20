@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ShoppingCart, Menu, Search } from 'lucide-react';
+import { Bell, ShoppingCart, Menu, Search, MessageCircle } from 'lucide-react';
 import HamburgerMenu from './HamburgerMenu';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -61,6 +61,15 @@ export default function AppHeader() {
           >
             <Search size={20} strokeWidth={1.8} />
           </button>
+
+          {/* Messages */}
+          <Link
+            to="/messages"
+            aria-label="Mensajes"
+            className="relative flex items-center justify-center w-[38px] h-[38px] rounded-full no-underline"
+          >
+            <MessageCircle size={20} className="text-stone-950" strokeWidth={1.8} />
+          </Link>
 
           {/* Notification bell */}
           <Link

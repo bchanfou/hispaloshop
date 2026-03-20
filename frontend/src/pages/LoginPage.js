@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -147,9 +148,14 @@ export default function LoginPage() {
   return (
     <>
       {/* Logo */}
-      <div className="flex justify-center mb-8">
+      <motion.div
+        className="flex justify-center mb-8"
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <Logo variant="full" theme="light" size={110} />
-      </div>
+      </motion.div>
 
       {/* Heading */}
       <h1 className="text-2xl font-black tracking-tight text-stone-950 text-center mb-1">
@@ -167,10 +173,11 @@ export default function LoginPage() {
       )}
 
       {/* Social login — Google */}
-      <button
+      <motion.button
         type="button"
         onClick={handleGoogleLogin}
         className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-3 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors"
+        whileTap={{ scale: 0.97 }}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -179,19 +186,20 @@ export default function LoginPage() {
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
         </svg>
         Continuar con Google
-      </button>
+      </motion.button>
 
       {/* Social login — Apple */}
-      <button
+      <motion.button
         type="button"
         onClick={() => toast('Apple Sign-In próximamente')}
         className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-6 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors"
+        whileTap={{ scale: 0.97 }}
       >
         <svg width="16" height="18" viewBox="0 0 17 20" fill="currentColor" aria-hidden="true">
           <path d="M13.54 10.58c-.01-1.63.72-2.86 2.2-3.76-.83-1.2-2.08-1.86-3.72-1.98-1.56-.12-3.27.92-3.89.92-.66 0-2.13-.88-3.27-.88C2.78 4.92.5 6.88.5 10.79c0 1.15.21 2.34.63 3.57.56 1.62 2.58 5.6 4.7 5.54 1.1-.03 1.87-.78 3.28-.78 1.36 0 2.08.78 3.27.76 2.15-.04 3.94-3.63 4.47-5.25-2.85-1.35-2.82-3.96-2.8-4.05zM11.04 3.45C12.22 2.06 12.1.8 12.07.5c-1.07.06-2.31.74-3.03 1.57-.78.88-1.24 1.97-1.14 3.2 1.17.09 2.24-.53 3.14-1.82z" />
         </svg>
         Continuar con Apple
-      </button>
+      </motion.button>
 
       {/* Divider */}
       <div className="flex items-center gap-4 mb-6">
@@ -201,7 +209,13 @@ export default function LoginPage() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} noValidate>
+      <motion.form
+        onSubmit={handleSubmit}
+        noValidate
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.35 }}
+      >
         {/* Email */}
         <div className="mb-5">
           <label className="block text-xs font-semibold text-stone-950 mb-2 tracking-wide uppercase">
@@ -266,21 +280,30 @@ export default function LoginPage() {
         </div>
 
         {/* Login error */}
-        {loginError && (
-          <p className="text-sm text-red-600 text-center px-4 py-3 mb-4 bg-red-50 rounded-xl">
-            {loginError}
-          </p>
-        )}
+        <AnimatePresence mode="wait">
+          {loginError && (
+            <motion.p
+              key={loginError}
+              className="text-sm text-red-600 text-center px-4 py-3 mb-4 bg-red-50 rounded-xl"
+              animate={{ x: [0, -6, 6, -4, 4, 0] }}
+              transition={{ duration: 0.4 }}
+            >
+              {loginError}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         {/* Submit */}
-        <button
+        <motion.button
           type="submit"
           disabled={loading}
           className="w-full bg-stone-950 text-white py-3 rounded-full font-medium text-[15px] flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+          whileTap={{ scale: 0.97 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         >
           {loading ? <Loader2 size={18} className="animate-spin" /> : 'Entrar'}
-        </button>
-      </form>
+        </motion.button>
+      </motion.form>
 
       {/* Footer */}
       <p className="text-center mt-6 text-sm text-stone-500">

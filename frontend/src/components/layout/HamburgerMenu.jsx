@@ -6,7 +6,7 @@ import {
   X, Bookmark, Activity, Package,
   HelpCircle, FileText, Globe as GlobeIcon,
   LayoutDashboard, Settings, LogOut, ChevronDown, Check,
-  User,
+  User, Store, Users, ChefHat, MessageCircle, Info, Megaphone, Truck, Globe2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
@@ -211,6 +211,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   <MenuItem to={profileUsername ? `/${profileUsername}` : (profileUserId ? `/profile/${profileUserId}` : '/profile')} icon={<User size={20} />} label="Mi perfil" onClose={onClose} />
                   <MenuItem to="/settings" icon={<Settings size={20} />} label="Configuración" onClose={onClose} />
                   <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />
+                  <MenuItem to="/messages" icon={<MessageCircle size={20} />} label="Mensajes" onClose={onClose} />
                 </>
               ) : (
                 <div style={{ padding: '8px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -242,6 +243,15 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   </Link>
                 </div>
               )}
+
+              <Divider />
+
+              {/* ── EXPLORAR ── */}
+              <SectionLabel>EXPLORAR</SectionLabel>
+              <MenuItem to="/products" icon={<Package size={20} />} label="Productos" onClose={onClose} />
+              <MenuItem to="/stores" icon={<Store size={20} />} label="Tiendas" onClose={onClose} />
+              <MenuItem to="/community" icon={<Users size={20} />} label="Comunidades" onClose={onClose} />
+              <MenuItem to="/recipes" icon={<ChefHat size={20} />} label="Recetas" onClose={onClose} />
 
               <Divider />
 
@@ -342,6 +352,15 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               <SectionLabel>SOPORTE</SectionLabel>
               <MenuItem to="/about" icon={<HelpCircle size={20} />} label="Ayuda" onClose={onClose} />
               <MenuItem to="/terms" icon={<FileText size={20} />} label="Términos y condiciones" onClose={onClose} />
+
+              <Divider />
+
+              {/* ── HISPALOSHOP ── */}
+              <SectionLabel>HISPALOSHOP</SectionLabel>
+              <MenuItem to="/que-es" icon={<Info size={20} />} label="¿Qué es HispaloShop?" onClose={onClose} />
+              <MenuItem to="/soy-influencer" icon={<Megaphone size={20} />} label="Soy Influencer" onClose={onClose} />
+              <MenuItem to="/soy-productor" icon={<Truck size={20} />} label="Soy Productor" onClose={onClose} />
+              <MenuItem to="/soy-importador" icon={<Globe2 size={20} />} label="Soy Importador" onClose={onClose} />
 
               {user && (
                 <>
