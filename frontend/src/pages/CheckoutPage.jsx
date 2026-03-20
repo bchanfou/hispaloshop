@@ -229,8 +229,11 @@ export default function CheckoutPage() {
       {/* Stepper */}
       <Stepper current={step} />
 
-      {/* Content */}
-      <div className="max-w-[540px] mx-auto px-4 pt-6 pb-24">
+      {/* Content — desktop: 2-col (form left 60%, summary right 40%) */}
+      <div className="mx-auto max-w-[960px] px-4 pt-6 pb-24 lg:flex lg:gap-8 lg:items-start">
+
+        {/* ── Left: Form Steps ── */}
+        <div className="lg:w-[60%]">
         {/* ── STEP 1: Address ── */}
         {step === 1 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.25 }}>
@@ -385,8 +388,8 @@ export default function CheckoutPage() {
               </>
             )}
 
-            {/* Summary */}
-            <div className="mt-6">
+            {/* Summary — mobile only (desktop has sticky sidebar) */}
+            <div className="mt-6 lg:hidden">
               <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel="Según dirección" formatPrice={formatPrice} />
             </div>
 
@@ -468,8 +471,10 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Order summary */}
-            <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} formatPrice={formatPrice} />
+            {/* Order summary — mobile only */}
+            <div className="lg:hidden">
+              <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} formatPrice={formatPrice} />
+            </div>
 
             {/* Security text */}
             <p className="flex items-center justify-center gap-1 text-xs text-stone-500 my-4">
@@ -491,6 +496,13 @@ export default function CheckoutPage() {
             </button>
           </motion.div>
         )}
+        </div>
+
+        {/* ── Right: Order Summary (desktop sticky sidebar) ── */}
+        <div className="hidden lg:block lg:w-[40%] lg:sticky lg:top-[120px]">
+          <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel={step === 1 ? 'Según dirección' : undefined} formatPrice={formatPrice} />
+        </div>
+
       </div>
     </div>
   );

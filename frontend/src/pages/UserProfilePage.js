@@ -217,6 +217,7 @@ export default function UserProfilePage() {
   if (isLoading) {
     return (
       <div aria-busy="true" aria-label="Cargando perfil" className="min-h-screen bg-white">
+        <div className="mx-auto lg:max-w-[935px]">
         <div className="h-[52px] bg-white border-b border-stone-200" />
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center gap-5">
@@ -250,6 +251,7 @@ export default function UserProfilePage() {
             <div key={i} className="aspect-square bg-stone-50 animate-pulse" />
           ))}
         </div>
+        </div>
       </div>
     );
   }
@@ -272,6 +274,7 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
+      <div className="mx-auto lg:max-w-[935px]">
       <SEO
         title={`${user.name || user.username} — Hispaloshop`}
         description={user.bio?.slice(0, 160) || `Perfil de ${user.name} en Hispaloshop`}
@@ -396,6 +399,7 @@ export default function UserProfilePage() {
           onClose={() => setSelectedProduct(null)}
         />
       )}
+      </div>
     </div>
   );
 }

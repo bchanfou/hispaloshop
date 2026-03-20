@@ -452,9 +452,9 @@ export default function ProfileHeader({
       </AnimatePresence>
 
       {/* ── 3. AVATAR + STATS ROW (Instagram layout) ──────────────── */}
-      <div className="flex items-center gap-5 px-4 pt-4 pb-2">
+      <div className="flex items-center gap-5 px-4 pt-4 pb-2 lg:items-start lg:gap-8 lg:pt-8 lg:pb-4">
         {/* avatar with gradient story ring */}
-        <div className="relative h-[86px] w-[86px] shrink-0">
+        <div className="relative h-[86px] w-[86px] shrink-0 lg:h-[150px] lg:w-[150px]">
           {user?.has_active_story && (
             <div
               className="absolute -inset-[3px] rounded-full"
@@ -469,7 +469,7 @@ export default function ProfileHeader({
                 ? () => onViewOwnStory ? onViewOwnStory() : navigate(`/stories/${user?.user_id}`)
                 : undefined
             }
-            className={`relative h-[86px] w-[86px] rounded-full border-[3px] border-white object-cover ${
+            className={`relative h-[86px] w-[86px] rounded-full border-[3px] border-white object-cover lg:h-[150px] lg:w-[150px] ${
               user?.has_active_story ? 'cursor-pointer' : 'ring-1 ring-stone-200'
             }`}
           />
@@ -494,7 +494,7 @@ export default function ProfileHeader({
         </div>
 
         {/* stats (Instagram: bold number, light label) */}
-        <div className="flex flex-1 justify-around text-center">
+        <div className="flex flex-1 justify-around text-center lg:justify-start lg:gap-10">
           {[
             { value: user?.posts_count, label: 'publicaciones', link: null },
             { value: user?.followers_count, label: 'seguidores', link: `/${user?.username}/followers` },

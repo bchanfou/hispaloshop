@@ -30,7 +30,7 @@ const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', curre
 const formatPrice = (price) => priceFormatter.format(price);
 
 
-export default function ReelCard({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false }) {
+function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false }) {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { addToCart } = useCart();
@@ -989,3 +989,23 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     </div>
   );
 }
+
+const areReelPropsEqual = (prev, next) => {
+  return (
+    prev.reel?.id === next.reel?.id &&
+    prev.isActive === next.isActive &&
+    prev.reel?.liked === next.reel?.liked &&
+    prev.reel?.is_liked === next.reel?.is_liked &&
+    prev.reel?.likes_count === next.reel?.likes_count &&
+    prev.reel?.comments_count === next.reel?.comments_count &&
+    prev.reel?.saved === next.reel?.saved &&
+    prev.reel?.is_saved === next.reel?.is_saved &&
+    prev.embedded === next.embedded &&
+    prev.priority === next.priority &&
+    prev.onLike === next.onLike &&
+    prev.onComment === next.onComment &&
+    prev.onShare === next.onShare
+  );
+};
+
+export default React.memo(ReelCardInner, areReelPropsEqual);

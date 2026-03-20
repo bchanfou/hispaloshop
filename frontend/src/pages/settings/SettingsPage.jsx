@@ -74,6 +74,20 @@ function SettingsGroup({ children }) {
   );
 }
 
+/* ── Desktop sidebar link ── */
+function SettingsSidebarLink({ icon, label, to, active }) {
+  const inner = (
+    <div className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] transition-colors ${
+      active ? 'bg-stone-100 font-semibold text-stone-950' : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'
+    }`}>
+      <span className="text-stone-500">{icon}</span>
+      {label}
+    </div>
+  );
+  if (to) return <Link to={to} className="block no-underline">{inner}</Link>;
+  return <div>{inner}</div>;
+}
+
 /* ── Toggle ── */
 function ToggleSwitch({ value, onChange, disabled }) {
   return (
@@ -148,7 +162,7 @@ export default function SettingsPage() {
       <div className="sticky top-0 z-40 bg-white border-b border-stone-100 flex items-center gap-3 px-4 py-3">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center justify-center w-9 h-9 -ml-1 rounded-full hover:bg-stone-100 transition-colors"
+          className="flex items-center justify-center w-9 h-9 -ml-1 rounded-full hover:bg-stone-100 transition-colors lg:hidden"
           aria-label="Volver"
         >
           <ArrowLeft size={20} className="text-stone-950" />
@@ -156,7 +170,33 @@ export default function SettingsPage() {
         <h1 className="text-[17px] font-semibold text-stone-950">Configuración</h1>
       </div>
 
-      <div className="max-w-[600px] mx-auto px-4 pb-28">
+      <div className="mx-auto max-w-[960px] lg:flex lg:gap-8 lg:px-4">
+
+      {/* ── Desktop sidebar navigation ── */}
+      <aside className="hidden lg:block lg:w-[240px] lg:shrink-0 lg:pt-6 lg:pb-8 lg:sticky lg:top-[60px] lg:self-start lg:max-h-[calc(100vh-60px)] lg:overflow-y-auto">
+        <nav className="space-y-0.5">
+          <SettingsSidebarLink icon={<User size={16} />} label="Editar perfil" to="/settings/profile" />
+          <SettingsSidebarLink icon={<Lock size={16} />} label="Contraseña" to="/settings/password" />
+          <SettingsSidebarLink icon={<Bell size={16} />} label="Notificaciones" to="/settings/notifications" />
+          <SettingsSidebarLink icon={<Eye size={16} />} label="Privacidad" to={null} active />
+          <SettingsSidebarLink icon={<Globe size={16} />} label="País e idioma" to="/settings/locale" />
+          <SettingsSidebarLink icon={<Shield size={16} />} label="Solicitudes" to="/settings/follow-requests" />
+          {(isProducer || isInfluencer) && (
+            <>
+              <div className="my-2 h-px bg-stone-200" />
+              {isProducer && <SettingsSidebarLink icon={<Store size={16} />} label="Editar tienda" to="/producer/store" />}
+              {isProducer && <SettingsSidebarLink icon={<CreditCard size={16} />} label="Plan" to="/settings/plan" />}
+              <SettingsSidebarLink icon={<Receipt size={16} />} label={isProducer ? 'Datos bancarios' : 'Config. fiscal'} to={isProducer ? '/settings/payout' : '/influencer/fiscal-setup'} />
+              {isInfluencer && <SettingsSidebarLink icon={<Link2 size={16} />} label="Links afiliado" to="/influencer/links" />}
+            </>
+          )}
+          <div className="my-2 h-px bg-stone-200" />
+          <SettingsSidebarLink icon={<HelpCircle size={16} />} label="Centro de ayuda" to="/ayuda" />
+          <SettingsSidebarLink icon={<FileText size={16} />} label="Legal" to="/legal/terminos" />
+        </nav>
+      </aside>
+
+      <div className="max-w-[600px] mx-auto px-4 pb-28 lg:flex-1 lg:max-w-none lg:pt-6">
 
         {/* ── CUENTA ── */}
         <SectionLabel>Cuenta</SectionLabel>
@@ -317,6 +357,7 @@ export default function SettingsPage() {
         <p className="text-center text-[11px] text-stone-300 mt-4 pb-4">
           Hispaloshop v2.0
         </p>
+      </div>
       </div>
 
       {/* ── Logout Confirm ── */}

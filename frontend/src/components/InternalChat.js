@@ -211,7 +211,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.12 }}
             onClick={() => onReply?.(message)}
-            className={`absolute top-1/2 z-30 hidden -translate-y-1/2 items-center justify-center rounded-full border border-stone-100 bg-white shadow-sm transition-colors hover:bg-stone-50 md:flex ${
+            className={`absolute top-1/2 z-30 hidden -translate-y-1/2 items-center justify-center rounded-full border border-stone-100 bg-white shadow-sm transition-colors hover:bg-stone-50 lg:flex ${
               isOwn ? '-left-9' : '-right-9'
             }`}
             style={{ width: 28, height: 28 }}
@@ -1427,8 +1427,8 @@ export default function InternalChat({
 
       {/* ── Inbox sidebar ── */}
       <div
-        className={`flex h-full min-h-0 w-full flex-col border-r border-stone-100 bg-white ${
-          activeConversation ? 'max-md:hidden md:w-[340px]' : ''
+        className={`flex h-full min-h-0 flex-col border-r border-stone-100 bg-white ${
+          activeConversation ? 'hidden lg:flex lg:w-[340px]' : 'w-full'
         }`}
       >
         {/* ── Header IG-style 48px ── */}
@@ -1544,8 +1544,13 @@ export default function InternalChat({
         </div>
       </div>
 
-      <div className={`flex min-h-0 flex-1 flex-col ${activeConversation ? '' : 'max-md:hidden'}`}>
-        {activeConversation ? (
+      <div className={`flex min-h-0 flex-1 flex-col ${activeConversation ? '' : 'hidden lg:flex'}`}>
+        {!activeConversation ? (
+          <EmptyState
+            title="Tus mensajes"
+            description="Selecciona una conversación del panel izquierdo o inicia una nueva."
+          />
+        ) : (
           <>
             {/* ── Conversation header IG-style 48px ── */}
             <div className="flex h-14 shrink-0 items-center gap-2 border-b border-stone-100 bg-white px-3">
@@ -1554,7 +1559,7 @@ export default function InternalChat({
                 <button
                   type="button"
                   onClick={() => setSelectedConversationId(null)}
-                  className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100 md:hidden"
+                  className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100 lg:hidden"
                   aria-label="Volver a conversaciones"
                 >
                   <ArrowLeft className="h-5 w-5" strokeWidth={2} />
@@ -1881,11 +1886,6 @@ export default function InternalChat({
               />
             </div>
           </>
-        ) : (
-          <EmptyState
-            title="Selecciona una conversación"
-            description="Abre un chat existente o pulsa ✏ para empezar una conversación nueva."
-          />
         )}
       </div>
 

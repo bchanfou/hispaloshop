@@ -602,7 +602,6 @@ export default function NotificationsPage() {
                   fontSize: 13,
                   fontWeight: isActive ? 600 : 400,
                   color: isActive ? '#0c0a09' : '#78716c',
-                  borderBottom: isActive ? '2px solid #0c0a09' : '2px solid transparent',
                   background: 'none',
                   border: 'none',
                   borderBottom: isActive ? '2px solid #0c0a09' : '2px solid transparent',

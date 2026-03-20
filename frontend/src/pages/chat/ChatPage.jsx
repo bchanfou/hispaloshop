@@ -939,7 +939,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
                 <p className="truncate text-[11px] font-semibold text-stone-700">{replyTo.sender_name || ''}</p>
                 <p className="truncate text-[12px] text-stone-500">{replyTo.content || ''}</p>
               </div>
-              <button onClick={onCancelReply} className="shrink-0 text-stone-400"><X size={16} /></button>
+              <button onClick={onCancelReply} className="shrink-0 text-stone-400" aria-label="Cancelar respuesta"><X size={16} /></button>
             </div>
           </motion.div>
         )}

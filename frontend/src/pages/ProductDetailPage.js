@@ -284,7 +284,7 @@ export default function ProductDetailPage() {
 
       {/* ── TopBar ── */}
       <header className="sticky top-0 z-50 bg-stone-50">
-        <div className="flex h-[52px] items-center justify-between px-4">
+        <div className="mx-auto flex h-[52px] max-w-[1200px] items-center justify-between px-4">
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -321,6 +321,11 @@ export default function ProductDetailPage() {
         </div>
       </header>
 
+      {/* ── Desktop 2-col wrapper ── */}
+      <div className="mx-auto max-w-[1200px] lg:flex lg:items-start lg:gap-0">
+
+      {/* ── Left: Image Gallery ── */}
+      <div className="lg:w-[55%] lg:sticky lg:top-[52px] lg:self-start">
       {/* ── Image Gallery — 1:1 scroll-snap ── */}
       <motion.section aria-label={`Galería de imágenes de ${product.name || 'producto'}`} className="relative w-full bg-stone-100 overflow-hidden" style={{ y: imageY }}>
         <div
@@ -384,6 +389,10 @@ export default function ProductDetailPage() {
           </div>
         )}
       </motion.section>
+      </div>
+
+      {/* ── Right: Product Info ── */}
+      <div className="lg:w-[45%] lg:min-h-0 lg:overflow-y-auto">
 
       {/* ── Product Header ── */}
       <div className="px-4 pt-4">
@@ -1012,9 +1021,12 @@ export default function ProductDetailPage() {
         </div>
       )}
 
+      </div>{/* close right column */}
+      </div>{/* close 2-col wrapper */}
+
       {/* ── Sticky Bottom Bar ── */}
       <div className="fixed bottom-[calc(50px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white px-4 py-3">
-        <div className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-[1200px] items-center gap-3">
           {/* Price */}
           <div className="min-w-0 flex-1">
             <span className="text-lg font-bold text-stone-950">

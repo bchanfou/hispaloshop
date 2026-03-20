@@ -41,7 +41,7 @@ function formatConvTime(value) {
   return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
 }
 
-export default function ConversationItem({ conversation, active, onClick }) {
+function ConversationItemInner({ conversation, active, onClick }) {
   const unreadCount = conversation.unread_count || 0;
   const hasUnread = unreadCount > 0;
   const timestamp = conversation.last_message_at || conversation.last_message?.created_at || conversation.updated_at;
@@ -87,3 +87,20 @@ export default function ConversationItem({ conversation, active, onClick }) {
     </button>
   );
 }
+
+const areConversationPropsEqual = (prev, next) => {
+  const p = prev.conversation;
+  const n = next.conversation;
+  return (
+    p?.conversation_id === n?.conversation_id &&
+    p?.unread_count === n?.unread_count &&
+    p?.last_message_at === n?.last_message_at &&
+    p?.last_message?.content === n?.last_message?.content &&
+    p?.other_user_name === n?.other_user_name &&
+    p?.other_user_avatar === n?.other_user_avatar &&
+    prev.active === next.active &&
+    prev.onClick === next.onClick
+  );
+};
+
+export default React.memo(ConversationItemInner, areConversationPropsEqual);
