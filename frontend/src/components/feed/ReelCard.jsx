@@ -15,6 +15,9 @@ import {
   X as XIcon,
   Trash2,
   ShoppingBag,
+  MoreHorizontal,
+  Pencil,
+  Flag,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
@@ -69,7 +72,18 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
   const [progress, setProgress] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
+  const [showOwnerMenu, setShowOwnerMenu] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditCaption, setShowEditCaption] = useState(false);
+  const [editCaption, setEditCaption] = useState('');
+  const [localCaption, setLocalCaption] = useState(null);
+  const [deleted, setDeleted] = useState(false);
+  const undoTimerRef = useRef(null);
   const doubleTapHeartTimer = useRef(null);
+
+  const isOwner = currentUser && (
+    (currentUser.user_id || currentUser.id) === (reel.user?.id || reel.user?.user_id)
+  );
 
   // Clean up timers on unmount
   useEffect(() => {
@@ -77,6 +91,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       clearTimeout(playIconTimer.current);
       clearTimeout(singleTapTimer.current);
       clearTimeout(doubleTapHeartTimer.current);
+      clearTimeout(undoTimerRef.current);
     };
   }, []);
 
@@ -245,6 +260,42 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     try { localStorage.setItem('hsp_reel_muted', String(video.muted)); } catch {}
   }, []);
 
+  const handleEditSave = useCallback(async () => {
+    const reelId = reel.id || reel.reel_id || reel.post_id;
+    try {
+      await apiClient.patch(`/reels/${reelId}`, { caption: editCaption });
+      setLocalCaption(editCaption);
+      setShowEditCaption(false);
+      toast.success('Reel editado');
+    } catch {
+      toast.error('Error al editar');
+    }
+  }, [editCaption, reel.id, reel.reel_id, reel.post_id]);
+
+  const handleDeleteReel = useCallback(() => {
+    setDeleted(true);
+    setShowDeleteConfirm(false);
+    toast('Reel eliminado', {
+      action: {
+        label: 'Deshacer',
+        onClick: () => {
+          clearTimeout(undoTimerRef.current);
+          setDeleted(false);
+        },
+      },
+      duration: 5000,
+    });
+    undoTimerRef.current = setTimeout(async () => {
+      const reelId = reel.id || reel.reel_id || reel.post_id;
+      try {
+        await apiClient.delete(`/reels/${reelId}`);
+      } catch {
+        setDeleted(false);
+        toast.error('Error al eliminar');
+      }
+    }, 5500);
+  }, [reel.id, reel.reel_id, reel.post_id]);
+
   const handleLike = useCallback(async () => {
     const prev = liked;
     const next = !liked;
@@ -316,6 +367,8 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     }
   }, [addToCart]);
 
+  if (deleted) return null;
+
   return (
     <div
       ref={containerRef}
@@ -357,6 +410,89 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
           <span className="text-[11px] text-white font-semibold font-sans tabular-nums">
             {Math.floor(videoDuration / 60)}:{String(Math.floor(videoDuration % 60)).padStart(2, '0')}
           </span>
+        </div>
+      )}
+
+      {/* Owner menu button */}
+      {isOwner && (
+        <button
+          onClick={() => setShowOwnerMenu(v => !v)}
+          className="absolute top-4 left-4 z-[6] w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
+          aria-label="Opciones del reel"
+        >
+          <MoreHorizontal size={18} className="text-white" />
+        </button>
+      )}
+
+      {/* Owner dropdown menu */}
+      {showOwnerMenu && (
+        <>
+          <div className="fixed inset-0 z-[6]" onClick={() => setShowOwnerMenu(false)} />
+          <div className="absolute top-14 left-4 z-[7] bg-white rounded-xl shadow-lg border border-stone-200 py-1 min-w-[170px]">
+            <button
+              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+              onClick={() => { setEditCaption(localCaption ?? reel.caption ?? ''); setShowEditCaption(true); setShowOwnerMenu(false); }}
+            >
+              <Pencil size={16} /> Editar
+            </button>
+            <button
+              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+              onClick={() => { setShowDeleteConfirm(true); setShowOwnerMenu(false); }}
+            >
+              <Trash2 size={16} /> Eliminar
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Edit caption modal */}
+      {showEditCaption && (
+        <div className="absolute inset-0 z-[15] bg-black/60 flex items-end justify-center" onClick={() => setShowEditCaption(false)}>
+          <div className="bg-white w-full rounded-t-2xl p-4 flex flex-col gap-3" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-stone-950">Editar reel</span>
+              <button className="bg-transparent border-none cursor-pointer p-1" onClick={() => setShowEditCaption(false)} aria-label="Cerrar">
+                <XIcon size={18} />
+              </button>
+            </div>
+            <textarea
+              value={editCaption}
+              onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
+              className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
+              aria-label="Editar descripción"
+            />
+            <p className="text-[11px] text-stone-400">El vídeo no se puede cambiar tras publicar.</p>
+            <button
+              onClick={handleEditSave}
+              className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
+            >
+              Guardar cambios
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="absolute inset-0 z-[15] bg-black/60 flex items-end justify-center" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="bg-white w-full rounded-t-2xl p-5 flex flex-col gap-3 text-center" onClick={e => e.stopPropagation()}>
+            <p className="text-base font-semibold text-stone-950">¿Eliminar este reel?</p>
+            <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes.</p>
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteReel}
+                className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -556,9 +692,9 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         >
           {reel.user?.name || reel.user?.full_name || 'Usuario'}
         </button>
-        {reel.caption && (
+        {(localCaption ?? reel.caption) && (
           <div className="text-[13px] text-white/85 font-sans line-clamp-2 leading-[1.4] mb-1.5">
-            {reel.caption}
+            {localCaption ?? reel.caption}
           </div>
         )}
         {reel.music_name && (

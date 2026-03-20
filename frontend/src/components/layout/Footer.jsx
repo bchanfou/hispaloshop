@@ -48,7 +48,7 @@ export default function Footer() {
       background: '#0A0A0A',
       borderTop: '0.5px solid #1A1A1A',
       padding: '40px 16px',
-      fontFamily: 'var(--font-sans)',
+      fontFamily: 'inherit',
     }}>
       <div className="footer-container" style={{ maxWidth: 1200, margin: '0 auto' }}>
         <style>{`
@@ -92,10 +92,10 @@ export default function Footer() {
                 <Link
                   to={link.to}
                   style={{
-                    fontSize: 'var(--text-sm)',
+                    fontSize: '14px',
                     color: 'rgba(255,255,255,0.4)',
                     textDecoration: 'none',
-                    transition: 'color var(--transition-fast)',
+                    transition: 'color all 0.15s ease',
                   }}
                   onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
                   onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
@@ -122,13 +122,13 @@ export default function Footer() {
                 onClick={() => setDropdownOpen(v => !v)}
                 style={{
                   padding: '6px 12px',
-                  borderRadius: 'var(--radius-full)',
+                  borderRadius: '9999px',
                   background: 'rgba(255,255,255,0.05)',
                   border: '0.5px solid rgba(255,255,255,0.1)',
                   color: 'rgba(255,255,255,0.6)',
-                  fontSize: 'var(--text-sm)',
+                  fontSize: '14px',
                   cursor: 'pointer',
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
@@ -145,10 +145,10 @@ export default function Footer() {
                   width: 200,
                   background: '#1A1A1A',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: '12px',
                   overflow: 'hidden',
                   zIndex: 50,
-                  boxShadow: 'var(--shadow-lg)',
+                  boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
                 }}>
                   {COUNTRIES.map(c => (
                     <button
@@ -164,8 +164,8 @@ export default function Footer() {
                         background: country === c.code ? 'rgba(255,255,255,0.08)' : 'transparent',
                         cursor: c.active ? 'pointer' : 'default',
                         opacity: c.active ? 1 : 0.5,
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: 'var(--text-sm)',
+                        fontFamily: 'inherit',
+                        fontSize: '14px',
                         color: c.active ? '#fff' : 'rgba(255,255,255,0.5)',
                         fontWeight: c.active ? 600 : 400,
                         textAlign: 'left',
@@ -177,7 +177,7 @@ export default function Footer() {
                         <span style={{
                           fontSize: 10, fontWeight: 600,
                           padding: '2px 6px',
-                          borderRadius: 'var(--radius-full)',
+                          borderRadius: '9999px',
                           background: 'rgba(255,255,255,0.1)',
                           color: 'rgba(255,255,255,0.4)',
                         }}>
@@ -195,7 +195,7 @@ export default function Footer() {
               <a
                 href="#"
                 aria-label="Instagram"
-                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color var(--transition-fast)', display: 'flex' }}
+                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color all 0.15s ease', display: 'flex' }}
                 onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
                 onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
               >
@@ -204,7 +204,7 @@ export default function Footer() {
               <a
                 href="#"
                 aria-label="TikTok"
-                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color var(--transition-fast)', display: 'flex' }}
+                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color all 0.15s ease', display: 'flex' }}
                 onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
                 onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
               >
@@ -213,7 +213,7 @@ export default function Footer() {
               <a
                 href="#"
                 aria-label="LinkedIn"
-                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color var(--transition-fast)', display: 'flex' }}
+                style={{ color: 'rgba(255,255,255,0.4)', transition: 'color all 0.15s ease', display: 'flex' }}
                 onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
                 onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
               >
@@ -232,7 +232,7 @@ export default function Footer() {
         }}>
           <div style={{
             width: 140, height: 40,
-            borderRadius: 'var(--radius-md)',
+            borderRadius: '12px',
             border: '0.5px solid rgba(255,255,255,0.15)',
             background: '#0A0A0A',
             display: 'flex',
@@ -245,7 +245,7 @@ export default function Footer() {
           </div>
           <div style={{
             width: 140, height: 40,
-            borderRadius: 'var(--radius-md)',
+            borderRadius: '12px',
             border: '0.5px solid rgba(255,255,255,0.15)',
             background: '#0A0A0A',
             display: 'flex',
@@ -270,7 +270,7 @@ export default function Footer() {
         {/* Copyright */}
         <p style={{
           textAlign: 'center',
-          fontSize: 'var(--text-xs)',
+          fontSize: '11px',
           color: 'rgba(255,255,255,0.25)',
           marginTop: 24,
           marginBottom: 0,

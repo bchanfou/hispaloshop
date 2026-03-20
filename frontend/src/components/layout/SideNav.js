@@ -183,7 +183,7 @@ function SearchPanel({ open, onClose }) {
       <div
         className="fixed top-0 z-[46] flex flex-col bg-white border-r border-stone-200 shadow-xl transition-transform duration-200 ease-out"
         style={{
-          left: 'var(--sidebar-width)',
+          left: '220px',
           width: 380,
           height: '100vh',
           transform: open ? 'translateX(0)' : 'translateX(-100%)',
@@ -317,8 +317,8 @@ export default function SideNav() {
 
   return (
     <>
-      <aside className="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-[var(--sidebar-width)] flex-col border-r bg-white"
-        style={{ borderColor: 'var(--color-divider)' }}
+      <aside className="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-[220px] flex-col border-r bg-white"
+        style={{ borderColor: '#e7e5e4' }}
       >
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 px-5 py-4">
@@ -417,7 +417,7 @@ export default function SideNav() {
         <LocaleDropdowns />
 
         {/* Profile footer */}
-        <div className="border-t px-3 py-2.5" style={{ borderColor: 'var(--color-divider)' }}>
+        <div className="border-t px-3 py-2.5" style={{ borderColor: '#e7e5e4' }}>
           <Link
             to={profileUrl}
             className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] transition-colors ${

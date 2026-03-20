@@ -37,20 +37,20 @@ export default function HispalAIPanel({ isOpen, onClose, contentType, onApply })
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             style={{
               position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
-              background: 'var(--color-white)',
-              borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0',
+              background: '#ffffff',
+              borderRadius: '20px 20px 0 0',
               padding: '16px 20px 32px',
-              fontFamily: 'var(--font-sans)',
+              fontFamily: 'inherit',
               maxHeight: '60vh', overflowY: 'auto',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles size={18} color="var(--color-black)" />
-                <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>David AI</span>
+                <Sparkles size={18} color="#0c0a09" />
+                <span style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09' }}>David AI</span>
               </div>
               <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                <X size={20} color="var(--color-stone)" />
+                <X size={20} color="#78716c" />
               </button>
             </div>
 
@@ -60,8 +60,8 @@ export default function HispalAIPanel({ isOpen, onClose, contentType, onApply })
                 disabled={loading}
                 style={{
                   width: '100%', padding: '12px',
-                  background: 'var(--color-black)', color: '#fff',
-                  border: 'none', borderRadius: 'var(--radius-md)',
+                  background: '#0c0a09', color: '#fff',
+                  border: 'none', borderRadius: '12px',
                   fontSize: 14, fontWeight: 600, cursor: 'pointer',
                   opacity: loading ? 0.6 : 1,
                 }}
@@ -72,11 +72,11 @@ export default function HispalAIPanel({ isOpen, onClose, contentType, onApply })
 
             {suggestion && (
               <div>
-                <p style={{ fontSize: 14, color: 'var(--color-black)', lineHeight: 1.6, marginBottom: 12 }}>
+                <p style={{ fontSize: 14, color: '#0c0a09', lineHeight: 1.6, marginBottom: 12 }}>
                   {suggestion.caption}
                 </p>
                 {suggestion.hashtags?.length > 0 && (
-                  <p style={{ fontSize: 13, color: 'var(--color-black)', marginBottom: 16 }}>
+                  <p style={{ fontSize: 13, color: '#0c0a09', marginBottom: 16 }}>
                     {suggestion.hashtags.map((h) => `#${h}`).join(' ')}
                   </p>
                 )}
@@ -84,8 +84,8 @@ export default function HispalAIPanel({ isOpen, onClose, contentType, onApply })
                   onClick={() => { onApply?.(suggestion); onClose(); }}
                   style={{
                     width: '100%', padding: '12px',
-                    background: 'var(--color-black)', color: '#fff',
-                    border: 'none', borderRadius: 'var(--radius-md)',
+                    background: '#0c0a09', color: '#fff',
+                    border: 'none', borderRadius: '12px',
                     fontSize: 14, fontWeight: 600, cursor: 'pointer',
                   }}
                 >

@@ -24,31 +24,31 @@ export default function ForgotPasswordPage() {
 
   const inputStyle = {
     width: '100%', height: 48, padding: '0 16px',
-    fontSize: 15, fontFamily: 'var(--font-sans)',
-    border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-lg)',
-    background: 'var(--color-white)',
-    color: 'var(--color-black)',
+    fontSize: 15, fontFamily: 'inherit',
+    border: '1px solid #e7e5e4',
+    borderRadius: '14px',
+    background: '#ffffff',
+    color: '#0c0a09',
     outline: 'none', boxSizing: 'border-box',
   };
 
   // Step 2: Confirmation
   if (sent) {
     return (
-      <div style={{ textAlign: 'center', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ textAlign: 'center', fontFamily: 'inherit' }}>
         <div style={{
           width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
-          background: 'var(--color-surface, #f5f5f4)',
+          background: '#f5f5f4',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 32, color: 'var(--color-black)',
+          fontSize: 32, color: '#0c0a09',
         }}>
           ✉️
         </div>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-black)', marginBottom: 8 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0c0a09', marginBottom: 8 }}>
           Revisa tu email
         </h2>
-        <p style={{ fontSize: 15, color: 'var(--color-stone)', lineHeight: 1.5, marginBottom: 8 }}>
-          Hemos enviado un enlace a <strong style={{ color: 'var(--color-black)' }}>{email}</strong>.
+        <p style={{ fontSize: 15, color: '#78716c', lineHeight: 1.5, marginBottom: 8 }}>
+          Hemos enviado un enlace a <strong style={{ color: '#0c0a09' }}>{email}</strong>.
           Puede tardar unos minutos.
         </p>
 
@@ -57,19 +57,19 @@ export default function ForgotPasswordPage() {
           onClick={() => { setSent(false); handleSubmit({ preventDefault: () => {} }); }}
           style={{
             width: '100%', height: 48, marginTop: 24,
-            background: 'var(--color-white)',
-            color: 'var(--color-black)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-lg)',
+            background: '#ffffff',
+            color: '#0c0a09',
+            border: '1px solid #e7e5e4',
+            borderRadius: '14px',
             fontSize: 15, fontWeight: 600,
-            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+            cursor: 'pointer', fontFamily: 'inherit',
           }}
         >
           Reenviar email
         </button>
 
-        <p style={{ marginTop: 20, fontSize: 14, color: 'var(--color-stone)' }}>
-          <Link to="/login" style={{ color: 'var(--color-black)', fontWeight: 600, textDecoration: 'none' }}>
+        <p style={{ marginTop: 20, fontSize: 14, color: '#78716c' }}>
+          <Link to="/login" style={{ color: '#0c0a09', fontWeight: 600, textDecoration: 'none' }}>
             Volver al login
           </Link>
         </p>
@@ -81,16 +81,16 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <h1 style={{
-        fontSize: 'var(--text-2xl, 24px)', fontWeight: 600,
-        color: 'var(--color-black)', textAlign: 'center',
-        margin: 0, fontFamily: 'var(--font-sans)',
+        fontSize: '24px', fontWeight: 600,
+        color: '#0c0a09', textAlign: 'center',
+        margin: 0, fontFamily: 'inherit',
       }}>
         Recuperar contraseña
       </h1>
       <p style={{
-        fontSize: 'var(--text-base, 16px)', color: 'var(--color-stone)',
+        fontSize: '16px', color: '#78716c',
         textAlign: 'center', marginTop: 4, marginBottom: 32,
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}>
         Te enviaremos un enlace para restablecer tu contraseña.
       </p>
@@ -99,8 +99,8 @@ export default function ForgotPasswordPage() {
         <div style={{ marginBottom: 20 }}>
           <label style={{
             display: 'block', fontSize: 13, fontWeight: 600,
-            color: 'var(--color-black)', marginBottom: 6,
-            fontFamily: 'var(--font-sans)',
+            color: '#0c0a09', marginBottom: 6,
+            fontFamily: 'inherit',
           }}>
             Email
           </label>
@@ -120,14 +120,14 @@ export default function ForgotPasswordPage() {
           disabled={loading}
           style={{
             width: '100%', height: 48,
-            background: 'var(--color-black)',
-            color: 'var(--color-white)',
-            border: 'none', borderRadius: 'var(--radius-lg)',
+            background: '#0c0a09',
+            color: '#ffffff',
+            border: 'none', borderRadius: '14px',
             fontSize: 15, fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',
             opacity: loading ? 0.6 : 1,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'inherit',
           }}
         >
           {loading ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Enviar enlace'}
@@ -136,10 +136,10 @@ export default function ForgotPasswordPage() {
 
       <p style={{
         textAlign: 'center', marginTop: 24,
-        fontSize: 14, color: 'var(--color-stone)',
-        fontFamily: 'var(--font-sans)',
+        fontSize: 14, color: '#78716c',
+        fontFamily: 'inherit',
       }}>
-        <Link to="/login" style={{ color: 'var(--color-black)', fontWeight: 600, textDecoration: 'none' }}>
+        <Link to="/login" style={{ color: '#0c0a09', fontWeight: 600, textDecoration: 'none' }}>
           Volver al login
         </Link>
       </p>

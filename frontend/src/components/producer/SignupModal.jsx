@@ -182,12 +182,12 @@ function getPasswordStrength(password) {
   if (/[^A-Za-z0-9]/.test(value)) score += 1;
 
   if (score <= 1) {
-    return { label: 'Baja', color: 'var(--color-red)', width: '33%' };
+    return { label: 'Baja', color: '#dc2626', width: '33%' };
   }
   if (score === 2 || score === 3) {
-    return { label: 'Media', color: 'var(--color-amber)', width: '66%' };
+    return { label: 'Media', color: '#d97706', width: '66%' };
   }
-  return { label: 'Alta', color: 'var(--color-black)', width: '100%' };
+  return { label: 'Alta', color: '#0c0a09', width: '100%' };
 }
 
 function loadStripeJs() {
@@ -448,9 +448,9 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           appearance: {
             theme: 'stripe',
             variables: {
-              colorPrimary: 'var(--color-black)',
-              colorText: 'var(--color-black)',
-              colorDanger: 'var(--color-red)',
+              colorPrimary: '#0c0a09',
+              colorText: '#0c0a09',
+              colorDanger: '#dc2626',
               borderRadius: '12px',
             },
           },

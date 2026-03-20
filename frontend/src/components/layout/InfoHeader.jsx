@@ -57,13 +57,13 @@ export default function InfoHeader() {
         top: 0,
         left: 0,
         right: 0,
-        zIndex: 'var(--z-sticky)',
+        zIndex: '40',
         background: headerBg,
         borderBottom: headerBorder,
         backdropFilter: scrolled ? 'blur(20px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
         transition: 'background 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease',
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}>
         {/* ── Mobile ── */}
         <div className="lg:hidden" style={{
@@ -71,11 +71,11 @@ export default function InfoHeader() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 var(--space-4)',
+          padding: '0 16px',
         }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
             <Logo variant="icon" theme="dark" size={26} />
-            <span style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: textColor }}>
+            <span style={{ fontSize: '16px', fontWeight: 700, color: textColor }}>
               Hispaloshop
             </span>
           </Link>
@@ -83,12 +83,12 @@ export default function InfoHeader() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Link to="/login" style={{
               padding: '7px 14px',
-              fontSize: 'var(--text-xs)',
+              fontSize: '11px',
               fontWeight: 600,
               color: textColor,
               textDecoration: 'none',
               border: '1px solid rgba(255,255,255,0.25)',
-              borderRadius: 'var(--radius-full)',
+              borderRadius: '9999px',
               background: 'transparent',
               transition: 'background 0.15s ease',
             }}>
@@ -121,14 +121,14 @@ export default function InfoHeader() {
           height: 60,
           gridTemplateColumns: '200px 1fr 200px',
           alignItems: 'center',
-          maxWidth: 'var(--max-width)',
+          maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 var(--space-4)',
+          padding: '0 16px',
         }}>
           {/* Logo */}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <Logo variant="icon" theme="dark" size={28} />
-            <span style={{ fontSize: 'var(--text-lg)', fontWeight: 700, color: textColor }}>
+            <span style={{ fontSize: '18px', fontWeight: 700, color: textColor }}>
               Hispaloshop
             </span>
           </Link>
@@ -141,11 +141,11 @@ export default function InfoHeader() {
                 to={link.to}
                 style={{
                   padding: '8px 16px',
-                  fontSize: 'var(--text-sm)',
+                  fontSize: '14px',
                   fontWeight: 500,
                   color: 'rgba(255,255,255,0.8)',
                   textDecoration: 'none',
-                  borderRadius: 'var(--radius-full)',
+                  borderRadius: '9999px',
                   transition: 'color 0.15s ease, background 0.15s ease',
                 }}
                 onMouseEnter={e => {
@@ -166,12 +166,12 @@ export default function InfoHeader() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
             <Link to="/login" style={{
               padding: '8px 18px',
-              fontSize: 'var(--text-sm)',
+              fontSize: '14px',
               fontWeight: 600,
               color: textColor,
               textDecoration: 'none',
               border: '1px solid rgba(255,255,255,0.25)',
-              borderRadius: 'var(--radius-full)',
+              borderRadius: '9999px',
               background: 'transparent',
               transition: 'background 0.15s ease, border-color 0.15s ease',
             }}
@@ -188,17 +188,17 @@ export default function InfoHeader() {
             </Link>
             <Link to="/register" style={{
               padding: '8px 18px',
-              fontSize: 'var(--text-sm)',
+              fontSize: '14px',
               fontWeight: 600,
               color: '#fff',
               textDecoration: 'none',
-              borderRadius: 'var(--radius-full)',
-              background: 'var(--color-black)',
-              border: '1px solid var(--color-black)',
+              borderRadius: '9999px',
+              background: '#0c0a09',
+              border: '1px solid #0c0a09',
               transition: 'background 0.15s ease',
             }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--color-black)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'var(--color-black)'}
+              onMouseEnter={e => e.currentTarget.style.background = '#0c0a09'}
+              onMouseLeave={e => e.currentTarget.style.background = '#0c0a09'}
             >
               Empieza gratis
             </Link>
@@ -221,7 +221,7 @@ export default function InfoHeader() {
                 position: 'fixed',
                 inset: 0,
                 background: 'rgba(0,0,0,0.5)',
-                zIndex: 'var(--z-drawer)',
+                zIndex: '50',
               }}
             />
 
@@ -238,11 +238,11 @@ export default function InfoHeader() {
                 right: 0,
                 bottom: 0,
                 width: 280,
-                background: 'var(--color-white)',
-                zIndex: 'calc(var(--z-drawer) + 1)',
+                background: '#ffffff',
+                zIndex: '51',
                 display: 'flex',
                 flexDirection: 'column',
-                boxShadow: 'var(--shadow-xl)',
+                boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
               }}
             >
               {/* Drawer header */}
@@ -251,20 +251,20 @@ export default function InfoHeader() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '14px 16px',
-                borderBottom: '1px solid var(--color-divider)',
+                borderBottom: '1px solid #e7e5e4',
               }}>
-                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-black)' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#0c0a09' }}>
                   Menú
                 </span>
                 <button
                   onClick={() => setDrawerOpen(false)}
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    width: 32, height: 32, border: 'none', background: 'var(--color-surface)',
-                    borderRadius: 'var(--radius-full)', cursor: 'pointer',
+                    width: 32, height: 32, border: 'none', background: '#f5f5f4',
+                    borderRadius: '9999px', cursor: 'pointer',
                   }}
                 >
-                  <X size={16} color="var(--color-black)" />
+                  <X size={16} color="#0c0a09" />
                 </button>
               </div>
 
@@ -280,22 +280,22 @@ export default function InfoHeader() {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       padding: '14px 12px',
-                      borderRadius: 'var(--radius-md)',
+                      borderRadius: '12px',
                       textDecoration: 'none',
-                      fontSize: 'var(--text-base)',
+                      fontSize: '16px',
                       fontWeight: 500,
-                      color: 'var(--color-black)',
-                      fontFamily: 'var(--font-sans)',
+                      color: '#0c0a09',
+                      fontFamily: 'inherit',
                     }}
                   >
                     {link.label}
-                    <ChevronRight size={16} color="var(--color-stone)" />
+                    <ChevronRight size={16} color="#78716c" />
                   </Link>
                 ))}
               </nav>
 
               {/* CTA */}
-              <div style={{ padding: 16, borderTop: '1px solid var(--color-divider)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ padding: 16, borderTop: '1px solid #e7e5e4', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <Link
                   to="/register"
                   onClick={() => setDrawerOpen(false)}
@@ -304,13 +304,13 @@ export default function InfoHeader() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: 44,
-                    borderRadius: 'var(--radius-full)',
-                    background: 'var(--color-black)',
+                    borderRadius: '9999px',
+                    background: '#0c0a09',
                     color: '#fff',
-                    fontSize: 'var(--text-sm)',
+                    fontSize: '14px',
                     fontWeight: 600,
                     textDecoration: 'none',
-                    fontFamily: 'var(--font-sans)',
+                    fontFamily: 'inherit',
                   }}
                 >
                   Empieza gratis
@@ -323,14 +323,14 @@ export default function InfoHeader() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: 44,
-                    borderRadius: 'var(--radius-full)',
+                    borderRadius: '9999px',
                     background: 'transparent',
-                    color: 'var(--color-black)',
-                    fontSize: 'var(--text-sm)',
+                    color: '#0c0a09',
+                    fontSize: '14px',
                     fontWeight: 600,
                     textDecoration: 'none',
-                    border: '1px solid var(--color-border)',
-                    fontFamily: 'var(--font-sans)',
+                    border: '1px solid #e7e5e4',
+                    fontFamily: 'inherit',
                   }}
                 >
                   Iniciar sesión

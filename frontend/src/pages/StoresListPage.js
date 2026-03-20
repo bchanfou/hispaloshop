@@ -85,18 +85,18 @@ function useDebounce(value, delay) {
 
 const pill = (active) => ({
   flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
-  padding: '7px 14px', borderRadius: 'var(--radius-full)',
-  fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)',
-  whiteSpace: 'nowrap', cursor: 'pointer', transition: 'var(--transition-fast)',
-  border: active ? 'none' : '1px solid var(--color-border)',
-  background: active ? 'var(--color-black)' : 'var(--color-white)',
-  color: active ? '#fff' : 'var(--color-black)',
+  padding: '7px 14px', borderRadius: '9999px',
+  fontSize: 13, fontWeight: 500, fontFamily: 'inherit',
+  whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.15s ease',
+  border: active ? 'none' : '1px solid #e7e5e4',
+  background: active ? '#0c0a09' : '#ffffff',
+  color: active ? '#fff' : '#0c0a09',
 });
 
 const sLabel = {
   fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
-  letterSpacing: '0.06em', color: 'var(--color-stone)',
-  fontFamily: 'var(--font-sans)', display: 'block', marginBottom: 12,
+  letterSpacing: '0.06em', color: '#78716c',
+  fontFamily: 'inherit', display: 'block', marginBottom: 12,
 };
 
 /* ══════════════════════════════════════════
@@ -199,7 +199,7 @@ function StoreMap({ stores }) {
 
       const slug = store.slug || store.store_slug;
       marker.bindPopup(
-        `<div style="font-family:var(--font-sans);min-width:140px;padding:2px 0">` +
+        `<div style="font-family:inherit;min-width:140px;padding:2px 0">` +
         `<p style="font-size:13px;font-weight:600;color:#0c0a09;margin:0 0 2px">${escapeHtml(store.name)}</p>` +
         (store.location ? `<p style="font-size:11px;color:#78716c;margin:0 0 6px">${escapeHtml(store.location)}</p>` : '') +
         `<a href="/store/${encodeURIComponent(slug)}" style="font-size:11px;font-weight:600;color:#0c0a09;text-decoration:none">Ver tienda →</a>` +
@@ -264,46 +264,46 @@ function StoreCard({ store }) {
       aria-label={`Tienda ${store.name}`}
       style={{
         display: 'block', textDecoration: 'none',
-        borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-        background: 'var(--color-white)',
-        border: '1px solid var(--color-border)',
-        transition: 'var(--transition-fast)',
+        borderRadius: '16px', overflow: 'hidden',
+        background: '#ffffff',
+        border: '1px solid #e7e5e4',
+        transition: 'all 0.15s ease',
       }}
     >
       {/* hero */}
-      <div style={{ aspectRatio: '16/10', background: 'var(--color-surface)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ aspectRatio: '16/10', background: '#f5f5f4', position: 'relative', overflow: 'hidden' }}>
         {hero && <img src={hero} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
         {/* logo overlap */}
         {store.logo && (
           <img src={store.logo} alt="" style={{
             position: 'absolute', bottom: -14, left: 12,
             width: 32, height: 32, borderRadius: '50%', objectFit: 'cover',
-            border: '2px solid var(--color-white)', background: 'var(--color-white)',
+            border: '2px solid #ffffff', background: '#ffffff',
           }} />
         )}
       </div>
       {/* info */}
       <div style={{ padding: '18px 12px 12px' }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {store.name}
         </p>
-        <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '3px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
+        <p style={{ fontSize: 11, color: '#78716c', margin: '3px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
           <MapPin size={10} /> {store.location || 'España'}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
           {rating > 0 && (
-            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Star size={10} style={{ fill: 'var(--color-black)', color: 'var(--color-black)' }} />
+            <span style={{ fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Star size={10} style={{ fill: '#0c0a09', color: '#0c0a09' }} />
               {Number(rating).toFixed(1)}
             </span>
           )}
           {store.product_count > 0 && (
-            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 2 }}>
+            <span style={{ fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 2 }}>
               <Package size={10} /> {store.product_count}
             </span>
           )}
           {store.free_shipping && (
-            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 2 }}>
+            <span style={{ fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 2 }}>
               <Truck size={10} /> Gratis
             </span>
           )}
@@ -327,8 +327,8 @@ function FeaturedCard({ store }) {
       aria-label={`Tienda destacada: ${store.name}`}
       style={{
         flexShrink: 0, width: 260, textDecoration: 'none',
-        borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-        background: 'var(--color-black)', position: 'relative',
+        borderRadius: '16px', overflow: 'hidden',
+        background: '#0c0a09', position: 'relative',
         aspectRatio: '16/9',
       }}
     >
@@ -491,7 +491,7 @@ export default function StoresListPage() {
 
   /* ── render ── */
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)', paddingBottom: 80 }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', fontFamily: 'inherit', paddingBottom: 80 }}>
       <SEO title="Tiendas — Hispaloshop" description="Explora tiendas de productores artesanales de alimentación saludable local. Filtra por región y país." />
       <style>{`
         @keyframes storesPulse { 0%,100%{opacity:.4} 50%{opacity:1} }
@@ -504,18 +504,18 @@ export default function StoresListPage() {
       <div style={{
         position: 'sticky', top: 0, zIndex: 20,
         height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
+        padding: '0 16px', background: '#ffffff',
+        borderBottom: '1px solid #e7e5e4',
       }}>
         <button onClick={() => navigate(-1)} aria-label="Volver" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ArrowLeft size={22} color="var(--color-black)" />
+          <ArrowLeft size={22} color="#0c0a09" />
         </button>
-        <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)' }}>Tiendas</span>
+        <span style={{ fontSize: 16, fontWeight: 600, color: '#0c0a09' }}>Tiendas</span>
         <button
           onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
           style={{
             background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex',
-            color: 'var(--color-black)',
+            color: '#0c0a09',
           }}
           aria-label={viewMode === 'list' ? 'Ver mapa' : 'Ver lista'}
         >
@@ -527,7 +527,7 @@ export default function StoresListPage() {
 
         {/* ── SEARCH ── */}
         <div style={{ position: 'relative', marginBottom: 12 }}>
-          <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-stone)' }} />
+          <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#78716c' }} />
           <input
             type="text"
             placeholder="Buscar tiendas…"
@@ -535,10 +535,10 @@ export default function StoresListPage() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             style={{
-              width: '100%', height: 44, borderRadius: 'var(--radius-full)',
-              border: '1px solid var(--color-border)', background: 'var(--color-white)',
+              width: '100%', height: 44, borderRadius: '9999px',
+              border: '1px solid #e7e5e4', background: '#ffffff',
               paddingLeft: 42, paddingRight: searchQuery ? 40 : 16,
-              fontSize: 14, fontFamily: 'var(--font-sans)', color: 'var(--color-black)', outline: 'none',
+              fontSize: 14, fontFamily: 'inherit', color: '#0c0a09', outline: 'none',
             }}
           />
           {searchQuery && (
@@ -547,7 +547,7 @@ export default function StoresListPage() {
               aria-label="Borrar búsqueda"
               style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <X size={16} color="var(--color-stone)" />
+              <X size={16} color="#78716c" />
             </button>
           )}
         </div>
@@ -574,12 +574,12 @@ export default function StoresListPage() {
                 aria-pressed={activeCountry === c.code}
                 style={{
                   flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4,
-                  padding: '5px 12px', borderRadius: 'var(--radius-full)',
-                  fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-sans)',
-                  cursor: 'pointer', transition: 'var(--transition-fast)',
-                  border: activeCountry === c.code ? 'none' : '1px solid var(--color-border)',
-                  background: activeCountry === c.code ? 'var(--color-black)' : 'var(--color-surface)',
-                  color: activeCountry === c.code ? '#fff' : 'var(--color-black)',
+                  padding: '5px 12px', borderRadius: '9999px',
+                  fontSize: 12, fontWeight: 500, fontFamily: 'inherit',
+                  cursor: 'pointer', transition: 'all 0.15s ease',
+                  border: activeCountry === c.code ? 'none' : '1px solid #e7e5e4',
+                  background: activeCountry === c.code ? '#0c0a09' : '#f5f5f4',
+                  color: activeCountry === c.code ? '#fff' : '#0c0a09',
                 }}
               >
                 {c.flag} {c.name} <span style={{ opacity: 0.5 }}>({c.count})</span>
@@ -602,23 +602,23 @@ export default function StoresListPage() {
                     return (
                       <Link key={store.store_id || slug} to={`/store/${slug}`} aria-label={`Tienda ${store.name}`} style={{
                         display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px',
-                        background: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
-                        border: '1px solid var(--color-border)', textDecoration: 'none',
+                        background: '#ffffff', borderRadius: '14px',
+                        border: '1px solid #e7e5e4', textDecoration: 'none',
                       }}>
                         {store.logo ? (
                           <img src={store.logo} alt={store.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
                         ) : (
-                          <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, color: 'var(--color-stone)' }}>
+                          <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#f5f5f4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, color: '#78716c' }}>
                             {(store.name || '?')[0].toUpperCase()}
                           </div>
                         )}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>{store.name}</p>
-                          <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '1px 0 0' }}>{store.location || ''}</p>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0 }}>{store.name}</p>
+                          <p style={{ fontSize: 11, color: '#78716c', margin: '1px 0 0' }}>{store.location || ''}</p>
                         </div>
                         {(store.average_rating || store.rating) > 0 && (
-                          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-black)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Star size={12} style={{ fill: 'var(--color-black)', color: 'var(--color-black)' }} />
+                          <span style={{ fontSize: 12, fontWeight: 600, color: '#0c0a09', display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Star size={12} style={{ fill: '#0c0a09', color: '#0c0a09' }} />
                             {Number(store.average_rating || store.rating).toFixed(1)}
                           </span>
                         )}
@@ -659,20 +659,20 @@ export default function StoresListPage() {
               {loading ? (
                 <div className="stores-grid" aria-busy="true" aria-label="Cargando tiendas">
                   {[1,2,3,4,5,6].map(i => (
-                    <div key={i} aria-hidden="true" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', background: 'var(--color-white)', border: '1px solid var(--color-border)' }}>
-                      <div style={{ aspectRatio: '16/10', background: 'var(--color-surface)', animation: 'storesPulse 1.5s ease-in-out infinite' }} />
+                    <div key={i} aria-hidden="true" style={{ borderRadius: '16px', overflow: 'hidden', background: '#ffffff', border: '1px solid #e7e5e4' }}>
+                      <div style={{ aspectRatio: '16/10', background: '#f5f5f4', animation: 'storesPulse 1.5s ease-in-out infinite' }} />
                       <div style={{ padding: '18px 12px 12px' }}>
-                        <div style={{ height: 12, width: '60%', background: 'var(--color-surface)', borderRadius: 4, animation: 'storesPulse 1.5s ease-in-out infinite' }} />
-                        <div style={{ height: 10, width: '40%', background: 'var(--color-surface)', borderRadius: 4, marginTop: 6, animation: 'storesPulse 1.5s ease-in-out infinite' }} />
+                        <div style={{ height: 12, width: '60%', background: '#f5f5f4', borderRadius: 4, animation: 'storesPulse 1.5s ease-in-out infinite' }} />
+                        <div style={{ height: 10, width: '40%', background: '#f5f5f4', borderRadius: 4, marginTop: 6, animation: 'storesPulse 1.5s ease-in-out infinite' }} />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : filteredStores.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                  <MapPin size={36} style={{ color: 'var(--color-stone)', margin: '0 auto 12px' }} />
-                  <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-black)' }}>No hay tiendas</p>
-                  <p style={{ fontSize: 13, color: 'var(--color-stone)', marginTop: 4 }}>
+                  <MapPin size={36} style={{ color: '#78716c', margin: '0 auto 12px' }} />
+                  <p style={{ fontSize: 15, fontWeight: 500, color: '#0c0a09' }}>No hay tiendas</p>
+                  <p style={{ fontSize: 13, color: '#78716c', marginTop: 4 }}>
                     {debouncedSearch ? 'Prueba con otro término' : 'No hay tiendas en esta región todavía'}
                   </p>
                 </div>

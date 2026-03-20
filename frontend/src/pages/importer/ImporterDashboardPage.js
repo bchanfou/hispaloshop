@@ -18,19 +18,15 @@ import { OperationCard } from '../b2b/B2BOperationsDashboard';
 function KPICard({ label, value, icon: Icon, href, description }) {
   const Wrapper = href ? Link : 'div';
   return (
-    <Wrapper
-      to={href}
-      className="p-4 transition-all"
-      style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}
-    >
+    <Wrapper to={href} className="p-4 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
-          <Icon className="w-4.5 h-4.5" style={{ color: 'var(--color-stone)' }} />
+        <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-xl bg-stone-100">
+          <Icon className="w-4 h-4 text-stone-500" />
         </div>
       </div>
-      <p className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-black)' }}>{value}</p>
-      <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>{label}</p>
-      {description && <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-stone)', opacity: 0.7 }}>{description}</p>}
+      <p className="text-2xl font-extrabold tracking-tight text-stone-950">{value}</p>
+      <p className="text-xs mt-0.5 text-stone-500">{label}</p>
+      {description && <p className="text-[11px] mt-0.5 text-stone-400">{description}</p>}
     </Wrapper>
   );
 }
@@ -38,22 +34,14 @@ function KPICard({ label, value, icon: Icon, href, description }) {
 function AlertCard({ alert }) {
   const isDanger = alert.type === 'danger';
   return (
-    <div className="flex items-start gap-3 p-3 mb-2" style={{
-      borderRadius: 'var(--radius-xl)',
-      background: isDanger ? 'var(--color-red-light)' : 'var(--color-surface)',
-      border: `1px solid ${isDanger ? 'var(--color-red)' : 'var(--color-border)'}`,
-    }}>
-      <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" style={{ color: isDanger ? 'var(--color-red)' : 'var(--color-stone)' }} />
+    <div className={`flex items-start gap-3 p-3 mb-2 rounded-2xl border ${isDanger ? 'bg-red-50 border-red-200' : 'bg-stone-100 border-stone-200'}`}>
+      <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${isDanger ? 'text-red-600' : 'text-stone-500'}`} />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>
-          {alert.title}
-        </p>
-        {alert.message && (
-          <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>{alert.message}</p>
-        )}
+        <p className="text-sm font-semibold text-stone-950">{alert.title}</p>
+        {alert.message && <p className="text-xs mt-0.5 text-stone-500">{alert.message}</p>}
       </div>
       {alert.action_href && (
-        <Link to={alert.action_href} className="text-xs font-bold shrink-0 hover:underline" style={{ color: 'var(--color-black)' }}>
+        <Link to={alert.action_href} className="text-xs font-bold shrink-0 hover:underline text-stone-950">
           {alert.action_label || 'Ver'} <ArrowRight className="w-3 h-3 inline" />
         </Link>
       )}
@@ -66,15 +54,11 @@ function QuickAction({ icon: Icon, label, href, variant = 'default' }) {
   return (
     <Link
       to={href}
-      className="flex items-center gap-3 p-3.5 transition-all text-sm font-semibold"
-      style={{
-        background: isPrimary ? 'var(--color-black)' : 'var(--color-white)',
-        borderRadius: 'var(--radius-xl)',
-        border: isPrimary ? 'none' : '1px solid var(--color-border)',
-        color: isPrimary ? '#fff' : 'var(--color-black)',
-      }}
+      className={`flex items-center gap-3 p-3.5 rounded-2xl transition-all text-sm font-semibold ${
+        isPrimary ? 'bg-stone-950 text-white' : 'bg-white border border-stone-200 text-stone-950 hover:border-stone-300'
+      }`}
     >
-      <Icon className="w-5 h-5 shrink-0" style={{ color: isPrimary ? '#fff' : 'var(--color-stone)' }} />
+      <Icon className={`w-5 h-5 shrink-0 ${isPrimary ? 'text-white' : 'text-stone-500'}`} />
       {label}
     </Link>
   );
@@ -85,8 +69,7 @@ function ImporterPlanCard({ plan }) {
     return (
       <Link
         to="/producer/commercial-ai"
-        className="flex items-center gap-3.5 p-4 transition-colors"
-        style={{ background: 'var(--color-black)', borderRadius: 'var(--radius-xl)', color: '#fff' }}
+        className="flex items-center gap-3.5 p-4 transition-colors bg-stone-950 rounded-2xl text-white"
       >
         <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.1)' }}>
           <Globe className="w-5 h-5" />
@@ -103,12 +86,12 @@ function ImporterPlanCard({ plan }) {
   }
 
   return (
-    <div className="p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '2px solid var(--color-border)' }}>
+    <div className="p-4 bg-white rounded-2xl border-2 border-stone-200">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
+        <p className="text-sm font-bold text-stone-950">
           Plan {(plan || 'FREE').toUpperCase()} · Actualizar a ELITE
         </p>
-        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: 'var(--color-amber-light)', color: 'var(--color-amber)' }}>
+        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">
           ELITE
         </span>
       </div>
@@ -119,15 +102,14 @@ function ImporterPlanCard({ plan }) {
           'Contratos B2B generados automáticamente',
           'Comisión reducida al 15%',
         ].map(f => (
-          <p key={f} className="text-xs flex items-center gap-1.5" style={{ color: 'var(--color-stone)' }}>
-            <span className="font-bold" style={{ color: 'var(--color-black)' }}>✓</span> {f}
+          <p key={f} className="text-xs flex items-center gap-1.5 text-stone-500">
+            <span className="font-bold text-stone-950">✓</span> {f}
           </p>
         ))}
       </div>
       <Link
         to="/producer/plan"
-        className="block w-full text-center py-2.5 text-sm font-medium transition-colors"
-        style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)' }}
+        className="block w-full text-center py-2.5 text-sm font-medium transition-colors bg-stone-950 text-white rounded-2xl"
       >
         Actualizar a ELITE · 249 €/mes <ArrowRight className="w-4 h-4 inline ml-1" />
       </Link>
@@ -148,17 +130,17 @@ function formatRelativeTime(dateStr) {
 
 function B2BOrderStatusBadge({ status }) {
   const config = {
-    pending_producer: { label: 'Esperando productor', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-    confirmed_by_producer: { label: 'Confirmado', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
-    paid: { label: 'Pagado', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
-    shipped: { label: 'En camino', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-    delivered: { label: 'Recibido', bg: 'var(--color-black)', color: '#fff' },
-    cancelled: { label: 'Cancelado', bg: 'var(--color-white)', color: 'var(--color-stone)' },
-    rejected: { label: 'Rechazado', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
+    pending_producer: { label: 'Esperando productor', cls: 'bg-stone-100 text-stone-500' },
+    confirmed_by_producer: { label: 'Confirmado', cls: 'bg-stone-100 text-stone-950' },
+    paid: { label: 'Pagado', cls: 'bg-stone-100 text-stone-950' },
+    shipped: { label: 'En camino', cls: 'bg-stone-100 text-stone-500' },
+    delivered: { label: 'Recibido', cls: 'bg-stone-950 text-white' },
+    cancelled: { label: 'Cancelado', cls: 'bg-white text-stone-500' },
+    rejected: { label: 'Rechazado', cls: 'bg-red-50 text-red-600' },
   };
-  const c = config[status] || { label: status, bg: 'var(--color-surface)', color: 'var(--color-stone)' };
+  const c = config[status] || { label: status, cls: 'bg-stone-100 text-stone-500' };
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: c.bg, color: c.color }}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${c.cls}`}>
       {c.label}
     </span>
   );
@@ -166,16 +148,16 @@ function B2BOrderStatusBadge({ status }) {
 
 function B2COrderStatusBadge({ status }) {
   const config = {
-    pending: { label: 'Pendiente', bg: 'var(--color-amber-light)', color: 'var(--color-amber)' },
-    processing: { label: 'Procesando', bg: 'var(--color-blue-light)', color: 'var(--color-blue)' },
-    shipped: { label: 'Enviado', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-    delivered: { label: 'Entregado', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
-    cancelled: { label: 'Cancelado', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
-    refunded: { label: 'Reembolsado', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
+    pending: { label: 'Pendiente', cls: 'bg-amber-50 text-amber-600' },
+    processing: { label: 'Procesando', cls: 'bg-blue-50 text-blue-600' },
+    shipped: { label: 'Enviado', cls: 'bg-stone-100 text-stone-500' },
+    delivered: { label: 'Entregado', cls: 'bg-stone-100 text-stone-950' },
+    cancelled: { label: 'Cancelado', cls: 'bg-red-50 text-red-600' },
+    refunded: { label: 'Reembolsado', cls: 'bg-red-50 text-red-600' },
   };
-  const c = config[status] || { label: status, bg: 'var(--color-surface)', color: 'var(--color-stone)' };
+  const c = config[status] || { label: status, cls: 'bg-stone-100 text-stone-500' };
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: c.bg, color: c.color }}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${c.cls}`}>
       {c.label}
     </span>
   );
@@ -190,18 +172,14 @@ function PeriodSelector({ value, onChange }) {
     { key: 'month', label: 'Mes' },
   ];
   return (
-    <div className="flex gap-1 p-0.5" style={{ borderRadius: 'var(--radius-full)', background: 'var(--color-surface)' }}>
+    <div className="flex gap-1 p-0.5 rounded-full bg-stone-100">
       {options.map(o => (
         <button
           key={o.key}
           onClick={() => onChange(o.key)}
-          className="px-3 py-1 text-[11px] font-semibold transition-all"
-          style={{
-            borderRadius: 'var(--radius-full)',
-            background: value === o.key ? 'var(--color-white)' : 'transparent',
-            color: value === o.key ? 'var(--color-black)' : 'var(--color-stone)',
-            boxShadow: value === o.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-          }}
+          className={`px-3 py-1 text-[11px] font-semibold transition-all rounded-full ${
+            value === o.key ? 'bg-white text-stone-950 shadow-sm' : 'bg-transparent text-stone-500'
+          }`}
         >
           {o.label}
         </button>
@@ -271,7 +249,7 @@ export default function ImporterDashboardPage() {
 
   if (loading) {
     return (
-      <div style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)' }}>
+      <div className="bg-stone-50">
         <div className="h-8 w-48 rounded-xl bg-stone-100 animate-pulse mb-2" />
         <div className="h-4 w-32 rounded-xl bg-stone-100 animate-pulse mb-5" />
         <div className="grid grid-cols-2 gap-3 mb-5">
@@ -284,13 +262,12 @@ export default function ImporterDashboardPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3" style={{ fontFamily: 'var(--font-sans)' }}>
-        <AlertTriangle className="w-10 h-10" style={{ color: 'var(--color-stone)' }} />
-        <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Error al cargar el panel</p>
+      <div className="flex flex-col items-center justify-center py-20 gap-3" >
+        <AlertTriangle className="w-10 h-10 text-stone-500" />
+        <p className="text-sm font-semibold text-stone-950">Error al cargar el panel</p>
         <button
           onClick={loadData}
-          className="px-5 py-2 text-sm font-semibold transition-colors"
-          style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)', border: 'none', cursor: 'pointer' }}
+          className="px-5 py-2 text-sm font-semibold transition-colors bg-stone-950 text-white rounded-2xl border-none cursor-pointer"
         >
           Reintentar
         </button>
@@ -310,21 +287,18 @@ export default function ImporterDashboardPage() {
   });
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)' }}>
+    <div className="bg-stone-50">
       {/* Header with company name + plan badge */}
       <div className="flex items-center gap-3 mb-1">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{companyName}</h1>
-        <span
-          className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
-          style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}
-        >
+        <h1 className="text-2xl font-bold text-stone-950">{companyName}</h1>
+        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-stone-100 text-stone-500">
           {planLabel}
         </span>
       </div>
-      <p className="text-sm mb-5" style={{ color: 'var(--color-stone)' }}>Panel de importador</p>
+      <p className="text-sm mb-5 text-stone-500">Panel de importador</p>
 
       {/* Mode Selector Tabs — large pill style */}
-      <div className="flex gap-0 mb-6 p-1" style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)' }}>
+      <div className="flex gap-0 mb-6 p-1 rounded-2xl bg-stone-100">
         {[
           { key: 'b2c', label: 'B2C Consumidor', icon: Store },
           { key: 'b2b', label: 'B2B Mayorista', icon: Factory },
@@ -334,13 +308,9 @@ export default function ImporterDashboardPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-all"
-              style={{
-                borderRadius: 'var(--radius-md)',
-                background: isActive ? 'var(--color-white)' : 'transparent',
-                color: isActive ? 'var(--color-black)' : 'var(--color-stone)',
-                boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              }}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-all rounded-xl ${
+                isActive ? 'bg-white text-stone-950 shadow-sm' : 'bg-transparent text-stone-500'
+              }`}
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}
@@ -364,7 +334,7 @@ export default function ImporterDashboardPage() {
 
           {/* Period selector + KPIs */}
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Resumen</h2>
+            <h2 className="text-sm font-bold text-stone-950">Resumen</h2>
             <PeriodSelector value={period} onChange={setPeriod} />
           </div>
           <div className="grid grid-cols-2 gap-3 mb-5">
@@ -401,8 +371,8 @@ export default function ImporterDashboardPage() {
           {pendingB2cOrders.length > 0 && (
             <div className="mb-5">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Pedidos pendientes</h2>
-                <Link to="/producer/orders" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+                <h2 className="text-sm font-bold text-stone-950">Pedidos pendientes</h2>
+                <Link to="/producer/orders" className="text-xs font-semibold hover:underline text-stone-500">
                   Ver todos <ArrowRight className="w-3 h-3 inline" />
                 </Link>
               </div>
@@ -410,22 +380,21 @@ export default function ImporterDashboardPage() {
                 {pendingB2cOrders.slice(0, 4).map((order, i) => (
                   <div
                     key={order.order_id || i}
-                    className="flex items-center gap-3 p-3.5"
-                    style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}
+                    className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200"
                   >
-                    <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-amber-light)' }}>
-                      <Clock className="w-4 h-4" style={{ color: 'var(--color-amber)' }} />
+                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-xl bg-amber-50">
+                      <Clock className="w-4 h-4 text-amber-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                      <p className="text-sm font-semibold truncate text-stone-950">
                         {order.customer_name || 'Cliente'}
                       </p>
-                      <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                      <p className="text-xs text-stone-500">
                         {(order.items || []).length} producto{(order.items || []).length !== 1 ? 's' : ''} · {formatRelativeTime(order.created_at)}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
+                      <p className="text-sm font-bold text-stone-950">
                         {convertAndFormatPrice(order.total || 0, 'EUR')}
                       </p>
                       <B2COrderStatusBadge status={order.status} />
@@ -433,9 +402,9 @@ export default function ImporterDashboardPage() {
                     <Link
                       to={`/producer/orders`}
                       className="shrink-0 flex items-center justify-center"
-                      style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-black)' }}
+                      className="w-8 h-8 rounded-full bg-stone-950 flex items-center justify-center"
                     >
-                      <ChevronRight className="w-4 h-4" style={{ color: '#fff' }} />
+                      <ChevronRight className="w-4 h-4 text-white" />
                     </Link>
                   </div>
                 ))}
@@ -445,7 +414,7 @@ export default function ImporterDashboardPage() {
 
           {/* Quick actions B2C */}
           <div className="mb-5">
-            <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Acciones rápidas</h2>
+            <h2 className="text-sm font-bold mb-3 text-stone-950">Acciones rápidas</h2>
             <div className="grid grid-cols-2 gap-2">
               <QuickAction icon={Store} label="Ver mi tienda" href="/producer/store-profile" />
               <QuickAction icon={Plus} label="Publicar producto" href="/producer/products/new" variant="primary" />
@@ -453,10 +422,10 @@ export default function ImporterDashboardPage() {
           </div>
 
           {/* Top products this week */}
-          <div className="p-4 mb-5" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+          <div className="p-4 mb-5 bg-white rounded-2xl border border-stone-200">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Top productos esta semana</h3>
-              <Link to="/producer/products" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+              <h3 className="text-sm font-bold text-stone-950">Top productos esta semana</h3>
+              <Link to="/producer/products" className="text-xs font-semibold hover:underline text-stone-500">
                 Ver todos <ArrowRight className="w-3 h-3 inline" />
               </Link>
             </div>
@@ -464,34 +433,33 @@ export default function ImporterDashboardPage() {
               <div
                 key={product.product_id || i}
                 className="flex items-center gap-3 py-2.5"
-                style={{ borderBottom: i < topProducts.length - 1 ? '1px solid var(--color-border)' : 'none' }}
+                className={i < topProducts.length - 1 ? 'border-b border-stone-200' : ''}
               >
                 <div
-                  className="w-10 h-10 shrink-0 overflow-hidden"
-                  style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}
+                  className="w-10 h-10 shrink-0 overflow-hidden rounded-xl bg-stone-100"
                 >
                   {product.images?.[0] ? (
                     <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Package className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+                      <Package className="w-4 h-4 text-stone-500" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                  <p className="text-sm font-semibold truncate text-stone-950">
                     {product.name}
                   </p>
-                  <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                  <p className="text-xs text-stone-500">
                     {product.price ? convertAndFormatPrice(product.price, 'EUR') : ''} · Stock: {product.stock ?? '—'}
                   </p>
                 </div>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full shrink-0 bg-stone-100 text-stone-500">
                   #{i + 1}
                 </span>
               </div>
             )) : (
-              <p className="text-sm py-3" style={{ color: 'var(--color-stone)' }}>
+              <p className="text-sm py-3 text-stone-500">
                 Aún no tienes productos publicados.
               </p>
             )}
@@ -499,10 +467,10 @@ export default function ImporterDashboardPage() {
 
           {/* B2C recent orders (completed) */}
           {b2cOrders.filter(o => o.status !== 'pending' && o.status !== 'processing').length > 0 && (
-            <div className="p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+            <div className="p-4 bg-white rounded-2xl border border-stone-200">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Pedidos B2C recientes</h3>
-                <Link to="/producer/orders" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+                <h3 className="text-sm font-bold text-stone-950">Pedidos B2C recientes</h3>
+                <Link to="/producer/orders" className="text-xs font-semibold hover:underline text-stone-500">
                   Ver todos <ArrowRight className="w-3 h-3 inline" />
                 </Link>
               </div>
@@ -510,18 +478,18 @@ export default function ImporterDashboardPage() {
                 <div
                   key={order.order_id || i}
                   className="flex items-center justify-between py-2.5"
-                  style={{ borderBottom: i < 2 ? '1px solid var(--color-border)' : 'none' }}
+                  className={i < 2 ? 'border-b border-stone-200' : ''}
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                    <p className="text-sm font-semibold truncate text-stone-950">
                       {order.customer_name || 'Cliente'}
                     </p>
-                    <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                    <p className="text-xs text-stone-500">
                       {(order.items || []).length} producto{(order.items || []).length !== 1 ? 's' : ''} · {formatRelativeTime(order.created_at)}
                     </p>
                   </div>
                   <div className="text-right shrink-0 ml-3">
-                    <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
+                    <p className="text-sm font-bold text-stone-950">
                       {convertAndFormatPrice(order.total || 0, 'EUR')}
                     </p>
                     <B2COrderStatusBadge status={order.status} />
@@ -537,8 +505,8 @@ export default function ImporterDashboardPage() {
 
           {/* Section header */}
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Mis Importaciones (B2B)</h2>
-            <Link to="/b2b/operations" className="text-xs font-semibold hover:underline flex items-center gap-1" style={{ color: 'var(--color-stone)' }}>
+            <h2 className="text-sm font-bold text-stone-950">Mis Importaciones (B2B)</h2>
+            <Link to="/b2b/operations" className="text-xs font-semibold hover:underline flex items-center gap-1 text-stone-500">
               Ver operaciones B2B <ArrowRight className="w-3 h-3 inline" />
             </Link>
           </div>
@@ -582,8 +550,8 @@ export default function ImporterDashboardPage() {
           {actionableOps.length > 0 && (
             <div className="mb-5">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Requieren tu acción</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-red-light)', color: 'var(--color-red)' }}>
+                <h2 className="text-sm font-bold text-stone-950">Requieren tu acción</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600">
                   {actionableOps.length}
                 </span>
               </div>
@@ -600,8 +568,7 @@ export default function ImporterDashboardPage() {
               {actionableOps.length > 3 && (
                 <Link
                   to="/b2b/operations"
-                  className="flex items-center justify-center gap-2 mt-3 py-2.5 text-sm font-semibold transition-colors"
-                  style={{ color: 'var(--color-black)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+                  className="flex items-center justify-center gap-2 mt-3 py-2.5 text-sm font-semibold transition-colors text-stone-950 rounded-2xl border border-stone-200 bg-white"
                 >
                   Ver todas las operaciones <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -623,10 +590,10 @@ export default function ImporterDashboardPage() {
           </div>
 
           {/* Últimos proveedores */}
-          <div className="p-4 mb-5" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+          <div className="p-4 mb-5 bg-white rounded-2xl border border-stone-200">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Últimos proveedores</h3>
-              <Link to="/b2b/marketplace" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+              <h3 className="text-sm font-bold text-stone-950">Últimos proveedores</h3>
+              <Link to="/b2b/marketplace" className="text-xs font-semibold hover:underline text-stone-500">
                 Explorar <ArrowRight className="w-3 h-3 inline" />
               </Link>
             </div>
@@ -638,16 +605,16 @@ export default function ImporterDashboardPage() {
                   <div
                     key={order.producer_id || i}
                     className="flex items-center gap-3 py-2.5"
-                    style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--color-border)' : 'none' }}
+                    className={i < arr.length - 1 ? 'border-b border-stone-200' : ''}
                   >
-                    <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
-                      <Factory className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-xl bg-stone-100">
+                      <Factory className="w-4 h-4 text-stone-500" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                      <p className="text-sm font-semibold truncate text-stone-950">
                         {order.producer_name || 'Productor'}
                       </p>
-                      <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                      <p className="text-xs text-stone-500">
                         {formatRelativeTime(order.created_at)}
                       </p>
                     </div>
@@ -657,19 +624,19 @@ export default function ImporterDashboardPage() {
                         className="shrink-0 flex items-center justify-center"
                         style={{
                           width: 32, height: 32, borderRadius: '50%',
-                          background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
+                          background: '#f5f5f4', border: 'none', cursor: 'pointer',
                         }}
                         aria-label="Chat B2B"
                       >
-                        <MessageCircle className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+                        <MessageCircle className="w-4 h-4 text-stone-500" />
                       </button>
                     )}
                   </div>
                 ))
             ) : (
               <div className="flex flex-col items-center py-4 gap-2">
-                <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Aún no tienes proveedores contactados.</p>
-                <Link to="/b2b/marketplace" className="text-xs font-semibold hover:underline flex items-center gap-1" style={{ color: 'var(--color-black)' }}>
+                <p className="text-sm text-stone-500">Aún no tienes proveedores contactados.</p>
+                <Link to="/b2b/marketplace" className="text-xs font-semibold hover:underline flex items-center gap-1 text-stone-950">
                   Explorar el marketplace B2B <ArrowRight className="w-3 h-3 inline" />
                 </Link>
               </div>
@@ -678,10 +645,10 @@ export default function ImporterDashboardPage() {
 
           {/* Recent B2B orders */}
           {recentB2B.length > 0 && (
-            <div className="p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+            <div className="p-4 bg-white rounded-2xl border border-stone-200">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Pedidos B2B recientes</h3>
-                <Link to="/importer/orders" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+                <h3 className="text-sm font-bold text-stone-950">Pedidos B2B recientes</h3>
+                <Link to="/importer/orders" className="text-xs font-semibold hover:underline text-stone-500">
                   Ver todos <ArrowRight className="w-3 h-3 inline" />
                 </Link>
               </div>
@@ -689,13 +656,13 @@ export default function ImporterDashboardPage() {
                 <div
                   key={order.id || i}
                   className="flex items-center justify-between py-2.5"
-                  style={{ borderBottom: i < recentB2B.length - 1 ? '1px solid var(--color-border)' : 'none' }}
+                  className={i < recentB2B.length - 1 ? 'border-b border-stone-200' : ''}
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                    <p className="text-sm font-semibold truncate text-stone-950">
                       {order.producer_name || 'Productor'}
                     </p>
-                    <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                    <p className="text-xs text-stone-500">
                       {order.items_count || 1} productos · {formatRelativeTime(order.created_at)}
                     </p>
                   </div>
@@ -705,15 +672,15 @@ export default function ImporterDashboardPage() {
                       className="shrink-0 flex items-center justify-center"
                       style={{
                         width: 32, height: 32, borderRadius: '50%',
-                        background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
+                        background: '#f5f5f4', border: 'none', cursor: 'pointer',
                       }}
                       aria-label="Chat B2B"
                     >
-                      <MessageCircle className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+                      <MessageCircle className="w-4 h-4 text-stone-500" />
                     </button>
                   )}
                   <div className="text-right shrink-0 ml-3">
-                    <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
+                    <p className="text-sm font-bold text-stone-950">
                       {convertAndFormatPrice(order.total || 0, 'EUR')}
                     </p>
                     <B2BOrderStatusBadge status={order.status} />
@@ -726,22 +693,21 @@ export default function ImporterDashboardPage() {
           {/* Ver todas las operaciones B2B */}
           <Link
             to="/b2b/operations"
-            className="flex items-center justify-center gap-2 mt-4 py-3 text-sm font-semibold transition-colors"
-            style={{ color: 'var(--color-black)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+            className="flex items-center justify-center gap-2 mt-4 py-3 text-sm font-semibold transition-colors text-stone-950 rounded-2xl border border-stone-200 bg-white"
           >
             Ver todas las operaciones B2B <ArrowRight className="w-4 h-4" />
           </Link>
 
           {/* Active certificates */}
-          <div className="mt-5 p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
-            <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Certificados activos</h3>
+          <div className="mt-5 p-4 bg-white rounded-2xl border border-stone-200">
+            <h3 className="text-sm font-bold mb-3 text-stone-950">Certificados activos</h3>
             <div className="flex flex-wrap gap-2">
               {(stats?.certificates || []).length > 0 ? (stats.certificates || []).map((cert, i) => (
-                <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' }}>
+                <span key={i} className="px-3 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-950">
                   {cert.name || cert}
                 </span>
               )) : (
-                <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Sin certificados activos</p>
+                <p className="text-sm text-stone-500">Sin certificados activos</p>
               )}
             </div>
           </div>
@@ -749,15 +715,15 @@ export default function ImporterDashboardPage() {
       )}
 
       {/* Account & Configuration */}
-      <div className="mt-5 p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
-        <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Cuenta y configuración</h3>
+      <div className="mt-5 p-4 bg-white rounded-2xl border border-stone-200">
+        <h3 className="text-sm font-bold mb-3 text-stone-950">Cuenta y configuración</h3>
         <div className="space-y-1">
           {[
             {
               icon: PenTool,
               label: 'Firma digital',
               sublabel: user?.signature_url ? 'Configurada' : 'Pendiente',
-              sublabelColor: user?.signature_url ? 'var(--color-black)' : 'var(--color-amber)',
+              sublabelCls: user?.signature_url ? 'text-stone-950' : 'text-amber-600',
               to: '/settings/signature',
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },
@@ -767,19 +733,18 @@ export default function ImporterDashboardPage() {
             <Link
               key={i}
               to={item.to}
-              className="flex items-center gap-3 p-3 transition-colors"
-              style={{ borderRadius: 'var(--radius-md)' }}
+              className="flex items-center gap-3 p-3 transition-colors rounded-xl"
             >
-              <div className="w-8 h-8 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
-                <item.icon className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+              <div className="w-8 h-8 flex items-center justify-center shrink-0 rounded-xl bg-stone-100">
+                <item.icon className="w-4 h-4 text-stone-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>{item.label}</p>
+                <p className="text-sm font-medium text-stone-950">{item.label}</p>
                 {item.sublabel && (
-                  <p className="text-[11px]" style={{ color: item.sublabelColor || 'var(--color-stone)' }}>{item.sublabel}</p>
+                  <p className={`text-[11px] ${item.sublabelCls || 'text-stone-500'}`}>{item.sublabel}</p>
                 )}
               </div>
-              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: 'var(--color-stone)' }} />
+              <ChevronRight className="w-4 h-4 shrink-0 text-stone-500" />
             </Link>
           ))}
         </div>

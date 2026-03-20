@@ -250,7 +250,7 @@ export default function RecipesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream)] font-sans">
+    <div className="min-h-screen bg-[#fafaf9] font-sans">
       <SEO title="Recetas — Hispaloshop" description="Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta." />
 
       {/* ── Title bar ── */}

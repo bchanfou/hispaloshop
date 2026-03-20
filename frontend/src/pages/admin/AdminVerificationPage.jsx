@@ -456,7 +456,7 @@ export default function AdminVerificationPage() {
   const pendingCount = filter === 'pending' ? queue.length : null;
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)', background: T.cream }}>
+    <div style={{ fontFamily: 'inherit', background: T.cream }}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
         <h1 className="text-xl font-bold" style={{ color: T.black }}>Verificaciones</h1>

@@ -63,7 +63,7 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
               background: 'rgba(10,10,10,0.5)',
               backdropFilter: 'blur(4px)',
               WebkitBackdropFilter: 'blur(4px)',
-              zIndex: 'calc(var(--z-modal) - 1)',
+              zIndex: '49',
             }}
           />
 
@@ -80,7 +80,7 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
             }}
             className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl px-5 pt-3 max-h-72"
             style={{
-              zIndex: 'var(--z-modal)',
+              zIndex: '50',
               paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
             }}
           >

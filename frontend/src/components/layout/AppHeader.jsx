@@ -36,12 +36,12 @@ export default function AppHeader() {
       style={{
         position: 'sticky',
         top: 0,
-        zIndex: 'var(--z-sticky, 40)',
+        zIndex: '40',
         background: '#ffffff',
         borderBottom: scrolled ? '1px solid #f5f5f4' : '1px solid transparent',
         boxShadow: scrolled ? '0 1px 3px rgba(0,0,0,0.04)' : 'none',
         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}
     >
       {/* Hamburger Menu drawer */}
@@ -53,7 +53,7 @@ export default function AppHeader() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 var(--space-4)',
+        padding: '0 16px',
       }}>
         {/* Logo + brand name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -65,7 +65,7 @@ export default function AppHeader() {
               color: '#0c0a09',
               letterSpacing: '-0.02em',
               textTransform: 'lowercase',
-              fontFamily: 'var(--font-sans)',
+              fontFamily: 'inherit',
             }}>
               hispaloshop
             </span>
@@ -76,7 +76,7 @@ export default function AppHeader() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {/* Notification bell */}
           <Link to="/notifications" style={{ position: 'relative', ...iconButtonStyle }}>
-            <Bell size={20} color="var(--color-black)" strokeWidth={1.8} />
+            <Bell size={20} color="#0c0a09" strokeWidth={1.8} />
             {unreadCount > 0 && (
               <span style={redBadgeStyle}>
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -86,7 +86,7 @@ export default function AppHeader() {
 
           {/* Cart */}
           <Link to="/cart" style={{ position: 'relative', ...iconButtonStyle }}>
-            <ShoppingCart size={20} color="var(--color-black)" strokeWidth={1.8} />
+            <ShoppingCart size={20} color="#0c0a09" strokeWidth={1.8} />
             {totalCartItems > 0 && (
               <span style={blackBadgeStyle}>
                 {totalCartItems > 9 ? '9+' : totalCartItems}
@@ -104,7 +104,7 @@ export default function AppHeader() {
               border: 'none', background: 'transparent', cursor: 'pointer',
             }}
           >
-            <Menu size={22} color="var(--color-black)" strokeWidth={1.8} />
+            <Menu size={22} color="#0c0a09" strokeWidth={1.8} />
           </button>
         </div>
       </div>
@@ -137,14 +137,14 @@ const redBadgeStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: 'var(--radius-full)',
+  borderRadius: '9999px',
   background: '#FF3040',
   color: '#ffffff',
   fontSize: 9,
   fontWeight: 800,
   padding: '0 4px',
   lineHeight: 1,
-  fontFamily: 'var(--font-sans)',
+  fontFamily: 'inherit',
 };
 
 const blackBadgeStyle = {
@@ -156,12 +156,12 @@ const blackBadgeStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: 'var(--radius-full)',
-  background: 'var(--color-black)',
-  color: 'var(--color-white)',
+  borderRadius: '9999px',
+  background: '#0c0a09',
+  color: '#ffffff',
   fontSize: 9,
   fontWeight: 800,
   padding: '0 4px',
   lineHeight: 1,
-  fontFamily: 'var(--font-sans)',
+  fontFamily: 'inherit',
 };

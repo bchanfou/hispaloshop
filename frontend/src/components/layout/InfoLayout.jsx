@@ -12,7 +12,7 @@ export default function InfoLayout({ children }) {
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      background: 'var(--color-white)',
+      background: '#ffffff',
     }}>
       <InfoHeader />
       <main style={{ flex: 1 }}>

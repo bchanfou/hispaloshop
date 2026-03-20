@@ -20,7 +20,7 @@ const INFLUENCER_TIERS = [
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[#ffffff] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -31,7 +31,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div className="bg-[var(--color-bg-card)] border border-[var(--color-red)]/40 rounded-2xl p-6 w-full max-w-[400px] mx-4" onClick={e => e.stopPropagation()}>
+      <div className="bg-[#ffffff] border border-[#dc2626]/40 rounded-2xl p-6 w-full max-w-[400px] mx-4" onClick={e => e.stopPropagation()}>
         <h3 className="text-base font-bold text-white mb-2">Confirmar cambio de plan</h3>
         <p className="text-sm text-white/40 mb-4">
           Introduce tu contraseña de superadmin para aplicar este cambio en producción.
@@ -43,7 +43,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
           onKeyDown={e => e.key === 'Enter' && onConfirm(password)}
           placeholder="Contraseña superadmin"
           autoFocus
-          className="w-full px-3.5 py-2.5 bg-[var(--color-bg-hover)] border border-[var(--color-red)]/40 rounded-xl text-white text-sm outline-none mb-3"
+          className="w-full px-3.5 py-2.5 bg-[#1c1917] border border-[#dc2626]/40 rounded-xl text-white text-sm outline-none mb-3"
         />
         <div className="flex gap-2">
           <button onClick={onClose} className="flex-1 py-2.5 bg-white/[0.08] rounded-xl text-white text-sm">
@@ -52,7 +52,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
           <button
             onClick={() => onConfirm(password)}
             disabled={isSaving}
-            className="flex-1 py-2.5 bg-[var(--color-red)] rounded-xl text-white text-sm font-bold disabled:opacity-50"
+            className="flex-1 py-2.5 bg-[#dc2626] rounded-xl text-white text-sm font-bold disabled:opacity-50"
           >
             {isSaving ? '...' : 'Confirmar'}
           </button>
@@ -114,7 +114,7 @@ export default function PlansConfigPage() {
             className={`flex items-center gap-3 py-2.5 ${i < INFLUENCER_TIERS.length - 1 ? 'border-b border-white/[0.06]' : ''}`}
           >
             <span className="text-sm font-semibold text-white w-28">{t.label}</span>
-            <span className="text-2xl font-extrabold text-[var(--color-stone)]">{t.rate}%</span>
+            <span className="text-2xl font-extrabold text-[#78716c]">{t.rate}%</span>
             <span className="text-xs text-white/30 flex-1">
               {t.threshold > 0 ? `desde ${t.threshold.toLocaleString()}€ GMV/mes` : 'nivel base'}
             </span>
@@ -137,13 +137,13 @@ export default function PlansConfigPage() {
             <div className="flex gap-3 flex-1">
               <div>
                 <p className="text-[10px] text-white/30 mb-0.5">Precio/mes</p>
-                <p className="text-base font-extrabold text-[var(--color-white)]">
+                <p className="text-base font-extrabold text-[#ffffff]">
                   {plan.price === 0 ? 'Gratis' : `${plan.price}€`}
                 </p>
               </div>
               <div>
                 <p className="text-[10px] text-white/30 mb-0.5">Comisión</p>
-                <p className="text-base font-extrabold text-[var(--color-stone)]">{plan.commission_pct}%</p>
+                <p className="text-base font-extrabold text-[#78716c]">{plan.commission_pct}%</p>
               </div>
             </div>
             {plan.price > 0 && (

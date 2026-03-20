@@ -6,15 +6,15 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 
 function getStrength(pw) {
-  if (!pw || pw.length < 6) return { level: 0, label: 'Muy corta', color: 'var(--color-red)' };
+  if (!pw || pw.length < 6) return { level: 0, label: 'Muy corta', color: '#dc2626' };
   let score = 0;
   if (pw.length >= 8) score++;
   if (/[A-Z]/.test(pw)) score++;
   if (/[0-9]/.test(pw)) score++;
   if (/[^A-Za-z0-9]/.test(pw)) score++;
-  if (score <= 1) return { level: 1, label: 'Débil', color: 'var(--color-stone)' };
-  if (score === 2) return { level: 2, label: 'Buena', color: 'var(--color-black)' };
-  return { level: 3, label: 'Fuerte', color: 'var(--color-black)' };
+  if (score <= 1) return { level: 1, label: 'Débil', color: '#78716c' };
+  if (score === 2) return { level: 2, label: 'Buena', color: '#0c0a09' };
+  return { level: 3, label: 'Fuerte', color: '#0c0a09' };
 }
 
 export default function ChangePasswordPage() {
@@ -31,7 +31,7 @@ export default function ChangePasswordPage() {
   const isGoogleUser = user?.auth_provider === 'google' && !user?.has_password;
   const strength = useMemo(() => getStrength(newPw), [newPw]);
   const mismatch = confirm.length > 0 && newPw !== confirm;
-  const font = { fontFamily: 'var(--font-sans)' };
+  const font = { fontFamily: 'inherit' };
 
   const canSubmit = isGoogleUser
     ? newPw.length >= 6 && strength.level >= 2 && newPw === confirm
@@ -65,9 +65,9 @@ export default function ChangePasswordPage() {
 
   const inputStyle = {
     width: '100%', height: 44, padding: '0 44px 0 14px',
-    border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-lg)',
-    fontSize: 14, color: 'var(--color-black)',
+    border: '1px solid #e7e5e4',
+    borderRadius: '14px',
+    fontSize: 14, color: '#0c0a09',
     outline: 'none', boxSizing: 'border-box', ...font,
   };
 
@@ -78,39 +78,39 @@ export default function ChangePasswordPage() {
         position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
         background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex',
       }}>
-      {show ? <EyeOff size={18} color="var(--color-stone)" /> : <Eye size={18} color="var(--color-stone)" />}
+      {show ? <EyeOff size={18} color="#78716c" /> : <Eye size={18} color="#78716c" />}
     </button>
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
       {/* Topbar */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e7e5e4',
         display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
       }}>
         <button onClick={() => navigate('/settings')}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
-          <ArrowLeft size={22} color="var(--color-black)" />
+          <ArrowLeft size={22} color="#0c0a09" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Contraseña</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Contraseña</span>
       </div>
 
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 100px' }}>
         {/* Google user card */}
         {isGoogleUser && (
           <div style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-xl)',
+            background: '#f5f5f4',
+            border: '1px solid #e7e5e4',
+            borderRadius: '16px',
             padding: 16, marginBottom: 24,
           }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', margin: '0 0 4px' }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: '#0c0a09', margin: '0 0 4px' }}>
               Cuenta con Google
             </p>
-            <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: '#78716c', margin: 0, lineHeight: 1.5 }}>
               Tu cuenta usa Google para iniciar sesión. No tienes contraseña configurada.
               Puedes añadir una a continuación.
             </p>
@@ -120,7 +120,7 @@ export default function ChangePasswordPage() {
         {/* Current password (skip for Google users) */}
         {!isGoogleUser && (
           <div style={{ marginBottom: 20 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, display: 'block', ...font }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', marginBottom: 6, display: 'block', ...font }}>
               Contraseña actual
             </label>
             <div style={{ position: 'relative' }}>
@@ -137,7 +137,7 @@ export default function ChangePasswordPage() {
 
         {/* New password */}
         <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, display: 'block', ...font }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', marginBottom: 6, display: 'block', ...font }}>
             {isGoogleUser ? 'Nueva contraseña' : 'Nueva contraseña'}
           </label>
           <div style={{ position: 'relative' }}>
@@ -156,7 +156,7 @@ export default function ChangePasswordPage() {
                 {[0, 1, 2, 3].map(i => (
                   <div key={i} style={{
                     flex: 1, height: 3, borderRadius: 2,
-                    background: i <= strength.level ? strength.color : 'var(--color-border)',
+                    background: i <= strength.level ? strength.color : '#e7e5e4',
                     transition: 'background 200ms',
                   }} />
                 ))}
@@ -168,7 +168,7 @@ export default function ChangePasswordPage() {
 
         {/* Confirm password */}
         <div style={{ marginBottom: 24 }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, display: 'block', ...font }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', marginBottom: 6, display: 'block', ...font }}>
             Repetir nueva contraseña
           </label>
           <div style={{ position: 'relative' }}>
@@ -178,13 +178,13 @@ export default function ChangePasswordPage() {
               onChange={e => setConfirm(e.target.value)}
               style={{
                 ...inputStyle,
-                borderColor: mismatch ? 'var(--color-red)' : 'var(--color-border)',
+                borderColor: mismatch ? '#dc2626' : '#e7e5e4',
               }}
             />
             {eyeBtn(showConfirm, () => setShowConfirm(!showConfirm))}
           </div>
           {mismatch && (
-            <p style={{ fontSize: 12, color: 'var(--color-red)', margin: '4px 0 0', ...font }}>
+            <p style={{ fontSize: 12, color: '#dc2626', margin: '4px 0 0', ...font }}>
               Las contraseñas no coinciden
             </p>
           )}
@@ -196,9 +196,9 @@ export default function ChangePasswordPage() {
           disabled={!canSubmit || submitting}
           style={{
             width: '100%', height: 48,
-            background: canSubmit && !submitting ? 'var(--color-black)' : 'var(--color-surface)',
-            color: canSubmit && !submitting ? 'var(--color-white)' : 'var(--color-stone)',
-            border: 'none', borderRadius: 'var(--radius-xl)',
+            background: canSubmit && !submitting ? '#0c0a09' : '#f5f5f4',
+            color: canSubmit && !submitting ? '#ffffff' : '#78716c',
+            border: 'none', borderRadius: '16px',
             fontSize: 15, fontWeight: 600, cursor: canSubmit ? 'pointer' : 'default',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             ...font,

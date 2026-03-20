@@ -13,28 +13,28 @@ import { useNavigate } from 'react-router-dom';
 /* ───────── constants ───────── */
 
 const S = {
-  font: "var(--font-sans, -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif)",
-  black: 'var(--color-black, #0A0A0A)',
-  white: 'var(--color-white, #FFFFFF)',
-  bg: 'var(--color-cream, #F5F5F7)',
-  surface: 'var(--color-surface, #FFFFFF)',
-  surface2: 'var(--color-cream, #F5F5F7)',
-  text1: 'var(--color-black, #1D1D1F)',
-  text2: 'var(--color-stone, #6E6E73)',
-  text3: 'var(--color-stone, #AEAEB2)',
-  border: 'var(--color-divider, rgba(0,0,0,0.08))',
-  borderMed: 'var(--color-border, rgba(0,0,0,0.12))',
-  purple: 'var(--color-blue, #44403c)',
-  purpleBg: 'var(--color-blue-light, #f5f5f4)',
-  green: 'var(--color-black, #0c0a09)',
-  greenBg: 'var(--color-surface, #f5f5f4)',
-  orange: 'var(--color-amber, #78716c)',
-  orangeBg: 'var(--color-amber-light, #fafaf9)',
-  shadowSm: 'var(--shadow-sm, 0 2px 10px rgba(0,0,0,0.07))',
-  shadowMd: 'var(--shadow-md, 0 4px 20px rgba(0,0,0,0.09))',
-  rLg: 'var(--radius-lg, 16px)',
-  rXl: 'var(--radius-xl, 22px)',
-  rFull: 'var(--radius-full, 9999px)',
+  font: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+  black: '#0c0a09',
+  white: '#ffffff',
+  bg: '#fafaf9',
+  surface: '#ffffff',
+  surface2: '#fafaf9',
+  text1: '#0c0a09',
+  text2: '#78716c',
+  text3: '#a8a29e',
+  border: 'rgba(0,0,0,0.08)',
+  borderMed: 'rgba(0,0,0,0.12)',
+  purple: '#44403c',
+  purpleBg: '#f5f5f4',
+  green: '#0c0a09',
+  greenBg: '#f5f5f4',
+  orange: '#78716c',
+  orangeBg: '#fafaf9',
+  shadowSm: '0 2px 10px rgba(0,0,0,0.07)',
+  shadowMd: '0 4px 20px rgba(0,0,0,0.09)',
+  rLg: '16px',
+  rXl: '22px',
+  rFull: '9999px',
   ease: 'var(cubic-bezier(0.4,0,0.2,1), cubic-bezier(0.4,0,0.2,1))',
 };
 
@@ -56,7 +56,7 @@ const OPPORTUNITIES = [
 const TOOL_LABELS = {
   search_importers: { icon: Users, label: 'Importadores', color: '#57534e' },
   analyze_market: { icon: BarChart3, label: 'Mercado', color: '#44403c' },
-  predict_demand: { icon: TrendingUp, label: 'Predicción', color: 'var(--color-black)' },
+  predict_demand: { icon: TrendingUp, label: 'Predicción', color: '#0c0a09' },
   generate_contract: { icon: FileText, label: 'Contrato', color: '#78716c' },
   check_producer_plan: { icon: Sparkles, label: 'Plan', color: '#6E6E73' },
 };
@@ -185,7 +185,7 @@ function ToolCallCard({ toolCall }) {
         <div style={{
           padding: '0 14px 12px',
           fontSize: 12, color: S.text2,
-          fontFamily: 'var(--font-mono, monospace)',
+          fontFamily: 'monospace',
           lineHeight: 1.6,
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
@@ -367,8 +367,8 @@ export default function CommercialAIPage() {
                   {opp.product}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <TrendingUp size={13} color="var(--color-black)" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)' }}>
+                  <TrendingUp size={13} color="#0c0a09" />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09' }}>
                     {opp.trend}
                   </span>
                   <span style={{ fontSize: 11, color: S.text3 }}>{opp.period}</span>
@@ -418,7 +418,7 @@ export default function CommercialAIPage() {
           <div style={{
             marginLeft: 'auto',
             width: 8, height: 8, borderRadius: '50%',
-            background: 'var(--color-black)',
+            background: '#0c0a09',
           }} />
         </div>
 

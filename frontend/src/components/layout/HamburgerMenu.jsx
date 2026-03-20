@@ -125,33 +125,33 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               position: 'fixed', top: 0, right: 0, bottom: 0,
               width: 'min(300px, 85vw)',
               zIndex: 9999,
-              background: 'var(--color-white)',
+              background: '#ffffff',
               display: 'flex', flexDirection: 'column',
               overflowY: 'auto',
               scrollbarWidth: 'none',
-              fontFamily: 'var(--font-sans)',
-              boxShadow: 'var(--shadow-xl, -8px 0 24px rgba(0,0,0,0.15))',
+              fontFamily: 'inherit',
+              boxShadow: '-8px 0 24px rgba(0,0,0,0.15)',
             }}
           >
             {/* ── HEADER ── */}
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               padding: '16px 20px',
-              borderBottom: '1px solid var(--color-divider, var(--color-border))',
+              borderBottom: '1px solid #e7e5e4',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Logo variant="icon" theme="light" size={24} />
-                <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-black)' }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#0c0a09' }}>
                   hispaloshop
                 </span>
               </div>
               <button onClick={onClose} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 width: 32, height: 32, borderRadius: '50%',
-                border: 'none', background: 'var(--color-surface)',
+                border: 'none', background: '#f5f5f4',
                 cursor: 'pointer',
               }}>
-                <X size={18} color="var(--color-black)" strokeWidth={2} />
+                <X size={18} color="#0c0a09" strokeWidth={2} />
               </button>
             </div>
 
@@ -185,8 +185,8 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   <MenuItem to="/b2b/catalog" icon={<ClipboardList size={20} />} label="Catálogo B2B" onClose={onClose}>
                     <span style={{
                       fontSize: 9, fontWeight: 700, color: '#fff',
-                      background: 'var(--color-blue, #3b82f6)',
-                      borderRadius: 'var(--radius-full)',
+                      background: '#3b82f6',
+                      borderRadius: '9999px',
                       padding: '1px 6px', marginLeft: 6,
                     }}>
                       B2B
@@ -294,12 +294,12 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     {profileImage ? (
                       <img src={profileImage} alt="" style={{
                         width: 40, height: 40, borderRadius: '50%', objectFit: 'cover',
-                        border: '1px solid var(--color-border)',
+                        border: '1px solid #e7e5e4',
                       }} />
                     ) : (
                       <div style={{
                         width: 40, height: 40, borderRadius: '50%',
-                        background: 'var(--color-black)', color: '#fff',
+                        background: '#0c0a09', color: '#fff',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 16, fontWeight: 700,
                       }}>
@@ -308,13 +308,13 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{
-                        fontSize: 14, fontWeight: 600, color: 'var(--color-black)',
+                        fontSize: 14, fontWeight: 600, color: '#0c0a09',
                         margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       }}>
                         {displayName}
                       </p>
                       {username && (
-                        <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '1px 0 0' }}>
+                        <p style={{ fontSize: 12, color: '#78716c', margin: '1px 0 0' }}>
                           @{username}
                         </p>
                       )}
@@ -322,8 +322,8 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     {user.plan && (
                       <span style={{
                         fontSize: 9, fontWeight: 700, color: '#fff',
-                        background: user.plan === 'elite' ? 'var(--color-black)' : user.plan === 'pro' ? 'var(--color-stone)' : 'var(--color-border)',
-                        borderRadius: 'var(--radius-full)',
+                        background: user.plan === 'elite' ? '#0c0a09' : user.plan === 'pro' ? '#78716c' : '#e7e5e4',
+                        borderRadius: '9999px',
                         padding: '2px 8px',
                         textTransform: 'uppercase',
                       }}>
@@ -345,8 +345,8 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                       display: 'flex', alignItems: 'center', gap: 12,
                       width: '100%', padding: '14px 20px',
                       border: 'none', background: 'transparent',
-                      fontSize: 15, fontWeight: 500, color: 'var(--color-red)',
-                      cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                      fontSize: 15, fontWeight: 500, color: '#dc2626',
+                      cursor: 'pointer', fontFamily: 'inherit',
                       textAlign: 'left',
                     }}
                   >
@@ -361,10 +361,10 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     onClick={onClose}
                     style={{
                       display: 'block', textAlign: 'center',
-                      padding: '12px 0', borderRadius: 'var(--radius-full)',
-                      border: '1px solid var(--color-border)',
-                      fontSize: 14, fontWeight: 600, color: 'var(--color-black)',
-                      textDecoration: 'none', fontFamily: 'var(--font-sans)',
+                      padding: '12px 0', borderRadius: '9999px',
+                      border: '1px solid #e7e5e4',
+                      fontSize: 14, fontWeight: 600, color: '#0c0a09',
+                      textDecoration: 'none', fontFamily: 'inherit',
                     }}
                   >
                     Entrar
@@ -374,10 +374,10 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     onClick={onClose}
                     style={{
                       display: 'block', textAlign: 'center',
-                      padding: '12px 0', borderRadius: 'var(--radius-full)',
-                      background: 'var(--color-black)', color: '#fff',
+                      padding: '12px 0', borderRadius: '9999px',
+                      background: '#0c0a09', color: '#fff',
                       fontSize: 14, fontWeight: 600,
-                      textDecoration: 'none', fontFamily: 'var(--font-sans)',
+                      textDecoration: 'none', fontFamily: 'inherit',
                     }}
                   >
                     Crear cuenta
@@ -400,7 +400,7 @@ function SectionLabel({ children }) {
     <p style={{
       padding: '12px 20px 4px',
       fontSize: 11, fontWeight: 600,
-      color: 'var(--color-stone)',
+      color: '#78716c',
       textTransform: 'uppercase',
       letterSpacing: '0.06em',
       margin: 0,
@@ -420,14 +420,14 @@ function MenuItem({ to, icon, label, onClose, children }) {
         padding: '14px 20px',
         textDecoration: 'none',
         fontSize: 15, fontWeight: 500,
-        color: 'var(--color-black)',
-        fontFamily: 'var(--font-sans)',
+        color: '#0c0a09',
+        fontFamily: 'inherit',
         transition: 'background 0.1s ease',
       }}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
+      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f4'}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
     >
-      {icon && <span style={{ color: 'var(--color-stone)' }}>{icon}</span>}
+      {icon && <span style={{ color: '#78716c' }}>{icon}</span>}
       {label}
       {children}
     </Link>
@@ -444,20 +444,20 @@ function AccordionRow({ icon, label, value, isOpen, onToggle, children }) {
           display: 'flex', alignItems: 'center', gap: 12,
           width: '100%', padding: '14px 20px',
           border: 'none', background: 'transparent',
-          cursor: 'pointer', fontFamily: 'var(--font-sans)',
+          cursor: 'pointer', fontFamily: 'inherit',
           textAlign: 'left',
         }}
       >
-        <span style={{ color: 'var(--color-stone)', display: 'flex', flexShrink: 0 }}>{icon}</span>
-        <span style={{ flex: 1, fontSize: 15, fontWeight: 500, color: 'var(--color-black)' }}>
+        <span style={{ color: '#78716c', display: 'flex', flexShrink: 0 }}>{icon}</span>
+        <span style={{ flex: 1, fontSize: 15, fontWeight: 500, color: '#0c0a09' }}>
           {label}
         </span>
-        <span style={{ fontSize: 13, color: 'var(--color-stone)', marginRight: 4 }}>
+        <span style={{ fontSize: 13, color: '#78716c', marginRight: 4 }}>
           {value}
         </span>
         <ChevronDown
           size={16}
-          color="var(--color-stone)"
+          color="#78716c"
           style={{
             transition: 'transform 0.2s ease',
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0)',
@@ -476,8 +476,8 @@ function AccordionRow({ icon, label, value, isOpen, onToggle, children }) {
             style={{ overflow: 'hidden' }}
           >
             <div style={{
-              background: 'var(--color-surface)',
-              borderRadius: 'var(--radius-md)',
+              background: '#f5f5f4',
+              borderRadius: '12px',
               margin: '0 12px 8px 12px',
               padding: '4px 0',
             }}>
@@ -502,10 +502,10 @@ function AccordionOption({ label, isActive, disabled, badge, badgeVariant, onCli
         border: 'none', background: 'transparent',
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.4 : 1,
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
         textAlign: 'left',
         fontSize: 14,
-        color: isActive ? 'var(--color-black)' : 'var(--color-stone)',
+        color: isActive ? '#0c0a09' : '#78716c',
         fontWeight: isActive ? 600 : 400,
       }}
     >
@@ -514,18 +514,18 @@ function AccordionOption({ label, isActive, disabled, badge, badgeVariant, onCli
         <span style={{
           fontSize: 9, fontWeight: 600,
           padding: '1px 6px',
-          borderRadius: 'var(--radius-full)',
-          background: badgeVariant === 'blue' ? 'var(--color-blue, #3b82f6)' : 'var(--color-border)',
-          color: badgeVariant === 'blue' ? '#fff' : 'var(--color-stone)',
+          borderRadius: '9999px',
+          background: badgeVariant === 'blue' ? '#3b82f6' : '#e7e5e4',
+          color: badgeVariant === 'blue' ? '#fff' : '#78716c',
         }}>
           {badge}
         </span>
       )}
-      {isActive && <Check size={16} color="var(--color-black)" strokeWidth={2.5} />}
+      {isActive && <Check size={16} color="#0c0a09" strokeWidth={2.5} />}
     </button>
   );
 }
 
 function Divider() {
-  return <div style={{ height: 1, background: 'var(--color-divider, var(--color-border))', margin: '8px 0' }} />;
+  return <div style={{ height: 1, background: '#e7e5e4', margin: '8px 0' }} />;
 }

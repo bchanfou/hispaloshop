@@ -101,7 +101,7 @@ export default function SuperAdminOverview() {
   const planTotal = (planDist.FREE || 0) + (planDist.PRO || 0) + (planDist.ELITE || 0) || 1;
 
   return (
-    <div className="superadmin-theme max-w-[1000px] mx-auto pb-16" style={{ fontFamily: 'var(--font-sans, Inter, sans-serif)' }}>
+    <div className="superadmin-theme max-w-[1000px] mx-auto pb-16" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-[26px] font-extrabold tracking-tight mb-1" style={{ color: dark.text }}>Panel Global</h1>
@@ -182,7 +182,7 @@ export default function SuperAdminOverview() {
               const statusStyles = {
                 active: { bg: 'rgba(12,10,9,0.15)', border: dark.accent, color: dark.accent },
                 beta: { bg: 'rgba(255,149,0,0.12)', border: dark.accentAmber, color: dark.accentAmber },
-                pending: { bg: 'var(--color-surface)', border: 'var(--color-red)', color: 'var(--color-red)' },
+                pending: { bg: '#f5f5f4', border: '#dc2626', color: '#dc2626' },
               };
               const s = statusStyles[c.status] || statusStyles.pending;
               return (
@@ -199,7 +199,7 @@ export default function SuperAdminOverview() {
                       {c.status}
                     </span>
                     {!c.admin && (
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: 'var(--color-surface)', color: 'var(--color-red)' }}>
+                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: '#f5f5f4', color: '#dc2626' }}>
                         Sin admin
                       </span>
                     )}
@@ -349,7 +349,7 @@ export default function SuperAdminOverview() {
             key={link.to}
             to={link.to}
             className="px-4 py-3 text-sm font-semibold text-center transition-colors"
-            style={{ background: dark.cardHover, borderRadius: 'var(--radius-xl)', color: 'rgba(255,255,255,0.60)' }}
+            style={{ background: dark.cardHover, borderRadius: '16px', color: 'rgba(255,255,255,0.60)' }}
           >
             {link.label}
           </Link>

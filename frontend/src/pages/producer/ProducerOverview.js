@@ -25,7 +25,7 @@ function TrendBadge({ trend }) {
   return (
     <span
       className="inline-flex items-center gap-0.5 text-[10px] font-semibold"
-      style={{ color: isUp ? 'var(--color-black)' : 'var(--color-stone)' }}
+      style={{ color: isUp ? '#0c0a09' : '#78716c' }}
     >
       {isUp ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
       {Math.abs(trend).toFixed(1)}%
@@ -37,9 +37,9 @@ function TrendBadge({ trend }) {
 function PlanBadge({ plan }) {
   const p = (plan || 'FREE').toUpperCase();
   let bg, color;
-  if (p === 'ELITE') { bg = 'var(--color-black)'; color = 'var(--color-white)'; }
-  else if (p === 'PRO') { bg = 'var(--color-surface)'; color = 'var(--color-black)'; }
-  else { bg = 'var(--color-surface)'; color = 'var(--color-stone)'; }
+  if (p === 'ELITE') { bg = '#0c0a09'; color = '#ffffff'; }
+  else if (p === 'PRO') { bg = '#f5f5f4'; color = '#0c0a09'; }
+  else { bg = '#f5f5f4'; color = '#78716c'; }
   return (
     <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ background: bg, color }}>{p}</span>
   );
@@ -118,10 +118,10 @@ function StripeConnectSection() {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+      <div className="p-4 md:p-6" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
         <div className="animate-pulse space-y-3">
-          <div style={{ width: '50%', height: 14, borderRadius: 6, background: 'var(--color-surface)' }} />
-          <div style={{ width: '70%', height: 12, borderRadius: 6, background: 'var(--color-surface)' }} />
+          <div style={{ width: '50%', height: 14, borderRadius: 6, background: '#f5f5f4' }} />
+          <div style={{ width: '70%', height: 12, borderRadius: 6, background: '#f5f5f4' }} />
         </div>
       </div>
     );
@@ -133,17 +133,17 @@ function StripeConnectSection() {
   return (
     <div
       className="p-4 md:p-6"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}
+      style={{ background: '#f5f5f4', border: '1px solid #e7e5e4', borderRadius: '16px' }}
       data-testid="stripe-connect-section"
     >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="p-2.5" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-white)' }}>
-            <CreditCard className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
+          <div className="p-2.5" style={{ borderRadius: '12px', background: '#ffffff' }}>
+            <CreditCard className="w-5 h-5" style={{ color: '#78716c' }} />
           </div>
           <div>
-            <h3 className="font-medium" style={{ color: 'var(--color-black)' }}>Stripe Payouts</h3>
-            <p className="text-sm flex items-center gap-1" style={{ color: 'var(--color-stone)' }}>
+            <h3 className="font-medium" style={{ color: '#0c0a09' }}>Stripe Payouts</h3>
+            <p className="text-sm flex items-center gap-1" style={{ color: '#78716c' }}>
               {isConnected ? (
                 <>
                   <CheckCircle className="w-4 h-4" />
@@ -156,13 +156,13 @@ function StripeConnectSection() {
                 </>
               )}
             </p>
-            <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>
+            <p className="text-xs mt-1" style={{ color: '#78716c' }}>
               {isConnected
                 ? 'Recibirás tu porcentaje de cada venta automáticamente según tu plan.'
                 : 'Conecta Stripe para recibir pagos.'}
             </p>
             {!isConnected && pendingRequirements.length > 0 && (
-              <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>
+              <p className="text-xs mt-1" style={{ color: '#78716c' }}>
                 Pendientes: {pendingRequirements.length} requisito(s) en Stripe.
               </p>
             )}
@@ -175,7 +175,7 @@ function StripeConnectSection() {
               type="button"
               onClick={handleViewStripeDashboard}
               className="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors"
-              style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-stone)', background: 'var(--color-white)' }}
+              style={{ border: '1px solid #e7e5e4', borderRadius: '12px', color: '#78716c', background: '#ffffff' }}
               data-testid="view-stripe-dashboard"
             >
               <ExternalLink className="w-4 h-4" />
@@ -187,7 +187,7 @@ function StripeConnectSection() {
               onClick={handleConnectStripe}
               disabled={connecting}
               className="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors disabled:opacity-50"
-              style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-md)' }}
+              style={{ background: '#0c0a09', color: '#fff', borderRadius: '12px' }}
               data-testid="connect-stripe-button"
             >
               {connecting ? (
@@ -248,20 +248,20 @@ function HealthScoreCard() {
 
         {/* Metrics Summary - Mobile */}
         <div className="grid grid-cols-3 gap-3 mt-4">
-          <div className="p-3 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-            <div className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>{healthData.metrics.orders_30d}</div>
-            <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>{t('customerDashboard.orders', 'Pedidos')}</div>
+          <div className="p-3 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+            <div className="text-xl font-bold" style={{ color: '#0c0a09' }}>{healthData.metrics.orders_30d}</div>
+            <div className="text-[10px] uppercase tracking-wider" style={{ color: '#78716c' }}>{t('customerDashboard.orders', 'Pedidos')}</div>
           </div>
-          <div className="p-3 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-            <div className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
-            <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>Ventas</div>
+          <div className="p-3 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+            <div className="text-xl font-bold" style={{ color: '#0c0a09' }}>€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
+            <div className="text-[10px] uppercase tracking-wider" style={{ color: '#78716c' }}>Ventas</div>
           </div>
-          <div className="p-3 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+          <div className="p-3 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
             <div className="flex items-center justify-center gap-1">
-              <Star className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
-              <span className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>{healthData.metrics.avg_rating || '-'}</span>
+              <Star className="w-4 h-4" style={{ color: '#78716c' }} />
+              <span className="text-xl font-bold" style={{ color: '#0c0a09' }}>{healthData.metrics.avg_rating || '-'}</span>
             </div>
-            <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>{healthData.metrics.review_count} Reviews</div>
+            <div className="text-[10px] uppercase tracking-wider" style={{ color: '#78716c' }}>{healthData.metrics.review_count} Reviews</div>
           </div>
         </div>
       </div>
@@ -277,18 +277,18 @@ function HealthScoreCard() {
 // Desktop health score
 function DesktopHealthScore({ healthData, t }) {
   return (
-    <div className="p-6" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+    <div className="p-6" style={{ background: '#f5f5f4', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
       <div className="flex items-start justify-between mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Heart className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
-            <h2 className="font-semibold" style={{ color: 'var(--color-black)' }}>{t('producer.healthScore.title')}</h2>
+            <Heart className="w-5 h-5" style={{ color: '#78716c' }} />
+            <h2 className="font-semibold" style={{ color: '#0c0a09' }}>{t('producer.healthScore.title')}</h2>
           </div>
-          <p className="text-sm" style={{ color: 'var(--color-stone)' }}>{t('producer.healthScore.subtitle')}</p>
+          <p className="text-sm" style={{ color: '#78716c' }}>{t('producer.healthScore.subtitle')}</p>
         </div>
         <div className="text-right">
-          <div className="text-4xl font-bold" style={{ color: 'var(--color-black)' }}>{healthData.total_score}</div>
-          <div className="text-sm font-medium" style={{ color: 'var(--color-stone)' }}>
+          <div className="text-4xl font-bold" style={{ color: '#0c0a09' }}>{healthData.total_score}</div>
+          <div className="text-sm font-medium" style={{ color: '#78716c' }}>
             {healthData.status_label}
           </div>
         </div>
@@ -296,10 +296,10 @@ function DesktopHealthScore({ healthData, t }) {
 
       {/* Progress Bar */}
       <div className="mb-6">
-        <div className="h-3 rounded-full overflow-hidden" style={{ background: 'var(--color-white)' }}>
+        <div className="h-3 rounded-full overflow-hidden" style={{ background: '#ffffff' }}>
           <div
             className="h-full transition-all duration-500"
-            style={{ width: `${healthData.total_score}%`, background: 'var(--color-black)', borderRadius: 'var(--radius-full)' }}
+            style={{ width: `${healthData.total_score}%`, background: '#0c0a09', borderRadius: '9999px' }}
           />
         </div>
       </div>
@@ -307,37 +307,37 @@ function DesktopHealthScore({ healthData, t }) {
       {/* Breakdown */}
       <div className="grid grid-cols-5 gap-3 mb-6">
         {Object.entries(healthData.breakdown).map(([key, item]) => (
-          <div key={key} className="p-3 text-center" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
-            <div className="text-lg font-bold" style={{ color: 'var(--color-black)' }}>{item.score}</div>
-            <div className="text-xs" style={{ color: 'var(--color-stone)' }}>/{item.max}</div>
-            <div className="text-xs font-medium mt-1" style={{ color: 'var(--color-stone)' }}>{item.label}</div>
+          <div key={key} className="p-3 text-center" style={{ background: '#ffffff', borderRadius: '12px' }}>
+            <div className="text-lg font-bold" style={{ color: '#0c0a09' }}>{item.score}</div>
+            <div className="text-xs" style={{ color: '#78716c' }}>/{item.max}</div>
+            <div className="text-xs font-medium mt-1" style={{ color: '#78716c' }}>{item.label}</div>
           </div>
         ))}
       </div>
 
       {/* Metrics Summary */}
-      <div className="grid grid-cols-3 gap-4 py-4" style={{ borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
+      <div className="grid grid-cols-3 gap-4 py-4" style={{ borderTop: '1px solid #e7e5e4', borderBottom: '1px solid #e7e5e4' }}>
         <div className="text-center">
-          <div className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>{healthData.metrics.orders_30d}</div>
-          <div className="text-xs" style={{ color: 'var(--color-stone)' }}>{t('producer.healthScore.orders30d')}</div>
+          <div className="text-xl font-bold" style={{ color: '#0c0a09' }}>{healthData.metrics.orders_30d}</div>
+          <div className="text-xs" style={{ color: '#78716c' }}>{t('producer.healthScore.orders30d')}</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>€{(healthData.metrics.revenue_30d ?? 0).toFixed(0)}</div>
-          <div className="text-xs" style={{ color: 'var(--color-stone)' }}>{t('producer.healthScore.revenue30d')}</div>
+          <div className="text-xl font-bold" style={{ color: '#0c0a09' }}>€{(healthData.metrics.revenue_30d ?? 0).toFixed(0)}</div>
+          <div className="text-xs" style={{ color: '#78716c' }}>{t('producer.healthScore.revenue30d')}</div>
         </div>
         <div className="text-center">
           <div className="flex items-center justify-center gap-1">
-            <Star className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
-            <span className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>{healthData.metrics.avg_rating || '-'}</span>
+            <Star className="w-4 h-4" style={{ color: '#78716c' }} />
+            <span className="text-xl font-bold" style={{ color: '#0c0a09' }}>{healthData.metrics.avg_rating || '-'}</span>
           </div>
-          <div className="text-xs" style={{ color: 'var(--color-stone)' }}>{healthData.metrics.review_count} {t('producer.healthScore.reviews')}</div>
+          <div className="text-xs" style={{ color: '#78716c' }}>{healthData.metrics.review_count} {t('producer.healthScore.reviews')}</div>
         </div>
       </div>
 
       {/* Recommendations */}
       {healthData.recommendations?.length > 0 && (
         <div className="mt-4">
-          <h3 className="font-medium mb-3 flex items-center gap-2" style={{ color: 'var(--color-black)' }}>
+          <h3 className="font-medium mb-3 flex items-center gap-2" style={{ color: '#0c0a09' }}>
             <Target className="w-4 h-4" />
             {t('producer.healthScore.recommendations')}
           </h3>
@@ -346,10 +346,10 @@ function DesktopHealthScore({ healthData, t }) {
               <div
                 key={idx}
                 className="flex items-start gap-3 p-3"
-                style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--color-border)' }}
+                style={{ background: '#ffffff', borderRadius: '12px', borderLeft: '4px solid #e7e5e4' }}
               >
-                <Zap className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-stone)' }} />
-                <p className="text-sm" style={{ color: 'var(--color-stone)' }}>{rec.message}</p>
+                <Zap className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#78716c' }} />
+                <p className="text-sm" style={{ color: '#78716c' }}>{rec.message}</p>
               </div>
             ))}
           </div>
@@ -384,20 +384,20 @@ function FollowerGrowthChart() {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+      <div className="p-4 md:p-6" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
         <div className="flex items-center justify-center h-48">
-          <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--color-black)' }} />
+          <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#0c0a09' }} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+    <div className="p-4 md:p-6" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5" style={{ color: 'var(--color-black)' }} />
-          <h2 className="font-medium text-sm md:text-base" style={{ color: 'var(--color-black)' }}>
+          <TrendingUp className="w-5 h-5" style={{ color: '#0c0a09' }} />
+          <h2 className="font-medium text-sm md:text-base" style={{ color: '#0c0a09' }}>
             {t('producer.followerGrowth.title')}
           </h2>
         </div>
@@ -405,7 +405,7 @@ function FollowerGrowthChart() {
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
           className="text-xs md:text-sm px-2 md:px-3 py-1.5"
-          style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', background: 'var(--color-white)', color: 'var(--color-black)' }}
+          style={{ border: '1px solid #e7e5e4', borderRadius: '12px', background: '#ffffff', color: '#0c0a09' }}
         >
           <option value={7}>{t('producer.followerGrowth.last7Days')}</option>
           <option value={30}>{t('producer.followerGrowth.last30Days')}</option>
@@ -451,7 +451,7 @@ function FollowerGrowthChart() {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center h-48" style={{ color: 'var(--color-stone)' }}>
+        <div className="flex flex-col items-center justify-center h-48" style={{ color: '#78716c' }}>
           <Users className="w-12 h-12 mb-2 opacity-30" />
           <p className="text-sm">{t('producer.followerGrowth.noFollowers')}</p>
           <p className="text-xs">{t('producer.followerGrowth.shareStore')}</p>
@@ -482,22 +482,22 @@ function B2BOperationsSection() {
   if (ops.length === 0) return null;
 
   return (
-    <div style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: 16, marginBottom: 4 }}>
+    <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px', padding: 16, marginBottom: 4 }}>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Operaciones B2B</h3>
-        <Link to="/b2b/operations" className="text-xs font-semibold" style={{ color: 'var(--color-stone)' }}>
+        <h3 className="text-sm font-bold" style={{ color: '#0c0a09' }}>Operaciones B2B</h3>
+        <Link to="/b2b/operations" className="text-xs font-semibold" style={{ color: '#78716c' }}>
           Ver todas <ChevronRight className="w-3 h-3 inline" />
         </Link>
       </div>
       <div className="flex gap-3 mb-3">
-        <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-full)', fontSize: 12 }}>
-          <span style={{ fontWeight: 600, color: 'var(--color-black)' }}>{active.length}</span>
-          <span style={{ color: 'var(--color-stone)' }}>activas</span>
+        <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: '#f5f5f4', borderRadius: '9999px', fontSize: 12 }}>
+          <span style={{ fontWeight: 600, color: '#0c0a09' }}>{active.length}</span>
+          <span style={{ color: '#78716c' }}>activas</span>
         </div>
         {urgent.length > 0 && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-full)', fontSize: 12 }}>
-            <span style={{ fontWeight: 600, color: 'var(--color-black)' }}>{urgent.length}</span>
-            <span style={{ color: 'var(--color-stone)' }}>pendientes</span>
+          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: '#f5f5f4', borderRadius: '9999px', fontSize: 12 }}>
+            <span style={{ fontWeight: 600, color: '#0c0a09' }}>{urgent.length}</span>
+            <span style={{ color: '#78716c' }}>pendientes</span>
           </div>
         )}
       </div>
@@ -508,13 +508,13 @@ function B2BOperationsSection() {
             key={op.id}
             to={`/b2b/tracking/${op.id}`}
             className="flex items-center justify-between py-2.5"
-            style={{ borderBottom: '1px solid var(--color-border)', textDecoration: 'none' }}
+            style={{ borderBottom: '1px solid #e7e5e4', textDecoration: 'none' }}
           >
             <div className="min-w-0">
-              <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>{offer.product_name || 'Operación B2B'}</p>
-              <p className="text-xs" style={{ color: 'var(--color-stone)' }}>{offer.quantity} {offer.unit}</p>
+              <p className="text-sm font-semibold truncate" style={{ color: '#0c0a09' }}>{offer.product_name || 'Operación B2B'}</p>
+              <p className="text-xs" style={{ color: '#78716c' }}>{offer.quantity} {offer.unit}</p>
             </div>
-            <ChevronRight className="w-4 h-4 shrink-0" style={{ color: 'var(--color-stone)' }} />
+            <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#78716c' }} />
           </Link>
         );
       })}
@@ -617,7 +617,7 @@ export default function ProducerOverview() {
   // Loading skeleton — mirrors the real dashboard layout for zero-layout-shift
   if (loading) {
     const Bone = ({ w = '100%', h = 14, r = 8, mb = 0 }) => (
-      <div className="animate-pulse" style={{ width: w, height: h, borderRadius: r, background: 'var(--color-surface)', marginBottom: mb }} />
+      <div className="animate-pulse" style={{ width: w, height: h, borderRadius: r, background: '#f5f5f4', marginBottom: mb }} />
     );
     return (
       <div className="space-y-4 px-4 py-4 md:px-6 md:py-6">
@@ -625,14 +625,14 @@ export default function ProducerOverview() {
         <Bone w="55%" h={28} mb={4} />
         <Bone w="30%" h={14} mb={16} />
         {/* Stripe Connect card skeleton */}
-        <div style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', padding: 20 }}>
+        <div style={{ borderRadius: '16px', border: '1px solid #e7e5e4', padding: 20 }}>
           <Bone w="40%" h={16} mb={12} />
           <Bone w="70%" h={12} />
         </div>
         {/* Stats grid skeleton */}
         <div className="grid grid-cols-2 gap-3">
           {[1,2,3,4].map(i => (
-            <div key={i} style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', padding: 16 }}>
+            <div key={i} style={{ borderRadius: '16px', border: '1px solid #e7e5e4', padding: 16 }}>
               <Bone w="60%" h={12} mb={8} />
               <Bone w="40%" h={24} />
             </div>
@@ -651,13 +651,13 @@ export default function ProducerOverview() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4">
-        <AlertCircle className="w-12 h-12 mb-4" style={{ color: 'var(--color-stone)' }} />
-        <p className="mb-4 text-center" style={{ color: 'var(--color-stone)' }}>{error}</p>
+        <AlertCircle className="w-12 h-12 mb-4" style={{ color: '#78716c' }} />
+        <p className="mb-4 text-center" style={{ color: '#78716c' }}>{error}</p>
         <button
           type="button"
           onClick={fetchData}
           className="px-4 py-2 transition-colors"
-          style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-md)' }}
+          style={{ background: '#0c0a09', color: '#fff', borderRadius: '12px' }}
         >
           Reintentar
         </button>
@@ -674,7 +674,7 @@ export default function ProducerOverview() {
       label: t('producer.createNewProduct'),
       description: 'Añadir nuevo producto',
       to: '/producer/products',
-      bgColor: 'var(--color-black)',
+      bgColor: '#0c0a09',
       iconColor: '#fff'
     },
     {
@@ -682,40 +682,40 @@ export default function ProducerOverview() {
       label: t('producer.manageCertificates'),
       description: 'Certificaciones de calidad',
       to: '/producer/certificates',
-      bgColor: 'var(--color-surface)',
-      iconColor: 'var(--color-stone)'
+      bgColor: '#f5f5f4',
+      iconColor: '#78716c'
     },
     {
       icon: ShoppingBag,
       label: t('producer.viewOrders'),
       description: 'Gestionar pedidos',
       to: '/producer/orders',
-      bgColor: 'var(--color-surface)',
-      iconColor: 'var(--color-stone)'
+      bgColor: '#f5f5f4',
+      iconColor: '#78716c'
     },
     {
       icon: TrendingUp,
       label: 'Ver analíticas',
       description: 'Métricas y pagos',
       to: '/producer/payments',
-      bgColor: 'var(--color-surface)',
-      iconColor: 'var(--color-stone)'
+      bgColor: '#f5f5f4',
+      iconColor: '#78716c'
     },
   ];
 
   return (
-    <div className="space-y-4 md:space-y-6" style={{ fontFamily: 'var(--font-sans)' }}>
+    <div className="space-y-4 md:space-y-6" style={{ fontFamily: 'inherit' }}>
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-semibold tracking-tight" style={{ color: 'var(--color-black)' }} data-testid="producer-title">
+          <h1 className="text-3xl font-semibold tracking-tight" style={{ color: '#0c0a09' }} data-testid="producer-title">
             {user?.company_name || user?.name}
           </h1>
           <PlanBadge plan={user?.plan} />
         </div>
         <div className="flex items-center gap-2">
           {/* Period selector */}
-          <div className="flex p-0.5" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}>
+          <div className="flex p-0.5" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
             {[
               { key: 'today', label: 'Hoy' },
               { key: 'week', label: 'Semana' },
@@ -726,9 +726,9 @@ export default function ProducerOverview() {
                 onClick={() => setPeriod(p.key)}
                 className="px-3 py-1.5 text-xs font-medium transition-colors"
                 style={{
-                  borderRadius: 'var(--radius-md)',
-                  background: period === p.key ? 'var(--color-black)' : 'transparent',
-                  color: period === p.key ? '#fff' : 'var(--color-stone)',
+                  borderRadius: '12px',
+                  background: period === p.key ? '#0c0a09' : 'transparent',
+                  color: period === p.key ? '#fff' : '#78716c',
                 }}
               >
                 {p.label}
@@ -739,7 +739,7 @@ export default function ProducerOverview() {
             <Link
               to={publicProfileUrl}
               className="shrink-0 hidden md:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors"
-              style={{ border: '1px solid var(--color-border)', background: 'var(--color-white)', color: 'var(--color-stone)' }}
+              style={{ border: '1px solid #e7e5e4', background: '#ffffff', color: '#78716c' }}
               data-testid="view-public-profile"
             >
               <Users className="h-4 w-4" />
@@ -769,14 +769,14 @@ export default function ProducerOverview() {
         <Link
           to="/producer/verification"
           className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)', border: '1px solid var(--color-stone)' }}
+          style={{ borderRadius: '16px', background: '#f5f5f4', border: '1px solid #78716c' }}
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-stone)' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#78716c' }} />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: 'var(--color-stone)' }}>Cuenta no verificada</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>No puedes publicar productos hasta completar la verificación.</p>
+            <p className="text-sm font-semibold" style={{ color: '#78716c' }}>Cuenta no verificada</p>
+            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>No puedes publicar productos hasta completar la verificación.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: '#78716c' }} />
         </Link>
       )}
       {verificationStatus?.is_verified && verificationStatus?.documents?.certificates?.some(c => {
@@ -786,36 +786,36 @@ export default function ProducerOverview() {
         <Link
           to="/producer/verification"
           className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)', border: '1px solid var(--color-stone)' }}
+          style={{ borderRadius: '16px', background: '#f5f5f4', border: '1px solid #78716c' }}
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-stone)' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#78716c' }} />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: 'var(--color-stone)' }}>Certificado próximo a caducar</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>Renuévalo para no interrumpir tus ventas.</p>
+            <p className="text-sm font-semibold" style={{ color: '#78716c' }}>Certificado próximo a caducar</p>
+            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>Renuévalo para no interrumpir tus ventas.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: '#78716c' }} />
         </Link>
       )}
       {verificationStatus?.documents?.certificates?.some(c => c.status === 'expired') && (
         <Link
           to="/producer/verification"
           className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)', border: '1px solid var(--color-stone)' }}
+          style={{ borderRadius: '16px', background: '#f5f5f4', border: '1px solid #78716c' }}
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-stone)' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#78716c' }} />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: 'var(--color-stone)' }}>Certificado caducado</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>Tus ventas pueden estar pausadas. Renueva ahora.</p>
+            <p className="text-sm font-semibold" style={{ color: '#78716c' }}>Certificado caducado</p>
+            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>Tus ventas pueden estar pausadas. Renueva ahora.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: '#78716c' }} />
         </Link>
       )}
 
       {dataWarnings.length > 0 && !error && (
-        <div className="p-4" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
+        <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }}>
           <div className="flex items-start gap-2">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--color-stone)' }} />
-            <div className="space-y-1 text-sm" style={{ color: 'var(--color-stone)' }}>
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#78716c' }} />
+            <div className="space-y-1 text-sm" style={{ color: '#78716c' }}>
               {dataWarnings.map((warning) => (
                 <p key={warning}>{warning}</p>
               ))}
@@ -828,17 +828,17 @@ export default function ProducerOverview() {
         <div className="space-y-2" data-testid="producer-alerts">
           {alerts.map((alert, i) => (
             <div key={i} className="flex items-start gap-3 p-3" style={{
-              borderRadius: 'var(--radius-xl)',
-              background: alert.type === 'danger' ? 'var(--color-surface)' : 'var(--color-surface)',
-              border: `1px solid ${alert.type === 'danger' ? 'var(--color-stone)' : 'var(--color-border)'}`,
+              borderRadius: '16px',
+              background: alert.type === 'danger' ? '#f5f5f4' : '#f5f5f4',
+              border: `1px solid ${alert.type === 'danger' ? '#78716c' : '#e7e5e4'}`,
             }}>
               <span className="text-lg shrink-0">{alert.type === 'danger' ? '\uD83D\uDEA8' : '\u26A0\uFE0F'}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>{alert.title}</p>
-                <p className="text-xs" style={{ color: 'var(--color-stone)' }}>{alert.message}</p>
+                <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{alert.title}</p>
+                <p className="text-xs" style={{ color: '#78716c' }}>{alert.message}</p>
               </div>
               {alert.action_href && (
-                <Link to={alert.action_href} className="shrink-0 text-xs font-bold hover:underline" style={{ color: 'var(--color-black)' }}>
+                <Link to={alert.action_href} className="shrink-0 text-xs font-bold hover:underline" style={{ color: '#0c0a09' }}>
                   {alert.action_label || 'Ver'} →
                 </Link>
               )}
@@ -850,61 +850,61 @@ export default function ProducerOverview() {
       {/* Quick Actions — 2 Big Buttons */}
       <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
         {/* "Publicar nuevo producto" — THE ONLY GREEN BUTTON */}
-        <Link to="/producer/products" className="flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)' }} data-testid="quick-add-product">
+        <Link to="/producer/products" className="flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: '#0c0a09', color: '#fff', borderRadius: '16px' }} data-testid="quick-add-product">
           <Package className="w-8 h-8" />
           <span className="text-sm font-semibold">{t('sellerDashboard.newProduct', 'Publicar nuevo producto')}</span>
         </Link>
-        <Link to="/producer/orders" className="relative flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02]" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }} data-testid="quick-orders">
-          <ShoppingBag className="w-8 h-8" style={{ color: 'var(--color-black)' }} />
-          <span className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>{t('customerDashboard.orders', 'Pedidos')}</span>
-          {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full" style={{ background: 'var(--color-black)', color: '#fff' }}>{stats.pending_orders}</span>}
+        <Link to="/producer/orders" className="relative flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02]" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }} data-testid="quick-orders">
+          <ShoppingBag className="w-8 h-8" style={{ color: '#0c0a09' }} />
+          <span className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{t('customerDashboard.orders', 'Pedidos')}</span>
+          {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full" style={{ background: '#0c0a09', color: '#fff' }}>{stats.pending_orders}</span>}
         </Link>
       </div>
 
       {/* Demand Signals Section */}
-      <section className="p-5" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}>
+      <section className="p-5" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-medium" style={{ color: 'var(--color-black)' }}>Señales de demanda</h2>
-            <p className="mt-1 text-sm" style={{ color: 'var(--color-stone)' }}>Ingredientes, productos y piezas de contenido con más intención de compra.</p>
+            <h2 className="text-xl font-medium" style={{ color: '#0c0a09' }}>Señales de demanda</h2>
+            <p className="mt-1 text-sm" style={{ color: '#78716c' }}>Ingredientes, productos y piezas de contenido con más intención de compra.</p>
           </div>
-          <Target className="h-5 w-5" style={{ color: 'var(--color-stone)' }} />
+          <Target className="h-5 w-5" style={{ color: '#78716c' }} />
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
-          <div className="p-4" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: 'var(--color-stone)' }}>Trending ingredients</p>
+          <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }}>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: '#78716c' }}>Trending ingredients</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.trending_ingredients || []).slice(0, 4).map((item) => (
-                <div key={item.name} className="flex items-center justify-between text-sm" style={{ color: 'var(--color-black)' }}>
+                <div key={item.name} className="flex items-center justify-between text-sm" style={{ color: '#0c0a09' }}>
                   <span>{item.name}</span>
-                  <span style={{ color: 'var(--color-stone)' }}>{item.count}</span>
+                  <span style={{ color: '#78716c' }}>{item.count}</span>
                 </div>
               ))}
-              {!(demandSignals.trending_ingredients || []).length ? <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Sin datos todavía.</p> : null}
+              {!(demandSignals.trending_ingredients || []).length ? <p className="text-sm" style={{ color: '#78716c' }}>Sin datos todavía.</p> : null}
             </div>
           </div>
-          <div className="p-4" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: 'var(--color-stone)' }}>Most tagged products</p>
+          <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }}>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: '#78716c' }}>Most tagged products</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.most_tagged_products || []).slice(0, 4).map((item) => (
-                <div key={item.product_id} className="flex items-center justify-between gap-3 text-sm" style={{ color: 'var(--color-black)' }}>
+                <div key={item.product_id} className="flex items-center justify-between gap-3 text-sm" style={{ color: '#0c0a09' }}>
                   <span className="truncate">{item.name}</span>
-                  <span style={{ color: 'var(--color-stone)' }}>{item.count}</span>
+                  <span style={{ color: '#78716c' }}>{item.count}</span>
                 </div>
               ))}
-              {!(demandSignals.most_tagged_products || []).length ? <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Sin etiquetas suficientes.</p> : null}
+              {!(demandSignals.most_tagged_products || []).length ? <p className="text-sm" style={{ color: '#78716c' }}>Sin etiquetas suficientes.</p> : null}
             </div>
           </div>
-          <div className="p-4" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: 'var(--color-stone)' }}>Content driving sales</p>
+          <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }}>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: '#78716c' }}>Content driving sales</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.content_driving_sales || []).slice(0, 4).map((item) => (
-                <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between text-sm" style={{ color: 'var(--color-black)' }}>
+                <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between text-sm" style={{ color: '#0c0a09' }}>
                   <span className="capitalize">{item.content_type}</span>
-                  <span style={{ color: 'var(--color-stone)' }}>{item.score}</span>
+                  <span style={{ color: '#78716c' }}>{item.score}</span>
                 </div>
               ))}
-              {!(demandSignals.content_driving_sales || []).length ? <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Aún no hay conversiones atribuidas.</p> : null}
+              {!(demandSignals.content_driving_sales || []).length ? <p className="text-sm" style={{ color: '#78716c' }}>Aún no hay conversiones atribuidas.</p> : null}
             </div>
           </div>
         </div>
@@ -949,9 +949,9 @@ export default function ProducerOverview() {
         return (
           <div className="grid grid-cols-2 gap-3">
             {kpis.map((kpi, i) => (
-              <div key={i} className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-                <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{kpi.value}</p>
-                <p className="text-[10px] uppercase mt-1" style={{ color: 'var(--color-stone)' }}>{kpi.label}</p>
+              <div key={i} className="p-4 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+                <p className="text-2xl font-bold" style={{ color: '#0c0a09' }}>{kpi.value}</p>
+                <p className="text-[10px] uppercase mt-1" style={{ color: '#78716c' }}>{kpi.label}</p>
                 {kpi.trend !== null && (
                   <div className="mt-1 flex justify-center">
                     <TrendBadge trend={kpi.trend} />
@@ -964,15 +964,15 @@ export default function ProducerOverview() {
       })()}
 
       {/* Net earnings */}
-      <div className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-        <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{asNumber(payments?.total_net).toFixed(0)}€</p>
-        <p className="text-[10px] uppercase mt-1" style={{ color: 'var(--color-stone)' }}>{t('sellerDashboard.earned', 'Ganado neto')}</p>
+      <div className="p-4 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+        <p className="text-2xl font-bold" style={{ color: '#0c0a09' }}>{asNumber(payments?.total_net).toFixed(0)}€</p>
+        <p className="text-[10px] uppercase mt-1" style={{ color: '#78716c' }}>{t('sellerDashboard.earned', 'Ganado neto')}</p>
       </div>
 
       {/* Sales Chart — 30 days */}
       {salesChart.length > 0 && (
-        <div className="p-4" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }} data-testid="sales-chart">
-          <p className="text-sm font-bold mb-4" style={{ color: 'var(--color-black)' }}>Ventas — últimos 30 días</p>
+        <div className="p-4" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }} data-testid="sales-chart">
+          <p className="text-sm font-bold mb-4" style={{ color: '#0c0a09' }}>Ventas — últimos 30 días</p>
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={salesChart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <CartesianGrid stroke="#E5E2DA" vertical={false} />
@@ -1004,16 +1004,16 @@ export default function ProducerOverview() {
 
       {/* Low Stock Alert */}
       {stats?.low_stock_products?.length > 0 && (
-        <div className="p-4" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }} data-testid="low-stock-alert">
+        <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }} data-testid="low-stock-alert">
           <div className="flex items-center gap-2 mb-2">
-            <AlertCircle className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
-            <span className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
+            <AlertCircle className="w-4 h-4" style={{ color: '#78716c' }} />
+            <span className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
           </div>
           <div className="space-y-1">
             {stats.low_stock_products.slice(0, 3).map(p => (
-              <Link key={p.product_id} to={`/producer/products`} className="flex items-center justify-between text-xs py-1.5 first:border-0" style={{ borderTop: '1px solid var(--color-border)' }}>
-                <span className="truncate flex-1" style={{ color: 'var(--color-stone)' }}>{p.name}</span>
-                <span className="font-bold ml-2" style={{ color: 'var(--color-black)' }}>{p.stock} uds</span>
+              <Link key={p.product_id} to={`/producer/products`} className="flex items-center justify-between text-xs py-1.5 first:border-0" style={{ borderTop: '1px solid #e7e5e4' }}>
+                <span className="truncate flex-1" style={{ color: '#78716c' }}>{p.name}</span>
+                <span className="font-bold ml-2" style={{ color: '#0c0a09' }}>{p.stock} uds</span>
               </Link>
             ))}
           </div>
@@ -1022,15 +1022,15 @@ export default function ProducerOverview() {
 
       {/* Recent Reviews */}
       {stats?.recent_reviews?.length > 0 && (
-        <div className="p-4" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }} data-testid="recent-reviews">
-          <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--color-stone)' }}>{t('sellerDashboard.latestReviews')}</h3>
+        <div className="p-4" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }} data-testid="recent-reviews">
+          <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#78716c' }}>{t('sellerDashboard.latestReviews')}</h3>
           <div className="space-y-2">
             {stats.recent_reviews.slice(0, 3).map((r, i) => (
               <div key={i} className="flex items-start gap-2 text-xs">
-                <div className="flex items-center gap-0.5 px-1.5 py-0.5 shrink-0" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-md)', color: 'var(--color-stone)' }}>
-                  <Star className="w-3 h-3" style={{ color: 'var(--color-stone)' }} /> {r.rating}
+                <div className="flex items-center gap-0.5 px-1.5 py-0.5 shrink-0" style={{ background: '#f5f5f4', borderRadius: '12px', color: '#78716c' }}>
+                  <Star className="w-3 h-3" style={{ color: '#78716c' }} /> {r.rating}
                 </div>
-                <p className="line-clamp-2" style={{ color: 'var(--color-stone)' }}>{r.comment || t('sellerDashboard.noComment')}</p>
+                <p className="line-clamp-2" style={{ color: '#78716c' }}>{r.comment || t('sellerDashboard.noComment')}</p>
               </div>
             ))}
           </div>
@@ -1039,12 +1039,12 @@ export default function ProducerOverview() {
 
       {/* Pending Warning */}
       {isPending && (
-        <div className="p-4" style={{ border: '1px solid var(--color-border)', background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)' }}>
+        <div className="p-4" style={{ border: '1px solid #e7e5e4', background: '#f5f5f4', borderRadius: '16px' }}>
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 mt-0.5" style={{ color: 'var(--color-stone)' }} />
+            <AlertCircle className="w-5 h-5 mt-0.5" style={{ color: '#78716c' }} />
             <div>
-              <h3 className="font-medium" style={{ color: 'var(--color-black)' }}>{t('producer.accountPending')}</h3>
-              <p className="text-sm" style={{ color: 'var(--color-stone)' }}>{t('producer.accountPendingDesc')}</p>
+              <h3 className="font-medium" style={{ color: '#0c0a09' }}>{t('producer.accountPending')}</h3>
+              <p className="text-sm" style={{ color: '#78716c' }}>{t('producer.accountPendingDesc')}</p>
             </div>
           </div>
         </div>
@@ -1052,13 +1052,13 @@ export default function ProducerOverview() {
 
       {/* Active Collaborations */}
       {collabs.length > 0 && (
-        <section className="p-5" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}>
+        <section className="p-5" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Handshake className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
-              <h2 className="text-lg font-medium" style={{ color: 'var(--color-black)' }}>Colaboraciones</h2>
+              <Handshake className="w-5 h-5" style={{ color: '#78716c' }} />
+              <h2 className="text-lg font-medium" style={{ color: '#0c0a09' }}>Colaboraciones</h2>
             </div>
-            <Link to="/messages" className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-stone)' }}>
+            <Link to="/messages" className="text-xs font-medium flex items-center gap-1" style={{ color: '#78716c' }}>
               Ver todas <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -1066,11 +1066,11 @@ export default function ProducerOverview() {
             {collabs.slice(0, 5).map(c => {
               const proposal = c.proposal || {};
               const statusStyles = {
-                proposed: { label: 'Pendiente', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-                active: { label: 'Activa', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
-                declined: { label: 'Rechazada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-                sample_sent: { label: 'Muestra enviada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-                sample_received: { label: 'Muestra recibida', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
+                proposed: { label: 'Pendiente', bg: '#f5f5f4', color: '#78716c' },
+                active: { label: 'Activa', bg: '#f5f5f4', color: '#0c0a09' },
+                declined: { label: 'Rechazada', bg: '#f5f5f4', color: '#78716c' },
+                sample_sent: { label: 'Muestra enviada', bg: '#f5f5f4', color: '#78716c' },
+                sample_received: { label: 'Muestra recibida', bg: '#f5f5f4', color: '#0c0a09' },
               };
               const badge = statusStyles[c.status] || statusStyles.proposed;
               return (
@@ -1078,14 +1078,14 @@ export default function ProducerOverview() {
                   key={c.collab_id}
                   to={`/messages/${c.conversation_id}`}
                   className="flex items-center gap-3 p-3 transition-colors"
-                  style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
+                  style={{ borderRadius: '12px', border: '1px solid #e7e5e4' }}
                 >
                   {proposal.product_image_url && (
                     <img src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>{proposal.product_name}</p>
-                    <p className="text-xs" style={{ color: 'var(--color-stone)' }}>{proposal.commission_pct}% · {proposal.duration_days} días</p>
+                    <p className="text-sm font-medium truncate" style={{ color: '#0c0a09' }}>{proposal.product_name}</p>
+                    <p className="text-xs" style={{ color: '#78716c' }}>{proposal.commission_pct}% · {proposal.duration_days} días</p>
                   </div>
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: badge.bg, color: badge.color }}>
                     {badge.label}
@@ -1167,8 +1167,8 @@ export default function ProducerOverview() {
       </div>
 
       {/* Desktop Quick Actions */}
-      <div className="hidden md:block p-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-        <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-black)' }}>
+      <div className="hidden md:block p-6" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+        <h2 className="text-lg font-semibold mb-4" style={{ color: '#0c0a09' }}>
           {t('producer.quickActions')}
         </h2>
         <div className="grid grid-cols-2 gap-4">
@@ -1177,31 +1177,31 @@ export default function ProducerOverview() {
               key={idx}
               to={action.to}
               className="flex items-center gap-3 p-4 transition-colors"
-              style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+              style={{ borderRadius: '12px', border: '1px solid #e7e5e4', background: '#ffffff' }}
               data-testid={`desktop-quick-action-${idx}`}
             >
               <div
                 className="p-2.5"
-                style={{ backgroundColor: action.bgColor, borderRadius: 'var(--radius-md)' }}
+                style={{ backgroundColor: action.bgColor, borderRadius: '12px' }}
               >
                 <action.icon className="w-5 h-5" style={{ color: action.iconColor }} />
               </div>
-              <span className="font-medium" style={{ color: 'var(--color-black)' }}>{action.label}</span>
+              <span className="font-medium" style={{ color: '#0c0a09' }}>{action.label}</span>
             </Link>
           ))}
         </div>
       </div>
 
       {/* Account & Configuration */}
-      <section className="p-5" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}>
-        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Cuenta y configuración</h2>
+      <section className="p-5" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
+        <h2 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>Cuenta y configuración</h2>
         <div className="space-y-1">
           {[
             {
               icon: PenTool,
               label: 'Firma digital',
               sublabel: user?.signature_url ? 'Configurada' : 'Pendiente',
-              sublabelColor: user?.signature_url ? 'var(--color-black)' : 'var(--color-stone)',
+              sublabelColor: user?.signature_url ? '#0c0a09' : '#78716c',
               to: '/settings/signature',
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },
@@ -1212,18 +1212,18 @@ export default function ProducerOverview() {
               key={i}
               to={item.to}
               className="flex items-center gap-3 p-3 transition-colors"
-              style={{ borderRadius: 'var(--radius-md)' }}
+              style={{ borderRadius: '12px' }}
             >
-              <div className="w-8 h-8 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
-                <item.icon className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+              <div className="w-8 h-8 flex items-center justify-center shrink-0" style={{ borderRadius: '12px', background: '#f5f5f4' }}>
+                <item.icon className="w-4 h-4" style={{ color: '#78716c' }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>{item.label}</p>
+                <p className="text-sm font-medium" style={{ color: '#0c0a09' }}>{item.label}</p>
                 {item.sublabel && (
-                  <p className="text-[11px]" style={{ color: item.sublabelColor || 'var(--color-stone)' }}>{item.sublabel}</p>
+                  <p className="text-[11px]" style={{ color: item.sublabelColor || '#78716c' }}>{item.sublabel}</p>
                 )}
               </div>
-              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: 'var(--color-stone)' }} />
+              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#78716c' }} />
             </Link>
           ))}
         </div>

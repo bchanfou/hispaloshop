@@ -15,8 +15,8 @@ const dietStyle = {
 };
 
 const allergyStyle = {
-  backgroundColor: 'var(--color-surface)',
-  color: 'var(--color-stone)',
+  backgroundColor: '#f5f5f4',
+  color: '#78716c',
 };
 
 export default function ChatDietTags({ tags }) {

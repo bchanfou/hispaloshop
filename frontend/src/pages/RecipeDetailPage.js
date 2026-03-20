@@ -157,7 +157,7 @@ export default function RecipeDetailPage() {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--color-cream)] font-sans">
+      <div className="min-h-screen bg-[#fafaf9] font-sans">
         <Topbar title="Receta" onBack={() => navigate(-1)} />
         <div className="flex justify-center p-12">
           <Loader2 size={28} className="animate-spin text-stone-400" />
@@ -169,7 +169,7 @@ export default function RecipeDetailPage() {
   /* ── Not found ── */
   if (!recipe) {
     return (
-      <div className="min-h-screen bg-[var(--color-cream)] font-sans">
+      <div className="min-h-screen bg-[#fafaf9] font-sans">
         <Topbar title="Receta" onBack={() => navigate(-1)} />
         <div className="flex flex-col items-center gap-3 px-4 py-16">
           <ChefHat size={56} className="text-stone-300" strokeWidth={1} />
@@ -185,7 +185,7 @@ export default function RecipeDetailPage() {
   const diff = DIFFICULTY_CLASSES[recipe.difficulty] || DIFFICULTY_CLASSES.easy;
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream)] font-sans">
+    <div className="min-h-screen bg-[#fafaf9] font-sans">
       {/* ── Topbar ── */}
       <Topbar
         title={recipe.title}

@@ -12,7 +12,7 @@ function ToggleSwitch({ value, onChange, disabled }) {
       disabled={disabled}
       style={{
         width: 44, height: 24, borderRadius: 12,
-        background: value ? 'var(--color-black)' : 'var(--color-border)',
+        background: value ? '#0c0a09' : '#e7e5e4',
         border: 'none', cursor: disabled ? 'default' : 'pointer',
         position: 'relative', transition: 'background 200ms',
         opacity: disabled ? 0.6 : 1, flexShrink: 0, padding: 0,
@@ -20,7 +20,7 @@ function ToggleSwitch({ value, onChange, disabled }) {
     >
       <div style={{
         width: 20, height: 20, borderRadius: '50%',
-        background: 'var(--color-white)',
+        background: '#ffffff',
         position: 'absolute', top: 2,
         left: value ? 22 : 2,
         transition: 'left 200ms',
@@ -35,20 +35,20 @@ function ToggleRow({ label, sublabel, value, onChange, disabled, locked }) {
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
       padding: '14px 16px',
-      borderBottom: '1px solid var(--color-border)',
+      borderBottom: '1px solid #e7e5e4',
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)', margin: 0, fontFamily: 'var(--font-sans)' }}>
+        <p style={{ fontSize: 14, fontWeight: 500, color: '#0c0a09', margin: 0, fontFamily: 'inherit' }}>
           {label}
         </p>
         {sublabel && (
-          <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0', fontFamily: 'var(--font-sans)' }}>
+          <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0', fontFamily: 'inherit' }}>
             {sublabel}
           </p>
         )}
       </div>
       {locked ? (
-        <Lock size={16} color="var(--color-stone)" />
+        <Lock size={16} color="#78716c" />
       ) : (
         <ToggleSwitch value={value} onChange={onChange} disabled={disabled} />
       )}
@@ -59,10 +59,10 @@ function ToggleRow({ label, sublabel, value, onChange, disabled, locked }) {
 function SectionLabel({ children }) {
   return (
     <p style={{
-      fontSize: 11, fontWeight: 700, color: 'var(--color-stone)',
+      fontSize: 11, fontWeight: 700, color: '#78716c',
       letterSpacing: '0.08em', textTransform: 'uppercase',
       padding: '20px 16px 8px', margin: 0,
-      fontFamily: 'var(--font-sans)',
+      fontFamily: 'inherit',
     }}>
       {children}
     </p>
@@ -92,7 +92,7 @@ export default function NotificationsSettingsPage() {
   const [loading, setLoading] = useState(true);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
-  const font = { fontFamily: 'var(--font-sans)' };
+  const font = { fontFamily: 'inherit' };
 
   useEffect(() => {
     (async () => {
@@ -115,30 +115,30 @@ export default function NotificationsSettingsPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
       {/* Topbar */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e7e5e4',
         display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
       }}>
         <button onClick={() => navigate('/settings')}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
-          <ArrowLeft size={22} color="var(--color-black)" />
+          <ArrowLeft size={22} color="#0c0a09" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Notificaciones</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Notificaciones</span>
       </div>
 
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-          <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+          <Loader2 size={28} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
         </div>
       ) : (
         <div style={{ maxWidth: 600, margin: '0 auto', paddingBottom: 100 }}>
           {/* ACTIVIDAD SOCIAL */}
           <SectionLabel>Actividad social</SectionLabel>
-          <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
+          <div style={{ background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
             <ToggleRow label="Nuevos seguidores" sublabel="Cuando alguien te sigue"
               value={prefs.new_followers} onChange={v => handleToggle('new_followers', v)} />
             <ToggleRow label="Me gusta en posts" sublabel="Cuando alguien da like a tu contenido"
@@ -151,7 +151,7 @@ export default function NotificationsSettingsPage() {
 
           {/* PEDIDOS */}
           <SectionLabel>Pedidos</SectionLabel>
-          <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
+          <div style={{ background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
             <ToggleRow label="Confirmación de pedido" value={true} locked disabled />
             <ToggleRow label="Actualizaciones de envío" sublabel="Cuando tu pedido esté en camino"
               value={prefs.shipping_updates} onChange={v => handleToggle('shipping_updates', v)} />
@@ -165,7 +165,7 @@ export default function NotificationsSettingsPage() {
           {isProducer && (
             <>
               <SectionLabel>B2B</SectionLabel>
-              <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
+              <div style={{ background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
                 <ToggleRow label="Nuevas ofertas B2B"
                   value={prefs.b2b_offers} onChange={v => handleToggle('b2b_offers', v)} />
                 <ToggleRow label="Actualizaciones de contratos"
@@ -178,7 +178,7 @@ export default function NotificationsSettingsPage() {
 
           {/* PLATAFORMA */}
           <SectionLabel>Plataforma</SectionLabel>
-          <div style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
+          <div style={{ background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
             <ToggleRow label="Novedades de Hispaloshop" sublabel="Nuevas funcionalidades y anuncios"
               value={prefs.platform_news} onChange={v => handleToggle('platform_news', v)} />
             <ToggleRow label="Emails de marketing" sublabel="Ofertas y descuentos especiales"

@@ -24,7 +24,7 @@ const renderTextWithHashtags = (text) => {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} style={{ color: 'var(--color-black)', fontWeight: 600 }}>{part}</span>
+      <span key={i} style={{ color: '#0c0a09', fontWeight: 600 }}>{part}</span>
     ) : part
   );
 };
@@ -81,36 +81,36 @@ export default function CommunityPage() {
     }
   }, [communityId, queryClient]);
 
-  const font = { fontFamily: 'var(--font-sans)' };
+  const font = { fontFamily: 'inherit' };
 
   if (isError) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+      <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
         <div style={{
           position: 'sticky', top: 0, zIndex: 40,
-          background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
+          background: '#ffffff',
+          borderBottom: '1px solid #e7e5e4',
           display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
         }}>
           <button onClick={() => navigate(-1)}
             aria-label="Volver"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowLeft size={22} color="var(--color-black)" />
+            <ArrowLeft size={22} color="#0c0a09" />
           </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad</span>
+          <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Comunidad</span>
         </div>
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           justifyContent: 'center', gap: 12, padding: '60px 16px',
         }}>
-          <Users size={56} color="var(--color-stone)" strokeWidth={1} />
-          <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Error al cargar la comunidad</p>
+          <Users size={56} color="#78716c" strokeWidth={1} />
+          <p style={{ fontSize: 15, color: '#78716c' }}>Error al cargar la comunidad</p>
           <button onClick={() => refetch()}
             style={{
               display: 'flex', alignItems: 'center', gap: 8,
-              padding: '10px 24px', background: 'var(--color-white)',
-              color: 'var(--color-black)', borderRadius: 'var(--radius-full, 999px)',
-              border: '1px solid var(--color-border)',
+              padding: '10px 24px', background: '#ffffff',
+              color: '#0c0a09', borderRadius: '9999px',
+              border: '1px solid #e7e5e4',
               fontSize: 14, fontWeight: 600, cursor: 'pointer',
             }}
             aria-label="Reintentar carga">
@@ -123,22 +123,22 @@ export default function CommunityPage() {
 
   if (isLoading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+      <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
         <div style={{
           position: 'sticky', top: 0, zIndex: 40,
-          background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
+          background: '#ffffff',
+          borderBottom: '1px solid #e7e5e4',
           display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
         }}>
           <button onClick={() => navigate(-1)}
             aria-label="Volver"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowLeft size={22} color="var(--color-black)" />
+            <ArrowLeft size={22} color="#0c0a09" />
           </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad</span>
+          <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Comunidad</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-          <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+          <Loader2 size={28} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
         </div>
         <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
       </div>
@@ -147,29 +147,29 @@ export default function CommunityPage() {
 
   if (!community) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+      <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
         <div style={{
           position: 'sticky', top: 0, zIndex: 40,
-          background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
+          background: '#ffffff',
+          borderBottom: '1px solid #e7e5e4',
           display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
         }}>
           <button onClick={() => navigate(-1)}
             aria-label="Volver"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowLeft size={22} color="var(--color-black)" />
+            <ArrowLeft size={22} color="#0c0a09" />
           </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad</span>
+          <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Comunidad</span>
         </div>
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           justifyContent: 'center', gap: 12, padding: '60px 16px',
         }}>
-          <Users size={56} color="var(--color-stone)" strokeWidth={1} />
-          <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Comunidad no encontrada</p>
+          <Users size={56} color="#78716c" strokeWidth={1} />
+          <p style={{ fontSize: 15, color: '#78716c' }}>Comunidad no encontrada</p>
           <Link to="/communities" style={{
-            padding: '10px 24px', background: 'var(--color-black)',
-            color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
+            padding: '10px 24px', background: '#0c0a09',
+            color: '#ffffff', borderRadius: '14px',
             fontSize: 14, fontWeight: 600, textDecoration: 'none',
           }}>
             Volver a comunidades
@@ -183,21 +183,21 @@ export default function CommunityPage() {
   const isAdmin = community.is_admin || user?.id === community.creator_id;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', paddingBottom: 100, ...font }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 100, ...font }}>
       {/* ── Topbar ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e7e5e4',
         display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
       }}>
         <button onClick={() => navigate(-1)}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           aria-label="Volver">
-          <ArrowLeft size={22} color="var(--color-black)" />
+          <ArrowLeft size={22} color="#0c0a09" />
         </button>
         <span style={{
-          fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1,
+          fontSize: 17, fontWeight: 700, color: '#0c0a09', flex: 1,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
           {community.name}
@@ -205,7 +205,7 @@ export default function CommunityPage() {
         {isAdmin && (
           <Link to={`/communities/${slug}/settings`}
             aria-label="Configuración"
-            style={{ display: 'flex', padding: 10, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', color: 'var(--color-stone)' }}>
+            style={{ display: 'flex', padding: 10, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', color: '#78716c' }}>
             <Settings size={20} />
           </Link>
         )}
@@ -216,7 +216,7 @@ export default function CommunityPage() {
         <div style={{
           aspectRatio: '3/1', overflow: 'hidden',
           background: community.cover_image
-            ? 'var(--color-surface)'
+            ? '#f5f5f4'
             : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
         }}>
           {community.cover_image ? (
@@ -237,7 +237,7 @@ export default function CommunityPage() {
           }} />
           {/* Name + stats overlay */}
           <div style={{ position: 'absolute', bottom: 12, left: 16, right: 16 }}>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-white)', margin: '0 0 4px', textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#ffffff', margin: '0 0 4px', textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
               {community.name}
             </h1>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
@@ -251,7 +251,7 @@ export default function CommunityPage() {
       <div style={{ padding: '12px 16px 0', maxWidth: 600, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           {community.description && (
-            <p style={{ fontSize: 14, color: 'var(--color-black)', lineHeight: 1.5, margin: 0, flex: 1, marginRight: 12 }}>
+            <p style={{ fontSize: 14, color: '#0c0a09', lineHeight: 1.5, margin: 0, flex: 1, marginRight: 12 }}>
               {community.description}
             </p>
           )}
@@ -263,9 +263,9 @@ export default function CommunityPage() {
             {community.tags.map(tag => (
               <span key={tag} style={{
                 fontSize: 11, padding: '3px 10px',
-                borderRadius: 'var(--radius-full, 999px)',
-                background: 'var(--color-surface)',
-                color: 'var(--color-stone)', ...font,
+                borderRadius: '9999px',
+                background: '#f5f5f4',
+                color: '#78716c', ...font,
               }}>
                 #{tag}
               </span>
@@ -276,8 +276,8 @@ export default function CommunityPage() {
 
       {/* ── Tabs ── */}
       <div style={{
-        display: 'flex', borderBottom: '1px solid var(--color-border)',
-        background: 'var(--color-white)',
+        display: 'flex', borderBottom: '1px solid #e7e5e4',
+        background: '#ffffff',
         position: 'sticky', top: 50, zIndex: 39,
         maxWidth: 600, margin: '0 auto',
       }}>
@@ -288,9 +288,9 @@ export default function CommunityPage() {
               background: 'none', border: 'none', cursor: 'pointer',
               fontSize: 14,
               fontWeight: tab === t.id ? 600 : 400,
-              color: tab === t.id ? 'var(--color-black)' : 'var(--color-stone)',
-              borderBottom: tab === t.id ? '2px solid var(--color-black)' : '2px solid transparent',
-              transition: 'var(--transition-fast)', ...font,
+              color: tab === t.id ? '#0c0a09' : '#78716c',
+              borderBottom: tab === t.id ? '2px solid #0c0a09' : '2px solid transparent',
+              transition: 'all 0.15s ease', ...font,
             }}>
             {t.label}
           </button>
@@ -325,12 +325,12 @@ export default function CommunityPage() {
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '10px 20px',
-                background: 'var(--color-black)', color: 'var(--color-white)',
-                borderRadius: 'var(--radius-full, 999px)',
+                background: '#0c0a09', color: '#ffffff',
+                borderRadius: '9999px',
                 border: 'none', cursor: 'pointer',
                 fontSize: 13, fontWeight: 600,
                 boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'inherit',
                 whiteSpace: 'nowrap',
               }}
               aria-label="Ver nuevos posts"
@@ -385,13 +385,13 @@ const JoinButton = ({ communityId, isMember, onToggle }) => {
       disabled={loading}
       aria-label={joined ? 'Salir de la comunidad' : 'Unirse a la comunidad'}
       style={{
-        padding: '8px 20px', borderRadius: 'var(--radius-full, 999px)',
-        border: joined ? '1px solid var(--color-border)' : 'none',
-        background: joined ? 'var(--color-white)' : 'var(--color-black)',
-        color: joined ? 'var(--color-stone)' : 'var(--color-white)',
+        padding: '8px 20px', borderRadius: '9999px',
+        border: joined ? '1px solid #e7e5e4' : 'none',
+        background: joined ? '#ffffff' : '#0c0a09',
+        color: joined ? '#78716c' : '#ffffff',
         fontSize: 13, fontWeight: 600, cursor: 'pointer',
-        transition: 'var(--transition-fast)',
-        fontFamily: 'var(--font-sans)',
+        transition: 'all 0.15s ease',
+        fontFamily: 'inherit',
         flexShrink: 0,
       }}>
       {loading ? '...' : joined ? 'Unida' : 'Unirse'}
@@ -421,13 +421,13 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
         <button onClick={() => setShowPostForm(!showPostForm)}
           style={{
             width: '100%', padding: '12px 16px',
-            background: 'var(--color-white)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-full, 999px)',
+            background: '#ffffff',
+            border: '1px solid #e7e5e4',
+            borderRadius: '9999px',
             textAlign: 'left', cursor: 'pointer',
-            fontSize: 14, color: 'var(--color-stone)',
-            marginBottom: 14, transition: 'var(--transition-fast)',
-            fontFamily: 'var(--font-sans)',
+            fontSize: 14, color: '#78716c',
+            marginBottom: 14, transition: 'all 0.15s ease',
+            fontFamily: 'inherit',
           }}>
           Comparte algo con la comunidad...
         </button>
@@ -446,25 +446,25 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
       {isLoading ? (
         Array(3).fill(0).map((_, i) => (
           <div key={i} style={{
-            height: 120, borderRadius: 'var(--radius-xl)',
-            marginBottom: 10, background: 'var(--color-surface)',
+            height: 120, borderRadius: '16px',
+            marginBottom: 10, background: '#f5f5f4',
             animation: 'pulse 1.5s ease-in-out infinite',
           }} />
         ))
       ) : isError ? (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: 8, padding: '40px 0', color: 'var(--color-stone)',
+          justifyContent: 'center', gap: 8, padding: '40px 0', color: '#78716c',
         }}>
-          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>Error al cargar posts</p>
+          <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: 0 }}>Error al cargar posts</p>
           <button onClick={() => refetchQuery()}
             aria-label="Reintentar carga de posts"
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 16px', borderRadius: 'var(--radius-full, 999px)',
-              border: '1px solid var(--color-border)', background: 'var(--color-white)',
-              color: 'var(--color-black)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              fontFamily: 'var(--font-sans)',
+              padding: '8px 16px', borderRadius: '9999px',
+              border: '1px solid #e7e5e4', background: '#ffffff',
+              color: '#0c0a09', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              fontFamily: 'inherit',
             }}>
             <RefreshCw size={13} /> Reintentar
           </button>
@@ -472,10 +472,10 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
       ) : posts.length === 0 ? (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: 8, padding: '40px 0', color: 'var(--color-stone)',
+          justifyContent: 'center', gap: 8, padding: '40px 0', color: '#78716c',
         }}>
-          <Users size={48} strokeWidth={1} color="var(--color-stone)" />
-          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>Aún no hay posts</p>
+          <Users size={48} strokeWidth={1} color="#78716c" />
+          <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: 0 }}>Aún no hay posts</p>
           <p style={{ fontSize: 13, margin: 0 }}>
             {isMember ? '¡Sé el primero en publicar algo!' : 'Únete para ver y publicar contenido'}
           </p>
@@ -489,12 +489,12 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
             <button onClick={() => fetchNextPage()}
               style={{
                 width: '100%', marginTop: 8, padding: '10px',
-                borderRadius: 'var(--radius-full, 999px)',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-white)',
-                color: 'var(--color-stone)',
+                borderRadius: '9999px',
+                border: '1px solid #e7e5e4',
+                background: '#ffffff',
+                color: '#78716c',
                 fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'inherit',
               }}>
               Ver más posts
             </button>
@@ -564,9 +564,9 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       style={{
-        background: 'var(--color-white)',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--color-border)',
+        background: '#ffffff',
+        borderRadius: '16px',
+        border: '1px solid #e7e5e4',
         padding: 14, marginBottom: 14,
       }}>
       <textarea
@@ -576,11 +576,11 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
         style={{
           resize: 'none', marginBottom: 10, lineHeight: 1.5,
           width: '100%', padding: '10px 12px',
-          background: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-md)',
-          outline: 'none', color: 'var(--color-black)',
-          fontFamily: 'var(--font-sans)', fontSize: 14,
+          background: '#f5f5f4',
+          border: '1px solid #e7e5e4',
+          borderRadius: '12px',
+          outline: 'none', color: '#0c0a09',
+          fontFamily: 'inherit', fontSize: 14,
           boxSizing: 'border-box',
         }}
         autoFocus
@@ -589,11 +589,11 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       {imagePreview && (
         <div style={{ position: 'relative', marginBottom: 10 }}>
           <img src={imagePreview} alt=""
-            style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
+            style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: '12px' }} />
           <button onClick={() => { setImagePreview(null); setImageUrl(null); }}
             style={{
               position: 'absolute', top: 6, right: 6,
-              background: 'rgba(0,0,0,0.6)', color: 'var(--color-white)',
+              background: 'rgba(0,0,0,0.6)', color: '#ffffff',
               border: 'none', borderRadius: '50%',
               width: 26, height: 26, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -602,11 +602,11 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
           </button>
           {isUploading && (
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: 'var(--radius-md)',
+              position: 'absolute', inset: 0, borderRadius: '12px',
               background: 'rgba(0,0,0,0.4)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <div style={{ width: 24, height: 24, border: '2px solid var(--color-white)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+              <div style={{ width: 24, height: 24, border: '2px solid #ffffff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
             </div>
           )}
         </div>
@@ -614,29 +614,29 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <button onClick={() => fileRef.current?.click()}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-stone)', fontSize: 20, padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#78716c', fontSize: 20, padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           aria-label="Subir imagen"
           title="Añadir imagen">
           📷
         </button>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} style={{ display: 'none' }} />
-        <span style={{ fontSize: 11, color: 'var(--color-stone)', flex: 1, fontFamily: 'var(--font-sans)' }}>{text.length}/1000</span>
+        <span style={{ fontSize: 11, color: '#78716c', flex: 1, fontFamily: 'inherit' }}>{text.length}/1000</span>
         <button onClick={onClose}
           style={{
-            padding: '6px 12px', borderRadius: 'var(--radius-full, 999px)',
-            border: '1px solid var(--color-border)', background: 'var(--color-white)',
-            color: 'var(--color-stone)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            fontFamily: 'var(--font-sans)',
+            padding: '6px 12px', borderRadius: '9999px',
+            border: '1px solid #e7e5e4', background: '#ffffff',
+            color: '#78716c', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            fontFamily: 'inherit',
           }}>
           Cancelar
         </button>
         <button onClick={submit} disabled={isPosting || isUploading}
           style={{
-            padding: '6px 12px', borderRadius: 'var(--radius-full, 999px)',
-            border: 'none', background: 'var(--color-black)', color: 'var(--color-white)',
+            padding: '6px 12px', borderRadius: '9999px',
+            border: 'none', background: '#0c0a09', color: '#ffffff',
             fontSize: 12, fontWeight: 600, cursor: 'pointer',
             opacity: (isPosting || isUploading) ? 0.5 : 1,
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'inherit',
           }}>
           {isPosting ? '...' : 'Publicar'}
         </button>
@@ -686,14 +686,14 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
       {post.is_pinned && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}
           className="flex items-center gap-1 text-xs text-stone-500 mb-1">
-          <Pin size={12} color="var(--color-stone)" />
-          <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>Fijado</span>
+          <Pin size={12} color="#78716c" />
+          <span style={{ fontSize: 11, color: '#78716c', fontFamily: 'inherit' }}>Fijado</span>
         </div>
       )}
     <div style={{
-      background: 'var(--color-white)',
-      borderRadius: 'var(--radius-xl)',
-      border: '1px solid var(--color-border)',
+      background: '#ffffff',
+      borderRadius: '16px',
+      border: '1px solid #e7e5e4',
       marginBottom: 10, overflow: 'hidden',
     }}>
       {/* Author */}
@@ -705,20 +705,20 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
             style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}
             alt="" />
           <div>
-            <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+            <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: '#0c0a09', fontFamily: 'inherit' }}>
               {post.author_username}
               {post.author_is_seller && (
                 <span style={{
                   marginLeft: 6, fontSize: 9,
                   padding: '1px 6px', borderRadius: 4,
-                  background: 'var(--color-surface)', color: 'var(--color-stone)',
+                  background: '#f5f5f4', color: '#78716c',
                   fontWeight: 600,
                 }}>
                   Vendedor
                 </span>
               )}
             </p>
-            <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
+            <p style={{ fontSize: 11, color: '#78716c', margin: 0, fontFamily: 'inherit' }}>
               {formatRelativeTime(post.created_at)}
             </p>
           </div>
@@ -726,7 +726,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
         {(isOwn || isAdmin) && (
           <button onClick={deletePost}
             aria-label="Eliminar post"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--color-stone)', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#78716c', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             ···
           </button>
         )}
@@ -735,7 +735,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
       {/* Content */}
       {post.text && (
         <div style={{ padding: '0 14px 12px' }}>
-          <p style={{ fontSize: 14, lineHeight: 1.55, color: 'var(--color-black)', margin: 0, fontFamily: 'var(--font-sans)' }}>
+          <p style={{ fontSize: 14, lineHeight: 1.55, color: '#0c0a09', margin: 0, fontFamily: 'inherit' }}>
             {renderTextWithHashtags(post.text)}
           </p>
         </div>
@@ -748,7 +748,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
       )}
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 16, padding: '10px 14px', borderTop: '1px solid var(--color-border)' }}>
+      <div style={{ display: 'flex', gap: 16, padding: '10px 14px', borderTop: '1px solid #e7e5e4' }}>
         <motion.button
           whileTap={{ scale: 0.85 }}
           onClick={toggleLike}
@@ -756,9 +756,9 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5,
-            fontSize: 13, color: liked ? 'var(--color-black)' : 'var(--color-stone)',
+            fontSize: 13, color: liked ? '#0c0a09' : '#78716c',
             fontWeight: liked ? 700 : 400, padding: 0,
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'inherit',
           }}>
           <span style={{ fontSize: 18 }}>{liked ? '❤️' : '🤍'}</span>
           {likes > 0 && likes}
@@ -766,8 +766,8 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 
         <span style={{
           display: 'flex', alignItems: 'center', gap: 5,
-          fontSize: 13, color: 'var(--color-stone)',
-          fontFamily: 'var(--font-sans)',
+          fontSize: 13, color: '#78716c',
+          fontFamily: 'inherit',
         }}>
           <span style={{ fontSize: 18 }}>💬</span>
           {post.comments_count > 0 && post.comments_count}
@@ -786,7 +786,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5,
-            fontSize: 13, color: 'var(--color-stone)', padding: 0,
+            fontSize: 13, color: '#78716c', padding: 0,
           }}>
           <span style={{ fontSize: 18 }}>↗️</span>
         </button>
@@ -825,32 +825,32 @@ const CommunityMembers = ({ communityId }) => {
         Array(4).fill(0).map((_, i) => (
           <div key={i} style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0',
-            borderBottom: '1px solid var(--color-border)',
+            borderBottom: '1px solid #e7e5e4',
           }}>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#f5f5f4', animation: 'pulse 1.5s ease-in-out infinite' }} />
             <div style={{ flex: 1 }}>
-              <div style={{ width: 100, height: 14, borderRadius: 4, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite', marginBottom: 4 }} />
-              <div style={{ width: 60, height: 10, borderRadius: 4, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div style={{ width: 100, height: 14, borderRadius: 4, background: '#f5f5f4', animation: 'pulse 1.5s ease-in-out infinite', marginBottom: 4 }} />
+              <div style={{ width: 60, height: 10, borderRadius: 4, background: '#f5f5f4', animation: 'pulse 1.5s ease-in-out infinite' }} />
             </div>
           </div>
         ))
       ) : isError ? (
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <p style={{ color: 'var(--color-stone)', fontSize: 14, marginBottom: 8 }}>Error al cargar miembros</p>
+          <p style={{ color: '#78716c', fontSize: 14, marginBottom: 8 }}>Error al cargar miembros</p>
           <button onClick={() => refetch()}
             aria-label="Reintentar carga de miembros"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '8px 16px', borderRadius: 'var(--radius-full, 999px)',
-              border: '1px solid var(--color-border)', background: 'var(--color-white)',
-              color: 'var(--color-black)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              fontFamily: 'var(--font-sans)',
+              padding: '8px 16px', borderRadius: '9999px',
+              border: '1px solid #e7e5e4', background: '#ffffff',
+              color: '#0c0a09', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              fontFamily: 'inherit',
             }}>
             <RefreshCw size={13} /> Reintentar
           </button>
         </div>
       ) : members.length === 0 ? (
-        <p style={{ textAlign: 'center', padding: '24px 0', color: 'var(--color-stone)', fontSize: 14 }}>
+        <p style={{ textAlign: 'center', padding: '24px 0', color: '#78716c', fontSize: 14 }}>
           Sin miembros todavía
         </p>
       ) : (
@@ -862,7 +862,7 @@ const CommunityMembers = ({ communityId }) => {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12,
                   padding: '12px 0',
-                  borderBottom: '1px solid var(--color-border)',
+                  borderBottom: '1px solid #e7e5e4',
                   textDecoration: 'none', color: 'inherit',
                 }}>
                 <img
@@ -871,10 +871,10 @@ const CommunityMembers = ({ communityId }) => {
                   alt={member.username ? `Avatar de ${member.username}` : ''}
                   loading="lazy" />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                  <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: '#0c0a09', fontFamily: 'inherit' }}>
                     {member.username || 'Usuario'}
                   </p>
-                  <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
+                  <p style={{ fontSize: 11, color: '#78716c', margin: 0, fontFamily: 'inherit' }}>
                     {member.is_admin && '👑 Admin'}
                     {member.is_seller && (member.is_admin ? ' · ' : '') + '✓ Vendedor'}
                   </p>
@@ -884,11 +884,11 @@ const CommunityMembers = ({ communityId }) => {
                     onClick={(e) => handleFollow(e, member)}
                     aria-label={`Seguir a ${member.username || 'usuario'}`}
                     style={{
-                      padding: '6px 14px', borderRadius: 'var(--radius-full, 999px)',
-                      border: '1px solid var(--color-border)',
-                      background: 'var(--color-white)', color: 'var(--color-black)',
+                      padding: '6px 14px', borderRadius: '9999px',
+                      border: '1px solid #e7e5e4',
+                      background: '#ffffff', color: '#0c0a09',
                       fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                      fontFamily: 'var(--font-sans)', flexShrink: 0,
+                      fontFamily: 'inherit', flexShrink: 0,
                     }}>
                     Seguir
                   </button>
@@ -900,11 +900,11 @@ const CommunityMembers = ({ communityId }) => {
             <button onClick={() => setPage(p => p + 1)}
               style={{
                 width: '100%', marginTop: 8, padding: '10px',
-                borderRadius: 'var(--radius-full, 999px)',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-white)', color: 'var(--color-stone)',
+                borderRadius: '9999px',
+                border: '1px solid #e7e5e4',
+                background: '#ffffff', color: '#78716c',
                 fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'inherit',
               }}>
               Ver más miembros
             </button>
@@ -920,18 +920,18 @@ const CommunityAbout = ({ community }) => (
   <div style={{ padding: '20px 16px' }}>
     {community.description && (
       <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '0 0 8px' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: '#0c0a09', fontFamily: 'inherit', margin: '0 0 8px' }}>
           Descripción
         </h3>
-        <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+        <p style={{ fontSize: 14, lineHeight: 1.6, color: '#0c0a09', fontFamily: 'inherit', margin: 0 }}>
           {community.description}
         </p>
       </div>
     )}
 
     <div style={{
-      background: 'var(--color-surface)',
-      borderRadius: 'var(--radius-xl)', padding: 16, marginBottom: 20,
+      background: '#f5f5f4',
+      borderRadius: '16px', padding: 16, marginBottom: 20,
     }}>
       {[
         { label: 'Fundada', value: community.created_at ? new Date(community.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : '—' },
@@ -942,27 +942,27 @@ const CommunityAbout = ({ community }) => (
         <div key={row.label} style={{
           display: 'flex', justifyContent: 'space-between',
           padding: '8px 0',
-          borderBottom: i < arr.length - 1 ? '1px solid var(--color-border)' : 'none',
-          fontSize: 14, fontFamily: 'var(--font-sans)',
+          borderBottom: i < arr.length - 1 ? '1px solid #e7e5e4' : 'none',
+          fontSize: 14, fontFamily: 'inherit',
         }}>
-          <span style={{ color: 'var(--color-stone)' }}>{row.label}</span>
-          <span style={{ fontWeight: 600, color: 'var(--color-black)' }}>{row.value}</span>
+          <span style={{ color: '#78716c' }}>{row.label}</span>
+          <span style={{ fontWeight: 600, color: '#0c0a09' }}>{row.value}</span>
         </div>
       ))}
     </div>
 
     {community.categories?.length > 0 && (
       <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px', color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Categorías</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px', color: '#0c0a09', fontFamily: 'inherit' }}>Categorías</h3>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {community.categories.map(cat => (
             <span key={cat} style={{
               fontSize: 12, padding: '5px 12px',
-              borderRadius: 'var(--radius-full, 999px)',
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-black)', fontWeight: 500,
-              fontFamily: 'var(--font-sans)',
+              borderRadius: '9999px',
+              background: '#ffffff',
+              border: '1px solid #e7e5e4',
+              color: '#0c0a09', fontWeight: 500,
+              fontFamily: 'inherit',
             }}>
               {cat}
             </span>
@@ -972,13 +972,13 @@ const CommunityAbout = ({ community }) => (
     )}
 
     <div>
-      <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px', color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+      <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px', color: '#0c0a09', fontFamily: 'inherit' }}>
         Normas de la comunidad
       </h3>
       <div style={{
-        background: 'var(--color-white)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-xl)', padding: '12px 14px',
+        background: '#ffffff',
+        border: '1px solid #e7e5e4',
+        borderRadius: '16px', padding: '12px 14px',
       }}>
         {[
           'Contenido relacionado con alimentación y gastronomía',
@@ -987,8 +987,8 @@ const CommunityAbout = ({ community }) => (
           'Sin bebidas alcohólicas',
           'El admin puede eliminar posts que no cumplan las normas',
         ].map((rule, i) => (
-          <p key={i} style={{ fontSize: 13, color: 'var(--color-black)', margin: i < 4 ? '0 0 6px' : 0, display: 'flex', gap: 8, fontFamily: 'var(--font-sans)' }}>
-            <span style={{ color: 'var(--color-stone)', flexShrink: 0 }}>{i + 1}.</span>
+          <p key={i} style={{ fontSize: 13, color: '#0c0a09', margin: i < 4 ? '0 0 6px' : 0, display: 'flex', gap: 8, fontFamily: 'inherit' }}>
+            <span style={{ color: '#78716c', flexShrink: 0 }}>{i + 1}.</span>
             {rule}
           </p>
         ))}

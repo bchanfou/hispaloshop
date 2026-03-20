@@ -43,7 +43,7 @@ const COUNTRY_META = {
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[#ffffff] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -55,7 +55,7 @@ function ToggleSwitch({ active, onClick, disabled }) {
       onClick={onClick}
       disabled={disabled}
       className="relative w-[50px] h-7 rounded-full shrink-0 transition-colors disabled:opacity-50"
-      style={{ background: active ? 'var(--color-black)' : '#3A3A3C' }}
+      style={{ background: active ? '#0c0a09' : '#3A3A3C' }}
     >
       <div
         className="absolute top-[3px] w-[22px] h-[22px] rounded-full bg-white transition-all shadow"
@@ -133,9 +133,9 @@ export default function MarketCoverage() {
 
       {/* Migration alert */}
       {marketData?.products_without_inventory > 0 && (
-        <div className="bg-[var(--color-stone)]/10 border border-[var(--color-stone)]/20 rounded-xl p-3.5 flex items-center gap-3 mb-5">
-          <AlertTriangle className="w-4 h-4 text-[var(--color-stone)] shrink-0" />
-          <p className="text-xs text-[var(--color-stone)]">
+        <div className="bg-[#78716c]/10 border border-[#78716c]/20 rounded-xl p-3.5 flex items-center gap-3 mb-5">
+          <AlertTriangle className="w-4 h-4 text-[#78716c] shrink-0" />
+          <p className="text-xs text-[#78716c]">
             {marketData.products_without_inventory} productos sin inventory_by_country
           </p>
         </div>
@@ -218,7 +218,7 @@ export default function MarketCoverage() {
                       <td className="text-right py-2.5 px-2 text-white/60">{(c.total_stock || 0).toLocaleString()}</td>
                       <td className="text-right py-2.5 px-2 text-white/60">{c.avg_sla_hours}h</td>
                       <td className="text-right py-2.5 px-2">
-                        <span className={c.out_of_stock > 0 ? 'text-[var(--color-stone)] font-bold' : 'text-white/30'}>
+                        <span className={c.out_of_stock > 0 ? 'text-[#78716c] font-bold' : 'text-white/30'}>
                           {c.out_of_stock}
                         </span>
                       </td>

@@ -77,8 +77,8 @@ export default function CertificationsPage() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: 'var(--color-surface)',
-        fontFamily: 'var(--font-sans)',
+        backgroundColor: '#f5f5f4',
+        fontFamily: 'inherit',
       }}
     >
       {/* Sticky topbar */}
@@ -87,8 +87,8 @@ export default function CertificationsPage() {
           position: 'sticky',
           top: 0,
           zIndex: 10,
-          backgroundColor: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e7e5e4',
           display: 'flex',
           alignItems: 'center',
           gap: 12,
@@ -105,7 +105,7 @@ export default function CertificationsPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--color-black)',
+            color: '#0c0a09',
           }}
           aria-label="Volver"
         >
@@ -116,7 +116,7 @@ export default function CertificationsPage() {
             fontSize: 18,
             fontWeight: 700,
             margin: 0,
-            color: 'var(--color-black)',
+            color: '#0c0a09',
           }}
         >
           Certificaciones
@@ -128,7 +128,7 @@ export default function CertificationsPage() {
         <p
           style={{
             fontSize: 14,
-            color: 'var(--color-stone)',
+            color: '#78716c',
             margin: '0 0 24px 0',
           }}
         >
@@ -147,9 +147,9 @@ export default function CertificationsPage() {
             <div
               key={cert.name}
               style={{
-                backgroundColor: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-xl)',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e7e5e4',
+                borderRadius: '16px',
                 padding: 20,
               }}
             >
@@ -168,7 +168,7 @@ export default function CertificationsPage() {
                   style={{
                     fontWeight: 700,
                     fontSize: 16,
-                    color: 'var(--color-black)',
+                    color: '#0c0a09',
                     paddingTop: 4,
                   }}
                 >
@@ -179,7 +179,7 @@ export default function CertificationsPage() {
               <p
                 style={{
                   fontSize: 13,
-                  color: 'var(--color-stone)',
+                  color: '#78716c',
                   margin: '0 0 12px 0',
                   lineHeight: 1.5,
                 }}
@@ -199,7 +199,7 @@ export default function CertificationsPage() {
                     key={item}
                     style={{
                       fontSize: 13,
-                      color: 'var(--color-stone)',
+                      color: '#78716c',
                       lineHeight: 1.7,
                     }}
                   >

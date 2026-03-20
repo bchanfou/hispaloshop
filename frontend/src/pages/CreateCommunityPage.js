@@ -21,11 +21,11 @@ const CATEGORIES = [
 
 const FormField = ({ label, hint, children }) => (
   <div>
-    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, fontFamily: 'var(--font-sans)' }}>
+    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#0c0a09', marginBottom: 6, fontFamily: 'inherit' }}>
       {label}
     </label>
     {children}
-    {hint && <p style={{ fontSize: 11, color: 'var(--color-stone)', marginTop: 4, fontFamily: 'var(--font-sans)' }}>{hint}</p>}
+    {hint && <p style={{ fontSize: 11, color: '#78716c', marginTop: 4, fontFamily: 'inherit' }}>{hint}</p>}
   </div>
 );
 
@@ -36,16 +36,16 @@ const CommunityPreviewCard = ({ form, coverPreview }) => {
   const coverColor = STONE_COVER_COLORS[(form.name.charCodeAt(0) || 100) % 5];
   return (
     <div style={{
-      borderRadius: 'var(--radius-xl)',
-      border: '1px solid var(--color-border)',
-      background: 'var(--color-white)',
+      borderRadius: '16px',
+      border: '1px solid #e7e5e4',
+      background: '#ffffff',
       overflow: 'hidden',
-      fontFamily: 'var(--font-sans)',
+      fontFamily: 'inherit',
     }}>
       {/* Cover */}
       <div style={{
         aspectRatio: '3/1', overflow: 'hidden',
-        background: coverPreview ? 'var(--color-surface)' : coverColor,
+        background: coverPreview ? '#f5f5f4' : coverColor,
         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40,
         position: 'relative',
       }}>
@@ -80,24 +80,24 @@ const CommunityPreviewCard = ({ form, coverPreview }) => {
 
       <div style={{ padding: '10px 12px' }}>
         {form.description ? (
-          <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '0 0 8px', lineHeight: 1.4 }}>
+          <p style={{ fontSize: 11, color: '#78716c', margin: '0 0 8px', lineHeight: 1.4 }}>
             {form.description.slice(0, 80)}{form.description.length > 80 ? '…' : ''}
           </p>
         ) : (
-          <p style={{ fontSize: 11, color: 'var(--color-border)', margin: '0 0 8px', fontStyle: 'italic' }}>
+          <p style={{ fontSize: 11, color: '#e7e5e4', margin: '0 0 8px', fontStyle: 'italic' }}>
             Sin descripción todavía
           </p>
         )}
-        <p style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 4, margin: '0 0 10px' }}>
+        <p style={{ fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 4, margin: '0 0 10px' }}>
           <Users size={11} style={{ flexShrink: 0 }} />
           0 miembros
         </p>
         <button disabled style={{
           width: '100%', padding: '7px 0',
-          background: 'var(--color-black)', color: '#fff',
-          border: 'none', borderRadius: 'var(--radius-full)',
+          background: '#0c0a09', color: '#fff',
+          border: 'none', borderRadius: '9999px',
           fontSize: 12, fontWeight: 600, cursor: 'default',
-          opacity: 0.85, fontFamily: 'var(--font-sans)',
+          opacity: 0.85, fontFamily: 'inherit',
         }}>
           Unirse
         </button>
@@ -124,51 +124,51 @@ export default function CreateCommunityPage() {
 
   if (!canCreate) {
     return (
-      <div style={{ background: 'var(--color-cream)', minHeight: '100vh' }}>
+      <div style={{ background: '#fafaf9', minHeight: '100vh' }}>
         {/* TopBar */}
         <div style={{
           padding: '12px 16px',
-          background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
+          background: '#ffffff',
+          borderBottom: '1px solid #e7e5e4',
           display: 'flex', alignItems: 'center', gap: 12,
         }}>
-          <Link to="/communities" style={{ color: 'var(--color-black)', display: 'flex', alignItems: 'center' }}>
+          <Link to="/communities" style={{ color: '#0c0a09', display: 'flex', alignItems: 'center' }}>
             <ArrowLeft size={20} />
           </Link>
-          <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Nueva comunidad</h1>
+          <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#0c0a09', fontFamily: 'inherit' }}>Nueva comunidad</h1>
         </div>
 
         <div style={{ padding: '40px 20px', textAlign: 'center', maxWidth: 400, margin: '0 auto' }}>
           <div style={{
-            background: 'var(--color-surface)',
-            borderRadius: 'var(--radius-lg)',
+            background: '#f5f5f4',
+            borderRadius: '14px',
             padding: '32px 24px',
           }}>
             <p style={{ fontSize: 48 }}>🔒</p>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Necesitas más seguidores</h2>
-            <p style={{ color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0c0a09', fontFamily: 'inherit' }}>Necesitas más seguidores</h2>
+            <p style={{ color: '#78716c', fontFamily: 'inherit' }}>
               Para crear una comunidad necesitas al menos 100 seguidores o ser vendedor verificado.
             </p>
             <div style={{
               marginTop: 16,
-              background: 'var(--color-white)',
-              borderRadius: 'var(--radius-md)',
+              background: '#ffffff',
+              borderRadius: '12px',
               padding: '12px 16px',
-              border: '1px solid var(--color-border)',
+              border: '1px solid #e7e5e4',
             }}>
-              <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '0 0 8px', fontFamily: 'var(--font-sans)' }}>
+              <p style={{ fontSize: 13, color: '#78716c', margin: '0 0 8px', fontFamily: 'inherit' }}>
                 Progreso hacia 100 seguidores
               </p>
-              <div style={{ height: 6, background: 'var(--color-border)', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{ height: 6, background: '#e7e5e4', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
                   width: `${Math.min(100, ((user?.follower_count || 0) / 100) * 100)}%`,
-                  background: 'var(--color-black)',
+                  background: '#0c0a09',
                   borderRadius: 3,
                   transition: 'width 0.3s ease',
                 }} />
               </div>
-              <p style={{ fontSize: 12, color: 'var(--color-stone)', marginTop: 6, fontFamily: 'var(--font-sans)' }}>
+              <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, fontFamily: 'inherit' }}>
                 {user?.follower_count || 0}/100 seguidores
               </p>
             </div>
@@ -243,18 +243,18 @@ export default function CreateCommunityPage() {
   };
 
   return (
-    <div style={{ background: 'var(--color-cream)', minHeight: '100vh' }}>
+    <div style={{ background: '#fafaf9', minHeight: '100vh' }}>
       {/* TopBar */}
       <div style={{
         padding: '12px 16px',
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e7e5e4',
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
-        <Link to="/communities" style={{ color: 'var(--color-black)', display: 'flex', alignItems: 'center' }}>
+        <Link to="/communities" style={{ color: '#0c0a09', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={20} />
         </Link>
-        <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', flex: 1 }}>Nueva comunidad</h1>
+        <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#0c0a09', fontFamily: 'inherit', flex: 1 }}>Nueva comunidad</h1>
       </div>
 
       {/* ── Mobile: collapsible preview toggle ── */}
@@ -265,11 +265,11 @@ export default function CreateCommunityPage() {
           style={{
             width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '10px 14px',
-            background: 'var(--color-white)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-xl)',
-            cursor: 'pointer', fontFamily: 'var(--font-sans)',
-            fontSize: 13, fontWeight: 600, color: 'var(--color-black)',
+            background: '#ffffff',
+            border: '1px solid #e7e5e4',
+            borderRadius: '16px',
+            cursor: 'pointer', fontFamily: 'inherit',
+            fontSize: 13, fontWeight: 600, color: '#0c0a09',
           }}
           aria-expanded={showPreview}
         >
@@ -291,21 +291,21 @@ export default function CreateCommunityPage() {
         {/* Cover */}
         <label style={{ display: 'block', marginBottom: 16, cursor: 'pointer' }}>
           <div style={{
-            height: 120, borderRadius: 'var(--radius-lg)', overflow: 'hidden',
+            height: 120, borderRadius: '14px', overflow: 'hidden',
             background: coverPreview
-              ? 'var(--color-surface)'
+              ? '#f5f5f4'
               : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(form.name.charCodeAt(0) || 100) % 5],
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer',
-            border: '2px dashed var(--color-border)',
+            border: '2px dashed #e7e5e4',
             position: 'relative',
           }}>
             {coverPreview ? (
               <img src={coverPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <div style={{ textAlign: 'center', color: 'var(--color-stone)' }}>
+              <div style={{ textAlign: 'center', color: '#78716c' }}>
                 <p style={{ fontSize: 32, marginBottom: 4 }}>{form.emoji}</p>
-                <p style={{ fontSize: 12, fontFamily: 'var(--font-sans)' }}>Añadir foto de portada</p>
+                <p style={{ fontSize: 12, fontFamily: 'inherit' }}>Añadir foto de portada</p>
               </div>
             )}
             {isUploadingCover && (
@@ -336,11 +336,11 @@ export default function CreateCommunityPage() {
               maxLength={60}
               style={{
                 width: '100%', padding: '10px 12px',
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                outline: 'none', color: 'var(--color-black)',
-                fontFamily: 'var(--font-sans)', fontSize: 14,
+                background: '#f5f5f4',
+                border: '1px solid #e7e5e4',
+                borderRadius: '12px',
+                outline: 'none', color: '#0c0a09',
+                fontFamily: 'inherit', fontSize: 14,
                 boxSizing: 'border-box',
               }}
             />
@@ -351,13 +351,13 @@ export default function CreateCommunityPage() {
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span style={{
                 padding: '10px 10px',
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
+                background: '#f5f5f4',
+                border: '1px solid #e7e5e4',
                 borderRight: 'none',
-                borderRadius: 'var(--radius-md) 0 0 var(--radius-md)',
-                fontSize: 12, color: 'var(--color-stone)',
+                borderRadius: '12px 0 0 12px',
+                fontSize: 12, color: '#78716c',
                 whiteSpace: 'nowrap',
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'inherit',
               }}>
                 /communities/
               </span>
@@ -366,12 +366,12 @@ export default function CreateCommunityPage() {
                 onChange={e => update('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'))}
                 style={{
                   flex: 1, padding: '10px 12px',
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
+                  background: '#f5f5f4',
+                  border: '1px solid #e7e5e4',
                   borderLeft: 'none',
-                  borderRadius: '0 var(--radius-md) var(--radius-md) 0',
-                  outline: 'none', color: 'var(--color-black)',
-                  fontFamily: 'var(--font-sans)', fontSize: 14,
+                  borderRadius: '0 12px 12px 0',
+                  outline: 'none', color: '#0c0a09',
+                  fontFamily: 'inherit', fontSize: 14,
                   boxSizing: 'border-box',
                 }}
                 placeholder="aceites-de-espana"
@@ -389,18 +389,18 @@ export default function CreateCommunityPage() {
                 rows={3} maxLength={300}
                 style={{
                   resize: 'none', width: '100%', padding: '10px 12px',
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
-                  outline: 'none', color: 'var(--color-black)',
-                  fontFamily: 'var(--font-sans)', fontSize: 14,
+                  background: '#f5f5f4',
+                  border: '1px solid #e7e5e4',
+                  borderRadius: '12px',
+                  outline: 'none', color: '#0c0a09',
+                  fontFamily: 'inherit', fontSize: 14,
                   boxSizing: 'border-box',
                 }}
               />
               <span style={{
                 position: 'absolute', bottom: 8, right: 10,
-                fontSize: 11, color: 'var(--color-stone)',
-                fontFamily: 'var(--font-sans)',
+                fontSize: 11, color: '#78716c',
+                fontFamily: 'inherit',
               }}>
                 {form.description.length}/300
               </span>
@@ -417,8 +417,8 @@ export default function CreateCommunityPage() {
                   aria-pressed={form.emoji === em}
                   style={{
                     width: 40, height: 40, borderRadius: 8,
-                    background: form.emoji === em ? 'var(--color-surface)' : 'var(--color-white)',
-                    border: form.emoji === em ? '2px solid var(--color-black)' : '1px solid var(--color-border)',
+                    background: form.emoji === em ? '#f5f5f4' : '#ffffff',
+                    border: form.emoji === em ? '2px solid #0c0a09' : '1px solid #e7e5e4',
                     cursor: 'pointer', fontSize: 20,
                   }}>
                   {em}
@@ -434,13 +434,13 @@ export default function CreateCommunityPage() {
                 <button key={cat} type="button"
                   onClick={() => update('category', form.category === cat ? '' : cat)}
                   style={{
-                    padding: '6px 12px', borderRadius: 'var(--radius-full)',
-                    border: form.category === cat ? 'none' : '1px solid var(--color-border)',
-                    background: form.category === cat ? 'var(--color-black)' : 'var(--color-white)',
-                    color: form.category === cat ? '#fff' : 'var(--color-black)',
+                    padding: '6px 12px', borderRadius: '9999px',
+                    border: form.category === cat ? 'none' : '1px solid #e7e5e4',
+                    background: form.category === cat ? '#0c0a09' : '#ffffff',
+                    color: form.category === cat ? '#fff' : '#0c0a09',
                     cursor: 'pointer', fontSize: 13,
                     transition: 'all 0.15s ease',
-                    fontFamily: 'var(--font-sans)',
+                    fontFamily: 'inherit',
                   }}>
                   {cat}
                 </button>
@@ -455,15 +455,15 @@ export default function CreateCommunityPage() {
                 <span key={tag} style={{
                   display: 'flex', alignItems: 'center', gap: 4,
                   fontSize: 12, padding: '3px 10px',
-                  background: 'var(--color-surface)',
-                  color: 'var(--color-black)',
-                  borderRadius: 'var(--radius-full)',
-                  fontFamily: 'var(--font-sans)',
+                  background: '#f5f5f4',
+                  color: '#0c0a09',
+                  borderRadius: '9999px',
+                  fontFamily: 'inherit',
                 }}>
                   #{tag}
                   <button type="button" onClick={() => update('tags', form.tags.filter(t => t !== tag))}
                     aria-label={`Eliminar etiqueta ${tag}`}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--color-stone)', padding: 0, lineHeight: 1 }}>
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#78716c', padding: 0, lineHeight: 1 }}>
                     ×
                   </button>
                 </span>
@@ -477,11 +477,11 @@ export default function CreateCommunityPage() {
               disabled={form.tags.length >= 5}
               style={{
                 width: '100%', height: 38, padding: '0 12px',
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                outline: 'none', color: 'var(--color-black)',
-                fontFamily: 'var(--font-sans)', fontSize: 13,
+                background: '#f5f5f4',
+                border: '1px solid #e7e5e4',
+                borderRadius: '12px',
+                outline: 'none', color: '#0c0a09',
+                fontFamily: 'inherit', fontSize: 13,
                 boxSizing: 'border-box',
               }}
             />
@@ -495,13 +495,13 @@ export default function CreateCommunityPage() {
             disabled={isCreating || !form.name || !form.slug || isUploadingCover}
             style={{
               width: '100%', padding: '12px',
-              borderRadius: 'var(--radius-full)',
+              borderRadius: '9999px',
               border: 'none',
-              background: 'var(--color-black)', color: '#fff',
+              background: '#0c0a09', color: '#fff',
               fontSize: 15, fontWeight: 600, cursor: 'pointer',
               opacity: (isCreating || !form.name || !form.slug) ? 0.5 : 1,
               transition: 'all 0.15s ease',
-              fontFamily: 'var(--font-sans)',
+              fontFamily: 'inherit',
             }}>
             {isCreating ? 'Creando...' : 'Crear comunidad'}
           </button>
@@ -510,11 +510,11 @@ export default function CreateCommunityPage() {
 
       {/* Desktop: sticky preview column */}
       <div className="hidden md:block" style={{ width: 280, flexShrink: 0, position: 'sticky', top: 80, alignSelf: 'flex-start' }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-stone)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: '#78716c', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10, fontFamily: 'inherit' }}>
           Vista previa
         </p>
         <CommunityPreviewCard form={form} coverPreview={coverPreview} />
-        <p style={{ fontSize: 11, color: 'var(--color-stone)', textAlign: 'center', marginTop: 8, fontFamily: 'var(--font-sans)' }}>
+        <p style={{ fontSize: 11, color: '#78716c', textAlign: 'center', marginTop: 8, fontFamily: 'inherit' }}>
           Así verán tu comunidad los demás
         </p>
       </div>

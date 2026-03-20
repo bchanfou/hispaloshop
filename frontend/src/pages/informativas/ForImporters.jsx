@@ -6,9 +6,9 @@ import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const Section = ({ dark, children, style = {} }) => (
   <section style={{
-    background: dark ? '#0A0A0A' : 'var(--color-cream)',
+    background: dark ? '#0A0A0A' : '#fafaf9',
     padding: '80px 16px',
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'inherit',
     ...style,
   }}>
     <div style={{ maxWidth: 1200, margin: '0 auto' }}>{children}</div>
@@ -29,11 +29,11 @@ export default function ForImporters() {
         display: 'flex',
         alignItems: 'flex-start',
         padding: '120px 16px 80px',
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
           <div style={{ maxWidth: 820 }}>
-            <p className="info-eyebrow hero-animate-in" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
+            <p className="info-eyebrow hero-animate-in" style={{ color: '#78716c', marginBottom: 16 }}>
               PARA IMPORTADORES Y DISTRIBUIDORES
             </p>
             <h1 className="info-h1 hero-animate-in-delay-1" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 24 }}>
@@ -48,19 +48,19 @@ export default function ForImporters() {
             </p>
             <div className="hero-animate-in-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button onClick={() => navigate('/b2b/marketplace')} style={{
-                height: 46, padding: '0 28px', borderRadius: 'var(--radius-full)',
-                background: 'var(--color-black)', color: '#fff',
-                fontSize: 'var(--text-sm)', fontWeight: 600,
-                border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                height: 46, padding: '0 28px', borderRadius: '9999px',
+                background: '#0c0a09', color: '#fff',
+                fontSize: '14px', fontWeight: 600,
+                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
               }}>
                 Acceder al catálogo B2B →
               </button>
               <button onClick={() => document.querySelector('#flujo-b2b')?.scrollIntoView({ behavior: 'smooth' })} style={{
-                height: 46, padding: '0 28px', borderRadius: 'var(--radius-full)',
+                height: 46, padding: '0 28px', borderRadius: '9999px',
                 background: 'transparent', color: '#fff',
-                fontSize: 'var(--text-sm)', fontWeight: 600,
+                fontSize: '14px', fontWeight: 600,
                 border: '1px solid rgba(255,255,255,0.25)',
-                cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                cursor: 'pointer', fontFamily: 'inherit',
               }}>
                 Ver cómo funciona
               </button>
@@ -76,7 +76,7 @@ export default function ForImporters() {
           <h2 className="info-h2" style={{ marginBottom: 16 }}>
             Encontrar buenos proveedores no debería ser tan difícil.
           </h2>
-          <p className="info-body" style={{ color: 'var(--color-stone)', maxWidth: 680, marginBottom: 48 }}>
+          <p className="info-body" style={{ color: '#78716c', maxWidth: 680, marginBottom: 48 }}>
             La alimentación artesanal es el mercado de mayor crecimiento
             en la categoría de alimentos premium. Los consumidores pagan
             más por saber de dónde viene lo que comen. Y sin embargo,
@@ -95,15 +95,15 @@ export default function ForImporters() {
               { emoji: '⚠️', title: 'Sin garantías', body: 'Un acuerdo de palabra con un productor pequeño es un riesgo. Si algo falla, no hay protocolo.' },
             ].map((card, i) => (
               <div key={i} style={{
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-xl)',
+                background: '#ffffff',
+                border: '1px solid #e7e5e4',
+                borderRadius: '16px',
                 padding: 32,
                 transitionDelay: `${i * 100}ms`,
               }} className="reveal">
                 <span style={{ fontSize: 32, display: 'block', marginBottom: 12 }}>{card.emoji}</span>
                 <h4 className="info-h4" style={{ marginBottom: 8 }}>{card.title}</h4>
-                <p style={{ fontSize: 15, color: 'var(--color-stone)', margin: 0, lineHeight: 1.6 }}>{card.body}</p>
+                <p style={{ fontSize: 15, color: '#78716c', margin: 0, lineHeight: 1.6 }}>{card.body}</p>
               </div>
             ))}
           </div>
@@ -113,7 +113,7 @@ export default function ForImporters() {
       {/* ══════ SECCIÓN 3 — FLUJO B2B (negro) ══════ */}
       <Section dark={true}>
         <div className="reveal" id="flujo-b2b">
-          <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>EL FLUJO B2B</p>
+          <p className="info-eyebrow" style={{ color: '#78716c', marginBottom: 16 }}>EL FLUJO B2B</p>
           <h2 className="info-h2" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 48 }}>
             {'De la primera oferta al contenedor\nen tu almacén.'}
           </h2>
@@ -133,7 +133,7 @@ export default function ForImporters() {
               <div key={i} style={{ transitionDelay: `${i * 100}ms` }} className="reveal">
                 <div style={{
                   width: 36, height: 36, borderRadius: '50%',
-                  background: 'var(--color-black)',
+                  background: '#0c0a09',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 15, fontWeight: 700, color: '#fff',
                   marginBottom: 12,
@@ -155,7 +155,7 @@ export default function ForImporters() {
           <h2 className="info-h2" style={{ marginBottom: 16 }}>
             Importas al por mayor. Vendes al detalle.
           </h2>
-          <p className="info-body" style={{ color: 'var(--color-stone)', maxWidth: 600, marginBottom: 32 }}>
+          <p className="info-body" style={{ color: '#78716c', maxWidth: 600, marginBottom: 32 }}>
             Tu cuenta de importador incluye una tienda online en Hispaloshop.
             Los productos que importas se pueden vender directamente al
             consumidor final en el país destino.
@@ -169,8 +169,8 @@ export default function ForImporters() {
               'Influencers locales pueden promocionar tus productos',
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Check size={18} color="var(--color-black)" strokeWidth={2.5} />
-                <span style={{ fontSize: 15, color: 'var(--color-black)' }}>{item}</span>
+                <Check size={18} color="#0c0a09" strokeWidth={2.5} />
+                <span style={{ fontSize: 15, color: '#0c0a09' }}>{item}</span>
               </div>
             ))}
           </div>
@@ -180,7 +180,7 @@ export default function ForImporters() {
       {/* ══════ SECCIÓN 5 — IA ADUANERA (negro) ══════ */}
       <Section dark={true}>
         <div className="reveal">
-          <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>HISPAL AI PARA B2B</p>
+          <p className="info-eyebrow" style={{ color: '#78716c', marginBottom: 16 }}>HISPAL AI PARA B2B</p>
           <h2 className="info-h2" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 16 }}>
             {'La burocracia aduanera,\nresuelta automáticamente.'}
           </h2>
@@ -211,7 +211,7 @@ export default function ForImporters() {
               <div key={i} style={{
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 'var(--radius-xl)',
+                borderRadius: '16px',
                 padding: 24,
                 transitionDelay: `${i * 100}ms`,
               }} className="reveal">
@@ -237,16 +237,16 @@ export default function ForImporters() {
             onClick={() => navigate('/b2b/marketplace')}
             style={{
               height: 56, padding: '0 40px',
-              borderRadius: 'var(--radius-full)',
-              background: 'var(--color-black)', color: '#fff',
-              fontSize: 'var(--text-md)', fontWeight: 600,
-              border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
+              borderRadius: '9999px',
+              background: '#0c0a09', color: '#fff',
+              fontSize: '16px', fontWeight: 600,
+              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
             Acceder al catálogo B2B →
           </button>
           <p style={{
-            fontSize: 'var(--text-sm)',
+            fontSize: '14px',
             color: 'rgba(255,255,255,0.35)',
             marginTop: 12,
           }}>

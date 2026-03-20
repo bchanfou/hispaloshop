@@ -58,14 +58,14 @@ export default function DesktopSidebar() {
 
   return (
     <aside style={{
-      width: 'var(--container-sidebar)',
+      width: '320px',
       position: 'sticky',
       top: 16,
       height: 'fit-content',
       maxHeight: 'calc(100vh - 32px)',
       overflowY: 'auto',
       padding: '0',
-      fontFamily: 'var(--font-sans)',
+      fontFamily: 'inherit',
       scrollbarWidth: 'none',
     }}>
       {/* Contextual: On store pages, prioritize communities. On communities, show stores. Default: mix */}
@@ -107,23 +107,23 @@ export default function DesktopSidebar() {
       <div style={{
         margin: '0 0 16px',
         padding: 16,
-        background: 'var(--color-surface)',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--color-border)',
+        background: '#f5f5f4',
+        borderRadius: '16px',
+        border: '1px solid #e7e5e4',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{
-            width: 28, height: 28, borderRadius: 'var(--radius-md)',
-            background: 'var(--color-black)',
+            width: 28, height: 28, borderRadius: '12px',
+            background: '#0c0a09',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Sparkles size={14} color="var(--color-white)" />
+            <Sparkles size={14} color="#ffffff" />
           </div>
-          <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-black)' }}>
+          <span style={{ fontSize: '14px', fontWeight: 700, color: '#0c0a09' }}>
             ✨ David
           </span>
         </div>
-        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-stone)', margin: '0 0 10px', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '11px', color: '#78716c', margin: '0 0 10px', lineHeight: 1.5 }}>
           Pregúntame sobre cualquier producto o productor
         </p>
         <button
@@ -131,12 +131,12 @@ export default function DesktopSidebar() {
           style={{
             width: '100%', height: 34,
             border: 'none',
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--color-black)',
-            fontSize: 'var(--text-xs)', fontWeight: 600,
+            borderRadius: '9999px',
+            background: '#0c0a09',
+            fontSize: '11px', fontWeight: 600,
             color: '#fff', cursor: 'pointer',
-            fontFamily: 'var(--font-sans)',
-            transition: 'background var(--transition-fast)',
+            fontFamily: 'inherit',
+            transition: 'background all 0.15s ease',
           }}
         >
           Preguntar →
@@ -151,11 +151,11 @@ export default function DesktopSidebar() {
           { label: 'Términos', to: '/terms' },
           { label: 'Contacto', to: '/contacto' },
         ].map(link => (
-          <Link key={link.to} to={link.to} style={{ fontSize: 10, color: 'var(--color-stone)', textDecoration: 'none', lineHeight: 2 }}>
+          <Link key={link.to} to={link.to} style={{ fontSize: 10, color: '#78716c', textDecoration: 'none', lineHeight: 2 }}>
             {link.label}
           </Link>
         ))}
-        <span style={{ fontSize: 11, color: 'var(--color-stone)', lineHeight: 2, width: '100%' }}>
+        <span style={{ fontSize: 11, color: '#78716c', lineHeight: 2, width: '100%' }}>
           © {new Date().getFullYear()} Hispaloshop
         </span>
       </div>
@@ -167,7 +167,7 @@ export default function DesktopSidebar() {
 function SkeletonItems({ count = 3 }) {
   return Array(count).fill(0).map((_, i) => (
     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px' }}>
-      <div className="hs-skeleton" style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', flexShrink: 0 }} />
+      <div className="hs-skeleton" style={{ width: 36, height: 36, borderRadius: '12px', flexShrink: 0 }} />
       <div style={{ flex: 1 }}>
         <div className="hs-skeleton" style={{ height: 12, width: '70%', marginBottom: 4 }} />
         <div className="hs-skeleton" style={{ height: 10, width: '40%' }} />
@@ -181,9 +181,9 @@ function SidebarSection({ title, viewAllTo, children }) {
   return (
     <div style={{ marginBottom: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-black)' }}>{title}</span>
+        <span style={{ fontSize: '14px', fontWeight: 700, color: '#0c0a09' }}>{title}</span>
         {viewAllTo && (
-          <Link to={viewAllTo} style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-stone)', textDecoration: 'none' }}>
+          <Link to={viewAllTo} style={{ fontSize: '11px', fontWeight: 600, color: '#78716c', textDecoration: 'none' }}>
             Ver todo
           </Link>
         )}
@@ -196,7 +196,7 @@ function SidebarSection({ title, viewAllTo, children }) {
 /* ── Row items ── */
 const itemStyle = {
   display: 'flex', alignItems: 'center', gap: 10,
-  padding: '8px 10px', borderRadius: 'var(--radius-md)',
+  padding: '8px 10px', borderRadius: '12px',
   textDecoration: 'none', transition: 'background 0.1s ease',
 };
 
@@ -206,20 +206,20 @@ function StoreItem({ store }) {
   const image = store.logo || store.image || store.profile_image || null;
   return (
     <Link to={`/store/${slug}`} style={itemStyle}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
+      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f4'}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
       {image ? (
-        <img src={image} alt="" style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', objectFit: 'cover', border: '1px solid var(--color-border)' }} />
+        <img src={image} alt="" style={{ width: 36, height: 36, borderRadius: '12px', objectFit: 'cover', border: '1px solid #e7e5e4' }} />
       ) : (
-        <div style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', background: 'var(--color-surface)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Store size={16} color="var(--color-stone)" />
+        <div style={{ width: 36, height: 36, borderRadius: '12px', background: '#f5f5f4', border: '1px solid #e7e5e4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Store size={16} color="#78716c" />
         </div>
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-        {store.category && <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '1px 0 0' }}>{store.category}</p>}
+        <p style={{ fontSize: '14px', fontWeight: 600, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
+        {store.category && <p style={{ fontSize: 11, color: '#78716c', margin: '1px 0 0' }}>{store.category}</p>}
       </div>
-      <ChevronRight size={14} color="var(--color-stone)" style={{ flexShrink: 0 }} />
+      <ChevronRight size={14} color="#78716c" style={{ flexShrink: 0 }} />
     </Link>
   );
 }
@@ -231,20 +231,20 @@ function InfluencerItem({ influencer }) {
   const followers = influencer.follower_count;
   return (
     <Link to={`/user/${userId}`} style={itemStyle}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
+      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f4'}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
       {image ? (
         <img src={image} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} />
       ) : (
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: 'var(--color-stone)', fontWeight: 600 }}>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f5f5f4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#78716c', fontWeight: 600 }}>
           {name.charAt(0).toUpperCase()}
         </div>
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-        {followers != null && <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '1px 0 0' }}>{followers.toLocaleString()} seguidores</p>}
+        <p style={{ fontSize: '14px', fontWeight: 600, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
+        {followers != null && <p style={{ fontSize: 11, color: '#78716c', margin: '1px 0 0' }}>{followers.toLocaleString()} seguidores</p>}
       </div>
-      <ChevronRight size={14} color="var(--color-stone)" style={{ flexShrink: 0 }} />
+      <ChevronRight size={14} color="#78716c" style={{ flexShrink: 0 }} />
     </Link>
   );
 }
@@ -254,18 +254,18 @@ function CommunityItem({ community }) {
   const name = community.name || 'Comunidad';
   return (
     <Link to={`/communities/${slug}`} style={itemStyle}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
+      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f4'}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-      <div style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', background: ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][name.charCodeAt(0) % 5], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, overflow: 'hidden' }}>
+      <div style={{ width: 36, height: 36, borderRadius: '12px', background: ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][name.charCodeAt(0) % 5], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, overflow: 'hidden' }}>
         {community.cover_image ? (
           <img src={community.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (community.emoji || '🌿')}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-        <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '1px 0 0' }}>{community.member_count?.toLocaleString() || 0} miembros</p>
+        <p style={{ fontSize: '14px', fontWeight: 600, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
+        <p style={{ fontSize: 11, color: '#78716c', margin: '1px 0 0' }}>{community.member_count?.toLocaleString() || 0} miembros</p>
       </div>
-      <ChevronRight size={14} color="var(--color-stone)" style={{ flexShrink: 0 }} />
+      <ChevronRight size={14} color="#78716c" style={{ flexShrink: 0 }} />
     </Link>
   );
 }

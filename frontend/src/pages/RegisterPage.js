@@ -9,15 +9,15 @@ import apiClient from '../services/api/client';
 
 /* ── Password strength helper ── */
 function getPasswordStrength(pw) {
-  if (pw.length < 8) return { level: 0, label: 'Muy corta', color: 'var(--color-red)' };
+  if (pw.length < 8) return { level: 0, label: 'Muy corta', color: '#dc2626' };
   const hasUpper = /[A-Z]/.test(pw);
   const hasNumber = /[0-9]/.test(pw);
   const hasSpecial = /[^A-Za-z0-9]/.test(pw);
   if (pw.length >= 12 && hasUpper && hasNumber && hasSpecial)
-    return { level: 3, label: 'Fuerte', color: 'var(--color-black)' };
+    return { level: 3, label: 'Fuerte', color: '#0c0a09' };
   if (hasUpper && hasNumber)
-    return { level: 2, label: 'Buena', color: 'var(--color-black)' };
-  return { level: 1, label: 'Débil', color: 'var(--color-stone)' };
+    return { level: 2, label: 'Buena', color: '#0c0a09' };
+  return { level: 1, label: 'Débil', color: '#78716c' };
 }
 
 export default function RegisterPage() {
@@ -161,20 +161,20 @@ export default function RegisterPage() {
 
   const inputStyle = {
     width: '100%', height: 48, padding: '0 16px',
-    fontSize: 15, fontFamily: 'var(--font-sans)',
-    border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-lg)',
-    background: 'var(--color-white)',
-    color: 'var(--color-black)',
+    fontSize: 15, fontFamily: 'inherit',
+    border: '1px solid #e7e5e4',
+    borderRadius: '14px',
+    background: '#ffffff',
+    color: '#0c0a09',
     outline: 'none',
-    transition: 'var(--transition-fast)',
+    transition: 'all 0.15s ease',
     boxSizing: 'border-box',
   };
 
   const labelStyle = {
     display: 'block', fontSize: 13, fontWeight: 600,
-    color: 'var(--color-black)', marginBottom: 6,
-    fontFamily: 'var(--font-sans)',
+    color: '#0c0a09', marginBottom: 6,
+    fontFamily: 'inherit',
   };
 
   // Age-blocked screen
@@ -182,29 +182,29 @@ export default function RegisterPage() {
     return (
       <div style={{
         textAlign: 'center', padding: '40px 0',
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}>
         <div style={{
           width: 72, height: 72, borderRadius: '50%', margin: '0 auto 20px',
-          background: 'var(--color-surface, #f5f5f4)',
+          background: '#f5f5f4',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 36,
         }}>
           🔒
         </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)' }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: '#0c0a09' }}>
           Debes tener al menos 16 años
         </h1>
-        <p style={{ fontSize: 15, color: 'var(--color-stone)', marginBottom: 24, lineHeight: 1.5 }}>
+        <p style={{ fontSize: 15, color: '#78716c', marginBottom: 24, lineHeight: 1.5 }}>
           para usar Hispaloshop
         </p>
         <button
           onClick={() => setAgeBlocked(false)}
           style={{
-            padding: '12px 32px', background: 'var(--color-black)',
-            color: 'var(--color-white)', border: 'none',
-            borderRadius: 'var(--radius-lg)', fontSize: 15, fontWeight: 600,
-            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+            padding: '12px 32px', background: '#0c0a09',
+            color: '#ffffff', border: 'none',
+            borderRadius: '14px', fontSize: 15, fontWeight: 600,
+            cursor: 'pointer', fontFamily: 'inherit',
           }}
         >
           Volver
@@ -217,16 +217,16 @@ export default function RegisterPage() {
     <>
       {/* Header */}
       <h1 style={{
-        fontSize: 'var(--text-2xl, 24px)', fontWeight: 600,
-        color: 'var(--color-black)', textAlign: 'center',
-        margin: 0, fontFamily: 'var(--font-sans)',
+        fontSize: '24px', fontWeight: 600,
+        color: '#0c0a09', textAlign: 'center',
+        margin: 0, fontFamily: 'inherit',
       }}>
         Crear cuenta
       </h1>
       <p style={{
-        fontSize: 'var(--text-base, 16px)', color: 'var(--color-stone)',
+        fontSize: '16px', color: '#78716c',
         textAlign: 'center', marginTop: 4, marginBottom: 32,
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}>
         Únete a la plataforma artesanal
       </p>
@@ -238,12 +238,12 @@ export default function RegisterPage() {
         style={{
           width: '100%', height: 48,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-          background: 'var(--color-white)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
+          background: '#ffffff',
+          border: '1px solid #e7e5e4',
+          borderRadius: '14px',
           fontSize: 15, fontWeight: 600,
-          color: 'var(--color-black)',
-          cursor: 'pointer', fontFamily: 'var(--font-sans)',
+          color: '#0c0a09',
+          cursor: 'pointer', fontFamily: 'inherit',
         }}
       >
         <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
@@ -257,9 +257,9 @@ export default function RegisterPage() {
 
       {/* Divider */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '20px 0' }}>
-        <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
-        <span style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>o</span>
-        <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
+        <div style={{ flex: 1, height: 1, background: '#e7e5e4' }} />
+        <span style={{ fontSize: 13, color: '#78716c', fontFamily: 'inherit' }}>o</span>
+        <div style={{ flex: 1, height: 1, background: '#e7e5e4' }} />
       </div>
 
       {/* Form */}
@@ -273,9 +273,9 @@ export default function RegisterPage() {
               onChange={e => updateForm('fullName', e.target.value)}
               placeholder="María García"
               autoComplete="name"
-              style={{ ...inputStyle, ...(errors.fullName ? { borderColor: 'var(--color-red)' } : {}) }}
+              style={{ ...inputStyle, ...(errors.fullName ? { borderColor: '#dc2626' } : {}) }}
             />
-            {errors.fullName && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.fullName}</p>}
+            {errors.fullName && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.fullName}</p>}
           </div>
 
           {/* Email */}
@@ -287,9 +287,9 @@ export default function RegisterPage() {
               onChange={e => updateForm('email', e.target.value)}
               placeholder="hola@ejemplo.com"
               autoComplete="email"
-              style={{ ...inputStyle, ...(errors.email ? { borderColor: 'var(--color-red)' } : {}) }}
+              style={{ ...inputStyle, ...(errors.email ? { borderColor: '#dc2626' } : {}) }}
             />
-            {errors.email && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.email}</p>}
+            {errors.email && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.email}</p>}
           </div>
 
           {/* Username */}
@@ -298,7 +298,7 @@ export default function RegisterPage() {
             <div style={{ position: 'relative' }}>
               <span style={{
                 position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
-                fontSize: 15, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)',
+                fontSize: 15, color: '#78716c', fontFamily: 'inherit',
               }}>@</span>
               <input
                 value={form.username}
@@ -312,7 +312,7 @@ export default function RegisterPage() {
                   ...inputStyle,
                   paddingLeft: 32,
                   paddingRight: 40,
-                  ...(errors.username ? { borderColor: 'var(--color-red)' } : {}),
+                  ...(errors.username ? { borderColor: '#dc2626' } : {}),
                 }}
               />
               {/* Status icon */}
@@ -322,8 +322,8 @@ export default function RegisterPage() {
                   display: 'flex',
                 }}>
                   {usernameStatus === 'available'
-                    ? <Check size={18} color="var(--color-black)" />
-                    : <XIcon size={18} color="var(--color-red)" />
+                    ? <Check size={18} color="#0c0a09" />
+                    : <XIcon size={18} color="#dc2626" />
                   }
                 </span>
               )}
@@ -331,14 +331,14 @@ export default function RegisterPage() {
                 <span style={{
                   position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
                 }}>
-                  <Loader2 size={16} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+                  <Loader2 size={16} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
                 </span>
               )}
             </div>
             {usernameStatus === 'taken' && (
-              <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>Este usuario ya está en uso</p>
+              <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>Este usuario ya está en uso</p>
             )}
-            {errors.username && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.username}</p>}
+            {errors.username && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.username}</p>}
           </div>
 
           {/* Password */}
@@ -354,7 +354,7 @@ export default function RegisterPage() {
                 style={{
                   ...inputStyle,
                   paddingRight: 48,
-                  ...(errors.password ? { borderColor: 'var(--color-red)' } : {}),
+                  ...(errors.password ? { borderColor: '#dc2626' } : {}),
                 }}
               />
               <button
@@ -363,7 +363,7 @@ export default function RegisterPage() {
                 style={{
                   position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--color-stone)', padding: 4, display: 'flex',
+                  color: '#78716c', padding: 4, display: 'flex',
                 }}
                 tabIndex={-1}
                 aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
@@ -376,7 +376,7 @@ export default function RegisterPage() {
               <div style={{ marginTop: 6 }}>
                 <div style={{
                   height: 3, borderRadius: 2,
-                  background: 'var(--color-surface, #f5f5f4)',
+                  background: '#f5f5f4',
                   overflow: 'hidden',
                 }}>
                   <div style={{
@@ -389,7 +389,7 @@ export default function RegisterPage() {
                 <p style={{ fontSize: 11, color: strength.color, marginTop: 3 }}>{strength.label}</p>
               </div>
             )}
-            {errors.password && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.password}</p>}
+            {errors.password && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.password}</p>}
           </div>
 
           {/* Birth date */}
@@ -401,7 +401,7 @@ export default function RegisterPage() {
                 onChange={e => updateForm('birthDay', e.target.value)}
                 style={{
                   ...inputStyle, flex: 1, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}),
+                  ...(errors.birthDate ? { borderColor: '#dc2626' } : {}),
                 }}
               >
                 <option value="">Día</option>
@@ -414,7 +414,7 @@ export default function RegisterPage() {
                 onChange={e => updateForm('birthMonth', e.target.value)}
                 style={{
                   ...inputStyle, flex: 1.3, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}),
+                  ...(errors.birthDate ? { borderColor: '#dc2626' } : {}),
                 }}
               >
                 <option value="">Mes</option>
@@ -427,7 +427,7 @@ export default function RegisterPage() {
                 onChange={e => updateForm('birthYear', e.target.value)}
                 style={{
                   ...inputStyle, flex: 1.3, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}),
+                  ...(errors.birthDate ? { borderColor: '#dc2626' } : {}),
                 }}
               >
                 <option value="">Año</option>
@@ -437,14 +437,14 @@ export default function RegisterPage() {
                 })}
               </select>
             </div>
-            {errors.birthDate && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.birthDate}</p>}
+            {errors.birthDate && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.birthDate}</p>}
           </div>
 
           {/* Terms checkbox */}
           <label style={{
             display: 'flex', alignItems: 'flex-start', gap: 10,
-            cursor: 'pointer', fontSize: 13, color: 'var(--color-stone)',
-            fontFamily: 'var(--font-sans)', lineHeight: 1.5,
+            cursor: 'pointer', fontSize: 13, color: '#78716c',
+            fontFamily: 'inherit', lineHeight: 1.5,
           }}>
             <input
               type="checkbox"
@@ -455,22 +455,22 @@ export default function RegisterPage() {
               }}
               style={{
                 width: 18, height: 18, marginTop: 2,
-                accentColor: 'var(--color-black)',
+                accentColor: '#0c0a09',
                 cursor: 'pointer', flexShrink: 0,
               }}
             />
             <span>
               Acepto los{' '}
-              <Link to="/terms" style={{ color: 'var(--color-black)', textDecoration: 'underline' }}>
+              <Link to="/terms" style={{ color: '#0c0a09', textDecoration: 'underline' }}>
                 Términos y condiciones
               </Link>
               {' '}y la{' '}
-              <Link to="/privacy" style={{ color: 'var(--color-black)', textDecoration: 'underline' }}>
+              <Link to="/privacy" style={{ color: '#0c0a09', textDecoration: 'underline' }}>
                 Política de privacidad
               </Link>
             </span>
           </label>
-          {errors.terms && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: -6 }}>{errors.terms}</p>}
+          {errors.terms && <p style={{ fontSize: 12, color: '#dc2626', marginTop: -6 }}>{errors.terms}</p>}
         </div>
 
         {/* Submit */}
@@ -479,15 +479,15 @@ export default function RegisterPage() {
           disabled={!canSubmit || isLoading}
           style={{
             width: '100%', height: 48, marginTop: 24,
-            background: canSubmit ? 'var(--color-black)' : 'var(--color-stone)',
-            color: 'var(--color-white)',
-            border: 'none', borderRadius: 'var(--radius-lg)',
+            background: canSubmit ? '#0c0a09' : '#78716c',
+            color: '#ffffff',
+            border: 'none', borderRadius: '14px',
             fontSize: 15, fontWeight: 600,
             cursor: canSubmit && !isLoading ? 'pointer' : 'not-allowed',
             opacity: canSubmit ? 1 : 0.5,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            fontFamily: 'var(--font-sans)',
-            transition: 'var(--transition-fast)',
+            fontFamily: 'inherit',
+            transition: 'all 0.15s ease',
           }}
         >
           {isLoading ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Crear cuenta'}
@@ -497,11 +497,11 @@ export default function RegisterPage() {
       {/* Footer */}
       <p style={{
         textAlign: 'center', marginTop: 24,
-        fontSize: 'var(--text-sm, 14px)', color: 'var(--color-stone)',
-        fontFamily: 'var(--font-sans)',
+        fontSize: '14px', color: '#78716c',
+        fontFamily: 'inherit',
       }}>
         ¿Ya tienes cuenta?{' '}
-        <Link to="/login" style={{ color: 'var(--color-black)', fontWeight: 600, textDecoration: 'none' }}>
+        <Link to="/login" style={{ color: '#0c0a09', fontWeight: 600, textDecoration: 'none' }}>
           Entrar
         </Link>
       </p>

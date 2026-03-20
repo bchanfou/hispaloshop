@@ -40,26 +40,26 @@ export default function ContactPage() {
     width: '100%',
     height: 44,
     padding: '0 14px',
-    fontSize: 'var(--text-sm)',
-    border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-md)',
-    background: 'var(--color-white)',
+    fontSize: '14px',
+    border: '1px solid #e7e5e4',
+    borderRadius: '12px',
+    background: '#ffffff',
     outline: 'none',
-    color: 'var(--color-black)',
-    fontFamily: 'var(--font-sans)',
+    color: '#0c0a09',
+    fontFamily: 'inherit',
     boxSizing: 'border-box',
   };
 
   return (
     <div style={{
-      background: 'var(--color-cream)',
+      background: '#fafaf9',
       paddingTop: 64,
       minHeight: '100vh',
-      fontFamily: 'var(--font-sans)',
+      fontFamily: 'inherit',
     }}>
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '60px 16px 80px' }}>
-        <h1 className="info-h1 hero-animate-in" style={{ color: 'var(--color-black)', marginBottom: 12 }}>Hablemos.</h1>
-        <p className="info-lead hero-animate-in-delay-1" style={{ color: 'var(--color-stone)', marginBottom: 48 }}>
+        <h1 className="info-h1 hero-animate-in" style={{ color: '#0c0a09', marginBottom: 12 }}>Hablemos.</h1>
+        <p className="info-lead hero-animate-in-delay-1" style={{ color: '#78716c', marginBottom: 48 }}>
           Para dudas sobre la plataforma, colaboraciones o prensa.
           Respondemos en menos de 24 horas.
         </p>
@@ -77,11 +77,11 @@ export default function ContactPage() {
 
           {/* ── Left: Form ── */}
           <div style={{
-            background: 'var(--color-white)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-xl)',
+            background: '#ffffff',
+            border: '1px solid #e7e5e4',
+            borderRadius: '16px',
             padding: 32,
-            boxShadow: 'var(--shadow-xs)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
           }}>
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: 20 }}>
@@ -115,15 +115,15 @@ export default function ContactPage() {
                       onClick={() => setRole(r)}
                       style={{
                         padding: '6px 14px',
-                        borderRadius: 'var(--radius-full)',
-                        fontSize: 'var(--text-xs)',
+                        borderRadius: '9999px',
+                        fontSize: '11px',
                         fontWeight: 500,
                         cursor: 'pointer',
-                        fontFamily: 'var(--font-sans)',
-                        transition: 'all var(--transition-fast)',
-                        border: role === r ? 'none' : '1px solid var(--color-border)',
-                        background: role === r ? 'var(--color-black)' : 'var(--color-white)',
-                        color: role === r ? '#fff' : 'var(--color-stone)',
+                        fontFamily: 'inherit',
+                        transition: 'all all 0.15s ease',
+                        border: role === r ? 'none' : '1px solid #e7e5e4',
+                        background: role === r ? '#0c0a09' : '#ffffff',
+                        color: role === r ? '#fff' : '#78716c',
                       }}
                     >
                       {r}
@@ -155,16 +155,16 @@ export default function ContactPage() {
                 style={{
                   width: '100%',
                   height: 46,
-                  borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-black)',
+                  borderRadius: '9999px',
+                  background: '#0c0a09',
                   color: '#fff',
-                  fontSize: 'var(--text-sm)',
+                  fontSize: '14px',
                   fontWeight: 600,
                   border: 'none',
                   cursor: sending ? 'default' : 'pointer',
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                   opacity: sending ? 0.6 : 1,
-                  transition: 'opacity var(--transition-fast)',
+                  transition: 'opacity all 0.15s ease',
                 }}
               >
                 {sending ? 'Enviando...' : 'Enviar mensaje'}
@@ -175,22 +175,22 @@ export default function ContactPage() {
           {/* ── Right: Info ── */}
           <div>
             <h3 className="info-h3" style={{ marginBottom: 8 }}>Hispaloshop SL</h3>
-            <p className="info-body" style={{ color: 'var(--color-stone)', marginBottom: 24 }}>
+            <p className="info-body" style={{ color: '#78716c', marginBottom: 24 }}>
               Reus, Tarragona, España
             </p>
 
-            <p className="info-body" style={{ color: 'var(--color-stone)', margin: '0 0 4px' }}>hola@hispaloshop.com</p>
-            <p className="info-body" style={{ color: 'var(--color-stone)', margin: '0 0 4px' }}>@hispaloshop (Instagram)</p>
-            <p className="info-body" style={{ color: 'var(--color-stone)', margin: '0 0 0' }}>@bchanfuah (fundador)</p>
+            <p className="info-body" style={{ color: '#78716c', margin: '0 0 4px' }}>hola@hispaloshop.com</p>
+            <p className="info-body" style={{ color: '#78716c', margin: '0 0 4px' }}>@hispaloshop (Instagram)</p>
+            <p className="info-body" style={{ color: '#78716c', margin: '0 0 0' }}>@bchanfuah (fundador)</p>
 
             <div style={{
               marginTop: 32,
               padding: 24,
-              background: 'var(--color-surface)',
-              borderRadius: 'var(--radius-xl)',
-              border: '1px solid var(--color-border)',
+              background: '#f5f5f4',
+              borderRadius: '16px',
+              border: '1px solid #e7e5e4',
             }}>
-              <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-black)', margin: '0 0 12px' }}>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: '#0c0a09', margin: '0 0 12px' }}>
                 ¿Eres productor y quieres unirte?
               </p>
               <button
@@ -198,14 +198,14 @@ export default function ContactPage() {
                 style={{
                   width: '100%',
                   height: 40,
-                  borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-black)',
+                  borderRadius: '9999px',
+                  background: '#0c0a09',
                   color: '#fff',
-                  fontSize: 'var(--text-sm)',
+                  fontSize: '14px',
                   fontWeight: 600,
                   border: 'none',
                   cursor: 'pointer',
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                 }}
               >
                 Crear cuenta gratuita →
@@ -220,9 +220,9 @@ export default function ContactPage() {
 
 const labelStyle = {
   display: 'block',
-  fontSize: 'var(--text-sm)',
+  fontSize: '14px',
   fontWeight: 500,
-  color: 'var(--color-black)',
+  color: '#0c0a09',
   marginBottom: 6,
-  fontFamily: 'var(--font-sans)',
+  fontFamily: 'inherit',
 };

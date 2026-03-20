@@ -84,28 +84,28 @@ function ImporterDashboard() {
       id: 'add',
       icon: Plus,
       label: 'Añadir producto',
-      color: 'var(--color-black)',
+      color: '#0c0a09',
       onClick: () => navigate('/importer/products/new')
     },
     {
       id: 'orders',
       icon: ShoppingCart,
       label: 'Pedidos',
-      color: 'var(--color-stone)',
+      color: '#78716c',
       onClick: () => navigate('/importer/orders')
     },
     {
       id: 'producers',
       icon: Users,
       label: 'Productores',
-      color: 'var(--color-stone)',
+      color: '#78716c',
       onClick: () => navigate('/b2b/producers')
     },
     {
       id: 'analytics',
       icon: TrendingUp,
       label: 'Análisis',
-      color: 'var(--color-black)',
+      color: '#0c0a09',
       onClick: () => navigate('/importer/analytics')
     }
   ];

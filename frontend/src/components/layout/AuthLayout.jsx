@@ -13,8 +13,8 @@ export default function AuthLayout({ children }) {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      background: 'var(--color-cream)',
-      fontFamily: 'var(--font-sans)',
+      background: '#fafaf9',
+      fontFamily: 'inherit',
     }}>
       {/* Logo */}
       <div style={{
@@ -32,7 +32,7 @@ export default function AuthLayout({ children }) {
       <main style={{
         width: '100%',
         maxWidth: 440,
-        padding: '0 var(--space-4)',
+        padding: '0 16px',
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
@@ -58,7 +58,7 @@ export default function AuthLayout({ children }) {
             to={link.to}
             style={{
               fontSize: 12,
-              color: 'var(--color-stone)',
+              color: '#78716c',
               textDecoration: 'none',
             }}
           >

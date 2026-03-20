@@ -498,7 +498,7 @@ export default function CreateReelPage() {
                   t.font === 'Serif' ? 'Georgia, serif'
                     : t.font === 'Mono' ? 'monospace'
                     : t.font === 'Display' ? 'Impact, sans-serif'
-                    : 'var(--font-sans)',
+                    : 'inherit',
                 textShadow: t.style === 'box' ? 'none' : '0 1px 4px rgba(0,0,0,0.6)',
                 ...(t.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
                 ...(t.style === 'outline' ? { WebkitTextStroke: `2px ${t.color}`, textShadow: 'none' } : {}),

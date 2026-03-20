@@ -81,15 +81,15 @@ export default function OrdersPage() {
     });
   }, [orders, activeTab]);
 
-  const font = { fontFamily: 'var(--font-sans)' };
+  const font = { fontFamily: 'inherit' };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
       {/* Topbar */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e7e5e4',
         display: 'flex', alignItems: 'center', gap: 12,
         padding: '12px 16px',
       }}>
@@ -98,16 +98,16 @@ export default function OrdersPage() {
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
           aria-label="Volver"
         >
-          <ArrowLeft size={22} color="var(--color-black)" />
+          <ArrowLeft size={22} color="#0c0a09" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Mis pedidos</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Mis pedidos</span>
       </div>
 
       {/* Tabs */}
       <div style={{
         display: 'flex', gap: 0,
-        borderBottom: '1px solid var(--color-border)',
-        background: 'var(--color-white)',
+        borderBottom: '1px solid #e7e5e4',
+        background: '#ffffff',
       }}>
         {TABS.map(tab => (
           <button
@@ -116,11 +116,11 @@ export default function OrdersPage() {
             style={{
               flex: 1, padding: '12px 0',
               fontSize: 14, fontWeight: activeTab === tab.id ? 600 : 400,
-              color: activeTab === tab.id ? 'var(--color-black)' : 'var(--color-stone)',
+              color: activeTab === tab.id ? '#0c0a09' : '#78716c',
               background: 'none', border: 'none', cursor: 'pointer',
-              borderBottom: activeTab === tab.id ? '2px solid var(--color-black)' : '2px solid transparent',
-              fontFamily: 'var(--font-sans)',
-              transition: 'var(--transition-fast)',
+              borderBottom: activeTab === tab.id ? '2px solid #0c0a09' : '2px solid transparent',
+              fontFamily: 'inherit',
+              transition: 'all 0.15s ease',
             }}
           >
             {tab.label}
@@ -132,7 +132,7 @@ export default function OrdersPage() {
       <div style={{ padding: '16px 16px 100px', maxWidth: 600, margin: '0 auto' }}>
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-            <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+            <Loader2 size={28} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
           </div>
         ) : fetchError ? (
           /* Error state */
@@ -140,15 +140,15 @@ export default function OrdersPage() {
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             justifyContent: 'center', gap: 12, padding: '60px 0',
           }}>
-            <Package size={64} color="var(--color-stone)" strokeWidth={1} />
-            <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center' }}>
+            <Package size={64} color="#78716c" strokeWidth={1} />
+            <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center' }}>
               No pudimos cargar tus pedidos
             </p>
             <button
               onClick={loadOrders}
               style={{
-                padding: '10px 24px', background: 'var(--color-black)',
-                color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
+                padding: '10px 24px', background: '#0c0a09',
+                color: '#ffffff', borderRadius: '14px',
                 fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer',
               }}
             >
@@ -161,15 +161,15 @@ export default function OrdersPage() {
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             justifyContent: 'center', gap: 12, padding: '60px 0',
           }}>
-            <Package size={64} color="var(--color-stone)" strokeWidth={1} />
-            <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center' }}>
+            <Package size={64} color="#78716c" strokeWidth={1} />
+            <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center' }}>
               No tienes pedidos {activeTab === 'active' ? 'en curso' : activeTab === 'completed' ? 'completados' : 'cancelados'}
             </p>
             <Link
               to="/explore"
               style={{
-                padding: '10px 24px', background: 'var(--color-black)',
-                color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
+                padding: '10px 24px', background: '#0c0a09',
+                color: '#ffffff', borderRadius: '14px',
                 fontSize: 14, fontWeight: 600, textDecoration: 'none',
               }}
             >
@@ -192,19 +192,19 @@ export default function OrdersPage() {
                 <div
                   key={orderId}
                   style={{
-                    background: 'var(--color-white)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-xl)',
+                    background: '#ffffff',
+                    border: '1px solid #e7e5e4',
+                    borderRadius: '16px',
                     padding: 16, cursor: 'pointer',
-                    transition: 'var(--transition-fast)',
+                    transition: 'all 0.15s ease',
                   }}
                   onClick={() => navigate(`/dashboard/orders/${orderId}`)}
                 >
                   {/* Header */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                     <div>
-                      <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>{ref}</p>
-                      <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0' }}>{formatDate(order.created_at)}</p>
+                      <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: 0 }}>{ref}</p>
+                      <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>{formatDate(order.created_at)}</p>
                     </div>
                     <StatusBadge status={status} />
                   </div>
@@ -214,23 +214,23 @@ export default function OrdersPage() {
                     {items.slice(0, 2).map((item, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <div style={{
-                          width: 40, height: 40, borderRadius: 'var(--radius-md)',
-                          background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
+                          width: 40, height: 40, borderRadius: '12px',
+                          background: '#f5f5f4', overflow: 'hidden', flexShrink: 0,
                         }}>
                           {(item.image || item.product_image) && (
                             <img src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           )}
                         </div>
                         <div style={{ minWidth: 0 }}>
-                          <p style={{ fontSize: 12, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 100 }}>
+                          <p style={{ fontSize: 12, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 100 }}>
                             {item.name || item.product_name}
                           </p>
-                          <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0 }}>x{item.quantity}</p>
+                          <p style={{ fontSize: 11, color: '#78716c', margin: 0 }}>x{item.quantity}</p>
                         </div>
                       </div>
                     ))}
                     {items.length > 2 && (
-                      <span style={{ fontSize: 12, color: 'var(--color-stone)', fontWeight: 500 }}>+{items.length - 2} más</span>
+                      <span style={{ fontSize: 12, color: '#78716c', fontWeight: 500 }}>+{items.length - 2} más</span>
                     )}
                   </div>
 
@@ -239,9 +239,9 @@ export default function OrdersPage() {
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: 6,
                       padding: '8px 12px', marginBottom: 12,
-                      background: 'var(--color-surface)',
-                      borderRadius: 'var(--radius-md)',
-                      fontSize: 13, color: 'var(--color-black)',
+                      background: '#f5f5f4',
+                      borderRadius: '12px',
+                      fontSize: 13, color: '#0c0a09',
                     }}>
                       <Truck size={16} />
                       <span>En camino</span>
@@ -252,7 +252,7 @@ export default function OrdersPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={e => e.stopPropagation()}
-                          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontWeight: 600, color: 'var(--color-black)', textDecoration: 'none' }}
+                          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontWeight: 600, color: '#0c0a09', textDecoration: 'none' }}
                         >
                           Rastrear <ExternalLink size={12} />
                         </a>
@@ -262,7 +262,7 @@ export default function OrdersPage() {
 
                   {/* Footer */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>{total}</span>
+                    <span style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09' }}>{total}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {isDelivered && (
                         <button
@@ -277,15 +277,15 @@ export default function OrdersPage() {
                           }}
                           style={{
                             padding: '6px 14px',
-                            background: 'var(--color-black)', color: 'var(--color-white)',
-                            borderRadius: 'var(--radius-full, 999px)',
+                            background: '#0c0a09', color: '#ffffff',
+                            borderRadius: '9999px',
                             fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
                           }}
                         >
                           Volver a pedir
                         </button>
                       )}
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600, color: 'var(--color-stone)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600, color: '#78716c' }}>
                         Ver detalles <ChevronRight size={16} />
                       </span>
                     </div>

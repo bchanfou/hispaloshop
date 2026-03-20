@@ -26,11 +26,11 @@ export default function QuickActionsMobile({ actions, title, className = '' }) {
             >
               <div 
                 className="quick-action-icon"
-                style={{ backgroundColor: action.bgColor || 'var(--color-cream)' }}
+                style={{ backgroundColor: action.bgColor || '#fafaf9' }}
               >
                 <action.icon
                   className="w-5 h-5"
-                  style={{ color: action.iconColor || 'var(--color-black)' }}
+                  style={{ color: action.iconColor || '#0c0a09' }}
                   strokeWidth={1.5}
                 />
               </div>

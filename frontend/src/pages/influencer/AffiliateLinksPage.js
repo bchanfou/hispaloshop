@@ -147,23 +147,23 @@ export default function AffiliateLinksPage() {
   // Blocked by fiscal gate
   if (blocked) {
     return (
-      <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
+      <div className="min-h-screen" style={{ background: '#fafaf9' }}>
         <div className="max-w-xl mx-auto px-4 py-6 pb-28">
-          <h1 className="text-xl font-bold mb-1" style={{ color: 'var(--color-black)' }}>Mis links de afiliado</h1>
-          <div className="mt-6 p-5" style={{ background: '#f5f5f4', borderRadius: 'var(--radius-xl)', border: '1px solid #d6d3d1' }}>
+          <h1 className="text-xl font-bold mb-1" style={{ color: '#0c0a09' }}>Mis links de afiliado</h1>
+          <div className="mt-6 p-5" style={{ background: '#f5f5f4', borderRadius: '16px', border: '1px solid #d6d3d1' }}>
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
               <div>
-                <p className="text-sm font-semibold mb-1" style={{ color: 'var(--color-black)' }}>
+                <p className="text-sm font-semibold mb-1" style={{ color: '#0c0a09' }}>
                   Configuración fiscal requerida
                 </p>
-                <p className="text-sm mb-4" style={{ color: 'var(--color-stone)' }}>
+                <p className="text-sm mb-4" style={{ color: '#78716c' }}>
                   {blocked.reason || 'Necesitas completar tu configuración fiscal para activar tus links de afiliado.'}
                 </p>
                 <RouterLink
                   to="/influencer/fiscal-setup"
                   className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors"
-                  style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)' }}
+                  style={{ background: '#0c0a09', color: '#fff', borderRadius: '16px' }}
                 >
                   Activar afiliados
                 </RouterLink>

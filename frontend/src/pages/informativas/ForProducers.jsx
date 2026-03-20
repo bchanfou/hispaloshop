@@ -6,9 +6,9 @@ import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const Section = ({ dark, children, style = {} }) => (
   <section style={{
-    background: dark ? '#0A0A0A' : 'var(--color-cream)',
+    background: dark ? '#0A0A0A' : '#fafaf9',
     padding: '80px 16px',
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'inherit',
     ...style,
   }}>
     <div style={{ maxWidth: 1200, margin: '0 auto' }}>{children}</div>
@@ -30,11 +30,11 @@ export default function ForProducers() {
         alignItems: 'flex-start',
         paddingTop: 64,
         padding: '120px 16px 80px',
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
           <div style={{ maxWidth: 820 }}>
-            <p className="info-eyebrow hero-animate-in" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
+            <p className="info-eyebrow hero-animate-in" style={{ color: '#78716c', marginBottom: 16 }}>
               PARA PRODUCTORES ARTESANALES
             </p>
 
@@ -59,10 +59,10 @@ export default function ForProducers() {
                 onClick={() => navigate('/registro')}
                 style={{
                   height: 46, padding: '0 28px',
-                  borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-black)',
-                  color: '#fff', fontSize: 'var(--text-sm)', fontWeight: 600,
-                  border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                  borderRadius: '9999px',
+                  background: '#0c0a09',
+                  color: '#fff', fontSize: '14px', fontWeight: 600,
+                  border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                 }}
               >
                 Empezar gratis →
@@ -71,11 +71,11 @@ export default function ForProducers() {
                 onClick={() => document.querySelector('#como-funciona')?.scrollIntoView({ behavior: 'smooth' })}
                 style={{
                   height: 46, padding: '0 28px',
-                  borderRadius: 'var(--radius-full)',
+                  borderRadius: '9999px',
                   background: 'transparent',
-                  color: '#fff', fontSize: 'var(--text-sm)', fontWeight: 600,
+                  color: '#fff', fontSize: '14px', fontWeight: 600,
                   border: '1px solid rgba(255,255,255,0.25)',
-                  cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                  cursor: 'pointer', fontFamily: 'inherit',
                 }}
               >
                 Ver cómo funciona
@@ -92,7 +92,7 @@ export default function ForProducers() {
           <h2 className="info-h2" style={{ whiteSpace: 'pre-line', marginBottom: 16 }}>
             {'Te han cobrado demasiado\ndurante demasiado tiempo.'}
           </h2>
-          <p className="info-lead" style={{ color: 'var(--color-stone)', maxWidth: 600, marginBottom: 48 }}>
+          <p className="info-lead" style={{ color: '#78716c', maxWidth: 600, marginBottom: 48 }}>
             Amazon cobra entre el 15% y el 40%. Las marketplaces
             genéricas no entienden tu producto. Las redes sociales te
             dan visibilidad pero no ventas. Y los importadores te dicen
@@ -110,24 +110,24 @@ export default function ForProducers() {
               { emoji: '🔗', title: 'Dependencia', body: 'Si mañana Amazon decide cambiar sus algoritmos, tus ventas desaparecen de un día para otro.' },
             ].map((card, i) => (
               <div key={i} style={{
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-xl)',
+                background: '#ffffff',
+                border: '1px solid #e7e5e4',
+                borderRadius: '16px',
                 padding: 32,
                 transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                 transitionDelay: `${i * 100}ms`,
               }} className="reveal">
                 <span style={{ fontSize: 32, display: 'block', marginBottom: 12 }}>{card.emoji}</span>
                 <h4 className="info-h4" style={{ marginBottom: 8 }}>{card.title}</h4>
-                <p style={{ fontSize: 15, color: 'var(--color-stone)', margin: 0, lineHeight: 1.6 }}>{card.body}</p>
+                <p style={{ fontSize: 15, color: '#78716c', margin: 0, lineHeight: 1.6 }}>{card.body}</p>
               </div>
             ))}
           </div>
 
-          <div style={{ height: 1, background: 'var(--color-border)', margin: '48px 0' }} />
+          <div style={{ height: 1, background: '#e7e5e4', margin: '48px 0' }} />
 
           <h3 className="info-h3" style={{ marginBottom: 16 }}>En Hispaloshop, tú tienes el control.</h3>
-          <p className="info-body" style={{ color: 'var(--color-stone)', maxWidth: 600 }}>
+          <p className="info-body" style={{ color: '#78716c', maxWidth: 600 }}>
             Sin exclusividades. Sin letra pequeña. Sin comisiones que
             se coman tu margen. Solo tu producto, tu historia y tus clientes.
           </p>
@@ -137,7 +137,7 @@ export default function ForProducers() {
       {/* ══════ SECCIÓN 3 — CÓMO FUNCIONA (negro) ══════ */}
       <Section dark={true}>
         <div className="reveal" id="como-funciona">
-          <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>CÓMO FUNCIONA</p>
+          <p className="info-eyebrow" style={{ color: '#78716c', marginBottom: 16 }}>CÓMO FUNCIONA</p>
           <h2 className="info-h2" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 48 }}>
             {'Publicar tu primer producto\ntarda menos de 60 segundos.'}
           </h2>
@@ -156,7 +156,7 @@ export default function ForProducers() {
               <div key={i} style={{ transitionDelay: `${i * 100}ms` }} className="reveal">
                 <div style={{
                   width: 36, height: 36, borderRadius: '50%',
-                  background: 'var(--color-black)',
+                  background: '#0c0a09',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 15, fontWeight: 700, color: '#fff',
                   marginBottom: 12,
@@ -193,35 +193,35 @@ export default function ForProducers() {
               { name: 'Elite', price: '249€/mes', desc: '15% comisión · Envío gratis desde 20€' },
             ].map((plan, i) => (
               <div key={i} style={{
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-xl)',
+                background: '#ffffff',
+                border: '1px solid #e7e5e4',
+                borderRadius: '16px',
                 padding: 32,
                 textAlign: 'center',
                 transitionDelay: `${i * 100}ms`,
               }} className="reveal">
-                <p style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--color-black)', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <p style={{ fontSize: '14px', fontWeight: 700, color: '#0c0a09', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   {plan.name}
                 </p>
-                <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: 'var(--color-black)', margin: '0 0 8px' }}>
+                <p style={{ fontSize: '24px', fontWeight: 700, color: '#0c0a09', margin: '0 0 8px' }}>
                   {plan.price}
                 </p>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-stone)', margin: 0 }}>
+                <p style={{ fontSize: '14px', color: '#78716c', margin: 0 }}>
                   {plan.desc}
                 </p>
               </div>
             ))}
           </div>
 
-          <p className="info-body" style={{ color: 'var(--color-stone)', marginTop: 24, marginBottom: 12 }}>
+          <p className="info-body" style={{ color: '#78716c', marginTop: 24, marginBottom: 12 }}>
             ¿Por qué cobramos comisión? Porque solo ganamos cuando
             tú ganas. Si no vendes, no pagamos nada. Si vendes mucho,
             pagamos menos.
           </p>
 
           <Link to="/productor" style={{
-            fontSize: 'var(--text-sm)', fontWeight: 600,
-            color: 'var(--color-black)', textDecoration: 'none',
+            fontSize: '14px', fontWeight: 600,
+            color: '#0c0a09', textDecoration: 'none',
           }}>
             Ver comparativa completa →
           </Link>
@@ -231,7 +231,7 @@ export default function ForProducers() {
       {/* ══════ SECCIÓN 5 — B2B (negro) ══════ */}
       <Section dark={true}>
         <div className="reveal">
-          <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>MÁS QUE B2C</p>
+          <p className="info-eyebrow" style={{ color: '#78716c', marginBottom: 16 }}>MÁS QUE B2C</p>
           <h2 className="info-h2" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 16 }}>
             {'Vende también a importadores\nde todo el mundo.'}
           </h2>
@@ -273,17 +273,17 @@ export default function ForProducers() {
             onClick={() => navigate('/registro')}
             style={{
               height: 56, padding: '0 40px',
-              borderRadius: 'var(--radius-full)',
-              background: 'var(--color-black)', color: '#fff',
-              fontSize: 'var(--text-md)', fontWeight: 600,
-              border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
+              borderRadius: '9999px',
+              background: '#0c0a09', color: '#fff',
+              fontSize: '16px', fontWeight: 600,
+              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
             Publicar mis primeros productos →
           </button>
           <div style={{ marginTop: 16 }}>
             <Link to="/contacto" style={{
-              fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.35)', textDecoration: 'none',
+              fontSize: '14px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none',
             }}>
               Tengo preguntas · Contactar
             </Link>

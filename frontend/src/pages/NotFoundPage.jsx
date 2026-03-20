@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Compass } from 'lucide-react';
 
 export default function NotFoundPage() {
-  const font = { fontFamily: 'var(--font-sans)' };
+  const font = { fontFamily: 'inherit' };
 
   return (
     <main

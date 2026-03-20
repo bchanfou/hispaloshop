@@ -6,9 +6,9 @@ import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const Section = ({ dark, children, style = {} }) => (
   <section style={{
-    background: dark ? '#0A0A0A' : 'var(--color-cream)',
+    background: dark ? '#0A0A0A' : '#fafaf9',
     padding: '80px 16px',
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'inherit',
     ...style,
   }}>
     <div style={{ maxWidth: 1200, margin: '0 auto' }}>{children}</div>
@@ -29,11 +29,11 @@ export default function ForInfluencers() {
         display: 'flex',
         alignItems: 'flex-start',
         padding: '120px 16px 80px',
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
           <div style={{ maxWidth: 820 }}>
-            <p className="info-eyebrow hero-animate-in" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
+            <p className="info-eyebrow hero-animate-in" style={{ color: '#78716c', marginBottom: 16 }}>
               PARA CREADORES DE CONTENIDO
             </p>
             <h1 className="info-h1 hero-animate-in-delay-1" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 24 }}>
@@ -49,19 +49,19 @@ export default function ForInfluencers() {
             </p>
             <div className="hero-animate-in-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button onClick={() => navigate('/influencer/aplicar')} style={{
-                height: 46, padding: '0 28px', borderRadius: 'var(--radius-full)',
-                background: 'var(--color-black)', color: '#fff',
-                fontSize: 'var(--text-sm)', fontWeight: 600,
-                border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                height: 46, padding: '0 28px', borderRadius: '9999px',
+                background: '#0c0a09', color: '#fff',
+                fontSize: '14px', fontWeight: 600,
+                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
               }}>
                 Solicitar ser influencer →
               </button>
               <button onClick={() => document.querySelector('#como-funciona')?.scrollIntoView({ behavior: 'smooth' })} style={{
-                height: 46, padding: '0 28px', borderRadius: 'var(--radius-full)',
+                height: 46, padding: '0 28px', borderRadius: '9999px',
                 background: 'transparent', color: '#fff',
-                fontSize: 'var(--text-sm)', fontWeight: 600,
+                fontSize: '14px', fontWeight: 600,
                 border: '1px solid rgba(255,255,255,0.25)',
-                cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                cursor: 'pointer', fontFamily: 'inherit',
               }}>
                 ¿Cómo funciona?
               </button>
@@ -77,7 +77,7 @@ export default function ForInfluencers() {
           <h2 className="info-h2" style={{ whiteSpace: 'pre-line', marginBottom: 24 }}>
             {'Tu recomendación puede cambiar\nla vida de un productor.'}
           </h2>
-          <p className="info-body" style={{ color: 'var(--color-stone)', maxWidth: 680, marginBottom: 0 }}>
+          <p className="info-body" style={{ color: '#78716c', maxWidth: 680, marginBottom: 0 }}>
             Cuando recomiendas un producto de Hispaloshop, no estás
             empujando una marca de un fondo de inversión. Estás
             ayudando a una cooperativa de Úbeda a llegar a más familias.
@@ -86,10 +86,10 @@ export default function ForInfluencers() {
             a competir sin agacharse.
           </p>
 
-          <div style={{ height: 1, background: 'var(--color-border)', margin: '32px 0' }} />
+          <div style={{ height: 1, background: '#e7e5e4', margin: '32px 0' }} />
 
           <h3 className="info-h3" style={{ marginBottom: 16 }}>Y de paso, cobras por ello.</h3>
-          <p className="info-body" style={{ color: 'var(--color-stone)' }}>
+          <p className="info-body" style={{ color: '#78716c' }}>
             Una comisión real, por cada venta. No publicidad de dos
             semanas y a olvidarse. Un link permanente que trabaja por
             ti mientras tú duermes.
@@ -100,7 +100,7 @@ export default function ForInfluencers() {
       {/* ══════ SECCIÓN 3 — TIERS (negro) ══════ */}
       <Section dark={true}>
         <div className="reveal">
-          <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>TU PROGRESIÓN</p>
+          <p className="info-eyebrow" style={{ color: '#78716c', marginBottom: 16 }}>TU PROGRESIÓN</p>
           <h2 className="info-h2" style={{ color: '#fff', marginBottom: 48 }}>
             Cuanto más vendes, más cobras.
           </h2>
@@ -114,12 +114,12 @@ export default function ForInfluencers() {
             <div style={{
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 'var(--radius-xl)',
+              borderRadius: '16px',
               padding: 32,
             }} className="reveal">
               <span style={{
                 display: 'inline-block', padding: '4px 10px',
-                borderRadius: 'var(--radius-full)',
+                borderRadius: '9999px',
                 background: 'rgba(255,255,255,0.08)',
                 color: 'rgba(255,255,255,0.5)',
                 fontSize: 11, fontWeight: 600, marginBottom: 16,
@@ -137,16 +137,16 @@ export default function ForInfluencers() {
             {/* Atenea — highlighted */}
             <div style={{
               background: 'rgba(255,255,255,0.04)',
-              border: '2px solid var(--color-black)',
-              borderRadius: 'var(--radius-xl)',
+              border: '2px solid #0c0a09',
+              borderRadius: '16px',
               padding: 32,
               transitionDelay: '100ms',
             }} className="reveal">
               <span style={{
                 display: 'inline-block', padding: '4px 10px',
-                borderRadius: 'var(--radius-full)',
-                background: 'var(--color-surface-alt, #f5f5f4)',
-                color: 'var(--color-black)',
+                borderRadius: '9999px',
+                background: '#f5f5f4',
+                color: '#0c0a09',
                 fontSize: 11, fontWeight: 600, marginBottom: 16,
               }}>El más frecuente</span>
               <h3 className="info-h3" style={{ color: '#fff', marginBottom: 12 }}>Atenea</h3>
@@ -163,15 +163,15 @@ export default function ForInfluencers() {
             <div style={{
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 'var(--radius-xl)',
+              borderRadius: '16px',
               padding: 32,
               transitionDelay: '200ms',
             }} className="reveal">
               <span style={{
                 display: 'inline-block', padding: '4px 10px',
-                borderRadius: 'var(--radius-full)',
-                background: 'var(--color-surface-alt, #f5f5f4)',
-                color: 'var(--color-black)',
+                borderRadius: '9999px',
+                background: '#f5f5f4',
+                color: '#0c0a09',
                 fontSize: 11, fontWeight: 600, marginBottom: 16,
               }}>La élite</span>
               <h3 className="info-h3" style={{ color: '#fff', marginBottom: 12 }}>Zeus</h3>
@@ -188,7 +188,7 @@ export default function ForInfluencers() {
 
           <p style={{
             textAlign: 'center',
-            fontSize: 'var(--text-sm)',
+            fontSize: '14px',
             color: 'rgba(255,255,255,0.5)',
             marginTop: 32,
           }}>
@@ -216,22 +216,22 @@ export default function ForInfluencers() {
                 {i < arr.length - 1 && (
                   <div style={{
                     position: 'absolute', left: 13, top: 36, bottom: -8,
-                    width: 2, background: 'var(--color-border)',
+                    width: 2, background: '#e7e5e4',
                   }} />
                 )}
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%',
-                  background: 'var(--color-black)', color: '#fff',
+                  background: '#0c0a09', color: '#fff',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 13, fontWeight: 700, flexShrink: 0, zIndex: 1,
                 }}>
                   {step.num}
                 </div>
                 <div style={{ paddingBottom: 32 }}>
-                  <p style={{ fontSize: 'var(--text-md)', fontWeight: 600, color: 'var(--color-black)', margin: '0 0 4px' }}>
+                  <p style={{ fontSize: '16px', fontWeight: 600, color: '#0c0a09', margin: '0 0 4px' }}>
                     {step.title}
                   </p>
-                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-stone)', margin: 0, lineHeight: 1.6 }}>
+                  <p style={{ fontSize: '14px', color: '#78716c', margin: 0, lineHeight: 1.6 }}>
                     {step.body}
                   </p>
                 </div>
@@ -243,16 +243,16 @@ export default function ForInfluencers() {
           <div style={{
             marginTop: 24,
             padding: 32,
-            background: 'var(--color-surface)',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid var(--color-border)',
+            background: '#f5f5f4',
+            borderRadius: '16px',
+            border: '1px solid #e7e5e4',
             maxWidth: 600,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <span style={{ fontSize: 24 }}>📋</span>
               <h4 className="info-h4">Sobre el IRPF</h4>
             </div>
-            <p className="info-body" style={{ color: 'var(--color-stone)', margin: 0 }}>
+            <p className="info-body" style={{ color: '#78716c', margin: 0 }}>
               Si resides en España, Hispaloshop retiene el 15% de tus
               comisiones y lo declara a Hacienda en tu nombre. Recibirás
               el certificado de retenciones en enero para tu declaración.
@@ -265,7 +265,7 @@ export default function ForInfluencers() {
       {/* ══════ SECCIÓN 5 — COLLAB (negro) ══════ */}
       <Section dark={true}>
         <div className="reveal">
-          <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>MÁS QUE AFILIACIÓN</p>
+          <p className="info-eyebrow" style={{ color: '#78716c', marginBottom: 16 }}>MÁS QUE AFILIACIÓN</p>
           <h2 className="info-h2" style={{ color: '#fff', marginBottom: 16 }}>
             Los productores vienen a buscarte a ti.
           </h2>
@@ -313,16 +313,16 @@ export default function ForInfluencers() {
             onClick={() => navigate('/influencer/aplicar')}
             style={{
               height: 56, padding: '0 40px',
-              borderRadius: 'var(--radius-full)',
-              background: 'var(--color-black)', color: '#fff',
-              fontSize: 'var(--text-md)', fontWeight: 600,
-              border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
+              borderRadius: '9999px',
+              background: '#0c0a09', color: '#fff',
+              fontSize: '16px', fontWeight: 600,
+              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
             Solicitar unirme como influencer →
           </button>
           <p style={{
-            fontSize: 'var(--text-sm)',
+            fontSize: '14px',
             color: 'rgba(255,255,255,0.35)',
             marginTop: 12,
           }}>

@@ -92,10 +92,10 @@ export default function LegalPage() {
 
   return (
     <div style={{
-      background: 'var(--color-cream)',
+      background: '#fafaf9',
       minHeight: '100vh',
       paddingTop: 100,
-      fontFamily: 'Inter, var(--font-sans)',
+      fontFamily: 'Inter, inherit',
     }}>
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 16px 80px' }}>
         {/* Tabs */}
@@ -103,7 +103,7 @@ export default function LegalPage() {
           display: 'flex',
           gap: 8,
           marginBottom: 40,
-          borderBottom: '1px solid var(--color-border)',
+          borderBottom: '1px solid #e7e5e4',
           paddingBottom: 12,
         }}>
           {TABS.map(tab => (
@@ -112,14 +112,14 @@ export default function LegalPage() {
               onClick={() => setActiveTab(tab.id)}
               style={{
                 padding: '8px 16px',
-                borderRadius: 'var(--radius-full)',
+                borderRadius: '9999px',
                 border: 'none',
-                background: activeTab === tab.id ? 'var(--color-black)' : 'transparent',
-                color: activeTab === tab.id ? '#fff' : 'var(--color-stone)',
+                background: activeTab === tab.id ? '#0c0a09' : 'transparent',
+                color: activeTab === tab.id ? '#fff' : '#78716c',
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 'pointer',
-                fontFamily: 'Inter, var(--font-sans)',
+                fontFamily: 'Inter, inherit',
                 transition: 'background 0.15s ease, color 0.15s ease',
               }}
             >
@@ -133,7 +133,7 @@ export default function LegalPage() {
           <h1 style={{
             fontSize: 28,
             fontWeight: 700,
-            color: 'var(--color-black)',
+            color: '#0c0a09',
             marginBottom: 8,
           }}>
             {content.title}
@@ -141,7 +141,7 @@ export default function LegalPage() {
 
           <p style={{
             fontSize: 13,
-            color: 'var(--color-stone)',
+            color: '#78716c',
             marginBottom: 40,
           }}>
             {content.updated}
@@ -152,7 +152,7 @@ export default function LegalPage() {
               <h2 style={{
                 fontSize: 18,
                 fontWeight: 600,
-                color: 'var(--color-black)',
+                color: '#0c0a09',
                 marginBottom: 12,
               }}>
                 {section.heading}
@@ -160,7 +160,7 @@ export default function LegalPage() {
               <p style={{
                 fontSize: 16,
                 lineHeight: 1.7,
-                color: 'var(--color-black)',
+                color: '#0c0a09',
               }}>
                 {section.body}
               </p>
@@ -170,11 +170,11 @@ export default function LegalPage() {
           <div style={{
             marginTop: 48,
             padding: 24,
-            background: 'var(--color-surface)',
-            borderRadius: 'var(--radius-lg)',
+            background: '#f5f5f4',
+            borderRadius: '14px',
           }}>
-            <p style={{ fontSize: 14, color: 'var(--color-stone)', margin: 0, lineHeight: 1.6 }}>
-              <strong style={{ color: 'var(--color-black)' }}>Hispaloshop SL</strong><br />
+            <p style={{ fontSize: 14, color: '#78716c', margin: 0, lineHeight: 1.6 }}>
+              <strong style={{ color: '#0c0a09' }}>Hispaloshop SL</strong><br />
               Reus, Tarragona, España<br />
               hola@hispaloshop.com<br />
               Legislación aplicable: RGPD (UE) 2016/679

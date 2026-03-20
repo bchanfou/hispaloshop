@@ -11,17 +11,14 @@ function KPICard({ icon: Icon, title, value, description, to }) {
   return (
     <Wrapper
       to={to}
-      className="p-4 transition-all"
-      style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+      className="p-4 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300"
     >
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
-          <Icon className="w-4.5 h-4.5" style={{ color: 'var(--color-stone)' }} />
-        </div>
+      <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-stone-100 mb-3">
+        <Icon className="w-4 h-4 text-stone-500" />
       </div>
-      <p className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-black)' }}>{value}</p>
-      <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>{title}</p>
-      {description && <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-stone)', opacity: 0.7 }}>{description}</p>}
+      <p className="text-2xl font-extrabold tracking-tight text-stone-950">{value}</p>
+      <p className="text-xs mt-0.5 text-stone-500">{title}</p>
+      {description && <p className="text-[11px] mt-0.5 text-stone-400">{description}</p>}
     </Wrapper>
   );
 }
@@ -30,17 +27,16 @@ function PendingRow({ label, count, to }) {
   return (
     <Link
       to={to}
-      className="flex items-center justify-between p-3.5 transition-all text-sm"
-      style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+      className="flex items-center justify-between p-3.5 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300 text-sm"
     >
-      <span className="font-medium" style={{ color: 'var(--color-stone)' }}>{label}</span>
+      <span className="font-medium text-stone-700">{label}</span>
       <div className="flex items-center gap-2">
         {count > 0 && (
-          <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center" style={{ background: 'var(--color-surface)', color: 'var(--color-black)' }}>
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center bg-stone-100 text-stone-950">
             {count}
           </span>
         )}
-        <ArrowRight className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+        <ArrowRight className="w-4 h-4 text-stone-400" />
       </div>
     </Link>
   );
@@ -50,10 +46,9 @@ function QuickLink({ icon: Icon, label, to }) {
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 p-3.5 transition-all text-sm font-semibold"
-      style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', color: 'var(--color-black)' }}
+      className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300 text-sm font-semibold text-stone-950"
     >
-      <Icon className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
+      <Icon className="w-5 h-5 shrink-0 text-stone-500" />
       {label}
     </Link>
   );
@@ -84,7 +79,7 @@ export default function AdminOverview() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--color-stone)' }} />
+        <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
       </div>
     );
   }
@@ -96,17 +91,16 @@ export default function AdminOverview() {
   const openSupport = stats?.open_support || 0;
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)' }}>
+    <div className="bg-stone-50 min-h-full">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>Panel de administración</h1>
-        {/* ADMIN badge — NEUTRAL, NOT green */}
-        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>ADMIN</span>
+        <h1 className="text-2xl font-bold text-stone-950">Panel de administración</h1>
+        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-stone-100 text-stone-500">ADMIN</span>
       </div>
-      <p className="text-sm mb-6" style={{ color: 'var(--color-stone)' }}>Gestión de tu mercado en una vista</p>
+      <p className="text-sm mb-6 text-stone-500">Gestión de tu mercado en una vista</p>
 
       {/* KPI grid */}
-      <div className="grid grid-cols-2 gap-3 mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         <KPICard
           icon={TrendingUp}
           value={new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(stats?.gmv_month || 0)}
@@ -138,7 +132,7 @@ export default function AdminOverview() {
 
       {/* Pending review queue */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Cola de revisión</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Cola de revisión</h2>
         <div className="space-y-2">
           <PendingRow label="Productores pendientes" count={pendingProducers} to="/admin/producers" />
           <PendingRow label="Verificaciones pendientes" count={stats?.pending_verifications || 0} to="/admin/verification" />
@@ -150,25 +144,24 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      {/* Verification — blocked producers */}
+      {/* Blocked producers alert */}
       {(stats?.blocked_by_expired_cert || 0) > 0 && (
         <div className="mb-5">
           <Link
             to="/admin/verification"
-            className="flex items-center gap-3 p-3.5 transition-all text-sm"
-            style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}
+            className="flex items-center gap-3 p-3.5 bg-stone-100 rounded-2xl border border-stone-200 transition-all hover:border-stone-300 text-sm"
           >
-            <span className="font-medium" style={{ color: 'var(--color-black)' }}>
+            <span className="font-medium text-stone-950">
               {stats.blocked_by_expired_cert} productor(es) bloqueados por certificado caducado
             </span>
-            <ArrowRight className="w-4 h-4 ml-auto shrink-0" style={{ color: 'var(--color-black)' }} />
+            <ArrowRight className="w-4 h-4 ml-auto shrink-0 text-stone-950" />
           </Link>
         </div>
       )}
 
       {/* B2B Operations */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Operaciones B2B</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Operaciones B2B</h2>
         <div className="space-y-2">
           <PendingRow label="Disputas B2B activas" count={stats?.b2b_disputes || 0} to="/b2b/operations" />
           <PendingRow label="Docs. vencidos" count={stats?.b2b_expired_docs || 0} to="/b2b/operations" />
@@ -177,19 +170,18 @@ export default function AdminOverview() {
 
       {/* Fiscal */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Fiscal</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Fiscal</h2>
         <div className="space-y-2">
           <PendingRow label="Certificados pendientes de revisión" count={stats?.fiscal_pending_review || 0} to="/admin/fiscal" />
           <PendingRow
-            label={`Retenciones acumuladas YTD${fiscalStats === null ? '' : `: ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format((fiscalStats?.total_withheld_ytd_cents || 0) / 100)}`}`}
+            label={`Retenciones YTD${fiscalStats === null ? '' : `: ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format((fiscalStats?.total_withheld_ytd_cents || 0) / 100)}`}`}
             count={0}
             to="/admin/fiscal"
           />
         </div>
         <Link
           to="/admin/fiscal"
-          className="flex items-center justify-center gap-2 mt-3 py-2.5 text-sm font-semibold transition-colors"
-          style={{ color: 'var(--color-black)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+          className="flex items-center justify-center gap-2 mt-3 py-2.5 text-sm font-semibold bg-white rounded-2xl border border-stone-200 text-stone-950 hover:border-stone-300 transition-colors"
         >
           Gestión fiscal <ArrowRight className="w-4 h-4" />
         </Link>
@@ -197,7 +189,7 @@ export default function AdminOverview() {
 
       {/* Quick actions */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Acciones rápidas</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Acciones rápidas</h2>
         <div className="grid grid-cols-2 gap-2">
           <QuickLink icon={ShoppingBag} label="Pedidos" to="/admin/orders" />
           <QuickLink icon={ShieldAlert} label="Reseñas" to="/admin/reviews" />

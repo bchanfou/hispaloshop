@@ -11,7 +11,7 @@ function FeedContainer() {
   const [storyViewer, setStoryViewer] = useState(null);
 
   const handleCreateStory = () => {
-    window.dispatchEvent(new CustomEvent('open-creator', { detail: {} }));
+    window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
   };
 
   const handleStoryClick = useCallback((stories, index) => {

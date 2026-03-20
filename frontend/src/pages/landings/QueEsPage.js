@@ -5,7 +5,7 @@ import { InfoNav, Hero, FooterCTA, FadeUp } from '../../components/info/shared';
 
 export default function QueEsPage() {
   return (
-    <div style={{ fontFamily: 'var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
       <InfoNav activePage="/que-es-hispaloshop" />
 
       <Hero
@@ -18,7 +18,7 @@ export default function QueEsPage() {
 
       {/* Que es — explicacion en 2 columnas */}
       <section style={{
-        background: 'var(--color-cream, #F5F5F7)',
+        background: '#fafaf9',
         padding: 'clamp(56px, 8vw, 96px) 24px',
       }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -30,11 +30,11 @@ export default function QueEsPage() {
             }}>
               <div>
                 <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)',
-                              fontWeight: 700, color: 'var(--color-black)',
+                              fontWeight: 700, color: '#0c0a09',
                               letterSpacing: '-0.02em', marginBottom: 16 }}>
                   Instagram se encontró con Amazon. Nació Hispaloshop.
                 </h2>
-                <p style={{ fontSize: 16, color: 'var(--color-stone)', lineHeight: 1.7 }}>
+                <p style={{ fontSize: 16, color: '#78716c', lineHeight: 1.7 }}>
                   Hispaloshop es una plataforma de social commerce especializada
                   en alimentos saludables y artesanales. Los productores publican
                   su historia, sus productos y su proceso. Los consumidores
@@ -43,11 +43,11 @@ export default function QueEsPage() {
               </div>
               <div>
                 <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)',
-                              fontWeight: 700, color: 'var(--color-black)',
+                              fontWeight: 700, color: '#0c0a09',
                               letterSpacing: '-0.02em', marginBottom: 16 }}>
                   Con una IA que conoce lo que comes.
                 </h2>
-                <p style={{ fontSize: 16, color: 'var(--color-stone)', lineHeight: 1.7 }}>
+                <p style={{ fontSize: 16, color: '#78716c', lineHeight: 1.7 }}>
                   David AI aprende tus preferencias, alergias y objetivos de
                   salud. Te recomienda productos reales del catálogo, crea recetas
                   y puede añadirlos al carrito por ti. El asistente más personal
@@ -61,12 +61,12 @@ export default function QueEsPage() {
 
       {/* Los 4 roles */}
       <section style={{
-        background: 'var(--color-white)',
+        background: '#ffffff',
         padding: 'clamp(56px, 8vw, 96px) 24px',
       }}>
         <FadeUp>
           <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
-                        textAlign: 'center', color: 'var(--color-black)',
+                        textAlign: 'center', color: '#0c0a09',
                         letterSpacing: '-0.02em', marginBottom: 48 }}>
             Una plataforma, cuatro roles
           </h2>
@@ -85,7 +85,7 @@ export default function QueEsPage() {
             <FadeUp key={r.role} delay={i * 0.08}>
               <Link to={r.href} style={{ textDecoration: 'none' }}>
                 <div style={{
-                  background: 'var(--color-cream, #F5F5F7)',
+                  background: '#fafaf9',
                   borderRadius: 18, padding: '28px 22px',
                   border: '0.5px solid rgba(0,0,0,0.07)',
                   cursor: 'pointer', height: '100%',
@@ -95,11 +95,11 @@ export default function QueEsPage() {
                   onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
                 >
                   <div style={{ marginBottom: 14, display: 'flex' }}>{r.icon}</div>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)',
+                  <p style={{ fontSize: 18, fontWeight: 700, color: '#0c0a09',
                                marginBottom: 10 }}>{r.role}</p>
-                  <p style={{ fontSize: 13, color: 'var(--color-stone)',
+                  <p style={{ fontSize: 13, color: '#78716c',
                                lineHeight: 1.6, margin: 0 }}>{r.desc}</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)',
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09',
                                margin: '14px 0 0' }}>
                     Saber más →
                   </p>
@@ -112,7 +112,7 @@ export default function QueEsPage() {
 
       {/* Por que Espana */}
       <section style={{
-        background: 'var(--color-black)',
+        background: '#0c0a09',
         padding: 'clamp(56px, 8vw, 96px) 24px',
         textAlign: 'center',
       }}>
@@ -123,7 +123,7 @@ export default function QueEsPage() {
             Por qué España
           </p>
           <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
-                        color: 'var(--color-white)', maxWidth: 620, margin: '0 auto 20px',
+                        color: '#ffffff', maxWidth: 620, margin: '0 auto 20px',
                         letterSpacing: '-0.02em', lineHeight: 1.1 }}>
             El 4º exportador agroalimentario de Europa
           </h2>
@@ -137,7 +137,7 @@ export default function QueEsPage() {
             {[['€74B', 'exportados en 2024'], ['30.000', 'empresas exportadoras'], ['190', 'países destino']].map(([n, l]) => (
               <div key={l}>
                 <p style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800,
-                             color: 'var(--color-white)', letterSpacing: '-0.03em', margin: 0 }}>{n}</p>
+                             color: '#ffffff', letterSpacing: '-0.03em', margin: 0 }}>{n}</p>
                 <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)',
                              margin: '4px 0 0' }}>{l}</p>
               </div>

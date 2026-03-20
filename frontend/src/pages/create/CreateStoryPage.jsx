@@ -34,7 +34,7 @@ const FRASES = [
 ];
 
 const FONTS_MAP = {
-  Sans: 'var(--font-sans)',
+  Sans: 'inherit',
   Serif: 'Georgia, serif',
   Mono: 'monospace',
   Display: 'Impact, sans-serif',
@@ -635,7 +635,7 @@ export default function CreateStoryPage() {
                 top: `${t.y}%`,
                 fontSize: t.size,
                 color: t.style === 'outline' ? 'transparent' : t.color,
-                fontFamily: FONTS_MAP[t.font] || 'var(--font-sans)',
+                fontFamily: FONTS_MAP[t.font] || 'inherit',
                 textShadow: t.style === 'box' || t.style === 'outline' ? 'none' : '0 1px 4px rgba(0,0,0,0.5)',
                 ...(t.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
                 ...(t.style === 'outline' ? { WebkitTextStroke: `2px ${t.color}` } : {}),

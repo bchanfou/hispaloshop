@@ -141,6 +141,7 @@ export default function ProfileHeader({
   onSwitchTab,
   onViewOwnStory,
   onViewHighlight,
+  onCreateStory,
 }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -419,8 +420,8 @@ export default function ProfileHeader({
                 className="hidden"
               />
               <button
-                onClick={() => fileInputRef.current?.click()}
-                aria-label="Cambiar foto de perfil"
+                onClick={onCreateStory || (() => fileInputRef.current?.click())}
+                aria-label={onCreateStory ? 'Crear story' : 'Cambiar foto de perfil'}
                 className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 shadow-sm"
               >
                 <Plus size={14} className="text-white" strokeWidth={3} />

@@ -232,7 +232,7 @@ export default function ProducerVerificationPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)', background: T.cream, minHeight: '100dvh' }}>
+    <div style={{ fontFamily: 'inherit', background: T.cream, minHeight: '100dvh' }}>
       {/* TopBar */}
       <div className="flex items-center gap-3 p-4 pb-2">
         <button onClick={() => navigate(-1)} className="p-1.5" style={{ color: T.black }}>

@@ -50,7 +50,7 @@ export default function SuperAdminLayoutResponsive() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0c0a09] flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-sm text-white/40">Cargando...</p>
@@ -61,14 +61,14 @@ export default function SuperAdminLayoutResponsive() {
 
   if (!user || user.role !== 'super_admin') {
     return (
-      <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#0c0a09] flex items-center justify-center px-4">
         <div className="text-center">
           <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-white/60" />
           </div>
           <h1 className="text-xl font-semibold text-white mb-2">Acceso Denegado</h1>
           <p className="text-white/40 mb-4">Solo Super Admins pueden acceder</p>
-          <button onClick={() => navigate('/')} className="text-[var(--color-white)] hover:underline font-medium">
+          <button onClick={() => navigate('/')} className="text-[#ffffff] hover:underline font-medium">
             Volver
           </button>
         </div>
@@ -77,9 +77,9 @@ export default function SuperAdminLayoutResponsive() {
   }
 
   return (
-    <div className="superadmin-theme min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="superadmin-theme min-h-screen bg-[#0c0a09]">
       {/* ===== MOBILE HEADER ===== */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[var(--color-bg-secondary)] border-b border-white/[0.08] px-4 h-14 flex items-center justify-between">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#1c1917] border-b border-white/[0.08] px-4 h-14 flex items-center justify-between">
         <button
           onClick={() => navigate('/')}
           className="p-2 -ml-2 text-white/40 hover:text-white transition-colors"
@@ -87,7 +87,7 @@ export default function SuperAdminLayoutResponsive() {
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[var(--color-white)] text-white px-2 py-0.5 rounded">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#ffffff] text-white px-2 py-0.5 rounded">
             SUPERADMIN
           </span>
         </div>
@@ -95,12 +95,12 @@ export default function SuperAdminLayoutResponsive() {
       </header>
 
       {/* ===== DESKTOP SIDEBAR ===== */}
-      <aside className="hidden md:flex fixed top-0 left-0 bottom-0 w-[220px] z-40 bg-[var(--color-bg-secondary)] border-r border-white/[0.08] flex-col">
+      <aside className="hidden md:flex fixed top-0 left-0 bottom-0 w-[220px] z-40 bg-[#1c1917] border-r border-white/[0.08] flex-col">
         {/* Logo */}
         <div className="p-4 pb-6">
           <p className="text-[17px] font-extrabold tracking-tight text-white">hispaloshop</p>
           <div className="mt-1.5">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[var(--color-white)] text-white px-2 py-0.5 rounded">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#ffffff] text-white px-2 py-0.5 rounded">
               SUPERADMIN
             </span>
           </div>
@@ -156,7 +156,7 @@ export default function SuperAdminLayoutResponsive() {
       </main>
 
       {/* ===== MOBILE HORIZONTAL TAB NAVIGATION ===== */}
-      <div className="md:hidden fixed top-14 left-0 right-0 z-30 bg-[var(--color-bg-secondary)] border-b border-white/[0.08]">
+      <div className="md:hidden fixed top-14 left-0 right-0 z-30 bg-[#1c1917] border-b border-white/[0.08]">
         <div className="flex overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {mobileNavItems.map((item) => {
             if (item.to === '#more') {
@@ -178,7 +178,7 @@ export default function SuperAdminLayoutResponsive() {
                 end={item.end}
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0 ${
-                    isActive ? 'border-[var(--color-white)] text-white' : 'border-transparent text-white/40'
+                    isActive ? 'border-[#ffffff] text-white' : 'border-transparent text-white/40'
                   }`
                 }
               >

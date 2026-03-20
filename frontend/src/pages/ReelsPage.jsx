@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, Film, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Loader2, Film } from 'lucide-react';
 import ReelCard from '../components/feed/ReelCard';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
@@ -10,6 +10,8 @@ const REEL_TABS = [
   { key: 'following', label: 'Siguiendo' },
   { key: 'recipes', label: 'Recetas' },
   { key: 'producers', label: 'Productores' },
+  { key: 'markets', label: 'Mercados' },
+  { key: 'events', label: 'Eventos' },
 ];
 const VALID_TABS = new Set(REEL_TABS.map((t) => t.key));
 
@@ -26,7 +28,6 @@ export default function ReelsPage() {
   });
   const containerRef = useRef(null);
   const fetchingRef = useRef(false);
-  const [showTabMenu, setShowTabMenu] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('reels_tab', activeTab);
@@ -159,60 +160,37 @@ export default function ReelsPage() {
     );
   }
 
-  const activeTabLabel = REEL_TABS.find((t) => t.key === activeTab)?.label || 'Para ti';
-
   return (
     <div
       ref={containerRef}
       className="h-dvh overflow-y-scroll snap-y snap-mandatory bg-black [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       style={{ scrollBehavior: 'smooth' }}
     >
-      {/* Header — Instagram Reels style */}
-      <div className="fixed top-0 left-0 right-0 z-[100] pt-[max(12px,env(safe-area-inset-top))]">
-        <div className="flex items-center justify-between px-4 pb-2">
+      {/* Header — horizontal tab scroll */}
+      <div className="fixed top-0 left-0 right-0 z-[100] pt-[max(8px,env(safe-area-inset-top))]">
+        <div className="flex items-center gap-2 px-4 pb-1">
           <button
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center"
+            className="w-8 h-8 rounded-full bg-transparent flex items-center justify-center shrink-0"
             aria-label="Volver"
           >
-            <ArrowLeft className="w-[22px] h-[22px] text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]" />
+            <ArrowLeft className="w-5 h-5 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]" />
           </button>
-
-          <span className="text-[17px] font-bold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">Reels</span>
-
-          <div className="w-10 h-10" />
-        </div>
-
-        {/* Tab dropdown — "Para ti ∨" style */}
-        <div className="relative inline-flex ml-4">
-          <button
-            onClick={() => setShowTabMenu((s) => !s)}
-            className="flex items-center gap-1 rounded-full bg-black/40 backdrop-blur-sm px-3 py-1.5 text-[13px] font-semibold text-white border-none cursor-pointer"
-          >
-            {activeTabLabel}
-            <ChevronDown size={14} className={`text-white/70 transition-transform ${showTabMenu ? 'rotate-180' : ''}`} />
-          </button>
-
-          {showTabMenu && (
-            <>
-              <div className="fixed inset-0 z-[89]" onClick={() => setShowTabMenu(false)} />
-              <div className="absolute top-full left-0 mt-1 z-[90] w-40 rounded-2xl bg-stone-950/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden">
-                {REEL_TABS.map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => { setActiveTab(tab.key); setShowTabMenu(false); }}
-                    className={`w-full text-left px-4 py-3 text-[13px] font-medium border-none cursor-pointer transition-colors ${
-                      activeTab === tab.key
-                        ? 'bg-white/10 text-white font-semibold'
-                        : 'bg-transparent text-white/70 hover:bg-white/5'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+          <div className="flex gap-0 overflow-x-auto scrollbar-hide flex-1">
+            {REEL_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex-shrink-0 px-3 py-2 text-[13px] font-semibold transition-colors whitespace-nowrap border-none cursor-pointer bg-transparent ${
+                  activeTab === tab.key
+                    ? 'text-white border-b-2 border-white'
+                    : 'text-white/55'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

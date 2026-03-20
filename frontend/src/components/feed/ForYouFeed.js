@@ -252,7 +252,7 @@ export default function ForYouFeed() {
             }
           }}
           overscan={3}
-          style={{ height: 'calc(100vh - var(--header-height, 56px) - var(--bottom-nav-height, 64px))' }}
+          style={{ height: 'calc(100vh - 56px - 64px)' }}
           components={{
             Footer: () => {
               if (feedQuery.isFetchingNextPage) return <FeedSkeleton count={2} />;

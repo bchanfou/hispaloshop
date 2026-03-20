@@ -30,15 +30,15 @@ function AddButton({ onAdd, isDisabled, testId }) {
       aria-label="Añadir al carrito"
       style={{
         width: 44, height: 44,
-        borderRadius: 'var(--radius-full)',
+        borderRadius: '9999px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         border: 'none',
         cursor: isDisabled ? 'not-allowed' : 'pointer',
-        transition: 'var(--transition-fast)',
-        background: confirmed ? 'var(--color-surface)' : isDisabled ? 'var(--color-surface)' : 'var(--color-black)',
-        color: confirmed ? 'var(--color-stone)' : isDisabled ? 'var(--color-stone)' : '#fff',
+        transition: 'all 0.15s ease',
+        background: confirmed ? '#f5f5f4' : isDisabled ? '#f5f5f4' : '#0c0a09',
+        color: confirmed ? '#78716c' : isDisabled ? '#78716c' : '#fff',
       }}
     >
       {confirmed ? (
@@ -102,11 +102,11 @@ function ProductCard({ product, variant = 'default' }) {
       <Link
         to={`/products/${productId}`}
         className="group block overflow-hidden"
-        style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-white)', border: '0.5px solid var(--color-border)' }}
+        style={{ borderRadius: '12px', background: '#ffffff', border: '0.5px solid #e7e5e4' }}
         data-testid={`product-card-${productId}`}
       >
         <div className={`relative aspect-square overflow-hidden ${isBlocked ? 'opacity-60' : ''}`}
-          style={{ background: 'var(--color-surface)' }}
+          style={{ background: '#f5f5f4' }}
         >
           <ProductImage
             src={primaryImage}
@@ -118,9 +118,9 @@ function ProductCard({ product, variant = 'default' }) {
           {isOutOfStock && (
             <span style={{
               position: 'absolute', left: 6, top: 6,
-              background: 'var(--color-black)', color: '#fff',
+              background: '#0c0a09', color: '#fff',
               fontSize: 9, fontWeight: 500, padding: '2px 7px',
-              borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
+              borderRadius: '9999px', fontFamily: 'inherit',
             }}>
               Agotado
             </span>
@@ -132,17 +132,17 @@ function ProductCard({ product, variant = 'default' }) {
           )}
         </div>
         <div style={{ padding: '8px 8px 10px' }}>
-          <p style={{ fontSize: 9, fontWeight: 500, color: 'var(--color-black)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontFamily: 'var(--font-sans)' }}>
+          <p style={{ fontSize: 9, fontWeight: 500, color: '#0c0a09', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontFamily: 'inherit' }}>
             {product.name}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, flexWrap: 'wrap' }}>
-            <p style={{ fontSize: 9, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+            <p style={{ fontSize: 9, color: '#78716c', fontFamily: 'inherit' }}>
               {displayPrice}
             </p>
             {discountPct && (
               <>
-                <span style={{ fontSize: 8, color: '#a8a29e', textDecoration: 'line-through', fontFamily: 'var(--font-sans)' }}>{formattedOriginalPrice}</span>
-                <span style={{ fontSize: 8, fontWeight: 600, background: '#0c0a09', color: '#fff', padding: '1px 4px', borderRadius: 3, fontFamily: 'var(--font-sans)' }}>-{discountPct}%</span>
+                <span style={{ fontSize: 8, color: '#a8a29e', textDecoration: 'line-through', fontFamily: 'inherit' }}>{formattedOriginalPrice}</span>
+                <span style={{ fontSize: 8, fontWeight: 600, background: '#0c0a09', color: '#fff', padding: '1px 4px', borderRadius: 3, fontFamily: 'inherit' }}>-{discountPct}%</span>
               </>
             )}
           </div>
@@ -157,16 +157,16 @@ function ProductCard({ product, variant = 'default' }) {
       to={`/products/${productId}`}
       className="group block overflow-hidden product-card-hover"
       style={{
-        borderRadius: 'var(--radius-xl)',
-        background: 'var(--color-white)',
-        border: '0.5px solid var(--color-border)',
-        transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
+        borderRadius: '16px',
+        background: '#ffffff',
+        border: '0.5px solid #e7e5e4',
+        transition: 'transform all 0.15s ease, box-shadow all 0.15s ease',
       }}
       data-testid={`product-card-${productId}`}
     >
       {/* Image */}
       <div className={`relative aspect-square overflow-hidden ${isBlocked ? 'opacity-60' : ''}`}
-        style={{ background: 'var(--color-surface)' }}
+        style={{ background: '#f5f5f4' }}
       >
         <ProductImage
           src={primaryImage}
@@ -180,9 +180,9 @@ function ProductCard({ product, variant = 'default' }) {
         {certs.length > 0 && !isBlocked && (
           <span style={{
             position: 'absolute', left: 8, top: 8,
-            background: 'var(--color-surface)', color: 'var(--color-black)',
+            background: '#f5f5f4', color: '#0c0a09',
             fontSize: 9, fontWeight: 500, padding: '2px 7px',
-            borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
+            borderRadius: '9999px', fontFamily: 'inherit',
           }}>
             {String(certs[0]).toLowerCase()}
           </span>
@@ -191,9 +191,9 @@ function ProductCard({ product, variant = 'default' }) {
         {isOutOfStock && (
           <span style={{
             position: 'absolute', left: 8, top: 8,
-            background: 'var(--color-black)', color: '#fff',
+            background: '#0c0a09', color: '#fff',
             fontSize: 9, fontWeight: 500, padding: '2px 7px',
-            borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
+            borderRadius: '9999px', fontFamily: 'inherit',
           }}>
             Agotado
           </span>
@@ -214,9 +214,9 @@ function ProductCard({ product, variant = 'default' }) {
             style={{
               position: 'absolute', right: 8, top: 8,
               background: 'rgba(255,255,255,0.85)', border: 'none',
-              width: 28, height: 28, borderRadius: 'var(--radius-full)',
+              width: 28, height: 28, borderRadius: '9999px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: 'var(--color-stone)',
+              cursor: 'pointer', color: '#78716c',
             }}
             aria-label="Guardar"
           >
@@ -228,15 +228,15 @@ function ProductCard({ product, variant = 'default' }) {
       {/* Info */}
       <div style={{ padding: '10px 12px 12px' }}>
         <p style={{
-          fontSize: 11, fontWeight: 500, color: 'var(--color-black)',
-          lineHeight: 1.3, fontFamily: 'var(--font-sans)',
+          fontSize: 11, fontWeight: 500, color: '#0c0a09',
+          lineHeight: 1.3, fontFamily: 'inherit',
           display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
         }}>
           {product.name}
         </p>
 
         {(product.producer_name || product.store_name) && (
-          <p style={{ fontSize: 10, color: 'var(--color-stone)', marginTop: 2, fontFamily: 'var(--font-sans)' }}>
+          <p style={{ fontSize: 10, color: '#78716c', marginTop: 2, fontFamily: 'inherit' }}>
             {product.producer_name || product.store_name}
           </p>
         )}
@@ -245,7 +245,7 @@ function ProductCard({ product, variant = 'default' }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+              <span style={{ fontSize: 12, fontWeight: 500, color: '#0c0a09', fontFamily: 'inherit' }}>
                 {displayPrice}
               </span>
               {discountPct && (

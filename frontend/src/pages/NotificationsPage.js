@@ -60,10 +60,10 @@ const TYPE_META = {
 
 // Icon circle styles by category
 const CATEGORY_ICON_STYLE = {
-  pedidos: { bg: 'var(--color-surface)', color: 'var(--color-black)', Icon: ShoppingBag },
-  social:  { bg: 'var(--color-surface)', color: 'var(--color-black)', Icon: User },
-  ofertas: { bg: 'var(--color-surface)', color: 'var(--color-black)', Icon: Tag },
-  sistema: { bg: 'var(--color-surface)', color: 'var(--color-stone)', Icon: Info },
+  pedidos: { bg: '#f5f5f4', color: '#0c0a09', Icon: ShoppingBag },
+  social:  { bg: '#f5f5f4', color: '#0c0a09', Icon: User },
+  ofertas: { bg: '#f5f5f4', color: '#0c0a09', Icon: Tag },
+  sistema: { bg: '#f5f5f4', color: '#78716c', Icon: Info },
 };
 
 // ── Tab definitions ──────────────────────────────────────────────
@@ -206,17 +206,17 @@ function GroupedNotifRow({ group, onRead }) {
       className="flex items-center gap-3 cursor-pointer"
       style={{
         padding: '12px 16px',
-        borderLeft: !allRead ? '3px solid var(--color-black)' : '3px solid transparent',
-        background: !allRead ? 'var(--color-surface)' : 'var(--color-white)',
+        borderLeft: !allRead ? '3px solid #0c0a09' : '3px solid transparent',
+        background: !allRead ? '#f5f5f4' : '#ffffff',
         transition: 'background 0.15s',
       }}
       onClick={handleClick}
     >
       {/* Single avatar (first actor only) */}
-      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0" style={{ background: 'var(--color-surface)' }}>
+      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0" style={{ background: '#f5f5f4' }}>
         {avatar
           ? <img src={avatar} alt={avatarName} className="w-full h-full object-cover" />
-          : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-stone)' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
+          : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: '#78716c' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
         }
       </div>
 
@@ -224,13 +224,13 @@ function GroupedNotifRow({ group, onRead }) {
       <div className="flex-1 min-w-0">
         <p style={{
           fontSize: 12, lineHeight: 1.4,
-          color: 'var(--color-black)',
+          color: '#0c0a09',
           fontWeight: allRead ? 400 : 500,
-          fontFamily: 'var(--font-sans)',
+          fontFamily: 'inherit',
         }}>
           {text}
         </p>
-        <p style={{ fontSize: 10, color: 'var(--color-stone)', marginTop: 2 }}>
+        <p style={{ fontSize: 10, color: '#78716c', marginTop: 2 }}>
           {relativeTime(first.created_at)}
         </p>
       </div>
@@ -244,7 +244,7 @@ function GroupedNotifRow({ group, onRead }) {
         />
       ) : (
         ['post', 'product', 'reel'].includes(first.entity_type) && (
-          <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: 'var(--color-surface)' }} />
+          <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
         )
       )}
     </motion.div>
@@ -257,21 +257,21 @@ function NotifSkeleton() {
     <div className="flex items-start gap-3 px-4 py-3 animate-pulse">
       <div
         className="w-6 h-6 rounded-full flex-shrink-0"
-        style={{ background: 'var(--color-surface)' }}
+        style={{ background: '#f5f5f4' }}
       />
       <div className="flex-1 space-y-2">
         <div
           className="h-3 rounded-full w-3/4"
-          style={{ background: 'var(--color-surface)' }}
+          style={{ background: '#f5f5f4' }}
         />
         <div
           className="h-2.5 rounded-full w-1/2"
-          style={{ background: 'var(--color-border)' }}
+          style={{ background: '#e7e5e4' }}
         />
       </div>
       <div
         className="h-2.5 rounded-full w-8 flex-shrink-0"
-        style={{ background: 'var(--color-border)' }}
+        style={{ background: '#e7e5e4' }}
       />
     </div>
   );
@@ -328,8 +328,8 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
       className="flex items-start gap-3 cursor-pointer"
       style={{
         padding: '12px 16px',
-        borderLeft: !isRead ? '3px solid var(--color-black)' : '3px solid transparent',
-        background: !isRead ? 'var(--color-surface)' : 'var(--color-white)',
+        borderLeft: !isRead ? '3px solid #0c0a09' : '3px solid transparent',
+        background: !isRead ? '#f5f5f4' : '#ffffff',
         transition: 'background 0.15s',
       }}
       onClick={handleClick}
@@ -347,16 +347,16 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         <p style={{
           fontSize: 12,
           lineHeight: 1.4,
-          color: 'var(--color-black)',
+          color: '#0c0a09',
           fontWeight: isRead ? 400 : 500,
-          fontFamily: 'var(--font-sans)',
+          fontFamily: 'inherit',
         }}>
           {notif.title}
         </p>
         {notif.body && (
           <p className="mt-0.5 line-clamp-2" style={{
             fontSize: 11,
-            color: 'var(--color-stone)',
+            color: '#78716c',
             lineHeight: 1.5,
           }}>
             {notif.body}
@@ -372,12 +372,12 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
           style={{
             flexShrink: 0,
             padding: '5px 12px',
-            borderRadius: 'var(--radius-full, 999px)',
-            border: isFollowing ? '1px solid var(--color-border)' : 'none',
-            background: isFollowing ? 'var(--color-white)' : 'var(--color-black)',
-            color: isFollowing ? 'var(--color-stone)' : 'var(--color-white)',
+            borderRadius: '9999px',
+            border: isFollowing ? '1px solid #e7e5e4' : 'none',
+            background: isFollowing ? '#ffffff' : '#0c0a09',
+            color: isFollowing ? '#78716c' : '#ffffff',
             fontSize: 11, fontWeight: 600, cursor: 'pointer',
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'inherit',
             opacity: followLoading ? 0.6 : 1,
             transition: 'all 0.15s',
           }}
@@ -395,18 +395,18 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
           className="w-11 h-11 rounded-xl object-cover flex-shrink-0"
         />
       ) : showThumbPlaceholder ? (
-        <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: 'var(--color-surface)' }} />
+        <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
       ) : null}
 
       {/* Right column: time + delete (always visible) */}
       <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-        <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>
+        <span style={{ fontSize: 10, color: '#78716c' }}>
           {relativeTime(notif.created_at)}
         </span>
         <button
           onClick={(e) => { e.stopPropagation(); onDelete(notif.notification_id || notif._id); }}
           className="p-1 flex items-center justify-center"
-          style={{ color: 'var(--color-stone)', background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{ color: '#78716c', background: 'none', border: 'none', cursor: 'pointer' }}
           aria-label="Eliminar notificación"
         >
           <Trash2 className="text-stone-400 hover:text-stone-600" style={{ width: 14, height: 14 }} />
@@ -424,19 +424,19 @@ function EmptyState() {
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-24 px-8 text-center"
     >
-      <div style={{ marginBottom: 16 }}><Bell size={48} style={{ color: 'var(--color-stone)' }} strokeWidth={1.5} /></div>
+      <div style={{ marginBottom: 16 }}><Bell size={48} style={{ color: '#78716c' }} strokeWidth={1.5} /></div>
       <h3 style={{
         fontSize: 16,
         fontWeight: 600,
-        color: 'var(--color-black)',
-        fontFamily: 'var(--font-sans)',
+        color: '#0c0a09',
+        fontFamily: 'inherit',
         marginBottom: 8,
       }}>
         Todo al día
       </h3>
       <p style={{
         fontSize: 14,
-        color: 'var(--color-stone)',
+        color: '#78716c',
         lineHeight: 1.6,
         maxWidth: 280,
       }}>
@@ -521,14 +521,14 @@ export default function NotificationsPage() {
   const GROUP_ORDER = ['Hoy', 'Ayer', 'Esta semana', 'Anterior'];
 
   return (
-    <div className="min-h-screen max-w-2xl mx-auto pb-20" style={{ background: 'var(--color-cream)' }}>
+    <div className="min-h-screen max-w-2xl mx-auto pb-20" style={{ background: '#fafaf9' }}>
 
       {/* ── Header ────────────────────────────────────────────── */}
       <div
         className="sticky top-0 z-10"
         style={{
-          background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
+          background: '#ffffff',
+          borderBottom: '1px solid #e7e5e4',
         }}
       >
         <div className="flex items-center justify-between px-4 py-3">
@@ -537,7 +537,7 @@ export default function NotificationsPage() {
             onClick={() => navigate(-1)}
             aria-label="Volver"
             className="p-2 -ml-2 rounded-full transition-opacity"
-            style={{ color: 'var(--color-black)' }}
+            style={{ color: '#0c0a09' }}
           >
             <ArrowLeft style={{ width: 20, height: 20 }} />
           </button>
@@ -545,8 +545,8 @@ export default function NotificationsPage() {
           {/* Center: title */}
           <h1 style={{
             fontWeight: 600,
-            color: 'var(--color-black)',
-            fontFamily: 'var(--font-sans)',
+            color: '#0c0a09',
+            fontFamily: 'inherit',
             fontSize: 16,
           }}>
             Notificaciones
@@ -558,26 +558,26 @@ export default function NotificationsPage() {
               onClick={handleClearAll}
               className="text-xs px-2 py-1 transition-colors"
               style={{
-                color: 'var(--color-stone)',
+                color: '#78716c',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'inherit',
               }}
               aria-label="Limpiar todas las notificaciones"
             >
               Limpiar
             </button>
-            <span style={{ color: 'var(--color-border)', fontSize: 12 }}>|</span>
+            <span style={{ color: '#e7e5e4', fontSize: 12 }}>|</span>
             <button
               onClick={() => markAll()}
               className="text-xs px-2 py-1 transition-colors"
               style={{
-                color: 'var(--color-stone)',
+                color: '#78716c',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'inherit',
               }}
               aria-label="Marcar todo como leído"
             >
@@ -589,7 +589,7 @@ export default function NotificationsPage() {
         {/* Horizontal tabs */}
         <div
           className="flex border-b"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: '#e7e5e4' }}
         >
           {TABS.map((tab) => {
             const isActive = activeTab === tab.key;
@@ -599,10 +599,10 @@ export default function NotificationsPage() {
                 onClick={() => setActiveTab(tab.key)}
                 className="flex-1 py-2.5 transition-colors"
                 style={{
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                   fontSize: 13,
                   fontWeight: isActive ? 600 : 400,
-                  color: isActive ? 'var(--color-black)' : 'var(--color-stone)',
+                  color: isActive ? '#0c0a09' : '#78716c',
                   borderBottom: isActive ? '2px solid #0c0a09' : '2px solid transparent',
                   background: 'none',
                   border: 'none',
@@ -641,17 +641,17 @@ export default function NotificationsPage() {
                     <span style={{
                       fontSize: 10,
                       fontWeight: 600,
-                      color: 'var(--color-stone)',
+                      color: '#78716c',
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
-                      fontFamily: 'var(--font-sans)',
+                      fontFamily: 'inherit',
                     }}>
                       {label}
                     </span>
                   </div>
 
                   {/* Divider */}
-                  <div style={{ borderBottom: '1px solid var(--color-border)' }} />
+                  <div style={{ borderBottom: '1px solid #e7e5e4' }} />
 
                   {items.map((item, i) => (
                     <React.Fragment key={
@@ -671,7 +671,7 @@ export default function NotificationsPage() {
                         />
                       )}
                       {i < items.length - 1 && (
-                        <div className="mx-4" style={{ borderBottom: '1px solid var(--color-border)' }} />
+                        <div className="mx-4" style={{ borderBottom: '1px solid #e7e5e4' }} />
                       )}
                     </React.Fragment>
                   ))}
@@ -689,7 +689,7 @@ export default function NotificationsPage() {
                     key={i}
                     className="w-1.5 h-1.5 rounded-full animate-bounce"
                     style={{
-                      background: 'var(--color-stone)',
+                      background: '#78716c',
                       animationDelay: `${i * 0.15}s`,
                     }}
                   />

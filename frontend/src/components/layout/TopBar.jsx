@@ -31,9 +31,9 @@ export default function TopBar({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 16px',
-        background: 'var(--color-cream)',
-        boxShadow: scrolled ? 'var(--shadow-sm)' : 'none',
-        transition: 'box-shadow var(--transition-base)',
+        background: '#fafaf9',
+        boxShadow: scrolled ? '0 1px 2px 0 rgba(0,0,0,0.05)' : 'none',
+        transition: 'box-shadow all 0.2s ease',
         ...style,
       }}
     >
@@ -49,7 +49,7 @@ export default function TopBar({
               cursor: 'pointer',
               padding: 4,
               display: 'flex',
-              color: 'var(--color-black)',
+              color: '#0c0a09',
             }}
           >
             <ArrowLeft size={22} />
@@ -64,10 +64,10 @@ export default function TopBar({
             position: 'absolute',
             left: '50%',
             transform: 'translateX(-50%)',
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'inherit',
             fontSize: 15,
             fontWeight: 600,
-            color: 'var(--color-black)',
+            color: '#0c0a09',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -92,7 +92,7 @@ export default function TopBar({
               cursor: 'pointer',
               padding: 4,
               display: 'flex',
-              color: 'var(--color-black)',
+              color: '#0c0a09',
             }}
           >
             <ShoppingBag size={22} />
@@ -101,7 +101,7 @@ export default function TopBar({
                 position: 'absolute',
                 top: -2,
                 right: -4,
-                background: 'var(--color-black)',
+                background: '#0c0a09',
                 color: '#fff',
                 fontSize: 8,
                 fontWeight: 600,
@@ -111,7 +111,7 @@ export default function TopBar({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'inherit',
               }}
             >
               {cartCount > 9 ? '9+' : cartCount}

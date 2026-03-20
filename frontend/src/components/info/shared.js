@@ -26,7 +26,7 @@ export const Hero = ({ eyebrow, headline, sub, cta, ctaHref, ctaColor = '#0A0A0A
       {eyebrow && (
         <p style={{
           fontSize: 13, fontWeight: 600, letterSpacing: '0.08em',
-          textTransform: 'uppercase', color: 'var(--color-stone)',
+          textTransform: 'uppercase', color: '#78716c',
           marginBottom: 16,
         }}>
           {eyebrow}
@@ -36,14 +36,14 @@ export const Hero = ({ eyebrow, headline, sub, cta, ctaHref, ctaColor = '#0A0A0A
         fontSize: 'clamp(34px, 6vw, 64px)',
         fontWeight: 700, lineHeight: 1.05,
         letterSpacing: '-0.02em',
-        color: 'var(--color-black)',
+        color: '#0c0a09',
         maxWidth: 720, margin: '0 auto 20px',
       }}>
         {headline}
       </h1>
       <p style={{
         fontSize: 'clamp(16px, 2vw, 20px)',
-        color: 'var(--color-stone)', lineHeight: 1.6,
+        color: '#78716c', lineHeight: 1.6,
         maxWidth: 520, margin: '0 auto 40px',
       }}>
         {sub}
@@ -76,7 +76,7 @@ export const Hero = ({ eyebrow, headline, sub, cta, ctaHref, ctaColor = '#0A0A0A
 // -- Grid de features --
 export const FeatureGrid = ({ features }) => (
   <section style={{
-    background: 'var(--color-cream, #F5F5F7)',
+    background: '#fafaf9',
     padding: 'clamp(56px, 8vw, 96px) 24px',
   }}>
     <div style={{
@@ -96,10 +96,10 @@ export const FeatureGrid = ({ features }) => (
           }}>
             <div style={{ fontSize: 36, marginBottom: 14 }}>{f.icon}</div>
             <p style={{ fontSize: 17, fontWeight: 600,
-                         color: 'var(--color-black)', marginBottom: 8 }}>
+                         color: '#0c0a09', marginBottom: 8 }}>
               {f.title}
             </p>
-            <p style={{ fontSize: 14, color: 'var(--color-stone)',
+            <p style={{ fontSize: 14, color: '#78716c',
                          lineHeight: 1.6, margin: 0 }}>
               {f.desc}
             </p>
@@ -157,7 +157,7 @@ export const PricingCard = ({
         {name}
       </p>
       <p style={{
-        fontSize: 15, color: isDark ? 'rgba(255,255,255,0.8)' : 'var(--color-stone)',
+        fontSize: 15, color: isDark ? 'rgba(255,255,255,0.8)' : '#78716c',
         marginBottom: 20, lineHeight: 1.4,
       }}>
         {tagline}
@@ -167,7 +167,7 @@ export const PricingCard = ({
       <div style={{ marginBottom: 24 }}>
         <span style={{
           fontSize: 48, fontWeight: 700, lineHeight: 1,
-          color: isDark ? '#FFFFFF' : 'var(--color-black)',
+          color: isDark ? '#FFFFFF' : '#0c0a09',
           letterSpacing: '-0.03em',
         }}>
           {price === 0 ? 'Gratis' : `${price}€`}
@@ -191,7 +191,7 @@ export const PricingCard = ({
             padding: '7px 0',
             borderBottom: `0.5px solid ${isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'}`,
             fontSize: 14,
-            color: isDark ? 'rgba(255,255,255,0.85)' : 'var(--color-black)',
+            color: isDark ? 'rgba(255,255,255,0.85)' : '#0c0a09',
             lineHeight: 1.45,
           }}>
             <Check size={15}
@@ -231,14 +231,14 @@ export const PricingSection = ({ title, sub, plans }) => (
     <FadeUp>
       <h2 style={{
         fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 700,
-        textAlign: 'center', color: 'var(--color-black)',
+        textAlign: 'center', color: '#0c0a09',
         letterSpacing: '-0.02em', marginBottom: 12,
       }}>
         {title}
       </h2>
       {sub && (
         <p style={{
-          fontSize: 17, color: 'var(--color-stone)', textAlign: 'center',
+          fontSize: 17, color: '#78716c', textAlign: 'center',
           maxWidth: 480, margin: '0 auto 56px',
         }}>
           {sub}
@@ -300,7 +300,7 @@ export const InfoNav = ({ activePage }) => (
   }}>
     <a href="/" style={{ textDecoration: 'none' }}>
       <span style={{ fontSize: 18, fontWeight: 700,
-                      color: 'var(--color-black)', letterSpacing: '-0.01em' }}>
+                      color: '#0c0a09', letterSpacing: '-0.01em' }}>
         Hispaloshop
       </span>
     </a>
@@ -315,7 +315,7 @@ export const InfoNav = ({ activePage }) => (
           padding: '6px 12px', borderRadius: 9999,
           background: activePage === href
             ? '#0A0A0A' : 'transparent',
-          color: activePage === href ? '#FFFFFF' : 'var(--color-stone)',
+          color: activePage === href ? '#FFFFFF' : '#78716c',
           fontSize: 13, fontWeight: 500,
           textDecoration: 'none',
           transition: 'all 0.2s ease',

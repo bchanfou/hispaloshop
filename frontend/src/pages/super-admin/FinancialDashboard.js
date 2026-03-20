@@ -27,7 +27,7 @@ const fixed2 = (value) => safeNumber(value).toFixed(2);
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[#ffffff] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -52,7 +52,7 @@ function EventBadge({ type }) {
     seller_transfer: 'bg-[#57534e]/15 text-[#57534e]',
     influencer_scheduled: 'bg-[#a8a29e]/15 text-[#a8a29e]',
     influencer_paid: 'bg-[#44403c]/15 text-[#44403c]',
-    refund: 'bg-[var(--color-red)]/15 text-[var(--color-red)]',
+    refund: 'bg-[#dc2626]/15 text-[#dc2626]',
   };
   return (
     <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${config[type] || 'bg-white/[0.08] text-white/40'}`}>
@@ -64,7 +64,7 @@ function EventBadge({ type }) {
 const DarkTooltip = ({ active, payload, label, formatter }) => {
   if (!active || !payload) return null;
   return (
-    <div className="bg-[var(--color-bg-hover)] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-xl">
+    <div className="bg-[#1c1917] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-xl">
       <p className="text-white/50 mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} className="text-white font-medium">
@@ -262,7 +262,7 @@ export default function FinancialDashboard() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <StatCard icon={DollarSign} label={t('superAdmin.grossRevenue')} value={`${fixed2(summary.total_gross)}€`} color="var(--color-black)" testId="stat-gross" />
+        <StatCard icon={DollarSign} label={t('superAdmin.grossRevenue')} value={`${fixed2(summary.total_gross)}€`} color="#0c0a09" testId="stat-gross" />
         <StatCard icon={TrendingUp} label={t('superAdmin.platformCommission')} value={`${fixed2(summary.total_platform_fee)}€`} color="#57534e" testId="stat-platform-fee" />
         <StatCard icon={Receipt} label={t('superAdmin.paidToSellers')} value={`${fixed2(summary.total_seller_net)}€`} color="#a8a29e" testId="stat-seller-net" />
         <StatCard icon={Globe} label="Consolidado USD" value={`$${fixed2(summary.total_usd_equivalent)}`} sub="Florida LLC" color="#44403c" testId="stat-usd" />
@@ -271,7 +271,7 @@ export default function FinancialDashboard() {
           label={t('superAdmin.pendingPayouts')}
           value={pendingPayouts.length}
           sub={`${duePayouts.length} vencidos`}
-          color={duePayouts.length > 0 ? 'var(--color-red)' : 'var(--color-black)'}
+          color={duePayouts.length > 0 ? '#dc2626' : '#0c0a09'}
           testId="stat-payouts"
         />
       </div>
@@ -363,12 +363,12 @@ export default function FinancialDashboard() {
               className="text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl px-2 py-1.5 text-white focus:outline-none"
               data-testid="ledger-filter"
             >
-              <option value="all" className="bg-[var(--color-bg-card)]">Todos</option>
-              <option value="order_paid" className="bg-[var(--color-bg-card)]">Pagos</option>
-              <option value="seller_transfer" className="bg-[var(--color-bg-card)]">Transferencias</option>
-              <option value="influencer_scheduled" className="bg-[var(--color-bg-card)]">Influencer prog.</option>
-              <option value="influencer_paid" className="bg-[var(--color-bg-card)]">Influencer pagado</option>
-              <option value="refund" className="bg-[var(--color-bg-card)]">Reembolsos</option>
+              <option value="all" className="bg-[#ffffff]">Todos</option>
+              <option value="order_paid" className="bg-[#ffffff]">Pagos</option>
+              <option value="seller_transfer" className="bg-[#ffffff]">Transferencias</option>
+              <option value="influencer_scheduled" className="bg-[#ffffff]">Influencer prog.</option>
+              <option value="influencer_paid" className="bg-[#ffffff]">Influencer pagado</option>
+              <option value="refund" className="bg-[#ffffff]">Reembolsos</option>
             </select>
           </div>
         </div>
@@ -380,7 +380,7 @@ export default function FinancialDashboard() {
             </div>
           ) : (
             <table className="w-full text-xs">
-              <thead className="sticky top-0 bg-[var(--color-bg-card)]">
+              <thead className="sticky top-0 bg-[#ffffff]">
                 <tr className="text-white/30 text-[11px] uppercase tracking-wider">
                   <th className="text-left px-5 py-2.5 font-medium">Fecha</th>
                   <th className="text-left px-3 py-2.5 font-medium">Evento</th>
@@ -481,7 +481,7 @@ export default function FinancialDashboard() {
                       <td className="px-3 py-2.5 text-right font-medium text-white">{fixed2(p.amount)} {p.currency}</td>
                       <td className="px-3 py-2.5 text-white/50">{(p.due_date || '').slice(0, 10)}</td>
                       <td className="px-3 py-2.5">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${isDue ? 'bg-[var(--color-red)]/15 text-[var(--color-red)]' : 'bg-[#a8a29e]/15 text-[#a8a29e]'}`}>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${isDue ? 'bg-[#dc2626]/15 text-[#dc2626]' : 'bg-[#a8a29e]/15 text-[#a8a29e]'}`}>
                           {isDue ? 'Vencido' : 'Pendiente'}
                         </span>
                       </td>

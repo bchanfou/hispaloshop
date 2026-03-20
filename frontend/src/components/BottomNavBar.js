@@ -322,7 +322,7 @@ export default function BottomNavBar() {
               {unreadCount > 0 && (
                 <span
                   className="absolute -top-1 -right-1.5 flex h-[14px] min-w-[14px] items-center justify-center rounded-full px-0.5 animate-pulse"
-                  style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)', background: 'var(--color-red)' }}
+                  style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'inherit', background: '#dc2626' }}
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>

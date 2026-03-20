@@ -110,7 +110,7 @@ export default function OnboardingPage() {
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'var(--color-black)',
+        background: '#0c0a09',
       }}>
         <Loader2 size={32} color="#fff" style={{ animation: 'spin 1s linear infinite' }} />
       </div>
@@ -123,8 +123,8 @@ export default function OnboardingPage() {
       {[1, 2, 3, 4].map(s => (
         <div key={s} style={{
           width: 8, height: 8, borderRadius: '50%',
-          background: s === screen ? 'var(--color-black)' : 'transparent',
-          border: s === screen ? 'none' : '1.5px solid var(--color-border)',
+          background: s === screen ? '#0c0a09' : 'transparent',
+          border: s === screen ? 'none' : '1.5px solid #e7e5e4',
           transition: 'all 0.3s ease',
         }} />
       ))}
@@ -134,10 +134,10 @@ export default function OnboardingPage() {
   /* ── SCREEN 1: Role selector (dark) ── */
   const Screen1 = () => (
     <div style={{
-      minHeight: '100vh', background: 'var(--color-black)',
+      minHeight: '100vh', background: '#0c0a09',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       justifyContent: 'center', padding: '40px 24px',
-      fontFamily: 'var(--font-sans)',
+      fontFamily: 'inherit',
     }}>
       {/* Logo */}
       <div style={{
@@ -152,7 +152,7 @@ export default function OnboardingPage() {
       <h1 style={{
         fontSize: 32, fontWeight: 700, color: '#fff',
         textAlign: 'center', margin: '0 0 8px',
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
       }}>
         Bienvenido a Hispaloshop
       </h1>
@@ -184,22 +184,22 @@ export default function OnboardingPage() {
                 border: isSelected
                   ? '1.5px solid rgba(255,255,255,0.6)'
                   : '1.5px solid rgba(255,255,255,0.15)',
-                borderRadius: 'var(--radius-xl)',
+                borderRadius: '16px',
                 padding: '20px 16px',
                 textAlign: 'center',
                 cursor: 'pointer',
-                transition: 'var(--transition-fast)',
+                transition: 'all 0.15s ease',
               }}
             >
               <div style={{ fontSize: 40, marginBottom: 8, display: 'flex', justifyContent: 'center' }}>{role.icon}</div>
               <p style={{
-                fontSize: 'var(--text-base, 16px)', fontWeight: 600,
+                fontSize: '16px', fontWeight: 600,
                 color: '#fff', margin: '0 0 4px',
               }}>
                 {role.label}
               </p>
               <p style={{
-                fontSize: 'var(--text-xs, 12px)',
+                fontSize: '12px',
                 color: 'rgba(255,255,255,0.5)',
                 margin: 0, lineHeight: 1.4,
               }}>
@@ -218,11 +218,11 @@ export default function OnboardingPage() {
           onClick={() => goTo(2)}
           style={{
             width: '100%', maxWidth: 400, height: 52, marginTop: 24,
-            background: 'var(--color-black)',
+            background: '#0c0a09',
             color: '#fff', border: 'none',
-            borderRadius: 'var(--radius-lg)',
+            borderRadius: '14px',
             fontSize: 16, fontWeight: 600,
-            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+            cursor: 'pointer', fontFamily: 'inherit',
           }}
         >
           Continuar →
@@ -234,8 +234,8 @@ export default function OnboardingPage() {
   /* ── SCREEN 2: Preferences ── */
   const Screen2 = () => (
     <div style={{
-      minHeight: '100vh', background: 'var(--color-cream)',
-      fontFamily: 'var(--font-sans)',
+      minHeight: '100vh', background: '#fafaf9',
+      fontFamily: 'inherit',
       padding: '0 24px 40px',
     }}>
       {/* Back + Stepper */}
@@ -249,8 +249,8 @@ export default function OnboardingPage() {
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 4,
-            fontSize: 14, color: 'var(--color-stone)',
-            fontFamily: 'var(--font-sans)', padding: 0,
+            fontSize: 14, color: '#78716c',
+            fontFamily: 'inherit', padding: 0,
           }}
         >
           <ArrowLeft size={18} /> Atrás
@@ -261,13 +261,13 @@ export default function OnboardingPage() {
       <div style={{ maxWidth: 440, margin: '0 auto', paddingTop: 16 }}>
         <h2 style={{
           fontSize: 24, fontWeight: 700,
-          color: 'var(--color-black)', textAlign: 'center',
+          color: '#0c0a09', textAlign: 'center',
           marginBottom: 4,
         }}>
           ¿Qué te interesa?
         </h2>
         <p style={{
-          fontSize: 15, color: 'var(--color-stone)',
+          fontSize: 15, color: '#78716c',
           textAlign: 'center', marginBottom: 32,
         }}>
           Personalizamos tu feed para mostrarte productores y productos que encajan contigo
@@ -287,13 +287,13 @@ export default function OnboardingPage() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: '10px 16px',
-                  borderRadius: 'var(--radius-full, 999px)',
-                  border: isSelected ? 'none' : '1px solid var(--color-border)',
-                  background: isSelected ? 'var(--color-black)' : 'var(--color-white)',
-                  color: isSelected ? 'var(--color-white)' : 'var(--color-black)',
+                  borderRadius: '9999px',
+                  border: isSelected ? 'none' : '1px solid #e7e5e4',
+                  background: isSelected ? '#0c0a09' : '#ffffff',
+                  color: isSelected ? '#ffffff' : '#0c0a09',
                   fontSize: 14, fontWeight: 500,
-                  cursor: 'pointer', fontFamily: 'var(--font-sans)',
-                  transition: 'var(--transition-fast)',
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 <span>{pref.icon || pref.emoji}</span>
@@ -309,13 +309,13 @@ export default function OnboardingPage() {
           disabled={selectedPrefs.length === 0}
           style={{
             width: '100%', height: 48, marginTop: 32,
-            background: selectedPrefs.length > 0 ? 'var(--color-black)' : 'var(--color-stone)',
-            color: 'var(--color-white)',
-            border: 'none', borderRadius: 'var(--radius-lg)',
+            background: selectedPrefs.length > 0 ? '#0c0a09' : '#78716c',
+            color: '#ffffff',
+            border: 'none', borderRadius: '14px',
             fontSize: 15, fontWeight: 600,
             cursor: selectedPrefs.length > 0 ? 'pointer' : 'not-allowed',
             opacity: selectedPrefs.length > 0 ? 1 : 0.5,
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'inherit',
           }}
         >
           Continuar →
@@ -327,8 +327,8 @@ export default function OnboardingPage() {
           style={{
             display: 'block', margin: '16px auto 0',
             background: 'none', border: 'none',
-            fontSize: 'var(--text-sm, 14px)', color: 'var(--color-stone)',
-            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+            fontSize: '14px', color: '#78716c',
+            cursor: 'pointer', fontFamily: 'inherit',
           }}
         >
           Omitir por ahora
@@ -365,28 +365,28 @@ export default function OnboardingPage() {
     const ROLE_LABELS = { producer: 'Productor', influencer: 'Influencer', consumer: 'Consumidor', importer: 'Importador' };
 
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)', padding: '0 24px 120px' }}>
+      <div style={{ minHeight: '100vh', background: '#fafaf9', fontFamily: 'inherit', padding: '0 24px 120px' }}>
         <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
-          <button onClick={() => goTo(2)} aria-label="Volver al paso anterior" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', padding: 0 }}>
+          <button onClick={() => goTo(2)} aria-label="Volver al paso anterior" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, color: '#78716c', fontFamily: 'inherit', padding: 0 }}>
             <ArrowLeft size={18} /> Atrás
           </button>
         </div>
         <Stepper />
 
         <div style={{ maxWidth: 440, margin: '0 auto', paddingTop: 16 }}>
-          <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', textAlign: 'center', marginBottom: 4 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0c0a09', textAlign: 'center', marginBottom: 4 }}>
             Personas para seguir
           </h2>
-          <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', marginBottom: 24, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', marginBottom: 24, lineHeight: 1.5 }}>
             Sigue a personas para llenar tu feed con contenido que te interesa
           </p>
 
           {sugLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: 32 }}>
-              <Loader2 size={24} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+              <Loader2 size={24} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
             </div>
           ) : suggestions.length === 0 ? (
-            <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--color-stone)', padding: 32 }}>
+            <p style={{ textAlign: 'center', fontSize: 14, color: '#78716c', padding: 32 }}>
               No hay sugerencias disponibles ahora
             </p>
           ) : (
@@ -396,28 +396,28 @@ export default function OnboardingPage() {
                 return (
                   <div key={u.user_id} style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    padding: 16, background: 'var(--color-white)',
-                    border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)',
+                    padding: 16, background: '#ffffff',
+                    border: '1px solid #e7e5e4', borderRadius: '16px',
                   }}>
                     <div style={{
                       width: 56, height: 56, borderRadius: '50%', overflow: 'hidden',
-                      background: 'var(--color-surface)', marginBottom: 8,
+                      background: '#f5f5f4', marginBottom: 8,
                     }}>
                       {u.profile_image ? (
                         <img src={u.profile_image} alt={u.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: 'var(--color-stone)' }}>
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: '#78716c' }}>
                           {(u.name || '?')[0].toUpperCase()}
                         </div>
                       )}
                     </div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: '0 0 2px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: '0 0 2px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
                       {u.name}
                     </p>
                     <span style={{
-                      fontSize: 10, fontWeight: 500, color: 'var(--color-stone)',
-                      padding: '2px 8px', borderRadius: 'var(--radius-full)',
-                      background: 'var(--color-surface)', marginBottom: 10,
+                      fontSize: 10, fontWeight: 500, color: '#78716c',
+                      padding: '2px 8px', borderRadius: '9999px',
+                      background: '#f5f5f4', marginBottom: 10,
                     }}>
                       {ROLE_LABELS[u.role] || u.role}
                     </span>
@@ -425,13 +425,13 @@ export default function OnboardingPage() {
                       onClick={() => !isFollowed && handleFollowSuggestion(u.user_id)}
                       disabled={isFollowed}
                       style={{
-                        width: '100%', height: 36, borderRadius: 'var(--radius-full)',
+                        width: '100%', height: 36, borderRadius: '9999px',
                         border: 'none', cursor: isFollowed ? 'default' : 'pointer',
-                        fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                        fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                        background: isFollowed ? 'var(--color-surface)' : 'var(--color-black)',
-                        color: isFollowed ? 'var(--color-stone)' : '#fff',
-                        transition: 'var(--transition-fast)',
+                        background: isFollowed ? '#f5f5f4' : '#0c0a09',
+                        color: isFollowed ? '#78716c' : '#fff',
+                        transition: 'all 0.15s ease',
                       }}
                     >
                       {isFollowed ? 'Siguiendo' : <><UserPlus size={13} /> Seguir</>}
@@ -447,16 +447,16 @@ export default function OnboardingPage() {
         <div style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, padding: '12px 24px',
           paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
-          background: 'var(--color-cream)', borderTop: '1px solid var(--color-border)',
+          background: '#fafaf9', borderTop: '1px solid #e7e5e4',
         }}>
           <button
             onClick={() => goTo(4)}
             style={{
               width: '100%', maxWidth: 440, margin: '0 auto', display: 'flex',
               height: 48, alignItems: 'center', justifyContent: 'center',
-              background: 'var(--color-black)', color: '#fff',
-              border: 'none', borderRadius: 'var(--radius-lg)',
-              fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)',
+              background: '#0c0a09', color: '#fff',
+              border: 'none', borderRadius: '14px',
+              fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
             {followedIds.size > 0 ? `Continuar (${followedIds.size} seguidos) →` : 'Ahora no →'}
@@ -477,15 +477,15 @@ export default function OnboardingPage() {
             <>
               <div style={{
                 width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
-                background: 'var(--color-surface, #f5f5f4)',
+                background: '#f5f5f4',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Check size={32} color="var(--color-black)" />
+                <Check size={32} color="#0c0a09" />
               </div>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', textAlign: 'center', marginBottom: 8 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0c0a09', textAlign: 'center', marginBottom: 8 }}>
                 ¡Todo listo!
               </h2>
-              <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', lineHeight: 1.5, marginBottom: 32 }}>
+              <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', lineHeight: 1.5, marginBottom: 32 }}>
                 Ya puedes descubrir productores locales de alimentación saludable cerca de ti. Sin intermediarios.
               </p>
               <button
@@ -493,14 +493,14 @@ export default function OnboardingPage() {
                 disabled={saving}
                 style={{
                   width: '100%', height: 52,
-                  background: 'var(--color-black)',
+                  background: '#0c0a09',
                   color: '#fff', border: 'none',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: '14px',
                   fontSize: 16, fontWeight: 600,
                   cursor: saving ? 'not-allowed' : 'pointer',
                   opacity: saving ? 0.6 : 1,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                 }}
               >
                 {saving ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Ir al feed →'}
@@ -511,15 +511,15 @@ export default function OnboardingPage() {
         case 'producer':
           return (
             <>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', textAlign: 'center', marginBottom: 8 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0c0a09', textAlign: 'center', marginBottom: 8 }}>
                 Configura tu tienda
               </h2>
-              <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', lineHeight: 1.5, marginBottom: 24 }}>
+              <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', lineHeight: 1.5, marginBottom: 24 }}>
                 Antes de publicar productos necesitamos verificar tu cuenta. Tarda menos de 5 minutos.
               </p>
               <div style={{
-                background: 'var(--color-surface, #f5f5f4)',
-                borderRadius: 'var(--radius-xl)',
+                background: '#f5f5f4',
+                borderRadius: '16px',
                 padding: 20, marginBottom: 24,
               }}>
                 {[
@@ -531,19 +531,19 @@ export default function OnboardingPage() {
                   <div key={i} style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '8px 0',
-                    borderBottom: i < 3 ? '1px solid var(--color-border)' : 'none',
+                    borderBottom: i < 3 ? '1px solid #e7e5e4' : 'none',
                   }}>
                     <span style={{
                       width: 22, height: 22, borderRadius: '50%',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 12,
-                      background: step.done ? 'var(--color-black)' : 'transparent',
-                      color: step.done ? '#fff' : 'var(--color-stone)',
-                      border: step.done ? 'none' : '1.5px solid var(--color-border)',
+                      background: step.done ? '#0c0a09' : 'transparent',
+                      color: step.done ? '#fff' : '#78716c',
+                      border: step.done ? 'none' : '1.5px solid #e7e5e4',
                     }}>
                       {step.done ? '✓' : '○'}
                     </span>
-                    <span style={{ fontSize: 14, color: 'var(--color-black)' }}>{step.text}</span>
+                    <span style={{ fontSize: 14, color: '#0c0a09' }}>{step.text}</span>
                   </div>
                 ))}
               </div>
@@ -552,14 +552,14 @@ export default function OnboardingPage() {
                 disabled={saving}
                 style={{
                   width: '100%', height: 52,
-                  background: 'var(--color-black)',
+                  background: '#0c0a09',
                   color: '#fff', border: 'none',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: '14px',
                   fontSize: 16, fontWeight: 600,
                   cursor: saving ? 'not-allowed' : 'pointer',
                   opacity: saving ? 0.6 : 1,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                 }}
               >
                 {saving ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Verificar mi cuenta →'}
@@ -569,8 +569,8 @@ export default function OnboardingPage() {
                 style={{
                   display: 'block', margin: '16px auto 0',
                   background: 'none', border: 'none',
-                  fontSize: 14, color: 'var(--color-stone)',
-                  cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                  fontSize: 14, color: '#78716c',
+                  cursor: 'pointer', fontFamily: 'inherit',
                 }}
               >
                 Hacerlo más tarde
@@ -581,15 +581,15 @@ export default function OnboardingPage() {
         case 'influencer':
           return (
             <>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', textAlign: 'center', marginBottom: 8 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0c0a09', textAlign: 'center', marginBottom: 8 }}>
                 Solicita ser influencer
               </h2>
-              <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', lineHeight: 1.5, marginBottom: 24 }}>
+              <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', lineHeight: 1.5, marginBottom: 24 }}>
                 Necesitamos verificar que cumples los requisitos.
               </p>
               <div style={{
-                background: 'var(--color-surface, #f5f5f4)',
-                borderRadius: 'var(--radius-xl)',
+                background: '#f5f5f4',
+                borderRadius: '16px',
                 padding: 20, marginBottom: 24,
               }}>
                 {[
@@ -600,10 +600,10 @@ export default function OnboardingPage() {
                   <div key={i} style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '8px 0',
-                    borderBottom: i < 2 ? '1px solid var(--color-border)' : 'none',
+                    borderBottom: i < 2 ? '1px solid #e7e5e4' : 'none',
                   }}>
-                    <span style={{ color: 'var(--color-black)', fontSize: 14 }}>✓</span>
-                    <span style={{ fontSize: 14, color: 'var(--color-black)' }}>{text}</span>
+                    <span style={{ color: '#0c0a09', fontSize: 14 }}>✓</span>
+                    <span style={{ fontSize: 14, color: '#0c0a09' }}>{text}</span>
                   </div>
                 ))}
               </div>
@@ -612,14 +612,14 @@ export default function OnboardingPage() {
                 disabled={saving}
                 style={{
                   width: '100%', height: 52,
-                  background: 'var(--color-black)',
+                  background: '#0c0a09',
                   color: '#fff', border: 'none',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: '14px',
                   fontSize: 16, fontWeight: 600,
                   cursor: saving ? 'not-allowed' : 'pointer',
                   opacity: saving ? 0.6 : 1,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                 }}
               >
                 {saving ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Solicitar →'}
@@ -630,15 +630,15 @@ export default function OnboardingPage() {
         case 'importer':
           return (
             <>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', textAlign: 'center', marginBottom: 8 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0c0a09', textAlign: 'center', marginBottom: 8 }}>
                 Accede al catálogo B2B
               </h2>
-              <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', lineHeight: 1.5, marginBottom: 24 }}>
+              <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center', lineHeight: 1.5, marginBottom: 24 }}>
                 Como importador tendrás acceso al catálogo mayorista de productores verificados.
               </p>
               <div style={{
-                background: 'var(--color-surface, #f5f5f4)',
-                borderRadius: 'var(--radius-xl)',
+                background: '#f5f5f4',
+                borderRadius: '16px',
                 padding: 20, marginBottom: 24,
               }}>
                 {[
@@ -650,10 +650,10 @@ export default function OnboardingPage() {
                   <div key={i} style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '8px 0',
-                    borderBottom: i < 3 ? '1px solid var(--color-border)' : 'none',
+                    borderBottom: i < 3 ? '1px solid #e7e5e4' : 'none',
                   }}>
-                    <span style={{ color: 'var(--color-black)', fontSize: 14 }}>✓</span>
-                    <span style={{ fontSize: 14, color: 'var(--color-black)' }}>{text}</span>
+                    <span style={{ color: '#0c0a09', fontSize: 14 }}>✓</span>
+                    <span style={{ fontSize: 14, color: '#0c0a09' }}>{text}</span>
                   </div>
                 ))}
               </div>
@@ -662,14 +662,14 @@ export default function OnboardingPage() {
                 disabled={saving}
                 style={{
                   width: '100%', height: 52,
-                  background: 'var(--color-black)',
+                  background: '#0c0a09',
                   color: '#fff', border: 'none',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: '14px',
                   fontSize: 16, fontWeight: 600,
                   cursor: saving ? 'not-allowed' : 'pointer',
                   opacity: saving ? 0.6 : 1,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                 }}
               >
                 {saving ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Acceder →'}
@@ -684,8 +684,8 @@ export default function OnboardingPage() {
 
     return (
       <div style={{
-        minHeight: '100vh', background: 'var(--color-cream)',
-        fontFamily: 'var(--font-sans)',
+        minHeight: '100vh', background: '#fafaf9',
+        fontFamily: 'inherit',
         padding: '0 24px 40px',
       }}>
         <div style={{
@@ -698,8 +698,8 @@ export default function OnboardingPage() {
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4,
-              fontSize: 14, color: 'var(--color-stone)',
-              fontFamily: 'var(--font-sans)', padding: 0,
+              fontSize: 14, color: '#78716c',
+              fontFamily: 'inherit', padding: 0,
             }}
           >
             <ArrowLeft size={18} /> Atrás

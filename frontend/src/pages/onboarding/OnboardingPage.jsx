@@ -46,8 +46,8 @@ function ProgressDots({ current, total }) {
           style={{
             width: i === current ? 20 : 6,
             height: 6,
-            borderRadius: 'var(--radius-full)',
-            background: i === current ? 'var(--color-black)' : 'var(--color-border)',
+            borderRadius: '9999px',
+            background: i === current ? '#0c0a09' : '#e7e5e4',
             transition: 'all 0.3s ease',
           }}
         />
@@ -83,11 +83,11 @@ function TogglePill({ emoji, icon, label, selected, variant, onClick }) {
       onClick={onClick}
       style={{
         ...styles,
-        borderRadius: 'var(--radius-full)',
+        borderRadius: '9999px',
         padding: '8px 16px',
         fontSize: 13,
         fontWeight: 500,
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'inherit',
         cursor: 'pointer',
         display: 'inline-flex',
         alignItems: 'center',
@@ -176,7 +176,7 @@ function ScreenWelcome({ onNext }) {
           width: 80,
           height: 80,
           borderRadius: 24,
-          background: 'var(--color-black)',
+          background: '#0c0a09',
           marginBottom: 20,
         }}
       >
@@ -189,8 +189,8 @@ function ScreenWelcome({ onNext }) {
           fontSize: 22,
           fontWeight: 500,
           letterSpacing: '-0.03em',
-          color: 'var(--color-black)',
-          fontFamily: 'var(--font-sans)',
+          color: '#0c0a09',
+          fontFamily: 'inherit',
           margin: '0 0 6px',
         }}
       >
@@ -201,8 +201,8 @@ function ScreenWelcome({ onNext }) {
       <p
         style={{
           fontSize: 14,
-          color: 'var(--color-stone)',
-          fontFamily: 'var(--font-sans)',
+          color: '#78716c',
+          fontFamily: 'inherit',
           margin: '0 0 16px',
         }}
       >
@@ -213,9 +213,9 @@ function ScreenWelcome({ onNext }) {
       <p
         style={{
           fontSize: 13,
-          color: 'var(--color-stone)',
+          color: '#78716c',
           lineHeight: 1.6,
-          fontFamily: 'var(--font-sans)',
+          fontFamily: 'inherit',
           textAlign: 'center',
           margin: '0 0 32px',
           maxWidth: 320,
@@ -235,13 +235,13 @@ function ScreenWelcome({ onNext }) {
           style={{
             width: '100%',
             height: 48,
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--color-black)',
-            color: 'var(--color-white)',
+            borderRadius: '9999px',
+            background: '#0c0a09',
+            color: '#ffffff',
             border: 'none',
             fontSize: 15,
             fontWeight: 500,
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'inherit',
             cursor: 'pointer',
           }}
         >
@@ -254,13 +254,13 @@ function ScreenWelcome({ onNext }) {
           style={{
             width: '100%',
             height: 48,
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--color-surface)',
-            color: 'var(--color-black)',
+            borderRadius: '9999px',
+            background: '#f5f5f4',
+            color: '#0c0a09',
             border: 'none',
             fontSize: 15,
             fontWeight: 500,
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'inherit',
             cursor: 'pointer',
           }}
         >
@@ -269,11 +269,11 @@ function ScreenWelcome({ onNext }) {
 
         {/* Separator */}
         <div className="flex items-center gap-3" style={{ margin: '4px 0' }}>
-          <div className="flex-1" style={{ height: 1, background: 'var(--color-border)' }} />
-          <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+          <div className="flex-1" style={{ height: 1, background: '#e7e5e4' }} />
+          <span style={{ fontSize: 12, color: '#78716c', fontFamily: 'inherit' }}>
             o continúa con
           </span>
-          <div className="flex-1" style={{ height: 1, background: 'var(--color-border)' }} />
+          <div className="flex-1" style={{ height: 1, background: '#e7e5e4' }} />
         </div>
 
         {/* Social row */}
@@ -284,13 +284,13 @@ function ScreenWelcome({ onNext }) {
             className="flex-1 flex items-center justify-center gap-2"
             style={{
               height: 48,
-              borderRadius: 'var(--radius-full)',
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
+              borderRadius: '9999px',
+              background: '#ffffff',
+              border: '1px solid #e7e5e4',
               fontSize: 14,
               fontWeight: 500,
-              fontFamily: 'var(--font-sans)',
-              color: 'var(--color-black)',
+              fontFamily: 'inherit',
+              color: '#0c0a09',
               cursor: 'pointer',
             }}
           >
@@ -309,13 +309,13 @@ function ScreenWelcome({ onNext }) {
             className="flex-1 flex items-center justify-center gap-2"
             style={{
               height: 48,
-              borderRadius: 'var(--radius-full)',
-              background: 'var(--color-black)',
+              borderRadius: '9999px',
+              background: '#0c0a09',
               border: 'none',
               fontSize: 14,
               fontWeight: 500,
-              fontFamily: 'var(--font-sans)',
-              color: 'var(--color-white)',
+              fontFamily: 'inherit',
+              color: '#ffffff',
               cursor: 'pointer',
             }}
           >
@@ -347,8 +347,8 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
     fontWeight: 600,
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
-    color: 'var(--color-stone)',
-    fontFamily: 'var(--font-sans)',
+    color: '#78716c',
+    fontFamily: 'inherit',
     margin: '0 0 10px',
   };
 
@@ -362,8 +362,8 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
         style={{
           fontSize: 19,
           fontWeight: 500,
-          color: 'var(--color-black)',
-          fontFamily: 'var(--font-sans)',
+          color: '#0c0a09',
+          fontFamily: 'inherit',
           margin: '0 0 6px',
           textAlign: 'center',
         }}
@@ -375,8 +375,8 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
       <p
         style={{
           fontSize: 12,
-          color: 'var(--color-stone)',
-          fontFamily: 'var(--font-sans)',
+          color: '#78716c',
+          fontFamily: 'inherit',
           textAlign: 'center',
           margin: '0 0 28px',
           lineHeight: 1.5,
@@ -437,13 +437,13 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
         style={{
           width: '100%',
           height: 48,
-          borderRadius: 'var(--radius-full)',
-          background: 'var(--color-black)',
-          color: 'var(--color-white)',
+          borderRadius: '9999px',
+          background: '#0c0a09',
+          color: '#ffffff',
           border: 'none',
           fontSize: 15,
           fontWeight: 500,
-          fontFamily: 'var(--font-sans)',
+          fontFamily: 'inherit',
           cursor: 'pointer',
         }}
       >
@@ -461,8 +461,8 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
             background: 'none',
             border: 'none',
             fontSize: 13,
-            color: 'var(--color-stone)',
-            fontFamily: 'var(--font-sans)',
+            color: '#78716c',
+            fontFamily: 'inherit',
             cursor: 'pointer',
             padding: 8,
           }}
@@ -498,8 +498,8 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
         style={{
           fontSize: 19,
           fontWeight: 500,
-          color: 'var(--color-black)',
-          fontFamily: 'var(--font-sans)',
+          color: '#0c0a09',
+          fontFamily: 'inherit',
           margin: '0 0 24px',
           textAlign: 'center',
         }}
@@ -520,11 +520,11 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
               style={{
                 width: '100%',
                 padding: '16px',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--color-white)',
+                borderRadius: '12px',
+                background: '#ffffff',
                 border: isSelected
-                  ? '1px solid var(--color-black)'
-                  : '0.5px solid var(--color-border)',
+                  ? '1px solid #0c0a09'
+                  : '0.5px solid #e7e5e4',
                 cursor: 'pointer',
                 textAlign: 'left',
                 transition: 'all 0.2s ease',
@@ -536,8 +536,8 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
                   style={{
                     fontSize: 13,
                     fontWeight: 500,
-                    color: 'var(--color-black)',
-                    fontFamily: 'var(--font-sans)',
+                    color: '#0c0a09',
+                    fontFamily: 'inherit',
                     margin: '0 0 2px',
                   }}
                 >
@@ -546,8 +546,8 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
                 <p
                   style={{
                     fontSize: 11,
-                    color: 'var(--color-stone)',
-                    fontFamily: 'var(--font-sans)',
+                    color: '#78716c',
+                    fontFamily: 'inherit',
                     margin: 0,
                     lineHeight: 1.4,
                   }}
@@ -567,13 +567,13 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
         style={{
           width: '100%',
           height: 48,
-          borderRadius: 'var(--radius-full)',
-          background: selectedRole ? 'var(--color-black)' : 'var(--color-border)',
-          color: selectedRole ? 'var(--color-white)' : 'var(--color-stone)',
+          borderRadius: '9999px',
+          background: selectedRole ? '#0c0a09' : '#e7e5e4',
+          color: selectedRole ? '#ffffff' : '#78716c',
           border: 'none',
           fontSize: 15,
           fontWeight: 500,
-          fontFamily: 'var(--font-sans)',
+          fontFamily: 'inherit',
           cursor: selectedRole ? 'pointer' : 'not-allowed',
           transition: 'all 0.2s ease',
         }}
@@ -592,8 +592,8 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
             background: 'none',
             border: 'none',
             fontSize: 13,
-            color: 'var(--color-stone)',
-            fontFamily: 'var(--font-sans)',
+            color: '#78716c',
+            fontFamily: 'inherit',
             cursor: 'pointer',
             padding: 8,
           }}
@@ -684,8 +684,8 @@ export default function OnboardingPage() {
     <div
       className="min-h-screen flex flex-col items-center justify-center"
       style={{
-        background: 'var(--color-cream)',
-        fontFamily: 'var(--font-sans)',
+        background: '#fafaf9',
+        fontFamily: 'inherit',
       }}
     >
       <div className="w-full" style={{ maxWidth: 420 }}>
@@ -725,27 +725,27 @@ export default function OnboardingPage() {
       {saving && (
         <div
           className="fixed inset-0 flex items-center justify-center"
-          style={{ background: 'rgba(10,10,10,0.4)', zIndex: 'var(--z-modal)' }}
+          style={{ background: 'rgba(10,10,10,0.4)', zIndex: '50' }}
         >
           <div
             className="flex flex-col items-center gap-3"
             style={{
-              background: 'var(--color-white)',
+              background: '#ffffff',
               padding: 24,
-              borderRadius: 'var(--radius-lg)',
+              borderRadius: '14px',
             }}
           >
             <div
               style={{
                 width: 32,
                 height: 32,
-                border: '2px solid var(--color-black)',
+                border: '2px solid #0c0a09',
                 borderTopColor: 'transparent',
                 borderRadius: '50%',
               }}
               className="animate-spin"
             />
-            <p style={{ fontSize: 14, color: 'var(--color-black)', margin: 0 }}>Guardando...</p>
+            <p style={{ fontSize: 14, color: '#0c0a09', margin: 0 }}>Guardando...</p>
           </div>
         </div>
       )}

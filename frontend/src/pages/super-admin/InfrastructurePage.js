@@ -24,7 +24,7 @@ const ENV_VARS = [
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[#ffffff] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -32,10 +32,10 @@ function SACard({ children, className = '' }) {
 
 function StatusDot({ status }) {
   const color =
-    status === 'ok' ? 'var(--color-black)' :
-    status === 'degraded' ? 'var(--color-stone)' :
+    status === 'ok' ? '#0c0a09' :
+    status === 'degraded' ? '#78716c' :
     status === 'unknown' ? '#8E8E93' :
-    'var(--color-red)';
+    '#dc2626';
   return (
     <div
       className="w-2 h-2 rounded-full shrink-0"
@@ -126,8 +126,8 @@ export default function InfrastructurePage() {
           <div
             className="w-3 h-3 rounded-full"
             style={{
-              background: allOk ? 'var(--color-black)' : 'var(--color-stone)',
-              boxShadow: `0 0 8px ${allOk ? 'rgba(12,10,9,0.5)' : 'var(--color-stone)88'}`,
+              background: allOk ? '#0c0a09' : '#78716c',
+              boxShadow: `0 0 8px ${allOk ? 'rgba(12,10,9,0.5)' : '#78716c88'}`,
             }}
           />
           <span className="text-sm font-bold text-white">

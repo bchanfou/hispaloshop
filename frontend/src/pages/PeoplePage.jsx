@@ -79,7 +79,7 @@ export default function PeoplePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream)] font-sans pb-20">
+    <div className="min-h-screen bg-[#fafaf9] font-sans pb-20">
       {/* Topbar */}
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button

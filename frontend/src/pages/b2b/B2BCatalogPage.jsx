@@ -14,9 +14,9 @@ const topBar = {
   alignItems: 'center',
   gap: 12,
   padding: '14px 16px',
-  background: 'var(--color-white)',
-  borderBottom: '1px solid var(--color-border)',
-  fontFamily: 'var(--font-sans)',
+  background: '#ffffff',
+  borderBottom: '1px solid #e7e5e4',
+  fontFamily: 'inherit',
 };
 
 const backBtn = {
@@ -25,9 +25,9 @@ const backBtn = {
   justifyContent: 'center',
   width: 36,
   height: 36,
-  borderRadius: 'var(--radius-full)',
-  border: '1px solid var(--color-border)',
-  background: 'var(--color-white)',
+  borderRadius: '9999px',
+  border: '1px solid #e7e5e4',
+  background: '#ffffff',
   cursor: 'pointer',
   flexShrink: 0,
 };
@@ -35,19 +35,19 @@ const backBtn = {
 const pageTitle = {
   fontSize: 18,
   fontWeight: 700,
-  color: 'var(--color-black)',
-  fontFamily: 'var(--font-sans)',
+  color: '#0c0a09',
+  fontFamily: 'inherit',
 };
 
 const descCard = {
   margin: '16px 16px 0',
   padding: 16,
-  borderRadius: 'var(--radius-xl)',
-  background: 'var(--color-surface)',
+  borderRadius: '16px',
+  background: '#f5f5f4',
   display: 'flex',
   gap: 12,
   alignItems: 'flex-start',
-  fontFamily: 'var(--font-sans)',
+  fontFamily: 'inherit',
 };
 
 const descIcon = {
@@ -59,23 +59,23 @@ const descIcon = {
 const descTitle = {
   fontSize: 15,
   fontWeight: 600,
-  color: 'var(--color-black)',
+  color: '#0c0a09',
   marginBottom: 2,
 };
 
 const descSub = {
   fontSize: 13,
-  color: 'var(--color-stone)',
+  color: '#78716c',
   lineHeight: 1.4,
 };
 
 const productCard = {
   margin: '12px 16px 0',
   padding: 14,
-  borderRadius: 'var(--radius-xl)',
-  border: '1px solid var(--color-border)',
-  background: 'var(--color-white)',
-  fontFamily: 'var(--font-sans)',
+  borderRadius: '16px',
+  border: '1px solid #e7e5e4',
+  background: '#ffffff',
+  fontFamily: 'inherit',
 };
 
 const cardTop = {
@@ -86,16 +86,16 @@ const cardTop = {
 const imgBox = {
   width: 72,
   height: 72,
-  borderRadius: 'var(--radius-md)',
+  borderRadius: '12px',
   objectFit: 'cover',
-  background: 'var(--color-surface)',
+  background: '#f5f5f4',
   flexShrink: 0,
 };
 
 const productName = {
   fontSize: 15,
   fontWeight: 600,
-  color: 'var(--color-black)',
+  color: '#0c0a09',
   marginBottom: 4,
 };
 
@@ -103,9 +103,9 @@ const categoryBadge = {
   display: 'inline-block',
   fontSize: 11,
   fontWeight: 500,
-  color: 'var(--color-stone)',
-  background: 'var(--color-surface)',
-  borderRadius: 'var(--radius-full)',
+  color: '#78716c',
+  background: '#f5f5f4',
+  borderRadius: '9999px',
   padding: '2px 8px',
 };
 
@@ -119,13 +119,13 @@ const metaRow = {
 
 const metaText = {
   fontSize: 13,
-  color: 'var(--color-stone)',
+  color: '#78716c',
 };
 
 const metaPrice = {
   fontSize: 14,
   fontWeight: 600,
-  color: 'var(--color-black)',
+  color: '#0c0a09',
 };
 
 const statusBadge = (active) => ({
@@ -135,9 +135,9 @@ const statusBadge = (active) => ({
   fontSize: 12,
   fontWeight: 600,
   padding: '3px 10px',
-  borderRadius: 'var(--radius-full)',
-  background: active ? 'rgba(12,10,9,0.08)' : 'var(--color-surface)',
-  color: active ? 'var(--color-black)' : 'var(--color-stone)',
+  borderRadius: '9999px',
+  background: active ? 'rgba(12,10,9,0.08)' : '#f5f5f4',
+  color: active ? '#0c0a09' : '#78716c',
 });
 
 const btnRow = {
@@ -153,29 +153,29 @@ const btnBase = {
   justifyContent: 'center',
   gap: 6,
   padding: '9px 0',
-  borderRadius: 'var(--radius-md)',
+  borderRadius: '12px',
   fontSize: 13,
   fontWeight: 600,
-  fontFamily: 'var(--font-sans)',
+  fontFamily: 'inherit',
   cursor: 'pointer',
-  border: '1px solid var(--color-border)',
-  background: 'var(--color-white)',
-  color: 'var(--color-black)',
-  transition: 'var(--transition-fast)',
+  border: '1px solid #e7e5e4',
+  background: '#ffffff',
+  color: '#0c0a09',
+  transition: 'all 0.15s ease',
 };
 
 const btnPrimary = {
   ...btnBase,
-  background: 'var(--color-black)',
-  color: 'var(--color-white)',
+  background: '#0c0a09',
+  color: '#ffffff',
   border: 'none',
 };
 
 const spinner = {
   width: 28,
   height: 28,
-  border: '3px solid var(--color-border)',
-  borderTopColor: 'var(--color-black)',
+  border: '3px solid #e7e5e4',
+  borderTopColor: '#0c0a09',
   borderRadius: '50%',
   animation: 'spin 0.7s linear infinite',
 };
@@ -187,31 +187,31 @@ const emptyWrap = {
   justifyContent: 'center',
   padding: '64px 24px',
   textAlign: 'center',
-  fontFamily: 'var(--font-sans)',
+  fontFamily: 'inherit',
 };
 
 const emptyIcon = {
   width: 56,
   height: 56,
-  borderRadius: 'var(--radius-full)',
-  background: 'var(--color-surface)',
+  borderRadius: '9999px',
+  background: '#f5f5f4',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   marginBottom: 16,
-  color: 'var(--color-stone)',
+  color: '#78716c',
 };
 
 const emptyTitle = {
   fontSize: 16,
   fontWeight: 600,
-  color: 'var(--color-black)',
+  color: '#0c0a09',
   marginBottom: 6,
 };
 
 const emptySubtitle = {
   fontSize: 13,
-  color: 'var(--color-stone)',
+  color: '#78716c',
   marginBottom: 20,
 };
 
@@ -226,12 +226,12 @@ const fab = {
   justifyContent: 'center',
   gap: 8,
   padding: '14px 0',
-  borderRadius: 'var(--radius-full)',
-  background: 'var(--color-black)',
-  color: 'var(--color-white)',
+  borderRadius: '9999px',
+  background: '#0c0a09',
+  color: '#ffffff',
   fontSize: 15,
   fontWeight: 600,
-  fontFamily: 'var(--font-sans)',
+  fontFamily: 'inherit',
   cursor: 'pointer',
   border: 'none',
   boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
@@ -294,7 +294,7 @@ export default function B2BCatalogPage() {
 
   /* ── Render ──────────────────────────────────────────────── */
   return (
-    <div style={{ minHeight: '100dvh', background: 'var(--color-cream)', paddingBottom: 88 }}>
+    <div style={{ minHeight: '100dvh', background: '#fafaf9', paddingBottom: 88 }}>
       {/* Keyframes for spinner */}
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 
@@ -335,7 +335,7 @@ export default function B2BCatalogPage() {
             Empieza añadiendo tu primer producto mayorista.
           </div>
           <button
-            style={{ ...btnPrimary, flex: 'none', padding: '10px 24px', borderRadius: 'var(--radius-full)' }}
+            style={{ ...btnPrimary, flex: 'none', padding: '10px 24px', borderRadius: '9999px' }}
             onClick={() => navigate('/b2b/catalog/add')}
           >
             <Plus size={16} />
@@ -365,7 +365,7 @@ export default function B2BCatalogPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'var(--color-stone)',
+                      color: '#78716c',
                     }}
                   >
                     <Package size={28} />

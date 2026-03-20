@@ -100,18 +100,18 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
     fontWeight: 600,
     letterSpacing: '0.06em',
     textTransform: 'uppercase',
-    color: 'var(--color-stone)',
-    fontFamily: 'var(--font-sans)',
+    color: '#78716c',
+    fontFamily: 'inherit',
     marginBottom: 6,
   };
 
   const inputWrapStyle = {
     display: 'flex',
     alignItems: 'center',
-    border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-md)',
+    border: '1px solid #e7e5e4',
+    borderRadius: '12px',
     overflow: 'hidden',
-    background: 'var(--color-white)',
+    background: '#ffffff',
   };
 
   const inputStyle = {
@@ -120,56 +120,56 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
     border: 'none',
     outline: 'none',
     fontSize: 15,
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'inherit',
     background: 'transparent',
-    color: 'var(--color-black)',
+    color: '#0c0a09',
   };
 
   const suffixStyle = {
     padding: '0 12px',
     fontSize: 13,
-    color: 'var(--color-stone)',
-    fontFamily: 'var(--font-sans)',
+    color: '#78716c',
+    fontFamily: 'inherit',
     whiteSpace: 'nowrap',
   };
 
   const helperStyle = {
     fontSize: 12,
-    color: 'var(--color-stone)',
+    color: '#78716c',
     marginTop: 4,
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'inherit',
   };
 
   const sectionGap = { marginBottom: 22 };
 
   const pillBase = {
     padding: '7px 14px',
-    borderRadius: 'var(--radius-full)',
+    borderRadius: '9999px',
     fontSize: 13,
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'inherit',
     cursor: 'pointer',
-    border: '1px solid var(--color-border)',
+    border: '1px solid #e7e5e4',
     transition: 'all 0.15s ease',
   };
 
   const pillActive = {
     ...pillBase,
-    background: 'var(--color-black)',
-    color: 'var(--color-white)',
-    borderColor: 'var(--color-black)',
+    background: '#0c0a09',
+    color: '#ffffff',
+    borderColor: '#0c0a09',
   };
 
   const pillInactive = {
     ...pillBase,
-    background: 'var(--color-surface)',
-    color: 'var(--color-black)',
+    background: '#f5f5f4',
+    color: '#0c0a09',
   };
 
   const toggleTrack = (on) => ({
     width: 44,
     height: 24,
-    borderRadius: 'var(--radius-full)',
-    background: on ? 'var(--color-black)' : 'var(--color-border)',
+    borderRadius: '9999px',
+    background: on ? '#0c0a09' : '#e7e5e4',
     position: 'relative',
     cursor: 'pointer',
     transition: 'background 0.2s ease',
@@ -180,7 +180,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
     width: 18,
     height: 18,
     borderRadius: '50%',
-    background: 'var(--color-white)',
+    background: '#ffffff',
     position: 'absolute',
     top: 3,
     left: on ? 22 : 3,
@@ -220,20 +220,20 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
               left: 0,
               right: 0,
               zIndex: 1000,
-              background: 'var(--color-white)',
-              borderTopLeftRadius: 'var(--radius-xl)',
-              borderTopRightRadius: 'var(--radius-xl)',
+              background: '#ffffff',
+              borderTopLeftRadius: '16px',
+              borderTopRightRadius: '16px',
               maxHeight: '92vh',
               display: 'flex',
               flexDirection: 'column',
-              fontFamily: 'var(--font-sans)',
+              fontFamily: 'inherit',
             }}
           >
             {/* Header */}
             <div
               style={{
                 padding: '18px 20px 14px',
-                borderBottom: '1px solid var(--color-border)',
+                borderBottom: '1px solid #e7e5e4',
                 display: 'flex',
                 alignItems: 'flex-start',
                 justifyContent: 'space-between',
@@ -241,10 +241,10 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
               }}
             >
               <div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>
                   Condiciones mayoristas
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--color-stone)', marginTop: 2 }}>
+                <div style={{ fontSize: 13, color: '#78716c', marginTop: 2 }}>
                   {product?.name}
                 </div>
               </div>
@@ -255,7 +255,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                   border: 'none',
                   cursor: 'pointer',
                   padding: 4,
-                  color: 'var(--color-stone)',
+                  color: '#78716c',
                 }}
               >
                 <X size={20} />
@@ -309,7 +309,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                     marginBottom: 8,
                   }}
                 >
-                  <span style={{ fontSize: 13, color: 'var(--color-black)' }}>
+                  <span style={{ fontSize: 13, color: '#0c0a09' }}>
                     Mismo stock que B2C
                   </span>
                   <div
@@ -379,14 +379,14 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid #e7e5e4',
+                    borderRadius: '12px',
                     fontSize: 14,
-                    fontFamily: 'var(--font-sans)',
+                    fontFamily: 'inherit',
                     resize: 'vertical',
                     outline: 'none',
-                    color: 'var(--color-black)',
-                    background: 'var(--color-white)',
+                    color: '#0c0a09',
+                    background: '#ffffff',
                     boxSizing: 'border-box',
                   }}
                 />
@@ -402,7 +402,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                     marginBottom: offerSamples ? 10 : 0,
                   }}
                 >
-                  <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)' }}>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: '#0c0a09' }}>
                     Ofrezco muestras gratuitas
                   </span>
                   <div
@@ -438,7 +438,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
               style={{
                 padding: '16px 20px',
                 paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
-                borderTop: '1px solid var(--color-border)',
+                borderTop: '1px solid #e7e5e4',
                 flexShrink: 0,
               }}
             >
@@ -448,12 +448,12 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                 style={{
                   width: '100%',
                   padding: '14px 0',
-                  borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-black)',
-                  color: 'var(--color-white)',
+                  borderRadius: '9999px',
+                  background: '#0c0a09',
+                  color: '#ffffff',
                   fontSize: 15,
                   fontWeight: 600,
-                  fontFamily: 'var(--font-sans)',
+                  fontFamily: 'inherit',
                   border: 'none',
                   cursor: saving ? 'not-allowed' : 'pointer',
                   opacity: saving ? 0.6 : 1,
@@ -475,12 +475,12 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                     width: '100%',
                     padding: '12px 0',
                     marginTop: 10,
-                    borderRadius: 'var(--radius-full)',
+                    borderRadius: '9999px',
                     background: 'transparent',
-                    color: 'var(--color-red)',
+                    color: '#dc2626',
                     fontSize: 14,
                     fontWeight: 500,
-                    fontFamily: 'var(--font-sans)',
+                    fontFamily: 'inherit',
                     border: 'none',
                     cursor: removing ? 'not-allowed' : 'pointer',
                     opacity: removing ? 0.6 : 1,

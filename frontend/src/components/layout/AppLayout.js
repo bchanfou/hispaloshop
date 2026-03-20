@@ -52,14 +52,14 @@ function EmailVerificationBanner() {
 
   return (
     <div style={{
-      background: 'var(--color-surface)',
-      borderBottom: '1px solid var(--color-border)',
+      background: '#f5f5f4',
+      borderBottom: '1px solid #e7e5e4',
       padding: '10px 16px',
       display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', gap: 12,
       fontSize: 13,
     }}>
-      <span style={{ color: 'var(--color-black)' }}>
+      <span style={{ color: '#0c0a09' }}>
         Verifica tu email para activar todas las funciones
       </span>
       <button
@@ -68,7 +68,7 @@ function EmailVerificationBanner() {
         style={{
           background: 'none', border: 'none',
           cursor: 'pointer', fontWeight: 600,
-          color: 'var(--color-black)',
+          color: '#0c0a09',
           fontSize: 13, whiteSpace: 'nowrap',
           opacity: sending ? 0.5 : 1,
         }}

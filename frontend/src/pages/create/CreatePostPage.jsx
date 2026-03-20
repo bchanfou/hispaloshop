@@ -22,7 +22,7 @@ const FILTERS = [
 ];
 
 const FONT_OPTIONS = [
-  { label: 'Sans', value: 'var(--font-sans), sans-serif' },
+  { label: 'Sans', value: 'inherit, sans-serif' },
   { label: 'Serif', value: 'Georgia, serif' },
   { label: 'Mono', value: 'monospace' },
   { label: 'Display', value: 'Impact, sans-serif' },
@@ -380,7 +380,7 @@ export default function CreatePostPage() {
     const hasFiles = selectedFiles.length > 0;
 
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col" style={{ fontFamily: 'var(--font-sans)', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="fixed inset-0 z-50 bg-black flex flex-col" style={{ fontFamily: 'inherit', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 shrink-0" style={{ height: 52 }}>
           <button
@@ -528,14 +528,14 @@ export default function CreatePostPage() {
     const previewAspect = aspectRatio.value || 'auto';
 
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
         {/* top bar */}
         <div style={{ background: 'rgba(0,0,0,0.8)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
           <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
             <ChevronLeft size={18} /> Volver
           </button>
           <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Editar</span>
-          <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-white)' }}>
+          <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#ffffff' }}>
             Siguiente →
           </button>
         </div>
@@ -563,7 +563,7 @@ export default function CreatePostPage() {
             />
             {/* filter name overlay */}
             {showFilterName && activeFilter.name !== 'Natural' && (
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '6px 16px', borderRadius: 'var(--radius-full)', fontSize: 13, fontWeight: 600, pointerEvents: 'none', zIndex: 3 }}>
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '6px 16px', borderRadius: '9999px', fontSize: 13, fontWeight: 600, pointerEvents: 'none', zIndex: 3 }}>
                 {activeFilter.emoji} {activeFilter.name}
               </div>
             )}
@@ -607,7 +607,7 @@ export default function CreatePostPage() {
                     background: aspectRatio.label === ar.label ? '#fff' : 'rgba(0,0,0,0.5)',
                     color: aspectRatio.label === ar.label ? '#000' : '#fff',
                     border: 'none',
-                    borderRadius: 'var(--radius-full)',
+                    borderRadius: '9999px',
                     padding: '4px 10px',
                     fontSize: 11,
                     fontWeight: 600,
@@ -665,9 +665,9 @@ export default function CreatePostPage() {
                       style={{
                         width: 56,
                         height: 56,
-                        borderRadius: 'var(--radius-md)',
+                        borderRadius: '12px',
                         overflow: 'hidden',
-                        border: activeFilter.name === f.name ? '2px solid var(--color-white)' : '2px solid transparent',
+                        border: activeFilter.name === f.name ? '2px solid #ffffff' : '2px solid transparent',
                         transition: 'border-color 0.15s, transform 0.15s',
                         transform: activeFilter.name === f.name ? 'scale(1.05)' : 'scale(1)',
                       }}
@@ -736,7 +736,7 @@ export default function CreatePostPage() {
                     alignSelf: 'center',
                     background: 'rgba(255,255,255,0.1)',
                     border: '1px dashed rgba(255,255,255,0.3)',
-                    borderRadius: 'var(--radius-md)',
+                    borderRadius: '12px',
                     color: '#fff',
                     padding: '10px 20px',
                     fontSize: 13,
@@ -751,7 +751,7 @@ export default function CreatePostPage() {
               )}
 
               {textOverlays.map((o) => (
-                <div key={o.id} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 'var(--radius-md)', padding: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div key={o.id} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <input
                       value={o.text}
@@ -794,7 +794,7 @@ export default function CreatePostPage() {
                           height: 22,
                           borderRadius: '50%',
                           background: c.value,
-                          border: o.color === c.value ? '2px solid var(--color-white)' : '2px solid rgba(255,255,255,0.3)',
+                          border: o.color === c.value ? '2px solid #ffffff' : '2px solid rgba(255,255,255,0.3)',
                           cursor: 'pointer',
                           padding: 0,
                         }}
@@ -817,7 +817,7 @@ export default function CreatePostPage() {
                           background: o.style === s.key ? '#fff' : 'rgba(255,255,255,0.15)',
                           color: o.style === s.key ? '#000' : '#fff',
                           border: 'none',
-                          borderRadius: 'var(--radius-full)',
+                          borderRadius: '9999px',
                           padding: '6px 0',
                           fontSize: 11,
                           fontWeight: 600,
@@ -863,7 +863,7 @@ export default function CreatePostPage() {
                     background: aspectRatio.label === cr.label ? '#fff' : 'rgba(255,255,255,0.12)',
                     color: aspectRatio.label === cr.label ? '#000' : '#fff',
                     border: 'none',
-                    borderRadius: 'var(--radius-full)',
+                    borderRadius: '9999px',
                     padding: '8px 18px',
                     fontSize: 13,
                     fontWeight: 500,
@@ -882,13 +882,13 @@ export default function CreatePostPage() {
 
   /* ══════════════════════ STEP 3 ══════════════════════ */
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'var(--color-white)', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#ffffff', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
       {/* top bar */}
-      <div style={{ background: 'var(--color-white)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
-        <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-black)', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div style={{ background: '#ffffff', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: '1px solid #e7e5e4', flexShrink: 0 }}>
+        <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0c0a09', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
           <ChevronLeft size={18} /> Volver
         </button>
-        <span style={{ flex: 1, textAlign: 'center', color: 'var(--color-black)', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
+        <span style={{ flex: 1, textAlign: 'center', color: '#0c0a09', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
         <div style={{ width: 60 }} />
       </div>
 
@@ -904,11 +904,11 @@ export default function CreatePostPage() {
                 style={{
                   width: 52,
                   height: 52,
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: '12px',
                   overflow: 'hidden',
                   flexShrink: 0,
                   cursor: 'pointer',
-                  border: previewIndex === i ? '2px solid var(--color-black)' : '2px solid transparent',
+                  border: previewIndex === i ? '2px solid #0c0a09' : '2px solid transparent',
                 }}
               >
                 <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -926,12 +926,12 @@ export default function CreatePostPage() {
             gap: 8,
             padding: '10px 14px',
             marginBottom: 12,
-            background: 'var(--color-surface)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--color-border)',
-            fontFamily: 'var(--font-sans)',
+            background: '#f5f5f4',
+            borderRadius: '14px',
+            border: '1px solid #e7e5e4',
+            fontFamily: 'inherit',
           }}>
-            <span style={{ fontSize: 13, color: 'var(--color-black)', fontWeight: 500 }}>
+            <span style={{ fontSize: 13, color: '#0c0a09', fontWeight: 500 }}>
               Tienes un borrador guardado
             </span>
             <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
@@ -947,7 +947,7 @@ export default function CreatePostPage() {
                   } catch { /* ignore */ }
                   setDraftBanner(false);
                 }}
-                style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               >
                 Restaurar
               </button>
@@ -957,7 +957,7 @@ export default function CreatePostPage() {
                   try { localStorage.removeItem('post_draft'); } catch { /* ignore */ }
                   setDraftBanner(false);
                 }}
-                style={{ fontSize: 13, color: 'var(--color-stone)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                style={{ fontSize: 13, color: '#78716c', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               >
                 Descartar
               </button>
@@ -977,7 +977,7 @@ export default function CreatePostPage() {
               right: 0,
               padding: 12,
               fontSize: 14,
-              fontFamily: 'var(--font-sans)',
+              fontFamily: 'inherit',
               lineHeight: '1.5',
               whiteSpace: 'pre-wrap',
               wordWrap: 'break-word',
@@ -1009,13 +1009,13 @@ export default function CreatePostPage() {
             placeholder="Escribe una descripción..."
             style={{
               width: '100%',
-              border: '1.5px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
+              border: '1.5px solid #e7e5e4',
+              borderRadius: '12px',
               padding: 12,
               resize: 'none',
               minHeight: 80,
               fontSize: 14,
-              fontFamily: 'var(--font-sans)',
+              fontFamily: 'inherit',
               lineHeight: '1.5',
               outline: 'none',
               boxSizing: 'border-box',
@@ -1025,7 +1025,7 @@ export default function CreatePostPage() {
               caretColor: '#0c0a09',
             }}
           />
-          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 11, color: caption.length > 2000 ? '#0c0a09' : 'var(--color-stone)', fontWeight: caption.length > 2000 ? 600 : 400 }}>
+          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 11, color: caption.length > 2000 ? '#0c0a09' : '#78716c', fontWeight: caption.length > 2000 ? 600 : 400 }}>
             {caption.length} / 2200
           </span>
         </div>
@@ -1057,11 +1057,11 @@ export default function CreatePostPage() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            background: 'var(--color-surface-alt, #f5f5f4)',
-            color: 'var(--color-black)',
+            background: '#f5f5f4',
+            color: '#0c0a09',
             fontSize: 13,
             fontWeight: 500,
-            borderRadius: 'var(--radius-full)',
+            borderRadius: '9999px',
             padding: '8px 16px',
             border: 'none',
             cursor: aiLoading ? 'wait' : 'pointer',
@@ -1077,10 +1077,10 @@ export default function CreatePostPage() {
           <button
             onClick={() => setShowProductSearch(true)}
             style={{
-              background: 'var(--color-surface)',
-              color: 'var(--color-black)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
+              background: '#f5f5f4',
+              color: '#0c0a09',
+              border: '1px solid #e7e5e4',
+              borderRadius: '12px',
               padding: '10px 16px',
               fontSize: 13,
               cursor: 'pointer',
@@ -1098,9 +1098,9 @@ export default function CreatePostPage() {
                 <span
                   key={p.id}
                   style={{
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-full)',
+                    background: '#f5f5f4',
+                    border: '1px solid #e7e5e4',
+                    borderRadius: '9999px',
                     padding: '4px 10px',
                     fontSize: 12,
                     display: 'flex',
@@ -1124,14 +1124,14 @@ export default function CreatePostPage() {
 
         {/* location */}
         <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '10px 12px' }}>
-            <MapPin size={16} color="var(--color-stone)" style={{ flexShrink: 0 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f5f5f4', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '10px 12px' }}>
+            <MapPin size={16} color="#78716c" style={{ flexShrink: 0 }} />
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Añadir ubicación... (ej. Galicia, Costa Brava)"
               aria-label="Ubicación"
-              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontFamily: 'var(--font-sans)', background: 'transparent' }}
+              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontFamily: 'inherit', background: 'transparent' }}
             />
           </div>
         </div>
@@ -1148,10 +1148,10 @@ export default function CreatePostPage() {
                 justifyContent: 'center',
                 gap: 6,
                 padding: '10px 0',
-                borderRadius: 'var(--radius-full)',
-                border: audience === 'public' ? '2px solid #2E7D52' : '1.5px solid var(--color-border)',
+                borderRadius: '9999px',
+                border: audience === 'public' ? '2px solid #2E7D52' : '1.5px solid #e7e5e4',
                 background: audience === 'public' ? '#2E7D52' : 'transparent',
-                color: audience === 'public' ? '#fff' : 'var(--color-black)',
+                color: audience === 'public' ? '#fff' : '#0c0a09',
                 fontSize: 13,
                 fontWeight: 500,
                 cursor: 'pointer',
@@ -1169,10 +1169,10 @@ export default function CreatePostPage() {
                 justifyContent: 'center',
                 gap: 6,
                 padding: '10px 0',
-                borderRadius: 'var(--radius-full)',
-                border: audience === 'followers' ? '2px solid #2E7D52' : '1.5px solid var(--color-border)',
+                borderRadius: '9999px',
+                border: audience === 'followers' ? '2px solid #2E7D52' : '1.5px solid #e7e5e4',
                 background: audience === 'followers' ? '#2E7D52' : 'transparent',
-                color: audience === 'followers' ? '#fff' : 'var(--color-black)',
+                color: audience === 'followers' ? '#fff' : '#0c0a09',
                 fontSize: 13,
                 fontWeight: 500,
                 cursor: 'pointer',
@@ -1187,7 +1187,7 @@ export default function CreatePostPage() {
         {/* advanced settings */}
         <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
           <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-            <span style={{ fontSize: 13, color: 'var(--color-black)' }}>Ocultar recuento de «Me gusta»</span>
+            <span style={{ fontSize: 13, color: '#0c0a09' }}>Ocultar recuento de «Me gusta»</span>
             <input
               type="checkbox"
               checked={hideLikes}
@@ -1196,7 +1196,7 @@ export default function CreatePostPage() {
             />
           </label>
           <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-            <span style={{ fontSize: 13, color: 'var(--color-black)' }}>Desactivar comentarios</span>
+            <span style={{ fontSize: 13, color: '#0c0a09' }}>Desactivar comentarios</span>
             <input
               type="checkbox"
               checked={disableComments}
@@ -1210,16 +1210,16 @@ export default function CreatePostPage() {
       {/* product search modal */}
       {showProductSearch && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-          <div style={{ background: 'var(--color-white)', width: '100%', maxHeight: '70vh', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--color-border)', gap: 8 }}>
-              <Search size={18} color="var(--color-stone)" />
+          <div style={{ background: '#ffffff', width: '100%', maxHeight: '70vh', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #e7e5e4', gap: 8 }}>
+              <Search size={18} color="#78716c" />
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar producto..."
                 aria-label="Buscar producto para etiquetar"
                 autoFocus
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'var(--font-sans)' }}
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'inherit' }}
               />
               <button onClick={() => { setShowProductSearch(false); setSearchQuery(''); setSearchResults([]); }} aria-label="Cerrar búsqueda" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={18} />
@@ -1245,18 +1245,18 @@ export default function CreatePostPage() {
                     padding: '10px 8px',
                     background: 'none',
                     border: 'none',
-                    borderBottom: '1px solid var(--color-border)',
+                    borderBottom: '1px solid #e7e5e4',
                     cursor: 'pointer',
                     textAlign: 'left',
                     fontSize: 13,
                   }}
                 >
-                  {p.image && <img src={p.image} alt="" style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', objectFit: 'cover' }} />}
+                  {p.image && <img src={p.image} alt="" style={{ width: 36, height: 36, borderRadius: '12px', objectFit: 'cover' }} />}
                   <span>{p.name || p.title}</span>
                 </button>
               ))}
               {searchQuery && searchResults.length === 0 && (
-                <p style={{ textAlign: 'center', color: 'var(--color-stone)', fontSize: 13, padding: 20 }}>Sin resultados</p>
+                <p style={{ textAlign: 'center', color: '#78716c', fontSize: 13, padding: 20 }}>Sin resultados</p>
               )}
             </div>
           </div>
@@ -1265,16 +1265,16 @@ export default function CreatePostPage() {
 
       {/* Publish success overlay */}
       {publishSuccess && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'var(--color-white)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, animation: 'fadeIn 0.3s ease' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, animation: 'fadeIn 0.3s ease' }}>
           <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#2E7D52', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
             <Check size={28} color="#fff" strokeWidth={2.5} />
           </div>
-          <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)' }}>¡Publicado!</span>
+          <span style={{ fontSize: 16, fontWeight: 600, color: '#0c0a09' }}>¡Publicado!</span>
         </div>
       )}
 
       {/* fixed publish button */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: 16, background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: 16, background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
         {/* Upload progress bar */}
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
           <div style={{ width: '100%', height: 3, background: '#e7e5e4', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
@@ -1291,7 +1291,7 @@ export default function CreatePostPage() {
             fontSize: 15,
             fontWeight: 600,
             padding: 14,
-            borderRadius: 'var(--radius-full)',
+            borderRadius: '9999px',
             border: 'none',
             cursor: publishing ? 'default' : 'pointer',
             opacity: publishing ? 0.8 : 1,
@@ -1299,7 +1299,7 @@ export default function CreatePostPage() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 8,
-            transition: 'var(--transition-fast)',
+            transition: 'all 0.15s ease',
           }}
           onMouseEnter={(e) => { if (!publishing) e.currentTarget.style.background = '#1F5C3B'; }}
           onMouseLeave={(e) => { if (!publishing) e.currentTarget.style.background = '#2E7D52'; }}

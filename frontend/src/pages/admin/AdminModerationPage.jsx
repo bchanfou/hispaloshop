@@ -41,8 +41,8 @@ function ConfidenceBadge({ confidence }) {
     <span
       className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
       style={{
-        background: isHigh ? 'var(--color-surface)' : 'var(--color-amber-light)',
-        color: isHigh ? 'var(--color-stone)' : 'var(--color-amber)',
+        background: isHigh ? '#f5f5f4' : '#fffbeb',
+        color: isHigh ? '#78716c' : '#d97706',
       }}
     >
       {pct}%
@@ -54,18 +54,18 @@ function StatCard({ icon: Icon, value, label, color }) {
   return (
     <div
       className="p-3.5 flex flex-col gap-1"
-      style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+      style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}
     >
       <div className="flex items-center gap-2">
         <div
           className="w-7 h-7 flex items-center justify-center shrink-0"
-          style={{ borderRadius: 'var(--radius-md)', background: color === 'red' ? 'var(--color-red-light)' : color === 'amber' ? 'var(--color-amber-light)' : 'var(--color-surface)' }}
+          style={{ borderRadius: '12px', background: color === 'red' ? '#fef2f2' : color === 'amber' ? '#fffbeb' : '#f5f5f4' }}
         >
-          <Icon className="w-3.5 h-3.5" style={{ color: color === 'red' ? 'var(--color-red)' : color === 'amber' ? 'var(--color-amber)' : 'var(--color-stone)' }} />
+          <Icon className="w-3.5 h-3.5" style={{ color: color === 'red' ? '#dc2626' : color === 'amber' ? '#d97706' : '#78716c' }} />
         </div>
-        <span className="text-xl font-extrabold" style={{ color: 'var(--color-black)' }}>{value}</span>
+        <span className="text-xl font-extrabold" style={{ color: '#0c0a09' }}>{value}</span>
       </div>
-      <span className="text-[11px]" style={{ color: 'var(--color-stone)' }}>{label}</span>
+      <span className="text-[11px]" style={{ color: '#78716c' }}>{label}</span>
     </div>
   );
 }
@@ -79,7 +79,7 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
   return (
     <div
       className="overflow-hidden"
-      style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+      style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}
     >
       <div className="p-3.5">
         {/* Top row: type + action + confidence */}
@@ -87,18 +87,18 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
           <span
             className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1"
             style={{
-              background: item.action === 'hide' ? 'var(--color-red-light)' : item.action === 'blocked' ? 'var(--color-red-light)' : 'var(--color-amber-light)',
-              color: item.action === 'hide' ? 'var(--color-red)' : item.action === 'blocked' ? 'var(--color-red)' : 'var(--color-amber)',
+              background: item.action === 'hide' ? '#fef2f2' : item.action === 'blocked' ? '#fef2f2' : '#fffbeb',
+              color: item.action === 'hide' ? '#dc2626' : item.action === 'blocked' ? '#dc2626' : '#d97706',
             }}
           >
             <TypeIcon className="w-3 h-3" />
             {item.action === 'hide' ? 'OCULTO' : item.action === 'blocked' ? 'BLOQUEADO' : 'REVISAR'}
           </span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: '#f5f5f4', color: '#78716c' }}>
             {CONTENT_TYPE_LABELS[item.content_type] || item.content_type}
           </span>
           {item.violation_type && (
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-surface)', color: 'var(--color-black)' }}>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: '#f5f5f4', color: '#0c0a09' }}>
               {VIOLATION_LABELS[item.violation_type] || item.violation_type}
             </span>
           )}
@@ -108,23 +108,23 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
         {/* Content preview */}
         <div className="flex gap-3">
           {item.preview?.image && (
-            <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid var(--color-border)' }}>
+            <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid #e7e5e4' }}>
               <img src={item.preview.image} alt="" className="w-full h-full object-cover" />
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm leading-snug line-clamp-2" style={{ color: 'var(--color-black)' }}>
+            <p className="text-sm leading-snug line-clamp-2" style={{ color: '#0c0a09' }}>
               {item.preview?.text || '(Sin texto)'}
             </p>
             <div className="flex items-center gap-1.5 mt-1.5">
               {item.creator_avatar && (
                 <img src={item.creator_avatar} alt="" className="w-4 h-4 rounded-full" />
               )}
-              <span className="text-[11px]" style={{ color: 'var(--color-stone)' }}>
+              <span className="text-[11px]" style={{ color: '#78716c' }}>
                 {item.creator_name}
               </span>
               {item.created_at && (
-                <span className="text-[10px]" style={{ color: 'var(--color-stone)', opacity: 0.6 }}>
+                <span className="text-[10px]" style={{ color: '#78716c', opacity: 0.6 }}>
                   {new Date(item.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                 </span>
               )}
@@ -137,44 +137,44 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
           <button
             onClick={() => setExpanded(!expanded)}
             className="flex items-center gap-1 mt-2 text-[11px] font-medium"
-            style={{ color: 'var(--color-stone)' }}
+            style={{ color: '#78716c' }}
           >
             <ChevronUp className={`w-3 h-3 transition-transform ${expanded ? '' : 'rotate-180'}`} />
             Razón IA
           </button>
         )}
         {expanded && item.ai_reason && (
-          <p className="text-[11px] mt-1 p-2 rounded-xl leading-relaxed" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
+          <p className="text-[11px] mt-1 p-2 rounded-xl leading-relaxed" style={{ background: '#f5f5f4', color: '#78716c' }}>
             {item.ai_reason}
           </p>
         )}
       </div>
 
       {/* Actions */}
-      <div className="flex border-t" style={{ borderColor: 'var(--color-border)' }}>
+      <div className="flex border-t" style={{ borderColor: '#e7e5e4' }}>
         <button
           onClick={() => onConfirm(item.id)}
           disabled={busy}
           className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-colors"
-          style={{ color: 'var(--color-black)' }}
+          style={{ color: '#0c0a09' }}
         >
           <CheckCircle className="w-3.5 h-3.5" /> Confirmar
         </button>
-        <div className="w-px" style={{ background: 'var(--color-border)' }} />
+        <div className="w-px" style={{ background: '#e7e5e4' }} />
         <button
           onClick={() => onRestore(item.id)}
           disabled={busy}
           className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-colors"
-          style={{ color: 'var(--color-stone)' }}
+          style={{ color: '#78716c' }}
         >
           <RotateCcw className="w-3.5 h-3.5" /> Restaurar
         </button>
-        <div className="w-px" style={{ background: 'var(--color-border)' }} />
+        <div className="w-px" style={{ background: '#e7e5e4' }} />
         <button
           onClick={() => onEscalate(item.id)}
           disabled={busy}
           className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-colors"
-          style={{ color: 'var(--color-amber)' }}
+          style={{ color: '#d97706' }}
         >
           <AlertTriangle className="w-3.5 h-3.5" /> Escalar
         </button>
@@ -244,7 +244,7 @@ export default function AdminModerationPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--color-stone)' }} />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: '#78716c' }} />
       </div>
     );
   }
@@ -252,25 +252,25 @@ export default function AdminModerationPage() {
   const totalPending = (stats?.total_hidden || 0) + (stats?.total_review || 0) + (stats?.total_blocked_products || 0);
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)' }}>
+    <div style={{ fontFamily: 'inherit', background: '#fafaf9' }}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
         <Link to="/admin" className="shrink-0">
-          <ArrowLeft className="w-5 h-5" style={{ color: 'var(--color-black)' }} />
+          <ArrowLeft className="w-5 h-5" style={{ color: '#0c0a09' }} />
         </Link>
-        <h1 className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>
+        <h1 className="text-xl font-bold" style={{ color: '#0c0a09' }}>
           Moderacion de contenido
         </h1>
         {totalPending > 0 && (
           <span
             className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{ background: 'var(--color-red)', color: 'var(--color-white)' }}
+            style={{ background: '#dc2626', color: '#ffffff' }}
           >
             {totalPending}
           </span>
         )}
       </div>
-      <p className="text-sm mb-5" style={{ color: 'var(--color-stone)' }}>
+      <p className="text-sm mb-5" style={{ color: '#78716c' }}>
         Revisa el contenido moderado por IA
       </p>
 
@@ -285,10 +285,10 @@ export default function AdminModerationPage() {
       {stats?.false_positive_rate > 0 && (
         <div
           className="flex items-center gap-2 p-3 mb-4 text-xs"
-          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)', color: 'var(--color-stone)' }}
+          style={{ borderRadius: '16px', background: '#f5f5f4', color: '#78716c' }}
         >
           <Shield className="w-4 h-4 shrink-0" />
-          Tasa de falsos positivos: <strong style={{ color: 'var(--color-black)' }}>{stats.false_positive_rate}%</strong>
+          Tasa de falsos positivos: <strong style={{ color: '#0c0a09' }}>{stats.false_positive_rate}%</strong>
           <span className="ml-1">({stats?.total_restored || 0} restaurados / {(stats?.total_confirmed || 0) + (stats?.total_restored || 0)} revisados)</span>
         </div>
       )}
@@ -301,9 +301,9 @@ export default function AdminModerationPage() {
             onClick={() => setFilter(f.key)}
             className="text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap transition-colors"
             style={{
-              background: filter === f.key ? 'var(--color-black)' : 'var(--color-white)',
-              color: filter === f.key ? 'var(--color-white)' : 'var(--color-stone)',
-              border: `1px solid ${filter === f.key ? 'var(--color-black)' : 'var(--color-border)'}`,
+              background: filter === f.key ? '#0c0a09' : '#ffffff',
+              color: filter === f.key ? '#ffffff' : '#78716c',
+              border: `1px solid ${filter === f.key ? '#0c0a09' : '#e7e5e4'}`,
             }}
           >
             {f.label}
@@ -314,8 +314,8 @@ export default function AdminModerationPage() {
       {/* Queue */}
       {queue.length === 0 ? (
         <div className="text-center py-16">
-          <Shield className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--color-border)' }} />
-          <p className="text-sm font-medium" style={{ color: 'var(--color-stone)' }}>
+          <Shield className="w-10 h-10 mx-auto mb-3" style={{ color: '#e7e5e4' }} />
+          <p className="text-sm font-medium" style={{ color: '#78716c' }}>
             No hay contenido pendiente
           </p>
         </div>
@@ -337,18 +337,18 @@ export default function AdminModerationPage() {
       {/* Top violations */}
       {stats?.top_violation_types?.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Violaciones frecuentes</h2>
+          <h2 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>Violaciones frecuentes</h2>
           <div className="space-y-1.5">
             {stats.top_violation_types.map(v => (
               <div
                 key={v.type}
                 className="flex items-center justify-between p-2.5 text-xs"
-                style={{ borderRadius: 'var(--radius-lg)', background: 'var(--color-white)', border: '1px solid var(--color-border)' }}
+                style={{ borderRadius: '14px', background: '#ffffff', border: '1px solid #e7e5e4' }}
               >
-                <span className="font-medium" style={{ color: 'var(--color-black)' }}>
+                <span className="font-medium" style={{ color: '#0c0a09' }}>
                   {VIOLATION_LABELS[v.type] || v.type}
                 </span>
-                <span className="font-bold" style={{ color: 'var(--color-stone)' }}>{v.count}</span>
+                <span className="font-bold" style={{ color: '#78716c' }}>{v.count}</span>
               </div>
             ))}
           </div>

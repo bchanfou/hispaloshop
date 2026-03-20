@@ -5,8 +5,8 @@ import { X } from 'lucide-react';
 const TYPE_BADGES = {
   b2c: {
     label: 'Tienda',
-    bg: 'var(--color-surface, #F0EDE8)',
-    color: 'var(--color-stone, #8A8881)',
+    bg: '#f5f5f4',
+    color: '#78716c',
   },
   b2b: {
     label: 'B2B',
@@ -41,11 +41,11 @@ function Avatar({ src, name }) {
       style={{
         width: 32,
         height: 32,
-        backgroundColor: 'var(--color-surface, #F0EDE8)',
-        color: 'var(--color-black, #0A0A0A)',
+        backgroundColor: '#f5f5f4',
+        color: '#0c0a09',
         fontSize: 13,
         fontWeight: 600,
-        fontFamily: 'var(--font-sans, Inter, sans-serif)',
+        fontFamily: 'Inter, sans-serif',
       }}
     >
       {initial}
@@ -73,9 +73,9 @@ export default function ChatToastNotification({ notification, onClose, onOpen })
       }}
       className="pointer-events-auto w-[min(92vw,400px)]"
       style={{
-        background: 'var(--color-white, #fff)',
-        border: '0.5px solid var(--color-border, #E5E2DA)',
-        borderRadius: 'var(--radius-lg, 16px)',
+        background: '#ffffff',
+        border: '0.5px solid #e7e5e4',
+        borderRadius: '16px',
         boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
         padding: '10px 14px',
       }}
@@ -98,8 +98,8 @@ export default function ChatToastNotification({ notification, onClose, onOpen })
                 style={{
                   fontSize: 14,
                   fontWeight: 600,
-                  color: 'var(--color-black, #0A0A0A)',
-                  fontFamily: 'var(--font-sans, Inter, sans-serif)',
+                  color: '#0c0a09',
+                  fontFamily: 'Inter, sans-serif',
                 }}
               >
                 {notification.senderName}
@@ -115,7 +115,7 @@ export default function ChatToastNotification({ notification, onClose, onOpen })
                     padding: '2px 6px',
                     backgroundColor: badge.bg,
                     color: badge.color,
-                    fontFamily: 'var(--font-sans, Inter, sans-serif)',
+                    fontFamily: 'Inter, sans-serif',
                   }}
                 >
                   {badge.label}
@@ -128,8 +128,8 @@ export default function ChatToastNotification({ notification, onClose, onOpen })
               className="truncate"
               style={{
                 fontSize: 12,
-                color: 'var(--color-stone, #8A8881)',
-                fontFamily: 'var(--font-sans, Inter, sans-serif)',
+                color: '#78716c',
+                fontFamily: 'Inter, sans-serif',
                 marginTop: 1,
               }}
             >
@@ -149,7 +149,7 @@ export default function ChatToastNotification({ notification, onClose, onOpen })
           style={{
             width: 28,
             height: 28,
-            color: 'var(--color-stone, #8A8881)',
+            color: '#78716c',
           }}
           aria-label="Cerrar notificacion"
         >

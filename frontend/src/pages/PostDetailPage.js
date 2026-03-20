@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronLeft, Heart, MessageCircle, Share2, Bookmark, Send, Loader2, Trash2, MoreHorizontal, X } from 'lucide-react';
+import { ChevronLeft, Heart, MessageCircle, Share2, Bookmark, Send, Loader2, Trash2, MoreHorizontal, X, Pencil, Flag, UserMinus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
@@ -86,6 +86,11 @@ export default function PostDetailPage() {
   const [likesCount, setLikesCount] = useState(0);
   const [saved, setSaved] = useState(false);
   const [replyTo, setReplyTo] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showEditCaption, setShowEditCaption] = useState(false);
+  const [editCaption, setEditCaption] = useState('');
+  const [localCaption, setLocalCaption] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -180,6 +185,32 @@ export default function PostDetailPage() {
     inputRef.current?.focus();
   }, []);
 
+  const isOwner = user && post && (
+    (user.user_id || user.id) === (post.user?.id || post.user?.user_id || post.user_id)
+  );
+
+  const handleEditSave = async () => {
+    try {
+      await apiClient.patch(`/posts/${postId}`, { caption: editCaption });
+      setLocalCaption(editCaption);
+      setShowEditCaption(false);
+      toast.success('Publicación editada');
+    } catch {
+      toast.error('Error al editar');
+    }
+  };
+
+  const handleDeletePost = async () => {
+    setShowDeleteConfirm(false);
+    try {
+      await apiClient.delete(`/posts/${postId}`);
+      toast.success('Post eliminado');
+      navigate(-1);
+    } catch {
+      toast.error('Error al eliminar');
+    }
+  };
+
   /* ── Loading ── */
   if (loading) {
     return (
@@ -245,9 +276,56 @@ export default function PostDetailPage() {
             </Link>
             {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
           </div>
-          <button className="bg-transparent border-none cursor-pointer p-1" aria-label="Más opciones">
+          <button className="bg-transparent border-none cursor-pointer p-1 relative" aria-label="Más opciones" onClick={() => setShowMenu(v => !v)}>
             <MoreHorizontal size={20} className="text-stone-500" />
           </button>
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+              <div className="absolute right-4 top-12 z-50 bg-white rounded-xl shadow-lg border border-stone-200 py-1 min-w-[180px]">
+                {isOwner && (
+                  <>
+                    <button
+                      className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                      onClick={() => { setEditCaption(localCaption ?? post.caption ?? post.content ?? ''); setShowEditCaption(true); setShowMenu(false); }}
+                    >
+                      <Pencil size={16} /> Editar
+                    </button>
+                    <button
+                      className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                      onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
+                    >
+                      <Trash2 size={16} /> Eliminar
+                    </button>
+                  </>
+                )}
+                <button
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(`${window.location.origin}/posts/${postId}`);
+                    toast.success('Enlace copiado');
+                    setShowMenu(false);
+                  }}
+                >
+                  Copiar enlace
+                </button>
+                {!isOwner && (
+                  <button
+                    className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                    onClick={async () => {
+                      try {
+                        await apiClient.post(`/posts/${postId}/report`, { reason: 'inappropriate' });
+                        toast.success('Reporte enviado');
+                      } catch { toast.error('Error al reportar'); }
+                      setShowMenu(false);
+                    }}
+                  >
+                    <Flag size={16} /> Reportar
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Image */}
@@ -279,13 +357,13 @@ export default function PostDetailPage() {
         )}
 
         {/* Caption */}
-        {(post.caption || post.content) && (
+        {(localCaption ?? post.caption ?? post.content) && (
           <div className="px-4 pb-2">
             <p className="text-[13px] leading-relaxed text-stone-950">
               <Link to={`/${userObj.username || userObj.id || post.user_id}`} className="font-semibold text-stone-950 no-underline hover:underline mr-1.5">
                 {userName}
               </Link>
-              {renderCaption(post.caption || post.content, navigate)}
+              {renderCaption(localCaption ?? post.caption ?? post.content, navigate)}
             </p>
           </div>
         )}
@@ -293,6 +371,55 @@ export default function PostDetailPage() {
         {/* Time */}
         <p className="px-4 pb-3 text-[11px] text-stone-400">{timeAgo(post.created_at)}</p>
       </div>
+
+      {/* ── Edit caption modal ── */}
+      {showEditCaption && (
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowEditCaption(false)}>
+          <div className="bg-white w-full max-w-lg rounded-t-2xl p-4 flex flex-col gap-3" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-stone-950">Editar publicación</span>
+              <button className="bg-transparent border-none cursor-pointer p-1" onClick={() => setShowEditCaption(false)} aria-label="Cerrar"><X size={18} /></button>
+            </div>
+            <textarea
+              value={editCaption}
+              onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
+              className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
+              aria-label="Editar descripción"
+            />
+            <p className="text-[11px] text-stone-400">La imagen no se puede cambiar tras publicar.</p>
+            <button
+              onClick={handleEditSave}
+              className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
+            >
+              Guardar cambios
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete confirmation modal ── */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="bg-white w-full max-w-lg rounded-t-2xl p-5 flex flex-col gap-3 text-center" onClick={e => e.stopPropagation()}>
+            <p className="text-base font-semibold text-stone-950">¿Eliminar este post?</p>
+            <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes. Esta acción no se puede deshacer.</p>
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeletePost}
+                className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Comments section ── */}
       <div className="max-w-[600px] mx-auto mt-2 bg-white sm:rounded-xl sm:shadow-sm sm:border sm:border-stone-100">

@@ -28,7 +28,7 @@ export default function HeroBanner() {
       bottom: 0,
       left: 0,
       right: 0,
-      zIndex: 'var(--z-overlay)',
+      zIndex: '45',
       height: 72,
       background: 'rgba(10,10,10,0.92)',
       backdropFilter: 'blur(12px)',
@@ -38,7 +38,7 @@ export default function HeroBanner() {
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '0 16px',
-      fontFamily: 'var(--font-sans)',
+      fontFamily: 'inherit',
     }}>
       {/* Left */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
@@ -46,7 +46,7 @@ export default function HeroBanner() {
         <div style={{ minWidth: 0 }}>
           <p style={{
             margin: 0,
-            fontSize: 'var(--text-base)',
+            fontSize: '16px',
             fontWeight: 500,
             color: '#fff',
             whiteSpace: 'nowrap',
@@ -57,7 +57,7 @@ export default function HeroBanner() {
           </p>
           <p style={{
             margin: 0,
-            fontSize: 'var(--text-sm)',
+            fontSize: '14px',
             color: 'rgba(255,255,255,0.5)',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
@@ -75,15 +75,15 @@ export default function HeroBanner() {
           style={{
             height: 40,
             padding: '0 20px',
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--color-black)',
+            borderRadius: '9999px',
+            background: '#0c0a09',
             color: '#fff',
-            fontSize: 'var(--text-sm)',
+            fontSize: '14px',
             fontWeight: 600,
             border: 'none',
             cursor: 'pointer',
-            fontFamily: 'var(--font-sans)',
-            transition: 'background var(--transition-fast)',
+            fontFamily: 'inherit',
+            transition: 'background all 0.15s ease',
           }}
         >
           Crear cuenta
@@ -98,7 +98,7 @@ export default function HeroBanner() {
             width: 32,
             height: 32,
             border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: 'var(--radius-full)',
+            borderRadius: '9999px',
             background: 'transparent',
             cursor: 'pointer',
             color: 'rgba(255,255,255,0.6)',

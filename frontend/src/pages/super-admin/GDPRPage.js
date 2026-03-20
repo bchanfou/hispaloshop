@@ -4,14 +4,14 @@ import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
 const TYPE_CONFIG = {
-  deletion: { label: 'Derecho al olvido', icon: Trash2, color: 'var(--color-red)' },
-  access: { label: 'Acceso a datos', icon: FileText, color: 'var(--color-white)' },
-  portability: { label: 'Portabilidad', icon: Download, color: 'var(--color-stone)' },
+  deletion: { label: 'Derecho al olvido', icon: Trash2, color: '#dc2626' },
+  access: { label: 'Acceso a datos', icon: FileText, color: '#ffffff' },
+  portability: { label: 'Portabilidad', icon: Download, color: '#78716c' },
 };
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[var(--color-bg-card)] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-[#ffffff] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
       {children}
     </div>
   );
@@ -35,8 +35,8 @@ function DeadlineBadge({ deadline }) {
   const isWarning = daysLeft <= 14;
   return (
     <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
-      isUrgent ? 'bg-[var(--color-red)]/20 text-[var(--color-red)]'
-        : isWarning ? 'bg-[var(--color-stone)]/20 text-[var(--color-stone)]'
+      isUrgent ? 'bg-[#dc2626]/20 text-[#dc2626]'
+        : isWarning ? 'bg-[#78716c]/20 text-[#78716c]'
           : 'bg-white/10 text-white/40'
     }`}>
       {daysLeft > 0 ? `${daysLeft}d restantes` : 'Vencido'}
@@ -136,7 +136,7 @@ export default function GDPRPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleAction(req.id, 'fulfill')}
-                      className="px-4 py-2 bg-[var(--color-white)] rounded-xl text-xs font-bold text-white hover:bg-[#4846c4] transition-colors"
+                      className="px-4 py-2 bg-[#ffffff] rounded-xl text-xs font-bold text-white hover:bg-[#4846c4] transition-colors"
                     >
                       Procesar
                     </button>
@@ -206,12 +206,12 @@ function ExportUserTool() {
         value={userId}
         onChange={e => setUserId(e.target.value)}
         placeholder="user_id"
-        className="flex-1 px-3.5 py-2.5 bg-[var(--color-bg-hover)] border border-white/10 rounded-xl text-white text-sm outline-none"
+        className="flex-1 px-3.5 py-2.5 bg-[#1c1917] border border-white/10 rounded-xl text-white text-sm outline-none"
       />
       <button
         onClick={handleExport}
         disabled={exporting}
-        className="px-5 py-2.5 bg-[var(--color-white)] rounded-xl text-sm font-bold text-white disabled:opacity-50 flex items-center gap-1.5"
+        className="px-5 py-2.5 bg-[#ffffff] rounded-xl text-sm font-bold text-white disabled:opacity-50 flex items-center gap-1.5"
       >
         {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
         Exportar

@@ -16,24 +16,24 @@ export default function FeedLayout({ children }) {
         .feed-layout {
           display: flex;
           gap: 40px;
-          max-width: calc(var(--container-feed) + var(--container-sidebar) + 40px);
+          max-width: calc(600px + 320px + 40px);
           margin: 0 auto;
-          padding: 0 var(--content-px);
+          padding: 0 16px;
           align-items: flex-start;
         }
         .feed-column {
           flex: 1;
           min-width: 0;
-          max-width: var(--container-feed);
+          max-width: 600px;
         }
         .feed-sidebar-slot {
           display: none;
-          width: var(--container-sidebar);
+          width: 320px;
           flex-shrink: 0;
         }
         @media (min-width: 1024px) {
           .feed-layout {
-            padding: 0 var(--content-px-desktop);
+            padding: 0 0px;
           }
           .feed-sidebar-slot {
             display: block;
@@ -48,11 +48,11 @@ export default function FeedLayout({ children }) {
         @media (hover: hover) {
           .product-card-hover:hover {
             transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
           }
           .post-card-hover:hover {
             transform: scale(1.005);
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
           }
           .reel-card-hover:hover .reel-hover-overlay {
             opacity: 1;

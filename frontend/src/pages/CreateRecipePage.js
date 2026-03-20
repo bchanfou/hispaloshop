@@ -140,7 +140,7 @@ export default function CreateRecipePage() {
   const diff = DIFFICULTY_MAP[recipe.difficulty];
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream)] font-sans">
+    <div className="min-h-screen bg-[#fafaf9] font-sans">
       {/* TopBar */}
       <div className="sticky top-0 z-40 flex h-[52px] items-center justify-between border-b border-stone-200 bg-white px-4">
         <button type="button" onClick={() => navigate(-1)} aria-label="Volver" className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950">
@@ -159,7 +159,7 @@ export default function CreateRecipePage() {
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
           className={`relative h-[130px] overflow-hidden rounded-xl ${dragActive ? 'border-2 border-dashed border-stone-400' : ''}`}
-          style={{ background: recipe.image_url ? undefined : 'linear-gradient(135deg, var(--color-surface), var(--color-cream))' }}
+          style={{ background: recipe.image_url ? undefined : 'linear-gradient(135deg, #f5f5f4, #fafaf9)' }}
         >
           {recipe.image_url ? (
             <>

@@ -17,7 +17,7 @@ import { useStoreFollow } from '../features/products/hooks';
 import { useChatContext } from '../context/chat/ChatProvider';
 import SEO from '../components/SEO';
 
-const F = 'var(--font-sans)';
+const F = 'inherit';
 const normalizeEntityId = (v) => (v == null ? '' : String(v));
 
 export default function StorePage() {
@@ -147,14 +147,14 @@ export default function StorePage() {
   /* ── Loading ── */
   if (storeQuery.isLoading) {
     return (
-      <div aria-busy="true" aria-label="Cargando tienda" style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: F }}>
-        <div style={{ width: '100%', aspectRatio: '3/1', background: 'var(--color-surface)' }} />
+      <div aria-busy="true" aria-label="Cargando tienda" style={{ minHeight: '100vh', background: '#fafaf9',  }}>
+        <div style={{ width: '100%', aspectRatio: '3/1', background: '#f5f5f4' }} />
         <div style={{ padding: '0 16px', marginTop: -40 }}>
-          <div className="animate-pulse" style={{ width: 80, height: 80, borderRadius: 'var(--radius-lg)', background: 'var(--color-surface)', border: '3px solid var(--color-white)' }} />
-          <div className="animate-pulse" style={{ marginTop: 12, height: 18, width: '50%', background: 'var(--color-surface)', borderRadius: 4 }} />
-          <div className="animate-pulse" style={{ marginTop: 8, height: 14, width: '30%', background: 'var(--color-surface)', borderRadius: 4 }} />
+          <div className="animate-pulse" style={{ width: 80, height: 80, borderRadius: '14px', background: '#f5f5f4', border: '3px solid #ffffff' }} />
+          <div className="animate-pulse" style={{ marginTop: 12, height: 18, width: '50%', background: '#f5f5f4', borderRadius: 4 }} />
+          <div className="animate-pulse" style={{ marginTop: 8, height: 14, width: '30%', background: '#f5f5f4', borderRadius: 4 }} />
           <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-            {[1,2,3].map(i => <div key={i} className="animate-pulse" style={{ flex: 1, height: 40, background: 'var(--color-surface)', borderRadius: 'var(--radius-md)' }} />)}
+            {[1,2,3].map(i => <div key={i} className="animate-pulse" style={{ flex: 1, height: 40, background: '#f5f5f4', borderRadius: '12px' }} />)}
           </div>
         </div>
       </div>
@@ -164,11 +164,11 @@ export default function StorePage() {
   /* ── Not found ── */
   if (!store) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center', fontFamily: F }}>
-        <Store size={64} color="var(--color-stone)" strokeWidth={1.2} />
-        <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--color-black)', marginTop: 16 }}>Tienda no encontrada</p>
-        <p style={{ fontSize: 14, color: 'var(--color-stone)', marginTop: 4 }}>Esta tienda no existe o ha sido eliminada.</p>
-        <button onClick={() => navigate('/stores')} style={{ marginTop: 16, background: 'var(--color-black)', color: '#fff', border: 'none', borderRadius: 'var(--radius-full)', padding: '12px 24px', minHeight: 44, fontSize: 14, fontWeight: 600, fontFamily: F, cursor: 'pointer' }}>
+      <div style={{ minHeight: '100vh', background: '#fafaf9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center',  }}>
+        <Store size={64} color="#78716c" strokeWidth={1.2} />
+        <p style={{ fontSize: 18, fontWeight: 600, color: '#0c0a09', marginTop: 16 }}>Tienda no encontrada</p>
+        <p style={{ fontSize: 14, color: '#78716c', marginTop: 4 }}>Esta tienda no existe o ha sido eliminada.</p>
+        <button onClick={() => navigate('/stores')} style={{ marginTop: 16, background: '#0c0a09', color: '#fff', border: 'none', borderRadius: '9999px', padding: '12px 24px', minHeight: 44, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
           Explorar tiendas
         </button>
       </div>
@@ -176,7 +176,7 @@ export default function StorePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: F, paddingBottom: 80 }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 80 }}>
       <SEO
         title={`${store?.name || 'Tienda'} — Hispaloshop`}
         description={store?.tagline || store?.story?.slice(0, 160) || `Tienda de productos artesanales en Hispaloshop`}
@@ -214,25 +214,25 @@ export default function StorePage() {
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14 }}>
           {/* Avatar — square rounded */}
           <div style={{
-            width: 80, height: 80, borderRadius: 'var(--radius-lg)', overflow: 'hidden',
-            border: '3px solid var(--color-white)', background: 'var(--color-surface)',
+            width: 80, height: 80, borderRadius: '14px', overflow: 'hidden',
+            border: '3px solid #ffffff', background: '#f5f5f4',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
           }}>
             {store.logo ? (
               <img src={store.logo} alt={store.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <Store size={28} color="var(--color-stone)" />
+              <Store size={28} color="#78716c" />
             )}
           </div>
 
           {/* Name + username */}
           <div style={{ flex: 1, minWidth: 0, paddingBottom: 4 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {store.name}
             </h1>
             {store.username && (
-              <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '2px 0 0' }}>@{store.username}</p>
+              <p style={{ fontSize: 13, color: '#78716c', margin: '2px 0 0' }}>@{store.username}</p>
             )}
           </div>
         </div>
@@ -240,13 +240,13 @@ export default function StorePage() {
         {/* Badges row */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
           {isVerified && (
-            <span style={badgeStyle('var(--color-black)', '#fff')}><CheckCircle size={11} /> Verificado</span>
+            <span style={badgeStyle('#0c0a09', '#fff')}><CheckCircle size={11} /> Verificado</span>
           )}
           {storePlan && storePlan !== 'free' && (
-            <span style={badgeStyle('var(--color-surface)', 'var(--color-black)')}>{storePlan.toUpperCase()}</span>
+            <span style={badgeStyle('#f5f5f4', '#0c0a09')}>{storePlan.toUpperCase()}</span>
           )}
           {store.country && (
-            <span style={badgeStyle('var(--color-surface)', 'var(--color-black)')}>
+            <span style={badgeStyle('#f5f5f4', '#0c0a09')}>
               {store.country === 'ES' ? '🇪🇸' : store.country === 'FR' ? '🇫🇷' : '🌍'} {store.location || store.country}
             </span>
           )}
@@ -254,51 +254,51 @@ export default function StorePage() {
 
         {/* Description with Ver más */}
         {tagline && (
-          <p style={{ fontSize: 14, color: 'var(--color-stone)', lineHeight: 1.5, marginTop: 10, ...(!descExpanded && showVerMas ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : {}) }}>
+          <p style={{ fontSize: 14, color: '#78716c', lineHeight: 1.5, marginTop: 10, ...(!descExpanded && showVerMas ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : {}) }}>
             {tagline}
           </p>
         )}
         {showVerMas && (
-          <button onClick={() => setDescExpanded(!descExpanded)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-black)', padding: '4px 0', minHeight: 44, marginTop: 2, fontFamily: F }}>
+          <button onClick={() => setDescExpanded(!descExpanded)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#0c0a09', padding: '4px 0', minHeight: 44, marginTop: 2,  }}>
             {descExpanded ? 'Ver menos' : 'Ver más'}
           </button>
         )}
 
         {/* Stats inline */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 12, fontSize: 14, fontWeight: 500, color: 'var(--color-black)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 12, fontSize: 14, fontWeight: 500, color: '#0c0a09' }}>
           <span>{productTotal} productos</span>
-          <span style={{ color: 'var(--color-stone)' }}>·</span>
+          <span style={{ color: '#78716c' }}>·</span>
           <span>{store.follower_count || 0} seguidores</span>
-          <span style={{ color: 'var(--color-stone)' }}>·</span>
-          <Star size={13} fill="var(--color-black)" stroke="var(--color-black)" />
+          <span style={{ color: '#78716c' }}>·</span>
+          <Star size={13} fill="#0c0a09" stroke="#0c0a09" />
           <span>{Number(avgRating || 0).toFixed(1)}</span>
         </div>
 
         {/* 3 Action buttons */}
         <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
           <button type="button" onClick={handleToggleFollow} disabled={followLoading} style={{
-            flex: 1, height: 44, borderRadius: 'var(--radius-full)',
-            fontSize: 13, fontWeight: 600, fontFamily: F,
-            border: isFollowing ? '1px solid var(--color-border)' : 'none',
-            background: isFollowing ? 'var(--color-white)' : 'var(--color-black)',
-            color: isFollowing ? 'var(--color-black)' : '#fff',
+            flex: 1, height: 44, borderRadius: '9999px',
+            fontSize: 13, fontWeight: 600,
+            border: isFollowing ? '1px solid #e7e5e4' : 'none',
+            background: isFollowing ? '#ffffff' : '#0c0a09',
+            color: isFollowing ? '#0c0a09' : '#fff',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
-            <Heart size={15} fill={isFollowing ? 'var(--color-black)' : 'none'} />
+            <Heart size={15} fill={isFollowing ? '#0c0a09' : 'none'} />
             {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
           </button>
           <button type="button" onClick={handleChat} style={{
-            flex: 1, height: 44, borderRadius: 'var(--radius-full)',
-            fontSize: 13, fontWeight: 600, fontFamily: F,
-            border: '1px solid var(--color-border)', background: 'var(--color-white)', color: 'var(--color-black)',
+            flex: 1, height: 44, borderRadius: '9999px',
+            fontSize: 13, fontWeight: 600,
+            border: '1px solid #e7e5e4', background: '#ffffff', color: '#0c0a09',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
             <MessageCircle size={15} /> Mensaje
           </button>
           <button type="button" onClick={handleShare} style={{
-            flex: 1, height: 44, borderRadius: 'var(--radius-full)',
-            fontSize: 13, fontWeight: 600, fontFamily: F,
-            border: '1px solid var(--color-border)', background: 'var(--color-white)', color: 'var(--color-black)',
+            flex: 1, height: 44, borderRadius: '9999px',
+            fontSize: 13, fontWeight: 600,
+            border: '1px solid #e7e5e4', background: '#ffffff', color: '#0c0a09',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
             <Share2 size={15} /> Compartir
@@ -308,11 +308,11 @@ export default function StorePage() {
         {/* Free shipping bar */}
         {(storePlan === 'pro' || storePlan === 'elite') && store.free_shipping_min && (
           <div style={{
-            marginTop: 12, padding: '10px 14px', borderRadius: 'var(--radius-md)',
-            background: 'var(--color-surface)', display: 'flex', alignItems: 'center', gap: 8,
+            marginTop: 12, padding: '10px 14px', borderRadius: '12px',
+            background: '#f5f5f4', display: 'flex', alignItems: 'center', gap: 8,
           }}>
-            <Truck size={16} color="var(--color-black)" />
-            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)' }}>
+            <Truck size={16} color="#0c0a09" />
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#0c0a09' }}>
               Envío gratis desde {convertAndFormatPrice(store.free_shipping_min, 'EUR')} en esta tienda
             </span>
           </div>
@@ -320,15 +320,15 @@ export default function StorePage() {
       </div>
 
       {/* ── Sticky Tab Bar ── */}
-      <div className="sticky top-0 z-40" style={{ background: 'var(--color-cream)', borderBottom: '1px solid var(--color-border)', marginTop: 16 }}>
+      <div className="sticky top-0 z-40" style={{ background: '#fafaf9', borderBottom: '1px solid #e7e5e4', marginTop: 16 }}>
         <div role="tablist" aria-label="Secciones de la tienda" style={{ display: 'flex', overflowX: 'auto', padding: '0 16px', scrollbarWidth: 'none' }}>
           {tabs.map((tab) => (
             <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} style={{
               padding: '12px 16px', whiteSpace: 'nowrap', minHeight: 44,
-              fontSize: 13, fontWeight: activeTab === tab.id ? 600 : 400, fontFamily: F,
-              color: activeTab === tab.id ? 'var(--color-black)' : 'var(--color-stone)',
+              fontSize: 13, fontWeight: activeTab === tab.id ? 600 : 400,
+              color: activeTab === tab.id ? '#0c0a09' : '#78716c',
               background: 'none', border: 'none', cursor: 'pointer',
-              borderBottom: activeTab === tab.id ? '2px solid var(--color-black)' : '2px solid transparent',
+              borderBottom: activeTab === tab.id ? '2px solid #0c0a09' : '2px solid transparent',
             }}>
               {tab.icon} {tab.label}
               {tab.count !== null && <span style={{ marginLeft: 4, fontSize: 11 }}>{tab.count}</span>}
@@ -348,11 +348,11 @@ export default function StorePage() {
               <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12, paddingBottom: 4, scrollbarWidth: 'none' }}>
                 {productCategories.map(cat => (
                   <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
-                    flexShrink: 0, padding: '10px 14px', minHeight: 44, borderRadius: 'var(--radius-full)',
-                    fontSize: 12, fontWeight: 600, fontFamily: F, cursor: 'pointer',
-                    border: categoryFilter === cat ? 'none' : '1px solid var(--color-border)',
-                    background: categoryFilter === cat ? 'var(--color-black)' : 'var(--color-white)',
-                    color: categoryFilter === cat ? '#fff' : 'var(--color-black)',
+                    flexShrink: 0, padding: '10px 14px', minHeight: 44, borderRadius: '9999px',
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    border: categoryFilter === cat ? 'none' : '1px solid #e7e5e4',
+                    background: categoryFilter === cat ? '#0c0a09' : '#ffffff',
+                    color: categoryFilter === cat ? '#fff' : '#0c0a09',
                   }}>
                     {cat === 'all' ? 'Todo' : cat}
                   </button>
@@ -363,16 +363,16 @@ export default function StorePage() {
             {/* Inline search (if > 12 products) */}
             {allProducts.length > 12 && (
               <div style={{ position: 'relative', marginBottom: 12 }}>
-                <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-stone)' }} />
+                <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#78716c' }} />
                 <input
                   value={productSearch} onChange={e => setProductSearch(e.target.value)}
                   placeholder="Buscar en esta tienda..."
                   aria-label="Buscar productos en esta tienda"
                   style={{
                     width: '100%', height: 44, paddingLeft: 36, paddingRight: 12,
-                    fontSize: 13, fontFamily: F, color: 'var(--color-black)',
-                    background: 'var(--color-surface)', border: 'none',
-                    borderRadius: 'var(--radius-full)', outline: 'none',
+                    fontSize: 13, color: '#0c0a09',
+                    background: '#f5f5f4', border: 'none',
+                    borderRadius: '9999px', outline: 'none',
                   }}
                 />
               </div>
@@ -381,7 +381,7 @@ export default function StorePage() {
             {productsQuery.isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="animate-pulse" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', aspectRatio: '3/4' }} />
+                  <div key={i} className="animate-pulse" style={{ background: '#f5f5f4', borderRadius: '14px', aspectRatio: '3/4' }} />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (
@@ -407,18 +407,18 @@ export default function StorePage() {
                   onClick={() => navigate(`/recipes/${recipe.recipe_id || recipe.post_id || recipe.id}`)}
                   style={{
                     display: 'block', width: '100%', overflow: 'hidden',
-                    background: 'var(--color-white)', border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-lg)', cursor: 'pointer', padding: 0, textAlign: 'left',
+                    background: '#ffffff', border: '1px solid #e7e5e4',
+                    borderRadius: '14px', cursor: 'pointer', padding: 0, textAlign: 'left',
                   }}
                 >
                   {recipe.image_url && (
                     <img src={recipe.image_url} alt="" loading="lazy" style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover' }} />
                   )}
                   <div style={{ padding: 10 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: F, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {recipe.title || recipe.caption || 'Receta'}
                     </p>
-                    <div style={{ display: 'flex', gap: 8, marginTop: 6, fontSize: 11, color: 'var(--color-stone)', fontFamily: F }}>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 6, fontSize: 11, color: '#78716c',  }}>
                       {recipe.prep_time && <span>⏱ {recipe.prep_time} min</span>}
                       {recipe.difficulty && <span>📊 {recipe.difficulty}</span>}
                     </div>
@@ -439,21 +439,21 @@ export default function StorePage() {
             <div>
               {/* Rating summary card */}
               <div style={{
-                background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)',
+                background: '#f5f5f4', borderRadius: '14px',
                 padding: 20, marginBottom: 16, textAlign: 'center',
               }}>
-                <p style={{ fontSize: 48, fontWeight: 700, color: 'var(--color-black)', fontFamily: F, margin: 0, lineHeight: 1 }}>
+                <p style={{ fontSize: 48, fontWeight: 700, color: '#0c0a09', margin: 0, lineHeight: 1 }}>
                   {Number(avgRating || 0).toFixed(1)}
                 </p>
                 <div role="img" aria-label={`Valoración: ${Number(avgRating || 0).toFixed(1)} de 5 estrellas`} style={{ display: 'flex', gap: 3, justifyContent: 'center', marginTop: 8 }}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star key={i} size={18} aria-hidden="true"
-                      fill={i < Math.round(avgRating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
-                      stroke={i < Math.round(avgRating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
+                      fill={i < Math.round(avgRating || 0) ? '#0c0a09' : '#e7e5e4'}
+                      stroke={i < Math.round(avgRating || 0) ? '#0c0a09' : '#e7e5e4'}
                     />
                   ))}
                 </div>
-                <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: F, marginTop: 6 }}>
+                <p style={{ fontSize: 13, color: '#78716c', marginTop: 6 }}>
                   {reviewsTotal} reseñas verificadas
                 </p>
 
@@ -464,11 +464,11 @@ export default function StorePage() {
                     const pct = reviewsTotal > 0 ? (count / reviewsTotal) * 100 : 0;
                     return (
                       <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: F, width: 16, textAlign: 'right' }}>{star}★</span>
-                        <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'var(--color-border)', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', borderRadius: 4, background: 'var(--color-black)', width: `${pct}%`, transition: 'width 0.5s' }} />
+                        <span style={{ fontSize: 12, color: '#78716c', width: 16, textAlign: 'right' }}>{star}★</span>
+                        <div style={{ flex: 1, height: 8, borderRadius: 4, background: '#e7e5e4', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', borderRadius: 4, background: '#0c0a09', width: `${pct}%`, transition: 'width 0.5s' }} />
                         </div>
-                        <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: F, width: 30, textAlign: 'right' }}>
+                        <span style={{ fontSize: 11, color: '#78716c', width: 30, textAlign: 'right' }}>
                           {Math.round(pct)}%
                         </span>
                       </div>
@@ -481,46 +481,46 @@ export default function StorePage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {reviews.map((review, idx) => (
                   <div key={review.review_id || idx} style={{
-                    background: 'var(--color-white)', borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--color-border)', padding: 14,
+                    background: '#ffffff', borderRadius: '12px',
+                    border: '1px solid #e7e5e4', padding: 14,
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <User size={16} color="var(--color-stone)" />
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f5f5f4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <User size={16} color="#78716c" />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: F, margin: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0 }}>
                           {review.user_name || review.username || 'Anónimo'}
                         </p>
                         <div role="img" aria-label={`${review.rating || 0} de 5 estrellas`} style={{ display: 'flex', alignItems: 'center', gap: 2, marginTop: 2 }}>
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star key={i} size={11} aria-hidden="true"
-                              fill={i < (review.rating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
-                              stroke={i < (review.rating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
+                              fill={i < (review.rating || 0) ? '#0c0a09' : '#e7e5e4'}
+                              stroke={i < (review.rating || 0) ? '#0c0a09' : '#e7e5e4'}
                             />
                           ))}
                         </div>
                       </div>
                       {review.created_at && (
-                        <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: F }}>
+                        <span style={{ fontSize: 11, color: '#78716c',  }}>
                           {new Date(review.created_at).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
                         </span>
                       )}
                     </div>
                     {(review.comment || review.text) && (
-                      <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: F, lineHeight: 1.5, marginTop: 10 }}>
+                      <p style={{ fontSize: 13, color: '#78716c', lineHeight: 1.5, marginTop: 10 }}>
                         {review.comment || review.text}
                       </p>
                     )}
                     {review.product_name && (
-                      <span style={{ display: 'inline-block', marginTop: 8, fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'var(--color-surface)', color: 'var(--color-stone)', fontFamily: F }}>
+                      <span style={{ display: 'inline-block', marginTop: 8, fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: '9999px', background: '#f5f5f4', color: '#78716c',  }}>
                         {review.product_name}
                       </span>
                     )}
                     {review.seller_reply && (
-                      <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 'var(--radius-md)', background: 'var(--color-surface)', borderLeft: '2px solid var(--color-border)' }}>
-                        <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-stone)', fontFamily: F, marginBottom: 4 }}>Respuesta del vendedor</p>
-                        <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: F }}>{review.seller_reply}</p>
+                      <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: '12px', background: '#f5f5f4', borderLeft: '2px solid #e7e5e4' }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: '#78716c', marginBottom: 4 }}>Respuesta del vendedor</p>
+                        <p style={{ fontSize: 13, color: '#78716c',  }}>{review.seller_reply}</p>
                       </div>
                     )}
                   </div>
@@ -539,7 +539,7 @@ export default function StorePage() {
             {(store.long_description || store.story || store.tagline) && (
               <div>
                 <SectionTitle>NUESTRA HISTORIA</SectionTitle>
-                <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--color-stone)', fontFamily: F, whiteSpace: 'pre-line' }}>
+                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#78716c', whiteSpace: 'pre-line' }}>
                   {store.long_description || store.story || store.tagline}
                 </p>
               </div>
@@ -547,9 +547,9 @@ export default function StorePage() {
 
             {store.founder_quote && (
               <blockquote style={{
-                background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
+                background: '#f5f5f4', borderRadius: '12px',
                 padding: 16, fontSize: 14, lineHeight: 1.6,
-                color: 'var(--color-black)', fontStyle: 'italic', fontFamily: F,
+                color: '#0c0a09', fontStyle: 'italic',
               }}>
                 &ldquo;{store.founder_quote}&rdquo;
               </blockquote>
@@ -558,7 +558,7 @@ export default function StorePage() {
             {/* Contact info */}
             <div>
               <SectionTitle>CONTACTO</SectionTitle>
-              <div style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-md)', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ background: '#f5f5f4', borderRadius: '12px', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {store.location && (
                   <InfoRow icon={<MapPin size={16} />} text={store.location} />
                 )}
@@ -569,7 +569,7 @@ export default function StorePage() {
                 )}
                 {store.website && (
                   <a href={store.website.startsWith('http') ? store.website : `https://${store.website}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                    <InfoRow icon={<Globe size={16} />} text={store.website} extra={<ExternalLink size={12} color="var(--color-stone)" />} />
+                    <InfoRow icon={<Globe size={16} />} text={store.website} extra={<ExternalLink size={12} color="#78716c" />} />
                   </a>
                 )}
                 {store.contact_phone && (
@@ -589,8 +589,8 @@ export default function StorePage() {
                     <span key={i} style={{
                       display: 'inline-flex', alignItems: 'center', gap: 4,
                       fontSize: 12, fontWeight: 500, padding: '4px 12px',
-                      borderRadius: 'var(--radius-full)', fontFamily: F,
-                      background: 'var(--color-surface)', color: 'var(--color-black)',
+                      borderRadius: '9999px',
+                      background: '#f5f5f4', color: '#0c0a09',
                     }}>
                       <Award size={13} /> {cert.certificate_type || cert.product_name || 'Certificado'}
                     </span>
@@ -601,7 +601,7 @@ export default function StorePage() {
 
             {/* Member since */}
             {store.created_at && (
-              <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: F }}>
+              <p style={{ fontSize: 13, color: '#78716c',  }}>
                 Miembro desde {new Date(store.created_at).getFullYear()}
               </p>
             )}
@@ -613,7 +613,7 @@ export default function StorePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                   {store.process_photos.map((photo, i) => (
                     <img key={i} src={photo} alt={`Proceso ${i + 1}`} loading="lazy"
-                      style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
+                      style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: '12px' }} />
                   ))}
                 </div>
               </div>
@@ -663,7 +663,7 @@ function badgeStyle(bg, color) {
   return {
     display: 'inline-flex', alignItems: 'center', gap: 4,
     fontSize: 11, fontWeight: 600, padding: '3px 10px',
-    borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
+    borderRadius: '9999px', fontFamily: 'inherit',
     background: bg, color,
   };
 }
@@ -672,7 +672,7 @@ function SectionTitle({ children }) {
   return (
     <p style={{
       fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em',
-      color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: '0 0 10px',
+      color: '#78716c', fontFamily: 'inherit', margin: '0 0 10px',
     }}>
       {children}
     </p>
@@ -681,8 +681,8 @@ function SectionTitle({ children }) {
 
 function InfoRow({ icon, text, extra }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
-      <span style={{ color: 'var(--color-stone)', display: 'flex' }}>{icon}</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#78716c', fontFamily: 'inherit' }}>
+      <span style={{ color: '#78716c', display: 'flex' }}>{icon}</span>
       <span>{text}</span>
       {extra}
     </div>
@@ -691,8 +691,8 @@ function InfoRow({ icon, text, extra }) {
 
 function EmptyState({ text }) {
   return (
-    <div style={{ textAlign: 'center', padding: '48px 16px', background: 'var(--color-white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
-      <p style={{ fontSize: 14, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>{text}</p>
+    <div style={{ textAlign: 'center', padding: '48px 16px', background: '#ffffff', borderRadius: '12px', border: '1px solid #e7e5e4' }}>
+      <p style={{ fontSize: 14, color: '#78716c', fontFamily: 'inherit' }}>{text}</p>
     </div>
   );
 }
@@ -700,7 +700,7 @@ function EmptyState({ text }) {
 function LoadingSpinner() {
   return (
     <div style={{ textAlign: 'center', padding: '48px 0' }}>
-      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-black)' }} />
+      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2" style={{ borderColor: '#e7e5e4', borderTopColor: '#0c0a09' }} />
     </div>
   );
 }

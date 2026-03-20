@@ -97,7 +97,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: 'var(--color-white)',
+                background: '#ffffff',
                 borderRadius: '20px 20px 0 0',
                 maxHeight: '70vh',
                 display: 'flex',
@@ -107,12 +107,12 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
             >
               {/* Handle */}
               <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, paddingBottom: 4 }}>
-                <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--color-border)' }} />
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: '#e7e5e4' }} />
               </div>
 
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px 12px' }}>
-                <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>
+                <span style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09' }}>
                   Etiquetar producto
                 </span>
                 <button
@@ -123,12 +123,12 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                     height: 28,
                     borderRadius: '50%',
                     border: 'none',
-                    background: 'var(--color-surface)',
+                    background: '#f5f5f4',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    color: 'var(--color-black)',
+                    color: '#0c0a09',
                   }}
                   aria-label="Cerrar"
                 >
@@ -144,7 +144,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                     position: 'absolute',
                     left: 28,
                     top: 11,
-                    color: 'var(--color-stone)',
+                    color: '#78716c',
                     pointerEvents: 'none',
                   }}
                 />
@@ -154,14 +154,14 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                   placeholder="Buscar productos..."
                   style={{
                     width: '100%',
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
+                    background: '#f5f5f4',
+                    border: '1px solid #e7e5e4',
+                    borderRadius: '12px',
                     padding: '10px 12px 10px 36px',
                     fontSize: 13,
-                    color: 'var(--color-black)',
+                    color: '#0c0a09',
                     outline: 'none',
-                    fontFamily: 'var(--font-sans)',
+                    fontFamily: 'inherit',
                     boxSizing: 'border-box',
                   }}
                 />
@@ -171,12 +171,12 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
               <div style={{ overflowY: 'auto', flex: 1 }}>
                 {loading && (
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
-                    <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-stone)' }} />
+                    <Loader2 size={20} className="animate-spin" style={{ color: '#78716c' }} />
                   </div>
                 )}
 
                 {!loading && debouncedQuery.trim() && results.length === 0 && (
-                  <p style={{ textAlign: 'center', padding: '32px 16px', fontSize: 13, color: 'var(--color-stone)' }}>
+                  <p style={{ textAlign: 'center', padding: '32px 16px', fontSize: 13, color: '#78716c' }}>
                     No se encontraron productos
                   </p>
                 )}
@@ -198,7 +198,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                         padding: '12px 16px',
                         background: 'none',
                         border: 'none',
-                        borderBottom: idx < results.length - 1 ? '1px solid var(--color-border)' : 'none',
+                        borderBottom: idx < results.length - 1 ? '1px solid #e7e5e4' : 'none',
                         cursor: 'pointer',
                         textAlign: 'left',
                       }}
@@ -209,7 +209,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                           height: 44,
                           borderRadius: 8,
                           overflow: 'hidden',
-                          background: 'var(--color-surface)',
+                          background: '#f5f5f4',
                           flexShrink: 0,
                         }}
                       >
@@ -227,7 +227,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                         <p style={{
                           fontSize: 13,
                           fontWeight: 500,
-                          color: 'var(--color-black)',
+                          color: '#0c0a09',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
@@ -236,7 +236,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                           {product.name}
                         </p>
                         {product.price != null && (
-                          <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0' }}>
+                          <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>
                             {Number(product.price).toFixed(2)} &euro;
                           </p>
                         )}
@@ -248,7 +248,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                             width: 22,
                             height: 22,
                             borderRadius: '50%',
-                            background: 'var(--color-black)',
+                            background: '#0c0a09',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',

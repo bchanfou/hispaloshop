@@ -13,15 +13,15 @@ const SocialButton = ({ provider, onClick, fullWidth = false }) => {
         </svg>
       ),
       label: 'Google',
-      bgColor: 'var(--color-surface)',
-      textColor: 'var(--color-black)',
+      bgColor: '#f5f5f4',
+      textColor: '#0c0a09',
       border: true
     },
     facebook: {
       icon: <Facebook className="w-5 h-5 text-white" />,
       label: 'Facebook',
       bgColor: '#1877F2',
-      textColor: 'var(--color-white)',
+      textColor: '#ffffff',
       border: false
     },
     apple: {
@@ -31,8 +31,8 @@ const SocialButton = ({ provider, onClick, fullWidth = false }) => {
         </svg>
       ),
       label: 'Apple',
-      bgColor: 'var(--color-black)',
-      textColor: 'var(--color-white)',
+      bgColor: '#0c0a09',
+      textColor: '#ffffff',
       border: false
     }
   };

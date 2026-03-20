@@ -1,7 +1,7 @@
 """
 Social routes: user profiles, posts, feed, comments, likes, bookmarks, discover, avatars.
 """
-from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File, Form, Query
+from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File, Form, Query, Body
 from typing import Optional, List, Dict
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -614,7 +614,34 @@ async def like_reel_comment(reel_id: str, comment_id: str, user: User = Depends(
     return {"liked": liked, "likes_count": (updated or {}).get("likes_count", 0)}
 
 
-@router.get("/users/{user_id}/profile")
+@router.patch("/reels/{reel_id}")
+async def edit_reel(reel_id: str, body: dict = Body(...), user: User = Depends(get_current_user)):
+    """Edit reel caption. Only the owner can edit."""
+    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}], "user_id": user.user_id}
+    reel = await db.reels.find_one(filter_q)
+    if not reel:
+        raise HTTPException(status_code=404, detail="Reel not found or not owned")
+    update = {}
+    if "caption" in body:
+        update["caption"] = str(body["caption"])[:500]
+    if not update:
+        raise HTTPException(status_code=400, detail="Nothing to update")
+    await db.reels.update_one(filter_q, {"$set": update})
+    return {"status": "updated", **update}
+
+
+@router.delete("/reels/{reel_id}")
+async def delete_reel(reel_id: str, user: User = Depends(get_current_user)):
+    """Delete a reel. Only the owner can delete."""
+    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}], "user_id": user.user_id}
+    reel = await db.reels.find_one(filter_q)
+    if not reel:
+        raise HTTPException(status_code=404, detail="Reel not found or not owned")
+    await db.reels.delete_one(filter_q)
+    # Clean up associated data
+    await db.reel_likes.delete_many({"reel_id": reel_id})
+    await db.reel_comments.delete_many({"reel_id": reel_id})
+    return {"status": "deleted"}
 async def get_user_profile(user_id: str, request: Request):
     """Get public user profile — enhanced with seller stats for producers."""
     projection = {"_id": 0, "password_hash": 0, "verification_code": 0}
@@ -854,12 +881,10 @@ async def get_user_posts(user_id: str, skip: int = 0, limit: int = 30):
 @router.get("/users/{user_id}/reels")
 async def get_user_reels(user_id: str, skip: int = 0, limit: int = 30):
     """Get reels (video posts) for a user profile."""
-    reels = await db.user_posts.find(
-        {"user_id": user_id, "media_type": "video"},
+    reels = await db.reels.find(
+        {"user_id": user_id},
         {"_id": 0}
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    for reel in reels:
-        _normalize_post_media(reel)
     return reels
 
 

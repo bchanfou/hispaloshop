@@ -28,9 +28,9 @@ function formatDateTime(dateStr) {
 function SectionLabel({ children }) {
   return (
     <p style={{
-      fontSize: 11, fontWeight: 700, color: 'var(--color-stone)',
+      fontSize: 11, fontWeight: 700, color: '#78716c',
       textTransform: 'uppercase', letterSpacing: '0.08em',
-      margin: '24px 0 8px', fontFamily: 'var(--font-sans)',
+      margin: '24px 0 8px', fontFamily: 'inherit',
     }}>
       {children}
     </p>
@@ -88,7 +88,7 @@ export default function OrderDetailPage() {
     }
   };
 
-  const font = { fontFamily: 'var(--font-sans)' };
+  const font = { fontFamily: 'inherit' };
 
   if (loading) {
     return (
@@ -121,12 +121,12 @@ export default function OrderDetailPage() {
   const addr = order.shipping_address || order.address || {};
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', paddingBottom: 100, ...font }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 100, ...font }}>
       {/* Topbar */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 30,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e7e5e4',
         display: 'flex', alignItems: 'center', gap: 12,
         padding: '12px 16px',
       }}>
@@ -134,18 +134,18 @@ export default function OrderDetailPage() {
           onClick={() => navigate('/orders')}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
         >
-          <ArrowLeft size={22} color="var(--color-black)" />
+          <ArrowLeft size={22} color="#0c0a09" />
         </button>
-        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>{ref}</span>
+        <span style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09' }}>{ref}</span>
       </div>
 
       <div style={{ padding: '16px', maxWidth: 600, margin: '0 auto' }}>
         {/* ── Status Timeline ── */}
         {!isCancelled && currentStepIdx >= 0 && (
           <div style={{
-            background: 'var(--color-white)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-xl)',
+            background: '#ffffff',
+            border: '1px solid #e7e5e4',
+            borderRadius: '16px',
             padding: 20, marginBottom: 16,
           }}>
             {/* Horizontal 4-step timeline */}
@@ -163,14 +163,14 @@ export default function OrderDetailPage() {
                       <div style={{
                         width: 32, height: 32, borderRadius: '50%',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: isCompleted ? 'var(--color-black)' : isActive ? 'var(--color-black)' : 'transparent',
-                        border: isPending ? '2px solid var(--color-border)' : 'none',
+                        background: isCompleted ? '#0c0a09' : isActive ? '#0c0a09' : 'transparent',
+                        border: isPending ? '2px solid #e7e5e4' : 'none',
                         position: 'relative',
                       }}>
                         {isCompleted ? (
                           <Check size={16} color="#fff" />
                         ) : (
-                          <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : 'var(--color-stone)' }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#78716c' }}>
                             {i + 1}
                           </span>
                         )}
@@ -180,16 +180,16 @@ export default function OrderDetailPage() {
                             transition={{ duration: 2, repeat: Infinity }}
                             style={{
                               position: 'absolute', inset: -4,
-                              borderRadius: '50%', border: '2px solid var(--color-black)',
+                              borderRadius: '50%', border: '2px solid #0c0a09',
                             }}
                           />
                         )}
                       </div>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: isActive ? 'var(--color-black)' : isCompleted ? 'var(--color-black)' : 'var(--color-stone)', marginTop: 6, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: isActive ? '#0c0a09' : isCompleted ? '#0c0a09' : '#78716c', marginTop: 6, textAlign: 'center', whiteSpace: 'nowrap' }}>
                         {STATUS_LABELS[s] || s}
                       </span>
                       {ts && (isCompleted || isActive) && (
-                        <span style={{ fontSize: 9, color: 'var(--color-stone)', marginTop: 2, textAlign: 'center' }}>
+                        <span style={{ fontSize: 9, color: '#78716c', marginTop: 2, textAlign: 'center' }}>
                           {formatDateTime(ts)}
                         </span>
                       )}
@@ -197,7 +197,7 @@ export default function OrderDetailPage() {
                     {!isLast && (
                       <div style={{
                         flex: 1, height: 2, marginTop: 15,
-                        background: i < currentStepIdx ? 'var(--color-black)' : 'var(--color-border)',
+                        background: i < currentStepIdx ? '#0c0a09' : '#e7e5e4',
                       }} />
                     )}
                   </React.Fragment>
@@ -210,15 +210,15 @@ export default function OrderDetailPage() {
         {/* Tracking card */}
         {(status === 'shipped' || status === 'in_transit') && (
           <div style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-xl)',
+            background: '#f5f5f4',
+            border: '1px solid #e7e5e4',
+            borderRadius: '16px',
             padding: 14, marginBottom: 16,
             display: 'flex', alignItems: 'center', gap: 10,
           }}>
-            <Truck size={20} color="var(--color-black)" />
+            <Truck size={20} color="#0c0a09" />
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0 }}>
                 {order.carrier || 'Transportista'} {order.tracking_number && `· ${order.tracking_number}`}
               </p>
             </div>
@@ -229,7 +229,7 @@ export default function OrderDetailPage() {
                 rel="noopener noreferrer"
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4,
-                  fontSize: 13, fontWeight: 600, color: 'var(--color-black)', textDecoration: 'none',
+                  fontSize: 13, fontWeight: 600, color: '#0c0a09', textDecoration: 'none',
                 }}
               >
                 Rastrear <ExternalLink size={14} />
@@ -241,32 +241,32 @@ export default function OrderDetailPage() {
         {/* ── Products ── */}
         <SectionLabel>PRODUCTOS</SectionLabel>
         <div style={{
-          background: 'var(--color-white)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-xl)',
+          background: '#ffffff',
+          border: '1px solid #e7e5e4',
+          borderRadius: '16px',
           overflow: 'hidden',
         }}>
           {items.map((item, i) => (
             <div key={i} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: 14,
-              borderBottom: i < items.length - 1 ? '1px solid var(--color-border)' : 'none',
+              borderBottom: i < items.length - 1 ? '1px solid #e7e5e4' : 'none',
             }}>
               <div style={{
-                width: 56, height: 56, borderRadius: 'var(--radius-md)',
-                background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
+                width: 56, height: 56, borderRadius: '12px',
+                background: '#f5f5f4', overflow: 'hidden', flexShrink: 0,
               }}>
                 {(item.image || item.product_image) && (
                   <img src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)', margin: 0 }}>
+                <p style={{ fontSize: 14, fontWeight: 500, color: '#0c0a09', margin: 0 }}>
                   {item.name || item.product_name}
                 </p>
-                <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0' }}>x{item.quantity}</p>
+                <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>x{item.quantity}</p>
               </div>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', flexShrink: 0 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#0c0a09', flexShrink: 0 }}>
                 {item.unit_price_cents
                   ? `${(item.unit_price_cents / 100 * item.quantity).toFixed(2)} €`
                   : item.price
@@ -280,43 +280,43 @@ export default function OrderDetailPage() {
         {/* ── Shipping Address ── */}
         <SectionLabel>DIRECCIÓN DE ENVÍO</SectionLabel>
         <div style={{
-          background: 'var(--color-surface, #f5f5f4)',
-          borderRadius: 'var(--radius-xl)',
+          background: '#f5f5f4',
+          borderRadius: '16px',
           padding: 16,
         }}>
-          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#0c0a09', margin: 0 }}>
             {addr.full_name || addr.name || ''}
           </p>
-          <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '4px 0 0', lineHeight: 1.5 }}>
+          <p style={{ fontSize: 13, color: '#78716c', margin: '4px 0 0', lineHeight: 1.5 }}>
             {addr.street}{addr.city ? `, ${addr.city}` : ''}{addr.postal_code ? ` ${addr.postal_code}` : ''}
             {addr.country ? `, ${addr.country}` : ''}
           </p>
           {addr.phone && (
-            <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '2px 0 0' }}>{addr.phone}</p>
+            <p style={{ fontSize: 13, color: '#78716c', margin: '2px 0 0' }}>{addr.phone}</p>
           )}
         </div>
 
         {/* ── Payment Summary ── */}
         <SectionLabel>RESUMEN DE PAGO</SectionLabel>
         <div style={{
-          background: 'var(--color-white)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-xl)',
+          background: '#ffffff',
+          border: '1px solid #e7e5e4',
+          borderRadius: '16px',
           padding: 16,
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {subtotal && <PaymentRow label="Subtotal" value={`${subtotal}€`} />}
-            {discount && Number(discount) > 0 && <PaymentRow label="Descuento" value={`-${discount}€`} color="var(--color-black)" />}
+            {discount && Number(discount) > 0 && <PaymentRow label="Descuento" value={`-${discount}€`} color="#0c0a09" />}
             {shipping != null && <PaymentRow label="Envío" value={Number(shipping) === 0 ? 'Gratis' : `${shipping}€`} />}
-            <div style={{ height: 1, background: 'var(--color-border)', margin: '4px 0' }} />
+            <div style={{ height: 1, background: '#e7e5e4', margin: '4px 0' }} />
             <PaymentRow label="Total" value={`${total}€`} bold />
           </div>
           {order.payment_method && (
-            <p style={{ fontSize: 12, color: 'var(--color-stone)', marginTop: 12 }}>
+            <p style={{ fontSize: 12, color: '#78716c', marginTop: 12 }}>
               Método: {order.payment_method}
             </p>
           )}
-          <p style={{ fontSize: 12, color: 'var(--color-stone)', marginTop: 4 }}>
+          <p style={{ fontSize: 12, color: '#78716c', marginTop: 4 }}>
             Fecha: {formatDate(order.created_at)}
           </p>
         </div>
@@ -326,24 +326,24 @@ export default function OrderDetailPage() {
           <>
             <SectionLabel>VENDEDORES</SectionLabel>
             <div style={{
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-xl)',
+              background: '#ffffff',
+              border: '1px solid #e7e5e4',
+              borderRadius: '16px',
               padding: 14,
               display: 'flex', alignItems: 'center', gap: 10,
             }}>
               <div style={{
                 width: 40, height: 40, borderRadius: '50%',
-                background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
+                background: '#f5f5f4', overflow: 'hidden', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {order.seller_avatar ? (
                   <img src={order.seller_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <Package size={18} color="var(--color-stone)" />
+                  <Package size={18} color="#78716c" />
                 )}
               </div>
-              <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: 'var(--color-black)' }}>
+              <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#0c0a09' }}>
                 {order.seller_name}
               </span>
               <button
@@ -353,11 +353,11 @@ export default function OrderDetailPage() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4,
                   padding: '6px 14px',
-                  background: 'var(--color-white)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
+                  background: '#ffffff',
+                  border: '1px solid #e7e5e4',
+                  borderRadius: '12px',
                   fontSize: 13, fontWeight: 600,
-                  color: 'var(--color-black)',
+                  color: '#0c0a09',
                   cursor: 'pointer',
                 }}
               >
@@ -370,12 +370,12 @@ export default function OrderDetailPage() {
         {/* ── Review form (if delivered) ── */}
         {isDelivered && (
           <div style={{
-            background: 'var(--color-surface-alt, #f5f5f4)',
-            border: '1px solid var(--color-border, #e7e5e4)',
-            borderRadius: 'var(--radius-xl)',
+            background: '#f5f5f4',
+            border: '1px solid #e7e5e4',
+            borderRadius: '16px',
             padding: 16, marginTop: 24,
           }}>
-            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', marginBottom: 12 }}>
+            <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', marginBottom: 12 }}>
               ¿Cómo fue tu experiencia?
             </p>
             {/* Stars */}
@@ -391,7 +391,7 @@ export default function OrderDetailPage() {
                   <Star
                     size={28}
                     fill={s <= reviewRating ? '#0c0a09' : 'none'}
-                    color={s <= reviewRating ? '#0c0a09' : 'var(--color-border)'}
+                    color={s <= reviewRating ? '#0c0a09' : '#e7e5e4'}
                   />
                 </button>
               ))}
@@ -403,12 +403,12 @@ export default function OrderDetailPage() {
               rows={3}
               style={{
                 width: '100%', padding: 12, fontSize: 14,
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-lg)',
-                background: 'var(--color-white)',
-                color: 'var(--color-black)',
+                border: '1px solid #e7e5e4',
+                borderRadius: '14px',
+                background: '#ffffff',
+                color: '#0c0a09',
                 outline: 'none', resize: 'vertical',
-                fontFamily: 'var(--font-sans)',
+                fontFamily: 'inherit',
                 boxSizing: 'border-box',
               }}
             />
@@ -417,8 +417,8 @@ export default function OrderDetailPage() {
               disabled={reviewSubmitting}
               style={{
                 marginTop: 10, padding: '8px 20px',
-                background: 'var(--color-black)', color: '#fff',
-                border: 'none', borderRadius: 'var(--radius-md)',
+                background: '#0c0a09', color: '#fff',
+                border: 'none', borderRadius: '12px',
                 fontSize: 13, fontWeight: 600, cursor: 'pointer',
               }}
             >
@@ -434,12 +434,12 @@ export default function OrderDetailPage() {
               onClick={() => navigate('/help')}
               style={{
                 width: '100%', height: 44,
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-lg)',
+                background: '#ffffff',
+                border: '1px solid #e7e5e4',
+                borderRadius: '14px',
                 fontSize: 14, fontWeight: 600,
-                color: 'var(--color-black)',
-                cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                color: '#0c0a09',
+                cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
               Contactar con soporte
@@ -452,10 +452,10 @@ export default function OrderDetailPage() {
                   width: '100%', height: 44,
                   background: 'transparent',
                   border: '1px solid #78716c',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: '14px',
                   fontSize: 14, fontWeight: 600,
                   color: '#78716c',
-                  cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                  cursor: 'pointer', fontFamily: 'inherit',
                 }}
               >
                 Cancelar pedido
@@ -471,11 +471,11 @@ export default function OrderDetailPage() {
 function PaymentRow({ label, value, bold, color }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <span style={{ fontSize: 13, color: 'var(--color-stone)' }}>{label}</span>
+      <span style={{ fontSize: 13, color: '#78716c' }}>{label}</span>
       <span style={{
         fontSize: bold ? 18 : 14,
         fontWeight: bold ? 700 : 500,
-        color: color || 'var(--color-black)',
+        color: color || '#0c0a09',
       }}>{value}</span>
     </div>
   );
