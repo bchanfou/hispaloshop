@@ -15,7 +15,15 @@ const BG_OPTIONS = [
   { id: 'terracota', label: '■', type: 'color', value: '#78716c' },
 ];
 
-const EMOJIS_CULINARIOS = ['🫒', '🍯', '🧀', '🥘', '🌿', '🍅', '👨‍🍳', '🥩', '🫙', '🍋', '🧅', '🫚'];
+const EMOJI_CATEGORIES = {
+  Comida: ['🍕','🍔','🌮','🍣','🥗','🍝','🧁','🍰','🍩','🥐','🍎','🍊','🍋','🍇','🍓','🫐','🥑','🥕','🧀','🥚','🍯','🫒'],
+  Bebidas: ['☕','🍵','🧃','🥤','🍺','🍷','🥂','🧋'],
+  Utensilios: ['🍴','🥄','🔪','🫕','🥘','🍳'],
+  Naturaleza: ['🌿','🌱','🌻','🌾','🌽','🫑'],
+  Expresiones: ['❤️','🔥','⭐','😍','🤤','👨‍🍳','👩‍🍳','💯','✨','👏'],
+  Símbolos: ['✅','❌','📦','🏷️','💰','🛒','🏪'],
+};
+const EMOJI_CATEGORY_KEYS = Object.keys(EMOJI_CATEGORIES);
 
 const CERTIFICACIONES = [
   '🌿 Ecológico EU',
@@ -58,7 +66,8 @@ export default function CreateStoryPage() {
   const [selectedColor, setSelectedColor] = useState('#ffffff');
   const [textSize, setTextSize] = useState(24);
   const [textStyle, setTextStyle] = useState('clean');
-  const [stickerTab, setStickerTab] = useState('culinarios');
+  const [stickerTab, setStickerTab] = useState('emojis');
+  const [emojiCategory, setEmojiCategory] = useState('Comida');
   const [publishing, setPublishing] = useState(false);
   const [productQuery, setProductQuery] = useState('');
   const [productResults, setProductResults] = useState([]);
@@ -573,11 +582,14 @@ export default function CreateStoryPage() {
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className={`bg-stone-950 text-white border-none text-[13px] font-semibold px-4 py-2 rounded-full transition-opacity ${
+          className={`bg-stone-950 text-white border-none text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 ${
             publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-stone-800'
           }`}
         >
-          {publishing ? '...' : 'Publicar'}
+          {publishing && (
+            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          )}
+          {publishing ? 'Publicando...' : 'Publicar'}
         </button>
       </div>
 
@@ -971,7 +983,7 @@ export default function CreateStoryPage() {
           {/* Tabs */}
           <div className="flex border-b border-white/15 overflow-x-auto" role="tablist" aria-label="Tipo de sticker">
             {[
-              { key: 'culinarios', label: 'Culinarios' },
+              { key: 'emojis', label: 'Emojis' },
               { key: 'certificaciones', label: 'Certificaciones' },
               { key: 'frases', label: 'Frases' },
               { key: 'encuesta', label: 'Encuesta' },
@@ -996,18 +1008,34 @@ export default function CreateStoryPage() {
             ))}
           </div>
 
-          {/* Culinarios grid */}
-          {stickerTab === 'culinarios' && (
-            <div className="grid grid-cols-6 gap-2">
-              {EMOJIS_CULINARIOS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => addSticker(emoji, 'emoji')}
-                  className="bg-white/[0.08] border-none rounded-hs-md py-2.5 text-[28px] cursor-pointer transition-colors hover:bg-white/15"
-                >
-                  {emoji}
-                </button>
-              ))}
+          {/* Emoji grid with categories */}
+          {stickerTab === 'emojis' && (
+            <div className="flex flex-col gap-2.5">
+              {/* Category pills */}
+              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+                {EMOJI_CATEGORY_KEYS.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setEmojiCategory(cat)}
+                    className={`rounded-full px-3 py-1.5 text-[11px] font-medium cursor-pointer whitespace-nowrap border-none transition-colors ${
+                      emojiCategory === cat ? 'bg-white text-black' : 'bg-white/10 text-white/60'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-1.5">
+                {EMOJI_CATEGORIES[emojiCategory].map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => addSticker(emoji, 'emoji')}
+                    className="bg-white/[0.08] border-none rounded-xl py-2 text-[26px] cursor-pointer transition-colors hover:bg-white/15"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -1288,8 +1316,8 @@ export default function CreateStoryPage() {
           </div>
           {/* Colors */}
           <div className="flex gap-2">
-            {['#ffffff', '#0c0a09', '#a8a29e', '#78716c', '#44403c'].map(c => (
-              <button key={c} onClick={() => setDrawColor(c)} className={`w-8 h-8 rounded-full border-2 cursor-pointer p-0 ${drawColor === c ? 'border-white ring-2 ring-white/50' : 'border-white/30'}`} style={{ background: c }} />
+            {['#0c0a09', '#ffffff', '#dc2626', '#2563eb', '#16a34a', '#eab308', '#f97316', '#ec4899'].map(c => (
+              <button key={c} onClick={() => setDrawColor(c)} className={`w-8 h-8 rounded-full border-2 cursor-pointer p-0 shrink-0 ${drawColor === c ? 'border-white ring-2 ring-white/50' : 'border-white/30'}`} style={{ background: c }} aria-label={`Color ${c}`} />
             ))}
           </div>
           {/* Width */}

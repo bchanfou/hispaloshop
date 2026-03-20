@@ -43,6 +43,8 @@ const ASPECT_RATIOS = [
   { label: '16:9', value: 16 / 9 },
 ];
 
+const DEFAULT_ADJUSTMENTS = { brightness: 0, contrast: 0, saturation: 0, warmth: 0, shadows: 0, highlights: 0, sharpness: 0, vignette: 0 };
+
 const CROP_RATIOS = [
   { label: '1:1', value: 1 },
   { label: '4:5', value: 4 / 5 },
@@ -107,6 +109,18 @@ export default function CreatePostPage() {
 
   /* --- shared state --- */
   const [step, setStep] = useState(1);
+  const [stepDirection, setStepDirection] = useState(1); // 1 = forward, -1 = backward
+  const goToStep = (target) => {
+    setStepDirection(target > step ? 1 : -1);
+    setStep(target);
+  };
+
+  const stepVariants = {
+    enter: (dir) => ({ x: dir > 0 ? '30%' : '-30%', opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir) => ({ x: dir > 0 ? '-30%' : '30%', opacity: 0 }),
+  };
+  const stepTransition = { type: 'tween', duration: 0.3, ease: [0.4, 0, 0.2, 1] };
 
   /* --- step 1 state --- */
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -119,7 +133,35 @@ export default function CreatePostPage() {
   /* --- step 2 state --- */
   const [activeFilter, setActiveFilter] = useState(FILTERS[0]);
   const [filterIntensity, setFilterIntensity] = useState(100);
-  const [adjustments, setAdjustments] = useState({ brightness: 0, contrast: 0, saturation: 0, warmth: 0, shadows: 0, highlights: 0, sharpness: 0, vignette: 0 });
+  const [adjustments, setAdjustments] = useState(DEFAULT_ADJUSTMENTS);
+
+  /* --- per-image filter settings (carousel) --- */
+  const [perImageFilters, setPerImageFilters] = useState({});
+  const prevPreviewIndexRef = useRef(0);
+
+  // Save current image's filter settings when switching images
+  useEffect(() => {
+    const prevIdx = prevPreviewIndexRef.current;
+    if (prevIdx !== previewIndex && selectedFiles.length > 1) {
+      setPerImageFilters((prev) => ({
+        ...prev,
+        [prevIdx]: { activeFilter, filterIntensity, adjustments },
+      }));
+      // Load new image's settings (or defaults)
+      const saved = perImageFilters[previewIndex];
+      if (saved) {
+        setActiveFilter(saved.activeFilter);
+        setFilterIntensity(saved.filterIntensity);
+        setAdjustments(saved.adjustments);
+      } else {
+        setActiveFilter(FILTERS[0]);
+        setFilterIntensity(100);
+        setAdjustments(DEFAULT_ADJUSTMENTS);
+      }
+    }
+    prevPreviewIndexRef.current = previewIndex;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewIndex]);
   const [textOverlays, setTextOverlays] = useState([]);
   const [textStyle, setTextStyle] = useState('clean');
   const [activeTab, setActiveTab] = useState('filtros');
@@ -301,7 +343,7 @@ export default function CreatePostPage() {
 
   /* ── text overlay helpers ── */
   const addTextOverlay = () => {
-    if (textOverlays.length >= 3) return;
+    if (textOverlays.length >= 10) return;
     setTextOverlays((prev) => [
       ...prev,
       { id: Date.now(), text: 'Texto', x: 50, y: 50, font: FONT_OPTIONS[0].value, color: '#ffffff', size: 24, style: textStyle },
@@ -376,12 +418,11 @@ export default function CreatePostPage() {
   /* ── computed filter string ── */
   const filterCSS = buildFilterCSS(activeFilter, filterIntensity, adjustments);
 
-  /* ══════════════════════ STEP 1 — Camera-first (Instagram-style) ══════════════════════ */
-  if (step === 1) {
-    const hasFiles = selectedFiles.length > 0;
+  /* ══════════════════════ RENDER ══════════════════════ */
+  const hasFiles = selectedFiles.length > 0;
 
-    return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col" style={{ fontFamily: 'inherit', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+  const renderStep1 = () => (
+      <div className="bg-black flex flex-col" style={{ fontFamily: 'inherit', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', width: '100%', height: '100%' }}>
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 shrink-0" style={{ height: 52 }}>
           <button
@@ -397,7 +438,7 @@ export default function CreatePostPage() {
           <span className="text-white text-[15px] font-medium tracking-tight">Nueva publicación</span>
           <button
             disabled={!hasFiles}
-            onClick={() => setStep(2)}
+            onClick={() => goToStep(2)}
             className="bg-transparent border-none cursor-pointer text-[13px] font-semibold text-white transition-opacity"
             style={{ opacity: hasFiles ? 1 : 0.35 }}
           >
@@ -514,11 +555,9 @@ export default function CreatePostPage() {
         <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFiles} className="hidden" />
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFiles} className="hidden" />
       </div>
-    );
-  }
+  );
 
-  /* ══════════════════════ STEP 2 ══════════════════════ */
-  if (step === 2) {
+  const renderStep2 = () => {
     const tabs = [
       { key: 'filtros', label: 'Filtros', icon: Sliders },
       { key: 'ajustes', label: 'Ajustes', icon: Sliders },
@@ -529,14 +568,14 @@ export default function CreatePostPage() {
     const previewAspect = aspectRatio.value || 'auto';
 
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+      <div style={{ width: '100%', height: '100%', background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
         {/* top bar */}
         <div style={{ background: 'rgba(0,0,0,0.8)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
-          <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={() => goToStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
             <ChevronLeft size={18} /> Volver
           </button>
           <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Editar</span>
-          <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#ffffff' }}>
+          <button onClick={() => goToStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#ffffff' }}>
             Siguiente →
           </button>
         </div>
@@ -568,7 +607,7 @@ export default function CreatePostPage() {
                 <img
                   src={previewUrls[previewIndex]}
                   alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', filter: filterCSS, transition: 'filter 0.2s' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', filter: filterCSS }}
                 />
               </motion.div>
             </AnimatePresence>
@@ -638,6 +677,31 @@ export default function CreatePostPage() {
             </div>
           </div>
         </div>
+
+        {/* carousel image selector */}
+        {selectedFiles.length > 1 && (
+          <div style={{ display: 'flex', gap: 6, padding: '8px 12px', overflowX: 'auto', background: 'rgba(0,0,0,0.6)', flexShrink: 0 }}>
+            {previewUrls.map((url, i) => (
+              <div
+                key={i}
+                onClick={() => setPreviewIndex(i)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  border: previewIndex === i ? '2px solid #fff' : '2px solid transparent',
+                  opacity: previewIndex === i ? 1 : 0.55,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.15)', flexShrink: 0 }}>
@@ -747,7 +811,7 @@ export default function CreatePostPage() {
           {/* ─── Texto ─── */}
           {activeTab === 'texto' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {textOverlays.length < 3 && (
+              {textOverlays.length < 10 && (
                 <button
                   onClick={addTextOverlay}
                   style={{
@@ -896,14 +960,13 @@ export default function CreatePostPage() {
         </div>
       </div>
     );
-  }
+  };
 
-  /* ══════════════════════ STEP 3 ══════════════════════ */
-  return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#ffffff', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+  const renderStep3 = () => (
+    <div style={{ width: '100%', height: '100%', background: '#ffffff', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
       {/* top bar */}
       <div style={{ background: '#ffffff', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: '1px solid #e7e5e4', flexShrink: 0 }}>
-        <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0c0a09', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => goToStep(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0c0a09', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
           <ChevronLeft size={18} /> Volver
         </button>
         <span style={{ flex: 1, textAlign: 'center', color: '#0c0a09', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
@@ -1024,7 +1087,7 @@ export default function CreatePostPage() {
               e.target.style.height = e.target.scrollHeight + 'px';
             }}
             aria-label="Descripción de la publicación"
-            placeholder="Escribe una descripción..."
+            placeholder="Escribe tu pie de foto... Usa # para hashtags y @ para menciones"
             style={{
               width: '100%',
               border: '1.5px solid #e7e5e4',
@@ -1227,7 +1290,7 @@ export default function CreatePostPage() {
 
       {/* product search modal */}
       {showProductSearch && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
           <div style={{ background: '#ffffff', width: '100%', maxHeight: '70vh', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #e7e5e4', gap: 8 }}>
               <Search size={18} color="#78716c" />
@@ -1283,7 +1346,7 @@ export default function CreatePostPage() {
 
       {/* Publish success overlay */}
       {publishSuccess && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, animation: 'fadeIn 0.3s ease' }}>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 70, background: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, animation: 'fadeIn 0.3s ease' }}>
           <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#0c0a09', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
             <Check size={28} color="#fff" strokeWidth={2.5} />
           </div>
@@ -1292,7 +1355,7 @@ export default function CreatePostPage() {
       )}
 
       {/* fixed publish button */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: 16, background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
         {/* Upload progress bar */}
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
           <div style={{ width: '100%', height: 3, background: '#e7e5e4', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
@@ -1350,5 +1413,24 @@ export default function CreatePostPage() {
         @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
       `}</style>
     </div>
+  );
+
+  const steps = { 1: renderStep1, 2: renderStep2, 3: renderStep3 };
+
+  return (
+    <AnimatePresence mode="wait" custom={stepDirection}>
+      <motion.div
+        key={step}
+        custom={stepDirection}
+        variants={stepVariants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={stepTransition}
+        style={{ position: 'fixed', inset: 0, zIndex: 50 }}
+      >
+        {steps[step]()}
+      </motion.div>
+    </AnimatePresence>
   );
 }

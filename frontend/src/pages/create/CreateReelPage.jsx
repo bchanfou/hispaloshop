@@ -474,13 +474,13 @@ export default function CreateReelPage() {
             }}
           />
 
-          {/* Mute toggle */}
+          {/* Mute toggle — bottom-left like Instagram */}
           <button
             onClick={(e) => { e.stopPropagation(); setIsMuted((m) => !m); }}
-            className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/50 border-none cursor-pointer flex items-center justify-center"
+            className="absolute bottom-3 left-3 z-10 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center"
             aria-label={isMuted ? 'Activar audio' : 'Silenciar audio'}
           >
-            {isMuted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
+            {isMuted ? <VolumeX size={15} className="text-white" /> : <Volume2 size={15} className="text-white" />}
           </button>
 
           {/* Text overlays */}
@@ -1043,6 +1043,7 @@ export default function CreateReelPage() {
         {/* Video preview small */}
         <div className="aspect-[9/16] max-h-[200px] bg-black rounded-xl overflow-hidden self-center shadow-lg">
           <video
+            ref={(el) => { if (el) el.playbackRate = speed; }}
             src={videoUrl || undefined}
             className="w-full h-full object-cover"
             style={{
