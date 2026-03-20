@@ -70,7 +70,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
 
   return (
     <div
-      className="scrollbar-hide flex gap-3 overflow-x-auto overscroll-x-contain px-4 py-3"
+      className="scrollbar-hide flex gap-3 overflow-x-auto overscroll-x-contain px-3 py-2"
       role="region"
       aria-label="Historias"
       tabIndex={0}
@@ -97,21 +97,21 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
         ? Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="flex shrink-0 flex-col items-center gap-1 w-[52px]"
+              className="flex shrink-0 flex-col items-center gap-1 w-16"
               aria-hidden="true"
             >
               <div
-                className="animate-pulse-slow h-[52px] w-[52px] rounded-full bg-stone-100"
+                className="animate-pulse-slow h-16 w-16 rounded-full bg-stone-100"
               />
             </div>
           ))
         : error ? (
             <button
               onClick={fetchStories}
-              className="flex shrink-0 flex-col items-center gap-1 w-[52px] bg-transparent border-none cursor-pointer"
+              className="flex shrink-0 flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
               aria-label="Reintentar cargar historias"
             >
-              <div className="h-[52px] w-[52px] rounded-full bg-stone-100 flex items-center justify-center">
+              <div className="h-16 w-16 rounded-full bg-stone-100 flex items-center justify-center">
                 <RefreshCw size={18} className="text-stone-400" />
               </div>
               <span className="text-[10px] text-stone-400">Reintentar</span>

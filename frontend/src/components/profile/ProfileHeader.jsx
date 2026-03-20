@@ -97,7 +97,7 @@ function SocialIcon({ href, label, children }) {
 
 /* ── Instagram‑style story ring gradient ─────────────────────────── */
 
-const STORY_RING_GRADIENT = '#2E7D52';
+const STORY_RING_GRADIENT = '#0c0a09';
 
 /* ── verified badge SVG ──────────────────────────────────────────── */
 
@@ -539,7 +539,7 @@ export default function ProfileHeader({
                 onClick={async () => {
                   try { await navigator.clipboard.writeText(user.discount_code); toast.success('Código copiado: ' + user.discount_code); } catch { toast.error('No se pudo copiar'); }
                 }}
-                className="inline-flex items-center gap-1 rounded-full bg-[#2E7D52] px-3 py-1 text-[11px] font-semibold text-white"
+                className="inline-flex items-center gap-1 rounded-full bg-stone-950 px-3 py-1 text-[11px] font-semibold text-white"
               >
                 <Copy size={10} />
                 {user.discount_code}
@@ -603,7 +603,7 @@ export default function ProfileHeader({
                   ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
                   ? 'bg-stone-100 text-stone-500'
-                  : 'bg-[#2E7D52] text-white hover:bg-[#1F5C3B]'
+                  : 'bg-stone-950 text-white hover:bg-stone-800'
               }`}
             >
               {user?.follow_request_pending

@@ -38,7 +38,7 @@ function renderCaption(text, navigate) {
       return (
         <span
           key={i}
-          className="text-[#2E7D52] font-medium cursor-pointer hover:underline"
+          className="text-stone-500 font-medium cursor-pointer hover:underline"
           role="link"
           onClick={(e) => { e.stopPropagation(); navigate?.(`/explore?tag=${encodeURIComponent(part.slice(1))}`); }}
         >
@@ -50,7 +50,7 @@ function renderCaption(text, navigate) {
       return (
         <span
           key={i}
-          className="text-[#2E7D52] font-medium cursor-pointer hover:underline"
+          className="text-stone-500 font-medium cursor-pointer hover:underline"
           role="link"
           onClick={(e) => { e.stopPropagation(); navigate?.(`/${part.slice(1)}`); }}
         >
@@ -244,7 +244,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       {showMenu && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-          <div className="absolute right-4 top-12 z-50 bg-white rounded-xl shadow-lg border border-stone-200 py-1 min-w-[180px]">
+          <div className="absolute right-3 top-10 z-50 bg-white rounded-xl shadow-lg border border-stone-200 py-1 min-w-[180px]">
             {isOwner && (
               <>
                 <button
@@ -353,7 +353,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       )}
 
       {/* ---- Header ---- */}
-      <div className="flex items-center gap-2.5 px-4 py-3">
+      <div className="flex items-center gap-2.5 px-3 py-2">
         <div
           onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
           className={`flex shrink-0 items-center justify-center rounded-full cursor-pointer ${
@@ -413,7 +413,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
       {/* ---- Location ---- */}
       {post.location && (
-        <div className="px-4 -mt-1 pb-1.5">
+        <div className="px-3 -mt-0.5 pb-1">
           <span className="text-[11px] text-stone-500">{post.location}</span>
         </div>
       )}
@@ -561,7 +561,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
       {/* ---- Liked by context ---- */}
       {likesCount > 0 && (post.liked_by_sample?.length > 0 || post.liked_by?.length > 0) && (
-        <div className="px-4 pb-1 text-[12px] text-stone-950 leading-tight">
+        <div className="px-3 pb-1 text-[12px] text-stone-950 leading-tight">
           <span>Le gusta a </span>
           <span className="font-semibold">{(post.liked_by_sample || post.liked_by)[0]?.name || 'alguien'}</span>
           {likesCount > 1 && <span> y <span className="font-semibold">{likesCount - 1} más</span></span>}
@@ -571,7 +571,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       {/* ---- "Ver los X comentarios" link (Q6) ---- */}
       {commentsCount > 0 && (
         <button
-          className="block w-full px-4 bg-transparent border-none p-0 pb-1 text-left text-[13px] text-stone-500 cursor-pointer font-[inherit]"
+          className="block w-full px-3 bg-transparent border-none p-0 pb-1 text-left text-[13px] text-stone-500 cursor-pointer font-[inherit]"
           onClick={() => onComment?.(post.id)}
         >
           Ver {commentsCount === 1 ? 'el comentario' : `los ${commentsCount} comentarios`}
@@ -580,7 +580,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
       {/* ---- Caption ---- */}
       {captionText && (
-        <div className="px-4 pb-2 text-sm leading-[1.45] text-stone-950">
+        <div className="px-3 pb-3 text-sm leading-[1.45] text-stone-950">
           <div className={shouldClamp ? 'line-clamp-3' : ''}>
             <span className="mr-1 font-semibold">{user.name}</span>
             {renderCaption(captionText, navigate)}
@@ -598,7 +598,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
       {/* ---- Tagged products ---- */}
       {normalizedProducts.length > 0 && (
-        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3">
+        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-3 pb-3">
           {normalizedProducts.map((product) => (
             <button
               key={product.id || product.product_id}

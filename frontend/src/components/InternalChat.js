@@ -222,7 +222,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
         ) : null}
       </AnimatePresence>
 
-      <div ref={elRef} className={`relative max-w-[72%] ${isOwn ? 'items-end' : 'items-start'}`}>
+      <div ref={elRef} className={`relative min-w-0 max-w-[78%] sm:max-w-[72%] ${isOwn ? 'items-end' : 'items-start'}`}>
         {/* Emoji picker — aparece al pulsar largo */}
         <AnimatePresence>
           {showPicker ? (
@@ -287,11 +287,12 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
           ) : null}
           {message?.content ? (
             <div
-              className={`px-3.5 py-2.5 text-[15px] leading-[1.4] ${
+              className={`px-3.5 py-2.5 text-[15px] leading-[1.4] whitespace-pre-wrap break-words ${
                 isOwn
                   ? `${hasReplyPreview ? 'rounded-b-[20px] rounded-br-[4px]' : 'rounded-[20px] rounded-br-[4px]'} bg-stone-950 text-white`
                   : `${hasReplyPreview ? 'rounded-b-[20px] rounded-bl-[4px]' : 'rounded-[20px] rounded-bl-[4px]'} bg-stone-100 text-stone-950`
               }`}
+              style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
             >
               {message.content}
             </div>

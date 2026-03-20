@@ -262,7 +262,7 @@ export default function UserProfilePage() {
         <p className="text-sm text-stone-500">Este perfil no existe o ha sido eliminado.</p>
         <button
           onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
-          className="mt-2 px-6 py-2.5 rounded-full bg-[#2E7D52] text-white text-sm font-semibold transition-all duration-150 hover:bg-[#1F5C3B] active:scale-95"
+          className="mt-2 px-6 py-2.5 rounded-full bg-stone-950 text-white text-sm font-semibold transition-all duration-150 hover:bg-stone-800 active:scale-95"
         >
           Volver
         </button>

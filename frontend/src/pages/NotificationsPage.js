@@ -149,6 +149,7 @@ function dateGroup(dateStr) {
   if (diff === 0) return 'Hoy';
   if (diff === 1) return 'Ayer';
   if (diff <  7)  return 'Esta semana';
+  if (diff < 30)  return 'Este mes';
   return 'Anterior';
 }
 
@@ -254,9 +255,9 @@ function GroupedNotifRow({ group, onRead }) {
 // ── Skeleton ─────────────────────────────────────────────────────
 function NotifSkeleton() {
   return (
-    <div className="flex items-start gap-3 px-4 py-3 animate-pulse">
+    <div className="flex items-center gap-3 px-4 py-2.5 animate-pulse">
       <div
-        className="w-6 h-6 rounded-full flex-shrink-0"
+        className="w-10 h-10 rounded-full flex-shrink-0"
         style={{ background: '#f5f5f4' }}
       />
       <div className="flex-1 space-y-2">
@@ -294,6 +295,10 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   const isFollowing = followedIds.has(notifKey);
   const [followLoading, setFollowLoading] = useState(false);
 
+  // Avatar
+  const avatar = notif.actor_avatar || notif.data?.actor_avatar || notif.sender_avatar;
+  const avatarName = notif.actor_username || notif.data?.actor_username || '';
+
   const handleFollowBack = async (e) => {
     e.stopPropagation();
     if (!actorId || followLoading) return;
@@ -325,27 +330,36 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -40 }}
-      className="flex items-start gap-3 cursor-pointer"
+      className="flex items-center gap-3 cursor-pointer"
       style={{
-        padding: '12px 16px',
+        padding: '10px 16px',
         borderLeft: !isRead ? '3px solid #0c0a09' : '3px solid transparent',
         background: !isRead ? '#f5f5f4' : '#ffffff',
         transition: 'background 0.15s',
       }}
       onClick={handleClick}
     >
-      {/* Icon circle */}
-      <div
-        className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-        style={{ background: catStyle.bg }}
-      >
-        <Icon style={{ width: 14, height: 14, color: catStyle.color }} strokeWidth={1.8} />
+      {/* Avatar (40px) with icon badge */}
+      <div className="relative w-10 h-10 flex-shrink-0">
+        <div className="w-10 h-10 rounded-full overflow-hidden" style={{ background: '#f5f5f4' }}>
+          {avatar
+            ? <img src={avatar} alt={avatarName} className="w-full h-full object-cover" />
+            : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: '#78716c' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
+          }
+        </div>
+        {/* Category icon badge */}
+        <div
+          className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
+          style={{ background: catStyle.bg }}
+        >
+          <Icon style={{ width: 10, height: 10, color: catStyle.color }} strokeWidth={2} />
+        </div>
       </div>
 
-      {/* Content */}
+      {/* Content + timestamp */}
       <div className="flex-1 min-w-0">
         <p style={{
-          fontSize: 12,
+          fontSize: 13,
           lineHeight: 1.4,
           color: '#0c0a09',
           fontWeight: isRead ? 400 : 500,
@@ -355,13 +369,16 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         </p>
         {notif.body && (
           <p className="mt-0.5 line-clamp-2" style={{
-            fontSize: 11,
+            fontSize: 12,
             color: '#78716c',
-            lineHeight: 1.5,
+            lineHeight: 1.4,
           }}>
             {notif.body}
           </p>
         )}
+        <span style={{ fontSize: 11, color: '#a8a29e', marginTop: 2, display: 'inline-block' }}>
+          {relativeTime(notif.created_at)}
+        </span>
       </div>
 
       {/* Follow-back button */}
@@ -369,14 +386,12 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         <button
           onClick={handleFollowBack}
           disabled={followLoading}
+          className="rounded-full text-[11px] font-semibold cursor-pointer flex-shrink-0"
           style={{
-            flexShrink: 0,
-            padding: '5px 12px',
-            borderRadius: '9999px',
+            padding: '6px 16px',
             border: isFollowing ? '1px solid #e7e5e4' : 'none',
             background: isFollowing ? '#ffffff' : '#0c0a09',
             color: isFollowing ? '#78716c' : '#ffffff',
-            fontSize: 11, fontWeight: 600, cursor: 'pointer',
             fontFamily: 'inherit',
             opacity: followLoading ? 0.6 : 1,
             transition: 'all 0.15s',
@@ -398,20 +413,15 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
       ) : null}
 
-      {/* Right column: time + delete (always visible) */}
-      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-        <span style={{ fontSize: 10, color: '#78716c' }}>
-          {relativeTime(notif.created_at)}
-        </span>
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(notif.notification_id || notif._id); }}
-          className="p-1 flex items-center justify-center"
-          style={{ color: '#78716c', background: 'none', border: 'none', cursor: 'pointer' }}
-          aria-label="Eliminar notificación"
-        >
-          <Trash2 className="text-stone-400 hover:text-stone-600" style={{ width: 14, height: 14 }} />
-        </button>
-      </div>
+      {/* Delete button */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(notif.notification_id || notif._id); }}
+        className="p-1 flex items-center justify-center flex-shrink-0"
+        style={{ color: '#78716c', background: 'none', border: 'none', cursor: 'pointer' }}
+        aria-label="Eliminar notificación"
+      >
+        <Trash2 className="text-stone-400 hover:text-stone-600" style={{ width: 14, height: 14 }} />
+      </button>
     </motion.div>
   );
 }
@@ -518,7 +528,7 @@ export default function NotificationsPage() {
     return acc;
   }, {});
 
-  const GROUP_ORDER = ['Hoy', 'Ayer', 'Esta semana', 'Anterior'];
+  const GROUP_ORDER = ['Hoy', 'Ayer', 'Esta semana', 'Este mes', 'Anterior'];
 
   return (
     <div className="min-h-screen max-w-2xl mx-auto pb-20" style={{ background: '#fafaf9' }}>
@@ -637,21 +647,16 @@ export default function NotificationsPage() {
               return (
                 <div key={label}>
                   {/* Group header */}
-                  <div style={{ padding: '8px 16px' }}>
+                  <div style={{ padding: '10px 16px 6px' }}>
                     <span style={{
-                      fontSize: 10,
+                      fontSize: 13,
                       fontWeight: 600,
-                      color: '#78716c',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
+                      color: '#0c0a09',
                       fontFamily: 'inherit',
                     }}>
                       {label}
                     </span>
                   </div>
-
-                  {/* Divider */}
-                  <div style={{ borderBottom: '1px solid #e7e5e4' }} />
 
                   {items.map((item, i) => (
                     <React.Fragment key={
@@ -671,7 +676,7 @@ export default function NotificationsPage() {
                         />
                       )}
                       {i < items.length - 1 && (
-                        <div className="mx-4" style={{ borderBottom: '1px solid #e7e5e4' }} />
+                        <div className="ml-[68px] mr-4" style={{ borderBottom: '1px solid #f5f5f4' }} />
                       )}
                     </React.Fragment>
                   ))}
