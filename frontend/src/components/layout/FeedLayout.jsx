@@ -3,15 +3,12 @@ import DesktopSidebar from './DesktopSidebar';
 
 /**
  * FeedLayout — wraps feed pages (Home, Discover, Communities, Stores)
- * with the DesktopSidebar on lg+ screens.
- * Used inside AppLayout.
+ * with the DesktopSidebar on xl+ screens.
+ * Feed column is max 600px, right sidebar 320px.
  */
 export default function FeedLayout({ children }) {
   return (
-    <div className="feed-layout-wrapper" style={{
-      width: '100%',
-      background: '#ffffff',
-    }}>
+    <div className="w-full bg-white">
       <style>{`
         .feed-layout {
           display: flex;
@@ -31,9 +28,9 @@ export default function FeedLayout({ children }) {
           width: 320px;
           flex-shrink: 0;
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 1280px) {
           .feed-layout {
-            padding: 0 0px;
+            padding: 0;
           }
           .feed-sidebar-slot {
             display: block;

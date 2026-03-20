@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import AppHeader from './AppHeader';
+import SideNav from './SideNav';
 import PageTransition from '../motion/PageTransition';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
@@ -112,23 +113,23 @@ export default function AppLayout({ children }) {
       {/* Email verification banner */}
       {showVerificationBanner && <EmailVerificationBanner />}
 
+      {/* Desktop: SideNav (lg+) */}
+      <SideNav />
+
       {/* Mobile: AppHeader */}
       <div className="lg:hidden">
         <AppHeader />
       </div>
 
-      {/* Content area */}
-      <main
-        className="min-h-screen"
-        style={{
-          paddingBottom: 'calc(50px + env(safe-area-inset-bottom, 0px))',
-        }}
-      >
-        <AnimatePresence mode="wait">
-          <PageTransition key={location.pathname}>
-            {children}
-          </PageTransition>
-        </AnimatePresence>
+      {/* Content area — shifts right on desktop to clear SideNav */}
+      <main className="min-h-screen lg:ml-[220px] pb-[calc(50px+env(safe-area-inset-bottom,0px))] lg:pb-0">
+        <div className="mx-auto max-w-[935px]">
+          <AnimatePresence mode="wait">
+            <PageTransition key={location.pathname}>
+              {children}
+            </PageTransition>
+          </AnimatePresence>
+        </div>
       </main>
     </>
   );

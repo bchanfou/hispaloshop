@@ -4,7 +4,7 @@ user management, product/certificate management, stock management,
 country availability, and variants/packs management.
 Extracted from server.py.
 """
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from typing import Optional, List
 from datetime import datetime, timezone
 import uuid
@@ -1675,23 +1675,25 @@ async def admin_list_products(
 
 @router.get("/admin/orders")
 async def admin_list_orders(
+    response: Response,
     status: Optional[str] = None,
     limit: int = 100,
     user: User = Depends(get_current_user)
 ):
     """List orders for admin dashboard"""
     await require_role(user, ["admin", "super_admin"])
-    
+
     query = {}
     if status:
         query["status"] = status
-    
+
     total = await db.orders.count_documents(query)
     orders = await db.orders.find(
         query,
         {"_id": 0}
     ).sort("created_at", -1).limit(limit).to_list(limit)
 
+    response.headers["X-Total-Count"] = str(total)
     return {"orders": orders, "total": total, "has_more": total > limit}
 
 

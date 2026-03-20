@@ -12,6 +12,7 @@ from core.auth import get_current_user
 from core.models import Cart
 from services.markets import is_product_available_in_country
 from services.shipping_calculator import calculate_cart_shipping
+from core.price_utils import price_to_cents
 
 router = APIRouter(prefix="/cart", tags=["Cart"])
 
@@ -121,7 +122,7 @@ async def add_to_cart(
     # Obtener precio
     unit_price_cents = product.get("price_cents", 0)
     if unit_price_cents == 0 and product.get("price"):
-        unit_price_cents = int(round(product["price"] * 100))
+        unit_price_cents = price_to_cents(product["price"])
     
     # Obtener o crear carrito
     cart = await db.carts.find_one({
@@ -354,7 +355,7 @@ async def apply_country_change(request: Request, current_user = Depends(get_curr
         updated_item = dict(item)
         country_prices = product.get("country_prices", {})
         if country in country_prices:
-            unit_price_cents = int(round(float(country_prices[country]) * 100))
+            unit_price_cents = price_to_cents(float(country_prices[country]))
             if updated_item.get("unit_price_cents") != unit_price_cents:
                 updated_item["unit_price_cents"] = unit_price_cents
                 updated_item["total_price_cents"] = unit_price_cents * int(updated_item.get("quantity", 1))
@@ -412,7 +413,7 @@ async def apply_coupon(
     if coupon_type == "percentage":
         discount_cents = subtotal * coupon.get("value", 0) // 100
     elif coupon_type == "fixed":
-        discount_cents = int(round(coupon.get("value", 0) * 100))
+        discount_cents = price_to_cents(coupon.get("value", 0))
     elif coupon_type == "free_shipping":
         # Se maneja en checkout
         pass
@@ -510,7 +511,7 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
         if not product:
             continue  # Skip unknown products
 
-        server_price_cents = product.get("price_cents") or int(round((product.get("price", 0)) * 100))
+        server_price_cents = product.get("price_cents") or price_to_cents(product.get("price", 0))
 
         normalized_items.append({
             "product_id": str(product_id),

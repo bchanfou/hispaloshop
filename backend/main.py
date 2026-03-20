@@ -37,6 +37,7 @@ from middleware.security import (
     RateLimitMiddleware,
     RequestLoggingMiddleware
 )
+from middleware.request_id import RequestIDMiddleware
 
 # === STACK MONGODB (LEGACY - ACTIVO) ===
 from routes.auth import router as legacy_auth_router
@@ -167,6 +168,9 @@ app.add_middleware(RateLimitMiddleware, requests_per_minute=100, burst_size=50)
 
 # 4. Request Logging (all envs — logs slow requests >2s in production)
 app.add_middleware(RequestLoggingMiddleware)
+
+# 5. Request correlation ID (UUID per request, X-Request-ID header)
+app.add_middleware(RequestIDMiddleware)
 
 # ============================================
 # API Routes - Stack MongoDB (Funcional)

@@ -3,7 +3,7 @@ Payment system, checkout, Stripe webhooks, order management,
 email notifications, financial ledger, commission audit.
 Extracted from server.py.
 """
-from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks, Response
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timezone, timedelta
 import uuid
@@ -23,6 +23,7 @@ from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
 from services.ledger import write_ledger_event
 from services.markets import get_product_target_markets, is_product_available_in_country, normalize_market_code
+from core.price_utils import price_to_cents
 from middleware.rate_limit import rate_limiter
 from config import normalize_influencer_tier
 from services.shipping_service import ShippingPolicy, ShippingService
@@ -242,7 +243,7 @@ async def execute_seller_transfers(order: dict):
     
     for split in splits:
         seller_id = split["seller_id"]
-        seller_payout_cents = int(round(split["seller_payout"] * 100))
+        seller_payout_cents = price_to_cents(split["seller_payout"])
         total_platform_fee += split["platform_gross"]
         total_influencer_cut += split.get("influencer_cut", 0)
         
@@ -657,7 +658,7 @@ async def process_influencer_scheduled_payouts():
     for payout in due_payouts:
         payout_id = payout["payout_id"]
         stripe_account_id = payout.get("influencer_stripe_account_id")
-        amount_cents = int(round(payout["amount"] * 100))
+        amount_cents = price_to_cents(payout["amount"])
         currency = payout.get("currency", "eur").lower()
         order_id = payout["order_id"]
         
@@ -788,7 +789,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         
         # Auto-correct pricing if changed (don't reject, just update)
         current_price = product.get("price", 0)
-        current_price_cents = product.get("price_cents") or int(round(current_price * 100))
+        current_price_cents = product.get("price_cents") or price_to_cents(current_price)
         inv = product.get("inventory_by_country", [])
         market = next((m for m in inv if m.get("country_code") == user_country and m.get("active")), None)
         if market:
@@ -968,7 +969,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         if not pid:
             continue
         producer_groups.setdefault(pid, {"subtotal_cents": 0, "item_count": 0})
-        producer_groups[pid]["subtotal_cents"] += int(round(item.get("price", 0) * item.get("quantity", 0) * 100))
+        producer_groups[pid]["subtotal_cents"] += price_to_cents(item.get("price", 0) * item.get("quantity", 0))
         producer_groups[pid]["item_count"] += int(item.get("quantity", 0) or 0)
 
     shipping_cents = 0
@@ -1002,7 +1003,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
 
     tax_rate_bp = ShippingService.get_tax_rate_bp(user_country)
     totals_cents = ShippingService.calculate_order_totals(
-        subtotal_cents=int(round(discounted_subtotal * 100)),
+        subtotal_cents=price_to_cents(discounted_subtotal),
         shipping_cents=shipping_cents,
         tax_rate_bp=tax_rate_bp,
     )
@@ -1021,9 +1022,9 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
             "producer_id": item["producer_id"],
             "quantity": item["quantity"],
             "price": item["price"],
-            "price_cents": int(round(item["price"] * 100)),
+            "price_cents": price_to_cents(item["price"]),
             "subtotal": item["price"] * item["quantity"],
-            "subtotal_cents": int(round(item["price"] * item["quantity"] * 100)),
+            "subtotal_cents": price_to_cents(item["price"] * item["quantity"]),
         }
         if item.get("variant_id"):
             line_item["variant_id"] = item["variant_id"]
@@ -1085,8 +1086,8 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     # Serialize seller_breakdown for Stripe metadata (max 500 chars per value)
     seller_breakdown = {}
     for split in split_details:
-        seller_breakdown[split["producer_id"]] = int(round(split["gross_amount"] * 100))
-    
+        seller_breakdown[split["producer_id"]] = price_to_cents(split["gross_amount"])
+
     # Build Stripe Checkout Session — Separate Charges & Transfers
     # Money enters platform account fully. Transfers executed after webhook confirmation.
     stripe_params = {
@@ -1110,7 +1111,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "line_items": [{
             "price_data": {
                 "currency": base_currency.lower(),
-                "unit_amount": int(round(total_amount * 100)),
+                "unit_amount": price_to_cents(total_amount),
                 "product_data": {"name": f"Pedido Hispaloshop #{order_id[-8:]}"},
             },
             "quantity": 1,
@@ -1309,13 +1310,13 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
             buy_now_shipping_cents = ShippingService.calculate_shipping_cents(
                 policy=buy_now_policy,
                 item_count=input.quantity,
-                subtotal_cents=int(round(subtotal_amount * 100)),
+                subtotal_cents=price_to_cents(subtotal_amount),
             )
 
     # Tax calculation
     buy_now_tax_rate_bp = ShippingService.get_tax_rate_bp(user_country)
     buy_now_totals = ShippingService.calculate_order_totals(
-        subtotal_cents=int(round(subtotal_amount * 100)),
+        subtotal_cents=price_to_cents(subtotal_amount),
         shipping_cents=buy_now_shipping_cents,
         tax_rate_bp=buy_now_tax_rate_bp,
     )
@@ -1344,7 +1345,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
     success_url = f"{origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin}/products/{input.product_id}"
 
-    seller_breakdown = {producer_id: int(round(subtotal_amount * 100))}
+    seller_breakdown = {producer_id: price_to_cents(subtotal_amount)}
 
     stripe_params = {
         "mode": "payment",
@@ -1368,7 +1369,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "line_items": [{
             "price_data": {
                 "currency": base_currency.lower(),
-                "unit_amount": int(round(total_amount * 100)),
+                "unit_amount": price_to_cents(total_amount),
                 "product_data": {"name": f"Compra directa #{order_id[-8:]}"},
             },
             "quantity": 1,
@@ -1623,7 +1624,7 @@ async def stripe_webhook(request: Request):
                         )
                     else:
                         # Partial refund: proportionally reduce scheduled influencer payouts
-                        total_amount_cents = int(round(order.get("total_amount", 0) * 100))
+                        total_amount_cents = price_to_cents(order.get("total_amount", 0))
                         if total_amount_cents > 0:
                             refund_ratio = amount_refunded / total_amount_cents
                             scheduled = await db.scheduled_payouts.find(
@@ -1747,7 +1748,7 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
             if pi_id:
                 params = {"payment_intent": pi_id, "metadata": {"order_id": order_id, "type": refund_type}}
                 if refund_type == "partial":
-                    params["amount"] = int(round(refund_amount * 100))
+                    params["amount"] = price_to_cents(refund_amount)
                 ref = stripe.Refund.create(**params)
                 stripe_refund_id = ref.id
                 logger.info(f"[REFUND] Stripe refund {ref.id}: {refund_amount} ({refund_type})")
@@ -2134,17 +2135,21 @@ async def export_financial_report(
 
 # Orders
 @router.get("/orders")
-async def get_orders(user: User = Depends(get_current_user)):
-    query = {"user_id": user.user_id}
+async def get_orders(response: Response, user: User = Depends(get_current_user)):
     if user.role == "producer":
-        orders = await db.orders.find({"line_items.producer_id": user.user_id}, {"_id": 0}).to_list(100)
-        return orders
-    elif user.role == "admin":
-        orders = await db.orders.find({}, {"_id": 0}).to_list(1000)
-        return orders
-    else:
+        query = {"line_items.producer_id": user.user_id}
+        total = await db.orders.count_documents(query)
         orders = await db.orders.find(query, {"_id": 0}).to_list(100)
-        return orders
+    elif user.role == "admin":
+        query = {}
+        total = await db.orders.count_documents(query)
+        orders = await db.orders.find(query, {"_id": 0}).to_list(1000)
+    else:
+        query = {"user_id": user.user_id}
+        total = await db.orders.count_documents(query)
+        orders = await db.orders.find(query, {"_id": 0}).to_list(100)
+    response.headers["X-Total-Count"] = str(total)
+    return orders
 
 @router.get("/orders/{order_id}")
 async def get_order(order_id: str, user: User = Depends(get_current_user)):

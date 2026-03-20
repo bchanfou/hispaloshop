@@ -559,15 +559,21 @@ async def sign_contract(
         {"$set": update_fields},
     )
 
-    # If both signed, seal the contract
+    # If both signed, seal the contract (with rollback on failure)
     if both_signed:
+        # Save pre-seal status so we can rollback if seal_contract fails
+        pre_seal_status = update_fields.get("status", operation.get("status"))
+        # Optimistically set status to contract_signed
+        await db.b2b_operations.update_one(
+            {"_id": oid},
+            {"$set": {"status": "contract_signed", "updated_at": now}},
+        )
         try:
             refreshed = await db.b2b_operations.find_one({"_id": oid})
             seal_result = await seal_contract(refreshed, db)
             await db.b2b_operations.update_one(
                 {"_id": oid},
                 {"$set": {
-                    "status": "contract_signed",
                     "contract.pdf_url": seal_result["pdf_url"],
                     "contract.contract_hash": seal_result["contract_hash"],
                     "contract.sealed_at": now,
@@ -577,7 +583,11 @@ async def sign_contract(
             final = await db.b2b_operations.find_one({"_id": oid})
             await notify_contract_signed(final, db)
         except Exception as exc:
-            logger.error("Contract sealing failed for %s: %s", operation_id, exc)
+            logger.error("Contract sealing failed for %s: %s — rolling back status", operation_id, exc)
+            await db.b2b_operations.update_one(
+                {"_id": oid},
+                {"$set": {"status": pre_seal_status or "contract_pending", "updated_at": now}},
+            )
 
     final_op = await db.b2b_operations.find_one({"_id": oid})
 

@@ -98,8 +98,21 @@ def _get_public_frontend_url(request: Request) -> str:
 
 
 def _is_email_delivery_configured() -> bool:
+    import os
     api_key = (settings.RESEND_API_KEY or "").strip()
-    return bool(api_key and api_key != "PLACEHOLDER_RESEND_KEY")
+    configured = bool(api_key and api_key != "PLACEHOLDER_RESEND_KEY")
+    if not configured:
+        is_production = bool(os.environ.get("RAILWAY_ENVIRONMENT") or settings.ENV == "production")
+        if is_production:
+            logging.getLogger(__name__).warning(
+                "[EMAIL] CRITICAL: Resend API key is missing or placeholder in PRODUCTION. "
+                "Email delivery is disabled. Set RESEND_API_KEY to a valid key."
+            )
+        else:
+            logging.getLogger(__name__).warning(
+                "[EMAIL] Resend API key not configured — email delivery disabled (dev mode)."
+            )
+    return configured
 
 
 def _build_verification_link(request: Request, verification_key: str) -> str:

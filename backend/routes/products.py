@@ -677,6 +677,67 @@ async def get_product_variants(product_id: str):
     
     return variants
 
+
+from core.models import VariantCreateInput as _VariantInput
+
+@router.put("/products/{product_id}/variants/{variant_id}")
+async def update_product_variant(
+    product_id: str,
+    variant_id: str,
+    input: _VariantInput,
+    user: User = Depends(get_current_user),
+):
+    """Update an embedded variant on a product (owner or admin)."""
+    await require_role(user, ["producer", "importer", "admin", "super_admin"])
+    product = await db.products.find_one({"product_id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this product")
+
+    variants = product.get("variants", [])
+    idx = next((i for i, v in enumerate(variants) if v.get("variant_id") == variant_id), None)
+    if idx is None:
+        raise HTTPException(status_code=404, detail="Variant not found")
+
+    variants[idx]["name"] = input.name
+    if input.sku is not None:
+        variants[idx]["sku"] = input.sku
+
+    await db.products.update_one(
+        {"product_id": product_id},
+        {"$set": {"variants": variants}},
+    )
+    return variants[idx]
+
+
+@router.delete("/products/{product_id}/variants/{variant_id}")
+async def delete_product_variant(
+    product_id: str,
+    variant_id: str,
+    user: User = Depends(get_current_user),
+):
+    """Delete an embedded variant from a product (owner or admin)."""
+    await require_role(user, ["producer", "importer", "admin", "super_admin"])
+    product = await db.products.find_one({"product_id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this product")
+
+    variants = product.get("variants", [])
+    original_count = len(variants)
+    variants = [v for v in variants if v.get("variant_id") != variant_id]
+    if len(variants) == original_count:
+        raise HTTPException(status_code=404, detail="Variant not found")
+
+    await db.products.update_one(
+        {"product_id": product_id},
+        {"$set": {"variants": variants if variants else None}},
+    )
+    return {"message": "Variant deleted"}
+
+
 @router.delete("/products/{product_id}")
 async def delete_product(product_id: str, user: User = Depends(get_current_user)):
     """Delete a product by ID."""
