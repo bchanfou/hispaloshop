@@ -1,6 +1,6 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Check, Globe, Loader2, X } from 'lucide-react';
+import { Camera, Check, Globe, Loader2, MapPin, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUpdateProfile } from '../../hooks/api';
@@ -54,6 +54,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
     username: '',
     bio:      '',
     website:  '',
+    location: '',
   });
 
   // Reset draft when opening
@@ -64,11 +65,24 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
         username: profile.username || '',
         bio:      profile.bio      || '',
         website:  profile.website  || '',
+        location: profile.location || profile.city || '',
       });
     }
   }, [isOpen, profile]);
 
   const usernameStatus = useCheckUsername(draft.username, profile?.username);
+
+  // Detect if user made any changes
+  const hasChanges = useMemo(() => {
+    if (!profile) return false;
+    return (
+      draft.name !== (profile.name || '') ||
+      draft.username !== (profile.username || '') ||
+      draft.bio !== (profile.bio || '') ||
+      draft.website !== (profile.website || '') ||
+      draft.location !== (profile.location || profile.city || '')
+    );
+  }, [draft, profile]);
 
   const set = useCallback(
     (key) => (e) => setDraft((d) => ({ ...d, [key]: e.target.value })),
@@ -167,7 +181,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
               <button
                 type="button"
                 onClick={handleSave}
-                disabled={isPending || usernameStatus === 'checking'}
+                disabled={isPending || usernameStatus === 'checking' || !hasChanges}
                 className="flex items-center gap-1 text-[14px] font-semibold text-[#2E7D52] disabled:opacity-50 active:opacity-50"
               >
                 {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
@@ -310,6 +324,19 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                     value={draft.website}
                     onChange={set('website')}
                     placeholder="Enlace web"
+                    className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
+                  />
+                </div>
+
+                {/* Ubicación */}
+                <div className="flex items-center gap-2 px-5 py-3.5">
+                  <MapPin className="h-4 w-4 shrink-0 text-stone-400" />
+                  <input
+                    type="text"
+                    value={draft.location}
+                    onChange={set('location')}
+                    placeholder="Ubicación"
+                    maxLength={60}
                     className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
                   />
                 </div>

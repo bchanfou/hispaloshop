@@ -164,9 +164,9 @@ export default function UserProfilePage() {
   const handleDeletePost = useCallback((postId) => {
     setAllPosts(prev => prev.filter(p => (p.id || p.post_id) !== postId));
     setSelectedPost(null);
-    refetch();
     queryClient.invalidateQueries({ queryKey: ['users', userId, 'posts'] });
-  }, [refetch, userId, queryClient]);
+    queryClient.invalidateQueries({ queryKey: ['userProfile', userId] });
+  }, [userId, queryClient]);
 
   const handleFollowToggle = useCallback(async () => {
     if (!user || followLoading) return;

@@ -9,6 +9,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [loadingUserId, setLoadingUserId] = useState(null);
 
   // Normalize backend story format → StoryViewer-compatible format
   const normalizeStories = useCallback((raw) => {
@@ -128,7 +129,44 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
               isSelf={false}
               hasUnseenStory={story.has_unseen ?? true}
               itemsCount={story.items?.length || 1}
-              onClick={() => onStoryClick && onStoryClick(stories, idx)}
+              isLoading={loadingUserId === story.user_id}
+              onClick={async () => {
+                if (!onStoryClick || loadingUserId) return;
+                // Fetch all stories for this user to get full items, not just preview
+                setLoadingUserId(story.user_id);
+                try {
+                  const res = await apiClient.get(`/stories/${story.user_id}`);
+                  const fullItems = Array.isArray(res) ? res : res?.items || res?.stories || [];
+                  if (fullItems.length > 0) {
+                    const enrichedStories = stories.map((s, i) => {
+                      if (i === idx) {
+                        return {
+                          ...s,
+                          items: fullItems.map(item => ({
+                            id: item.id || item.story_id,
+                            story_id: item.id || item.story_id,
+                            image_url: item.image_url || item.media_url,
+                            video_url: item.video_url,
+                            caption: item.caption || item.text,
+                            created_at: item.created_at,
+                            products: item.products,
+                          })),
+                        };
+                      }
+                      return s;
+                    });
+                    onStoryClick(enrichedStories, idx);
+                  } else {
+                    // Fallback: use preview
+                    onStoryClick(stories, idx);
+                  }
+                } catch {
+                  // Fallback: use preview
+                  onStoryClick(stories, idx);
+                } finally {
+                  setLoadingUserId(null);
+                }
+              }}
             />
           ))}
     </div>

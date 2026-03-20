@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Grid3X3,
@@ -11,7 +11,16 @@ import {
   Lock,
   Play,
   X,
+  Heart,
+  MessageCircle,
+  Share2,
+  ChevronUp,
+  ChevronDown,
+  MoreHorizontal,
+  Trash2,
+  Pencil,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 
 const ALL_TABS = [
@@ -118,9 +127,10 @@ const ProfileTabs = forwardRef(function ProfileTabs({
 }, ref) {
   const navigate = useNavigate();
 
-  const tabs = getTabsForRole(role, isOwn);
+  const tabs = useMemo(() => getTabsForRole(role, isOwn), [role, isOwn]);
   const [activeTab, setActiveTab] = useState('posts');
   const [selectedReel, setSelectedReel] = useState(null);
+  const [reelIndex, setReelIndex] = useState(0);
 
   // Expose switchTab to parent via ref (Q9)
   useImperativeHandle(ref, () => ({
@@ -143,13 +153,13 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     skipRef.current = {};
   }, [userId]);
 
-  const endpointMap = {
+  const endpointMap = useMemo(() => ({
     posts: `/users/${userId}/posts`,
     reels: `/users/${userId}/reels`,
     products: `/users/${userId}/products`,
     recipes: `/users/${userId}/recipes`,
     saved: `/users/me/saved-posts`,
-  };
+  }), [userId]);
 
   const fetchTab = useCallback(
     async (tabId, append = false) => {
@@ -281,8 +291,8 @@ const ProfileTabs = forwardRef(function ProfileTabs({
           return (
             <div
               key={reel.id || reel.reel_id || i}
-              onClick={() => setSelectedReel(reel)}
-              onKeyDown={(e) => { if (e.key === 'Enter') setSelectedReel(reel); }}
+              onClick={() => { setSelectedReel(reel); setReelIndex(i); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { setSelectedReel(reel); setReelIndex(i); } }}
               role="button"
               tabIndex={0}
               className="relative aspect-square cursor-pointer overflow-hidden bg-black"
@@ -480,40 +490,210 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       </div>
 
       {/* Fullscreen reel overlay */}
-      {selectedReel && (
-        <div className="fixed inset-0 z-50 bg-stone-950 flex flex-col">
-          {/* Close button */}
-          <button
-            onClick={() => setSelectedReel(null)}
-            aria-label="Cerrar"
-            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
-          >
-            <X size={20} className="text-white" />
-          </button>
-          {/* Video */}
-          <video
-            src={selectedReel.video_url || selectedReel.media_url}
-            autoPlay
-            loop
-            playsInline
-            className="w-full h-full object-contain"
+      {selectedReel && (() => {
+        const reels = data.reels || [];
+        const currentReel = reels[reelIndex] || selectedReel;
+        const reelId = currentReel.id || currentReel.reel_id;
+        return (
+          <ReelViewer
+            reel={currentReel}
+            reelIndex={reelIndex}
+            totalReels={reels.length}
+            isOwn={isOwn}
+            onClose={() => setSelectedReel(null)}
+            onPrev={() => setReelIndex((i) => Math.max(0, i - 1))}
+            onNext={() => setReelIndex((i) => Math.min(reels.length - 1, i + 1))}
+            onDelete={(id) => {
+              setData((prev) => ({ ...prev, reels: (prev.reels || []).filter(r => (r.id || r.reel_id) !== id) }));
+              setSelectedReel(null);
+            }}
           />
-          {/* Metadata */}
-          {selectedReel.caption && (
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-stone-950/80 to-transparent">
-              <p className="text-white text-sm line-clamp-2">{selectedReel.caption}</p>
-              {selectedReel.views != null && (
-                <p className="mt-1 flex items-center gap-1 text-[12px] text-stone-300">
-                  <Play size={12} fill="currentColor" />
-                  {formatViews(selectedReel.views)} visualizaciones
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 });
+
+/* ── Fullscreen reel viewer with interactions ─────────────────── */
+
+function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNext, onDelete }) {
+  const navigate = useNavigate();
+  const videoRef = useRef(null);
+  const [liked, setLiked] = useState(reel.is_liked ?? false);
+  const [likesCount, setLikesCount] = useState(reel.likes_count ?? reel.likes ?? 0);
+  const [saved, setSaved] = useState(reel.is_saved ?? false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const reelId = reel.id || reel.reel_id;
+
+  // Reset state when reel changes
+  useEffect(() => {
+    setLiked(reel.is_liked ?? false);
+    setLikesCount(reel.likes_count ?? reel.likes ?? 0);
+    setSaved(reel.is_saved ?? false);
+    setShowMenu(false);
+  }, [reel]);
+
+  // Close on Escape
+  useEffect(() => {
+    const h = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onClose]);
+
+  const handleLike = useCallback(async () => {
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikesCount((c) => wasLiked ? Math.max(0, c - 1) : c + 1);
+    try {
+      if (wasLiked) await apiClient.delete(`/reels/${reelId}/like`);
+      else await apiClient.post(`/reels/${reelId}/like`);
+    } catch {
+      setLiked(wasLiked);
+      setLikesCount((c) => wasLiked ? c + 1 : Math.max(0, c - 1));
+    }
+  }, [liked, reelId]);
+
+  const handleSave = useCallback(async () => {
+    const wasSaved = saved;
+    setSaved(!wasSaved);
+    try {
+      if (wasSaved) await apiClient.delete(`/reels/${reelId}/save`);
+      else await apiClient.post(`/reels/${reelId}/save`);
+    } catch { setSaved(wasSaved); }
+  }, [saved, reelId]);
+
+  const handleShare = useCallback(async () => {
+    const url = `${window.location.origin}/reels/${reelId}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: reel.caption?.slice(0, 60) || 'Reel', url }); } catch { /* cancelled */ }
+    } else {
+      try { await navigator.clipboard.writeText(url); toast.success('Enlace copiado'); } catch { /* */ }
+    }
+  }, [reelId, reel.caption]);
+
+  const handleDelete = useCallback(async () => {
+    setDeleting(true);
+    try {
+      await apiClient.delete(`/reels/${reelId}`);
+      toast.success('Reel eliminado');
+      onDelete?.(reelId);
+    } catch {
+      toast.error('Error al eliminar');
+    } finally {
+      setDeleting(false);
+      setShowMenu(false);
+    }
+  }, [reelId, onDelete]);
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-stone-950 flex flex-col">
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        aria-label="Cerrar"
+        className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+      >
+        <X size={20} className="text-white" />
+      </button>
+
+      {/* Own reel menu */}
+      {isOwn && (
+        <div className="absolute top-4 right-4 z-10">
+          <button
+            onClick={() => setShowMenu((s) => !s)}
+            aria-label="Opciones"
+            className="w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+          >
+            <MoreHorizontal size={20} className="text-white" />
+          </button>
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+              <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl bg-white shadow-lg border border-stone-100 overflow-hidden">
+                <button
+                  onClick={() => { onClose(); navigate(`/reels/${reelId}/edit`); }}
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-50"
+                >
+                  <Pencil size={16} /> Editar
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                >
+                  <Trash2 size={16} /> {deleting ? 'Eliminando...' : 'Eliminar'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Video */}
+      <video
+        ref={videoRef}
+        key={reel.video_url || reel.media_url}
+        src={reel.video_url || reel.media_url}
+        autoPlay
+        loop
+        playsInline
+        className="w-full h-full object-contain"
+      />
+
+      {/* Right sidebar — like/comment/share/save */}
+      <div className="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-5">
+        <button onClick={handleLike} className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer">
+          <Heart size={26} fill={liked ? '#FF3040' : 'none'} className={liked ? 'text-[#FF3040]' : 'text-white'} />
+          <span className="text-[11px] text-white font-medium">{likesCount}</span>
+        </button>
+        <button
+          onClick={() => navigate(`/reels/${reelId}`)}
+          className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer"
+        >
+          <MessageCircle size={26} className="text-white" />
+          <span className="text-[11px] text-white font-medium">{reel.comments_count ?? 0}</span>
+        </button>
+        <button onClick={handleShare} className="flex flex-col items-center bg-transparent border-none cursor-pointer">
+          <Share2 size={24} className="text-white" />
+        </button>
+        <button onClick={handleSave} className="flex flex-col items-center bg-transparent border-none cursor-pointer">
+          <Bookmark size={24} fill={saved ? 'white' : 'none'} className="text-white" />
+        </button>
+      </div>
+
+      {/* Prev/Next navigation */}
+      {reelIndex > 0 && (
+        <button
+          onClick={onPrev}
+          aria-label="Reel anterior"
+          className="absolute left-1/2 top-16 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+        >
+          <ChevronUp size={22} className="text-white" />
+        </button>
+      )}
+      {reelIndex < totalReels - 1 && (
+        <button
+          onClick={onNext}
+          aria-label="Siguiente reel"
+          className="absolute left-1/2 bottom-6 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+        >
+          <ChevronDown size={22} className="text-white" />
+        </button>
+      )}
+
+      {/* Bottom caption + views */}
+      <div className="absolute bottom-0 left-0 right-16 p-4 bg-gradient-to-t from-stone-950/80 to-transparent z-[5]">
+        {reel.caption && <p className="text-white text-sm line-clamp-2 mb-1">{reel.caption}</p>}
+        {reel.views != null && (
+          <p className="flex items-center gap-1 text-[12px] text-stone-300">
+            <Play size={12} fill="currentColor" />
+            {formatViews(reel.views)} visualizaciones
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default ProfileTabs;

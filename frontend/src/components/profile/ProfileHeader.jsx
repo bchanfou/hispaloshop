@@ -165,25 +165,28 @@ export default function ProfileHeader({
   /* ── accounts from localStorage ────────────────────────────────── */
 
   const accounts = useMemo(() => {
+    const currentAccObj = {
+      token: localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '',
+      user_id: user?.user_id,
+      username: user?.username,
+      name: user?.name,
+      avatar_url: user?.avatar_url || user?.profile_image,
+      role: user?.role,
+    };
     try {
       const raw = localStorage.getItem('hsp_accounts');
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Dedup: filter out current user, then prepend them
+          const others = parsed.filter(a => String(a.user_id) !== String(user?.user_id));
+          return [currentAccObj, ...others];
+        }
       }
     } catch {
       /* ignore */
     }
-    return [
-      {
-        token: localStorage.getItem('hsp_token') || '',
-        user_id: user?.user_id,
-        username: user?.username,
-        name: user?.name,
-        avatar_url: user?.avatar_url || user?.profile_image,
-        role: user?.role,
-      },
-    ];
+    return [currentAccObj];
   }, [user]);
 
   const currentUserId = user?.user_id;
@@ -200,7 +203,7 @@ export default function ProfileHeader({
 
   /* ── share / copy helper ───────────────────────────────────────── */
 
-  const profileUrl = `https://hispaloshop.com/${user?.username}`;
+  const profileUrl = `${window.location.origin}/${user?.username}`;
 
   const shareProfile = useCallback(async () => {
     if (navigator.share) {
@@ -468,7 +471,7 @@ export default function ProfileHeader({
             {user.bio.length > 150 && !bioExpanded && (
               <button
                 onClick={() => setBioExpanded(true)}
-                className="ml-0.5 text-[14px] text-stone-400"
+                className="ml-0.5 text-[14px] font-medium text-stone-500"
               >
                 más
               </button>
@@ -476,7 +479,7 @@ export default function ProfileHeader({
             {user.bio.length > 150 && bioExpanded && (
               <button
                 onClick={() => setBioExpanded(false)}
-                className="ml-0.5 text-[14px] text-stone-400"
+                className="ml-0.5 text-[14px] font-medium text-stone-500"
               >
                 menos
               </button>

@@ -32,22 +32,7 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  if (!currentPost) return null;
-
-  const images = (() => {
-    if (Array.isArray(currentPost.images) && currentPost.images.length > 0) return currentPost.images;
-    if (Array.isArray(currentPost.media) && currentPost.media.length > 0) return currentPost.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean);
-    if (currentPost.image_url) return [currentPost.image_url];
-    return [];
-  })();
-  const user = currentPost.user || profile || {};
-  const avatarUrl = user.profile_image || user.avatar_url || user.avatar;
-  const caption = currentPost.content ?? currentPost.caption ?? '';
-  const likesCount = currentPost.likes_count ?? currentPost.likes ?? 0;
-  const commentsCount = currentPost.comments_count ?? currentPost.comments ?? 0;
-
-  const handleDelete = useCallback(async (p) => {
-    const postId = p.id || p.post_id;
+  const handleDelete = useCallback(async (postId) => {
     if (!postId) return;
     setDeleting(true);
     try {
@@ -63,7 +48,7 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
     }
   }, [posts.length, onClose, onDelete]);
 
-  if (!currentPost && (!posts || posts.length === 0)) return null;
+  if (!posts || posts.length === 0) return null;
 
   const displayPosts = posts.length > 0 ? posts : [post];
 
@@ -115,6 +100,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
   const [imageIndex, setImageIndex] = useState(0);
   const [liked, setLiked] = useState(currentPost.is_liked ?? currentPost.liked ?? false);
   const [saved, setSaved] = useState(currentPost.is_saved ?? currentPost.saved ?? false);
+  const [localLikesCount, setLocalLikesCount] = useState(currentPost.likes_count ?? currentPost.likes ?? 0);
 
   const images = (() => {
     if (Array.isArray(currentPost.images) && currentPost.images.length > 0) return currentPost.images;
@@ -125,14 +111,48 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
   const user = currentPost.user || profile || {};
   const avatarUrl = user.profile_image || user.avatar_url || user.avatar;
   const caption = currentPost.content ?? currentPost.caption ?? '';
-  const likesCount = currentPost.likes_count ?? currentPost.likes ?? 0;
   const commentsCount = currentPost.comments_count ?? currentPost.comments ?? 0;
   const postId = currentPost.id || currentPost.post_id;
 
-  const handleLike = () => {
-    setLiked((l) => !l);
-    onLike?.(postId);
-  };
+  const handleLike = useCallback(async () => {
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLocalLikesCount((c) => wasLiked ? Math.max(0, c - 1) : c + 1);
+    try {
+      if (wasLiked) {
+        await apiClient.delete(`/posts/${postId}/like`);
+      } else {
+        await apiClient.post(`/posts/${postId}/like`);
+      }
+      onLike?.(postId);
+    } catch {
+      setLiked(wasLiked);
+      setLocalLikesCount((c) => wasLiked ? c + 1 : Math.max(0, c - 1));
+    }
+  }, [liked, postId, onLike]);
+
+  const handleSave = useCallback(async () => {
+    const wasSaved = saved;
+    setSaved(!wasSaved);
+    try {
+      if (wasSaved) {
+        await apiClient.delete(`/posts/${postId}/save`);
+      } else {
+        await apiClient.post(`/posts/${postId}/save`);
+      }
+    } catch {
+      setSaved(wasSaved);
+    }
+  }, [saved, postId]);
+
+  const handleShare = useCallback(async () => {
+    const url = `${window.location.origin}/posts/${postId}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: caption?.slice(0, 60) || 'Publicación', url }); } catch { /* cancelled */ }
+    } else {
+      try { await navigator.clipboard.writeText(url); toast.success('Enlace copiado'); } catch { /* fallback */ }
+    }
+  }, [postId, caption]);
 
   const handleComment = () => {
     onComment?.(postId);
@@ -180,7 +200,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
                     <Pencil size={16} /> Editar
                   </button>
                   <button
-                    onClick={() => onDelete?.(currentPost)}
+                    onClick={() => onDelete?.(postId)}
                     disabled={deleting}
                     className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
                   >
@@ -240,18 +260,18 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
       {/* Actions */}
       <div className="flex items-center gap-4 px-4 py-2">
         <button onClick={handleLike} aria-label="Me gusta" className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1">
-          <Heart size={24} fill={liked ? '#0A0A0A' : 'none'} className={liked ? 'text-stone-950' : 'text-stone-600'} />
+          <Heart size={24} fill={liked ? '#FF3040' : 'none'} className={liked ? 'text-[#FF3040]' : 'text-stone-600'} />
         </button>
-        <span className="text-[13px] font-semibold text-stone-950">{likesCount}</span>
+        <span className="text-[13px] font-semibold text-stone-950">{localLikesCount}</span>
         <button onClick={handleComment} aria-label="Comentar" className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1">
           <MessageCircle size={24} className="text-stone-600" />
         </button>
         <span className="text-[13px] font-semibold text-stone-950">{commentsCount}</span>
-        <button aria-label="Compartir" className="bg-transparent border-none cursor-pointer p-0 flex">
+        <button onClick={handleShare} aria-label="Compartir" className="bg-transparent border-none cursor-pointer p-0 flex">
           <Share2 size={24} className="text-stone-600" />
         </button>
         <button
-          onClick={() => setSaved((s) => !s)}
+          onClick={handleSave}
           aria-label={saved ? 'Quitar guardado' : 'Guardar'}
           className="bg-transparent border-none cursor-pointer p-0 flex ml-auto"
         >

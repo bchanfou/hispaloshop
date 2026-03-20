@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Heart, Send, ArrowRight, Eye } from 'lucide-react';
+import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { timeAgo } from '../../utils/time';
@@ -18,6 +18,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [replyText, setReplyText] = useState('');
   const [videoDuration, setVideoDuration] = useState(null);
   const [sendingReply, setSendingReply] = useState(false);
+  const [muted, setMuted] = useState(true);
   const longPressRef = useRef(null);
   const intervalRef = useRef(null);
   const isPaused = useRef(false);
@@ -282,7 +283,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     setSendingReply(true);
     try {
       const res = await apiClient.post('/chat/conversations', {
-        participant_id: currentStory?.user_id || currentStory?.user?.id,
+        other_user_id: currentStory?.user_id || currentStory?.user?.id,
         message: text,
       });
       setReplyText('');
@@ -402,16 +403,25 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/60 to-transparent z-[1] pointer-events-none" />
 
         {currentItem?.video_url ? (
-          <video
-            ref={videoRef}
-            key={currentItem.video_url}
-            src={currentItem.video_url}
-            autoPlay
-            muted
-            playsInline
-            onLoadedMetadata={handleVideoLoaded}
-            className="w-full h-full object-cover"
-          />
+          <>
+            <video
+              ref={videoRef}
+              key={currentItem.video_url}
+              src={currentItem.video_url}
+              autoPlay
+              muted={muted}
+              playsInline
+              onLoadedMetadata={handleVideoLoaded}
+              className="w-full h-full object-cover"
+            />
+            <button
+              onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
+              aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+              className="absolute top-16 right-4 z-10 w-9 h-9 rounded-full bg-black/40 flex items-center justify-center"
+            >
+              {muted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
+            </button>
+          </>
         ) : (
           <img
             key={currentItem?.image_url}
