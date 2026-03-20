@@ -68,7 +68,7 @@ export default function ReviewModal({ open, onClose, order }) {
               <h3 className="text-base font-bold text-stone-950">Valorar pedido</h3>
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-xl hover:bg-stone-100 transition-colors"
+                className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors"
               >
                 <X className="w-5 h-5 text-stone-500" />
               </button>
@@ -86,7 +86,7 @@ export default function ReviewModal({ open, onClose, order }) {
                         <button
                           key={idx}
                           onClick={() => { setSelectedProduct(item); setRating(0); setComment(''); }}
-                          className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors ${
+                          className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-2xl text-sm transition-colors ${
                             isSelected
                               ? 'bg-stone-950 text-white'
                               : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
@@ -105,9 +105,9 @@ export default function ReviewModal({ open, onClose, order }) {
 
               {/* Selected product */}
               {product && (
-                <div className="flex items-center gap-3 bg-stone-50 rounded-xl p-3">
+                <div className="flex items-center gap-3 bg-stone-50 rounded-2xl p-3">
                   {product.image && (
-                    <img src={product.image} alt="" className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                    <img src={product.image} alt="" className="w-12 h-12 rounded-2xl object-cover shrink-0" />
                   )}
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-stone-950 truncate">{product.name || product.product_name}</p>
@@ -157,7 +157,7 @@ export default function ReviewModal({ open, onClose, order }) {
                   placeholder="Cuéntanos tu experiencia..."
                   rows={3}
                   maxLength={500}
-                  className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-300 resize-none"
+                  className="w-full px-3 py-2.5 rounded-2xl border border-stone-200 text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-300 resize-none"
                 />
                 <p className="text-[10px] text-stone-400 text-right mt-0.5">{comment.length}/500</p>
               </div>
@@ -166,7 +166,7 @@ export default function ReviewModal({ open, onClose, order }) {
               <button
                 onClick={handleSubmit}
                 disabled={submitting || rating === 0}
-                className="w-full py-3 bg-stone-950 text-white rounded-xl text-sm font-medium hover:bg-stone-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1"
+                className="w-full py-3 bg-stone-950 text-white rounded-2xl text-sm font-medium hover:bg-stone-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1"
               >
                 {submitting ? (
                   <>

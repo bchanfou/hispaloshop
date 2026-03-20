@@ -325,9 +325,9 @@ export default function CustomerProfile() {
   if (loading) {
     return (
       <div className="py-12 space-y-4 max-w-xl animate-pulse">
-        <div className="h-8 w-48 bg-stone-100 rounded-xl" />
+        <div className="h-8 w-48 bg-stone-100 rounded-2xl" />
         <div className="h-4 w-72 bg-stone-100 rounded" />
-        <div className="h-48 bg-stone-100 rounded-xl mt-6" />
+        <div className="h-48 bg-stone-100 rounded-2xl mt-6" />
       </div>
     );
   }
@@ -395,12 +395,12 @@ export default function CustomerProfile() {
 
       {/* Profile Tab */}
       {activeTab === 'profile' && (
-        <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-xl">
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 max-w-xl">
           <h2 className="font-medium text-stone-950 mb-4">{t('profile.personalInfo', 'Información personal')}</h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">{t('common.email', 'Email')}</label>
-              <input value={user?.email || ''} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950 bg-stone-50" />
+              <input value={user?.email || ''} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 bg-stone-50" />
               <p className="text-xs text-stone-500 mt-1">{t('profile.emailReadonly', 'El email no se puede cambiar')}</p>
             </div>
             <div>
@@ -408,7 +408,7 @@ export default function CustomerProfile() {
               <input
                 value={profileData.name}
                 onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 data-testid="profile-name-input"
               />
             </div>
@@ -419,7 +419,7 @@ export default function CustomerProfile() {
                 <input
                   value={profileData.username}
                   onChange={(e) => setProfileData({ ...profileData, username: e.target.value.replace(/^@/, '') })}
-                  className="w-full px-3 py-2 pl-7 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 pl-7 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   placeholder="tu_username"
                   data-testid="profile-username-input"
                 />
@@ -431,10 +431,10 @@ export default function CustomerProfile() {
               <input
                 value={profileData.country}
                 onChange={(e) => setProfileData({ ...profileData, country: e.target.value })}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
               />
             </div>
-            <button onClick={saveProfile} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors">
+            <button onClick={saveProfile} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors">
               {saving ? t('common.loading', 'Guardando...') : t('common.save', 'Guardar cambios')}
             </button>
           </div>
@@ -443,7 +443,7 @@ export default function CustomerProfile() {
 
       {/* Password Tab */}
       {activeTab === 'password' && (
-        <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-xl">
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 max-w-xl">
           <h2 className="font-medium text-stone-950 mb-4">{t('profile.changePassword', 'Cambiar contraseña')}</h2>
           <form onSubmit={changePassword} className="space-y-4">
             <div>
@@ -453,7 +453,7 @@ export default function CustomerProfile() {
                 value={passwordData.current_password}
                 onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
                 required
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
               />
             </div>
             <div>
@@ -464,7 +464,7 @@ export default function CustomerProfile() {
                 onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
                 required
                 minLength={6}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
               />
             </div>
             <div>
@@ -474,10 +474,10 @@ export default function CustomerProfile() {
                 value={passwordData.confirm_password}
                 onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
                 required
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
               />
             </div>
-            <button type="submit" disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors">
+            <button type="submit" disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors">
               {saving ? t('common.loading', 'Cambiando...') : t('profile.changePassword', 'Cambiar contraseña')}
             </button>
           </form>
@@ -486,7 +486,7 @@ export default function CustomerProfile() {
 
       {/* Preferences Tab */}
       {activeTab === 'preferences' && (
-        <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-2xl">
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 max-w-2xl">
           <h2 className="font-medium text-stone-950 mb-4">{t('profile.dietaryPreferences', 'Preferencias dietéticas')}</h2>
           <p className="text-sm text-stone-500 mb-6">
             {t('profile.dietaryDescription', 'Estas preferencias ayudan a nuestro asistente a recomendarte productos que se adapten a tus necesidades.')}
@@ -535,12 +535,12 @@ export default function CustomerProfile() {
             <textarea
               value={preferences.goals}
               onChange={(e) => setPreferences({ ...preferences, goals: e.target.value })}
-              className="w-full px-4 py-2 rounded-xl border border-stone-200 min-h-[100px] text-stone-950 outline-none focus:border-stone-950"
+              className="w-full px-4 py-2 rounded-2xl border border-stone-200 min-h-[100px] text-stone-950 outline-none focus:border-stone-950"
               placeholder={t('profile.healthGoalsPlaceholder', 'Ej: pérdida de peso, ganar músculo, salud cardiovascular...')}
             />
           </div>
 
-          <button onClick={savePreferences} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors">
+          <button onClick={savePreferences} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors">
             {saving ? t('common.loading', 'Guardando...') : t('common.save', 'Guardar preferencias')}
           </button>
         </div>
@@ -548,7 +548,7 @@ export default function CustomerProfile() {
 
       {/* Address Tab */}
       {activeTab === 'address' && (
-        <div className="bg-white p-6 rounded-xl border border-stone-200">
+        <div className="bg-white p-6 rounded-2xl border border-stone-200">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-xl font-semibold text-stone-950">
@@ -561,7 +561,7 @@ export default function CustomerProfile() {
             {!showAddressForm && (
               <button
                 onClick={() => setShowAddressForm(true)}
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors flex items-center gap-2"
                 data-testid="add-address-btn"
               >
                 <Plus className="w-4 h-4" /> {t('checkout.addNewAddress', 'Add Address')}
@@ -571,7 +571,7 @@ export default function CustomerProfile() {
 
           {/* Address Form */}
           {showAddressForm && (
-            <div className="mb-6 p-4 border border-stone-200 rounded-xl bg-stone-50" data-testid="address-form">
+            <div className="mb-6 p-4 border border-stone-200 rounded-2xl bg-stone-50" data-testid="address-form">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-medium text-stone-950">
                   {editingAddressId ? t('profile.editAddress', 'Edit Address') : t('checkout.addNewAddress', 'Add New Address')}
@@ -590,7 +590,7 @@ export default function CustomerProfile() {
                     value={addressForm.name}
                     onChange={(e) => setAddressForm({...addressForm, name: e.target.value})}
                     placeholder={t('checkout.addressNamePlaceholder', 'e.g., Home, Office')}
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-name-input"
                   />
                 </div>
@@ -603,7 +603,7 @@ export default function CustomerProfile() {
                     onChange={(e) => setAddressForm({...addressForm, full_name: e.target.value})}
                     placeholder={t('checkout.fullName', 'Full Name')}
                     required
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-fullname-input"
                   />
                 </div>
@@ -616,7 +616,7 @@ export default function CustomerProfile() {
                     onChange={(e) => setAddressForm({...addressForm, street: e.target.value})}
                     placeholder={t('checkout.street', 'Street Address')}
                     required
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-street-input"
                   />
                 </div>
@@ -629,7 +629,7 @@ export default function CustomerProfile() {
                     onChange={(e) => setAddressForm({...addressForm, city: e.target.value})}
                     placeholder={t('checkout.city', 'City')}
                     required
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-city-input"
                   />
                 </div>
@@ -642,7 +642,7 @@ export default function CustomerProfile() {
                     onChange={(e) => setAddressForm({...addressForm, postal_code: e.target.value})}
                     placeholder={t('checkout.zip', 'Postal Code')}
                     required
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-postal-input"
                   />
                 </div>
@@ -655,7 +655,7 @@ export default function CustomerProfile() {
                     onChange={(e) => setAddressForm({...addressForm, country: e.target.value})}
                     placeholder={t('checkout.country', 'Country')}
                     required
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-country-input"
                   />
                 </div>
@@ -667,7 +667,7 @@ export default function CustomerProfile() {
                     value={addressForm.phone}
                     onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})}
                     placeholder={t('common.phone', 'Phone')}
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-phone-input"
                   />
                 </div>
@@ -690,12 +690,12 @@ export default function CustomerProfile() {
                 <button
                   onClick={editingAddressId ? handleUpdateAddress : handleAddAddress}
                   disabled={saving}
-                  className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+                  className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                   data-testid="save-address-btn"
                 >
                   {saving ? t('common.loading', 'Saving...') : editingAddressId ? t('common.update', 'Update') : t('common.save', 'Save')}
                 </button>
-                <button onClick={resetAddressForm} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors">
+                <button onClick={resetAddressForm} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors">
                   {t('common.cancel', 'Cancel')}
                 </button>
               </div>
@@ -714,7 +714,7 @@ export default function CustomerProfile() {
               {addresses.map((address) => (
                 <div
                   key={address.address_id}
-                  className={`p-4 rounded-xl border-2 ${
+                  className={`p-4 rounded-2xl border-2 ${
                     address.is_default ? 'border-stone-950 bg-stone-950/5' : 'border-stone-200'
                   }`}
                   data-testid={`address-card-${address.address_id}`}
@@ -778,7 +778,7 @@ export default function CustomerProfile() {
       {activeTab === 'account' && (
         <div className="space-y-6 max-w-2xl">
           {/* Layer 3: Consent Settings Control */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6">
             <ConsentSettings
               hasConsent={hasConsent}
               onWithdraw={handleWithdrawConsent}
@@ -789,7 +789,7 @@ export default function CustomerProfile() {
 
           {/* Affiliate Program */}
           {user?.role !== 'influencer' && (
-            <div className="bg-white rounded-xl border border-stone-200 p-5">
+            <div className="bg-white rounded-2xl border border-stone-200 p-5">
               <div className="flex items-center gap-3 mb-3">
                 <Star className="w-5 h-5 text-stone-700" />
                 <div>
@@ -814,7 +814,7 @@ export default function CustomerProfile() {
                     Tú ganas entre 3% y 7% de cada venta.
                   </p>
                   <button
-                    className="px-4 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+                    className="px-4 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
                     onClick={async () => {
                       try {
                         await apiClient.post('/account/enable-affiliate');
@@ -833,20 +833,20 @@ export default function CustomerProfile() {
           )}
 
           {/* Danger Zone */}
-          <div className="bg-stone-50 rounded-xl border-2 border-stone-200 p-6">
+          <div className="bg-stone-50 rounded-2xl border-2 border-stone-200 p-6">
             <h3 className="font-medium text-stone-700 mb-4 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
               {t('profile.dangerZone', 'Danger Zone')}
             </h3>
 
-            <div className="p-4 bg-white rounded-xl border border-stone-200">
+            <div className="p-4 bg-white rounded-2xl border border-stone-200">
               <p className="font-medium text-stone-700">{t('profile.deleteAccount', 'Delete Account')}</p>
               <p className="text-sm text-stone-600 mt-1 mb-3">
                 {t('profile.deleteWarning', 'This action is permanent and cannot be undone. All your data will be deleted.')}
               </p>
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors flex items-center gap-2"
                 data-testid="delete-account-btn"
               >
                 <Trash2 className="w-4 h-4" />
@@ -885,7 +885,7 @@ export default function CustomerProfile() {
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="delete-password-input"
                 />
               </div>
@@ -898,7 +898,7 @@ export default function CustomerProfile() {
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value.toUpperCase())}
                   placeholder="BORRAR"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950 font-mono"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 font-mono"
                   data-testid="delete-confirmation-input"
                 />
               </div>
@@ -911,14 +911,14 @@ export default function CustomerProfile() {
                   setDeletePassword('');
                   setDeleteConfirmation('');
                 }}
-                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
               >
                 {t('common.cancel', 'Cancel')}
               </button>
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleting || deleteConfirmation !== 'BORRAR' || !deletePassword}
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                 data-testid="confirm-delete-btn"
               >
                 {deleting ? t('common.loading', 'Deleting...') : t('profile.deleteForever', 'Delete Forever')}

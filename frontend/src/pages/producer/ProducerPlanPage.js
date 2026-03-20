@@ -84,7 +84,7 @@ function PlanCard({ plan, currentPlan, isCancelling, onUpgrade, changing }) {
       )}
 
       <div className="flex items-center gap-2 mb-3">
-        <div className="p-2 rounded-xl bg-stone-50">
+        <div className="p-2 rounded-2xl bg-stone-50">
           <Icon className="w-5 h-5 text-stone-950" />
         </div>
         <h3 className="text-lg font-bold text-stone-950">{plan.name}</h3>
@@ -128,7 +128,7 @@ function PlanCard({ plan, currentPlan, isCancelling, onUpgrade, changing }) {
         <button
           onClick={() => onUpgrade(plan.key)}
           disabled={changing}
-          className="w-full py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 bg-stone-950 hover:bg-stone-800 text-white flex items-center justify-center gap-2"
+          className="w-full py-2.5 rounded-2xl text-sm font-medium transition-colors disabled:opacity-50 bg-stone-950 hover:bg-stone-800 text-white flex items-center justify-center gap-2"
         >
           {changing ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -217,7 +217,7 @@ export default function ProducerPlanPage() {
 
       {/* Alerts */}
       {isTrialing && planData?.trial_ends_at && (
-        <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 rounded-xl p-4 mb-4">
+        <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 rounded-2xl p-4 mb-4">
           <Calendar className="w-5 h-5 text-stone-700 shrink-0" />
           <div>
             <p className="text-sm font-medium text-stone-950">Período de prueba activo</p>
@@ -229,7 +229,7 @@ export default function ProducerPlanPage() {
       )}
 
       {isPastDue && (
-        <div className="flex items-center gap-3 bg-stone-100 border border-stone-200 rounded-xl p-4 mb-4">
+        <div className="flex items-center gap-3 bg-stone-100 border border-stone-200 rounded-2xl p-4 mb-4">
           <AlertTriangle className="w-5 h-5 text-stone-700 shrink-0" />
           <div>
             <p className="text-sm font-medium text-stone-950">Pago pendiente</p>
@@ -244,7 +244,7 @@ export default function ProducerPlanPage() {
       )}
 
       {isCancelledPending && (
-        <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 rounded-xl p-4 mb-4">
+        <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 rounded-2xl p-4 mb-4">
           <AlertTriangle className="w-5 h-5 text-stone-500 shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-stone-950">Cancelación programada</p>
@@ -281,7 +281,7 @@ export default function ProducerPlanPage() {
 
       {/* Current plan details */}
       {currentPlan !== 'FREE' && !isCancelledPending && (
-        <div className="mt-6 bg-white rounded-xl border border-stone-200 p-4">
+        <div className="mt-6 bg-white rounded-2xl border border-stone-200 p-4">
           <h3 className="text-sm font-semibold text-stone-950 mb-3 flex items-center gap-2">
             <Shield className="w-4 h-4" />
             Detalles de suscripción
@@ -317,7 +317,7 @@ export default function ProducerPlanPage() {
         </div>
       )}
 
-      <div className="mt-4 bg-stone-50 border border-stone-200 rounded-xl p-4 text-center">
+      <div className="mt-4 bg-stone-50 border border-stone-200 rounded-2xl p-4 text-center">
         <p className="text-xs text-stone-500">
           Todos los precios son en EUR e incluyen IVA. Los cambios de plan se aplican inmediatamente.
           <br />

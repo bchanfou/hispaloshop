@@ -66,7 +66,7 @@ export default function RoleCard({
             className="z-50 hidden max-w-xs rounded-2xl border border-stone-200 bg-white/95 p-4 shadow-[0_24px_60px_rgba(28,28,28,0.14)] backdrop-blur md:block"
           >
             <div className="flex items-start gap-3">
-              <div className={`mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl ${role.previewColor || 'bg-stone-100'} ${role.iconColor}`}>
+              <div className={`mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl ${role.previewColor || 'bg-stone-100'} ${role.iconColor}`}>
                 <PreviewIcon className="h-4 w-4" />
               </div>
               <div>

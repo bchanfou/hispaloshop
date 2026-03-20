@@ -17,16 +17,16 @@ function AffiliateLinkCard({ link, convertAndFormatPrice }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-4">
+    <div className="bg-white rounded-2xl border border-stone-200 p-4">
       <div className="flex gap-3 mb-3">
         {link.product_image ? (
           <img
             src={link.product_image}
             alt={link.product_name}
-            className="w-12 h-12 rounded-xl object-cover shrink-0"
+            className="w-12 h-12 rounded-2xl object-cover shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center shrink-0">
             <Link2 className="w-5 h-5 text-stone-400" />
           </div>
         )}
@@ -43,7 +43,7 @@ function AffiliateLinkCard({ link, convertAndFormatPrice }) {
           { label: 'Conversiones', value: link.conversions || 0 },
           { label: 'Comisión', value: convertAndFormatPrice(Number(link.commission_eur || 0)) },
         ].map((stat) => (
-          <div key={stat.label} className="bg-stone-50 rounded-xl p-2 text-center">
+          <div key={stat.label} className="bg-stone-50 rounded-2xl p-2 text-center">
             <p className="text-base font-bold text-stone-950">{stat.value}</p>
             <p className="text-[10px] text-stone-500">{stat.label}</p>
           </div>
@@ -59,7 +59,7 @@ function AffiliateLinkCard({ link, convertAndFormatPrice }) {
 
       <button
         onClick={copyLink}
-        className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+        className={`w-full py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
           copied
             ? 'bg-stone-950 text-white'
             : 'bg-stone-950 text-white hover:bg-stone-800'
@@ -192,7 +192,7 @@ export default function AffiliateLinksPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar producto para generar link..."
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400"
+            className="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-200 bg-white text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400"
           />
           {searching && (
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 animate-spin" />
@@ -202,7 +202,7 @@ export default function AffiliateLinksPage() {
           {searchResults.length > 0 && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setSearchResults([])} />
-              <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white rounded-xl border border-stone-200 shadow-lg max-h-64 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white rounded-2xl border border-stone-200 shadow-lg max-h-64 overflow-y-auto">
                 {searchResults.map((product) => (
                   <button
                     key={product.product_id || product.id}
@@ -215,10 +215,10 @@ export default function AffiliateLinksPage() {
                       <img
                         src={product.images[0]}
                         alt=""
-                        className="w-9 h-9 rounded-xl object-cover shrink-0"
+                        className="w-9 h-9 rounded-2xl object-cover shrink-0"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-xl bg-stone-100 shrink-0" />
+                      <div className="w-9 h-9 rounded-2xl bg-stone-100 shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-stone-950 truncate">
@@ -238,14 +238,14 @@ export default function AffiliateLinksPage() {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-stone-50 border border-stone-200 rounded-xl p-4 mb-6"
+            className="bg-stone-50 border border-stone-200 rounded-2xl p-4 mb-6"
           >
             <div className="flex gap-3 mb-3">
               {selectedProduct.images?.[0] && (
                 <img
                   src={selectedProduct.images[0]}
                   alt=""
-                  className="w-12 h-12 rounded-xl object-cover shrink-0"
+                  className="w-12 h-12 rounded-2xl object-cover shrink-0"
                 />
               )}
               <div>
@@ -253,7 +253,7 @@ export default function AffiliateLinksPage() {
                 <p className="text-xs text-stone-500">Link de afiliado generado</p>
               </div>
             </div>
-            <div className="bg-white rounded-xl px-3 py-2 text-xs text-stone-500 font-mono mb-3 break-all border border-stone-200">
+            <div className="bg-white rounded-2xl px-3 py-2 text-xs text-stone-500 font-mono mb-3 break-all border border-stone-200">
               {generatedLink}
             </div>
             <div className="flex gap-2">
@@ -262,7 +262,7 @@ export default function AffiliateLinksPage() {
                   navigator.clipboard.writeText(generatedLink);
                   toast.success('Link copiado');
                 }}
-                className="flex-1 py-2.5 bg-stone-950 text-white rounded-xl text-sm font-medium hover:bg-stone-800 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-stone-950 text-white rounded-2xl text-sm font-medium hover:bg-stone-800 transition-colors flex items-center justify-center gap-2"
               >
                 <Copy className="w-4 h-4" />
                 Copiar link
@@ -276,7 +276,7 @@ export default function AffiliateLinksPage() {
                     toast.success('Link copiado al portapapeles');
                   }
                 }}
-                className="flex-1 py-2.5 bg-white text-stone-950 rounded-xl text-sm font-medium border border-stone-200 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-white text-stone-950 rounded-2xl text-sm font-medium border border-stone-200 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
               >
                 <Share2 className="w-4 h-4" />
                 Compartir

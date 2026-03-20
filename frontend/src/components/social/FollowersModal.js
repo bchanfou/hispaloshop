@@ -170,7 +170,7 @@ export default function FollowersModal({
 
             {/* Search */}
             <div className="shrink-0 px-4 py-3">
-              <div className="flex items-center gap-2 rounded-xl bg-stone-100 px-3.5 py-2.5">
+              <div className="flex items-center gap-2 rounded-2xl bg-stone-100 px-3.5 py-2.5">
                 <Search className="h-[15px] w-[15px] shrink-0 text-stone-400" />
                 <input
                   ref={searchRef}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import {
-  FileCheck, Loader2, Package, ShieldAlert, ShoppingBag, Users,
+  FileCheck, Package, ShieldAlert, ShoppingBag, Users,
   TrendingUp, UserPlus, RotateCcw, HeadphonesIcon, Shield, ArrowRight
 } from 'lucide-react';
 
@@ -13,7 +13,7 @@ function KPICard({ icon: Icon, title, value, description, to }) {
       to={to}
       className="p-4 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300"
     >
-      <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-stone-100 mb-3">
+      <div className="w-9 h-9 flex items-center justify-center rounded-2xl bg-stone-100 mb-3">
         <Icon className="w-4 h-4 text-stone-500" />
       </div>
       <p className="text-2xl font-extrabold tracking-tight text-stone-950">{value}</p>
@@ -78,8 +78,27 @@ export default function AdminOverview() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
+      <div className="bg-stone-50 min-h-full p-6 space-y-6" aria-busy="true" aria-label="Cargando panel de administración">
+        <div className="space-y-2">
+          <div className="h-7 w-48 animate-pulse rounded-full bg-stone-200" />
+          <div className="h-4 w-72 animate-pulse rounded-full bg-stone-100" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="rounded-2xl bg-white p-5 space-y-3">
+              <div className="h-4 w-20 animate-pulse rounded-full bg-stone-100" />
+              <div className="h-8 w-16 animate-pulse rounded-full bg-stone-100" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[1,2].map(i => (
+            <div key={i} className="rounded-2xl bg-white p-5 space-y-3">
+              <div className="h-4 w-32 animate-pulse rounded-full bg-stone-100" />
+              <div className="h-24 w-full animate-pulse rounded-2xl bg-stone-50" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

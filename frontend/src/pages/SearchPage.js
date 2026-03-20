@@ -52,7 +52,7 @@ const SORT_OPTIONS = [
 /* ── Skeleton ── */
 function CardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl bg-stone-100">
+    <div className="overflow-hidden rounded-2xl bg-stone-100">
       <div className="animate-pulse bg-stone-200" style={{ aspectRatio: '4/5' }} />
       <div className="px-2 py-2">
         <div className="mb-1.5 h-3 w-3/4 animate-pulse rounded bg-stone-200" />
@@ -79,7 +79,7 @@ function ProductCardLocal({ p }) {
   const { convertAndFormatPrice } = useLocale();
   const img = p.images?.[0] || p.image_url;
   return (
-    <Link to={`/products/${p.product_id || p.id}`} className="group block overflow-hidden rounded-xl bg-white no-underline" style={{ border: '0.5px solid #e7e5e4' }}>
+    <Link to={`/products/${p.product_id || p.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline" style={{ border: '0.5px solid #e7e5e4' }}>
       <div className="overflow-hidden bg-stone-100" style={{ aspectRatio: '4/5' }}>
         {img ? (
           <img src={img} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />
@@ -107,7 +107,7 @@ function ProductCardLocal({ p }) {
 function RecipeCard({ r }) {
   const img = r.cover_image || r.image_url;
   return (
-    <Link to={`/recipes/${r.recipe_id || r.id}`} className="group block overflow-hidden rounded-xl bg-white no-underline" style={{ border: '0.5px solid #e7e5e4' }}>
+    <Link to={`/recipes/${r.recipe_id || r.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline" style={{ border: '0.5px solid #e7e5e4' }}>
       <div className="overflow-hidden bg-stone-100" style={{ aspectRatio: '4/5' }}>
         {img ? (
           <img src={img} alt={r.title} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />
@@ -136,7 +136,7 @@ function PersonRow({ person, linkBase }) {
 
   return (
     <Link to={`${linkBase}${person.slug || person.store_slug || id}`} className="flex items-center gap-3 border-b border-stone-100 py-2.5 no-underline last:border-b-0">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden bg-stone-100 ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden bg-stone-100 ${isStore ? 'rounded-2xl' : 'rounded-full'}`}>
         {img ? (
           <img src={img} alt={name} loading="lazy" className="h-full w-full object-cover" />
         ) : isStore ? (
@@ -300,7 +300,7 @@ export default function SearchPage() {
             <ArrowLeft size={20} className="text-stone-950" />
           </button>
 
-          <div className="flex flex-1 items-center gap-2 rounded-xl bg-stone-100 border-none px-4 py-3">
+          <div className="flex flex-1 items-center gap-2 rounded-2xl bg-stone-100 border-none px-4 py-3">
             <Search size={16} className="shrink-0 text-stone-400" />
             <input
               ref={inputRef}
@@ -396,11 +396,9 @@ export default function SearchPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center px-4 py-16 text-center"
           >
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
-              <Search size={24} className="text-stone-400" />
-            </div>
-            <p className="mb-1 text-base font-semibold text-stone-950">Sin resultados para "{query}"</p>
-            <p className="mb-6 text-sm text-stone-500">
+            <Search size={48} className="text-stone-300" />
+            <p className="mt-4 text-lg font-semibold text-stone-950">Sin resultados para "{query}"</p>
+            <p className="mt-1 mb-6 text-sm text-stone-500">
               Prueba con otro término
             </p>
             <div className="flex flex-wrap justify-center gap-2">

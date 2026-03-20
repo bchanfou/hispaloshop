@@ -117,12 +117,12 @@ function MessageThread({ convId, myId }) {
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(e); }}
           rows={1}
           placeholder="Escribe un mensaje..."
-          className="flex-1 resize-none border border-stone-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-stone-950 max-h-32"
+          className="flex-1 resize-none border border-stone-200 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-stone-950 max-h-32"
         />
         <button
           type="submit"
           disabled={!text.trim() || sendMutation.isPending}
-          className="w-10 h-10 rounded-xl bg-stone-950 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0"
+          className="w-10 h-10 rounded-2xl bg-stone-950 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0"
         >
           {sendMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </button>
@@ -201,7 +201,7 @@ export default function B2BChatPage() {
           </p>
           <button
             onClick={() => navigate('/b2b/marketplace')}
-            className="mt-4 px-4 py-2 bg-stone-950 text-white rounded-xl text-sm"
+            className="mt-4 px-4 py-2 bg-stone-950 text-white rounded-2xl text-sm"
           >
             Ir al Marketplace
           </button>
@@ -225,7 +225,7 @@ export default function B2BChatPage() {
     <>
       <div className="px-4 py-3 border-b border-stone-200 flex items-center gap-3">
         <button
-          className="md:hidden p-1.5 rounded-xl hover:bg-stone-100"
+          className="md:hidden p-1.5 rounded-2xl hover:bg-stone-100"
           onClick={() => setMobileView('list')}
         >
           <ArrowLeft className="w-5 h-5 text-stone-600" />
@@ -236,7 +236,7 @@ export default function B2BChatPage() {
           <p className="text-xs text-stone-400">B2B</p>
         </div>
         <button
-          className="ml-auto p-1.5 rounded-xl hover:bg-stone-100"
+          className="ml-auto p-1.5 rounded-2xl hover:bg-stone-100"
           onClick={() => convsQuery.refetch()}
         >
           <RefreshCw className="w-4 h-4 text-stone-400" />

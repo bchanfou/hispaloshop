@@ -35,7 +35,7 @@ function PredictionCard({ prediction, onReorder, t }) {
 
   return (
     <div
-      className={`rounded-xl border p-4 ${config.color} transition-all hover:shadow-sm`}
+      className={`rounded-2xl border p-4 ${config.color} transition-all hover:shadow-sm`}
       data-testid={`prediction-card-${prediction.product_id}`}
     >
       <div className="flex gap-3">
@@ -43,11 +43,11 @@ function PredictionCard({ prediction, onReorder, t }) {
           <img
             src={prediction.image}
             alt={prediction.product_name}
-            className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+            className="w-14 h-14 rounded-2xl object-cover flex-shrink-0"
             onError={e => { e.target.style.display = 'none'; }}
           />
         ) : (
-          <div className="w-14 h-14 rounded-xl bg-stone-200 flex items-center justify-center flex-shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-stone-200 flex items-center justify-center flex-shrink-0">
             <ShoppingCart className="w-6 h-6 text-stone-400" />
           </div>
         )}
@@ -132,8 +132,8 @@ export default function HispaloPredictions() {
     return (
       <div className="space-y-3 animate-pulse">
         <div className="h-6 bg-stone-200 rounded w-48" />
-        <div className="h-20 bg-stone-100 rounded-xl" />
-        <div className="h-20 bg-stone-100 rounded-xl" />
+        <div className="h-20 bg-stone-100 rounded-2xl" />
+        <div className="h-20 bg-stone-100 rounded-2xl" />
       </div>
     );
   }
@@ -157,7 +157,7 @@ export default function HispaloPredictions() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-stone-950 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-2xl bg-stone-950 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div>

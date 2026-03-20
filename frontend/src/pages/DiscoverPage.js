@@ -208,7 +208,7 @@ export default function DiscoverPage() {
           aria-label={`Tienda destacada: ${store.name}`}
           onClick={() => navigate(`/store/${store.slug || store.store_slug}`)}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/store/${store.slug || store.store_slug}`); } }}
-          className="relative aspect-video cursor-pointer overflow-hidden rounded-xl bg-stone-950 outline-none"
+          className="relative aspect-video cursor-pointer overflow-hidden rounded-2xl bg-stone-950 outline-none"
         >
           {heroImg && (
             <img src={heroImg} alt={store.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" style={fadeStyle} />

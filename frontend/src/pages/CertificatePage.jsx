@@ -138,10 +138,20 @@ export default function CertificatePage() {
     return (
       <div className="min-h-screen bg-stone-50">
         <Header />
-        <div className="flex items-center justify-center py-24" data-testid="certificate-loading">
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-b-2 border-stone-950" />
-            <p className="text-sm text-stone-500">Cargando certificado...</p>
+        <div className="mx-auto max-w-3xl px-4 py-12" data-testid="certificate-loading" aria-busy="true" aria-label="Cargando certificado">
+          <div className="rounded-2xl border border-stone-100 bg-white p-8 space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 animate-pulse rounded-2xl bg-stone-100" />
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-1/2 animate-pulse rounded-full bg-stone-100" />
+                <div className="h-3.5 w-1/4 animate-pulse rounded-full bg-stone-100" />
+              </div>
+            </div>
+            <div className="h-48 w-full animate-pulse rounded-2xl bg-stone-50" />
+            <div className="space-y-2">
+              <div className="h-3.5 w-full animate-pulse rounded-full bg-stone-100" />
+              <div className="h-3.5 w-3/4 animate-pulse rounded-full bg-stone-100" />
+            </div>
           </div>
         </div>
         <Footer />
@@ -210,7 +220,7 @@ export default function CertificatePage() {
                 {langOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
-                    <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl border border-stone-200 bg-white py-1 shadow-lg max-h-64 overflow-y-auto">
+                    <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-2xl border border-stone-200 bg-white py-1 shadow-lg max-h-64 overflow-y-auto">
                       {CERT_LANGUAGES.map((l) => (
                         <button
                           key={l.code}
@@ -440,7 +450,7 @@ export default function CertificatePage() {
               alt={t('certificate.qrCode', 'Código QR de verificación')}
               width={100}
               height={100}
-              className="shrink-0 rounded-xl"
+              className="shrink-0 rounded-2xl"
             />
           ) : (
             <img
@@ -448,7 +458,7 @@ export default function CertificatePage() {
               alt={t('certificate.qrCode', 'Código QR de verificación')}
               width={100}
               height={100}
-              className="shrink-0 rounded-xl"
+              className="shrink-0 rounded-2xl"
             />
           )}
           <div className="min-w-0 flex-1">

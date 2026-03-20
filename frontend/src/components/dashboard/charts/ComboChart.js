@@ -19,7 +19,7 @@ function ComboChart({ barData, lineData, labels, height = 160, barColor = '#1c19
                   initial={{ height: 0 }}
                   animate={{ height: `${heightPercent}%` }}
                   transition={{ duration: 0.5, delay: index * 0.05 }}
-                  className="w-full rounded-t-xl opacity-80"
+                  className="w-full rounded-t-2xl opacity-80"
                   style={{ backgroundColor: barColor }}
                 />
               </div>

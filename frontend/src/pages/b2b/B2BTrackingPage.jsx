@@ -13,8 +13,8 @@ import {
   Download,
   Plus,
 } from 'lucide-react';
-import apiClient from '@/services/api/client';
-import { useAuth } from '@/context/AuthContext';
+import apiClient from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 
 /* ── V2 design tokens ─────────────────────────────── */

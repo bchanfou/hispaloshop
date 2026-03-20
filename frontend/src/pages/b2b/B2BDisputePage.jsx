@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, AlertTriangle, Upload, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import apiClient from '@/services/api/client';
+import apiClient from '../../services/api/client';
 
 // V2 Design Tokens
 const V2 = {

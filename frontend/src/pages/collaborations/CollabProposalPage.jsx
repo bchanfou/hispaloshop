@@ -129,7 +129,7 @@ export default function CollabProposalPage() {
           {selectedProduct ? (
             <div className="flex items-center gap-3 p-3" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
               {selectedProduct.images?.[0]?.url && (
-                <img src={selectedProduct.images[0].url} alt="" className="w-14 h-14 rounded-xl object-cover" />
+                <img loading="lazy" src={selectedProduct.images[0].url} alt="" className="w-14 h-14 rounded-2xl object-cover" />
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate" style={{ color: '#0c0a09' }}>{selectedProduct.name}</p>
@@ -149,7 +149,7 @@ export default function CollabProposalPage() {
                   onClick={() => setSelectedProduct(p)}
                   className="flex items-center gap-3 w-full p-3 text-left hover:bg-stone-50 transition-colors"
                 >
-                  {p.images?.[0]?.url && <img src={p.images[0].url} alt="" className="w-10 h-10 rounded-xl object-cover" />}
+                  {p.images?.[0]?.url && <img loading="lazy" src={p.images[0].url} alt="" className="w-10 h-10 rounded-2xl object-cover" />}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate" style={{ color: '#0c0a09' }}>{p.name}</p>
                     <p className="text-xs" style={{ color: '#78716c' }}>{p.price?.toFixed(2)}€</p>
@@ -282,7 +282,7 @@ export default function CollabProposalPage() {
             </label>
             <div className="p-4 space-y-2" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
               <div className="flex items-center gap-3">
-                {selectedProduct.images?.[0]?.url && <img src={selectedProduct.images[0].url} alt="" className="w-12 h-12 rounded-xl object-cover" />}
+                {selectedProduct.images?.[0]?.url && <img loading="lazy" src={selectedProduct.images[0].url} alt="" className="w-12 h-12 rounded-2xl object-cover" />}
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{selectedProduct.name}</p>
                   <p className="text-xs" style={{ color: '#78716c' }}>{selectedProduct.price?.toFixed(2)}€</p>

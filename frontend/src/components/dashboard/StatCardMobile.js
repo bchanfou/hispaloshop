@@ -23,7 +23,7 @@ export default function StatCardMobile({
   const Content = () => (
     <div className={`bg-white border border-stone-200 rounded-2xl p-4 ${className}`}>
       {Icon && (
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-2 ${colorClasses[color]}`}>
+        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-2 ${colorClasses[color]}`}>
           <Icon className="w-5 h-5" strokeWidth={1.5} />
         </div>
       )}

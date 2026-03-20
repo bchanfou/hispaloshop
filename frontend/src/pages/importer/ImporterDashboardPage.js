@@ -20,7 +20,7 @@ function KPICard({ label, value, icon: Icon, href, description }) {
   return (
     <Wrapper to={href} className="p-4 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-xl bg-stone-100">
+        <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-stone-100">
           <Icon className="w-4 h-4 text-stone-500" />
         </div>
       </div>
@@ -250,12 +250,12 @@ export default function ImporterDashboardPage() {
   if (loading) {
     return (
       <div className="bg-stone-50">
-        <div className="h-8 w-48 rounded-xl bg-stone-100 animate-pulse mb-2" />
-        <div className="h-4 w-32 rounded-xl bg-stone-100 animate-pulse mb-5" />
+        <div className="h-8 w-48 rounded-2xl bg-stone-100 animate-pulse mb-2" />
+        <div className="h-4 w-32 rounded-2xl bg-stone-100 animate-pulse mb-5" />
         <div className="grid grid-cols-2 gap-3 mb-5">
-          {[0,1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-stone-100 animate-pulse" />)}
+          {[0,1,2,3].map(i => <div key={i} className="h-24 rounded-2xl bg-stone-100 animate-pulse" />)}
         </div>
-        <div className="h-40 rounded-xl bg-stone-100 animate-pulse" />
+        <div className="h-40 rounded-2xl bg-stone-100 animate-pulse" />
       </div>
     );
   }
@@ -308,7 +308,7 @@ export default function ImporterDashboardPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-all rounded-xl ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-all rounded-2xl ${
                 isActive ? 'bg-white text-stone-950 shadow-sm' : 'bg-transparent text-stone-500'
               }`}
             >
@@ -382,7 +382,7 @@ export default function ImporterDashboardPage() {
                     key={order.order_id || i}
                     className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200"
                   >
-                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-xl bg-amber-50">
+                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-amber-50">
                       <Clock className="w-4 h-4 text-amber-600" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -436,10 +436,10 @@ export default function ImporterDashboardPage() {
                 className={i < topProducts.length - 1 ? 'border-b border-stone-200' : ''}
               >
                 <div
-                  className="w-10 h-10 shrink-0 overflow-hidden rounded-xl bg-stone-100"
+                  className="w-10 h-10 shrink-0 overflow-hidden rounded-2xl bg-stone-100"
                 >
                   {product.images?.[0] ? (
-                    <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                    <img loading="lazy" src={product.images[0]} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Package className="w-4 h-4 text-stone-500" />
@@ -607,7 +607,7 @@ export default function ImporterDashboardPage() {
                     className="flex items-center gap-3 py-2.5"
                     className={i < arr.length - 1 ? 'border-b border-stone-200' : ''}
                   >
-                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-xl bg-stone-100">
+                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-stone-100">
                       <Factory className="w-4 h-4 text-stone-500" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -733,9 +733,9 @@ export default function ImporterDashboardPage() {
             <Link
               key={i}
               to={item.to}
-              className="flex items-center gap-3 p-3 transition-colors rounded-xl"
+              className="flex items-center gap-3 p-3 transition-colors rounded-2xl"
             >
-              <div className="w-8 h-8 flex items-center justify-center shrink-0 rounded-xl bg-stone-100">
+              <div className="w-8 h-8 flex items-center justify-center shrink-0 rounded-2xl bg-stone-100">
                 <item.icon className="w-4 h-4 text-stone-500" />
               </div>
               <div className="flex-1 min-w-0">

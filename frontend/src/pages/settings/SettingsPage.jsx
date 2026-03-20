@@ -19,7 +19,7 @@ function SectionLabel({ children }) {
 /* ── Icon container ── */
 function ItemIcon({ children, className = 'bg-stone-100 text-stone-600' }) {
   return (
-    <span className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${className}`}>
+    <span className={`w-8 h-8 rounded-2xl flex items-center justify-center flex-shrink-0 ${className}`}>
       {children}
     </span>
   );
@@ -339,13 +339,13 @@ export default function SettingsPage() {
             <div className="flex gap-2.5">
               <button
                 onClick={() => setShowLogoutConfirm(false)}
-                className="flex-1 py-3 rounded-xl border border-stone-200 text-[14px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
+                className="flex-1 py-3 rounded-2xl border border-stone-200 text-[14px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleLogout}
-                className="flex-1 py-3 rounded-xl bg-stone-950 text-[14px] font-semibold text-white hover:bg-stone-800 transition-colors"
+                className="flex-1 py-3 rounded-2xl bg-stone-950 text-[14px] font-semibold text-white hover:bg-stone-800 transition-colors"
               >
                 Cerrar sesión
               </button>
@@ -378,19 +378,19 @@ export default function SettingsPage() {
               onChange={e => setDeleteEmail(e.target.value)}
               placeholder={user?.email || 'tu@email.com'}
               aria-label="Confirma tu email para eliminar la cuenta"
-              className="w-full h-11 px-3.5 border border-stone-200 rounded-xl text-[14px] text-stone-950 outline-none focus:border-stone-950 transition-colors mb-4"
+              className="w-full h-11 px-3.5 border border-stone-200 rounded-2xl text-[14px] text-stone-950 outline-none focus:border-stone-950 transition-colors mb-4"
             />
             <div className="flex gap-2.5">
               <button
                 onClick={() => { setShowDeleteConfirm(false); setDeleteEmail(''); }}
-                className="flex-1 py-3 rounded-xl border border-stone-200 text-[14px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
+                className="flex-1 py-3 rounded-2xl border border-stone-200 text-[14px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleteEmail !== user?.email || deleting}
-                className="flex-1 py-3 rounded-xl bg-stone-950 text-[14px] font-semibold text-white hover:bg-stone-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 py-3 rounded-2xl bg-stone-950 text-[14px] font-semibold text-white hover:bg-stone-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {deleting ? 'Eliminando...' : 'Eliminar'}
               </button>

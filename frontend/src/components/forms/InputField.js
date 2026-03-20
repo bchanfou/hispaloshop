@@ -61,7 +61,7 @@ const InputField = ({
           pattern={pattern}
           maxLength={maxLength}
           disabled={disabled || loading}
-          className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none ${
+          className={`w-full px-4 py-3 rounded-2xl border-2 transition-all outline-none ${
             Icon ? 'pl-11' : ''
           } ${type === 'password' || rightElement ? 'pr-11' : ''} ${
             disabled ? 'bg-stone-100 text-stone-500' : 'bg-white'

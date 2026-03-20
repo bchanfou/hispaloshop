@@ -55,16 +55,16 @@ export default function TierProgress() {
         <h2 className="text-lg font-bold text-stone-950">Mi Tier</h2>
         <button
           onClick={() => { setLoading(true); fetchTier(); }}
-          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
       {/* Current tier card */}
-      <div className="bg-white rounded-xl border border-stone-200 p-5">
+      <div className="bg-white rounded-2xl border border-stone-200 p-5">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 rounded-xl" style={{ backgroundColor: `${color}15` }}>
+          <div className="p-2.5 rounded-2xl" style={{ backgroundColor: `${color}15` }}>
             <Icon className="w-6 h-6" style={{ color }} />
           </div>
           <div>
@@ -75,17 +75,17 @@ export default function TierProgress() {
 
         {/* Metrics */}
         <div className="grid grid-cols-3 gap-3 mb-5">
-          <div className="text-center p-3 bg-stone-50 rounded-xl">
+          <div className="text-center p-3 bg-stone-50 rounded-2xl">
             <Users className="w-4 h-4 mx-auto text-stone-500 mb-1" />
             <p className="text-lg font-bold text-stone-950">{data.metrics?.unique_customers || 0}</p>
             <p className="text-[10px] text-stone-500 uppercase">Clientes</p>
           </div>
-          <div className="text-center p-3 bg-stone-50 rounded-xl">
+          <div className="text-center p-3 bg-stone-50 rounded-2xl">
             <DollarSign className="w-4 h-4 mx-auto text-stone-500 mb-1" />
             <p className="text-lg font-bold text-stone-950">${(data.metrics?.net_gmv || 0).toLocaleString()}</p>
             <p className="text-[10px] text-stone-500 uppercase">Ventas generadas</p>
           </div>
-          <div className="text-center p-3 bg-stone-50 rounded-xl">
+          <div className="text-center p-3 bg-stone-50 rounded-2xl">
             <TrendingUp className="w-4 h-4 mx-auto text-stone-500 mb-1" />
             <p className="text-lg font-bold text-stone-950">{((data.metrics?.repurchase_rate || 0) * 100).toFixed(0)}%</p>
             <p className="text-[10px] text-stone-500 uppercase">Clientes que repiten</p>
@@ -123,7 +123,7 @@ export default function TierProgress() {
       </div>
 
       {/* Earnings summary */}
-      <div className="bg-white rounded-xl border border-stone-200 p-4 flex items-center justify-between">
+      <div className="bg-white rounded-2xl border border-stone-200 p-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-stone-500 uppercase tracking-wider">Ganancias totales</p>
           <p className="text-xl font-bold text-stone-950">{(data.total_earnings || 0).toFixed(2)}€</p>

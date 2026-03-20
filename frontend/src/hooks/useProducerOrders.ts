@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { api } from '@/lib/api';
+import { api } from '../lib/api';
 
 export function useProducerOrders(params?: { status?: string; page?: number }) {
   const key = ['/producer/orders', params?.status || '', String(params?.page || 1)];

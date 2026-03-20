@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Loader2, Check, X } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, Check, X, Youtube } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
@@ -14,6 +14,7 @@ export default function EditProfilePage() {
     name: '', username: '', bio: '', website: '', location: '',
     phone: '',
     company_name: '', company_cif: '', store_description: '',
+    instagram: '', tiktok: '', youtube: '',
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
@@ -34,6 +35,7 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     if (!user) return;
+    const sl = user.social_links || {};
     setForm({
       name: user.name || user.full_name || '',
       username: user.username || '',
@@ -44,6 +46,9 @@ export default function EditProfilePage() {
       company_name: user.company_name || '',
       company_cif: user.company_cif || user.cif || '',
       store_description: user.store_description || '',
+      instagram: sl.instagram || user.instagram || '',
+      tiktok: sl.tiktok || user.tiktok || '',
+      youtube: sl.youtube || user.youtube || '',
     });
     setAvatarPreview(user.avatar_url || user.avatar || null);
   }, [user]);
@@ -62,6 +67,10 @@ export default function EditProfilePage() {
       if (form.company_name !== (user?.company_name || '')) return true;
       if (form.store_description !== (user?.store_description || '')) return true;
     }
+    const sl = user?.social_links || {};
+    if (form.instagram !== (sl.instagram || user?.instagram || '')) return true;
+    if (form.tiktok !== (sl.tiktok || user?.tiktok || '')) return true;
+    if (form.youtube !== (sl.youtube || user?.youtube || '')) return true;
     return false;
   }
 
@@ -125,6 +134,11 @@ export default function EditProfilePage() {
         location: form.location,
         phone: form.phone,
         avatar_url: avatarUrl,
+        social_links: {
+          instagram: form.instagram || '',
+          tiktok: form.tiktok || '',
+          youtube: form.youtube || '',
+        },
       };
 
       if (isProducer) {
@@ -188,7 +202,7 @@ export default function EditProfilePage() {
             className="group relative h-[88px] w-[88px] cursor-pointer overflow-hidden rounded-full bg-stone-100"
           >
             {avatarPreview ? (
-              <img src={avatarPreview} alt="Foto de perfil" className="h-full w-full object-cover" />
+              <img loading="lazy" src={avatarPreview} alt="Foto de perfil" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
                 <Camera size={28} className="text-stone-500" />
@@ -215,7 +229,7 @@ export default function EditProfilePage() {
               value={form.username}
               onChange={e => handleUsernameChange(e.target.value)}
               maxLength={30}
-              className={`h-11 w-full rounded-xl border pl-[30px] pr-9 text-sm text-stone-950 outline-none ${usernameBorderClass}`}
+              className={`h-11 w-full rounded-2xl border pl-[30px] pr-9 text-sm text-stone-950 outline-none ${usernameBorderClass}`}
             />
             {usernameStatus === 'checking' && (
               <Loader2 size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin text-stone-500" />
@@ -242,7 +256,7 @@ export default function EditProfilePage() {
             maxLength={150}
             placeholder="Cuéntanos sobre ti..."
             rows={3}
-            className="w-full resize-none rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
+            className="w-full resize-none rounded-2xl border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
           />
           <p className="mt-1 text-right text-[11px] text-stone-500">
             {form.bio.length}/150
@@ -254,6 +268,58 @@ export default function EditProfilePage() {
 
         <FormField label="Ubicación" value={form.location} placeholder="Madrid, España"
           onChange={v => setForm(f => ({ ...f, location: v }))} />
+
+        {/* ── Social Links ── */}
+        <div className="mt-2 border-t border-stone-200 pt-5">
+          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-stone-500">
+            Redes sociales
+          </p>
+        </div>
+
+        <div className="mb-5">
+          <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-stone-950">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 text-stone-500"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            Instagram
+          </label>
+          <input
+            type="text"
+            value={form.instagram}
+            onChange={e => setForm(f => ({ ...f, instagram: e.target.value.replace(/^@/, '').slice(0, 30) }))}
+            placeholder="tu_usuario"
+            maxLength={30}
+            className="h-11 w-full rounded-2xl border border-stone-200 px-3.5 text-sm text-stone-950 outline-none focus:border-stone-950 placeholder:text-stone-400"
+          />
+        </div>
+
+        <div className="mb-5">
+          <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-stone-950">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 text-stone-500"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.88-2.88 2.89 2.89 0 012.88-2.88c.28 0 .56.04.82.11v-3.5a6.37 6.37 0 00-.82-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.37a8.16 8.16 0 004.76 1.52v-3.45a4.85 4.85 0 01-1-.75z"/></svg>
+            TikTok
+          </label>
+          <input
+            type="text"
+            value={form.tiktok}
+            onChange={e => setForm(f => ({ ...f, tiktok: e.target.value.replace(/^@/, '').slice(0, 30) }))}
+            placeholder="tu_usuario"
+            maxLength={30}
+            className="h-11 w-full rounded-2xl border border-stone-200 px-3.5 text-sm text-stone-950 outline-none focus:border-stone-950 placeholder:text-stone-400"
+          />
+        </div>
+
+        <div className="mb-5">
+          <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-stone-950">
+            <Youtube size={16} className="text-stone-500" />
+            YouTube
+          </label>
+          <input
+            type="text"
+            value={form.youtube}
+            onChange={e => setForm(f => ({ ...f, youtube: e.target.value.slice(0, 50) }))}
+            placeholder="canal o @usuario"
+            maxLength={50}
+            className="h-11 w-full rounded-2xl border border-stone-200 px-3.5 text-sm text-stone-950 outline-none focus:border-stone-950 placeholder:text-stone-400"
+          />
+        </div>
 
         {/* ── Contact Info ── */}
         <div className="mt-2 border-t border-stone-200 pt-5">
@@ -269,7 +335,7 @@ export default function EditProfilePage() {
           <input
             value={user?.email || ''}
             readOnly
-            className="h-11 w-full rounded-xl border border-stone-200 bg-stone-100 px-3.5 text-sm text-stone-500 outline-none"
+            className="h-11 w-full rounded-2xl border border-stone-200 bg-stone-100 px-3.5 text-sm text-stone-500 outline-none"
           />
           <p className="mt-1 text-[11px] text-stone-400">El email no se puede cambiar desde aquí</p>
         </div>
@@ -301,7 +367,7 @@ export default function EditProfilePage() {
               <input
                 value={form.company_cif}
                 readOnly={!!user?.is_verified}
-                className={`h-11 w-full rounded-xl border border-stone-200 px-3.5 text-sm outline-none ${
+                className={`h-11 w-full rounded-2xl border border-stone-200 px-3.5 text-sm outline-none ${
                   user?.is_verified
                     ? 'bg-stone-100 text-stone-500'
                     : 'bg-white text-stone-950'
@@ -319,7 +385,7 @@ export default function EditProfilePage() {
                 maxLength={500}
                 placeholder="Describe tu tienda, tus productos, tu historia..."
                 rows={4}
-                className="w-full resize-none rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
+                className="w-full resize-none rounded-2xl border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
               />
               <p className="mt-1 text-right text-[11px] text-stone-500">
                 {form.store_description.length}/500
@@ -343,7 +409,7 @@ function FormField({ label, value, onChange, type = 'text', placeholder }) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-11 w-full rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 outline-none focus:border-stone-950 placeholder:text-stone-400"
+        className="h-11 w-full rounded-2xl border border-stone-200 px-3.5 text-sm text-stone-950 outline-none focus:border-stone-950 placeholder:text-stone-400"
       />
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ChatToastNotification from './ChatToastNotification';
 import { useNavigate } from 'react-router-dom';
-import { requestNotificationPermission, showBrowserNotification } from '@/services/notifications';
+import { requestNotificationPermission, showBrowserNotification } from '../../services/notifications';
 
 const MAX_TOASTS = 3;
 const AUTO_DISMISS_MS = 4000;

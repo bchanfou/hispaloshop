@@ -58,9 +58,9 @@ export default function PlanManager() {
       </div>
 
       {/* Current plan card */}
-      <div className={`bg-white rounded-xl border p-5 ${isPastDue ? 'border-stone-400 bg-stone-50' : 'border-stone-200'}`}>
+      <div className={`bg-white rounded-2xl border p-5 ${isPastDue ? 'border-stone-400 bg-stone-50' : 'border-stone-200'}`}>
         <div className="flex items-center gap-3 mb-3">
-          <div className={`p-2 rounded-xl bg-stone-50 ${colors[plan.plan]}`}>
+          <div className={`p-2 rounded-2xl bg-stone-50 ${colors[plan.plan]}`}>
             <Icon className="w-5 h-5" />
           </div>
           <div>
@@ -74,14 +74,14 @@ export default function PlanManager() {
         </div>
 
         {isTrialing && plan.trial_ends_at && (
-          <div className="flex items-center gap-2 text-sm text-stone-700 bg-stone-50 border border-stone-200 rounded-xl p-3 mb-3">
+          <div className="flex items-center gap-2 text-sm text-stone-700 bg-stone-50 border border-stone-200 rounded-2xl p-3 mb-3">
             <Calendar className="w-4 h-4 shrink-0" />
             Trial termina el {new Date(plan.trial_ends_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
         )}
 
         {isPastDue && plan.grace_period_ends_at && (
-          <div className="flex items-center gap-2 text-sm text-stone-700 bg-stone-100 border border-stone-200 rounded-xl p-3 mb-3">
+          <div className="flex items-center gap-2 text-sm text-stone-700 bg-stone-100 border border-stone-200 rounded-2xl p-3 mb-3">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             Tu pago fallo. Tienes hasta el {new Date(plan.grace_period_ends_at).toLocaleDateString('es-ES')} para regularizarlo o seras degradado a FREE.
           </div>
@@ -103,7 +103,7 @@ export default function PlanManager() {
             <button
               onClick={() => handleUpgrade('PRO')}
               disabled={changing}
-              className="flex-1 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl h-10 text-sm transition-colors flex items-center justify-center"
+              className="flex-1 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl h-10 text-sm transition-colors flex items-center justify-center"
               data-testid="upgrade-pro"
             >
               {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Zap className="w-4 h-4 mr-1" /> Upgrade a PRO (18%)</>}
@@ -113,7 +113,7 @@ export default function PlanManager() {
             <button
               onClick={() => handleUpgrade('ELITE')}
               disabled={changing}
-              className="flex-1 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl h-10 text-sm transition-colors flex items-center justify-center"
+              className="flex-1 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl h-10 text-sm transition-colors flex items-center justify-center"
               data-testid="upgrade-elite"
             >
               {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Crown className="w-4 h-4 mr-1" /> Upgrade a ELITE (15%)</>}

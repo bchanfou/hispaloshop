@@ -252,7 +252,7 @@ export default function ResetPasswordPage() {
               </div>
 
               {error && (
-                <div className="mb-4 p-3 bg-stone-50 border border-stone-200 rounded-xl text-sm text-stone-700" data-testid="error-message">
+                <div className="mb-4 p-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-700" data-testid="error-message">
                   {error}
                 </div>
               )}

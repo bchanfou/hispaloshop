@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api } from '@/lib/api';
+import { api } from '../lib/api';
 
 export function useRecommendations(limit: number = 10) {
   const [data, setData] = useState<any>(null);

@@ -16,7 +16,7 @@ function BarChart({ data, labels, height = 160, color = '#0A0A0A' }) {
                 initial={{ height: 0 }}
                 animate={{ height: `${heightPercent}%` }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
-                className="w-full rounded-t-xl"
+                className="w-full rounded-t-2xl"
                 style={{ backgroundColor: color }}
               />
             </div>

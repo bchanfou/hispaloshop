@@ -76,7 +76,7 @@ function B2BOrderCard({ order, onRefresh }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 overflow-hidden mb-3">
+    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden mb-3">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-stone-50 border-b border-stone-100">
         <div className="flex items-center gap-2">
@@ -92,9 +92,9 @@ function B2BOrderCard({ order, onRefresh }) {
         {/* Product */}
         <div className="flex gap-3 mb-3">
           {order.product_image ? (
-            <img src={order.product_image} alt="" className="w-13 h-13 rounded-xl object-cover shrink-0" style={{ width: 52, height: 52 }} />
+            <img loading="lazy" src={order.product_image} alt="" className="w-13 h-13 rounded-2xl object-cover shrink-0" style={{ width: 52, height: 52 }} />
           ) : (
-            <div className="rounded-xl bg-stone-100 shrink-0" style={{ width: 52, height: 52 }} />
+            <div className="rounded-2xl bg-stone-100 shrink-0" style={{ width: 52, height: 52 }} />
           )}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-stone-950 truncate">{order.product_name}</p>
@@ -112,7 +112,7 @@ function B2BOrderCard({ order, onRefresh }) {
 
         {/* Confirmed by producer — approve & pay */}
         {order.status === 'confirmed_by_producer' && (
-          <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 mb-3">
+          <div className="bg-stone-50 border border-stone-200 rounded-2xl p-3 mb-3">
             <p className="text-sm font-bold text-stone-950 mb-1">
               ✓ El productor confirmó disponibilidad
             </p>
@@ -126,13 +126,13 @@ function B2BOrderCard({ order, onRefresh }) {
               <button
                 onClick={handleApproveAndPay}
                 disabled={processing}
-                className="flex-1 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-medium rounded-xl transition-colors flex items-center justify-center gap-1"
+                className="flex-1 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-medium rounded-2xl transition-colors flex items-center justify-center gap-1"
               >
                 {processing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '✓ Aprobar y pagar →'}
               </button>
               <button
                 onClick={handleReject}
-                className="px-3 py-2 border border-stone-200 rounded-xl text-xs font-medium text-stone-600 hover:bg-stone-50 transition-colors"
+                className="px-3 py-2 border border-stone-200 rounded-2xl text-xs font-medium text-stone-600 hover:bg-stone-50 transition-colors"
               >
                 Rechazar
               </button>
@@ -142,7 +142,7 @@ function B2BOrderCard({ order, onRefresh }) {
 
         {/* Tracking */}
         {order.status === 'shipped' && order.tracking_number && (
-          <div className="bg-stone-50 rounded-xl p-3 text-xs text-stone-700 flex items-center gap-2">
+          <div className="bg-stone-50 rounded-2xl p-3 text-xs text-stone-700 flex items-center gap-2">
             <Truck className="w-4 h-4 shrink-0" />
             Tracking: <strong>{order.tracking_number}</strong>
             {order.tracking_url && (
@@ -208,7 +208,7 @@ export default function ImporterOrdersPage() {
       {loading ? (
         <div className="space-y-3">
           {Array(3).fill(0).map((_, i) => (
-            <div key={i} className="h-28 rounded-xl bg-stone-100 animate-pulse" />
+            <div key={i} className="h-28 rounded-2xl bg-stone-100 animate-pulse" />
           ))}
         </div>
       ) : orders.length === 0 ? (
@@ -217,7 +217,7 @@ export default function ImporterOrdersPage() {
           <p className="text-sm font-semibold text-stone-950">Sin pedidos B2B</p>
           <Link
             to="/importer/catalog"
-            className="inline-flex items-center mt-3 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-xl transition-colors"
+            className="inline-flex items-center mt-3 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors"
           >
             Explorar catálogo →
           </Link>

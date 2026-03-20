@@ -8,18 +8,18 @@ export default function ProductCardInChat({ product, onAddToCart, onViewProduct 
 
   return (
     <div
-      className="my-2 flex cursor-pointer items-center gap-3 rounded-xl border border-stone-200 bg-white p-3 transition-all duration-200 hover:border-stone-300 hover:shadow-sm"
+      className="my-2 flex cursor-pointer items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 transition-all duration-200 hover:border-stone-300 hover:shadow-sm"
       onClick={() => onViewProduct?.(product.slug || product.id)}
     >
       {product.image_url ? (
         <img
           src={product.image_url}
           alt={product.name}
-          className="h-16 w-16 flex-shrink-0 rounded-xl object-cover"
+          className="h-16 w-16 flex-shrink-0 rounded-2xl object-cover"
           loading="lazy"
         />
       ) : (
-        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-400">
+        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-stone-100 text-stone-400">
           <ShoppingCart className="h-6 w-6" />
         </div>
       )}

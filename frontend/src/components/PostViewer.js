@@ -192,7 +192,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
             {showMenu === postId && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(null)} />
-                <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-stone-100 overflow-hidden">
+                <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-2xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-stone-100 overflow-hidden">
                   <button
                     onClick={() => { onClose?.(); navigate(`/posts/${postId}/edit`); }}
                     className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-50"

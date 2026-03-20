@@ -217,7 +217,7 @@ export default function RecipeOverlay({
                               onClick={() => setSelectedProduct(ingredient.product)}
                               className="mt-3 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
                             >
-                              <div className="h-14 w-14 overflow-hidden rounded-xl bg-stone-100">
+                              <div className="h-14 w-14 overflow-hidden rounded-2xl bg-stone-100">
                                 {ingredient.product.images?.[0] ? (
                                   <img
                                     src={resolveUserImage(ingredient.product.images[0])}

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import apiClient, { getWSUrl } from '@/services/api/client';
-import { useAuth } from '@/context/AuthContext';
-import { getToken } from '@/lib/auth';
+import apiClient, { getWSUrl } from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
+import { getToken } from '../../lib/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 

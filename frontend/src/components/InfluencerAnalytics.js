@@ -9,7 +9,7 @@ import apiClient from '../services/api/client';
 
 function StatCard({ icon: Icon, title, value, subtitle, color = "text-stone-950" }) {
   return (
-    <div className="bg-white rounded-xl border border-stone-200">
+    <div className="bg-white rounded-2xl border border-stone-200">
       <div className="p-6">
         <div className="flex items-start justify-between">
           <div>
@@ -57,7 +57,7 @@ export default function InfluencerAnalytics() {
 
   if (!analytics) {
     return (
-      <div className="bg-white rounded-xl border border-stone-200">
+      <div className="bg-white rounded-2xl border border-stone-200">
         <div className="p-4">
           <div className="py-12 text-center">
             <BarChart3 className="w-12 h-12 text-stone-300 mx-auto mb-4" />
@@ -105,7 +105,7 @@ export default function InfluencerAnalytics() {
           <select
             value={period}
             onChange={(e) => setPeriod(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950 text-sm"
+            className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 text-sm"
           >
             <option value={7}>Últimos 7 días</option>
             <option value={30}>Últimos 30 días</option>
@@ -116,7 +116,7 @@ export default function InfluencerAnalytics() {
 
       {/* Referral Link Card */}
       {referral_link && (
-        <div className="bg-stone-50 rounded-xl border border-stone-200">
+        <div className="bg-stone-50 rounded-2xl border border-stone-200">
           <div className="p-4">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
@@ -127,7 +127,7 @@ export default function InfluencerAnalytics() {
               </div>
               <button
                 onClick={copyReferralLink}
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
               >
                 Copiar enlace
               </button>
@@ -183,7 +183,7 @@ export default function InfluencerAnalytics() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Conversions Chart */}
-        <div className="bg-white rounded-xl border border-stone-200">
+        <div className="bg-white rounded-2xl border border-stone-200">
           <div className="p-4 pb-0">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <ShoppingCart className="w-5 h-5 text-stone-400" />
@@ -215,7 +215,7 @@ export default function InfluencerAnalytics() {
         </div>
 
         {/* Revenue & Commission Chart */}
-        <div className="bg-white rounded-xl border border-stone-200">
+        <div className="bg-white rounded-2xl border border-stone-200">
           <div className="p-4 pb-0">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-stone-400" />
@@ -262,13 +262,13 @@ export default function InfluencerAnalytics() {
       </div>
 
       {/* Commission Info Card */}
-      <div className="bg-stone-50 rounded-xl border border-stone-200">
+      <div className="bg-stone-50 rounded-2xl border border-stone-200">
         <div className="p-6">
           <h3 className="font-semibold text-stone-950 mb-3">
             Cómo funcionan tus comisiones
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl p-4 border border-stone-200">
+            <div className="bg-white rounded-2xl p-4 border border-stone-200">
               <p className="text-sm font-medium text-stone-950 mb-2">Cálculo de tu comisión:</p>
               <ul className="space-y-1 text-sm text-stone-600">
                 <li>• Tu comisión depende de tu tier activo (3% a 7%)</li>
@@ -276,7 +276,7 @@ export default function InfluencerAnalytics() {
                 <li>• Tasa efectiva actual: {effectiveRateLabel}</li>
               </ul>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-stone-200">
+            <div className="bg-white rounded-2xl p-4 border border-stone-200">
               <p className="text-sm font-medium text-stone-950 mb-2">Calendario de pagos:</p>
               <ul className="space-y-1 text-sm text-stone-600">
                 <li>• Las comisiones se desbloquean 15 días después de la venta</li>
@@ -289,7 +289,7 @@ export default function InfluencerAnalytics() {
       </div>
 
       {/* Tips Card */}
-      <div className="bg-stone-50 rounded-xl border border-stone-200">
+      <div className="bg-stone-50 rounded-2xl border border-stone-200">
         <div className="p-6">
           <h3 className="font-semibold text-stone-950 mb-3">
             Tips para mejorar tus conversiones

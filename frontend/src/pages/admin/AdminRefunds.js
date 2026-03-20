@@ -74,7 +74,7 @@ function RefundModal({ order, onClose, onRefunded }) {
             <button
               key={t}
               onClick={() => setType(t)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              className={`flex-1 py-2.5 rounded-2xl text-sm font-medium transition-colors ${
                 type === t ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               }`}
             >
@@ -94,7 +94,7 @@ function RefundModal({ order, onClose, onRefunded }) {
               value={amount}
               onChange={e => setAmount(e.target.value)}
               placeholder={`Máx. ${fmtPrice(total)}`}
-              className="w-full px-3 py-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-400"
+              className="w-full px-3 py-2.5 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:border-stone-400"
             />
           </div>
         )}
@@ -110,12 +110,12 @@ function RefundModal({ order, onClose, onRefunded }) {
             maxLength={200}
             rows={3}
             placeholder="Describe el motivo..."
-            className="w-full px-3 py-2.5 border border-stone-200 rounded-xl text-sm resize-none focus:outline-none focus:border-stone-400"
+            className="w-full px-3 py-2.5 border border-stone-200 rounded-2xl text-sm resize-none focus:outline-none focus:border-stone-400"
           />
           <p className="text-right text-xs text-stone-400 mt-0.5">{reason.length}/200</p>
         </div>
 
-        <div className="bg-stone-50 rounded-xl p-3 mb-4 text-xs text-stone-600">
+        <div className="bg-stone-50 rounded-2xl p-3 mb-4 text-xs text-stone-600">
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
             <div>
@@ -128,14 +128,14 @@ function RefundModal({ order, onClose, onRefunded }) {
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 border border-stone-200 rounded-xl text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors"
+            className="flex-1 py-2.5 border border-stone-200 rounded-2xl text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={handleRefund}
             disabled={processing}
-            className="flex-1 py-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-colors flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm font-medium rounded-2xl transition-colors flex items-center justify-center gap-1.5"
           >
             {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
             Reembolsar
@@ -151,7 +151,7 @@ function OrderRow({ order, showRefundButton, onRefund }) {
   const isRefunded = status === 'refunded' || status === 'partially_refunded';
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-4 mb-2">
+    <div className="bg-white rounded-2xl border border-stone-200 p-4 mb-2">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-stone-950">
@@ -181,7 +181,7 @@ function OrderRow({ order, showRefundButton, onRefund }) {
           {showRefundButton && !isRefunded && (
             <button
               onClick={() => onRefund(order)}
-              className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-xl transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-2xl transition-colors flex items-center gap-1"
             >
               <RotateCcw className="w-3 h-3" />
               Reembolsar
@@ -284,12 +284,12 @@ export default function AdminRefunds() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por ID, cliente..."
-            className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-xl text-sm bg-white focus:outline-none focus:border-stone-400"
+            className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-2xl text-sm bg-white focus:outline-none focus:border-stone-400"
           />
         </div>
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors text-stone-700 shrink-0"
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors text-stone-700 shrink-0"
         >
           <Download className="w-4 h-4" />
           Exportar CSV
@@ -317,7 +317,7 @@ export default function AdminRefunds() {
       {loading ? (
         <div className="space-y-2">
           {Array(4).fill(0).map((_, i) => (
-            <div key={i} className="h-24 rounded-xl bg-stone-100 animate-pulse" />
+            <div key={i} className="h-24 rounded-2xl bg-stone-100 animate-pulse" />
           ))}
         </div>
       ) : filtered.length === 0 ? (

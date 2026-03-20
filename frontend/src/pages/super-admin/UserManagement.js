@@ -225,12 +225,12 @@ export default function UserManagement() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div 
             onClick={() => setSelectedRole('customer')}
-            className={`bg-white rounded-xl border p-4 cursor-pointer transition-all ${
+            className={`bg-white rounded-2xl border p-4 cursor-pointer transition-all ${
               selectedRole === 'customer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-300'
             }`}
           >
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-stone-100 rounded-xl">
+              <div className="p-2 bg-stone-100 rounded-2xl">
                 <ShoppingBag className="w-5 h-5 text-stone-600" />
               </div>
               <span className="font-medium text-stone-950">{t('userManagement.roles.customers')}</span>
@@ -253,12 +253,12 @@ export default function UserManagement() {
 
           <div 
             onClick={() => setSelectedRole('producer')}
-            className={`bg-white rounded-xl border p-4 cursor-pointer transition-all ${
+            className={`bg-white rounded-2xl border p-4 cursor-pointer transition-all ${
               selectedRole === 'producer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-300'
             }`}
           >
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-stone-100 rounded-xl">
+              <div className="p-2 bg-stone-100 rounded-2xl">
                 <Building className="w-5 h-5 text-stone-600" />
               </div>
               <span className="font-medium text-stone-950">{t('userManagement.roles.producers')}</span>
@@ -281,12 +281,12 @@ export default function UserManagement() {
 
           <div 
             onClick={() => setSelectedRole('influencer')}
-            className={`bg-white rounded-xl border p-4 cursor-pointer transition-all ${
+            className={`bg-white rounded-2xl border p-4 cursor-pointer transition-all ${
               selectedRole === 'influencer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-300'
             }`}
           >
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-stone-100 rounded-xl">
+              <div className="p-2 bg-stone-100 rounded-2xl">
                 <Share2 className="w-5 h-5 text-stone-600" />
               </div>
               <span className="font-medium text-stone-950">{t('userManagement.roles.influencers')}</span>
@@ -310,7 +310,7 @@ export default function UserManagement() {
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-stone-200 p-4">
+      <div className="bg-white rounded-2xl border border-stone-200 p-4">
         <div className="flex flex-wrap gap-4 items-center">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
@@ -319,7 +319,7 @@ export default function UserManagement() {
               placeholder={t('userManagement.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+              className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
               data-testid="search-users"
             />
           </div>
@@ -330,7 +330,7 @@ export default function UserManagement() {
             <select
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-stone-200 bg-white text-sm"
+              className="px-3 py-2 rounded-2xl border border-stone-200 bg-white text-sm"
               data-testid="country-filter"
             >
               <option value="all">{t('userManagement.filters.allCountries')}</option>
@@ -348,7 +348,7 @@ export default function UserManagement() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-stone-200 bg-white text-sm"
+              className="px-3 py-2 rounded-2xl border border-stone-200 bg-white text-sm"
               data-testid="status-filter"
             >
               <option value="all">{t('userManagement.filters.allStatuses')}</option>
@@ -361,7 +361,7 @@ export default function UserManagement() {
           <button
             onClick={() => { fetchUsers(); fetchStats(); }}
             data-testid="refresh-users"
-            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -369,7 +369,7 @@ export default function UserManagement() {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-stone-200 bg-stone-50">
           <div className="flex items-center gap-2">
             {getRoleIcon(selectedRole)}
@@ -459,7 +459,7 @@ export default function UserManagement() {
                           onClick={() => openEditCredentials(user)}
                           data-testid={`edit-${user.user_id}`}
                           title={t('userManagement.actions.editCredentials')}
-                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
                         >
                           <Key className="w-4 h-4" />
                         </button>
@@ -470,7 +470,7 @@ export default function UserManagement() {
                             onClick={() => updateUserStatus(user.user_id, 'active')}
                             disabled={actionLoading === user.user_id}
                             data-testid={`reactivate-${user.user_id}`}
-                            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors disabled:opacity-50 inline-flex items-center"
+                            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors disabled:opacity-50 inline-flex items-center"
                           >
                             <UserCheck className="w-4 h-4 mr-1" />
                             {t('userManagement.actions.reactivate')}
@@ -480,7 +480,7 @@ export default function UserManagement() {
                             onClick={() => updateUserStatus(user.user_id, 'suspended')}
                             disabled={actionLoading === user.user_id}
                             data-testid={`suspend-${user.user_id}`}
-                            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors disabled:opacity-50 inline-flex items-center"
+                            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors disabled:opacity-50 inline-flex items-center"
                           >
                             <UserX className="w-4 h-4 mr-1" />
                             {t('userManagement.actions.suspend')}
@@ -492,7 +492,7 @@ export default function UserManagement() {
                           onClick={() => setConfirmDelete(user)}
                           disabled={actionLoading === user.user_id}
                           data-testid={`delete-${user.user_id}`}
-                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors disabled:opacity-50"
+                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors disabled:opacity-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -510,7 +510,7 @@ export default function UserManagement() {
       {confirmDelete && (
         <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-stone-100 rounded-full">
                 <AlertTriangle className="w-6 h-6 text-stone-500" />
@@ -524,7 +524,7 @@ export default function UserManagement() {
               {t('userManagement.deleteModal.message')}
             </p>
             
-            <div className="bg-stone-50 rounded-xl p-3 mb-4">
+            <div className="bg-stone-50 rounded-2xl p-3 mb-4">
               <p className="font-medium text-stone-950">{confirmDelete.name}</p>
               <p className="text-sm text-stone-500">{confirmDelete.email}</p>
             </div>
@@ -536,14 +536,14 @@ export default function UserManagement() {
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors flex-1"
+                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors flex-1"
               >
                 {t('common.cancel')}
               </button>
               <button
                 onClick={() => deleteUser(confirmDelete.user_id)}
                 disabled={actionLoading === confirmDelete.user_id}
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors flex-1 inline-flex items-center justify-center"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors flex-1 inline-flex items-center justify-center"
               >
                 {actionLoading === confirmDelete.user_id ? (
                   <RefreshCw className="w-4 h-4 animate-spin mr-2" />
@@ -562,7 +562,7 @@ export default function UserManagement() {
       {editCredentials && (
         <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-stone-100 rounded-full">
                 <Key className="w-6 h-6 text-stone-600" />
@@ -572,7 +572,7 @@ export default function UserManagement() {
               </h3>
             </div>
             
-            <div className="bg-stone-50 rounded-xl p-3 mb-4">
+            <div className="bg-stone-50 rounded-2xl p-3 mb-4">
               <p className="font-medium text-stone-950">{editCredentials.name}</p>
               <p className="text-sm text-stone-500">{editCredentials.email}</p>
             </div>
@@ -590,7 +590,7 @@ export default function UserManagement() {
                   onChange={(e) => setNewEmail(e.target.value)}
                   placeholder={editCredentials.email}
                   data-testid="new-email-input"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               
@@ -607,7 +607,7 @@ export default function UserManagement() {
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••"
                     data-testid="new-password-input"
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   />
                   <button
                     type="button"
@@ -630,14 +630,14 @@ export default function UserManagement() {
                   setNewEmail('');
                   setNewPassword('');
                 }}
-                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors flex-1"
+                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors flex-1"
               >
                 {t('common.cancel')}
               </button>
               <button
                 onClick={() => updateCredentials(editCredentials.user_id)}
                 disabled={actionLoading === editCredentials.user_id || (!newEmail && !newPassword)}
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors flex-1 inline-flex items-center justify-center"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors flex-1 inline-flex items-center justify-center"
               >
                 {actionLoading === editCredentials.user_id ? (
                   <RefreshCw className="w-4 h-4 animate-spin mr-2" />

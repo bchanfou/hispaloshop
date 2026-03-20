@@ -516,7 +516,7 @@ export default function AdminTrustSafety() {
             key={key}
             type="button"
             onClick={() => setActiveTab(key)}
-            className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-all duration-150 ${
+            className={`flex-1 rounded-2xl py-2.5 text-sm font-medium transition-all duration-150 ${
               activeTab === key
                 ? 'bg-stone-950 text-white'
                 : 'text-stone-500 hover:text-stone-950'

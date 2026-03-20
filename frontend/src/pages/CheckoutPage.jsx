@@ -53,11 +53,11 @@ function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel, 
   const fmt = formatPrice || ((v) => `${v.toFixed(2)}€`);
 
   return (
-    <div className="bg-stone-100 rounded-xl p-4">
+    <div className="bg-stone-100 rounded-2xl p-4">
       {cartItems.slice(0, 5).map((item) => (
         <div key={`${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`} className="flex items-center gap-2.5 pb-2.5 mb-2.5 border-b border-stone-200">
-          <div className="w-11 h-11 rounded-xl bg-stone-200 overflow-hidden flex-shrink-0">
-            {(item.product_image || item.image) && <img src={item.product_image || item.image} alt={item.product_name || item.name || ''} className="w-full h-full object-cover" />}
+          <div className="w-11 h-11 rounded-2xl bg-stone-200 overflow-hidden flex-shrink-0">
+            {(item.product_image || item.image) && <img loading="lazy" src={item.product_image || item.image} alt={item.product_name || item.name || ''} className="w-full h-full object-cover" />}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-medium text-stone-950 truncate">{item.product_name || item.name}</p>
@@ -251,7 +251,7 @@ export default function CheckoutPage() {
                     <button
                       key={addr.address_id}
                       onClick={() => { setSelectedAddressId(addr.address_id); setShowNewForm(false); }}
-                      className={`w-full flex items-start gap-3 p-3.5 mb-2.5 text-left bg-white rounded-xl cursor-pointer transition-colors ${
+                      className={`w-full flex items-start gap-3 p-3.5 mb-2.5 text-left bg-white rounded-2xl cursor-pointer transition-colors ${
                         isSelected ? 'border-2 border-stone-950' : 'border border-stone-200 hover:border-stone-400'
                       }`}
                       aria-pressed={isSelected}
@@ -280,7 +280,7 @@ export default function CheckoutPage() {
                 {!showNewForm && (
                   <button
                     onClick={() => setShowNewForm(true)}
-                    className="w-full p-3.5 flex items-center gap-2 bg-white border-[1.5px] border-dashed border-stone-200 rounded-xl text-sm font-semibold text-stone-950 cursor-pointer hover:border-stone-400 transition-colors"
+                    className="w-full p-3.5 flex items-center gap-2 bg-white border-[1.5px] border-dashed border-stone-200 rounded-2xl text-sm font-semibold text-stone-950 cursor-pointer hover:border-stone-400 transition-colors"
                   >
                     <Plus className="w-[18px] h-[18px]" /> Añadir nueva dirección
                   </button>
@@ -288,14 +288,14 @@ export default function CheckoutPage() {
 
                 {/* New address form */}
                 {showNewForm && (
-                  <div className="bg-white border border-stone-200 rounded-xl p-4 mt-2">
+                  <div className="bg-white border border-stone-200 rounded-2xl p-4 mt-2">
                     <div className="flex flex-col gap-3">
                       <div>
                         <label className="block text-xs font-semibold text-stone-950 mb-1">Nombre completo</label>
                         <input
                           value={newAddress.full_name}
                           onChange={e => setNewAddress(p => ({ ...p, full_name: e.target.value }))}
-                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
+                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-2xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
                           placeholder="María García"
                         />
                       </div>
@@ -304,7 +304,7 @@ export default function CheckoutPage() {
                         <input
                           value={newAddress.street}
                           onChange={e => setNewAddress(p => ({ ...p, street: e.target.value }))}
-                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
+                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-2xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
                           placeholder="Calle Mayor 12"
                         />
                       </div>
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                         <input
                           value={newAddress.floor}
                           onChange={e => setNewAddress(p => ({ ...p, floor: e.target.value }))}
-                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
+                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-2xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
                           placeholder="3ºA"
                         />
                       </div>
@@ -323,7 +323,7 @@ export default function CheckoutPage() {
                           <input
                             value={newAddress.postal_code}
                             onChange={e => setNewAddress(p => ({ ...p, postal_code: e.target.value }))}
-                            className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
+                            className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-2xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
                             placeholder="28001"
                             inputMode="numeric"
                             maxLength={10}
@@ -334,7 +334,7 @@ export default function CheckoutPage() {
                           <input
                             value={newAddress.city}
                             onChange={e => setNewAddress(p => ({ ...p, city: e.target.value }))}
-                            className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
+                            className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-2xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
                             placeholder="Madrid"
                           />
                         </div>
@@ -344,7 +344,7 @@ export default function CheckoutPage() {
                         <select
                           value={newAddress.country}
                           onChange={e => setNewAddress(p => ({ ...p, country: e.target.value }))}
-                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
+                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-2xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
                         >
                           <option value="ES">España</option>
                           <option value="PT">Portugal</option>
@@ -363,7 +363,7 @@ export default function CheckoutPage() {
                         <input
                           value={newAddress.phone}
                           onChange={e => setNewAddress(p => ({ ...p, phone: e.target.value }))}
-                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
+                          className="w-full h-[46px] px-3.5 text-sm border border-stone-200 rounded-2xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
                           placeholder="+34 600 000 000"
                           type="tel"
                         />
@@ -375,7 +375,7 @@ export default function CheckoutPage() {
                       <button
                         onClick={handleSaveNewAddress}
                         disabled={savingAddress}
-                        className="h-11 bg-stone-950 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 hover:bg-stone-800 transition-colors disabled:opacity-50"
+                        className="h-11 bg-stone-950 text-white rounded-2xl text-sm font-semibold flex items-center justify-center gap-1.5 hover:bg-stone-800 transition-colors disabled:opacity-50"
                       >
                         {savingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Guardar dirección'}
                       </button>
@@ -394,7 +394,7 @@ export default function CheckoutPage() {
             <button
               onClick={() => { if (selectedAddress) setStep(2); else toast.error('Selecciona una dirección'); }}
               disabled={!selectedAddress}
-              className={`w-full h-12 mt-5 rounded-xl text-[15px] font-semibold transition-colors ${
+              className={`w-full h-12 mt-5 rounded-2xl text-[15px] font-semibold transition-colors ${
                 selectedAddress
                   ? 'bg-stone-950 text-white cursor-pointer hover:bg-stone-800'
                   : 'bg-stone-200 text-stone-500 cursor-not-allowed'
@@ -421,7 +421,7 @@ export default function CheckoutPage() {
 
             {/* Shipping summary */}
             {selectedAddress && (
-              <div className="bg-white border border-stone-200 rounded-xl p-3.5 mb-4">
+              <div className="bg-white border border-stone-200 rounded-2xl p-3.5 mb-4">
                 <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1.5">
                   Envío a
                 </p>
@@ -432,7 +432,7 @@ export default function CheckoutPage() {
             )}
 
             {/* Discount code */}
-            <div className="bg-white border border-stone-200 rounded-xl p-3.5 mb-4">
+            <div className="bg-white border border-stone-200 rounded-2xl p-3.5 mb-4">
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">
                 Código de descuento
               </p>
@@ -454,13 +454,13 @@ export default function CheckoutPage() {
                     value={discountCode}
                     onChange={e => setDiscountCode(e.target.value)}
                     placeholder="CODIGO10"
-                    className="flex-1 h-10 px-3.5 text-[13px] border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
+                    className="flex-1 h-10 px-3.5 text-[13px] border border-stone-200 rounded-2xl bg-white text-stone-950 outline-none focus:border-stone-950 transition-colors"
                     aria-label="Código de descuento"
                   />
                   <button
                     onClick={handleApplyDiscount}
                     disabled={discountLoading}
-                    className="h-10 px-4 bg-stone-950 text-white rounded-xl text-[13px] font-semibold flex-shrink-0 hover:bg-stone-800 transition-colors disabled:opacity-50"
+                    className="h-10 px-4 bg-stone-950 text-white rounded-2xl text-[13px] font-semibold flex-shrink-0 hover:bg-stone-800 transition-colors disabled:opacity-50"
                   >
                     Aplicar
                   </button>

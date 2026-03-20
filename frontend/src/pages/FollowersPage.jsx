@@ -60,7 +60,7 @@ const UserRow = React.memo(function UserRow({ u, isMe, onFollow, onUnfollow }) {
         <button
           onClick={() => u.is_following ? onUnfollow(userId) : onFollow(userId)}
           aria-label={u.is_following ? `Dejar de seguir a ${u.full_name || u.username}` : `Seguir a ${u.full_name || u.username}`}
-          className={`flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-1.5 text-[13px] font-semibold transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 rounded-2xl px-4 py-1.5 text-[13px] font-semibold transition-colors ${
             u.is_following
               ? 'border border-stone-200 bg-stone-100 text-stone-950'
               : 'bg-stone-950 text-white hover:bg-stone-800'
@@ -265,7 +265,7 @@ export default function FollowersPage() {
                   <div className="mb-1.5 h-3.5 w-[120px] animate-pulse rounded bg-stone-100" />
                   <div className="h-3 w-[80px] animate-pulse rounded bg-stone-100" />
                 </div>
-                <div className="h-8 w-20 animate-pulse rounded-xl bg-stone-100" />
+                <div className="h-8 w-20 animate-pulse rounded-2xl bg-stone-100" />
               </div>
             ))}
           </div>

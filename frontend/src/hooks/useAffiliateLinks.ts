@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { AffiliateLinkCreateRequest, api } from '@/lib/api';
+import { AffiliateLinkCreateRequest, api } from '../lib/api';
 
 export function useAffiliateLinks(params?: { status?: string; page?: number }) {
   const { data, error, isLoading, mutate } = useSWR(['/influencer/affiliate-links', params], ([, p]) => api.getAffiliateLinks(p), {

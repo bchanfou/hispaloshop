@@ -108,8 +108,8 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
         {/* Content preview */}
         <div className="flex gap-3">
           {item.preview?.image && (
-            <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid #e7e5e4' }}>
-              <img src={item.preview.image} alt="" className="w-full h-full object-cover" />
+            <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0" style={{ border: '1px solid #e7e5e4' }}>
+              <img loading="lazy" src={item.preview.image} alt="" className="w-full h-full object-cover" />
             </div>
           )}
           <div className="flex-1 min-w-0">
@@ -118,7 +118,7 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
             </p>
             <div className="flex items-center gap-1.5 mt-1.5">
               {item.creator_avatar && (
-                <img src={item.creator_avatar} alt="" className="w-4 h-4 rounded-full" />
+                <img loading="lazy" src={item.creator_avatar} alt="" className="w-4 h-4 rounded-full" />
               )}
               <span className="text-[11px]" style={{ color: '#78716c' }}>
                 {item.creator_name}
@@ -144,7 +144,7 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
           </button>
         )}
         {expanded && item.ai_reason && (
-          <p className="text-[11px] mt-1 p-2 rounded-xl leading-relaxed" style={{ background: '#f5f5f4', color: '#78716c' }}>
+          <p className="text-[11px] mt-1 p-2 rounded-2xl leading-relaxed" style={{ background: '#f5f5f4', color: '#78716c' }}>
             {item.ai_reason}
           </p>
         )}

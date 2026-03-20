@@ -64,7 +64,7 @@ export default function ProducerConnectPage() {
       <h1 className="text-2xl font-bold text-stone-950 mb-2">Stripe Connect</h1>
       <p className="text-sm text-stone-500 mb-6">Configura tu cuenta para recibir transferencias automaticas.</p>
 
-      <div className={`rounded-xl border p-5 bg-stone-50 border-stone-200`}>
+      <div className={`rounded-2xl border p-5 bg-stone-50 border-stone-200`}>
         <div className="flex items-start gap-3">
           {isReady ? (
             <CheckCircle2 className="w-5 h-5 text-stone-700 mt-0.5" />
@@ -95,7 +95,7 @@ export default function ProducerConnectPage() {
             type="button"
             onClick={handleStart}
             disabled={submitting}
-            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
           >
             {submitting ? 'Procesando...' : status?.has_account ? 'Completar onboarding' : 'Crear cuenta y conectar'}
           </button>

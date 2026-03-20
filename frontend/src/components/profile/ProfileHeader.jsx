@@ -21,6 +21,10 @@ import {
   UserPlus,
   Flag,
   ShieldBan,
+  Pencil,
+  Trash2,
+  Globe,
+  Youtube,
 } from 'lucide-react';
 import AnimatedNumber from '../motion/AnimatedNumber';
 import apiClient from '../../services/api/client';
@@ -151,6 +155,14 @@ export default function ProfileHeader({
   const [showOptionsSheet, setShowOptionsSheet] = useState(false);
   const [bioExpanded, setBioExpanded] = useState(false);
 
+  /* highlight edit/delete state */
+  const [highlightMenu, setHighlightMenu] = useState(null); // highlight object or null
+  const [highlightEditName, setHighlightEditName] = useState('');
+  const [highlightEditMode, setHighlightEditMode] = useState(null); // 'name' | 'cover' | 'delete' | null
+  const [highlightDeleting, setHighlightDeleting] = useState(false);
+  const [highlightSavingName, setHighlightSavingName] = useState(false);
+  const longPressTimerRef = useRef(null);
+
   /* close bottom sheets on Escape */
   useEffect(() => {
     if (!showAccountSwitcher && !showOptionsSheet) return;
@@ -218,6 +230,56 @@ export default function ProfileHeader({
   const copyProfileLink = useCallback(async () => {
     try { await navigator.clipboard.writeText(profileUrl); toast('Enlace copiado'); } catch { toast.error('No se pudo copiar el enlace'); }
   }, [profileUrl]);
+
+  /* ── highlight handlers ────────────────────────────────────────── */
+
+  const handleHighlightLongPressStart = useCallback((hl) => {
+    longPressTimerRef.current = setTimeout(() => {
+      setHighlightMenu(hl);
+      setHighlightEditMode(null);
+    }, 500);
+  }, []);
+
+  const handleHighlightLongPressEnd = useCallback(() => {
+    clearTimeout(longPressTimerRef.current);
+  }, []);
+
+  const handleHighlightSaveName = useCallback(async () => {
+    if (!highlightMenu || !highlightEditName.trim()) return;
+    setHighlightSavingName(true);
+    try {
+      await apiClient.patch(`/stories/highlights/${highlightMenu.highlight_id || highlightMenu.id}`, {
+        title: highlightEditName.trim(),
+      });
+      toast.success('Nombre actualizado');
+      setHighlightMenu(null);
+      setHighlightEditMode(null);
+    } catch {
+      toast.error('Error al actualizar');
+    } finally {
+      setHighlightSavingName(false);
+    }
+  }, [highlightMenu, highlightEditName]);
+
+  const handleHighlightDelete = useCallback(async () => {
+    if (!highlightMenu) return;
+    setHighlightDeleting(true);
+    try {
+      await apiClient.delete(`/stories/highlights/${highlightMenu.highlight_id || highlightMenu.id}`);
+      toast.success('Destacado eliminado');
+      setHighlightMenu(null);
+      setHighlightEditMode(null);
+    } catch {
+      toast.error('Error al eliminar');
+    } finally {
+      setHighlightDeleting(false);
+    }
+  }, [highlightMenu]);
+
+  /* cleanup long-press timer */
+  useEffect(() => {
+    return () => clearTimeout(longPressTimerRef.current);
+  }, []);
 
   /* ── derived ───────────────────────────────────────────────────── */
 
@@ -296,7 +358,7 @@ export default function ProfileHeader({
               role="dialog"
               aria-modal="true"
               aria-label="Cambiar cuenta"
-              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white px-5 pb-8 pt-4"
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white px-5 pb-8 pt-4"
             >
               <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
               <div className="mb-4 text-base font-semibold">Cuentas</div>
@@ -380,7 +442,7 @@ export default function ProfileHeader({
                   setShowAccountSwitcher(false);
                   navigate('/login?add_account=true');
                 }}
-                className="w-full rounded-xl bg-stone-100 py-3.5 text-center text-sm font-medium text-stone-950"
+                className="w-full rounded-2xl bg-stone-100 py-3.5 text-center text-sm font-medium text-stone-950"
               >
                 + Agregar cuenta
               </button>
@@ -489,20 +551,31 @@ export default function ProfileHeader({
           </div>
         )}
 
-        {/* social links (Q3: influencer) */}
-        {user?.role === 'influencer' && (user?.instagram || user?.tiktok || user?.youtube) && (
-          <div className="mt-2 flex gap-2">
-            <SocialIcon href={user.instagram} label="Instagram">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-            </SocialIcon>
-            <SocialIcon href={user.tiktok} label="TikTok">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.88-2.88 2.89 2.89 0 012.88-2.88c.28 0 .56.04.82.11v-3.5a6.37 6.37 0 00-.82-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.37a8.16 8.16 0 004.76 1.52v-3.45a4.85 4.85 0 01-1-.75z"/></svg>
-            </SocialIcon>
-            <SocialIcon href={user.youtube} label="YouTube">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-            </SocialIcon>
-          </div>
-        )}
+        {/* social links — all roles */}
+        {(() => {
+          const sl = user?.social_links || {};
+          const ig = sl.instagram || user?.instagram;
+          const tt = sl.tiktok || user?.tiktok;
+          const yt = sl.youtube || user?.youtube;
+          const web = sl.website || null;
+          if (!ig && !tt && !yt && !web) return null;
+          return (
+            <div className="mt-2 flex gap-2">
+              <SocialIcon href={ig ? `https://instagram.com/${ig.replace(/^@/, '')}` : null} label="Instagram">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+              </SocialIcon>
+              <SocialIcon href={tt ? `https://tiktok.com/@${tt.replace(/^@/, '')}` : null} label="TikTok">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.88-2.88 2.89 2.89 0 012.88-2.88c.28 0 .56.04.82.11v-3.5a6.37 6.37 0 00-.82-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.37a8.16 8.16 0 004.76 1.52v-3.45a4.85 4.85 0 01-1-.75z"/></svg>
+              </SocialIcon>
+              <SocialIcon href={yt ? `https://youtube.com/${yt.startsWith('@') || yt.startsWith('http') ? '' : '@'}${yt}` : null} label="YouTube">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              </SocialIcon>
+              <SocialIcon href={web} label="Sitio web">
+                <Globe className="h-4 w-4" />
+              </SocialIcon>
+            </div>
+          );
+        })()}
 
         {/* producer stats (Q2) */}
         {user?.role === 'producer' && user?.seller_stats && (
@@ -572,10 +645,10 @@ export default function ProfileHeader({
       <div className="flex gap-1.5 px-4 pb-3">
         {isOwn ? (
           <>
-            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-2xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Editar perfil
             </motion.button>
-            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={shareProfile} className="min-h-[34px] flex-1 rounded-xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={shareProfile} className="min-h-[34px] flex-1 rounded-2xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Compartir perfil
             </motion.button>
             <motion.button
@@ -583,7 +656,7 @@ export default function ProfileHeader({
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
-              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl bg-stone-100"
+              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-2xl bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
             </motion.button>
@@ -603,7 +676,7 @@ export default function ProfileHeader({
                   ? `Solicitar seguir a ${user?.name}`
                   : `Seguir a ${user?.name}`
               }
-              className={`min-h-[34px] flex-1 rounded-xl px-3 py-1.5 text-[13px] font-semibold ${
+              className={`min-h-[34px] flex-1 rounded-2xl px-3 py-1.5 text-[13px] font-semibold ${
                 user?.is_following
                   ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
@@ -625,7 +698,7 @@ export default function ProfileHeader({
               onClick={onMessage}
               aria-label="Enviar mensaje"
               disabled={user?.is_private && !user?.is_following}
-              className={`flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
+              className={`flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-2xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
                 user?.is_private && !user?.is_following ? 'opacity-40 cursor-not-allowed' : ''
               }`}
             >
@@ -637,7 +710,7 @@ export default function ProfileHeader({
                 whileTap={{ scale: 0.96 }}
                 transition={{ type: 'spring', damping: 20, stiffness: 400 }}
                 onClick={() => navigate(`/store/${user?.store_slug || user?.username}`)}
-                className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
+                className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-2xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
               >
                 <Store size={15} />
                 Tienda
@@ -648,7 +721,7 @@ export default function ProfileHeader({
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
-              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl bg-stone-100"
+              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-2xl bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
             </motion.button>
@@ -698,8 +771,11 @@ export default function ProfileHeader({
           {highlights.map((hl, i) => (
             <div
               key={hl.highlight_id || hl.id || i}
-              className="flex shrink-0 flex-col items-center gap-1.5 cursor-pointer"
+              className="relative flex shrink-0 flex-col items-center gap-1.5 cursor-pointer"
               onClick={() => onViewHighlight?.(hl)}
+              onPointerDown={isOwn ? () => handleHighlightLongPressStart(hl) : undefined}
+              onPointerUp={isOwn ? handleHighlightLongPressEnd : undefined}
+              onPointerLeave={isOwn ? handleHighlightLongPressEnd : undefined}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === 'Enter') onViewHighlight?.(hl); }}
@@ -718,6 +794,168 @@ export default function ProfileHeader({
           ))}
         </div>
       )}
+
+      {/* ── 6b. HIGHLIGHT EDIT/DELETE BOTTOM SHEET ────────────────── */}
+      <AnimatePresence>
+        {highlightMenu && isOwn && (
+          <>
+            <motion.div
+              key="hl-overlay"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              onClick={() => { setHighlightMenu(null); setHighlightEditMode(null); }}
+              className="fixed inset-0 z-[9998] bg-black/40"
+            />
+            <motion.div
+              key="hl-sheet"
+              variants={sheetVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Opciones de destacado"
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white pb-8 pt-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-stone-200" />
+
+              {/* Default menu */}
+              {!highlightEditMode && (
+                <>
+                  <p className="mb-3 px-5 text-center text-[15px] font-semibold text-stone-950">
+                    {highlightMenu.title || 'Destacado'}
+                  </p>
+                  <OptionRow
+                    icon={<Pencil size={20} />}
+                    label="Editar nombre"
+                    onClick={() => {
+                      setHighlightEditName(highlightMenu.title || '');
+                      setHighlightEditMode('name');
+                    }}
+                  />
+                  <OptionRow
+                    icon={<Camera size={20} />}
+                    label="Editar portada"
+                    onClick={() => setHighlightEditMode('cover')}
+                  />
+                  <div className="my-2 mx-5 h-px bg-stone-100" />
+                  <OptionRow
+                    icon={<Trash2 size={20} />}
+                    label="Eliminar destacado"
+                    muted
+                    onClick={() => setHighlightEditMode('delete')}
+                  />
+                </>
+              )}
+
+              {/* Edit name inline */}
+              {highlightEditMode === 'name' && (
+                <div className="px-5">
+                  <p className="mb-3 text-center text-[15px] font-semibold text-stone-950">Editar nombre</p>
+                  <input
+                    type="text"
+                    value={highlightEditName}
+                    onChange={(e) => setHighlightEditName(e.target.value.slice(0, 30))}
+                    maxLength={30}
+                    autoFocus
+                    className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-950 outline-none focus:border-stone-950"
+                    placeholder="Nombre del destacado"
+                  />
+                  <div className="mt-4 flex gap-3">
+                    <button
+                      onClick={() => setHighlightEditMode(null)}
+                      className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleHighlightSaveName}
+                      disabled={highlightSavingName || !highlightEditName.trim()}
+                      className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {highlightSavingName ? 'Guardando...' : 'Guardar'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Select cover from stories */}
+              {highlightEditMode === 'cover' && (
+                <div className="px-5">
+                  <p className="mb-3 text-center text-[15px] font-semibold text-stone-950">Elegir portada</p>
+                  {(highlightMenu.stories?.length > 0 || highlightMenu.items?.length > 0) ? (
+                    <div className="grid grid-cols-4 gap-2">
+                      {(highlightMenu.stories || highlightMenu.items || []).map((story, si) => {
+                        const storyImg = story.image_url || story.media_url || story.thumbnail;
+                        return (
+                          <button
+                            key={story.id || story.story_id || si}
+                            onClick={async () => {
+                              try {
+                                await apiClient.patch(`/stories/highlights/${highlightMenu.highlight_id || highlightMenu.id}`, {
+                                  cover_url: storyImg,
+                                });
+                                toast.success('Portada actualizada');
+                                setHighlightMenu(null);
+                                setHighlightEditMode(null);
+                              } catch {
+                                toast.error('Error al actualizar portada');
+                              }
+                            }}
+                            className="aspect-square overflow-hidden rounded-2xl border border-stone-200"
+                          >
+                            {storyImg ? (
+                              <img src={storyImg} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-stone-100 text-stone-400 text-xs">Sin imagen</div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="py-6 text-center text-sm text-stone-500">No hay historias en este destacado</p>
+                  )}
+                  <button
+                    onClick={() => setHighlightEditMode(null)}
+                    className="mt-4 w-full rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                  >
+                    Volver
+                  </button>
+                </div>
+              )}
+
+              {/* Delete confirmation */}
+              {highlightEditMode === 'delete' && (
+                <div className="px-5 text-center">
+                  <p className="mb-1 text-[15px] font-semibold text-stone-950">Eliminar destacado</p>
+                  <p className="mb-4 text-sm text-stone-500">
+                    Las historias del destacado no se eliminarán, solo la colección.
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setHighlightEditMode(null)}
+                      className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleHighlightDelete}
+                      disabled={highlightDeleting}
+                      className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {highlightDeleting ? 'Eliminando...' : 'Eliminar'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── 7. OPTIONS BOTTOM SHEET (other profile) ──────────────── */}
       <AnimatePresence>
@@ -741,7 +979,7 @@ export default function ProfileHeader({
               role="dialog"
               aria-modal="true"
               aria-label="Opciones de perfil"
-              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white pb-8 pt-4"
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white pb-8 pt-4"
             >
               <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
 

@@ -88,7 +88,7 @@ export default function AuthTestPanel() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 bg-white p-4 rounded-xl shadow-xl border border-stone-200 max-w-sm">
+    <div className="fixed bottom-4 right-4 z-50 bg-white p-4 rounded-2xl shadow-xl border border-stone-200 max-w-sm">
       <h3 className="font-bold text-sm mb-2">🔧 Auth Test Panel (Dev Only)</h3>
       
       {user && (
@@ -102,14 +102,14 @@ export default function AuthTestPanel() {
         <button
           onClick={runAllTests}
           disabled={testing}
-          className="w-full px-3 py-2 bg-stone-950 text-white text-xs rounded-xl hover:bg-stone-800 disabled:opacity-50"
+          className="w-full px-3 py-2 bg-stone-950 text-white text-xs rounded-2xl hover:bg-stone-800 disabled:opacity-50"
         >
           {testing ? 'Probando...' : 'Probar todas las cuentas'}
         </button>
         
         <button
           onClick={testCurrentUser}
-          className="w-full px-3 py-2 bg-stone-100 text-stone-700 text-xs rounded-xl hover:bg-stone-200"
+          className="w-full px-3 py-2 bg-stone-100 text-stone-700 text-xs rounded-2xl hover:bg-stone-200"
         >
           Ver usuario actual
         </button>

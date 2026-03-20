@@ -17,7 +17,7 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
     <div className="flex gap-3 py-2.5 group">
       <Link to={`/${comment.username || comment.user_id}`} className="shrink-0">
         {avatar ? (
-          <img src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+          <img loading="lazy" src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
         ) : (
           <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
             {name.charAt(0).toUpperCase()}
@@ -191,7 +191,7 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
         <div className="flex gap-3 py-2.5">
           <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="shrink-0">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+              <img loading="lazy" src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
             ) : (
               <div className="h-8 w-8 rounded-full bg-stone-100" />
             )}
@@ -258,7 +258,7 @@ function CommentInput({ isAuthenticated, user, replyTo, setReplyTo, newComment, 
       )}
       <div className="flex items-center gap-3 px-4 py-3">
         {(user?.avatar_url || user?.avatar || user?.profile_image) ? (
-          <img src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
+          <img loading="lazy" src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
         ) : (
           <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500 shrink-0">
             {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
@@ -556,7 +556,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
             <div className="flex items-center gap-2.5 px-4 py-3">
               <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="shrink-0">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+                  <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
                 ) : (
                   <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
                     {userName.charAt(0).toUpperCase()}
@@ -634,7 +634,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
         {/* ═══ DESKTOP LAYOUT (>=768px / md) — Instagram Web side-by-side ═══ */}
         {/* I1: split layout ~55% left / ~45% right, max-w-4xl, 85vh */}
         <motion.div
-          className="hidden md:flex relative z-[101] bg-white rounded-xl overflow-hidden shadow-2xl w-full"
+          className="hidden md:flex relative z-[101] bg-white rounded-2xl overflow-hidden shadow-2xl w-full"
           style={{ maxWidth: 'min(960px, 90vw)', maxHeight: '85vh', height: '85vh' }}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -655,7 +655,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
             <div className="flex items-center gap-3 px-4 py-3 border-b border-stone-100 shrink-0">
               <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="shrink-0">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+                  <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
                 ) : (
                   <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-600">
                     {userName.charAt(0).toUpperCase()}

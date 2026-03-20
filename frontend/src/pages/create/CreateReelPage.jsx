@@ -451,7 +451,7 @@ export default function CreateReelPage() {
         {/* Video preview */}
         <div
           ref={videoPreviewRef}
-          className="relative aspect-[9/16] max-h-[55vh] bg-black mx-auto w-auto overflow-hidden rounded-xl"
+          className="relative aspect-[9/16] max-h-[55vh] bg-black mx-auto w-auto overflow-hidden rounded-2xl"
           onClick={togglePlay}
           role="button"
           tabIndex={0}
@@ -547,7 +547,7 @@ export default function CreateReelPage() {
         {/* Trim bar with real frame thumbnails */}
         <div className="px-4 py-2">
           <div
-            className="h-14 rounded-xl relative flex items-center overflow-hidden"
+            className="h-14 rounded-2xl relative flex items-center overflow-hidden"
             style={{ background: 'rgba(255,255,255,0.06)' }}
             onMouseDown={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -579,7 +579,7 @@ export default function CreateReelPage() {
 
             {/* Selected region border */}
             <div
-              className="absolute top-0 bottom-0 border-2 border-white/90 rounded-xl z-[2]"
+              className="absolute top-0 bottom-0 border-2 border-white/90 rounded-2xl z-[2]"
               style={{
                 left: duration > 0 ? `${(trimStart / duration) * 100}%` : '0%',
                 right: duration > 0 ? `${(1 - (trimEnd || duration) / duration) * 100}%` : '0%',
@@ -743,7 +743,7 @@ export default function CreateReelPage() {
                 <button
                   onClick={() => setShowTextInput(true)}
                   disabled={textOverlays.length >= 3}
-                  className={`bg-white/10 text-white border border-dashed border-white/30 rounded-xl py-3.5 text-sm cursor-pointer ${
+                  className={`bg-white/10 text-white border border-dashed border-white/30 rounded-2xl py-3.5 text-sm cursor-pointer ${
                     textOverlays.length >= 3 ? 'opacity-40 cursor-not-allowed' : ''
                   }`}
                   aria-label="Añadir texto al vídeo"
@@ -757,7 +757,7 @@ export default function CreateReelPage() {
                     onChange={(e) => setTextDraft(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && addTextOverlay()}
                     placeholder="Escribe aquí..."
-                    className="bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/40"
+                    className="bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/40"
                     autoFocus
                     aria-label="Texto para el overlay"
                   />
@@ -804,7 +804,7 @@ export default function CreateReelPage() {
                       <button
                         key={s.key}
                         onClick={() => setTextStyle(s.key)}
-                        className={`flex-1 rounded-xl py-2 text-xs font-semibold cursor-pointer transition-colors ${
+                        className={`flex-1 rounded-2xl py-2 text-xs font-semibold cursor-pointer transition-colors ${
                           textStyle === s.key ? 'bg-white text-black' : 'bg-white/10 text-white'
                         }`}
                         aria-pressed={textStyle === s.key}
@@ -832,13 +832,13 @@ export default function CreateReelPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setShowTextInput(false)}
-                      className="flex-1 bg-white/10 text-white border-none rounded-xl py-3 text-[13px] cursor-pointer min-h-[44px]"
+                      className="flex-1 bg-white/10 text-white border-none rounded-2xl py-3 text-[13px] cursor-pointer min-h-[44px]"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={addTextOverlay}
-                      className="flex-1 bg-white text-black border-none rounded-xl py-3 text-[13px] font-semibold cursor-pointer min-h-[44px]"
+                      className="flex-1 bg-white text-black border-none rounded-2xl py-3 text-[13px] font-semibold cursor-pointer min-h-[44px]"
                     >
                       ✓ Confirmar
                     </button>
@@ -861,7 +861,7 @@ export default function CreateReelPage() {
                     aria-label={`Filtro ${f.name}`}
                     aria-pressed={isActive}
                   >
-                    <div className={`w-16 h-20 rounded-xl overflow-hidden transition-all duration-150 ${
+                    <div className={`w-16 h-20 rounded-2xl overflow-hidden transition-all duration-150 ${
                       isActive ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-105' : 'opacity-70 hover:opacity-100'
                     }`}>
                       {filterThumb ? (
@@ -925,7 +925,7 @@ export default function CreateReelPage() {
             placeholder="Describe tu reel..."
             rows={4}
             maxLength={2200}
-            className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border"
+            className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-2xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border"
             style={{ background: 'transparent', position: 'relative', caretColor: '#0a0a0a' }}
             aria-label="Descripción del reel"
           />
@@ -938,7 +938,7 @@ export default function CreateReelPage() {
         <div>
           <button
             onClick={() => setShowProductSearch(true)}
-            className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-xl px-3.5 py-2.5 text-[13px] text-left cursor-pointer"
+            className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-2xl px-3.5 py-2.5 text-[13px] text-left cursor-pointer"
           >
             🏷️ Etiquetar producto
           </button>
@@ -966,7 +966,7 @@ export default function CreateReelPage() {
               <button
                 key={i}
                 onClick={() => setThumbnailIndex(i)}
-                className={`w-14 h-20 rounded-xl bg-stone-100 shrink-0 flex items-end justify-center p-1 overflow-hidden relative border-2 cursor-pointer ${
+                className={`w-14 h-20 rounded-2xl bg-stone-100 shrink-0 flex items-end justify-center p-1 overflow-hidden relative border-2 cursor-pointer ${
                   thumbnailIndex === i ? 'border-stone-950' : 'border-stone-200'
                 }`}
                 aria-label={`Portada ${i + 1}`}
@@ -980,7 +980,7 @@ export default function CreateReelPage() {
             {/* Cover from gallery */}
             <button
               onClick={() => coverInputRef.current?.click()}
-              className={`w-14 h-20 rounded-xl bg-stone-100 shrink-0 flex flex-col items-center justify-center p-1 overflow-hidden border-2 cursor-pointer ${
+              className={`w-14 h-20 rounded-2xl bg-stone-100 shrink-0 flex flex-col items-center justify-center p-1 overflow-hidden border-2 cursor-pointer ${
                 coverFromGallery ? 'border-stone-950' : 'border-dashed border-stone-300'
               }`}
               aria-label="Portada desde galería"
@@ -1005,7 +1005,7 @@ export default function CreateReelPage() {
         </div>
 
         {/* Location */}
-        <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5">
+        <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-2xl px-3 py-2.5">
           <MapPin size={16} className="text-stone-400 shrink-0" />
           <input
             value={location}
@@ -1041,7 +1041,7 @@ export default function CreateReelPage() {
         </div>
 
         {/* Video preview small */}
-        <div className="aspect-[9/16] max-h-[200px] bg-black rounded-xl overflow-hidden self-center shadow-lg">
+        <div className="aspect-[9/16] max-h-[200px] bg-black rounded-2xl overflow-hidden self-center shadow-lg">
           <video
             ref={(el) => { if (el) el.playbackRate = speed; }}
             src={videoUrl || undefined}

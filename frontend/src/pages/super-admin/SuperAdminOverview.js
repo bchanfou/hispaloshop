@@ -267,11 +267,11 @@ export default function SuperAdminOverview() {
         <SACard>
           <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Visitas</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="rounded-xl p-3 text-center" style={{ background: dark.cardHover }}>
+            <div className="rounded-2xl p-3 text-center" style={{ background: dark.cardHover }}>
               <p className="text-xl font-extrabold" style={{ color: dark.accent }}>{visits.total || 0}</p>
               <p className="text-[10px]" style={{ color: dark.textSubtle }}>Total</p>
             </div>
-            <div className="rounded-xl p-3 text-center" style={{ background: dark.cardHover }}>
+            <div className="rounded-2xl p-3 text-center" style={{ background: dark.cardHover }}>
               <p className="text-xl font-extrabold" style={{ color: dark.accent }}>{visits.last_7d || 0}</p>
               <p className="text-[10px]" style={{ color: dark.textSubtle }}>Últimos 7d</p>
             </div>

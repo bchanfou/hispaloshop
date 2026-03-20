@@ -128,10 +128,10 @@ export default function PeoplePage() {
               {users.map(u => {
                 const isFollowed = followedIds.has(u.user_id) || u.is_following;
                 return (
-                  <div key={u.user_id} className="flex flex-col items-center rounded-xl border border-stone-200 bg-white p-4">
+                  <div key={u.user_id} className="flex flex-col items-center rounded-2xl border border-stone-200 bg-white p-4">
                     <Link to={`/user/${u.username || u.user_id}`} className="mb-2 h-14 w-14 overflow-hidden rounded-full bg-stone-100 block">
                       {u.profile_image ? (
-                        <img src={u.profile_image} alt={u.name} className="h-full w-full object-cover" />
+                        <img loading="lazy" src={u.profile_image} alt={u.name} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-lg font-bold text-stone-400">
                           {(u.name || '?')[0].toUpperCase()}

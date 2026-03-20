@@ -104,13 +104,13 @@ export default function AdminProducers() {
           {t('adminProducers.backToProducers')}
         </button>
 
-        <div className="bg-white rounded-xl border border-stone-200 p-6">
+        <div className="bg-white rounded-2xl border border-stone-200 p-6">
           <div className="flex items-start justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-stone-950">
                 {editMode ? (
                   <input
-                    className="w-full px-3 py-2 text-xl font-bold border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 text-xl font-bold border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={editData.company_name || selectedProducer.company_name}
                     onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
                   />
@@ -128,11 +128,11 @@ export default function AdminProducers() {
             <div className="flex gap-2">
               {editMode ? (
                 <>
-                  <button type="button" onClick={saveEdits} className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors">{t('common.save')}</button>
-                  <button type="button" className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setEditMode(false)}>{t('common.cancel')}</button>
+                  <button type="button" onClick={saveEdits} className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 transition-colors">{t('common.save')}</button>
+                  <button type="button" className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" onClick={() => setEditMode(false)}>{t('common.cancel')}</button>
                 </>
               ) : (
-                <button type="button" className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => { setEditMode(true); setEditData(selectedProducer); }}>
+                <button type="button" className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" onClick={() => { setEditMode(true); setEditData(selectedProducer); }}>
                   <Edit className="w-4 h-4 mr-2" /> {t('common.edit')}
                 </button>
               )}
@@ -149,7 +149,7 @@ export default function AdminProducers() {
                 <Phone className="w-5 h-5 text-stone-500" />
                 {editMode ? (
                   <input
-                    className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="flex-1 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={editData.phone || selectedProducer.phone || ''}
                     onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
                   />
@@ -167,7 +167,7 @@ export default function AdminProducers() {
                 <MapPin className="w-5 h-5 text-stone-500 mt-1" />
                 {editMode ? (
                   <input
-                    className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="flex-1 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={editData.fiscal_address || selectedProducer.fiscal_address || ''}
                     onChange={(e) => setEditData({ ...editData, fiscal_address: e.target.value })}
                   />
@@ -179,7 +179,7 @@ export default function AdminProducers() {
                 <span className="text-stone-500">{t('adminProducers.detail.country')}:</span>
                 {editMode ? (
                   <input
-                    className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="flex-1 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={editData.country || selectedProducer.country || ''}
                     onChange={(e) => setEditData({ ...editData, country: e.target.value })}
                   />
@@ -198,7 +198,7 @@ export default function AdminProducers() {
                 <button
                   type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'approved')}
-                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
                   data-testid="approve-producer"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.approve')}
@@ -208,7 +208,7 @@ export default function AdminProducers() {
                 <button
                   type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'rejected')}
-                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
+                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-2xl transition-colors"
                   data-testid="reject-producer"
                 >
                   <XCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.reject')}
@@ -218,7 +218,7 @@ export default function AdminProducers() {
                 <button
                   type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'paused')}
-                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 rounded-xl transition-colors"
+                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 rounded-2xl transition-colors"
                   data-testid="pause-producer"
                 >
                   <Pause className="w-4 h-4 mr-2" /> {t('adminProducers.detail.pause')}
@@ -228,7 +228,7 @@ export default function AdminProducers() {
                 <button
                   type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'approved')}
-                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.reactivate')}
                 </button>
@@ -254,7 +254,7 @@ export default function AdminProducers() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
           <input
             type="text"
-            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
             placeholder={t('adminProducers.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -264,7 +264,7 @@ export default function AdminProducers() {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
+          className="px-4 py-2 rounded-2xl border border-stone-200 bg-white"
           data-testid="status-filter"
         >
           <option value="all">{t('adminProducers.allStatuses')}</option>
@@ -276,7 +276,7 @@ export default function AdminProducers() {
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
+          className="px-4 py-2 rounded-2xl border border-stone-200 bg-white"
           data-testid="role-filter"
         >
           <option value="all">Todos los tipos</option>
@@ -286,7 +286,7 @@ export default function AdminProducers() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : filteredProducers.length === 0 ? (
@@ -329,7 +329,7 @@ export default function AdminProducers() {
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
-                          className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                          className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
                           onClick={() => setSelectedProducer(producer)}
                           data-testid={`view-${producer.user_id}`}
                         >
@@ -338,7 +338,7 @@ export default function AdminProducers() {
                         {status === 'pending' && (
                           <button
                             type="button"
-                            className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+                            className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
                             onClick={() => updateStatus(producer.user_id, 'approved')}
                           >
                             <CheckCircle className="w-4 h-4 mr-1" /> {t('adminProducers.detail.approve')}

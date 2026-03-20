@@ -25,7 +25,7 @@ function TrendBadge({ current, previous }) {
 function StatCard({ icon: Icon, label, value, sub, current, previous }) {
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-stone-200 bg-white p-5">
-      <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100">
+      <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-2xl bg-stone-100">
         <Icon className="h-4.5 w-4.5 text-stone-700" />
       </div>
       <div className="flex items-end gap-2">
@@ -91,7 +91,7 @@ export default function AdminGrowthAnalytics() {
       <div className="border-b border-stone-200 bg-white px-6 py-5">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-950">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950">
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -100,12 +100,12 @@ export default function AdminGrowthAnalytics() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex rounded-xl border border-stone-200 bg-white p-1">
+            <div className="flex rounded-2xl border border-stone-200 bg-white p-1">
               {PERIODS.map((p) => (
                 <button
                   key={p.value}
                   onClick={() => setDays(p.value)}
-                  className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`rounded-2xl px-3 py-1.5 text-sm font-medium transition-colors ${
                     days === p.value
                       ? 'bg-stone-950 text-white'
                       : 'text-stone-600 hover:text-stone-950'
@@ -118,7 +118,7 @@ export default function AdminGrowthAnalytics() {
             <button
               onClick={() => load(days)}
               disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:text-stone-950 disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 hover:text-stone-950 disabled:opacity-40"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -129,7 +129,7 @@ export default function AdminGrowthAnalytics() {
       <div className="mx-auto max-w-6xl space-y-8 px-6 py-6">
         {/* Error state */}
         {error && (
-          <div className="flex items-center gap-3 p-4 rounded-xl border border-stone-200 bg-stone-50">
+          <div className="flex items-center gap-3 p-4 rounded-2xl border border-stone-200 bg-stone-50">
             <AlertTriangle className="w-5 h-5 text-stone-500 shrink-0" />
             <p className="text-sm text-stone-700 flex-1">{error}</p>
             <button onClick={() => load(days)} className="text-sm font-medium text-stone-950 hover:underline">Reintentar</button>

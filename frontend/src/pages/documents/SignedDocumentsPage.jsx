@@ -12,7 +12,7 @@ import {
   Award,
   Receipt,
 } from 'lucide-react';
-import apiClient from '@/services/api/client';
+import apiClient from '../../services/api/client';
 
 const V2 = {
   black: '#0A0A0A',

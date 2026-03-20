@@ -1081,7 +1081,7 @@ export default function ProducerOverview() {
                   style={{ borderRadius: '12px', border: '1px solid #e7e5e4' }}
                 >
                   {proposal.product_image_url && (
-                    <img src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                    <img loading="lazy" src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate" style={{ color: '#0c0a09' }}>{proposal.product_name}</p>

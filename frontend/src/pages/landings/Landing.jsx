@@ -230,7 +230,7 @@ export default function Landing() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="bg-white rounded-2xl border border-stone-200 p-6"
               >
-                <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center mb-4">
+                <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center mb-4">
                   <Icon size={20} className="text-stone-950" />
                 </div>
                 <h3 className="text-base font-semibold text-stone-950 mb-2">

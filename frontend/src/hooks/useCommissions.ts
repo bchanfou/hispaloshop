@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { api } from '@/lib/api';
+import { api } from '../lib/api';
 
 export function useCommissions(status?: string) {
   const { data, error, isLoading, mutate } = useSWR(['/influencer/commissions', status], ([, st]) => api.getCommissions(st ? { status: st } : undefined), {

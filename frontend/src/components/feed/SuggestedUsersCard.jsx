@@ -112,7 +112,7 @@ export default function SuggestedUsersCard() {
           return (
             <div
               key={user.user_id}
-              className="flex w-[140px] shrink-0 flex-col items-center rounded-xl border border-stone-100 bg-white p-3"
+              className="flex w-[140px] shrink-0 flex-col items-center rounded-2xl border border-stone-100 bg-white p-3"
             >
               {/* Avatar */}
               <button

@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { api } from '@/lib/api';
+import { api } from '../lib/api';
 
 export function useProfile(username?: string) {
   const { data, error, isLoading, mutate } = useSWR(

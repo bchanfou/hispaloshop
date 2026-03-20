@@ -264,7 +264,7 @@ export default function ProductDetailPage() {
         <button
           type="button"
           onClick={() => navigate('/products')}
-          className="rounded-xl bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white"
+          className="rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white"
         >
           {t('productDetail.backToProducts')}
         </button>
@@ -480,7 +480,7 @@ export default function ProductDetailPage() {
 
         {/* Stock warnings */}
         {isOutOfStock && (
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-stone-100 px-3 py-2.5">
+          <div className="mt-3 flex items-center gap-2 rounded-2xl bg-stone-100 px-3 py-2.5">
             <AlertTriangle size={16} className="text-stone-500" />
             <span className="text-[13px] font-medium text-stone-500">
               {t('productDetail.outOfStock')}
@@ -488,7 +488,7 @@ export default function ProductDetailPage() {
           </div>
         )}
         {isLowStock && !isOutOfStock && (
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-stone-100 px-3 py-2.5">
+          <div className="mt-3 flex items-center gap-2 rounded-2xl bg-stone-100 px-3 py-2.5">
             <AlertTriangle size={16} className="text-stone-500" />
             <span className="text-[13px] font-medium text-stone-500">
               {t('productDetail.lowStockWarning', { count: stock })}
@@ -566,7 +566,7 @@ export default function ProductDetailPage() {
                   key={pack.pack_id || idx}
                   type="button"
                   onClick={() => setSelectedPack(isSelected ? null : pack)}
-                  className={`flex items-center justify-between rounded-xl px-3.5 py-3 transition-all duration-150 ${
+                  className={`flex items-center justify-between rounded-2xl px-3.5 py-3 transition-all duration-150 ${
                     isSelected
                       ? 'border-[1.5px] border-stone-950 bg-stone-100'
                       : 'border border-stone-200 bg-white'
@@ -606,7 +606,7 @@ export default function ProductDetailPage() {
         <span className="text-sm font-semibold text-stone-950">
           {t('productDetail.quantity', 'Cantidad')}
         </span>
-        <div className="flex items-center rounded-xl border border-stone-200">
+        <div className="flex items-center rounded-2xl border border-stone-200">
           <button
             type="button"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -643,7 +643,7 @@ export default function ProductDetailPage() {
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-stone-200 bg-stone-100">
             {storeInfo.logo ? (
-              <img src={storeInfo.logo} alt={storeInfo.name} className="h-full w-full object-cover" />
+              <img loading="lazy" src={storeInfo.logo} alt={storeInfo.name} className="h-full w-full object-cover" />
             ) : (
               <Store size={20} className="text-stone-500" />
             )}
@@ -752,7 +752,7 @@ export default function ProductDetailPage() {
                 ['sodium', t('certificate.sodium', 'Sodio'), 'mg'],
                 ['salt', t('certificate.salt', 'Sal'), 'g'],
               ].filter(([key]) => currentNutritionalInfo[key] !== undefined).map(([key, label, unit]) => (
-                <div key={key} className="rounded-xl bg-stone-100 p-2 text-center">
+                <div key={key} className="rounded-2xl bg-stone-100 p-2 text-center">
                   <p className="text-base font-semibold text-stone-950">
                     {currentNutritionalInfo[key]}{unit}
                   </p>
@@ -817,7 +817,7 @@ export default function ProductDetailPage() {
 
         {/* Review Form */}
         {showReviewForm && (
-          <div className="mb-4 rounded-xl border border-stone-200 bg-white p-4">
+          <div className="mb-4 rounded-2xl border border-stone-200 bg-white p-4">
             <p className="mb-3 text-sm font-semibold text-stone-950">
               {t('productDetail.yourReview', 'Tu reseña')}
             </p>
@@ -846,21 +846,21 @@ export default function ProductDetailPage() {
               placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia...')}
               aria-label="Comentario de la reseña"
               rows={3}
-              className="w-full resize-none rounded-xl border border-stone-200 bg-stone-100 px-3 py-2.5 text-[13px] text-stone-950 outline-none"
+              className="w-full resize-none rounded-2xl border border-stone-200 bg-stone-100 px-3 py-2.5 text-[13px] text-stone-950 outline-none"
             />
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
                 onClick={handleSubmitReview}
                 disabled={submittingReview}
-                className="min-h-[44px] rounded-xl bg-stone-950 px-5 py-2 text-[13px] font-semibold text-white disabled:opacity-50"
+                className="min-h-[44px] rounded-2xl bg-stone-950 px-5 py-2 text-[13px] font-semibold text-white disabled:opacity-50"
               >
                 {submittingReview ? 'Enviando...' : t('productDetail.submitReview', 'Enviar')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowReviewForm(false)}
-                className="min-h-[44px] rounded-xl border border-stone-200 px-5 py-2 text-[13px] font-medium text-stone-500"
+                className="min-h-[44px] rounded-2xl border border-stone-200 px-5 py-2 text-[13px] font-medium text-stone-500"
               >
                 {t('common.cancel', 'Cancelar')}
               </button>
@@ -872,7 +872,7 @@ export default function ProductDetailPage() {
         {reviews.length > 0 ? (
           <div className="flex flex-col gap-2.5">
             {reviews.slice(0, 3).map((review) => (
-              <div key={review.review_id || `${review.user_id}-${review.created_at}`} className="rounded-xl border border-stone-200 bg-white p-3.5">
+              <div key={review.review_id || `${review.user_id}-${review.created_at}`} className="rounded-2xl border border-stone-200 bg-white p-3.5">
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100">
@@ -903,7 +903,7 @@ export default function ProductDetailPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-stone-200 bg-white p-8 text-center">
+          <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center">
             <Star size={32} className="mx-auto mb-3 text-stone-200" />
             <p className="text-sm text-stone-500">
               {t('productDetail.noReviews', 'Aún no hay reseñas')}
@@ -990,7 +990,7 @@ export default function ProductDetailPage() {
                   to={`/products/${rpId}`}
                   className="w-[140px] shrink-0 [scroll-snap-align:start] no-underline"
                 >
-                  <div className="h-[140px] w-[140px] overflow-hidden rounded-xl bg-stone-100">
+                  <div className="h-[140px] w-[140px] overflow-hidden rounded-2xl bg-stone-100">
                     {rpImage ? (
                       <ProductImage src={rpImage} productName={rp.name} className="h-full w-full" imageClassName="" sizes="140px" />
                     ) : (

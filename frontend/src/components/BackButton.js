@@ -66,7 +66,7 @@ export default function BackButton({
         inline-flex items-center gap-2
         text-stone-600 hover:text-stone-950
         transition-colors duration-200
-        font-medium rounded-xl
+        font-medium rounded-2xl
         hover:bg-stone-100
         focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1
         ${sizeClasses[size]}

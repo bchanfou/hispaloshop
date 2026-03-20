@@ -86,17 +86,16 @@ function SkeletonGrid({ count = 9, columns = 3 }) {
 }
 
 /* ── Empty state ── */
-function EmptyState({ icon: Icon, title, buttonLabel, onButtonClick }) {
+function EmptyState({ icon: Icon, title, subtitle, buttonLabel, onButtonClick }) {
   return (
-    <div className="px-5 py-10 text-center">
-      <Icon size={40} className="mx-auto text-stone-500" />
-      <p className={`mt-3 ${buttonLabel ? 'text-[15px] font-medium text-stone-950' : 'text-sm text-stone-500'}`}>
-        {title}
-      </p>
+    <div className="flex flex-col items-center px-5 py-16 text-center">
+      <Icon size={48} className="text-stone-300" />
+      <p className="mt-4 text-lg font-semibold text-stone-950">{title}</p>
+      {subtitle && <p className="mt-1 text-sm text-stone-500">{subtitle}</p>}
       {buttonLabel && (
         <button
           onClick={onButtonClick}
-          className="mt-3 rounded-full bg-stone-950 px-5 py-2 text-sm font-medium text-white transition-all duration-150 active:scale-95"
+          className="mt-4 rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white transition-all duration-150 active:scale-95 hover:bg-stone-800"
         >
           {buttonLabel}
         </button>
@@ -326,7 +325,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') handleProductClick(); }}
               role="button"
               tabIndex={0}
-              className="cursor-pointer overflow-hidden rounded-xl border border-stone-200 bg-white"
+              className="cursor-pointer overflow-hidden rounded-2xl border border-stone-200 bg-white"
             >
               <img
                 src={src}
@@ -371,13 +370,13 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               onKeyDown={(e) => { if (e.key === 'Enter') navigate(recipeUrl); }}
               role="button"
               tabIndex={0}
-              className="cursor-pointer overflow-hidden rounded-xl border border-stone-200 bg-white"
+              className="cursor-pointer overflow-hidden rounded-2xl border border-stone-200 bg-white"
             >
               <img
                 src={src}
                 alt={recipe.name || recipe.title || 'Receta'}
                 loading="lazy"
-                className="block aspect-[4/3] w-full rounded-t-xl object-cover"
+                className="block aspect-[4/3] w-full rounded-t-2xl object-cover"
               />
               <div className="p-2">
                 <p className="truncate text-[13px] font-medium text-stone-950">
@@ -598,7 +597,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           {showMenu && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-              <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl bg-white shadow-lg border border-stone-100 overflow-hidden">
+              <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-2xl bg-white shadow-lg border border-stone-100 overflow-hidden">
                 <button
                   onClick={() => { onClose(); navigate(`/reels/${reelId}/edit`); }}
                   className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-50"

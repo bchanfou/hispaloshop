@@ -131,7 +131,7 @@ export default function ProducerProfile() {
     return (
       <div className="space-y-6">
         <div className="space-y-2">
-          <div className="h-8 w-48 bg-stone-100 rounded-xl animate-pulse" />
+          <div className="h-8 w-48 bg-stone-100 rounded-2xl animate-pulse" />
           <div className="h-4 w-72 bg-stone-100 rounded animate-pulse" />
         </div>
         <div className="flex gap-4 border-b border-stone-200 pb-4">
@@ -139,13 +139,13 @@ export default function ProducerProfile() {
             <div key={i} className="h-5 w-28 bg-stone-100 rounded animate-pulse" />
           ))}
         </div>
-        <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-2xl space-y-4">
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 max-w-2xl space-y-4">
           <div className="h-5 w-40 bg-stone-100 rounded animate-pulse" />
           <div className="grid grid-cols-2 gap-4">
             {[1,2,3,4,5,6].map(i => (
               <div key={i} className="space-y-1">
                 <div className="h-3 w-24 bg-stone-100 rounded animate-pulse" />
-                <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
+                <div className="h-10 bg-stone-100 rounded-2xl animate-pulse" />
               </div>
             ))}
           </div>
@@ -163,7 +163,7 @@ export default function ProducerProfile() {
         <button
           type="button"
           onClick={fetchProfile}
-          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors"
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-2xl transition-colors"
         >
           {t('common.retry', 'Reintentar')}
         </button>
@@ -219,7 +219,7 @@ export default function ProducerProfile() {
 
       {/* Company Info Tab */}
       {activeTab === 'company' && (
-        <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-2xl">
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 max-w-2xl">
           <h3 className="font-medium text-stone-950 mb-4 flex items-center gap-2">
             <Building2 className="w-5 h-5" /> {t('producer.companyDetails', 'Company Details')}
           </h3>
@@ -229,43 +229,43 @@ export default function ProducerProfile() {
               <label className="block text-sm font-medium text-stone-600 mb-1">
                 {t('producer.companyName', 'Company Name')}
               </label>
-              <input value={profile.company_name} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 bg-stone-50 focus:outline-none" />
+              <input value={profile.company_name} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 bg-stone-50 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">
                 {t('producer.vatCif', 'VAT/CIF')}
               </label>
-              <input value={profile.vat_cif} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 bg-stone-50 focus:outline-none" />
+              <input value={profile.vat_cif} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 bg-stone-50 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">
                 {t('producer.contactPerson', 'Contact Person')}
               </label>
-              <input value={profile.contact_person} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 bg-stone-50 focus:outline-none" />
+              <input value={profile.contact_person} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 bg-stone-50 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">
                 <Mail className="w-4 h-4 inline mr-1" /> {t('common.email', 'Email')}
               </label>
-              <input value={user?.email || ''} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 bg-stone-50 focus:outline-none" />
+              <input value={user?.email || ''} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 bg-stone-50 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">
                 <Phone className="w-4 h-4 inline mr-1" /> {t('common.phone', 'Phone')}
               </label>
-              <input value={profile.phone} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 bg-stone-50 focus:outline-none" />
+              <input value={profile.phone} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 bg-stone-50 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">
                 WhatsApp
               </label>
-              <input value={profile.whatsapp} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 bg-stone-50 focus:outline-none" />
+              <input value={profile.whatsapp} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 bg-stone-50 focus:outline-none" />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-stone-600 mb-1">
                 {t('producer.fiscalAddress', 'Fiscal Address')}
               </label>
-              <input value={profile.fiscal_address} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 bg-stone-50 focus:outline-none" />
+              <input value={profile.fiscal_address} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 bg-stone-50 focus:outline-none" />
             </div>
           </div>
 
@@ -279,7 +279,7 @@ export default function ProducerProfile() {
       {activeTab === 'addresses' && (
         <div className="space-y-6">
           {/* Office Address */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6" data-testid="office-address-section">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6" data-testid="office-address-section">
             <h3 className="font-medium text-stone-950 mb-4 flex items-center gap-2">
               <Building2 className="w-5 h-5" /> {t('producer.officeAddress', 'Office Address')}
             </h3>
@@ -297,7 +297,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setOfficeAddress({...officeAddress, full_name: e.target.value})}
                   placeholder={t('checkout.fullName', 'Full Name')}
                   data-testid="office-fullname"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -309,7 +309,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setOfficeAddress({...officeAddress, phone: e.target.value})}
                   placeholder="+34 600 000 000"
                   data-testid="office-phone"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div className="md:col-span-2">
@@ -321,7 +321,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setOfficeAddress({...officeAddress, street: e.target.value})}
                   placeholder={t('checkout.street', 'Street Address')}
                   data-testid="office-street"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -333,7 +333,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setOfficeAddress({...officeAddress, city: e.target.value})}
                   placeholder={t('checkout.city', 'City')}
                   data-testid="office-city"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -345,7 +345,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setOfficeAddress({...officeAddress, postal_code: e.target.value})}
                   placeholder={t('checkout.zip', 'Postal Code')}
                   data-testid="office-postal"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -357,14 +357,14 @@ export default function ProducerProfile() {
                   onChange={(e) => setOfficeAddress({...officeAddress, country: e.target.value})}
                   placeholder={t('checkout.country', 'Country')}
                   data-testid="office-country"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
           </div>
 
           {/* Warehouse Address */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6" data-testid="warehouse-address-section">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6" data-testid="warehouse-address-section">
             <h3 className="font-medium text-stone-950 mb-4 flex items-center gap-2">
               <Warehouse className="w-5 h-5" /> {t('producer.warehouseAddress', 'Warehouse Address')}
             </h3>
@@ -382,7 +382,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setWarehouseAddress({...warehouseAddress, full_name: e.target.value})}
                   placeholder={t('checkout.fullName', 'Full Name')}
                   data-testid="warehouse-fullname"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -394,7 +394,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setWarehouseAddress({...warehouseAddress, phone: e.target.value})}
                   placeholder="+34 600 000 000"
                   data-testid="warehouse-phone"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div className="md:col-span-2">
@@ -406,7 +406,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setWarehouseAddress({...warehouseAddress, street: e.target.value})}
                   placeholder={t('checkout.street', 'Street Address')}
                   data-testid="warehouse-street"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -418,7 +418,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setWarehouseAddress({...warehouseAddress, city: e.target.value})}
                   placeholder={t('checkout.city', 'City')}
                   data-testid="warehouse-city"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -430,7 +430,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setWarehouseAddress({...warehouseAddress, postal_code: e.target.value})}
                   placeholder={t('checkout.zip', 'Postal Code')}
                   data-testid="warehouse-postal"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -442,7 +442,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setWarehouseAddress({...warehouseAddress, country: e.target.value})}
                   placeholder={t('checkout.country', 'Country')}
                   data-testid="warehouse-country"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -454,7 +454,7 @@ export default function ProducerProfile() {
               type="button"
               onClick={saveAddresses}
               disabled={saving}
-              className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+              className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
               data-testid="save-addresses-btn"
             >
               <Save className="w-4 h-4 mr-2" />
@@ -468,13 +468,13 @@ export default function ProducerProfile() {
       {activeTab === 'account' && (
         <div className="space-y-6 max-w-2xl">
           {/* Danger Zone */}
-          <div className="bg-stone-50 rounded-xl border-2 border-stone-200 p-6">
+          <div className="bg-stone-50 rounded-2xl border-2 border-stone-200 p-6">
             <h3 className="font-medium text-stone-950 mb-4 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
               {t('profile.dangerZone', 'Danger Zone')}
             </h3>
 
-            <div className="p-4 bg-white rounded-xl border border-stone-200">
+            <div className="p-4 bg-white rounded-2xl border border-stone-200">
               <p className="font-medium text-stone-950">{t('profile.deleteAccount', 'Delete Account')}</p>
               <p className="text-sm text-stone-600 mt-1 mb-3">
                 {t('profile.deleteProducerWarning', 'This will deactivate your products and delete your account. You cannot delete if you have pending orders.')}
@@ -483,7 +483,7 @@ export default function ProducerProfile() {
                 type="button"
                 onClick={() => setShowDeleteModal(true)}
                 data-testid="delete-account-btn"
-                className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+                className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 {t('profile.deleteMyAccount', 'Delete My Account')}
@@ -497,7 +497,7 @@ export default function ProducerProfile() {
       {showDeleteModal && (
         <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-stone-100 rounded-full">
                 <AlertTriangle className="w-6 h-6 text-stone-700" />
@@ -522,7 +522,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setDeletePassword(e.target.value)}
                   placeholder="••••••••"
                   data-testid="delete-password-input"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
 
@@ -535,7 +535,7 @@ export default function ProducerProfile() {
                   onChange={(e) => setDeleteConfirmation(e.target.value.toUpperCase())}
                   placeholder="BORRAR"
                   data-testid="delete-confirmation-input"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 font-mono focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 font-mono focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -548,7 +548,7 @@ export default function ProducerProfile() {
                   setDeletePassword('');
                   setDeleteConfirmation('');
                 }}
-                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
               >
                 {t('common.cancel', 'Cancel')}
               </button>
@@ -557,7 +557,7 @@ export default function ProducerProfile() {
                 onClick={handleDeleteAccount}
                 disabled={deleting || deleteConfirmation !== 'DELETE' || !deletePassword}
                 data-testid="confirm-delete-btn"
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
               >
                 {deleting ? t('common.loading', 'Deleting...') : t('profile.deleteForever', 'Delete Forever')}
               </button>

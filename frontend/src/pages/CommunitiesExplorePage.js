@@ -181,7 +181,7 @@ export default function CommunitiesExplorePage() {
           isLoading ? (
             <div className="grid grid-cols-2 gap-2.5" aria-busy="true" aria-label="Cargando comunidades">
               {Array(6).fill(0).map((_, i) => (
-                <div key={i} aria-hidden="true" className="overflow-hidden rounded-xl border border-stone-100 bg-white">
+                <div key={i} aria-hidden="true" className="overflow-hidden rounded-2xl border border-stone-100 bg-white">
                   {/* Cover placeholder */}
                   <div className="aspect-[16/7] animate-pulse bg-stone-100" />
                   <div className="p-2.5 flex flex-col gap-2">
@@ -246,7 +246,7 @@ export default function CommunitiesExplorePage() {
 
         {/* ── CTA if can't create ── */}
         {!canCreate && filter !== 'joined' && communities.length > 0 && (
-          <div className="mt-5 rounded-xl border border-stone-200 bg-stone-100 p-4 text-center">
+          <div className="mt-5 rounded-2xl border border-stone-200 bg-stone-100 p-4 text-center">
             <p className="mb-1 text-sm font-bold text-stone-950">¿Quieres crear tu comunidad?</p>
             <p className="mb-1 text-[13px] text-stone-500">Consigue 100 seguidores o verifica tu cuenta de vendedor</p>
             <p className="text-xs text-stone-500">Tienes {user?.follower_count || 0}/100 seguidores</p>
@@ -309,7 +309,7 @@ const CommunityCard = React.memo(({ community, onToggled }) => {
 
   return (
     <Link to={`/communities/${community.slug || community.id || community._id}`} className="block no-underline">
-      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white transition-colors">
+      <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white transition-colors">
         {/* Cover */}
         <div className="relative aspect-[16/7] overflow-hidden">
           {community.cover_image ? (
@@ -360,7 +360,7 @@ const CommunityCard = React.memo(({ community, onToggled }) => {
 
 /* ── Row for "my communities" list ── */
 const CommunityRow = ({ community }) => (
-  <Link to={`/communities/${community.slug || community.id || community._id}`} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-3.5 no-underline">
+  <Link to={`/communities/${community.slug || community.id || community._id}`} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3.5 no-underline">
     <div className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full text-[22px] ${
       community.cover_image ? 'bg-stone-100' : stoneBg(community.name)
     }`}>

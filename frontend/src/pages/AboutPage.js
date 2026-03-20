@@ -147,7 +147,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {newFeatures.map((nf, i) => (
               <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 text-center hover:shadow-md transition-all">
-                <div className={`w-10 h-10 rounded-xl ${nf.color} flex items-center justify-center mx-auto mb-2`}>
+                <div className={`w-10 h-10 rounded-2xl ${nf.color} flex items-center justify-center mx-auto mb-2`}>
                   <nf.icon className="w-5 h-5" strokeWidth={1.5} />
                 </div>
                 <h3 className="font-semibold text-stone-950 text-sm mb-1">{nf.title}</h3>
@@ -162,7 +162,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((f, i) => (
               <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 hover:shadow-md transition-all" data-testid={`about-feature-${i}`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${f.color}`}>
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-3 ${f.color}`}>
                   <f.icon className="w-5 h-5" />
                 </div>
                 <h3 className="font-semibold text-stone-950 text-sm mb-1">{f.title}</h3>
@@ -189,7 +189,7 @@ export default function AboutPage() {
                 </ul>
                 <Link
                   to={a.to}
-                  className="inline-flex w-full items-center justify-center gap-1 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-950 hover:text-white"
+                  className="inline-flex w-full items-center justify-center gap-1 rounded-2xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-950 hover:text-white"
                 >
                   {a.cta} <ArrowRight className="w-3.5 h-3.5" />
                 </Link>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Search, MessageCircle, PenSquare, Trash2, ArrowLeft } from 'lucide-react';
-import { useChatContext } from '@/context/chat/ChatProvider';
+import { useChatContext } from '../../context/chat/ChatProvider';
 
 const SWIPE_HINT_KEY = 'chat_swipe_hint_shown';
 
@@ -91,10 +91,10 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) 
             <img
               src={avatar_url}
               alt={name}
-              className={`h-14 w-14 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
+              className={`h-14 w-14 object-cover ${isStore ? 'rounded-2xl' : 'rounded-full'}`}
             />
           ) : (
-            <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+            <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-2xl' : 'rounded-full'}`}>
               {getInitial(name)}
             </div>
           )}
@@ -262,10 +262,10 @@ export default function ChatsPage() {
                       <img
                         src={conv.avatar_url}
                         alt={conv.name}
-                        className={`h-14 w-14 object-cover ${isStore ? 'rounded-xl' : 'rounded-full'}`}
+                        className={`h-14 w-14 object-cover ${isStore ? 'rounded-2xl' : 'rounded-full'}`}
                       />
                     ) : (
-                      <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-xl' : 'rounded-full'}`}>
+                      <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-2xl' : 'rounded-full'}`}>
                         {getInitial(conv.name)}
                       </div>
                     )}

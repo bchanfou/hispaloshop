@@ -95,7 +95,7 @@ function ProductCard({ product, variant = 'default' }) {
     return (
       <Link
         to={`/products/${productId}`}
-        className="group block overflow-hidden rounded-xl bg-white"
+        className="group block overflow-hidden rounded-2xl bg-white"
         style={{ border: '0.5px solid #e7e5e4' }}
         data-testid={`product-card-${productId}`}
       >
@@ -136,7 +136,7 @@ function ProductCard({ product, variant = 'default' }) {
   return (
     <Link
       to={`/products/${productId}`}
-      className="group block overflow-hidden rounded-xl bg-white"
+      className="group block overflow-hidden rounded-2xl bg-white"
       style={{ border: '0.5px solid #e7e5e4' }}
       data-testid={`product-card-${productId}`}
     >

@@ -233,9 +233,9 @@ export default function UserProfilePage() {
           <div className="mt-3 h-3.5 w-1/3 bg-stone-100 rounded animate-pulse" />
           <div className="mt-2 h-3 w-[60%] bg-stone-100 rounded animate-pulse" />
           <div className="mt-3 flex gap-1.5">
-            <div className="h-[34px] flex-1 bg-stone-100 rounded-xl animate-pulse" />
-            <div className="h-[34px] flex-1 bg-stone-100 rounded-xl animate-pulse" />
-            <div className="h-[34px] w-[34px] bg-stone-100 rounded-xl animate-pulse" />
+            <div className="h-[34px] flex-1 bg-stone-100 rounded-2xl animate-pulse" />
+            <div className="h-[34px] flex-1 bg-stone-100 rounded-2xl animate-pulse" />
+            <div className="h-[34px] w-[34px] bg-stone-100 rounded-2xl animate-pulse" />
           </div>
         </div>
         <div className="mt-2 flex border-t border-stone-200">
@@ -456,7 +456,7 @@ function CreateHighlightSheet({ onClose, onCreate }) {
   return (
     <div className="fixed inset-0 z-[9998]" role="dialog" aria-modal="true" aria-label="Nuevo destacado">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white px-5 pb-8 pt-4" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white px-5 pb-8 pt-4" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
         <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-stone-200 shrink-0" />
 
         {step === 'select' && (
@@ -530,7 +530,7 @@ function CreateHighlightSheet({ onClose, onCreate }) {
               <div className="relative">
                 <div className="w-20 h-20 rounded-full overflow-hidden bg-stone-100 ring-[1.5px] ring-stone-200 ring-offset-2 ring-offset-white">
                   {coverUrl ? (
-                    <img src={coverUrl} alt="Portada" className="w-full h-full object-cover" />
+                    <img loading="lazy" src={coverUrl} alt="Portada" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <ImageIcon size={28} className="text-stone-400" />
@@ -560,7 +560,7 @@ function CreateHighlightSheet({ onClose, onCreate }) {
               maxLength={30}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mb-4 w-full rounded-xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-stone-400"
+              className="mb-4 w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-stone-400"
               autoFocus
             />
 
@@ -569,14 +569,14 @@ function CreateHighlightSheet({ onClose, onCreate }) {
             <div className="flex gap-2">
               <button
                 onClick={onClose}
-                className="flex-1 rounded-xl bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                className="flex-1 rounded-2xl bg-stone-100 py-3 text-sm font-semibold text-stone-950"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!title.trim()}
-                className="flex-1 rounded-xl bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40"
+                className="flex-1 rounded-2xl bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40"
               >
                 Crear
               </button>

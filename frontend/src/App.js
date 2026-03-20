@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import '@/App.css';
+import './App.css';
 import './locales/i18n';
 import { trackPageVisit } from './utils/analytics';
 

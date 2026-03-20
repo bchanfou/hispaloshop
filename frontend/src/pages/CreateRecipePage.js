@@ -158,7 +158,7 @@ export default function CreateRecipePage() {
           onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
-          className={`relative h-[130px] overflow-hidden rounded-xl ${dragActive ? 'border-2 border-dashed border-stone-400' : ''}`}
+          className={`relative h-[130px] overflow-hidden rounded-2xl ${dragActive ? 'border-2 border-dashed border-stone-400' : ''}`}
           style={{ background: recipe.image_url ? undefined : 'linear-gradient(135deg, #f5f5f4, #fafaf9)' }}
         >
           {recipe.image_url ? (
@@ -169,7 +169,7 @@ export default function CreateRecipePage() {
               </button>
             </>
           ) : (
-            <button type="button" onClick={() => imageInputRef.current?.click()} className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-xl bg-white/90 px-4 py-2.5 text-xs font-medium text-stone-950 border-none cursor-pointer">
+            <button type="button" onClick={() => imageInputRef.current?.click()} className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-2xl bg-white/90 px-4 py-2.5 text-xs font-medium text-stone-950 border-none cursor-pointer">
               <Camera size={15} /> Foto de portada
             </button>
           )}
@@ -189,7 +189,7 @@ export default function CreateRecipePage() {
         {/* Metadata grid */}
         <div className="mb-5 grid grid-cols-3 gap-2">
           {/* Time */}
-          <div className="rounded-xl border border-stone-200 bg-white p-2.5 text-center">
+          <div className="rounded-2xl border border-stone-200 bg-white p-2.5 text-center">
             <Clock size={14} className="mx-auto mb-1 text-stone-400" />
             <div className="flex items-baseline justify-center gap-0.5">
               <input type="number" value={recipe.time_minutes} onChange={(e) => updateRecipe('time_minutes', Number(e.target.value) || 0)} data-testid="recipe-time" aria-label="Tiempo en minutos" className="w-9 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
@@ -198,13 +198,13 @@ export default function CreateRecipePage() {
           </div>
 
           {/* Difficulty */}
-          <button type="button" onClick={cycleDifficulty} data-testid="recipe-difficulty" aria-label={`Dificultad: ${diff.label}`} className="rounded-xl border border-stone-200 bg-white p-2.5 text-center cursor-pointer">
+          <button type="button" onClick={cycleDifficulty} data-testid="recipe-difficulty" aria-label={`Dificultad: ${diff.label}`} className="rounded-2xl border border-stone-200 bg-white p-2.5 text-center cursor-pointer">
             <div className="text-[10px] text-stone-400 mb-1">Dificultad</div>
             <div className={`text-[13px] font-semibold ${diff.tw}`}>{diff.label}</div>
           </button>
 
           {/* Servings */}
-          <div className="rounded-xl border border-stone-200 bg-white p-2.5 text-center">
+          <div className="rounded-2xl border border-stone-200 bg-white p-2.5 text-center">
             <Users size={14} className="mx-auto mb-1 text-stone-400" />
             <div className="flex items-baseline justify-center gap-0.5">
               <input type="number" value={recipe.servings} onChange={(e) => updateRecipe('servings', Number(e.target.value) || 1)} data-testid="recipe-servings" aria-label="Número de raciones" className="w-7 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
@@ -220,7 +220,7 @@ export default function CreateRecipePage() {
           {recipe.ingredients.map((ingredient, index) => (
             <div key={`${ingredient.name}-${index}`} className={`flex items-center gap-2.5 py-2 ${index < recipe.ingredients.length - 1 ? 'border-b border-stone-200' : ''}`}>
               {ingredient.product_id && (ingredient.product?.images?.[0] || ingredient.product?.image) && (
-                <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} loading="lazy" className="h-7 w-7 shrink-0 rounded-xl object-cover" />
+                <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} loading="lazy" className="h-7 w-7 shrink-0 rounded-2xl object-cover" />
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
@@ -246,7 +246,7 @@ export default function CreateRecipePage() {
           {!suggestionLoading && ingredientSuggestions.length > 0 && (
             <div className="my-1.5">
               {ingredientSuggestions.map((product) => (
-                <button key={product.product_id} type="button" onClick={() => addProductIngredient({ ...product, images: product.image ? [product.image] : [] })} className="mb-1 flex w-full items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 p-2.5 text-left cursor-pointer hover:bg-stone-100 transition-colors">
+                <button key={product.product_id} type="button" onClick={() => addProductIngredient({ ...product, images: product.image ? [product.image] : [] })} className="mb-1 flex w-full items-center gap-2 rounded-2xl border border-stone-200 bg-stone-50 p-2.5 text-left cursor-pointer hover:bg-stone-100 transition-colors">
                   <div className="h-7 w-7 shrink-0 overflow-hidden rounded-md bg-white">
                     {product.image ? <img src={resolveUserImage(product.image)} alt={product.name} loading="lazy" className="h-full w-full object-cover" /> : null}
                   </div>
@@ -295,10 +295,10 @@ export default function CreateRecipePage() {
                   onChange={(e) => updateStep(index, 'text', e.target.value)}
                   placeholder={t('recipes.stepPlaceholder', 'Describe este paso')}
                   aria-label={`Paso ${index + 1}`}
-                  className="w-full min-h-[70px] resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
+                  className="w-full min-h-[70px] resize-none rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
                 />
                 {step.image_url ? (
-                  <div className="relative mt-1.5 overflow-hidden rounded-xl">
+                  <div className="relative mt-1.5 overflow-hidden rounded-2xl">
                     <img src={step.image_url} alt={`Paso ${index + 1}`} className="h-[120px] w-full object-cover" />
                     <button type="button" onClick={() => updateStep(index, 'image_url', '')} aria-label={`Eliminar imagen del paso ${index + 1}`} className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white border-none cursor-pointer">
                       <X size={14} />
@@ -335,13 +335,13 @@ export default function CreateRecipePage() {
               onChange={(e) => updateRecipe('description', e.target.value)}
               placeholder="Cuenta qué hace especial esta receta..."
               aria-label="Descripción de la receta"
-              className="mt-2 w-full min-h-[90px] resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
+              className="mt-2 w-full min-h-[90px] resize-none rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
             />
           )}
         </div>
 
         {/* David AI card */}
-        <div className="mb-4 rounded-xl border border-stone-200 bg-stone-50 p-4">
+        <div className="mb-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
           <p className="mb-2 text-sm text-stone-950 leading-relaxed">✨ David AI puede ayudarte con:</p>
           <ul className="mb-3 pl-4 text-sm text-stone-500 leading-relaxed">
             <li>Una introducción para tu receta</li>

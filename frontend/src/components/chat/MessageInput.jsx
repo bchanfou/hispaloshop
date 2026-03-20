@@ -45,11 +45,11 @@ export default function MessageInput({ onSend, onTyping, replyingTo, onClearRepl
             setValue(e.target.value);
             onTyping?.(Boolean(e.target.value));
           }}
-          className="flex-1 border border-stone-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-stone-300"
+          className="flex-1 border border-stone-200 rounded-2xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-stone-300"
           placeholder={replyingTo ? 'Responder...' : 'Escribe un mensaje...'}
         />
         <button
-          className="bg-stone-950 hover:bg-stone-800 text-white px-4 rounded-xl transition-colors"
+          className="bg-stone-950 hover:bg-stone-800 text-white px-4 rounded-2xl transition-colors"
           type="submit"
           aria-label="Enviar mensaje"
         >

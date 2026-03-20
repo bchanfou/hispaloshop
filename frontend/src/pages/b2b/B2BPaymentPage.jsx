@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Loader2, Shield, Check, AlertCircle } from 'lucide-react';
-import apiClient from '@/services/api/client';
-import { useAuth } from '@/context/AuthContext';
+import apiClient from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 
 const V2 = {

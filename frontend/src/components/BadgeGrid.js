@@ -37,7 +37,7 @@ function BadgeItem({ badge }) {
 
   return (
     <div
-      className={`relative flex flex-col items-center p-3 rounded-xl border transition-all ${
+      className={`relative flex flex-col items-center p-3 rounded-2xl border transition-all ${
         badge.earned
           ? `${colors.bg} ${colors.border} shadow-sm`
           : 'bg-stone-50 border-stone-200 opacity-60'

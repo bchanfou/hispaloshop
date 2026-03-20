@@ -146,7 +146,7 @@ export default function AdminLayoutResponsive() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
+                `flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-200 text-sm ${
                   isActive
                     ? 'bg-stone-100 text-stone-950 font-medium'
                     : 'text-stone-600 hover:bg-stone-100'
@@ -254,12 +254,12 @@ export default function AdminLayoutResponsive() {
               to={item.to}
               onClick={() => setMoreMenuOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-4 p-4 rounded-xl transition-colors ${
+                `flex items-center gap-4 p-4 rounded-2xl transition-colors ${
                   isActive ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-100'
                 }`
               }
             >
-              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center">
                 <item.icon className="w-5 h-5" strokeWidth={1.5} />
               </div>
               <div className="flex-1">
@@ -279,9 +279,9 @@ export default function AdminLayoutResponsive() {
               setMoreMenuOpen(false);
               handleLogout();
             }}
-            className="flex items-center gap-4 p-4 rounded-xl hover:bg-stone-100 w-full text-left"
+            className="flex items-center gap-4 p-4 rounded-2xl hover:bg-stone-100 w-full text-left"
           >
-            <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center">
               <LogOut className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
             </div>
             <div>

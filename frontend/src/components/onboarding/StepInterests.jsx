@@ -93,7 +93,7 @@ export default function StepInterests({ data, onUpdate, onNext }) {
         <button
           onClick={handleNext}
           disabled={!canProceed}
-          className="px-6 py-3 bg-stone-950 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-colors"
+          className="px-6 py-3 bg-stone-950 text-white rounded-2xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-colors"
         >
           Siguiente
         </button>

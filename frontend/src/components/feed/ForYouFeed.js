@@ -10,9 +10,9 @@ import PostCard from './PostCard';
 import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
 import SuggestedUsersCard from './SuggestedUsersCard';
-import { useForYouFeed, useLikePost, feedKeys } from '@/features/feed/queries';
-import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import PullIndicator from '@/components/ui/PullIndicator';
+import { useForYouFeed, useLikePost, feedKeys } from '../../features/feed/queries';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
+import PullIndicator from '../../components/ui/PullIndicator';
 
 export default function ForYouFeed() {
   const { t } = useTranslation();

@@ -17,10 +17,10 @@ function ProductCard({ product, convertAndFormatPrice }) {
   return (
     <div
       onClick={() => navigate(`/products/${product.id || product.product_id}`)}
-      className="bg-white rounded-xl border border-stone-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+      className="bg-white rounded-2xl border border-stone-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
     >
       {product.image_url ? (
-        <img src={product.image_url} alt={product.name || 'Producto'} className="w-full h-40 object-cover" />
+        <img loading="lazy" src={product.image_url} alt={product.name || 'Producto'} className="w-full h-40 object-cover" />
       ) : (
         <div className="w-full h-40 bg-stone-100 flex items-center justify-center">
           <Package className="w-8 h-8 text-stone-300" />
@@ -46,10 +46,10 @@ function ProductCard({ product, convertAndFormatPrice }) {
 
 function ProducerCard({ producer, onContact, onChat }) {
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-4">
+    <div className="bg-white rounded-2xl border border-stone-200 p-4">
       <div className="flex items-start gap-3">
         {producer.profile_image ? (
-          <img src={producer.profile_image} alt={producer.full_name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+          <img loading="lazy" src={producer.profile_image} alt={producer.full_name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
         ) : (
           <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0">
             <span className="text-stone-950 font-bold text-lg">{(producer.full_name || producer.company_name || 'P')[0]}</span>
@@ -91,13 +91,13 @@ function ProducerCard({ producer, onContact, onChat }) {
       <div className="mt-3 flex gap-2">
         <button
           onClick={() => onContact(producer.user_id || producer.id)}
-          className="flex-1 py-2 bg-stone-950 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-1"
+          className="flex-1 py-2 bg-stone-950 text-white rounded-2xl text-sm font-medium flex items-center justify-center gap-1"
         >
           Cotizar <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onChat(producer.user_id || producer.id)}
-          className="flex-1 py-2 border border-stone-200 text-stone-600 rounded-xl text-sm font-medium flex items-center justify-center gap-1"
+          className="flex-1 py-2 border border-stone-200 text-stone-600 rounded-2xl text-sm font-medium flex items-center justify-center gap-1"
         >
           Chat <MessageSquare className="w-4 h-4" />
         </button>
@@ -153,7 +153,7 @@ export default function B2BMarketplacePage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={activeTab === 'catalog' ? 'Buscar productos...' : 'Buscar productores...'}
-              className="w-full pl-9 pr-4 py-2.5 bg-stone-100 rounded-xl text-sm focus:outline-none focus:border-stone-950"
+              className="w-full pl-9 pr-4 py-2.5 bg-stone-100 rounded-2xl text-sm focus:outline-none focus:border-stone-950"
             />
           </div>
         )}
@@ -184,7 +184,7 @@ export default function B2BMarketplacePage() {
           <>
             {catalogQuery.isLoading ? (
               <div className="grid grid-cols-2 gap-3">
-                {[0,1,2,3].map(i => <div key={i} className="h-60 rounded-xl bg-stone-100 animate-pulse" />)}
+                {[0,1,2,3].map(i => <div key={i} className="h-60 rounded-2xl bg-stone-100 animate-pulse" />)}
               </div>
             ) : catalogQuery.isError ? (
               <div className="text-center py-16 text-stone-500">
@@ -193,7 +193,7 @@ export default function B2BMarketplacePage() {
                 <p className="text-sm mt-1">Completa tu perfil de importador para acceder</p>
                 <button
                   onClick={() => catalogQuery.refetch()}
-                  className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+                  className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
                 >
                   Reintentar
                 </button>
@@ -217,7 +217,7 @@ export default function B2BMarketplacePage() {
           <>
             {producersQuery.isLoading ? (
               <div className="space-y-3">
-                {[0,1,2].map(i => <div key={i} className="h-32 rounded-xl bg-stone-100 animate-pulse" />)}
+                {[0,1,2].map(i => <div key={i} className="h-32 rounded-2xl bg-stone-100 animate-pulse" />)}
               </div>
             ) : producersQuery.isError ? (
               <div className="text-center py-16 text-stone-500">
@@ -225,7 +225,7 @@ export default function B2BMarketplacePage() {
                 <p className="font-medium">Sin acceso al directorio de productores</p>
                 <button
                   onClick={() => producersQuery.refetch()}
-                  className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+                  className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
                 >
                   Reintentar
                 </button>
@@ -252,7 +252,7 @@ export default function B2BMarketplacePage() {
 
         {activeTab === 'rfq' && (
           <div className="space-y-4">
-            <div className="bg-stone-50 border border-stone-200 rounded-xl p-4">
+            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4">
               <div className="flex items-start gap-3">
                 <Tag className="w-5 h-5 text-stone-600 flex-shrink-0 mt-0.5" />
                 <div>

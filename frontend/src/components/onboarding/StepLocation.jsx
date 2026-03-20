@@ -61,7 +61,7 @@ export default function StepLocation({ data, onUpdate, onNext, onBack }) {
       <button
         onClick={useCurrentLocation}
         disabled={loadingLocation}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-100 text-stone-950 rounded-xl font-medium hover:bg-stone-200 transition-colors"
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-100 text-stone-950 rounded-2xl font-medium hover:bg-stone-200 transition-colors"
       >
         <Navigation className="w-5 h-5" />
         {loadingLocation ? 'Detectando...' : 'Usar mi ubicación actual'}
@@ -89,13 +89,13 @@ export default function StepLocation({ data, onUpdate, onNext, onBack }) {
               onChange={handleZipChange}
               placeholder="41001"
               maxLength={5}
-              className="w-full pl-10 pr-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950"
+              className="w-full pl-10 pr-4 py-3 border border-stone-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-950"
             />
           </div>
         </div>
 
         {city && (
-          <div className="p-3 bg-stone-100 rounded-xl">
+          <div className="p-3 bg-stone-100 rounded-2xl">
             <p className="text-sm text-stone-950">
               <strong>Ciudad detectada:</strong> {city}, España
             </p>
@@ -119,7 +119,7 @@ export default function StepLocation({ data, onUpdate, onNext, onBack }) {
           </button>
           <button
             onClick={handleNext}
-            className="px-6 py-3 bg-stone-950 text-white rounded-xl font-medium hover:bg-stone-800 transition-colors"
+            className="px-6 py-3 bg-stone-950 text-white rounded-2xl font-medium hover:bg-stone-800 transition-colors"
           >
             Siguiente
           </button>

@@ -17,7 +17,7 @@ const FAQAccordion = ({ faqs }) => {
         const panelId = `faq-panel-${index}`;
 
         return (
-          <div key={index} className="overflow-hidden rounded-xl border border-stone-200 bg-white">
+          <div key={index} className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
             <button
               id={buttonId}
               type="button"

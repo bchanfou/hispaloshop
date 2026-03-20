@@ -66,7 +66,7 @@ export default function HealthScoreHero({
             {Object.entries(breakdown).map(([key, item]) => (
               <div 
                 key={key} 
-                className="bg-white/10 backdrop-blur-sm rounded-xl p-2 text-center"
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 text-center"
               >
                 <div className="text-lg font-bold">{item.score}</div>
                 <div className="text-[10px] opacity-80 uppercase tracking-wider">{item.label}</div>

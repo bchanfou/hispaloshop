@@ -218,7 +218,7 @@ export default function OrdersPage() {
                           background: '#f5f5f4', overflow: 'hidden', flexShrink: 0,
                         }}>
                           {(item.image || item.product_image) && (
-                            <img src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img loading="lazy" src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           )}
                         </div>
                         <div style={{ minWidth: 0 }}>

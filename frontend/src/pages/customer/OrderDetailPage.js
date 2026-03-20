@@ -257,7 +257,7 @@ export default function OrderDetailPage() {
                 background: '#f5f5f4', overflow: 'hidden', flexShrink: 0,
               }}>
                 {(item.image || item.product_image) && (
-                  <img src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img loading="lazy" src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -338,7 +338,7 @@ export default function OrderDetailPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {order.seller_avatar ? (
-                  <img src={order.seller_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img loading="lazy" src={order.seller_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <Package size={18} color="#78716c" />
                 )}

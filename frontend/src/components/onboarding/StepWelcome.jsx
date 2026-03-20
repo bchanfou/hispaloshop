@@ -62,9 +62,9 @@ export default function StepWelcome({ userName }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             onClick={option.action}
-            className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-stone-200 hover:border-stone-950 transition-colors text-left"
+            className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-stone-200 hover:border-stone-950 transition-colors text-left"
           >
-            <div className={`w-12 h-12 ${option.color} rounded-xl flex items-center justify-center`}>
+            <div className={`w-12 h-12 ${option.color} rounded-2xl flex items-center justify-center`}>
               <option.icon className="w-6 h-6 text-white" />
             </div>
             <div>

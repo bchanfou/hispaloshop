@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search } from 'lucide-react';
-import { useChatContext } from '@/context/chat/ChatProvider';
-import { useAuth } from '@/context/AuthContext';
-import apiClient from '@/services/api/client';
+import { useChatContext } from '../../context/chat/ChatProvider';
+import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../services/api/client';
 
 const ROLE_LABELS = {
   producer: 'Productor',
@@ -197,7 +197,7 @@ export default function NewConversationPage() {
                     src={u.avatar || u.profile_image}
                     name={u.name || u.username}
                     size="h-11 w-11"
-                    rounded={isStore ? 'rounded-xl' : 'rounded-full'}
+                    rounded={isStore ? 'rounded-2xl' : 'rounded-full'}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
@@ -272,7 +272,7 @@ export default function NewConversationPage() {
                         src={s.avatar || s.profile_image || s.logo}
                         name={s.name || s.store_name}
                         size="h-10 w-10"
-                        rounded="rounded-xl"
+                        rounded="rounded-2xl"
                       />
                       <span className="mt-1 w-full truncate text-center text-[11px] text-stone-950">
                         {s.name || s.store_name || ''}

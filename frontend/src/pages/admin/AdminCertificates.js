@@ -174,7 +174,7 @@ export default function AdminCertificates() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Certificate Details */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-stone-200 p-6">
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-6">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-stone-950 mb-1">
@@ -195,7 +195,7 @@ export default function AdminCertificates() {
 
             {/* Rejection Reason */}
             {status === 'rejected' && selectedCert.rejection_reason && (
-              <div className="mb-6 bg-stone-50 border border-stone-200 rounded-xl p-4">
+              <div className="mb-6 bg-stone-50 border border-stone-200 rounded-2xl p-4">
                 <p className="text-sm font-medium text-stone-700 mb-1">
                   {t('certificates.rejectionReason', 'Motivo del rechazo')}:
                 </p>
@@ -205,7 +205,7 @@ export default function AdminCertificates() {
 
             {/* Document Link */}
             {selectedCert.document_url && (
-              <div className="mb-6 p-4 bg-stone-50 rounded-xl">
+              <div className="mb-6 p-4 bg-stone-50 rounded-2xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileText className="w-5 h-5 text-stone-950" />
@@ -254,7 +254,7 @@ export default function AdminCertificates() {
                   type="button"
                   onClick={() => approveCertificate(selectedCert.certificate_id)}
                   disabled={actionLoading}
-                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
                   data-testid="approve-certificate"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
@@ -268,7 +268,7 @@ export default function AdminCertificates() {
                     setActionCert(selectedCert);
                     setShowRejectModal(true);
                   }}
-                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
+                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-2xl transition-colors"
                 >
                   <XCircle className="w-4 h-4 mr-2" />
                   {t('certificates.reject', 'Rechazar')}
@@ -280,7 +280,7 @@ export default function AdminCertificates() {
                   setActionCert(selectedCert);
                   setShowDeleteModal(true);
                 }}
-                className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 rounded-xl transition-colors"
+                className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 rounded-2xl transition-colors"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 {t('common.delete', 'Eliminar')}
@@ -289,7 +289,7 @@ export default function AdminCertificates() {
           </div>
 
           {/* History Panel */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6">
             <h3 className="font-medium text-stone-950 mb-4 flex items-center gap-2">
               <History className="w-5 h-5" />
               {t('certificates.history', 'Historial de cambios')}
@@ -338,14 +338,14 @@ export default function AdminCertificates() {
             placeholder={t('certificates.searchPlaceholder', 'Buscar por producto o productor...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
             data-testid="search-input"
           />
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 rounded-xl border border-stone-200 bg-white min-w-[160px]"
+          className="px-4 py-2 rounded-2xl border border-stone-200 bg-white min-w-[160px]"
           data-testid="status-filter"
         >
           <option value="all">{t('certificates.filterAll', 'Todos')}</option>
@@ -357,23 +357,23 @@ export default function AdminCertificates() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl border border-stone-200 p-4">
           <p className="text-2xl font-bold text-stone-950">{certificates.length}</p>
           <p className="text-sm text-stone-500">{t('certificates.total', 'Total')}</p>
         </div>
-        <div className="bg-stone-50 rounded-xl border border-stone-200 p-4">
+        <div className="bg-stone-50 rounded-2xl border border-stone-200 p-4">
           <p className="text-2xl font-bold text-stone-950">
             {certificates.filter(c => getStatus(c) === 'pending').length}
           </p>
           <p className="text-sm text-stone-500">{t('certificates.pending', 'Pendientes')}</p>
         </div>
-        <div className="bg-stone-50 rounded-xl border border-stone-200 p-4">
+        <div className="bg-stone-50 rounded-2xl border border-stone-200 p-4">
           <p className="text-2xl font-bold text-stone-950">
             {certificates.filter(c => getStatus(c) === 'approved').length}
           </p>
           <p className="text-sm text-stone-500">{t('certificates.approved', 'Aprobados')}</p>
         </div>
-        <div className="bg-stone-50 rounded-xl border border-stone-200 p-4">
+        <div className="bg-stone-50 rounded-2xl border border-stone-200 p-4">
           <p className="text-2xl font-bold text-stone-950">
             {certificates.filter(c => getStatus(c) === 'rejected').length}
           </p>
@@ -382,7 +382,7 @@ export default function AdminCertificates() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-stone-500">
             {t('common.loading', 'Cargando...')}
@@ -446,7 +446,7 @@ export default function AdminCertificates() {
                               setSelectedCert(cert);
                               fetchHistory(cert.certificate_id);
                             }}
-                            className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                            className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
                             data-testid={`view-${cert.certificate_id}`}
                           >
                             <Eye className="w-4 h-4 md:mr-1" />
@@ -457,7 +457,7 @@ export default function AdminCertificates() {
                               type="button"
                               onClick={() => approveCertificate(cert.certificate_id)}
                               disabled={actionLoading}
-                              className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                              className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
                             >
                               <CheckCircle className="w-4 h-4" />
                             </button>
@@ -468,7 +468,7 @@ export default function AdminCertificates() {
                               setActionCert(cert);
                               setShowDeleteModal(true);
                             }}
-                            className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
+                            className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-2xl transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -495,7 +495,7 @@ export default function AdminCertificates() {
                   {t('certificates.rejectCertificate', 'Rechazar Certificado')}
                 </h3>
               </div>
-              <button type="button" onClick={() => { setShowRejectModal(false); setRejectReason(''); setActionCert(null); }} className="p-1 rounded-xl hover:bg-stone-100 transition-colors">
+              <button type="button" onClick={() => { setShowRejectModal(false); setRejectReason(''); setActionCert(null); }} className="p-1 rounded-2xl hover:bg-stone-100 transition-colors">
                 <X className="w-5 h-5 text-stone-500" />
               </button>
             </div>
@@ -510,14 +510,14 @@ export default function AdminCertificates() {
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder={t('certificates.rejectReasonPlaceholder', 'Ej: Documento ilegible, información incompleta, certificado expirado...')}
-                className="w-full px-4 py-3 rounded-xl border border-stone-200 min-h-[100px] focus:outline-none focus:border-stone-950 focus:ring-2 focus:ring-stone-200 resize-none"
+                className="w-full px-4 py-3 rounded-2xl border border-stone-200 min-h-[100px] focus:outline-none focus:border-stone-950 focus:ring-2 focus:ring-stone-200 resize-none"
               />
             </div>
             <div className="flex gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => { setShowRejectModal(false); setRejectReason(''); setActionCert(null); }}
-                className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
               >
                 {t('common.cancel', 'Cancelar')}
               </button>
@@ -525,7 +525,7 @@ export default function AdminCertificates() {
                 type="button"
                 onClick={rejectCertificate}
                 disabled={actionLoading || !rejectReason.trim()}
-                className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
               >
                 {actionLoading ? t('common.processing', 'Procesando...') : t('certificates.reject', 'Rechazar')}
               </button>
@@ -547,7 +547,7 @@ export default function AdminCertificates() {
                   {t('certificates.deleteCertificate', 'Eliminar Certificado')}
                 </h3>
               </div>
-              <button type="button" onClick={() => { setShowDeleteModal(false); setActionCert(null); }} className="p-1 rounded-xl hover:bg-stone-100 transition-colors">
+              <button type="button" onClick={() => { setShowDeleteModal(false); setActionCert(null); }} className="p-1 rounded-2xl hover:bg-stone-100 transition-colors">
                 <X className="w-5 h-5 text-stone-500" />
               </button>
             </div>
@@ -555,7 +555,7 @@ export default function AdminCertificates() {
               {t('certificates.deleteWarning', '¿Estás seguro? Esta acción no se puede deshacer.')}
             </p>
             {actionCert && (
-              <div className="bg-stone-50 rounded-xl p-4 mb-4">
+              <div className="bg-stone-50 rounded-2xl p-4 mb-4">
                 <p className="font-medium text-stone-950">{actionCert.product_name}</p>
                 <p className="text-sm text-stone-500">{actionCert.producer_name}</p>
                 <p className="text-xs text-stone-500 font-mono mt-1">{actionCert.certificate_id}</p>
@@ -565,7 +565,7 @@ export default function AdminCertificates() {
               <button
                 type="button"
                 onClick={() => { setShowDeleteModal(false); setActionCert(null); }}
-                className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
               >
                 {t('common.cancel', 'Cancelar')}
               </button>
@@ -573,7 +573,7 @@ export default function AdminCertificates() {
                 type="button"
                 onClick={deleteCertificate}
                 disabled={actionLoading}
-                className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
               >
                 {actionLoading ? t('common.processing', 'Procesando...') : t('common.delete', 'Eliminar')}
               </button>

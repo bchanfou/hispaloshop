@@ -13,7 +13,7 @@ export default function ProductCardMessage({ product }) {
   const priceCents = Number(product.price_cents) || 0;
 
   return (
-    <div className="max-w-sm rounded-xl border border-stone-200 bg-white p-3">
+    <div className="max-w-sm rounded-2xl border border-stone-200 bg-white p-3">
       {product.image_url && !imgError ? (
         <img
           src={product.image_url}

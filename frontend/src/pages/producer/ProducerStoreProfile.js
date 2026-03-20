@@ -53,10 +53,10 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-stone-600">{label}</label>
-      <div className={`relative ${aspectRatio} rounded-xl border-2 border-dashed border-stone-200 overflow-hidden bg-stone-50`}>
+      <div className={`relative ${aspectRatio} rounded-2xl border-2 border-dashed border-stone-200 overflow-hidden bg-stone-50`}>
         {value ? (
           <>
-            <img src={value} alt={label} className="w-full h-full object-cover" />
+            <img loading="lazy" src={value} alt={label} className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => onChange('')}
@@ -137,8 +137,8 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
       </label>
       <div className="grid grid-cols-3 gap-3">
         {images.map((img, idx) => (
-          <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-stone-200">
-            <img src={img} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
+          <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-stone-200">
+            <img loading="lazy" src={img} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => removeImage(idx)}
@@ -155,7 +155,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
             aria-label="Añadir foto a la galería"
-            className="aspect-square rounded-xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-950 hover:border-stone-950 transition-colors"
+            className="aspect-square rounded-2xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-950 hover:border-stone-950 transition-colors"
           >
             {uploading ? (
               <Loader2 className="w-6 h-6 animate-spin" />
@@ -260,32 +260,32 @@ export default function ProducerStoreProfile() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <div className="h-7 w-48 bg-stone-100 rounded-xl animate-pulse" />
+            <div className="h-7 w-48 bg-stone-100 rounded-2xl animate-pulse" />
             <div className="h-4 w-64 bg-stone-100 rounded animate-pulse" />
           </div>
           <div className="flex gap-3">
-            <div className="h-10 w-28 bg-stone-100 rounded-xl animate-pulse" />
-            <div className="h-10 w-36 bg-stone-100 rounded-xl animate-pulse" />
+            <div className="h-10 w-28 bg-stone-100 rounded-2xl animate-pulse" />
+            <div className="h-10 w-36 bg-stone-100 rounded-2xl animate-pulse" />
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+            <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
               <div className="h-5 w-32 bg-stone-100 rounded animate-pulse" />
-              <div className="aspect-[3/1] bg-stone-100 rounded-xl animate-pulse" />
-              <div className="w-32 h-32 bg-stone-100 rounded-xl animate-pulse" />
+              <div className="aspect-[3/1] bg-stone-100 rounded-2xl animate-pulse" />
+              <div className="w-32 h-32 bg-stone-100 rounded-2xl animate-pulse" />
             </div>
-            <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+            <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
               <div className="h-5 w-40 bg-stone-100 rounded animate-pulse" />
-              <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
-              <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
+              <div className="h-10 bg-stone-100 rounded-2xl animate-pulse" />
+              <div className="h-10 bg-stone-100 rounded-2xl animate-pulse" />
             </div>
           </div>
           <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+            <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
               <div className="h-5 w-40 bg-stone-100 rounded animate-pulse" />
-              <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
-              <div className="h-10 bg-stone-100 rounded-xl animate-pulse" />
+              <div className="h-10 bg-stone-100 rounded-2xl animate-pulse" />
+              <div className="h-10 bg-stone-100 rounded-2xl animate-pulse" />
             </div>
           </div>
         </div>
@@ -302,7 +302,7 @@ export default function ProducerStoreProfile() {
         <button
           type="button"
           onClick={fetchStoreProfile}
-          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors"
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-2xl transition-colors"
         >
           Reintentar
         </button>
@@ -323,7 +323,7 @@ export default function ProducerStoreProfile() {
         </div>
         <div className="flex items-center gap-3">
           {profile.slug && (
-            <Link to={`/store/${profile.slug}`} target="_blank" className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-stone-200 rounded-xl text-sm text-stone-700 hover:bg-stone-50 transition-colors no-underline">
+            <Link to={`/store/${profile.slug}`} target="_blank" className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-stone-200 rounded-2xl text-sm text-stone-700 hover:bg-stone-50 transition-colors no-underline">
               <Eye className="w-4 h-4" />
               Ver tienda
             </Link>
@@ -332,7 +332,7 @@ export default function ProducerStoreProfile() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm rounded-xl transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm rounded-2xl transition-colors"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Guardar cambios
@@ -342,12 +342,12 @@ export default function ProducerStoreProfile() {
 
       {/* URL Preview + Ver mi tienda */}
       {profile.slug && (
-        <div className="bg-stone-50 rounded-xl p-3 border border-stone-200 flex items-center justify-between gap-3">
+        <div className="bg-stone-50 rounded-2xl p-3 border border-stone-200 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm text-stone-500">URL de tu tienda:</p>
             <p className="text-stone-950 font-medium">{window.location.origin}/store/{profile.slug}</p>
           </div>
-          <Link to={`/store/${profile.slug}`} target="_blank" className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-xl transition-colors">
+          <Link to={`/store/${profile.slug}`} target="_blank" className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors">
             Ver mi tienda →
           </Link>
         </div>
@@ -357,7 +357,7 @@ export default function ProducerStoreProfile() {
         {/* Left Column - Brand Identity */}
         <div className="space-y-6">
           {/* Hero & Logo */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
             <h2 className="font-semibold text-stone-950 flex items-center gap-2">
               <Image className="w-5 h-5" />
               Identidad Visual
@@ -381,7 +381,7 @@ export default function ProducerStoreProfile() {
           </div>
 
           {/* Basic Info */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
             <h2 className="font-semibold text-stone-950">Información básica</h2>
             
             <div>
@@ -390,7 +390,7 @@ export default function ProducerStoreProfile() {
                 value={profile.name}
                 onChange={(e) => updateField('name', e.target.value)}
                 placeholder="Artisan Foods Co"
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
@@ -401,14 +401,14 @@ export default function ProducerStoreProfile() {
                 onChange={(e) => updateField('tagline', e.target.value)}
                 placeholder="Aceites ecológicos desde 1985"
                 maxLength={150}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
               <p className="text-xs text-stone-500 mt-1">{(profile.tagline || '').length}/150 caracteres</p>
             </div>
           </div>
 
           {/* Story */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
             <h2 className="font-semibold text-stone-950">Nuestra Historia</h2>
             
             <div>
@@ -419,7 +419,7 @@ export default function ProducerStoreProfile() {
                 placeholder="Cuenta la historia de tu marca, cómo empezaste, tu filosofía..."
                 rows={5}
                 maxLength={500}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
               />
               <p className="text-xs text-stone-500 mt-1">{(profile.story || '').length}/500 caracteres</p>
             </div>
@@ -431,7 +431,7 @@ export default function ProducerStoreProfile() {
                   value={profile.founder_name || ''}
                   onChange={(e) => updateField('founder_name', e.target.value)}
                   placeholder="Carlos Martínez"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -440,7 +440,7 @@ export default function ProducerStoreProfile() {
                   value={profile.founder_quote || ''}
                   onChange={(e) => updateField('founder_quote', e.target.value)}
                   placeholder="La calidad no es un accidente..."
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -451,7 +451,7 @@ export default function ProducerStoreProfile() {
             />
 
             {/* Certifications visible */}
-            <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 space-y-1">
+            <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4 space-y-1">
               <h3 className="text-sm font-semibold text-stone-950">Certificaciones visibles</h3>
               <p className="text-sm text-stone-500">Tus certificados verificados aparecen automáticamente en tu tienda.</p>
               <Link to="/producer/certificates" className="inline-flex items-center gap-1 text-sm font-medium text-stone-950 hover:underline mt-1">
@@ -464,7 +464,7 @@ export default function ProducerStoreProfile() {
         {/* Right Column - Location & Contact */}
         <div className="space-y-6">
           {/* Location */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
             <h2 className="font-semibold text-stone-950 flex items-center gap-2">
               <MapPin className="w-5 h-5" />
               Ubicación y Envío
@@ -476,7 +476,7 @@ export default function ProducerStoreProfile() {
                 value={profile.location || ''}
                 onChange={(e) => updateField('location', e.target.value)}
                 placeholder="Jaén, Andalucía, España"
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
@@ -486,7 +486,7 @@ export default function ProducerStoreProfile() {
                 value={profile.full_address || ''}
                 onChange={(e) => updateField('full_address', e.target.value)}
                 placeholder="Ctra. de los Olivares, km 12, 23001 Jaén"
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
@@ -497,7 +497,7 @@ export default function ProducerStoreProfile() {
                   value={profile.coverage_area || ''}
                   onChange={(e) => updateField('coverage_area', e.target.value)}
                   placeholder="Toda España peninsular"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -506,14 +506,14 @@ export default function ProducerStoreProfile() {
                   value={profile.delivery_time || ''}
                   onChange={(e) => updateField('delivery_time', e.target.value)}
                   placeholder="24-48 horas"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
           </div>
 
           {/* Contact */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
             <h2 className="font-semibold text-stone-950 flex items-center gap-2">
               <Phone className="w-5 h-5" />
               Contacto
@@ -527,7 +527,7 @@ export default function ProducerStoreProfile() {
                   value={profile.contact_email || ''}
                   onChange={(e) => updateField('contact_email', e.target.value)}
                   placeholder="info@tutienda.es"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -536,7 +536,7 @@ export default function ProducerStoreProfile() {
                   value={profile.contact_phone || ''}
                   onChange={(e) => updateField('contact_phone', e.target.value)}
                   placeholder="+34 953 123 456"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -548,7 +548,7 @@ export default function ProducerStoreProfile() {
                   value={profile.whatsapp || ''}
                   onChange={(e) => updateField('whatsapp', e.target.value)}
                   placeholder="+34 600 123 456"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -557,7 +557,7 @@ export default function ProducerStoreProfile() {
                   value={profile.website || ''}
                   onChange={(e) => updateField('website', e.target.value)}
                   placeholder="https://tutienda.es"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -569,13 +569,13 @@ export default function ProducerStoreProfile() {
                 onChange={(e) => updateField('business_hours', e.target.value)}
                 placeholder="Lun-Vie: 9:00-18:00&#10;Sáb: 9:00-14:00"
                 rows={2}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
               />
             </div>
           </div>
 
           {/* Social */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
             <h2 className="font-semibold text-stone-950 flex items-center gap-2">
               <Globe className="w-5 h-5" />
               Redes Sociales
@@ -589,7 +589,7 @@ export default function ProducerStoreProfile() {
                 value={profile.social_instagram || ''}
                 onChange={(e) => updateField('social_instagram', e.target.value)}
                 placeholder="https://instagram.com/tutienda"
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
@@ -601,7 +601,7 @@ export default function ProducerStoreProfile() {
                 value={profile.social_facebook || ''}
                 onChange={(e) => updateField('social_facebook', e.target.value)}
                 placeholder="https://facebook.com/tutienda"
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
           </div>
@@ -614,7 +614,7 @@ export default function ProducerStoreProfile() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Guardar todos los cambios

@@ -17,7 +17,7 @@ function KpiCard({ icon: Icon, label, value, prevValue }) {
 
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-stone-200 bg-white p-5">
-      <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100">
+      <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-2xl bg-stone-100">
         <Icon className="h-4 w-4 text-stone-700" />
       </div>
       <div className="flex items-center gap-2">
@@ -71,7 +71,7 @@ export default function InfluencerInsights() {
       <div className="border-b border-stone-200 bg-white px-6 py-5">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-950">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950">
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -80,12 +80,12 @@ export default function InfluencerInsights() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex rounded-xl border border-stone-200 bg-white p-1">
+            <div className="flex rounded-2xl border border-stone-200 bg-white p-1">
               {PERIODS.map((p) => (
                 <button
                   key={p.value}
                   onClick={() => setDays(p.value)}
-                  className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`rounded-2xl px-3 py-1.5 text-sm font-medium transition-colors ${
                     days === p.value ? 'bg-stone-950 text-white' : 'text-stone-600 hover:text-stone-950'
                   }`}
                 >
@@ -96,7 +96,7 @@ export default function InfluencerInsights() {
             <button
               onClick={() => load(days, true)}
               disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:text-stone-950 disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 hover:text-stone-950 disabled:opacity-40"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -153,7 +153,7 @@ export default function InfluencerInsights() {
               </p>
               <button
                 onClick={() => load(days)}
-                className="px-4 py-2 bg-stone-950 text-white rounded-xl text-sm font-medium hover:bg-stone-800 transition-colors"
+                className="px-4 py-2 bg-stone-950 text-white rounded-2xl text-sm font-medium hover:bg-stone-800 transition-colors"
               >
                 Reintentar
               </button>
@@ -178,7 +178,7 @@ export default function InfluencerInsights() {
                   <img
                     src={p.image || '/placeholder-product.png'}
                     alt={p.name}
-                    className="h-12 w-12 shrink-0 rounded-xl object-cover"
+                    className="h-12 w-12 shrink-0 rounded-2xl object-cover"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-stone-950">{p.name}</p>

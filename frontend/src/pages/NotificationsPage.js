@@ -216,7 +216,7 @@ function GroupedNotifRow({ group, onRead }) {
       {/* Single avatar (first actor only) */}
       <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0" style={{ background: '#f5f5f4' }}>
         {avatar
-          ? <img src={avatar} alt={avatarName} className="w-full h-full object-cover" />
+          ? <img loading="lazy" src={avatar} alt={avatarName} className="w-full h-full object-cover" />
           : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: '#78716c' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
         }
       </div>
@@ -241,11 +241,11 @@ function GroupedNotifRow({ group, onRead }) {
         <img
           src={thumb}
           alt=""
-          className="w-11 h-11 rounded-xl object-cover flex-shrink-0"
+          className="w-11 h-11 rounded-2xl object-cover flex-shrink-0"
         />
       ) : (
         ['post', 'product', 'reel'].includes(first.entity_type) && (
-          <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
+          <div className="w-11 h-11 rounded-2xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
         )
       )}
     </motion.div>
@@ -343,7 +343,7 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
       <div className="relative w-10 h-10 flex-shrink-0">
         <div className="w-10 h-10 rounded-full overflow-hidden" style={{ background: '#f5f5f4' }}>
           {avatar
-            ? <img src={avatar} alt={avatarName} className="w-full h-full object-cover" />
+            ? <img loading="lazy" src={avatar} alt={avatarName} className="w-full h-full object-cover" />
             : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: '#78716c' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
           }
         </div>
@@ -407,10 +407,10 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         <img
           src={thumb}
           alt=""
-          className="w-11 h-11 rounded-xl object-cover flex-shrink-0"
+          className="w-11 h-11 rounded-2xl object-cover flex-shrink-0"
         />
       ) : showThumbPlaceholder ? (
-        <div className="w-11 h-11 rounded-xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
+        <div className="w-11 h-11 rounded-2xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
       ) : null}
 
       {/* Delete button */}
@@ -434,22 +434,11 @@ function EmptyState() {
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-24 px-8 text-center"
     >
-      <div style={{ marginBottom: 16 }}><Bell size={48} style={{ color: '#78716c' }} strokeWidth={1.5} /></div>
-      <h3 style={{
-        fontSize: 16,
-        fontWeight: 600,
-        color: '#0c0a09',
-        fontFamily: 'inherit',
-        marginBottom: 8,
-      }}>
+      <Bell size={48} className="text-stone-300" strokeWidth={1.5} />
+      <h3 className="mt-4 text-lg font-semibold text-stone-950">
         Todo al día
       </h3>
-      <p style={{
-        fontSize: 14,
-        color: '#78716c',
-        lineHeight: 1.6,
-        maxWidth: 280,
-      }}>
+      <p className="mt-1 text-sm text-stone-500" style={{ maxWidth: 280 }}>
         Aquí verás likes, comentarios, actualizaciones de pedidos y más.
       </p>
     </motion.div>

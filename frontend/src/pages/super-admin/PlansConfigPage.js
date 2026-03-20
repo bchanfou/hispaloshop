@@ -43,16 +43,16 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
           onKeyDown={e => e.key === 'Enter' && onConfirm(password)}
           placeholder="Contraseña superadmin"
           autoFocus
-          className="w-full px-3.5 py-2.5 bg-[#1c1917] border border-[#dc2626]/40 rounded-xl text-white text-sm outline-none mb-3"
+          className="w-full px-3.5 py-2.5 bg-[#1c1917] border border-[#dc2626]/40 rounded-2xl text-white text-sm outline-none mb-3"
         />
         <div className="flex gap-2">
-          <button onClick={onClose} className="flex-1 py-2.5 bg-white/[0.08] rounded-xl text-white text-sm">
+          <button onClick={onClose} className="flex-1 py-2.5 bg-white/[0.08] rounded-2xl text-white text-sm">
             Cancelar
           </button>
           <button
             onClick={() => onConfirm(password)}
             disabled={isSaving}
-            className="flex-1 py-2.5 bg-[#dc2626] rounded-xl text-white text-sm font-bold disabled:opacity-50"
+            className="flex-1 py-2.5 bg-[#dc2626] rounded-2xl text-white text-sm font-bold disabled:opacity-50"
           >
             {isSaving ? '...' : 'Confirmar'}
           </button>
@@ -149,7 +149,7 @@ export default function PlansConfigPage() {
             {plan.price > 0 && (
               <button
                 onClick={() => setShowConfirm(true)}
-                className="bg-white/[0.06] rounded-xl px-3 py-1.5 text-[11px] text-white/40 hover:bg-white/10 transition-colors"
+                className="bg-white/[0.06] rounded-2xl px-3 py-1.5 text-[11px] text-white/40 hover:bg-white/10 transition-colors"
               >
                 Editar
               </button>

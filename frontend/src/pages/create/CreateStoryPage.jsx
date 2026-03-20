@@ -745,9 +745,9 @@ export default function CreateStoryPage() {
               ) : s.type === 'product' ? (
                 <div className="flex items-center gap-2 bg-white/95 backdrop-blur-xl rounded-2xl p-2 pr-3 shadow-lg max-w-[200px]">
                   {s.productImage ? (
-                    <img src={s.productImage} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                    <img src={s.productImage} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
                   ) : (
-                    <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center shrink-0">
                       <ShoppingBag size={14} className="text-stone-400" />
                     </div>
                   )}
@@ -765,7 +765,7 @@ export default function CreateStoryPage() {
                 <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-3 shadow-lg w-[200px] text-center">
                   <p className="text-[10px] font-bold text-stone-950 mb-1.5">Hazme una pregunta</p>
                   <p className="text-[12px] font-bold text-stone-950 mb-2">{s.content}</p>
-                  <div className="bg-stone-100 rounded-xl py-2.5 px-3 text-[11px] text-stone-400">
+                  <div className="bg-stone-100 rounded-2xl py-2.5 px-3 text-[11px] text-stone-400">
                     Escribe tu respuesta...
                   </div>
                 </div>
@@ -1030,7 +1030,7 @@ export default function CreateStoryPage() {
                   <button
                     key={emoji}
                     onClick={() => addSticker(emoji, 'emoji')}
-                    className="bg-white/[0.08] border-none rounded-xl py-2 text-[26px] cursor-pointer transition-colors hover:bg-white/15"
+                    className="bg-white/[0.08] border-none rounded-2xl py-2 text-[26px] cursor-pointer transition-colors hover:bg-white/15"
                   >
                     {emoji}
                   </button>
@@ -1076,20 +1076,20 @@ export default function CreateStoryPage() {
                 value={pollQuestion}
                 onChange={(e) => setPollQuestion(e.target.value.slice(0, 80))}
                 placeholder="¿Qué prefieres?"
-                className="bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+                className="bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
               />
               <div className="flex gap-2">
                 <input
                   value={pollOption1}
                   onChange={(e) => setPollOption1(e.target.value.slice(0, 30))}
                   placeholder="Opción 1"
-                  className="flex-1 bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+                  className="flex-1 bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
                 />
                 <input
                   value={pollOption2}
                   onChange={(e) => setPollOption2(e.target.value.slice(0, 30))}
                   placeholder="Opción 2"
-                  className="flex-1 bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+                  className="flex-1 bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
                 />
               </div>
               <button
@@ -1116,7 +1116,7 @@ export default function CreateStoryPage() {
           {/* Mención tab */}
           {stickerTab === 'mencion' && (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+              <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5">
                 <AtSign size={16} className="text-white/40 shrink-0" />
                 <input
                   value={mentionDraft}
@@ -1142,7 +1142,7 @@ export default function CreateStoryPage() {
           {/* Enlace tab */}
           {stickerTab === 'enlace' && (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+              <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5">
                 <Link2 size={16} className="text-white/40 shrink-0" />
                 <input
                   value={linkDraft}
@@ -1168,7 +1168,7 @@ export default function CreateStoryPage() {
           {/* Ubicación tab */}
           {stickerTab === 'ubicacion' && (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+              <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5">
                 <MapPin size={16} className="text-white/40 shrink-0" />
                 <input
                   value={locationDraft}
@@ -1194,7 +1194,7 @@ export default function CreateStoryPage() {
           {/* Pregunta tab */}
           {stickerTab === 'pregunta' && (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+              <div className="flex items-center gap-2 bg-white/10 rounded-2xl px-3 py-2.5">
                 <HelpCircle size={16} className="text-white/40 shrink-0" />
                 <input
                   value={questionDraft}
@@ -1273,12 +1273,12 @@ export default function CreateStoryPage() {
                 <button
                   key={product.id || product._id}
                   onClick={() => addProductSticker(product)}
-                  className="flex items-center gap-3 w-full px-2 py-2.5 bg-transparent border-none cursor-pointer rounded-xl hover:bg-white/10 transition-colors text-left"
+                  className="flex items-center gap-3 w-full px-2 py-2.5 bg-transparent border-none cursor-pointer rounded-2xl hover:bg-white/10 transition-colors text-left"
                 >
                   {img ? (
-                    <img src={img} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                    <img src={img} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
                   ) : (
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
                       <ShoppingBag size={16} className="text-white/30" />
                     </div>
                   )}

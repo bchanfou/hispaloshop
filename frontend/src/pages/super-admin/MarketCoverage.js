@@ -109,7 +109,7 @@ export default function MarketCoverage() {
         </div>
         <button
           onClick={() => { setLoading(true); fetchData(); }}
-          className="px-3 py-2 bg-white/[0.08] rounded-xl text-white/60 hover:bg-white/[0.12] transition-colors"
+          className="px-3 py-2 bg-white/[0.08] rounded-2xl text-white/60 hover:bg-white/[0.12] transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -133,7 +133,7 @@ export default function MarketCoverage() {
 
       {/* Migration alert */}
       {marketData?.products_without_inventory > 0 && (
-        <div className="bg-[#78716c]/10 border border-[#78716c]/20 rounded-xl p-3.5 flex items-center gap-3 mb-5">
+        <div className="bg-[#78716c]/10 border border-[#78716c]/20 rounded-2xl p-3.5 flex items-center gap-3 mb-5">
           <AlertTriangle className="w-4 h-4 text-[#78716c] shrink-0" />
           <p className="text-xs text-[#78716c]">
             {marketData.products_without_inventory} productos sin inventory_by_country

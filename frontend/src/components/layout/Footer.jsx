@@ -87,7 +87,7 @@ export default function Footer() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute bottom-[calc(100%+8px)] right-0 w-[200px] bg-stone-900 border border-white/10 rounded-xl overflow-hidden z-50 shadow-lg">
+                <div className="absolute bottom-[calc(100%+8px)] right-0 w-[200px] bg-stone-900 border border-white/10 rounded-2xl overflow-hidden z-50 shadow-lg">
                   {COUNTRIES.map(c => (
                     <button
                       key={c.code}
@@ -138,11 +138,11 @@ export default function Footer() {
 
         {/* App Store + Google Play (mobile-centered) */}
         <div className="flex justify-center gap-3 mt-8">
-          <div className="w-[140px] h-10 rounded-xl border border-white/[0.15] bg-stone-950 flex items-center justify-center gap-1.5">
+          <div className="w-[140px] h-10 rounded-2xl border border-white/[0.15] bg-stone-950 flex items-center justify-center gap-1.5">
             <span className="text-base">{'\u{1F34E}'}</span>
             <span className="text-xs text-white font-medium">App Store</span>
           </div>
-          <div className="w-[140px] h-10 rounded-xl border border-white/[0.15] bg-stone-950 flex items-center justify-center gap-1.5">
+          <div className="w-[140px] h-10 rounded-2xl border border-white/[0.15] bg-stone-950 flex items-center justify-center gap-1.5">
             <span className="text-base">&#9654;</span>
             <span className="text-xs text-white font-medium">Google Play</span>
           </div>

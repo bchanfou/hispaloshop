@@ -60,13 +60,13 @@ export default function AuthDiagnostic() {
   };
 
   return (
-    <div className="fixed top-20 right-4 z-50 bg-white p-4 rounded-xl shadow-xl border border-stone-200 max-w-md w-full">
+    <div className="fixed top-20 right-4 z-50 bg-white p-4 rounded-2xl shadow-xl border border-stone-200 max-w-md w-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-stone-950">🔧 Auth Diagnostic</h3>
         <button
           onClick={runAllTests}
           disabled={testing}
-          className="px-3 py-1 bg-stone-950 text-white text-sm rounded-xl disabled:opacity-50"
+          className="px-3 py-1 bg-stone-950 text-white text-sm rounded-2xl disabled:opacity-50"
         >
           {testing ? 'Probando...' : 'Test Conexión'}
         </button>
@@ -84,7 +84,7 @@ export default function AuthDiagnostic() {
         {results.map((result, idx) => (
           <div
             key={idx}
-            className={`p-3 rounded-xl text-sm ${
+            className={`p-3 rounded-2xl text-sm ${
               result.success ? 'bg-stone-50 border border-stone-200' : 'bg-stone-100 border border-stone-200'
             }`}
           >

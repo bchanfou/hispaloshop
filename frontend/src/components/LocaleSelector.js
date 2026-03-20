@@ -163,7 +163,7 @@ export default function LocaleSelector({ compact = false }) {
               <button
                 key={code}
                 onClick={() => onSelect(code)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors ${
                   selectedValue === code
                     ? 'bg-stone-100 border border-stone-200'
                     : 'hover:bg-stone-100'
@@ -214,7 +214,7 @@ export default function LocaleSelector({ compact = false }) {
   const DesktopMenu = ({ isOpen, title, children }) => {
     if (!isOpen) return null;
     return (
-      <div className="absolute top-full right-0 mt-2 w-64 rounded-xl border border-stone-200 bg-white shadow-xl z-[110] overflow-hidden">
+      <div className="absolute top-full right-0 mt-2 w-64 rounded-2xl border border-stone-200 bg-white shadow-xl z-[110] overflow-hidden">
         <div className="px-3 py-2 text-[11px] uppercase tracking-wider text-stone-500 border-b border-stone-100">
           {title}
         </div>
@@ -352,7 +352,7 @@ export default function LocaleSelector({ compact = false }) {
               <button
                 key={code}
                 onClick={() => handleCountryChange(code)}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left text-sm ${country === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-2xl text-left text-sm ${country === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
                 data-testid={`country-option-${code}`}
               >
                 <CountryFlag countryCode={code} size="md" />
@@ -367,7 +367,7 @@ export default function LocaleSelector({ compact = false }) {
               <button
                 key={code}
                 onClick={() => handleLanguageChange(code)}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left text-sm ${language === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-2xl text-left text-sm ${language === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
                 data-testid={`language-option-${code}`}
               >
                 <span className="uppercase font-semibold text-xs w-7">{code}</span>
@@ -382,7 +382,7 @@ export default function LocaleSelector({ compact = false }) {
               <button
                 key={code}
                 onClick={() => handleCurrencyChange(code)}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left text-sm ${currency === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-2xl text-left text-sm ${currency === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
                 data-testid={`currency-option-${code}`}
               >
                 <span className="text-base w-6">{data.symbol}</span>

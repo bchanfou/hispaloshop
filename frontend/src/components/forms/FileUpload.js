@@ -79,7 +79,7 @@ const FileUpload = ({
           setDragOver(false);
           handleFiles(e.dataTransfer.files);
         }}
-        className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+        className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-colors ${
           dragOver
             ? 'border-stone-400 bg-stone-50'
             : 'border-stone-200 hover:border-stone-400'
@@ -117,7 +117,7 @@ const FileUpload = ({
       {files.length > 0 && (
         <div className="mt-3 space-y-2">
           {files.map((file) => (
-            <div key={file.id} className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl">
+            <div key={file.id} className="flex items-center gap-3 p-3 bg-stone-50 rounded-2xl">
               {file.preview ? (
                 <img src={file.preview} alt="" className="w-10 h-10 rounded object-cover" />
               ) : (

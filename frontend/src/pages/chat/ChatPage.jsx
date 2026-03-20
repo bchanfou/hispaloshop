@@ -21,13 +21,13 @@ import {
   Download,
   MoreVertical,
 } from 'lucide-react';
-import { useChatContext } from '@/context/chat/ChatProvider';
-import { useAuth } from '@/context/AuthContext';
-import apiClient from '@/services/api/client';
-import CollabProposalCard from '@/components/chat/collab/CollabProposalCard';
-import AffiliateLinkCard from '@/components/chat/collab/AffiliateLinkCard';
-import ProductCardMessage from '@/components/chat/ProductCardMessage';
-import SampleShipmentCard from '@/components/chat/collab/SampleShipmentCard';
+import { useChatContext } from '../../context/chat/ChatProvider';
+import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../services/api/client';
+import CollabProposalCard from '../../components/chat/collab/CollabProposalCard';
+import AffiliateLinkCard from '../../components/chat/collab/AffiliateLinkCard';
+import ProductCardMessage from '../../components/chat/ProductCardMessage';
+import SampleShipmentCard from '../../components/chat/collab/SampleShipmentCard';
 
 /* ────────── Date helpers ────────── */
 function isSameDay(a, b) {
@@ -729,7 +729,7 @@ function MessageContextMenu({ contextMenu, onClose, userId, onReact, onReply, on
             <button
               key={opt.label}
               onClick={opt.action}
-              className={`flex h-10 w-full items-center gap-2.5 rounded-xl px-2 text-[13px] font-medium transition-colors hover:bg-stone-50 ${
+              className={`flex h-10 w-full items-center gap-2.5 rounded-2xl px-2 text-[13px] font-medium transition-colors hover:bg-stone-50 ${
                 opt.danger ? 'text-stone-500' : 'text-stone-950'
               }`}
             >

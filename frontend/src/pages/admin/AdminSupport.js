@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Loader2,
   MessageSquare,
   RefreshCw,
 } from 'lucide-react';
@@ -141,8 +140,15 @@ export default function AdminSupport() {
       {/* Table */}
       <div className="overflow-hidden rounded-[24px] border border-stone-100 bg-white shadow-sm">
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
+          <div className="p-4 space-y-4" aria-busy="true" aria-label="Cargando casos de soporte">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="h-4 w-20 animate-pulse rounded-full bg-stone-100" />
+                <div className="h-4 w-32 animate-pulse rounded-full bg-stone-100" />
+                <div className="flex-1" />
+                <div className="h-6 w-16 animate-pulse rounded-full bg-stone-100" />
+              </div>
+            ))}
           </div>
         ) : cases.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">

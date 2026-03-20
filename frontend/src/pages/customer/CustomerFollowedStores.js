@@ -28,7 +28,7 @@ function FollowedStoreCard({ store, onUnfollow }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow">
       {/* Hero Image */}
       <div className="h-24 bg-gradient-to-br from-stone-100 to-stone-200 relative">
         {store.hero_image_url && (
@@ -41,7 +41,7 @@ function FollowedStoreCard({ store, onUnfollow }) {
         {/* Logo */}
         {store.logo_url && (
           <div className="absolute -bottom-6 left-4 w-12 h-12 rounded-full border-[3px] border-white bg-white overflow-hidden shadow-sm">
-            <img src={store.logo_url} alt={store.name} className="w-full h-full object-cover" />
+            <img loading="lazy" src={store.logo_url} alt={store.name} className="w-full h-full object-cover" />
           </div>
         )}
       </div>
@@ -82,12 +82,12 @@ function FollowedStoreCard({ store, onUnfollow }) {
         {/* Actions */}
         <div className="flex items-center gap-2 mt-4">
           {storeSlug ? (
-            <Link to={`/store/${storeSlug}`} className="flex-1 px-3 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-xs flex items-center justify-center no-underline">
+            <Link to={`/store/${storeSlug}`} className="flex-1 px-3 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors text-xs flex items-center justify-center no-underline">
               <ExternalLink className="w-3 h-3 mr-1" />
               {t('followedStores.visitStore', 'Ver tienda')}
             </Link>
           ) : (
-            <span className="flex-1 px-3 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-xl text-xs flex items-center justify-center opacity-50">
+            <span className="flex-1 px-3 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-2xl text-xs flex items-center justify-center opacity-50">
               <ExternalLink className="w-3 h-3 mr-1" />
               {t('followedStores.visitStore', 'Ver tienda')}
             </span>
@@ -96,7 +96,7 @@ function FollowedStoreCard({ store, onUnfollow }) {
             onClick={handleUnfollow}
             disabled={unfollowing}
             aria-label={`Dejar de seguir ${store.name}`}
-            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 hover:text-stone-950 hover:bg-stone-100 rounded-xl transition-colors disabled:opacity-50"
+            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 hover:text-stone-950 hover:bg-stone-100 rounded-2xl transition-colors disabled:opacity-50"
           >
             {unfollowing ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -156,7 +156,7 @@ export default function CustomerFollowedStores() {
       </div>
 
       {stores.length === 0 ? (
-        <div className="bg-white rounded-xl border border-stone-200">
+        <div className="bg-white rounded-2xl border border-stone-200">
           <div className="py-12 text-center px-6">
             <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
               <Heart className="w-8 h-8 text-stone-300" />
@@ -167,7 +167,7 @@ export default function CustomerFollowedStores() {
             <p className="text-sm text-stone-500 mb-6 max-w-sm mx-auto">
               {t('followedStores.noStoresDesc', 'Explora nuestras tiendas y sigue a tus favoritas para recibir notificaciones de nuevos productos.')}
             </p>
-            <Link to="/stores" className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors mx-auto no-underline">
+            <Link to="/stores" className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors mx-auto no-underline">
               <Store className="w-4 h-4" />
               {t('followedStores.exploreStores', 'Explorar tiendas')}
             </Link>
@@ -176,7 +176,7 @@ export default function CustomerFollowedStores() {
       ) : (
         <>
           {/* Stats */}
-          <div className="mb-6 bg-white rounded-xl border border-stone-200">
+          <div className="mb-6 bg-white rounded-2xl border border-stone-200">
             <div className="py-4 px-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -192,7 +192,7 @@ export default function CustomerFollowedStores() {
                     </p>
                   </div>
                 </div>
-                <Link to="/stores" className="inline-flex items-center px-4 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-sm no-underline">
+                <Link to="/stores" className="inline-flex items-center px-4 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors text-sm no-underline">
                   {t('followedStores.discoverMore', 'Descubrir más')}
                 </Link>
               </div>

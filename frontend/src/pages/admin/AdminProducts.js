@@ -193,14 +193,14 @@ export default function AdminProducts() {
           {t('adminProducts.backToProducts')}
         </button>
 
-        <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-2xl">
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 max-w-2xl">
           <h2 className="text-2xl font-bold text-stone-950 mb-6">{t('adminProducts.createProduct')}</h2>
           
           <form onSubmit={createProduct} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.name')} *</label>
               <input
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -212,7 +212,7 @@ export default function AdminProducts() {
               <select
                 value={formData.category_id}
                 onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                className="w-full px-4 py-2 rounded-xl border border-stone-200"
+                className="w-full px-4 py-2 rounded-2xl border border-stone-200"
                 required
               >
                 <option value="">{t('adminProducts.form.selectCategory')}</option>
@@ -227,7 +227,7 @@ export default function AdminProducts() {
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 rounded-xl border border-stone-200 min-h-[100px]"
+                className="w-full px-4 py-2 rounded-2xl border border-stone-200 min-h-[100px]"
                 required
               />
             </div>
@@ -236,7 +236,7 @@ export default function AdminProducts() {
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.price')} *</label>
                 <input
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   type="number"
                   step="0.01"
                   value={formData.price}
@@ -247,7 +247,7 @@ export default function AdminProducts() {
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.countryOrigin')} *</label>
                 <input
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   value={formData.country_origin}
                   onChange={(e) => setFormData({ ...formData, country_origin: e.target.value })}
                   required
@@ -258,7 +258,7 @@ export default function AdminProducts() {
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.imageUrl')}</label>
               <input
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.images[0]}
                 onChange={(e) => setFormData({ ...formData, images: [e.target.value] })}
                 placeholder="https://..."
@@ -268,7 +268,7 @@ export default function AdminProducts() {
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.ingredients')}</label>
               <input
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.ingredientsStr || ''}
                 onChange={(e) => setFormData({ ...formData, ingredientsStr: e.target.value })}
                 placeholder={t('adminProducts.form.ingredientsPlaceholder')}
@@ -278,7 +278,7 @@ export default function AdminProducts() {
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.allergens')}</label>
               <input
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.allergensStr || ''}
                 onChange={(e) => setFormData({ ...formData, allergensStr: e.target.value })}
                 placeholder={t('adminProducts.form.allergensPlaceholder')}
@@ -288,7 +288,7 @@ export default function AdminProducts() {
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.certifications')}</label>
               <input
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.certificationsStr || ''}
                 onChange={(e) => setFormData({ ...formData, certificationsStr: e.target.value })}
                 placeholder={t('adminProducts.form.certificationsPlaceholder')}
@@ -296,8 +296,8 @@ export default function AdminProducts() {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors">{t('adminProducts.createProduct')}</button>
-              <button type="button" className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setShowCreateForm(false)}>{t('common.cancel')}</button>
+              <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 transition-colors">{t('adminProducts.createProduct')}</button>
+              <button type="button" className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" onClick={() => setShowCreateForm(false)}>{t('common.cancel')}</button>
             </div>
           </form>
         </div>
@@ -316,7 +316,7 @@ export default function AdminProducts() {
           </h1>
           <p className="text-stone-500">{t('adminProducts.subtitle')}</p>
         </div>
-        <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors" data-testid="create-product">
+        <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 transition-colors" data-testid="create-product">
           <Plus className="w-4 h-4 mr-2" /> {t('adminProducts.createProduct')}
         </button>
       </div>
@@ -327,7 +327,7 @@ export default function AdminProducts() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
           <input
             type="text"
-            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
             placeholder={t('adminProducts.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -337,7 +337,7 @@ export default function AdminProducts() {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
+          className="px-4 py-2 rounded-2xl border border-stone-200 bg-white"
           data-testid="status-filter"
         >
           <option value="all">{t('adminProducts.allProducts')}</option>
@@ -348,17 +348,17 @@ export default function AdminProducts() {
 
       {/* Bulk actions */}
       {selectedProducts.length > 0 && (
-        <div className="flex items-center gap-3 mb-4 px-4 py-3 bg-stone-950 rounded-xl">
+        <div className="flex items-center gap-3 mb-4 px-4 py-3 bg-stone-950 rounded-2xl">
           <span className="text-sm text-white flex-1">{selectedProducts.length} producto(s) seleccionado(s)</span>
           <button
             onClick={approveSelected}
-            className="px-4 py-1.5 bg-white text-stone-950 text-sm font-medium rounded-xl hover:bg-stone-100 transition-colors"
+            className="px-4 py-1.5 bg-white text-stone-950 text-sm font-medium rounded-2xl hover:bg-stone-100 transition-colors"
           >
             Aprobar seleccionados ({selectedProducts.length})
           </button>
           <button
             onClick={() => setSelectedProducts([])}
-            className="px-3 py-1.5 border border-white/30 text-white text-sm rounded-xl hover:bg-white/10 transition-colors"
+            className="px-3 py-1.5 border border-white/30 text-white text-sm rounded-2xl hover:bg-white/10 transition-colors"
           >
             Cancelar
           </button>
@@ -366,7 +366,7 @@ export default function AdminProducts() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : filteredProducts.length === 0 ? (
@@ -397,9 +397,9 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden">
+                      <div className="w-12 h-12 rounded-2xl bg-stone-100 overflow-hidden">
                         {product.images?.[0] && (
-                          <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                          <img loading="lazy" src={product.images[0]} alt="" className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div>
@@ -419,18 +419,18 @@ export default function AdminProducts() {
                           step="0.01"
                           value={editingPrice.value}
                           onChange={e => setEditingPrice(prev => ({ ...prev, value: e.target.value }))}
-                          className="w-24 px-2 py-1 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                          className="w-24 px-2 py-1 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                         />
                         <button
                           type="button"
-                          className="px-2 py-1 text-xs font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors"
+                          className="px-2 py-1 text-xs font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 transition-colors"
                           onClick={() => updatePrice(product.product_id, parseFloat(editingPrice.value))}
                         >
                           {t('common.save')}
                         </button>
                         <button
                           type="button"
-                          className="px-2 py-1 text-xs font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                          className="px-2 py-1 text-xs font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
                           onClick={() => setEditingPrice({ productId: null, value: '' })}
                         >
                           {t('common.cancel')}
@@ -462,7 +462,7 @@ export default function AdminProducts() {
                       {!product.approved && (
                         <button
                           type="button"
-                          className="p-1.5 bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+                          className="p-1.5 bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
                           onClick={() => openApprovalChecklist(product)}
                           aria-label={`${t('adminProducts.table.pending')} — ${product.name}`}
                           data-testid={`approve-${product.product_id}`}
@@ -473,7 +473,7 @@ export default function AdminProducts() {
                       {product.approved && (
                         <button
                           type="button"
-                          className="p-1.5 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+                          className="p-1.5 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
                           onClick={() => approveProduct(product.product_id, false)}
                           aria-label={`${t('adminProducts.messages.productRejected')} — ${product.name}`}
                         >
@@ -482,7 +482,7 @@ export default function AdminProducts() {
                       )}
                       <button
                         type="button"
-                        className="p-1.5 border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
+                        className="p-1.5 border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-2xl transition-colors"
                         onClick={() => deleteProduct(product.product_id)}
                         aria-label={`${t('adminProducts.messages.confirmDelete')} — ${product.name}`}
                         data-testid={`delete-${product.product_id}`}
@@ -542,7 +542,7 @@ export default function AdminProducts() {
           <div className="flex gap-3">
             <button
               type="button"
-              className="flex-1 flex items-center justify-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors disabled:opacity-40"
+              className="flex-1 flex items-center justify-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors disabled:opacity-40"
               disabled={!Object.values(checklistItems).every(Boolean)}
               onClick={() => approveProduct(checklistProduct.product_id, true)}
             >
@@ -551,7 +551,7 @@ export default function AdminProducts() {
             </button>
             <button
               type="button"
-              className="flex-1 px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+              className="flex-1 px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
               onClick={() => setChecklistProduct(null)}
             >
               Cancelar

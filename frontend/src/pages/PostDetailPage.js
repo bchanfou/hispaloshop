@@ -282,12 +282,12 @@ export default function PostDetailPage() {
       </header>
 
       {/* ── Post content ── */}
-      <div className="max-w-[600px] mx-auto bg-white sm:mt-4 sm:rounded-xl sm:shadow-sm sm:border sm:border-stone-100">
+      <div className="max-w-[600px] mx-auto bg-white sm:mt-4 sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-100">
         {/* Header */}
         <div className="flex items-center gap-2.5 px-4 py-3">
           <Link to={`/${userObj.username || userObj.id || post.user_id}`} className="shrink-0">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+              <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
             ) : (
               <div className="h-9 w-9 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
                 {userName.charAt(0).toUpperCase()}
@@ -405,7 +405,7 @@ export default function PostDetailPage() {
             <textarea
               value={editCaption}
               onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
-              className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
+              className="w-full border border-stone-200 rounded-2xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
               aria-label="Editar descripción"
             />
             <p className="text-[11px] text-stone-400">La imagen no se puede cambiar tras publicar.</p>
@@ -444,7 +444,7 @@ export default function PostDetailPage() {
       )}
 
       {/* ── Comments section ── */}
-      <div className="max-w-[600px] mx-auto mt-2 bg-white sm:rounded-xl sm:shadow-sm sm:border sm:border-stone-100">
+      <div className="max-w-[600px] mx-auto mt-2 bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-100">
         {/* Label */}
         <div className="flex items-center gap-2 px-4 py-3 border-b border-stone-100">
           <span className="text-[12px] font-semibold text-stone-500 uppercase tracking-wider">Comentarios</span>
@@ -486,7 +486,7 @@ export default function PostDetailPage() {
                   <div key={cId} className="flex gap-3 py-3 group">
                     <Link to={`/${c.username || c.user_id}`} className="shrink-0">
                       {avatar ? (
-                        <img src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+                        <img loading="lazy" src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
                       ) : (
                         <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">
                           {cName.charAt(0).toUpperCase()}
@@ -549,7 +549,7 @@ export default function PostDetailPage() {
           )}
           <div className="flex items-center gap-3 px-4 py-3">
             {(user?.avatar_url || user?.avatar || user?.profile_image) ? (
-              <img src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
+              <img loading="lazy" src={user.avatar_url || user.avatar || user.profile_image} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
             ) : (
               <div className="h-8 w-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500 shrink-0">
                 {(user?.name || user?.username || '?').charAt(0).toUpperCase()}

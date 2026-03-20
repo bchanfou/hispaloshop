@@ -164,9 +164,19 @@ export default function CertificatesListPage() {
 
         <div className="mt-6">
           {isLoading ? (
-            <div className="py-16 text-center">
-              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
-              <p className="text-sm text-stone-500">Cargando certificados...</p>
+            <div className="space-y-4 py-4" aria-busy="true" aria-label="Cargando certificados">
+              {[1,2,3].map(i => (
+                <div key={i} className="rounded-2xl border border-stone-100 bg-white p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 animate-pulse rounded-2xl bg-stone-100" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-2/3 animate-pulse rounded-full bg-stone-100" />
+                      <div className="h-3 w-1/3 animate-pulse rounded-full bg-stone-100" />
+                    </div>
+                    <div className="h-6 w-16 animate-pulse rounded-full bg-stone-100" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="rounded-[32px] border border-stone-100 bg-white px-6 py-16 text-center shadow-sm">

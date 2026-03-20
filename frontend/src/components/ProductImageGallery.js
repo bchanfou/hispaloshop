@@ -62,7 +62,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
         ref={galleryRef}
       >
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center rounded-xl" data-testid="out-of-stock-overlay">
+          <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center rounded-2xl" data-testid="out-of-stock-overlay">
             <div className="bg-stone-950 text-white px-4 md:px-6 py-2 md:py-3 rounded-full font-medium text-sm md:text-lg">
               Agotado
             </div>
@@ -70,7 +70,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
         )}
 
         <div
-          className={`aspect-square rounded-xl overflow-hidden bg-white border border-stone-200 transition-opacity duration-300 ${isOutOfStock ? 'opacity-60' : ''}`}
+          className={`aspect-square rounded-2xl overflow-hidden bg-white border border-stone-200 transition-opacity duration-300 ${isOutOfStock ? 'opacity-60' : ''}`}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -139,7 +139,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
               key={idx}
               onClick={() => setSelectedImageIndex(idx)}
               className={`
-                flex-shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-xl overflow-hidden bg-white border-2
+                flex-shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden bg-white border-2
                 transition-all duration-200 hover:scale-105
                 ${selectedImageIndex === idx
                   ? 'border-stone-950 ring-2 ring-stone-200'

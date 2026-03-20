@@ -39,9 +39,9 @@ function StatCard({ icon: Icon, label, value, sublabel, color = "default", testI
   };
   const c = colors[color] || colors.default;
   return (
-    <div className={`bg-white rounded-xl border ${c.border} p-5 transition-shadow hover:shadow-sm`} data-testid={testId}>
+    <div className={`bg-white rounded-2xl border ${c.border} p-5 transition-shadow hover:shadow-sm`} data-testid={testId}>
       <div className="flex items-center gap-3 mb-3">
-        <div className={`p-2 rounded-xl ${c.bg}`}>
+        <div className={`p-2 rounded-2xl ${c.bg}`}>
           <Icon className={`w-4 h-4 ${c.icon}`} />
         </div>
         <span className="text-sm text-stone-500">{label}</span>
@@ -177,14 +177,14 @@ export default function ProducerPayments() {
     return (
       <div className="space-y-6">
         <div className="space-y-1">
-          <div className="h-8 w-40 bg-stone-100 rounded-xl animate-pulse" />
+          <div className="h-8 w-40 bg-stone-100 rounded-2xl animate-pulse" />
           <div className="h-4 w-56 bg-stone-100 rounded animate-pulse" />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[1,2,3,4].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-stone-200 p-5 space-y-3">
+            <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-stone-100 rounded-xl animate-pulse" />
+                <div className="w-8 h-8 bg-stone-100 rounded-2xl animate-pulse" />
                 <div className="h-3 w-20 bg-stone-100 rounded animate-pulse" />
               </div>
               <div className="h-6 w-24 bg-stone-100 rounded animate-pulse" />
@@ -192,8 +192,8 @@ export default function ProducerPayments() {
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          <div className="lg:col-span-2 bg-white rounded-xl border border-stone-200 p-5 h-64 animate-pulse" />
-          <div className="lg:col-span-3 bg-white rounded-xl border border-stone-200 p-5 h-64 animate-pulse" />
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-5 h-64 animate-pulse" />
+          <div className="lg:col-span-3 bg-white rounded-2xl border border-stone-200 p-5 h-64 animate-pulse" />
         </div>
       </div>
     );
@@ -204,7 +204,7 @@ export default function ProducerPayments() {
       <div className="flex flex-col items-center justify-center py-20">
         <AlertCircle className="w-10 h-10 text-stone-400 mb-3" />
         <p className="text-stone-500">Error al cargar datos de pagos</p>
-        <button type="button" onClick={fetchPayments} className="mt-4 px-4 py-2 border border-stone-200 rounded-xl text-stone-700 hover:bg-stone-50 transition-colors">Reintentar</button>
+        <button type="button" onClick={fetchPayments} className="mt-4 px-4 py-2 border border-stone-200 rounded-2xl text-stone-700 hover:bg-stone-50 transition-colors">Reintentar</button>
       </div>
     );
   }
@@ -228,7 +228,7 @@ export default function ProducerPayments() {
             type="button"
             onClick={handleOpenStripeDashboard}
             disabled={openingDashboard}
-            className="flex items-center gap-2 px-3 py-1.5 border border-stone-200 rounded-xl text-sm text-stone-700 hover:bg-stone-50 transition-colors self-start"
+            className="flex items-center gap-2 px-3 py-1.5 border border-stone-200 rounded-2xl text-sm text-stone-700 hover:bg-stone-50 transition-colors self-start"
             data-testid="open-stripe-dashboard"
           >
             {openingDashboard ? (
@@ -278,9 +278,9 @@ export default function ProducerPayments() {
 
       {/* Stripe Connect Banner (if not connected) */}
       {!data.stripe_connected && (
-        <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4" data-testid="stripe-connect-banner">
+        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4" data-testid="stripe-connect-banner">
           <div className="flex items-center gap-3 flex-1">
-            <div className="p-2.5 bg-stone-100 rounded-xl">
+            <div className="p-2.5 bg-stone-100 rounded-2xl">
               <AlertCircle className="w-5 h-5 text-stone-700" />
             </div>
             <div>
@@ -301,7 +301,7 @@ export default function ProducerPayments() {
                 toast.error(e.message || 'Error');
               }
             }}
-            className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors self-start"
+            className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-2xl transition-colors self-start"
             data-testid="connect-stripe-cta"
           >
             Conectar Stripe
@@ -312,7 +312,7 @@ export default function ProducerPayments() {
       {/* Chart + Recent Orders Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
         {/* Monthly Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-stone-200 p-5">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-5">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-4 h-4 text-stone-500" />
             <h2 className="font-medium text-stone-950 text-sm">Ventas mensuales</h2>
@@ -329,7 +329,7 @@ export default function ProducerPayments() {
         </div>
 
         {/* Recent Orders */}
-        <div className="lg:col-span-3 bg-white rounded-xl border border-stone-200 overflow-hidden">
+        <div className="lg:col-span-3 bg-white rounded-2xl border border-stone-200 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-4 h-4 text-stone-500" />
@@ -361,7 +361,7 @@ export default function ProducerPayments() {
 
       {/* Monthly Breakdown Table */}
       {(data.monthly_summary || []).length > 0 && (
-        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden" data-testid="monthly-breakdown">
+        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden" data-testid="monthly-breakdown">
           <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
             <h2 className="font-medium text-stone-950 text-sm flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-stone-500" />
@@ -416,7 +416,7 @@ export default function ProducerPayments() {
       )}
 
       {/* Info footer */}
-      <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 text-sm text-stone-500">
+      <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 text-sm text-stone-500">
         <p>
           <strong className="text-stone-600">Cómo funcionan los pagos:</strong> Cada venta se divide automáticamente.
           Tú recibes el <strong>{100 - commissionPct}%</strong> y la plataforma retiene el <strong>{commissionPct}%</strong> de comisión.

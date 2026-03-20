@@ -41,7 +41,7 @@ export default function WishlistPage() {
         <h3 className="text-lg font-semibold text-stone-700 mb-1">{t('wishlist.emptyTitle', 'Tu lista de deseos está vacía')}</h3>
         <p className="text-sm text-stone-500 mb-4">{t('wishlist.emptyDesc', 'Guarda productos para recibir alertas de precios')}</p>
         <Link to="/products">
-          <button className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center gap-2 mx-auto">
+          <button className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors flex items-center gap-2 mx-auto">
             <ShoppingBag className="w-4 h-4" />
             {t('wishlist.explore', 'Explorar productos')}
           </button>
@@ -64,16 +64,16 @@ export default function WishlistPage() {
           const img = getImgUrl(item.image || item.product_image);
           const productPath = `/products/${item.product_id}`;
           return (
-            <div key={item.product_id} className="flex items-center gap-3 bg-white border border-stone-200 rounded-xl p-3 hover:shadow-sm transition-shadow" data-testid={`wishlist-item-${item.product_id}`}>
-              <Link to={productPath} className="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-stone-100">
-                {img ? <img src={img} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} /> : <ShoppingBag className="w-6 h-6 text-stone-300 m-auto mt-5" />}
+            <div key={item.product_id} className="flex items-center gap-3 bg-white border border-stone-200 rounded-2xl p-3 hover:shadow-sm transition-shadow" data-testid={`wishlist-item-${item.product_id}`}>
+              <Link to={productPath} className="shrink-0 w-16 h-16 rounded-2xl overflow-hidden bg-stone-100">
+                {img ? <img loading="lazy" src={img} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} /> : <ShoppingBag className="w-6 h-6 text-stone-300 m-auto mt-5" />}
               </Link>
               <div className="flex-1 min-w-0">
                 <Link to={productPath} className="text-sm font-medium text-stone-900 hover:underline line-clamp-1">{item.name}</Link>
                 <p className="text-sm font-semibold text-stone-700 mt-0.5">{item.price ? `${Number(item.price).toFixed(2)} EUR` : ''}</p>
                 <p className="text-[10px] text-stone-400">{item.added_at ? new Date(item.added_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : ''}</p>
               </div>
-              <button onClick={() => remove(item.product_id)} className="p-2 text-stone-400 hover:text-stone-950 hover:bg-stone-100 rounded-xl transition-colors" data-testid={`remove-wishlist-${item.product_id}`}>
+              <button onClick={() => remove(item.product_id)} className="p-2 text-stone-400 hover:text-stone-950 hover:bg-stone-100 rounded-2xl transition-colors" data-testid={`remove-wishlist-${item.product_id}`}>
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>

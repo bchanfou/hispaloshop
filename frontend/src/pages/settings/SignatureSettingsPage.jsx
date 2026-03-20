@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Info, Upload, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import apiClient from '@/services/api/client';
+import apiClient from '../../services/api/client';
 
 const V2 = {
   black: '#0A0A0A',

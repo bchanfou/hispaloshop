@@ -78,15 +78,15 @@ export default function CheckoutSuccessPage() {
               : 'Ha ocurrido un error al verificar tu pago. Si se ha realizado el cobro, contacta con soporte.'}
           </p>
           <div className="flex flex-col gap-2.5">
-            <Link to="/orders" className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-xl text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors">
+            <Link to="/orders" className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors">
               Ver mis pedidos
             </Link>
             {status === 'error' && (
-              <Link to="/help" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
+              <Link to="/help" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
                 Contactar soporte
               </Link>
             )}
-            <Link to="/" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
+            <Link to="/" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
               Seguir comprando
             </Link>
           </div>
@@ -143,7 +143,7 @@ export default function CheckoutSuccessPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45 }}
-          className="bg-stone-100 rounded-xl p-5 text-left mb-5"
+          className="bg-stone-100 rounded-2xl p-5 text-left mb-5"
         >
           {orderRef && (
             <div className="flex justify-between mb-2">
@@ -171,13 +171,13 @@ export default function CheckoutSuccessPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.55 }}
-            className="bg-white border border-stone-200 rounded-xl p-3.5 text-left mb-5"
+            className="bg-white border border-stone-200 rounded-2xl p-3.5 text-left mb-5"
           >
             {items.map((item, i) => (
               <div key={item.product_id || item.id || `item-${i}`} className={`flex items-center gap-2.5 py-2 ${i < items.length - 1 ? 'border-b border-stone-200' : ''}`}>
-                <div className="w-11 h-11 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
+                <div className="w-11 h-11 rounded-2xl bg-stone-100 overflow-hidden flex-shrink-0">
                   {(item.image || item.product_image) && (
-                    <img src={item.image || item.product_image} alt={item.name || item.product_name || ''} className="w-full h-full object-cover" />
+                    <img loading="lazy" src={item.image || item.product_image} alt={item.name || item.product_name || ''} className="w-full h-full object-cover" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -208,14 +208,14 @@ export default function CheckoutSuccessPage() {
           {orderId && (
             <Link
               to={`/dashboard/orders/${orderId}`}
-              className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors"
+              className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors"
             >
               Ver mi pedido
             </Link>
           )}
           <Link
             to="/"
-            className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-xl text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors"
+            className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors"
           >
             Seguir comprando
           </Link>

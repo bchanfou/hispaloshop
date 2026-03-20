@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api } from '@/lib/api';
+import { api } from '../lib/api';
 
 export function useChat() {
   const [sessionId, setSessionId] = useState<string | null>(null);

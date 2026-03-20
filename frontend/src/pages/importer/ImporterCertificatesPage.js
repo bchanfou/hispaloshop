@@ -16,7 +16,7 @@ function CertificateRow({ cert }) {
   const isWarning = cert.days_until_expiry != null && cert.days_until_expiry > 30 && cert.days_until_expiry <= 60;
 
   return (
-    <div className={`bg-white rounded-xl p-3.5 flex items-center gap-3 border ${
+    <div className={`bg-white rounded-2xl p-3.5 flex items-center gap-3 border ${
       isExpired ? 'border-stone-400' : isExpiring ? 'border-stone-200' : 'border-stone-200'
     }`}>
       {/* Status icon */}
@@ -55,7 +55,7 @@ function CertificateRow({ cert }) {
             href={`/certificados/${cert.certificate_id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 py-1.5 border border-stone-200 rounded-xl text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+            className="px-2.5 py-1.5 border border-stone-200 rounded-2xl text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
           >
             Ver
           </a>
@@ -65,7 +65,7 @@ function CertificateRow({ cert }) {
             href={cert.pdf_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 py-1.5 border border-stone-200 rounded-xl text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+            className="px-2.5 py-1.5 border border-stone-200 rounded-2xl text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
           >
             <Download className="w-3.5 h-3.5" />
           </a>
@@ -133,7 +133,7 @@ export default function ImporterCertificatesPage() {
   if (!producerId) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] px-4">
-        <div className="bg-white border border-stone-200 rounded-xl p-8 text-center max-w-sm w-full">
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center max-w-sm w-full">
           <Award className="w-10 h-10 text-stone-300 mx-auto mb-3" />
           <p className="text-sm font-semibold text-stone-950 mb-1">Selecciona un proveedor para ver sus certificados</p>
           <Link
@@ -162,7 +162,7 @@ export default function ImporterCertificatesPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por proveedor o tipo..."
-            className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-xl text-sm bg-white focus:outline-none focus:border-stone-400"
+            className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-2xl text-sm bg-white focus:outline-none focus:border-stone-400"
           />
         </div>
 
@@ -193,7 +193,7 @@ export default function ImporterCertificatesPage() {
           <p className="text-sm font-semibold text-stone-950 mb-1">Error al cargar los certificados</p>
           <button
             onClick={loadCerts}
-            className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+            className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
           >
             Reintentar
           </button>
@@ -201,7 +201,7 @@ export default function ImporterCertificatesPage() {
       ) : loading ? (
         <div className="space-y-2">
           {Array(5).fill(0).map((_, i) => (
-            <div key={i} className="h-[72px] rounded-xl bg-stone-100 animate-pulse" />
+            <div key={i} className="h-[72px] rounded-2xl bg-stone-100 animate-pulse" />
           ))}
         </div>
       ) : filteredCerts.length === 0 ? (

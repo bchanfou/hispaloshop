@@ -4,7 +4,7 @@ import apiClient from '../../services/api/client';
 
 function AnalyticsSection({ title, icon: Icon, children }) {
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-4 mb-4">
+    <div className="bg-white rounded-2xl border border-stone-200 p-4 mb-4">
       <h3 className="text-sm font-bold text-stone-950 mb-4 flex items-center gap-2">
         {Icon && <Icon className="w-4 h-4" />}
         {title}
@@ -70,32 +70,32 @@ export default function ProducerAnalytics() {
       <div className="space-y-4 pt-6">
         {/* Header skeleton */}
         <div className="flex items-center justify-between">
-          <div className="h-8 w-36 animate-pulse bg-stone-100 rounded-xl" />
-          <div className="h-9 w-40 animate-pulse bg-stone-100 rounded-xl" />
+          <div className="h-8 w-36 animate-pulse bg-stone-100 rounded-2xl" />
+          <div className="h-9 w-40 animate-pulse bg-stone-100 rounded-2xl" />
         </div>
         {/* Revenue + orders KPI cards */}
         <div className="grid grid-cols-2 gap-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-stone-200 p-5 space-y-3 h-32">
-              <div className="h-3 w-16 animate-pulse bg-stone-100 rounded-xl" />
-              <div className="h-7 w-24 animate-pulse bg-stone-100 rounded-xl" />
-              <div className="h-3 w-12 animate-pulse bg-stone-100 rounded-xl" />
+            <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 space-y-3 h-32">
+              <div className="h-3 w-16 animate-pulse bg-stone-100 rounded-2xl" />
+              <div className="h-7 w-24 animate-pulse bg-stone-100 rounded-2xl" />
+              <div className="h-3 w-12 animate-pulse bg-stone-100 rounded-2xl" />
             </div>
           ))}
         </div>
         {/* Chart skeleton */}
-        <div className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
-          <div className="h-4 w-32 animate-pulse bg-stone-100 rounded-xl" />
-          <div className="h-48 animate-pulse bg-stone-100 rounded-xl" />
+        <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+          <div className="h-4 w-32 animate-pulse bg-stone-100 rounded-2xl" />
+          <div className="h-48 animate-pulse bg-stone-100 rounded-2xl" />
         </div>
         {/* Table skeleton */}
-        <div className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
-          <div className="h-4 w-40 animate-pulse bg-stone-100 rounded-xl" />
+        <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+          <div className="h-4 w-40 animate-pulse bg-stone-100 rounded-2xl" />
           {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="flex items-center gap-3">
-              <div className="w-8 h-8 shrink-0 animate-pulse bg-stone-100 rounded-xl" />
-              <div className="h-6 flex-1 animate-pulse bg-stone-100 rounded-xl" />
-              <div className="h-6 w-16 shrink-0 animate-pulse bg-stone-100 rounded-xl" />
+              <div className="w-8 h-8 shrink-0 animate-pulse bg-stone-100 rounded-2xl" />
+              <div className="h-6 flex-1 animate-pulse bg-stone-100 rounded-2xl" />
+              <div className="h-6 w-16 shrink-0 animate-pulse bg-stone-100 rounded-2xl" />
             </div>
           ))}
         </div>
@@ -112,7 +112,7 @@ export default function ProducerAnalytics() {
         <button
           type="button"
           onClick={fetchAnalytics}
-          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors"
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-2xl transition-colors"
         >
           Reintentar
         </button>
@@ -127,7 +127,7 @@ export default function ProducerAnalytics() {
         <select
           value={period}
           onChange={e => setPeriod(e.target.value)}
-          className="px-3 py-2 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400"
+          className="px-3 py-2 rounded-2xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400"
         >
           <option value="7d">Últimos 7 días</option>
           <option value="30d">Últimos 30 días</option>
@@ -146,9 +146,9 @@ export default function ProducerAnalytics() {
                   {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
                 </span>
                 {product.image ? (
-                  <img src={product.image} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                  <img loading="lazy" src={product.image} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-stone-100 shrink-0" />
+                  <div className="w-10 h-10 rounded-2xl bg-stone-100 shrink-0" />
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-stone-950 truncate">{product.name}</p>
@@ -195,7 +195,7 @@ export default function ProducerAnalytics() {
             { label: 'Añadidos al carrito', value: data?.conversion?.cart_adds || 0 },
             { label: 'Compras', value: data?.conversion?.purchases || 0 },
           ].map(stat => (
-            <div key={stat.label} className="bg-stone-50 rounded-xl p-3 text-center">
+            <div key={stat.label} className="bg-stone-50 rounded-2xl p-3 text-center">
               <p className="text-xl font-bold text-stone-950">{stat.value}</p>
               <p className="text-[10px] text-stone-500 uppercase">{stat.label}</p>
             </div>

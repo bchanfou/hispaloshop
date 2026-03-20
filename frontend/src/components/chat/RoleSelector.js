@@ -60,7 +60,7 @@ function RoleSelector({ activeRole, onSwitch, isOpen, onClose, availableRoles })
                       : 'border-stone-100 bg-white hover:border-stone-300 hover:bg-stone-50'
                   }`}
                 >
-                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-colors ${
                     isActive ? 'bg-stone-950' : 'bg-stone-100'
                   }`}>
                     <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-stone-600'}`} />

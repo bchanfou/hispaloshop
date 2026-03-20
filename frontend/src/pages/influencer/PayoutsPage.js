@@ -111,7 +111,7 @@ export default function PayoutsPage() {
 
         {/* Next payout */}
         {stats?.next_payout_date && (
-          <div className="bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 mb-5 text-sm text-stone-700 flex items-center gap-2">
+          <div className="bg-stone-100 border border-stone-200 rounded-2xl px-4 py-3 mb-5 text-sm text-stone-700 flex items-center gap-2">
             <CreditCard className="w-4 h-4 shrink-0" />
             Próximo pago automático el{' '}
             <strong>
@@ -124,14 +124,14 @@ export default function PayoutsPage() {
         )}
 
         {/* Stripe fees info */}
-        <div className="bg-white border border-stone-200 rounded-xl px-4 py-3 mb-6 text-xs text-stone-500 leading-relaxed">
+        <div className="bg-white border border-stone-200 rounded-2xl px-4 py-3 mb-6 text-xs text-stone-500 leading-relaxed">
           Las comisiones de transferencia de Stripe (aprox. 1-2%) se descuentan automáticamente
           de cada pago. Recibirás el importe neto en tu cuenta bancaria.
         </div>
 
         {/* Fiscal summary */}
         {withholdingSummary && (withholdingSummary.total_withheld_cents > 0 || withholdingSummary.total_gross_cents > 0) && (
-          <div className="bg-white border border-stone-200 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">
+          <div className="bg-white border border-stone-200 rounded-2xl px-4 py-3 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FileText className="w-4 h-4 text-stone-500 shrink-0" />
               <div>
@@ -156,7 +156,7 @@ export default function PayoutsPage() {
         {loading ? (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-stone-100 rounded-xl animate-pulse" />
+              <div key={i} className="h-16 bg-stone-100 rounded-2xl animate-pulse" />
             ))}
           </div>
         ) : payouts.length === 0 ? (

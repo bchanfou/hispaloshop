@@ -501,7 +501,7 @@ export default function OnboardingPage() {
             type="text"
             value={roleConfig.country}
             onChange={e => updateConfig('country', e.target.value)}
-            className="w-full h-12 px-4 rounded-xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400"
+            className="w-full h-12 px-4 rounded-2xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400"
             style={{ fontFamily: 'inherit' }}
           />
         </div>
@@ -512,7 +512,7 @@ export default function OnboardingPage() {
             value={roleConfig.city}
             onChange={e => updateConfig('city', e.target.value)}
             placeholder="Ej: Sevilla"
-            className="w-full h-12 px-4 rounded-xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
+            className="w-full h-12 px-4 rounded-2xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
             style={{ fontFamily: 'inherit' }}
           />
         </div>
@@ -539,7 +539,7 @@ export default function OnboardingPage() {
             value={roleConfig.companyName}
             onChange={e => updateConfig('companyName', e.target.value)}
             placeholder="Ej: Aceites del Sur"
-            className="w-full h-12 px-4 rounded-xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
+            className="w-full h-12 px-4 rounded-2xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
             style={{ fontFamily: 'inherit' }}
           />
         </div>
@@ -550,7 +550,7 @@ export default function OnboardingPage() {
               <button
                 key={s.id}
                 onClick={() => updateConfig('companySize', s.id)}
-                className={`h-11 rounded-xl text-sm font-medium cursor-pointer border transition-all ${
+                className={`h-11 rounded-2xl text-sm font-medium cursor-pointer border transition-all ${
                   roleConfig.companySize === s.id
                     ? 'bg-stone-950 text-white border-stone-950'
                     : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
@@ -585,7 +585,7 @@ export default function OnboardingPage() {
               <button
                 key={p.id}
                 onClick={() => toggleArrayItem('platforms', p.id)}
-                className={`flex-1 h-11 rounded-xl text-sm font-medium cursor-pointer border transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 h-11 rounded-2xl text-sm font-medium cursor-pointer border transition-all flex items-center justify-center gap-2 ${
                   roleConfig.platforms.includes(p.id)
                     ? 'bg-stone-950 text-white border-stone-950'
                     : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
@@ -604,7 +604,7 @@ export default function OnboardingPage() {
               <button
                 key={r}
                 onClick={() => updateConfig('followerRange', r)}
-                className={`h-11 rounded-xl text-sm font-medium cursor-pointer border transition-all ${
+                className={`h-11 rounded-2xl text-sm font-medium cursor-pointer border transition-all ${
                   roleConfig.followerRange === r
                     ? 'bg-stone-950 text-white border-stone-950'
                     : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
@@ -639,7 +639,7 @@ export default function OnboardingPage() {
             value={roleConfig.importerCompany}
             onChange={e => updateConfig('importerCompany', e.target.value)}
             placeholder="Ej: Global Foods S.L."
-            className="w-full h-12 px-4 rounded-xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
+            className="w-full h-12 px-4 rounded-2xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
             style={{ fontFamily: 'inherit' }}
           />
         </div>

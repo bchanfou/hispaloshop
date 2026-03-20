@@ -135,7 +135,7 @@ export default function AdminInfluencers() {
         <button
           type="button"
           onClick={() => setShowCreateDialog(true)}
-          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Influencer
@@ -145,20 +145,20 @@ export default function AdminInfluencers() {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl border border-stone-200 p-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Total Influencers</p>
             <p className="text-2xl font-semibold">{stats.total_influencers}</p>
             <p className="text-xs text-stone-700">{stats.active_influencers} active</p>
           </div>
-          <div className="bg-white rounded-xl border border-stone-200 p-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Total Sales</p>
             <p className="text-2xl font-semibold">€{(stats.total_sales_generated || 0).toFixed(2)}</p>
           </div>
-          <div className="bg-white rounded-xl border border-stone-200 p-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Total Commissions</p>
             <p className="text-2xl font-semibold">€{(stats.total_commissions_earned || 0).toFixed(2)}</p>
           </div>
-          <div className="bg-white rounded-xl border border-stone-200 p-4">
+          <div className="bg-white rounded-2xl border border-stone-200 p-4">
             <p className="text-sm text-stone-500">Pending Payouts</p>
             <p className="text-2xl font-semibold text-stone-700">€{(stats.total_pending_payouts || 0).toFixed(2)}</p>
           </div>
@@ -166,7 +166,7 @@ export default function AdminInfluencers() {
       )}
 
       {/* Influencers Table */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         <div className="p-4 border-b border-stone-200">
           <h2 className="text-lg font-semibold text-stone-950">{t('admin.allInfluencers')}</h2>
         </div>
@@ -217,24 +217,24 @@ export default function AdminInfluencers() {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex gap-1">
-                      <button type="button" className="p-1.5 rounded-xl hover:bg-stone-100 transition-colors" onClick={() => openEdit(inf)} title="Editar tier">
+                      <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => openEdit(inf)} title="Editar tier">
                         <Pencil className="h-4 w-4 text-stone-500" />
                       </button>
-                      <button type="button" className="p-1.5 rounded-xl hover:bg-stone-100 transition-colors" onClick={() => fetchInfluencerDetails(inf.influencer_id)} title={t('admin.viewDetails')}>
+                      <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => fetchInfluencerDetails(inf.influencer_id)} title={t('admin.viewDetails')}>
                         <Eye className="h-4 w-4" />
                       </button>
                       {inf.status !== 'active' && (
-                        <button type="button" className="p-1.5 rounded-xl hover:bg-stone-100 transition-colors" onClick={() => updateStatus(inf.influencer_id, 'active')} title={t('admin.activate')}>
+                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => updateStatus(inf.influencer_id, 'active')} title={t('admin.activate')}>
                           <Play className="h-4 w-4 text-stone-700" />
                         </button>
                       )}
                       {inf.status === 'active' && (
-                        <button type="button" className="p-1.5 rounded-xl hover:bg-stone-100 transition-colors" onClick={() => updateStatus(inf.influencer_id, 'suspended')} title={t('admin.pause')}>
+                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => updateStatus(inf.influencer_id, 'suspended')} title={t('admin.pause')}>
                           <Ban className="h-4 w-4 text-stone-600" />
                         </button>
                       )}
                       {inf.available_balance > 0 && inf.stripe_onboarding_complete && (
-                        <button type="button" className="p-1.5 rounded-xl hover:bg-stone-100 transition-colors" onClick={() => processPayout(inf.influencer_id)} title={t('admin.processPayout')}>
+                        <button type="button" className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors" onClick={() => processPayout(inf.influencer_id)} title={t('admin.processPayout')}>
                           <Send className="h-4 w-4 text-stone-600" />
                         </button>
                       )}
@@ -269,7 +269,7 @@ export default function AdminInfluencers() {
                 <select
                   value={editForm.tier}
                   onChange={(e) => setEditForm({ ...editForm, tier: e.target.value })}
-                  className="w-full border border-stone-200 rounded-xl px-3 py-2"
+                  className="w-full border border-stone-200 rounded-2xl px-3 py-2"
                 >
                   <option value="hercules">Hercules · 3%</option>
                   <option value="atenea">Atenea · 5%</option>
@@ -280,17 +280,17 @@ export default function AdminInfluencers() {
                 <label className="block text-sm font-medium text-stone-700 mb-1">Seguidores</label>
                 <input
                   type="number"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   value={editForm.followers_count}
                   onChange={(e) => setEditForm({ ...editForm, followers_count: parseInt(e.target.value || '0', 10) })}
                 />
               </div>
-              <div className="bg-stone-50 rounded-xl p-3 text-sm text-stone-600">
+              <div className="bg-stone-50 rounded-2xl p-3 text-sm text-stone-600">
                 Comisión que se aplicara: <strong>
                   {editForm.tier === 'hercules' ? '3%' : editForm.tier === 'atenea' ? '5%' : '7%'}
                 </strong>
               </div>
-              <button type="button" onClick={saveEdit} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors">
+              <button type="button" onClick={saveEdit} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors">
                 Guardar cambios
               </button>
             </div>
@@ -381,7 +381,7 @@ export default function AdminInfluencers() {
               <div>
                 <label className="block text-sm font-medium text-stone-700 mb-1">{t('admin.fullName')}</label>
                 <input
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   value={newInfluencer.full_name}
                   onChange={(e) => setNewInfluencer({...newInfluencer, full_name: e.target.value})}
                   placeholder="Maria Garcia"
@@ -391,7 +391,7 @@ export default function AdminInfluencers() {
                 <label className="block text-sm font-medium text-stone-700 mb-1">{t('admin.email')}</label>
                 <input
                   type="email"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   value={newInfluencer.email}
                   onChange={(e) => setNewInfluencer({...newInfluencer, email: e.target.value})}
                   placeholder="maria@example.com"
@@ -403,7 +403,7 @@ export default function AdminInfluencers() {
                   <select
                     value={newInfluencer.tier}
                     onChange={(e) => setNewInfluencer({...newInfluencer, tier: e.target.value})}
-                    className="w-full border border-stone-200 rounded-xl px-3 py-2"
+                    className="w-full border border-stone-200 rounded-2xl px-3 py-2"
                   >
                     <option value="hercules">Hercules · 3%</option>
                     <option value="atenea">Atenea · 5%</option>
@@ -414,7 +414,7 @@ export default function AdminInfluencers() {
                   <label className="block text-sm font-medium text-stone-700 mb-1">Followers</label>
                   <input
                     type="number"
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={newInfluencer.followers_count}
                     onChange={(e) => setNewInfluencer({...newInfluencer, followers_count: parseInt(e.target.value || '0', 10) || 0})}
                     placeholder="1000"
@@ -425,7 +425,7 @@ export default function AdminInfluencers() {
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-1">{t('admin.discountCode')}</label>
                   <input
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={newInfluencer.discount_code}
                     onChange={(e) => setNewInfluencer({...newInfluencer, discount_code: e.target.value.toUpperCase()})}
                     placeholder="Auto-generated"
@@ -435,14 +435,14 @@ export default function AdminInfluencers() {
                   <label className="block text-sm font-medium text-stone-700 mb-1">{t('admin.customerDiscount')}</label>
                   <input
                     type="number"
-                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={newInfluencer.discount_percentage}
                     onChange={(e) => setNewInfluencer({...newInfluencer, discount_percentage: parseFloat(e.target.value)})}
                     placeholder="10"
                   />
                 </div>
               </div>
-              <button type="button" onClick={createInfluencer} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors">
+              <button type="button" onClick={createInfluencer} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors">
                 Create Influencer
               </button>
             </div>

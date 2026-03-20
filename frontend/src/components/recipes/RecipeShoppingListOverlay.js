@@ -110,7 +110,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
             <div className="space-y-3">
               {(preview?.items || []).map((item) => (
                 <div key={item.product_id} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-3">
-                  <div className="h-14 w-14 overflow-hidden rounded-xl bg-white">
+                  <div className="h-14 w-14 overflow-hidden rounded-2xl bg-white">
                     {(item.image || item.product_image) ? <img src={resolveUserImage(item.image || item.product_image)} alt={item.name} loading="lazy" className="h-full w-full object-cover" /> : null}
                   </div>
                   <div className="min-w-0 flex-1">

@@ -82,9 +82,9 @@ export default function AdminOrders() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl border border-stone-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-stone-100 rounded-xl">
+            <div className="p-2 bg-stone-100 rounded-2xl">
               <ShoppingBag className="w-5 h-5 text-stone-700" />
             </div>
             <div>
@@ -93,9 +93,9 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl border border-stone-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-stone-100 rounded-xl">
+            <div className="p-2 bg-stone-100 rounded-2xl">
               <DollarSign className="w-5 h-5 text-stone-700" />
             </div>
             <div>
@@ -106,9 +106,9 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl border border-stone-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-stone-100 rounded-xl">
+            <div className="p-2 bg-stone-100 rounded-2xl">
               <TrendingUp className="w-5 h-5 text-stone-700" />
             </div>
             <div>
@@ -119,9 +119,9 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl border border-stone-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-stone-100 rounded-xl">
+            <div className="p-2 bg-stone-100 rounded-2xl">
               <DollarSign className="w-5 h-5 text-stone-700" />
             </div>
             <div>
@@ -167,14 +167,14 @@ export default function AdminOrders() {
             placeholder={activeTab === 'orders' ? t('adminOrders.searchOrdersPlaceholder') : t('adminOrders.searchPaymentsPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl bg-white text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl bg-white text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
             data-testid="search-input"
           />
         </div>
         {activeTab === 'orders' && (
           <button
             onClick={exportCSV}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors text-stone-700 shrink-0"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors text-stone-700 shrink-0"
           >
             <Download className="w-4 h-4" />
             Exportar CSV
@@ -184,7 +184,7 @@ export default function AdminOrders() {
 
       {/* Error state */}
       {error && (
-        <div className="flex items-center gap-3 p-4 mb-4 rounded-xl border border-stone-200 bg-stone-50">
+        <div className="flex items-center gap-3 p-4 mb-4 rounded-2xl border border-stone-200 bg-stone-50">
           <AlertTriangle className="w-5 h-5 text-stone-500 shrink-0" />
           <p className="text-sm text-stone-700 flex-1">{error}</p>
           <button onClick={fetchData} className="text-sm font-medium text-stone-950 hover:underline">Reintentar</button>
@@ -192,7 +192,7 @@ export default function AdminOrders() {
       )}
 
       {/* Content */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : activeTab === 'orders' ? (

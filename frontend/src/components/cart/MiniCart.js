@@ -132,16 +132,16 @@ const MiniCart = ({ isOpen, onClose }) => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: -100 }}
-                            className="flex gap-3 bg-stone-50 rounded-xl p-3"
+                            className="flex gap-3 bg-stone-50 rounded-2xl p-3"
                           >
                             {(item.product_image || item.image || item.product?.image) ? (
                               <img
                                 src={item.product_image || item.image || item.product?.image}
                                 alt={item.product_name || item.name || item.product?.name}
-                                className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
+                                className="w-20 h-20 object-cover rounded-2xl flex-shrink-0"
                               />
                             ) : (
-                              <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 flex items-center justify-center">
+                              <div className="w-20 h-20 rounded-2xl bg-stone-100 flex-shrink-0 flex items-center justify-center">
                                 <ShoppingBag className="w-6 h-6 text-stone-400" />
                               </div>
                             )}
@@ -160,10 +160,10 @@ const MiniCart = ({ isOpen, onClose }) => {
                               </div>
 
                               <div className="flex items-center justify-between mt-2">
-                                <div className="flex items-center bg-white rounded-xl">
+                                <div className="flex items-center bg-white rounded-2xl">
                                   <button
                                     onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-l-xl transition-colors"
+                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-l-2xl transition-colors"
                                     aria-label={`Disminuir cantidad de ${item.product_name || item.name || item.product?.name}`}
                                   >
                                     <Minus className="w-4 h-4 text-stone-950" />
@@ -173,7 +173,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   </span>
                                   <button
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-r-xl transition-colors"
+                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-r-2xl transition-colors"
                                     aria-label={`Aumentar cantidad de ${item.product_name || item.name || item.product?.name}`}
                                   >
                                     <Plus className="w-4 h-4 text-stone-950" />
@@ -198,7 +198,7 @@ const MiniCart = ({ isOpen, onClose }) => {
               <div className="border-t border-stone-200 p-4 space-y-4">
                 {/* Shipping progress */}
                 {subtotal < freeShippingThreshold && (
-                  <div className="bg-stone-100 rounded-xl p-3 text-sm">
+                  <div className="bg-stone-100 rounded-2xl p-3 text-sm">
                     <p className="text-stone-950">
                       Añade <span className="font-semibold text-stone-950">€{(freeShippingThreshold - subtotal).toFixed(2)}</span> más para envío gratis
                     </p>

@@ -136,13 +136,13 @@ export default function GDPRPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleAction(req.id, 'fulfill')}
-                      className="px-4 py-2 bg-[#ffffff] rounded-xl text-xs font-bold text-white hover:bg-[#4846c4] transition-colors"
+                      className="px-4 py-2 bg-[#ffffff] rounded-2xl text-xs font-bold text-white hover:bg-[#4846c4] transition-colors"
                     >
                       Procesar
                     </button>
                     <button
                       onClick={() => handleAction(req.id, 'reject')}
-                      className="px-4 py-2 bg-white/[0.08] rounded-xl text-xs text-white/50 hover:bg-white/[0.12] transition-colors"
+                      className="px-4 py-2 bg-white/[0.08] rounded-2xl text-xs text-white/50 hover:bg-white/[0.12] transition-colors"
                     >
                       Rechazar
                     </button>
@@ -206,12 +206,12 @@ function ExportUserTool() {
         value={userId}
         onChange={e => setUserId(e.target.value)}
         placeholder="user_id"
-        className="flex-1 px-3.5 py-2.5 bg-[#1c1917] border border-white/10 rounded-xl text-white text-sm outline-none"
+        className="flex-1 px-3.5 py-2.5 bg-[#1c1917] border border-white/10 rounded-2xl text-white text-sm outline-none"
       />
       <button
         onClick={handleExport}
         disabled={exporting}
-        className="px-5 py-2.5 bg-[#ffffff] rounded-xl text-sm font-bold text-white disabled:opacity-50 flex items-center gap-1.5"
+        className="px-5 py-2.5 bg-[#ffffff] rounded-2xl text-sm font-bold text-white disabled:opacity-50 flex items-center gap-1.5"
       >
         {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
         Exportar

@@ -113,7 +113,7 @@ export default function InfrastructurePage() {
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className="px-4 py-2 bg-white/[0.08] rounded-xl text-sm text-white/60 hover:bg-white/[0.12] transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          className="px-4 py-2 bg-white/[0.08] rounded-2xl text-sm text-white/60 hover:bg-white/[0.12] transition-colors flex items-center gap-1.5 disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh
@@ -150,7 +150,7 @@ export default function InfrastructurePage() {
               return (
                 <div
                   key={svc.key}
-                  className="flex items-center gap-2.5 px-3 py-2.5 bg-white/[0.04] rounded-xl"
+                  className="flex items-center gap-2.5 px-3 py-2.5 bg-white/[0.04] rounded-2xl"
                 >
                   <StatusDot status={h?.status || 'unknown'} />
                   <div>
@@ -200,7 +200,7 @@ export default function InfrastructurePage() {
             { label: 'Hosting Web', value: 'Vercel' },
             { label: 'Pagos', value: 'Stripe Connect' },
           ].map(item => (
-            <div key={item.label} className="bg-white/[0.04] rounded-xl px-3 py-2.5">
+            <div key={item.label} className="bg-white/[0.04] rounded-2xl px-3 py-2.5">
               <p className="text-[10px] text-white/30 mb-0.5">{item.label}</p>
               <p className="text-xs font-semibold text-white">{item.value}</p>
             </div>

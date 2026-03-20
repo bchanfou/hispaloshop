@@ -494,7 +494,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           onChange={(event) => updateField('fullName', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, fullName: true }))}
           placeholder="Tu nombre y apellidos"
-          className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.fullName), touched.fullName && validity.fullName)}`}
+          className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.fullName), touched.fullName && validity.fullName)}`}
         />
         <StatusIcon valid={touched.fullName && validity.fullName} />
         {renderError('fullName')}
@@ -509,7 +509,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           onChange={(event) => updateField('email', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, email: true }))}
           placeholder="tu@empresa.com"
-          className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.email), touched.email && validity.email)}`}
+          className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.email), touched.email && validity.email)}`}
         />
         <StatusIcon valid={touched.email && validity.email} />
         {renderError('email')}
@@ -524,7 +524,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           onChange={(event) => updateField('password', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, password: true }))}
           placeholder="Mínimo 6 caracteres"
-          className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
+          className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
         />
         <StatusIcon valid={touched.password && validity.password} />
         {renderError('password')}
@@ -536,7 +536,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           <select
             value={formData.phonePrefix}
             onChange={(event) => updateField('phonePrefix', event.target.value)}
-            className="h-12 rounded-xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
+            className="h-12 rounded-2xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
           >
             {PHONE_PREFIXES.map((prefix) => <option key={prefix.value} value={prefix.value}>{prefix.label}</option>)}
           </select>
@@ -548,7 +548,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               onChange={(event) => updateField('phoneNumber', sanitizePhone(event.target.value))}
               onBlur={() => setTouched((current) => ({ ...current, phoneNumber: true }))}
               placeholder="Número sin espacios"
-              className={`h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`}
+              className={`h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`}
             />
             <StatusIcon valid={touched.phoneNumber && validity.phoneNumber} />
           </div>
@@ -563,7 +563,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           value={formData.country}
           onChange={(event) => updateField('country', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, country: true }))}
-          className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-base text-stone-950 focus:outline-none ${fieldClass(Boolean(errors.country), touched.country && validity.country)}`}
+          className={`mt-2 h-12 w-full rounded-2xl border bg-white px-4 text-base text-stone-950 focus:outline-none ${fieldClass(Boolean(errors.country), touched.country && validity.country)}`}
         >
           <option value="">Selecciona tu país principal</option>
           {countryOptions.map((option) => <option key={option.code} value={option.code}>{option.name}</option>)}
@@ -659,7 +659,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               onChange={(event) => updateField('companyName', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, companyName: true }))}
               placeholder="Nombre fiscal o comercial"
-              className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.companyName), touched.companyName && validity.companyName)}`}
+              className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.companyName), touched.companyName && validity.companyName)}`}
             />
             <StatusIcon valid={touched.companyName && validity.companyName} />
             {renderError('companyName')}
@@ -673,7 +673,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               onChange={(event) => updateField('vatCif', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, vatCif: true }))}
               placeholder="Identificacion fiscal"
-              className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.vatCif), touched.vatCif && validity.vatCif)}`}
+              className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.vatCif), touched.vatCif && validity.vatCif)}`}
             />
             <StatusIcon valid={touched.vatCif && validity.vatCif} />
             {renderError('vatCif')}
@@ -687,7 +687,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               onChange={(event) => updateField('fiscalAddress', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, fiscalAddress: true }))}
               placeholder="Dirección completa para facturación"
-              className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.fiscalAddress), touched.fiscalAddress && validity.fiscalAddress)}`}
+              className={`mt-2 h-12 w-full rounded-2xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.fiscalAddress), touched.fiscalAddress && validity.fiscalAddress)}`}
             />
             <StatusIcon valid={touched.fiscalAddress && validity.fiscalAddress} />
             {renderError('fiscalAddress')}

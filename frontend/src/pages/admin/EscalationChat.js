@@ -132,8 +132,21 @@ export default function EscalationChat() {
   // ── render ────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-6 h-6 animate-spin text-stone-500" />
+      <div className="h-64 p-6 space-y-4" aria-busy="true" aria-label="Cargando escalaciones">
+        <div className="flex gap-4">
+          <div className="w-64 space-y-3">
+            {[1,2,3].map(i => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="h-9 w-9 animate-pulse rounded-full bg-stone-100" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3 w-3/4 animate-pulse rounded-full bg-stone-100" />
+                  <div className="h-2.5 w-1/2 animate-pulse rounded-full bg-stone-100" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex-1 rounded-2xl bg-stone-50 animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -227,7 +240,7 @@ export default function EscalationChat() {
                 El mensaje está cifrado de extremo a extremo en base de datos.
               </p>
               <textarea
-                className="w-full border border-stone-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-200 mb-3"
+                className="w-full border border-stone-200 rounded-2xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-200 mb-3"
                 rows={4}
                 placeholder="Describe el problema o situación a escalar..."
                 value={initialMessage}
@@ -236,7 +249,7 @@ export default function EscalationChat() {
               <button
                 onClick={openEscalation}
                 disabled={!initialMessage.trim()}
-                className="w-full bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl py-2.5 text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+                className="w-full bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl py-2.5 text-sm font-medium flex items-center justify-center gap-2 transition-colors"
               >
                 <ShieldAlert className="w-4 h-4" />
                 Abrir Canal de Escalación
@@ -279,7 +292,7 @@ export default function EscalationChat() {
             <div className="bg-white border-t border-stone-200 px-4 py-3">
               <div className="flex gap-2 items-end">
                 <textarea
-                  className="flex-1 border border-stone-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-200 max-h-32"
+                  className="flex-1 border border-stone-200 rounded-2xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-200 max-h-32"
                   rows={1}
                   placeholder="Escribe un mensaje cifrado..."
                   value={text}
@@ -289,7 +302,7 @@ export default function EscalationChat() {
                 <button
                   onClick={sendMessage}
                   disabled={!text.trim() || sending}
-                  className="p-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors shrink-0"
+                  className="p-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors shrink-0"
                 >
                   <Send className="w-4 h-4" />
                 </button>

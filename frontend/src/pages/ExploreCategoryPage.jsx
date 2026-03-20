@@ -123,7 +123,7 @@ export default function ExploreCategoryPage() {
         {loading ? (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-xl bg-stone-100" style={{ aspectRatio: '4/5' }} />
+              <div key={i} className="animate-pulse rounded-2xl bg-stone-100" style={{ aspectRatio: '4/5' }} />
             ))}
           </div>
         ) : error ? (

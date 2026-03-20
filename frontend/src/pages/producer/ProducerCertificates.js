@@ -252,7 +252,7 @@ export default function ProducerCertificates() {
           {t('common.back', 'Volver')}
         </button>
 
-        <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-3xl">
+        <div className="bg-white rounded-2xl border border-stone-200 p-6 max-w-3xl">
           <h2 className="text-2xl font-bold text-stone-950 mb-2">
             {t('certificates.createTitle', 'Crear Certificado')}
           </h2>
@@ -268,7 +268,7 @@ export default function ProducerCertificates() {
               <p className="text-stone-500 mb-4">
                 {t('certificates.allProductsCertified', 'Todos tus productos ya tienen certificados.')}
               </p>
-              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">
+              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
                 {t('common.goBack', 'Volver')}
               </button>
             </div>
@@ -284,7 +284,7 @@ export default function ProducerCertificates() {
                     <select
                       value={formData.product_id}
                       onChange={(e) => setFormData({ ...formData, product_id: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:border-stone-950"
+                      className="w-full px-4 py-3 rounded-2xl border border-stone-200 focus:outline-none focus:border-stone-950"
                       data-testid="product-select"
                     >
                       <option value="">{t('certificates.selectProductPlaceholder', 'Seleccionar producto')}</option>
@@ -304,7 +304,7 @@ export default function ProducerCertificates() {
                           key={type.id}
                           type="button"
                           onClick={() => setFormData({ ...formData, certificate_type: type.id })}
-                          className={`p-4 rounded-xl border-2 transition-all text-left ${
+                          className={`p-4 rounded-2xl border-2 transition-all text-left ${
                             formData.certificate_type === type.id
                               ? 'border-stone-950 bg-stone-50'
                               : 'border-stone-200 hover:border-stone-300'
@@ -327,7 +327,7 @@ export default function ProducerCertificates() {
                         value={formData.custom_type}
                         onChange={(e) => setFormData({ ...formData, custom_type: e.target.value })}
                         placeholder={t('certificates.customTypePlaceholder', 'Ej: Certificado de Denominación de Origen')}
-                        className="w-full h-12 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                        className="w-full h-12 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                       />
                     </div>
                   )}
@@ -341,7 +341,7 @@ export default function ProducerCertificates() {
                     <label className="block text-sm font-medium text-stone-950 mb-2">
                       {t('certificates.uploadDocument', 'Subir Documento (opcional)')}
                     </label>
-                    <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+                    <div className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
                       formData.document_url 
                         ? 'border-stone-200 bg-stone-100'
                         : 'border-stone-200 hover:border-stone-950 hover:bg-stone-50'
@@ -380,7 +380,7 @@ export default function ProducerCertificates() {
                     </div>
                   </div>
 
-                  <div className="bg-stone-50 border border-stone-200 rounded-xl p-4">
+                  <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4">
                     <div className="flex gap-3">
                       <Info className="w-5 h-5 text-stone-500 flex-shrink-0 mt-0.5" />
                       <div>
@@ -407,7 +407,7 @@ export default function ProducerCertificates() {
                         data: { ...formData.data, certifying_body: e.target.value }
                       })}
                       placeholder={t('certificates.certifyingBodyPlaceholder', 'Ej: CAAE, Ecocert, BCS...')}
-                      className="w-full h-12 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                      className="w-full h-12 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                     />
                   </div>
 
@@ -422,7 +422,7 @@ export default function ProducerCertificates() {
                         ...formData,
                         data: { ...formData.data, expiry_date: e.target.value }
                       })}
-                      className="w-full h-12 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                      className="w-full h-12 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     />
                   </div>
 
@@ -437,7 +437,7 @@ export default function ProducerCertificates() {
                         data: { ...formData.data, claims: e.target.value }
                       })}
                       placeholder="100% Orgánico, Sin Pesticidas, Cosecha Manual..."
-                      className="w-full h-12 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                      className="w-full h-12 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                     />
                   </div>
 
@@ -451,7 +451,7 @@ export default function ProducerCertificates() {
                         ...formData, 
                         data: { ...formData.data, ingredient_origins: e.target.value }
                       })}
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 min-h-[100px] focus:outline-none focus:border-stone-950"
+                      className="w-full px-4 py-3 rounded-2xl border border-stone-200 min-h-[100px] focus:outline-none focus:border-stone-950"
                       placeholder="Aceitunas: España (Jaén)&#10;Sal: Portugal&#10;..."
                     />
                   </div>
@@ -461,7 +461,7 @@ export default function ProducerCertificates() {
               {/* Step 4: Review */}
               {currentStep === 3 && (
                 <div className="space-y-6">
-                  <div className="bg-stone-50 rounded-xl p-6">
+                  <div className="bg-stone-50 rounded-2xl p-6">
                     <h3 className="font-medium text-stone-950 mb-4">
                       {t('certificates.reviewSummary', 'Resumen del Certificado')}
                     </h3>
@@ -500,7 +500,7 @@ export default function ProducerCertificates() {
                     </dl>
                   </div>
 
-                  <div className="bg-stone-50 border border-stone-200 rounded-xl p-4">
+                  <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4">
                     <div className="flex gap-3">
                       <AlertCircle className="w-5 h-5 text-stone-500 flex-shrink-0 mt-0.5" />
                       <div>
@@ -523,7 +523,7 @@ export default function ProducerCertificates() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(currentStep - 1)}
-                      className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                      className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
                     >
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       {t('common.back', 'Atrás')}
@@ -536,7 +536,7 @@ export default function ProducerCertificates() {
                     <button
                       type="button"
                       onClick={() => handleSubmit(true)}
-                      className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                      className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
                     >
                       <Save className="w-4 h-4 mr-2" />
                       {t('certificates.saveDraft', 'Guardar borrador')}
@@ -548,7 +548,7 @@ export default function ProducerCertificates() {
                       type="button"
                       onClick={() => setCurrentStep(currentStep + 1)}
                       disabled={!canProceed()}
-                      className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                      className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
                     >
                       {t('common.next', 'Siguiente')}
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -557,7 +557,7 @@ export default function ProducerCertificates() {
                     <button
                       type="button"
                       onClick={() => handleSubmit(false)}
-                      className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+                      className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       {t('certificates.submitForApproval', 'Enviar para aprobación')}
@@ -587,7 +587,7 @@ export default function ProducerCertificates() {
         <button
           type="button"
           onClick={() => setShowCreateForm(true)}
-          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
           data-testid="create-certificate"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -596,7 +596,7 @@ export default function ProducerCertificates() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-stone-500">
             {t('common.loading', 'Cargando...')}
@@ -607,7 +607,7 @@ export default function ProducerCertificates() {
             <p className="text-stone-500 mb-4">
               {t('certificates.noCertificates', 'No tienes certificados todavía.')}
             </p>
-            <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors">
+            <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors">
               <Plus className="w-4 h-4 mr-2" />
               {t('certificates.createFirst', 'Crear tu primer certificado')}
             </button>
@@ -702,7 +702,7 @@ export default function ProducerCertificates() {
       </div>
 
       {/* Info Card */}
-      <div className="mt-6 bg-stone-50 border border-stone-200 rounded-xl p-4">
+      <div className="mt-6 bg-stone-50 border border-stone-200 rounded-2xl p-4">
         <div className="flex gap-3">
           <Info className="w-5 h-5 text-stone-500 flex-shrink-0 mt-0.5" />
           <div>

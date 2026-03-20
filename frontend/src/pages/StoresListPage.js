@@ -329,7 +329,7 @@ function FeaturedCard({ store }) {
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)' }} />
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {store.logo && <img src={store.logo} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255,255,255,0.4)' }} />}
+          {store.logo && <img loading="lazy" src={store.logo} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255,255,255,0.4)' }} />}
           <div>
             <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', margin: 0 }}>{store.name}</p>
             <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', margin: 0, display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -595,7 +595,7 @@ export default function StoresListPage() {
                         border: '1px solid #e7e5e4', textDecoration: 'none',
                       }}>
                         {store.logo ? (
-                          <img src={store.logo} alt={store.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                          <img loading="lazy" src={store.logo} alt={store.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
                         ) : (
                           <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#f5f5f4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, color: '#78716c' }}>
                             {(store.name || '?')[0].toUpperCase()}
@@ -660,10 +660,10 @@ export default function StoresListPage() {
                   ))}
                 </div>
               ) : filteredStores.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                  <MapPin size={36} style={{ color: '#78716c', margin: '0 auto 12px' }} />
-                  <p style={{ fontSize: 15, fontWeight: 500, color: '#0c0a09' }}>No hay tiendas</p>
-                  <p style={{ fontSize: 13, color: '#78716c', marginTop: 4 }}>
+                <div className="flex flex-col items-center py-16 text-center">
+                  <MapPin size={48} className="text-stone-300" />
+                  <p className="mt-4 text-lg font-semibold text-stone-950">No hay tiendas</p>
+                  <p className="mt-1 text-sm text-stone-500">
                     {debouncedSearch ? 'Prueba con otro término' : 'No hay tiendas en esta región todavía'}
                   </p>
                 </div>

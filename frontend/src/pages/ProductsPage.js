@@ -538,7 +538,7 @@ export default function ProductsPage() {
                     tabIndex={0}
                     onKeyDown={(e) => { if (e.key === 'Enter') window.location.href = `/products/${product.product_id}`; }}
                   >
-                    <div className="w-20 h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
+                    <div className="w-20 h-20 rounded-2xl bg-stone-100 overflow-hidden flex-shrink-0">
                       {(product.images?.[0] || product.image_url || product.thumbnail) && (
                         <img
                           src={product.images?.[0] || product.image_url || product.thumbnail}

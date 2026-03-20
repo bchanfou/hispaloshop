@@ -311,7 +311,7 @@ export default function FiscalSetupPage() {
                     onChange={(e) => setCountrySearch(e.target.value)}
                     placeholder="Buscar país..."
                     autoFocus
-                    className="w-full px-3 py-2 text-sm rounded-xl focus:outline-none"
+                    className="w-full px-3 py-2 text-sm rounded-2xl focus:outline-none"
                     style={{ background: '#f5f5f4', color: '#0c0a09' }}
                   />
                 </div>

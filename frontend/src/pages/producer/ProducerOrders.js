@@ -75,7 +75,7 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
     <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -105,7 +105,7 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
               id="carrier"
               value={formData.shipping_carrier}
               onChange={(e) => setFormData({ ...formData, shipping_carrier: e.target.value })}
-              className="w-full mt-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 bg-white focus:outline-none focus:border-stone-950"
+              className="w-full mt-1 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 bg-white focus:outline-none focus:border-stone-950"
             >
               <option value="">{t('orders.shipping.selectCarrier')}</option>
               {SHIPPING_CARRIERS.map((carrier) => (
@@ -126,7 +126,7 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
               value={formData.tracking_number}
               onChange={(e) => setFormData({ ...formData, tracking_number: e.target.value })}
               placeholder={t('orders.shipping.trackingPlaceholder')}
-              className="w-full mt-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+              className="w-full mt-1 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
             />
           </div>
 
@@ -141,12 +141,12 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               placeholder={t('orders.shipping.notesPlaceholder')}
               rows={2}
-              className="w-full mt-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+              className="w-full mt-1 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
             />
           </div>
 
           {/* Info Box */}
-          <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm text-stone-700">
+          <div className="bg-stone-50 border border-stone-200 rounded-2xl p-3 text-sm text-stone-700">
             <p className="flex items-start gap-2">
               <Send className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <span>
@@ -160,14 +160,14 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors disabled:opacity-50"
               disabled={loading}
             >
               {t('orders.shipping.cancel')}
             </button>
             <button
               type="submit"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
               disabled={loading}
             >
               {loading ? (
@@ -354,23 +354,23 @@ export default function ProducerOrders() {
   if (loading) {
     return (
       <div className="space-y-4 pt-4">
-        <div className="h-8 w-48 bg-stone-100 rounded-xl animate-pulse" />
-        <div className="h-10 w-full bg-stone-100 rounded-xl animate-pulse" />
+        <div className="h-8 w-48 bg-stone-100 rounded-2xl animate-pulse" />
+        <div className="h-10 w-full bg-stone-100 rounded-2xl animate-pulse" />
         <div className="flex gap-2">
           {[1,2,3,4,5].map(i => (
             <div key={i} className="h-9 w-24 bg-stone-100 rounded-full animate-pulse" />
           ))}
         </div>
         {[1,2,3].map(i => (
-          <div key={i} className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
+          <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-stone-100 rounded-xl animate-pulse" />
+              <div className="w-10 h-10 bg-stone-100 rounded-2xl animate-pulse" />
               <div className="space-y-2 flex-1">
                 <div className="h-4 w-32 bg-stone-100 rounded animate-pulse" />
                 <div className="h-3 w-24 bg-stone-100 rounded animate-pulse" />
               </div>
             </div>
-            <div className="h-12 bg-stone-50 rounded-xl animate-pulse" />
+            <div className="h-12 bg-stone-50 rounded-2xl animate-pulse" />
           </div>
         ))}
       </div>
@@ -386,7 +386,7 @@ export default function ProducerOrders() {
         <button
           type="button"
           onClick={fetchOrdersWithError}
-          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-xl transition-colors"
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-2xl transition-colors"
         >
           {t('common.retry', 'Reintentar')}
         </button>
@@ -410,7 +410,7 @@ export default function ProducerOrders() {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           placeholder="Buscar por cliente o número..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400"
+          className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-stone-200 bg-white text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400"
         />
       </div>
 
@@ -435,7 +435,7 @@ export default function ProducerOrders() {
       </div>
 
       {filteredOrders.length === 0 ? (
-        <div className="bg-white rounded-xl border border-stone-200 p-12 text-center">
+        <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
           <ShoppingBag className="w-16 h-16 text-stone-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-stone-950 mb-2">
             {activeFilter === 'all' ? t('orders.noOrders') : 'Sin pedidos en esta categoría'}
@@ -454,12 +454,12 @@ export default function ProducerOrders() {
             return (
               <div
                 key={order.order_id}
-                className="bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow"
               >
                 {/* Order Header */}
                 <div className="p-4 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-xl ${getStatusColor(order.status)}`}>
+                    <div className={`p-2 rounded-2xl ${getStatusColor(order.status)}`}>
                       <StatusIcon className="w-5 h-5" />
                     </div>
                     <div>
@@ -511,7 +511,7 @@ export default function ProducerOrders() {
                         {order.status === 'preparing' ? (
                           <button
                             onClick={() => handleShipOrder(order)}
-                            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                             data-testid={`ship-order-${order.order_id}`}
                           >
                             <Truck className="w-4 h-4" />
@@ -521,7 +521,7 @@ export default function ProducerOrders() {
                           <button
                             onClick={() => handleUpdateStatus(order, 'delivered')}
                             disabled={updatingOrderId === order.order_id}
-                            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                             data-testid={`deliver-order-${order.order_id}`}
                           >
                             <Check className="w-4 h-4" />
@@ -531,7 +531,7 @@ export default function ProducerOrders() {
                           <button
                             onClick={() => handleUpdateStatus(order, nextStatus)}
                             disabled={updatingOrderId === order.order_id}
-                            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                             data-testid={`update-order-${order.order_id}`}
                           >
                             <Package className="w-4 h-4" />
@@ -543,7 +543,7 @@ export default function ProducerOrders() {
                         {['paid', 'confirmed'].includes(order.status) && (
                           <button
                             onClick={() => handleShipOrder(order)}
-                            className="flex items-center gap-2 px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
                             data-testid={`quick-ship-${order.order_id}`}
                           >
                             <Truck className="w-4 h-4" />
@@ -563,12 +563,12 @@ export default function ProducerOrders() {
                       <p className="text-sm font-medium text-stone-600 mb-2">{t('orders.products')}</p>
                       <div className="space-y-2">
                         {order.line_items?.map((item, idx) => (
-                          <div key={idx} className="flex items-center gap-3 p-2 bg-stone-50 rounded-xl">
+                          <div key={idx} className="flex items-center gap-3 p-2 bg-stone-50 rounded-2xl">
                             {(item.image || item.product_image) && (
                               <img
                                 src={item.image || item.product_image}
                                 alt={item.product_name}
-                                className="w-12 h-12 rounded-xl object-cover"
+                                className="w-12 h-12 rounded-2xl object-cover"
                               />
                             )}
                             <div className="flex-1">
@@ -589,7 +589,7 @@ export default function ProducerOrders() {
                     <div>
                       <p className="text-sm font-medium text-stone-600 mb-2">{t('orders.shipping.title')}</p>
                       {order.shipping_address ? (
-                        <div className="p-3 bg-stone-50 rounded-xl text-sm">
+                        <div className="p-3 bg-stone-50 rounded-2xl text-sm">
                           <div className="flex items-start gap-2">
                             <MapPin className="w-4 h-4 text-stone-500 mt-0.5" />
                             <div>
@@ -608,7 +608,7 @@ export default function ProducerOrders() {
 
                       {/* Tracking Info (if shipped) */}
                       {order.status === 'shipped' && (order.tracking_number || order.shipping_carrier) && (
-                        <div className="mt-3 p-3 bg-stone-50 border border-stone-200 rounded-xl text-sm">
+                        <div className="mt-3 p-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm">
                           <p className="font-medium text-stone-950 flex items-center gap-1 mb-1">
                             <Truck className="w-4 h-4" />
                             {t('orders.shippingInfo')}

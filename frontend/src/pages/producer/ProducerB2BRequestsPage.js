@@ -70,7 +70,7 @@ function ShipForm({ requestId, onSuccess }) {
     return (
       <button
         onClick={() => setShow(true)}
-        className="flex items-center gap-1.5 px-4 py-2 bg-stone-950 text-white rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors"
+        className="flex items-center gap-1.5 px-4 py-2 bg-stone-950 text-white rounded-2xl text-sm font-semibold hover:bg-stone-800 transition-colors"
       >
         <Truck className="w-4 h-4" /> Registrar envío
       </button>
@@ -84,26 +84,26 @@ function ShipForm({ requestId, onSuccess }) {
         value={tracking}
         onChange={e => setTracking(e.target.value)}
         placeholder="Número de tracking"
-        className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-950"
+        className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:border-stone-950"
       />
       <input
         type="text"
         value={trackUrl}
         onChange={e => setTrackUrl(e.target.value)}
         placeholder="URL de seguimiento (opcional)"
-        className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-950"
+        className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:border-stone-950"
       />
       <div className="flex gap-2">
         <button
           onClick={() => setShow(false)}
-          className="flex-1 px-3 py-2 border border-stone-200 text-stone-600 rounded-xl text-sm hover:bg-stone-50 transition-colors"
+          className="flex-1 px-3 py-2 border border-stone-200 text-stone-600 rounded-2xl text-sm hover:bg-stone-50 transition-colors"
         >
           Cancelar
         </button>
         <button
           onClick={submit}
           disabled={saving}
-          className="flex-1 px-3 py-2 bg-stone-950 text-white rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors disabled:opacity-50"
+          className="flex-1 px-3 py-2 bg-stone-950 text-white rounded-2xl text-sm font-semibold hover:bg-stone-800 transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Confirmar envío'}
         </button>
@@ -160,7 +160,7 @@ function RequestCard({ request, onAction }) {
   const totalConfirmado = request.quantity * parseFloat(confirmedPrice || 0);
 
   return (
-    <div className={`bg-white rounded-xl border ${request.status === 'pending' ? 'border-stone-950' : 'border-stone-200'} overflow-hidden mb-3`}>
+    <div className={`bg-white rounded-2xl border ${request.status === 'pending' ? 'border-stone-950' : 'border-stone-200'} overflow-hidden mb-3`}>
       {/* Header */}
       <div className={`flex items-center justify-between px-4 py-2.5 border-b ${request.status === 'pending' ? 'bg-stone-50 border-stone-200' : 'bg-white border-stone-100'}`}>
         <div>
@@ -181,7 +181,7 @@ function RequestCard({ request, onAction }) {
           <img
             src={request.product_image || '/placeholder.png'}
             alt={request.product_name}
-            className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+            className="w-14 h-14 rounded-2xl object-cover flex-shrink-0"
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-stone-950 truncate">{request.product_name}</p>
@@ -210,7 +210,7 @@ function RequestCard({ request, onAction }) {
 
         {/* Importer notes */}
         {request.notes && (
-          <div className="bg-stone-50 rounded-xl p-3 mb-3 border-l-3 border-stone-200">
+          <div className="bg-stone-50 rounded-2xl p-3 mb-3 border-l-3 border-stone-200">
             <p className="text-[11px] font-bold text-stone-500 mb-1">Nota del importador:</p>
             <p className="text-sm text-stone-700">"{request.notes}"</p>
           </div>
@@ -218,7 +218,7 @@ function RequestCard({ request, onAction }) {
 
         {/* Confirm form */}
         {request.status === 'pending' && showConfirm && (
-          <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 mb-3">
+          <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 mb-3">
             <p className="text-sm font-bold text-stone-950 mb-3">Confirmar disponibilidad</p>
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
@@ -229,7 +229,7 @@ function RequestCard({ request, onAction }) {
                   min="0"
                   value={confirmedPrice}
                   onChange={e => setConfirmedPrice(e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -240,7 +240,7 @@ function RequestCard({ request, onAction }) {
                   onChange={e => setEstimatedDays(parseInt(e.target.value) || 7)}
                   min="1"
                   max="90"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -251,7 +251,7 @@ function RequestCard({ request, onAction }) {
                 value={estimatedDeliveryDate}
                 onChange={e => setEstimatedDeliveryDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:border-stone-950"
               />
             </div>
             <div className="mb-3">
@@ -261,10 +261,10 @@ function RequestCard({ request, onAction }) {
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Ej: Stock disponible. Mínimo 100kg por pedido."
                 rows={2}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm resize-none focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm resize-none focus:outline-none focus:border-stone-950"
               />
             </div>
-            <div className="bg-white rounded-xl p-2.5 mb-3 text-xs text-stone-500">
+            <div className="bg-white rounded-2xl p-2.5 mb-3 text-xs text-stone-500">
               El importador verá: <strong className="text-stone-950">
                 {request.quantity} {request.unit} × {parseFloat(confirmedPrice || 0).toFixed(2)}€ = {totalConfirmado.toFixed(2)}€
               </strong> + 3% comisión Hispaloshop
@@ -272,14 +272,14 @@ function RequestCard({ request, onAction }) {
             <div className="flex gap-2">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 px-3 py-2 border border-stone-200 text-stone-600 rounded-xl text-sm hover:bg-stone-50 transition-colors"
+                className="flex-1 px-3 py-2 border border-stone-200 text-stone-600 rounded-2xl text-sm hover:bg-stone-50 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={confirm}
                 disabled={processing}
-                className="flex-1 px-3 py-2 bg-stone-950 text-white rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors disabled:opacity-50"
+                className="flex-1 px-3 py-2 bg-stone-950 text-white rounded-2xl text-sm font-semibold hover:bg-stone-800 transition-colors disabled:opacity-50"
               >
                 {processing ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Enviar oferta'}
               </button>
@@ -292,14 +292,14 @@ function RequestCard({ request, onAction }) {
           <div className="flex gap-2">
             <button
               onClick={() => setShowConfirm(true)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-stone-950 text-white rounded-xl text-sm font-semibold hover:bg-stone-800 transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-stone-950 text-white rounded-2xl text-sm font-semibold hover:bg-stone-800 transition-colors"
             >
               <Check className="w-4 h-4" /> Confirmar
             </button>
             <button
               onClick={reject}
               disabled={processing}
-              className="px-4 py-2.5 border border-stone-200 text-stone-500 rounded-xl text-sm hover:bg-stone-50 transition-colors disabled:opacity-50"
+              className="px-4 py-2.5 border border-stone-200 text-stone-500 rounded-2xl text-sm hover:bg-stone-50 transition-colors disabled:opacity-50"
             >
               Rechazar
             </button>
@@ -307,7 +307,7 @@ function RequestCard({ request, onAction }) {
         )}
 
         {request.status === 'confirmed_by_producer' && (
-          <div className="bg-stone-50 rounded-xl p-3 text-sm text-stone-600">
+          <div className="bg-stone-50 rounded-2xl p-3 text-sm text-stone-600">
             Oferta enviada. Esperando aprobación y pago del importador.
             {request.confirmed_unit_price && (
               <p className="font-bold text-stone-950 mt-1">
@@ -318,14 +318,14 @@ function RequestCard({ request, onAction }) {
         )}
 
         {(request.status === 'paid' || request.status === 'preparing') && (
-          <div className="bg-stone-50 border border-stone-200 rounded-xl p-3">
+          <div className="bg-stone-50 border border-stone-200 rounded-2xl p-3">
             <p className="text-sm font-bold text-stone-950 mb-2">Pago recibido — Preparar y enviar</p>
             <ShipForm requestId={request.id} onSuccess={onAction} />
           </div>
         )}
 
         {request.status === 'shipped' && request.tracking_number && (
-          <div className="bg-stone-50 rounded-xl p-3 text-sm">
+          <div className="bg-stone-50 rounded-2xl p-3 text-sm">
             <p className="font-semibold text-stone-950">Enviado</p>
             <p className="text-stone-500 mt-1">Tracking: {request.tracking_number}</p>
             {request.tracking_url && (

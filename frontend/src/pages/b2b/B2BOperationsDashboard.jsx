@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
-import apiClient from '@/services/api/client';
-import { useAuth } from '@/context/AuthContext';
+import apiClient from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
 
 /* ── V2 Design Tokens ── */
 const T = {
@@ -451,7 +451,7 @@ const B2BOperationsDashboard = () => {
         {loading ? (
           <div className="p-4 space-y-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="animate-pulse bg-stone-100 rounded-xl h-24" />
+              <div key={i} className="animate-pulse bg-stone-100 rounded-2xl h-24" />
             ))}
           </div>
         ) : error ? (

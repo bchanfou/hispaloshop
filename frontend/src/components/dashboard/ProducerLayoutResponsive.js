@@ -182,7 +182,7 @@ export default function ProducerLayout() {
 
         {/* Pending Warning */}
         {isPending && (
-          <div className="mx-4 mt-4 p-3 bg-stone-50 border border-stone-200 rounded-xl">
+          <div className="mx-4 mt-4 p-3 bg-stone-50 border border-stone-200 rounded-2xl">
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-stone-600 mt-0.5" strokeWidth={1.5} />
               <div>
@@ -201,7 +201,7 @@ export default function ProducerLayout() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
+                `flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-200 text-sm ${
                   isActive
                     ? 'bg-stone-100 text-stone-950 font-medium'
                     : 'text-stone-600 hover:bg-stone-100'
@@ -253,7 +253,7 @@ export default function ProducerLayout() {
           <div className="p-4 md:p-8">
             {/* Mobile pending warning */}
             {isPending && (
-              <div className="md:hidden mb-4 p-3 bg-stone-50 border border-stone-200 rounded-xl">
+              <div className="md:hidden mb-4 p-3 bg-stone-50 border border-stone-200 rounded-2xl">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-stone-600" strokeWidth={1.5} />
                   <p className="text-sm text-stone-950">{t('common.accountPending')}</p>
@@ -323,12 +323,12 @@ export default function ProducerLayout() {
               to={item.to}
               onClick={() => setMoreMenuOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-4 p-4 rounded-xl transition-colors ${
+                `flex items-center gap-4 p-4 rounded-2xl transition-colors ${
                   isActive ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-100'
                 }`
               }
             >
-              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center">
                 <item.icon className="w-5 h-5" strokeWidth={1.5} />
               </div>
               <div>
@@ -343,9 +343,9 @@ export default function ProducerLayout() {
               setMoreMenuOpen(false);
               handleLogout();
             }}
-            className="flex items-center gap-4 p-4 rounded-xl hover:bg-stone-100 w-full text-left"
+            className="flex items-center gap-4 p-4 rounded-2xl hover:bg-stone-100 w-full text-left"
           >
-            <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center">
               <LogOut className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
             </div>
             <div>

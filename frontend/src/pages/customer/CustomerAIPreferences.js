@@ -97,7 +97,7 @@ function SingleSelect({ options, selected, onChange, label }) {
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${
+            className={`w-full text-left px-4 py-3 rounded-2xl border transition-all ${
               selected === option.value
                 ? 'bg-stone-50 border-stone-950'
                 : 'bg-white border-stone-200 hover:border-stone-950'
@@ -205,7 +205,7 @@ export default function CustomerAIPreferences() {
       </div>
 
       <div className="space-y-8">
-        <div className="bg-white border border-stone-200 rounded-xl p-6">
+        <div className="bg-white border border-stone-200 rounded-2xl p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.communicationStyle', 'Estilo de comunicacion')}
           </h2>
@@ -217,7 +217,7 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-stone-200 rounded-xl p-6">
+        <div className="bg-white border border-stone-200 rounded-2xl p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.dietaryPreferences', 'Preferencias dieteticas')}
           </h2>
@@ -229,7 +229,7 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-stone-200 rounded-xl p-6">
+        <div className="bg-white border border-stone-200 rounded-2xl p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.allergies', 'Alergias e intolerancias')}
           </h2>
@@ -244,7 +244,7 @@ export default function CustomerAIPreferences() {
           </p>
         </div>
 
-        <div className="bg-white border border-stone-200 rounded-xl p-6">
+        <div className="bg-white border border-stone-200 rounded-2xl p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.goals', 'Objetivos')}
           </h2>
@@ -256,7 +256,7 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-stone-200 rounded-xl p-6">
+        <div className="bg-white border border-stone-200 rounded-2xl p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.budget', 'Presupuesto')}
           </h2>
@@ -282,7 +282,7 @@ export default function CustomerAIPreferences() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center"
+            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors flex items-center"
             data-testid="save-ai-button"
           >
             {saving ? (
@@ -299,7 +299,7 @@ export default function CustomerAIPreferences() {
           </button>
         </div>
 
-        <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-center">
+        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 text-center">
           <p className="text-xs text-stone-500">
             {t('aiPrefs.privacyNote', 'Tus preferencias se guardan de forma segura y solo se usan para personalizar tus recomendaciones.')}
             <br />

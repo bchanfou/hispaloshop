@@ -99,7 +99,7 @@ export default function CategoryNav({
                 }}
                 className={`group relative snap-start shrink-0 transition-all duration-150 ease-out ${
                   isCatalog
-                    ? `w-[120px] rounded-xl border bg-white px-3 py-3 hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-sm ${
+                    ? `w-[120px] rounded-2xl border bg-white px-3 py-3 hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-sm ${
                         isActive ? 'border-stone-950 bg-stone-50 shadow-sm' : 'border-stone-100'
                       }`
                     : `rounded-[1.5rem] border bg-white/85 p-3 transition-all duration-200 hover:bg-white ${category.border} ${
@@ -156,7 +156,7 @@ export default function CategoryNav({
                             to={`/products/${product.product_id}`}
                             className="flex items-center gap-3 rounded-2xl border border-stone-100 p-2 transition-colors hover:bg-stone-50"
                           >
-                            <div className="h-12 w-12 overflow-hidden rounded-xl bg-stone-100">
+                            <div className="h-12 w-12 overflow-hidden rounded-2xl bg-stone-100">
                               {product.images?.[0] ? (
                                 <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
                               ) : (

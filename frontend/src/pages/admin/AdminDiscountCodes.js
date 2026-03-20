@@ -186,8 +186,24 @@ export default function AdminDiscountCodes() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
+      <div className="space-y-6" aria-busy="true" aria-label="Cargando códigos de descuento">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-6 w-56 animate-pulse rounded-full bg-stone-100" />
+            <div className="h-3.5 w-80 animate-pulse rounded-full bg-stone-100" />
+          </div>
+          <div className="h-9 w-32 animate-pulse rounded-full bg-stone-100" />
+        </div>
+        <div className="rounded-2xl border border-stone-100 bg-white p-4 space-y-4">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="flex items-center gap-4">
+              <div className="h-4 w-24 animate-pulse rounded-full bg-stone-100" />
+              <div className="h-4 w-16 animate-pulse rounded-full bg-stone-100" />
+              <div className="flex-1" />
+              <div className="h-4 w-20 animate-pulse rounded-full bg-stone-100" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -203,7 +219,7 @@ export default function AdminDiscountCodes() {
         <button
           type="button"
           onClick={() => setShowCreateForm(true)}
-          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
           data-testid="create-discount-btn"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -213,7 +229,7 @@ export default function AdminDiscountCodes() {
 
       {/* Pending influencer codes */}
       {pendingInfluencerCodes.length > 0 && (
-        <div className="bg-stone-50 border border-stone-200 rounded-xl p-5">
+        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-5 h-5 text-stone-700" />
             <h2 className="font-semibold text-stone-950">
@@ -222,7 +238,7 @@ export default function AdminDiscountCodes() {
           </div>
           <div className="space-y-3">
             {pendingInfluencerCodes.map((code) => (
-              <div key={code.code_id} className="bg-white rounded-xl border border-stone-200 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div key={code.code_id} className="bg-white rounded-2xl border border-stone-200 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="w-9 h-9 rounded-full bg-stone-100 flex items-center justify-center shrink-0">
                     <Sparkles className="w-4 h-4 text-stone-700" />
@@ -259,7 +275,7 @@ export default function AdminDiscountCodes() {
 
       {/* Create/Edit Form */}
       {showCreateForm && (
-        <div className="bg-white border border-stone-200 rounded-xl p-6" data-testid="discount-form">
+        <div className="bg-white border border-stone-200 rounded-2xl p-6" data-testid="discount-form">
           <h2 className="text-lg font-semibold text-stone-950 mb-4">
             {editingCode ? 'Edit Discount Code' : 'Create New Discount Code'}
           </h2>
@@ -275,7 +291,7 @@ export default function AdminDiscountCodes() {
                   onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                   placeholder="e.g., SAVE20"
                   required
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 uppercase placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 uppercase placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                   data-testid="discount-code-input"
                 />
               </div>
@@ -288,7 +304,7 @@ export default function AdminDiscountCodes() {
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full border border-stone-200 rounded-2xl px-3 py-2 text-sm text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-type-select"
                 >
                   <option value="percentage">{t('admin.percentageOff')}</option>
@@ -316,7 +332,7 @@ export default function AdminDiscountCodes() {
                       onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                       placeholder={formData.type === 'percentage' ? '10' : '5.00'}
                       required={formData.type !== 'free_shipping'}
-                      className="w-full pl-8 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                      className="w-full pl-8 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                       data-testid="discount-value-input"
                     />
                   </div>
@@ -337,7 +353,7 @@ export default function AdminDiscountCodes() {
                     value={formData.min_cart_amount}
                     onChange={(e) => setFormData({ ...formData, min_cart_amount: e.target.value })}
                     placeholder="0.00"
-                    className="w-full pl-8 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                    className="w-full pl-8 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="discount-min-amount-input"
                   />
                 </div>
@@ -354,7 +370,7 @@ export default function AdminDiscountCodes() {
                   value={formData.usage_limit}
                   onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
                   placeholder="Unlimited"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-usage-limit-input"
                 />
               </div>
@@ -368,7 +384,7 @@ export default function AdminDiscountCodes() {
                   type="datetime-local"
                   value={formData.start_date}
                   onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-start-date-input"
                 />
               </div>
@@ -382,7 +398,7 @@ export default function AdminDiscountCodes() {
                   type="datetime-local"
                   value={formData.end_date}
                   onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-end-date-input"
                 />
               </div>
@@ -405,10 +421,10 @@ export default function AdminDiscountCodes() {
 
             {/* Form Actions */}
             <div className="flex gap-3 pt-4 border-t border-stone-200">
-              <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors" data-testid="save-discount-btn">
+              <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors" data-testid="save-discount-btn">
                 {editingCode ? 'Update Code' : 'Create Code'}
               </button>
-              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors" data-testid="cancel-discount-btn">
+              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" data-testid="cancel-discount-btn">
                 Cancel
               </button>
             </div>
@@ -423,13 +439,13 @@ export default function AdminDiscountCodes() {
           placeholder="Search discount codes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+          className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
           data-testid="search-discount-input"
         />
       </div>
 
       {/* Discount Codes List */}
-      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
         <table className="w-full">
           <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
@@ -501,7 +517,7 @@ export default function AdminDiscountCodes() {
                       <button
                         type="button"
                         onClick={() => startEdit(code)}
-                        className="p-2 text-stone-500 hover:text-stone-950 hover:bg-stone-50 rounded-xl transition-colors"
+                        className="p-2 text-stone-500 hover:text-stone-950 hover:bg-stone-50 rounded-2xl transition-colors"
                         data-testid={`edit-discount-${code.code_id}`}
                       >
                         <Edit className="w-4 h-4" />
@@ -509,7 +525,7 @@ export default function AdminDiscountCodes() {
                       <button
                         type="button"
                         onClick={() => handleDelete(code.code_id)}
-                        className="p-2 text-stone-500 hover:text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
+                        className="p-2 text-stone-500 hover:text-stone-700 hover:bg-stone-50 rounded-2xl transition-colors"
                         data-testid={`delete-discount-${code.code_id}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -526,9 +542,9 @@ export default function AdminDiscountCodes() {
       {/* Summary Stats */}
       {discountCodes.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white border border-stone-200 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-2xl p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-stone-100 rounded-xl">
+              <div className="p-2 bg-stone-100 rounded-2xl">
                 <Check className="w-5 h-5 text-stone-700" />
               </div>
               <div>
@@ -539,9 +555,9 @@ export default function AdminDiscountCodes() {
               </div>
             </div>
           </div>
-          <div className="bg-white border border-stone-200 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-2xl p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-stone-100 rounded-xl">
+              <div className="p-2 bg-stone-100 rounded-2xl">
                 <Users className="w-5 h-5 text-stone-700" />
               </div>
               <div>
@@ -552,9 +568,9 @@ export default function AdminDiscountCodes() {
               </div>
             </div>
           </div>
-          <div className="bg-white border border-stone-200 rounded-xl p-4">
+          <div className="bg-white border border-stone-200 rounded-2xl p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-stone-100 rounded-xl">
+              <div className="p-2 bg-stone-100 rounded-2xl">
                 <Tag className="w-5 h-5 text-stone-700" />
               </div>
               <div>

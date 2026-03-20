@@ -81,7 +81,7 @@ export default function ProducerShippingPolicy() {
         <p className="text-sm text-stone-500 mt-1">Configura costes de envío por pedido para tus productos.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-stone-200 p-5 space-y-5">
+      <div className="bg-white rounded-2xl border border-stone-200 p-5 space-y-5">
         <label className="flex items-center justify-between gap-4">
           <span className="text-sm font-medium text-stone-950">Habilitar gastos de envío</span>
           <input
@@ -102,7 +102,7 @@ export default function ProducerShippingPolicy() {
                   step="0.01"
                   value={toEuros(policy.base_cost_cents)}
                   onChange={(e) => setPolicy((prev) => ({ ...prev, base_cost_cents: toCents(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -112,7 +112,7 @@ export default function ProducerShippingPolicy() {
                   step="0.01"
                   value={toEuros(policy.per_item_cents)}
                   onChange={(e) => setPolicy((prev) => ({ ...prev, per_item_cents: toCents(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -130,11 +130,11 @@ export default function ProducerShippingPolicy() {
                     free_threshold_cents: e.target.value ? toCents(e.target.value) : null,
                   }))
                 }
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
               />
             </div>
 
-            <div className="rounded-xl bg-stone-50 border border-stone-200 p-3 text-sm text-stone-700">
+            <div className="rounded-2xl bg-stone-50 border border-stone-200 p-3 text-sm text-stone-700">
               Ejemplo 3 ítems: €{toEuros(preview)} de envío.
             </div>
           </>
@@ -154,14 +154,14 @@ export default function ProducerShippingPolicy() {
           />
         </label>
 
-        <button onClick={savePolicy} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors w-full md:w-auto">
+        <button onClick={savePolicy} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors w-full md:w-auto">
           <Save className="w-4 h-4 mr-2 inline" />
           {saving ? 'Guardando...' : 'Guardar'}
         </button>
       </div>
 
       {/* Plan shipping defaults info */}
-      <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs text-stone-500 leading-relaxed">
+      <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 text-xs text-stone-500 leading-relaxed">
         <strong className="text-stone-600">Referencia por plan:</strong> Free: base €5.90, sin envío gratis · Pro: base €3.90, gratis desde €30 · Elite: base €2.90, gratis desde €20. Tu configuración personalizada prevalece sobre estos valores.
       </div>
     </div>

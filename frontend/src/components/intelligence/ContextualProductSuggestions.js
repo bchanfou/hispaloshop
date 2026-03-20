@@ -65,7 +65,7 @@ export default function ContextualProductSuggestions({ contentType, contentId, t
               onClick={() => setSelectedProduct(product)}
               className="flex items-center gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="h-14 w-14 overflow-hidden rounded-xl bg-stone-100">
+              <div className="h-14 w-14 overflow-hidden rounded-2xl bg-stone-100">
                 {product.images?.[0] || product.image ? (
                   <img
                     src={resolveUserImage(product.images?.[0] || product.image)}

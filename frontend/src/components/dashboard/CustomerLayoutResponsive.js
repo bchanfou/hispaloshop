@@ -138,7 +138,7 @@ export default function CustomerLayoutResponsive() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
+                `flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-200 text-sm ${
                   isActive
                     ? 'bg-stone-100 text-stone-950 font-medium'
                     : 'text-stone-600 hover:bg-stone-100'
@@ -161,7 +161,7 @@ export default function CustomerLayoutResponsive() {
           {/* Shop Link */}
           <NavLink
             to="/products"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-600 hover:bg-stone-100 mt-4 border-t border-stone-200 pt-4 text-sm"
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-stone-600 hover:bg-stone-100 mt-4 border-t border-stone-200 pt-4 text-sm"
           >
             <Store className="w-5 h-5" strokeWidth={1.5} />
             <span>{t('customer.continueShopping', 'Seguir Comprando')}</span>

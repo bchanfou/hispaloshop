@@ -23,7 +23,7 @@ function CategoryForm({ initial = {}, onSave, onCancel, saving }) {
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Nombre de la categoría"
-        className="flex-1 w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+        className="flex-1 w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
         autoFocus
         required
       />
@@ -31,20 +31,20 @@ function CategoryForm({ initial = {}, onSave, onCancel, saving }) {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         placeholder="Descripción (opcional)"
-        className="flex-1 w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
+        className="flex-1 w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
       />
       <div className="flex gap-2 shrink-0">
         <button
           type="submit"
           disabled={saving || !name.trim()}
-          className="inline-flex items-center px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+          className="inline-flex items-center px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
           <span className="ml-1">{initial.category_id ? 'Guardar' : 'Crear'}</span>
         </button>
         <button
           type="button"
-          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
           onClick={onCancel}
         >
           <X className="w-4 h-4" />
@@ -140,7 +140,7 @@ export default function CategoriesPage() {
         {!showCreateForm && (
           <button
             onClick={() => { setShowCreateForm(true); setEditingId(null); }}
-            className="inline-flex items-center px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nueva categoría
@@ -150,7 +150,7 @@ export default function CategoriesPage() {
 
       {/* Create Form */}
       {showCreateForm && (
-        <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6">
+        <div className="bg-white rounded-2xl border border-stone-200 p-4 mb-6">
           <p className="text-sm font-medium text-stone-950 mb-3">Nueva categoría</p>
           <CategoryForm
             onSave={handleCreate}
@@ -167,12 +167,12 @@ export default function CategoriesPage() {
           placeholder="Buscar categorías..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950 pl-10"
+          className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 pl-10"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
           <div className="p-12 flex items-center justify-center">
             <Loader2 className="w-6 h-6 animate-spin text-stone-950" />
@@ -210,7 +210,7 @@ export default function CategoriesPage() {
                     <>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-xl bg-stone-100 flex items-center justify-center shrink-0">
+                          <div className="w-8 h-8 rounded-2xl bg-stone-100 flex items-center justify-center shrink-0">
                             <Tag className="w-4 h-4 text-stone-950" />
                           </div>
                           <span className="font-medium text-stone-950">{cat.name}</span>
@@ -229,13 +229,13 @@ export default function CategoriesPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+                            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
                             onClick={() => { setEditingId(cat.category_id); setShowCreateForm(false); }}
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
+                            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
                             onClick={() => handleDelete(cat.category_id, cat.name)}
                           >
                             <Trash2 className="w-3.5 h-3.5" />

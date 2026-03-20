@@ -1,4 +1,4 @@
-import { api, ShippingAddress } from '@/lib/api';
+import { api, ShippingAddress } from '../lib/api';
 
 export function useCheckout() {
   return {

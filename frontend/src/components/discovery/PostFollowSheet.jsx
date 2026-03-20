@@ -108,7 +108,7 @@ export default function PostFollowSheet({ followedUserId, followedUserName, onCl
                       className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-stone-200 border-none p-0 cursor-pointer"
                     >
                       {user.profile_image ? (
-                        <img src={user.profile_image} alt={user.name} className="h-full w-full object-cover" />
+                        <img loading="lazy" src={user.profile_image} alt={user.name} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-sm font-bold text-stone-500">
                           {(user.name || '?')[0].toUpperCase()}

@@ -19,7 +19,7 @@ export function SkeletonText({ lines = 3 }) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
+    <div className="border border-stone-200 rounded-2xl overflow-hidden bg-white">
       <Skeleton className="w-full h-48" />
       <div className="p-4 space-y-3">
         <Skeleton className="h-5 w-3/4" />
@@ -47,7 +47,7 @@ export function DashboardStatsSkeleton() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="bg-white border border-stone-200 rounded-xl p-4">
+        <div key={i} className="bg-white border border-stone-200 rounded-2xl p-4">
           <Skeleton className="h-8 w-20 mb-2" />
           <Skeleton className="h-4 w-24" />
         </div>
@@ -58,7 +58,7 @@ export function DashboardStatsSkeleton() {
 
 export function OrderCardSkeleton() {
   return (
-    <div className="bg-white border border-stone-200 rounded-xl p-4 space-y-3">
+    <div className="bg-white border border-stone-200 rounded-2xl p-4 space-y-3">
       <div className="flex justify-between">
         <Skeleton className="h-5 w-32" />
         <Skeleton className="h-5 w-20" />
@@ -74,7 +74,7 @@ export function OrderCardSkeleton() {
 
 export function StoreCardSkeleton() {
   return (
-    <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+    <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
       <Skeleton className="w-full h-32" />
       <div className="p-4 space-y-3">
         <div className="flex items-center gap-3">

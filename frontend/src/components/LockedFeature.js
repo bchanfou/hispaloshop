@@ -24,7 +24,7 @@ export default function LockedFeature({ requiredPlan, featureName, children }) {
       <div className="pointer-events-none opacity-30 blur-[2px] select-none" aria-hidden="true">
         {children}
       </div>
-      <div className={`absolute inset-0 flex flex-col items-center justify-center ${colors.bg}/80 backdrop-blur-[1px] rounded-xl border ${colors.border}`}>
+      <div className={`absolute inset-0 flex flex-col items-center justify-center ${colors.bg}/80 backdrop-blur-[1px] rounded-2xl border ${colors.border}`}>
         <div className={`w-12 h-12 rounded-full ${colors.bg} flex items-center justify-center mb-3`}>
           <Lock className={`w-5 h-5 ${colors.text}`} />
         </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, Film } from 'lucide-react';
+import { ArrowLeft, Film } from 'lucide-react';
 import ReelCard from '../components/feed/ReelCard';
 import SlideTabIndicator from '../components/motion/SlideTabIndicator';
 import apiClient from '../services/api/client';
@@ -122,8 +122,18 @@ export default function ReelsPage() {
 
   if (loading && reels.length === 0) {
     return (
-      <div className="h-dvh bg-black flex items-center justify-center" role="status" aria-label="Cargando reels">
-        <Loader2 className="w-7 h-7 text-white/40 animate-spin" />
+      <div className="h-dvh bg-black flex flex-col items-center justify-center gap-6" role="status" aria-label="Cargando reels">
+        {/* Reel skeleton cards */}
+        <div className="w-full max-w-sm px-6 space-y-4">
+          <div className="h-[60vh] w-full animate-pulse rounded-2xl bg-white/5" />
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 animate-pulse rounded-full bg-white/10" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3 w-1/3 animate-pulse rounded-full bg-white/10" />
+              <div className="h-2.5 w-2/3 animate-pulse rounded-full bg-white/5" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

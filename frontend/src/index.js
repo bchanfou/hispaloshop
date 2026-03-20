@@ -6,14 +6,14 @@ if (process.env.NODE_ENV === 'production') {
   console.info = noop;
 }
 
-import { initSentry } from '@/lib/sentry';
+import { initSentry } from './lib/sentry';
 initSentry();
 
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "@/index.css";
-import App from "@/App";
-import SWRProvider from "@/components/SWRProvider";
+import "./index.css";
+import App from "./App";
+import SWRProvider from "./components/SWRProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

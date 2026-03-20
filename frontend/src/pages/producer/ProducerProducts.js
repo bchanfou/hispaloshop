@@ -151,9 +151,9 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
         {normalizedImages.filter(img => img && typeof img === 'string' && img.trim()).map((image, index) => (
           <div 
             key={index} 
-            className="relative group w-24 h-24 rounded-xl overflow-hidden border border-stone-200 bg-stone-50"
+            className="relative group w-24 h-24 rounded-2xl overflow-hidden border border-stone-200 bg-stone-50"
           >
-            <img 
+            <img loading="lazy" 
               src={image} 
               alt={`Product ${index + 1}`} 
               className="w-full h-full object-cover"
@@ -179,7 +179,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="w-24 h-24 rounded-xl border-2 border-dashed border-stone-200 hover:border-stone-950 hover:bg-stone-50 transition-colors flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-950 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-24 h-24 rounded-2xl border-2 border-dashed border-stone-200 hover:border-stone-950 hover:bg-stone-50 transition-colors flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-950 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? (
               <Loader2 className="w-6 h-6 animate-spin" />
@@ -241,21 +241,21 @@ function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpda
           min="0"
           value={stock}
           onChange={(e) => setStock(e.target.value)}
-          className="w-20 h-8 text-sm px-3 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+          className="w-20 h-8 text-sm px-3 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
           data-testid={`stock-input-${productId}`}
         />
         <button
           type="button"
           onClick={handleSave}
           disabled={updateStockLoading}
-          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
         >
           {updateStockLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('common.save')}
         </button>
         <button
           type="button"
           onClick={() => { setEditing(false); setStock(currentStock); }}
-          className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+          className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
@@ -266,7 +266,7 @@ function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpda
   return (
     <button
       onClick={() => setEditing(true)}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium transition-colors ${
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl text-sm font-medium transition-colors ${
         isOutOfStock
           ? 'bg-stone-50 text-stone-700 border border-stone-200 hover:bg-stone-100'
           : isLowStock
@@ -711,7 +711,7 @@ export default function ProducerProducts() {
               {/* ═══ STEP 0 — IMAGES ═══ */}
               {wizardStep === 0 && (
                 <motion.div key="step-images" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="space-y-4">
-                  <div className="rounded-xl border border-stone-200 p-5">
+                  <div className="rounded-2xl border border-stone-200 p-5">
                     <h3 className="font-semibold text-stone-950 mb-1 flex items-center gap-2">
                       <ImageIcon className="w-4 h-4" />
                       {t('producerProducts.productImages')}
@@ -743,7 +743,7 @@ export default function ProducerProducts() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder={t('producerProducts.productNamePlaceholder')}
-                        className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                        className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                         data-testid="product-name-input"
                       />
                     </div>
@@ -752,7 +752,7 @@ export default function ProducerProducts() {
                       <select
                         value={formData.category_id}
                         onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                        className="w-full px-4 py-2 rounded-xl border border-stone-200 bg-white text-sm"
+                        className="w-full px-4 py-2 rounded-2xl border border-stone-200 bg-white text-sm"
                         data-testid="product-category-select"
                       >
                         <option value="">{t('producerProducts.selectCategory')}</option>
@@ -768,7 +768,7 @@ export default function ProducerProducts() {
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-2 rounded-xl border border-stone-200 min-h-[80px] text-sm"
+                      className="w-full px-4 py-2 rounded-2xl border border-stone-200 min-h-[80px] text-sm"
                       placeholder={t('producerProducts.descriptionPlaceholder')}
                       data-testid="product-description-input"
                     />
@@ -777,11 +777,11 @@ export default function ProducerProducts() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.unitPrice')} *</label>
-                      <input type="number" step="0.01" min="0" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-price-input" />
+                      <input type="number" step="0.01" min="0" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} placeholder="0.00" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-price-input" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.countryOrigin')} *</label>
-                      <select value={formData.country_origin} onChange={(e) => setFormData({ ...formData, country_origin: e.target.value })} className="w-full px-3 py-2 rounded-xl border border-stone-200 bg-white text-sm" data-testid="product-country-input">
+                      <select value={formData.country_origin} onChange={(e) => setFormData({ ...formData, country_origin: e.target.value })} className="w-full px-3 py-2 rounded-2xl border border-stone-200 bg-white text-sm" data-testid="product-country-input">
                         <option value="">{t('producerProducts.selectCountry', 'Seleccionar país')}</option>
                         {countryOriginOptions.map(c => (
                           <option key={c.code} value={c.code}>{c.name}</option>
@@ -790,15 +790,15 @@ export default function ProducerProducts() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.sku')}</label>
-                      <input value={formData.sku} onChange={(e) => setFormData({ ...formData, sku: e.target.value })} placeholder={t('producerProducts.skuPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-sku-input" />
+                      <input value={formData.sku} onChange={(e) => setFormData({ ...formData, sku: e.target.value })} placeholder={t('producerProducts.skuPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-sku-input" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.flavorVariant')}</label>
-                      <input value={formData.flavor} onChange={(e) => setFormData({ ...formData, flavor: e.target.value })} placeholder={t('producerProducts.flavorPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-flavor-input" />
+                      <input value={formData.flavor} onChange={(e) => setFormData({ ...formData, flavor: e.target.value })} placeholder={t('producerProducts.flavorPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-flavor-input" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.stock', 'Stock inicial')} *</label>
-                      <input type="number" min="0" value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: e.target.value })} placeholder="100" className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-stock-input" />
+                      <input type="number" min="0" value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: e.target.value })} placeholder="100" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-stock-input" />
                     </div>
                   </div>
 
@@ -811,11 +811,11 @@ export default function ProducerProducts() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs text-stone-600 mb-1">{t('producerProducts.shippingCost')}</label>
-                        <input type="number" step="0.01" min="0" value={formData.shipping_cost} onChange={(e) => setFormData({ ...formData, shipping_cost: e.target.value })} placeholder={t('producerProducts.shippingCostPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-shipping-cost-input" />
+                        <input type="number" step="0.01" min="0" value={formData.shipping_cost} onChange={(e) => setFormData({ ...formData, shipping_cost: e.target.value })} placeholder={t('producerProducts.shippingCostPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-shipping-cost-input" />
                       </div>
                       <div>
                         <label className="block text-xs text-stone-600 mb-1">{t('producerProducts.freeShippingFrom')}</label>
-                        <input type="number" min="1" value={formData.free_shipping_min_qty} onChange={(e) => setFormData({ ...formData, free_shipping_min_qty: e.target.value })} placeholder="3" className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-free-shipping-qty-input" />
+                        <input type="number" min="1" value={formData.free_shipping_min_qty} onChange={(e) => setFormData({ ...formData, free_shipping_min_qty: e.target.value })} placeholder="3" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="product-free-shipping-qty-input" />
                       </div>
                     </div>
                   </div>
@@ -838,19 +838,19 @@ export default function ProducerProducts() {
                         {formData.packs.map((pack, index) => {
                           const discount = calculatePackDiscount(pack);
                           return (
-                            <div key={index} className="flex items-center gap-2 p-2.5 bg-stone-50 rounded-xl">
+                            <div key={index} className="flex items-center gap-2 p-2.5 bg-stone-50 rounded-2xl">
                               <div className="flex-1 grid grid-cols-3 gap-2">
                                 <div>
                                   <label className="block text-xs text-stone-600 mb-0.5">{t('producerProducts.packQuantity')}</label>
-                                  <input type="number" min="2" value={pack.quantity} onChange={(e) => updatePack(index, 'quantity', e.target.value)} placeholder="6" className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-quantity-${index}`} />
+                                  <input type="number" min="2" value={pack.quantity} onChange={(e) => updatePack(index, 'quantity', e.target.value)} placeholder="6" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-quantity-${index}`} />
                                 </div>
                                 <div>
                                   <label className="block text-xs text-stone-600 mb-0.5">{t('producerProducts.packPrice')}</label>
-                                  <input type="number" step="0.01" min="0" value={pack.price} onChange={(e) => updatePack(index, 'price', e.target.value)} placeholder="50.00" className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-price-${index}`} />
+                                  <input type="number" step="0.01" min="0" value={pack.price} onChange={(e) => updatePack(index, 'price', e.target.value)} placeholder="50.00" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-price-${index}`} />
                                 </div>
                                 <div>
                                   <label className="block text-xs text-stone-600 mb-0.5">{t('producerProducts.packLabel')}</label>
-                                  <input value={pack.label} onChange={(e) => updatePack(index, 'label', e.target.value)} placeholder={`Pack de ${pack.quantity || 'X'}`} className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-label-${index}`} />
+                                  <input value={pack.label} onChange={(e) => updatePack(index, 'label', e.target.value)} placeholder={`Pack de ${pack.quantity || 'X'}`} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-label-${index}`} />
                                 </div>
                               </div>
                               {discount && <div className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-xs font-medium">-{discount}%</div>}
@@ -891,7 +891,7 @@ export default function ProducerProducts() {
                             value={formData.b2b_moq}
                             onChange={(e) => setFormData({ ...formData, b2b_moq: e.target.value })}
                             placeholder="10"
-                            className="w-32 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                            className="w-32 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                           />
                         </div>
 
@@ -934,7 +934,7 @@ export default function ProducerProducts() {
                                   ? Math.round((1 - tierPrice / retailPrice) * 100)
                                   : null;
                                 return (
-                                  <div key={index} className="flex items-center gap-2 p-2.5 bg-stone-50 rounded-xl">
+                                  <div key={index} className="flex items-center gap-2 p-2.5 bg-stone-50 rounded-2xl">
                                     <div className="flex-1 grid grid-cols-2 gap-2">
                                       <div>
                                         <label className="block text-xs text-stone-600 mb-0.5">Desde (uds.)</label>
@@ -948,7 +948,7 @@ export default function ProducerProducts() {
                                             setFormData({ ...formData, b2b_tiers: tiers });
                                           }}
                                           placeholder="10"
-                                          className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                                          className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                                         />
                                       </div>
                                       <div>
@@ -964,7 +964,7 @@ export default function ProducerProducts() {
                                             setFormData({ ...formData, b2b_tiers: tiers });
                                           }}
                                           placeholder="8.50"
-                                          className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                                          className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                                         />
                                       </div>
                                     </div>
@@ -999,7 +999,7 @@ export default function ProducerProducts() {
               {wizardStep === 2 && (
                 <motion.div key="step-composition" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="space-y-4">
                   {/* Ingredients */}
-                  <div className="rounded-xl border border-stone-200 p-5">
+                  <div className="rounded-2xl border border-stone-200 p-5">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-stone-950 flex items-center gap-2">
                         <List className="w-4 h-4" />
@@ -1012,14 +1012,14 @@ export default function ProducerProducts() {
                     {formData.ingredients.length === 0 ? (
                       <div>
                         <p className="text-sm text-stone-500 mb-2">{t('producerProducts.ingredientsSeparated')}</p>
-                        <input value={ingredientsStr} onChange={(e) => setIngredientsStr(e.target.value)} placeholder={t('producerProducts.ingredientsPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="ingredients-text-input" />
+                        <input value={ingredientsStr} onChange={(e) => setIngredientsStr(e.target.value)} placeholder={t('producerProducts.ingredientsPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="ingredients-text-input" />
                       </div>
                     ) : (
                       <div className="space-y-2">
                         {formData.ingredients.map((ingredient, index) => (
                           <div key={index} className="flex items-center gap-2">
-                            <input value={ingredient.name} onChange={(e) => updateIngredient(index, 'name', e.target.value)} placeholder={t('producerProducts.ingredientName')} className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`ingredient-name-${index}`} />
-                            <input value={ingredient.origin} onChange={(e) => updateIngredient(index, 'origin', e.target.value)} placeholder={t('producerProducts.ingredientOrigin')} className="w-28 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`ingredient-origin-${index}`} />
+                            <input value={ingredient.name} onChange={(e) => updateIngredient(index, 'name', e.target.value)} placeholder={t('producerProducts.ingredientName')} className="flex-1 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`ingredient-name-${index}`} />
+                            <input value={ingredient.origin} onChange={(e) => updateIngredient(index, 'origin', e.target.value)} placeholder={t('producerProducts.ingredientOrigin')} className="w-28 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`ingredient-origin-${index}`} />
                             <button type="button" onClick={() => removeIngredient(index)} className="p-1.5 text-stone-700 hover:bg-stone-50 rounded" data-testid={`remove-ingredient-${index}`}>
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1030,7 +1030,7 @@ export default function ProducerProducts() {
                   </div>
 
                   {/* Nutritional Info */}
-                  <div className="rounded-xl border border-stone-200 p-5">
+                  <div className="rounded-2xl border border-stone-200 p-5">
                     <h3 className="font-semibold text-stone-950 mb-3 flex items-center gap-2">
                       <Apple className="w-4 h-4" />
                       {t('producerProducts.nutritionalInfo')}
@@ -1041,14 +1041,14 @@ export default function ProducerProducts() {
                           <label className="block text-xs text-stone-600 mb-0.5">
                             {field.label} <span className="text-stone-400">({field.unit})</span>
                           </label>
-                          <input type="number" step="0.1" min="0" value={formData.nutritional_info[field.key]} onChange={(e) => setFormData({ ...formData, nutritional_info: { ...formData.nutritional_info, [field.key]: e.target.value } })} placeholder="0" className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`nutrition-${field.key}`} />
+                          <input type="number" step="0.1" min="0" value={formData.nutritional_info[field.key]} onChange={(e) => setFormData({ ...formData, nutritional_info: { ...formData.nutritional_info, [field.key]: e.target.value } })} placeholder="0" className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`nutrition-${field.key}`} />
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Allergens */}
-                  <div className="rounded-xl border border-stone-200 p-5">
+                  <div className="rounded-2xl border border-stone-200 p-5">
                     <h3 className="font-semibold text-stone-950 mb-3 flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4" />
                       {t('producerProducts.allergens')}
@@ -1088,13 +1088,13 @@ export default function ProducerProducts() {
                       value={allergensStr}
                       onChange={(e) => setAllergensStr(e.target.value)}
                       placeholder="Especifica otros alérgenos..."
-                      className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                      className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                       data-testid="allergens-text-input"
                     />
                   </div>
 
                   {/* Certifications */}
-                  <div className="rounded-xl border border-stone-200 p-5">
+                  <div className="rounded-2xl border border-stone-200 p-5">
                     <h3 className="font-semibold text-stone-950 mb-3 flex items-center gap-2">
                       <Award className="w-4 h-4" />
                       {t('producerProducts.certifications')}
@@ -1112,7 +1112,7 @@ export default function ProducerProducts() {
                         );
                       })}
                     </div>
-                    <input value={certificationsStr} onChange={(e) => setCertificationsStr(e.target.value)} placeholder={t('producerProducts.otherCertificationsPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="certifications-text-input" />
+                    <input value={certificationsStr} onChange={(e) => setCertificationsStr(e.target.value)} placeholder={t('producerProducts.otherCertificationsPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="certifications-text-input" />
                   </div>
                 </motion.div>
               )}
@@ -1123,14 +1123,14 @@ export default function ProducerProducts() {
                   {/* Image preview strip */}
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {normalizedImgs.map((img, i) => (
-                      <div key={i} className="w-20 h-20 shrink-0 rounded-xl overflow-hidden border border-stone-200 bg-stone-50">
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      <div key={i} className="w-20 h-20 shrink-0 rounded-2xl overflow-hidden border border-stone-200 bg-stone-50">
+                        <img loading="lazy" src={img} alt="" className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>
 
                   {/* Summary card */}
-                  <div className="rounded-xl border border-stone-200 divide-y divide-stone-100">
+                  <div className="rounded-2xl border border-stone-200 divide-y divide-stone-100">
                     <div className="px-5 py-3 flex items-center justify-between">
                       <span className="text-sm text-stone-500">{t('producerProducts.productName')}</span>
                       <span className="text-sm font-semibold text-stone-950">{formData.name || '—'}</span>
@@ -1178,7 +1178,7 @@ export default function ProducerProducts() {
                   </div>
 
                   {/* Approval note */}
-                  <div className="bg-stone-50 border border-stone-200 rounded-xl p-3">
+                  <div className="bg-stone-50 border border-stone-200 rounded-2xl p-3">
                     <p className="text-xs text-stone-700">
                       <strong>{t('common.note')}:</strong> {t('producerProducts.approvalNote')}
                     </p>
@@ -1192,7 +1192,7 @@ export default function ProducerProducts() {
               <button
                 type="button"
                 onClick={wizardStep === 0 ? () => { setShowCreateForm(false); setEditingProduct(null); resetForm(); setWizardStep(0); } : handleBack}
-                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 {wizardStep === 0 ? t('common.cancel') : 'Atrás'}
@@ -1202,7 +1202,7 @@ export default function ProducerProducts() {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="flex items-center gap-1.5 px-5 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
+                  className="flex items-center gap-1.5 px-5 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
                 >
                   Siguiente
                   <ArrowRight className="w-4 h-4" />
@@ -1212,7 +1212,7 @@ export default function ProducerProducts() {
                   type="submit"
                   disabled={saveProductLoading}
                   data-testid="submit-product-btn"
-                  className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                  className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
                 >
                   {saveProductLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {editingProduct ? t('producerProducts.updateProduct') : t('producerProducts.createProduct')}
@@ -1235,18 +1235,18 @@ export default function ProducerProducts() {
           </h1>
           <p className="text-stone-500 text-sm">{t('producerProducts.subtitle')}</p>
         </div>
-        <button type="button" onClick={() => setShowCreateForm(true)} className="shrink-0 flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors" data-testid="create-product">
+        <button type="button" onClick={() => setShowCreateForm(true)} className="shrink-0 flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors" data-testid="create-product">
           <Plus className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">{t('producerProducts.createProduct')}</span><span className="sm:hidden">Crear</span>
         </button>
       </div>
 
       {/* Products */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
           <div className="divide-y divide-stone-200">
             {[1,2,3,4].map(i => (
               <div key={i} className="p-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-stone-100 animate-pulse shrink-0" />
+                <div className="w-12 h-12 rounded-2xl bg-stone-100 animate-pulse shrink-0" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-40 bg-stone-100 rounded animate-pulse" />
                   <div className="h-3 w-24 bg-stone-100 rounded animate-pulse" />
@@ -1258,7 +1258,7 @@ export default function ProducerProducts() {
         ) : products.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-stone-500 mb-4">{t('producerProducts.noProductsYet')}</p>
-            <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors">
+            <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors">
               <Plus className="w-4 h-4 mr-2" /> {t('producerProducts.createFirstProduct')}
             </button>
           </div>
@@ -1277,7 +1277,7 @@ export default function ProducerProducts() {
                 return (
                   <div key={product.product_id} className="p-4 space-y-3" data-testid={`product-card-${product.product_id}`}>
                     <div className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-xl bg-stone-100 overflow-hidden shrink-0">
+                      <div className="w-14 h-14 rounded-2xl bg-stone-100 overflow-hidden shrink-0">
                         {product.images?.[0] && (
                           <img src={product.images[0]} alt={product.name || 'Producto'} className="w-full h-full object-cover" loading="lazy" />
                         )}
@@ -1298,16 +1298,16 @@ export default function ProducerProducts() {
                       {variantCount > 0 && <span>· {variantCount} variantes</span>}
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                      <button type="button" onClick={() => window.open(`/products/${product.product_id}`, '_blank')} data-testid={`view-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors">
+                      <button type="button" onClick={() => window.open(`/products/${product.product_id}`, '_blank')} data-testid={`view-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors">
                         <Eye className="w-3.5 h-3.5 mr-1" /> Ver
                       </button>
-                      <button type="button" onClick={() => startEdit(product)} data-testid={`edit-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors">
+                      <button type="button" onClick={() => startEdit(product)} data-testid={`edit-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors">
                         <Edit className="w-3.5 h-3.5 mr-1" /> Editar
                       </button>
-                      <button type="button" onClick={() => window.open(`/producer/products/${product.product_id}/countries`, '_self')} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">
+                      <button type="button" onClick={() => window.open(`/producer/products/${product.product_id}/countries`, '_self')} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
                         <Globe className="w-3.5 h-3.5 mr-1" /> Países
                       </button>
-                      <button type="button" onClick={() => setVariantManagerProduct(product)} data-testid={`manage-variants-mobile-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">
+                      <button type="button" onClick={() => setVariantManagerProduct(product)} data-testid={`manage-variants-mobile-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
                         <Layers className="w-3.5 h-3.5 mr-1" /> Variantes
                       </button>
                     </div>
@@ -1342,7 +1342,7 @@ export default function ProducerProducts() {
                   <tr key={product.product_id} className="hover:bg-stone-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden">
+                        <div className="w-12 h-12 rounded-2xl bg-stone-100 overflow-hidden">
                           {product.images?.[0] && (
                             <img src={product.images[0]} alt={product.name || 'Producto'} className="w-full h-full object-cover" loading="lazy" />
                           )}
@@ -1369,7 +1369,7 @@ export default function ProducerProducts() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => setVariantManagerProduct(product)}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-colors ${
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl text-sm transition-colors ${
                           variantCount > 0
                             ? 'bg-stone-50 text-stone-700 border border-stone-200 hover:bg-stone-100'
                             : 'bg-stone-50 text-stone-600 border border-stone-200 hover:bg-stone-100'
@@ -1403,14 +1403,14 @@ export default function ProducerProducts() {
                           type="button"
                           onClick={() => window.open(`/producer/products/${product.product_id}/countries`, '_self')}
                           title={t('producer.manageCountries')}
-                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
                         >
                           <Globe className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
                           onClick={() => window.open(`/products/${product.product_id}`, '_blank')}
-                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -1418,7 +1418,7 @@ export default function ProducerProducts() {
                           type="button"
                           onClick={() => startEdit(product)}
                           aria-label={`Editar ${product.name || 'producto'}`}
-                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
+                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors"
                         >
                           <Edit className="w-4 h-4" />
                         </button>

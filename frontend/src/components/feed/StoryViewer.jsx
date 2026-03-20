@@ -480,7 +480,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                       <img
                         src={product.thumbnail || product.image}
                         alt=""
-                        className="w-8 h-8 rounded-xl object-cover shrink-0"
+                        className="w-8 h-8 rounded-2xl object-cover shrink-0"
                       />
                     )}
                     <div className="flex flex-col flex-1 min-w-0">

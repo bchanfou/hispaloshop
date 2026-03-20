@@ -9,9 +9,9 @@ import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
-import { useFollowingFeed, useLikePost, feedKeys } from '@/features/feed/queries';
-import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import PullIndicator from '@/components/ui/PullIndicator';
+import { useFollowingFeed, useLikePost, feedKeys } from '../../features/feed/queries';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
+import PullIndicator from '../../components/ui/PullIndicator';
 
 function EmptyFollowing() {
   const { t } = useTranslation();

@@ -206,7 +206,7 @@ function SearchPanel({ open, onClose }) {
               value={query}
               onChange={handleInput}
               placeholder="Buscar productos, personas, tiendas..."
-              className="w-full h-10 pl-9 pr-3 bg-stone-100 border-none rounded-xl text-sm text-stone-950 outline-none focus:ring-2 focus:ring-stone-300 font-sans placeholder:text-stone-400"
+              className="w-full h-10 pl-9 pr-3 bg-stone-100 border-none rounded-2xl text-sm text-stone-950 outline-none focus:ring-2 focus:ring-stone-300 font-sans placeholder:text-stone-400"
             />
           </div>
         </div>
@@ -230,7 +230,7 @@ function SearchPanel({ open, onClose }) {
                 <button
                   key={`u-${item.user_id || i}`}
                   onClick={() => goTo(`/${username}`, item.name || username)}
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer transition-colors"
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-2xl hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer transition-colors"
                 >
                   {item.profile_image ? (
                     <img src={item.profile_image} alt="" className="h-10 w-10 rounded-full object-cover" />
@@ -251,12 +251,12 @@ function SearchPanel({ open, onClose }) {
               <button
                 key={`p-${item.product_id || i}`}
                 onClick={() => goTo(`/products/${item.product_id}`, item.name)}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer transition-colors"
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-2xl hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer transition-colors"
               >
                 {item.images?.[0] ? (
-                  <img src={item.images[0]} alt="" className="h-10 w-10 rounded-xl object-cover" />
+                  <img src={item.images[0]} alt="" className="h-10 w-10 rounded-2xl object-cover" />
                 ) : (
-                  <div className="h-10 w-10 rounded-xl bg-stone-100 flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-2xl bg-stone-100 flex items-center justify-center">
                     <ShoppingCart size={14} className="text-stone-400" />
                   </div>
                 )}
@@ -276,7 +276,7 @@ function SearchPanel({ open, onClose }) {
                 <button
                   key={i}
                   onClick={() => { setQuery(term); doSearch(term); }}
-                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer text-sm text-stone-700 transition-colors"
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-2xl hover:bg-stone-50 text-left bg-transparent border-none cursor-pointer text-sm text-stone-700 transition-colors"
                 >
                   <Search size={14} className="text-stone-400 flex-shrink-0" />
                   <span className="truncate">{term}</span>
@@ -322,7 +322,7 @@ export default function SideNav() {
       >
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 px-5 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-stone-200 bg-stone-50">
+          <div className="flex h-8 w-8 items-center justify-center rounded-2xl border border-stone-200 bg-stone-50">
             <Logo variant="icon" theme="light" size={20} />
           </div>
           <span className="text-[15px] font-semibold tracking-tight text-stone-950">Hispaloshop</span>
@@ -341,7 +341,7 @@ export default function SideNav() {
                   key={item.key}
                   type="button"
                   onClick={() => setSearchOpen(v => !v)}
-                  className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] transition-colors bg-transparent border-none cursor-pointer font-sans ${
+                  className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-[13px] transition-colors bg-transparent border-none cursor-pointer font-sans ${
                     active
                       ? 'bg-stone-100 font-semibold text-stone-950'
                       : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'
@@ -359,7 +359,7 @@ export default function SideNav() {
               <Link
                 key={item.key}
                 to={item.to}
-                className={`group flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] transition-colors ${
+                className={`group flex items-center gap-3 rounded-2xl px-3 py-2 text-[13px] transition-colors ${
                   active
                     ? 'bg-stone-100 font-semibold text-stone-950'
                     : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'
@@ -384,7 +384,7 @@ export default function SideNav() {
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('open-creator'))}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-950 bg-transparent border-none cursor-pointer font-sans"
+            className="flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-[13px] text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-950 bg-transparent border-none cursor-pointer font-sans"
           >
             <div className="flex h-[18px] w-[18px] items-center justify-center rounded-md border border-stone-200">
               <Plus className="h-3 w-3 text-stone-700" strokeWidth={2.2} />
@@ -395,7 +395,7 @@ export default function SideNav() {
           {/* Cart */}
           <Link
             to="/cart"
-            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] transition-colors ${
+            className={`flex items-center gap-3 rounded-2xl px-3 py-2 text-[13px] transition-colors ${
               isActive('/cart')
                 ? 'bg-stone-100 font-semibold text-stone-950'
                 : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'
@@ -420,7 +420,7 @@ export default function SideNav() {
         <div className="border-t px-3 py-2.5" style={{ borderColor: '#e7e5e4' }}>
           <Link
             to={profileUrl}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] transition-colors ${
+            className={`flex items-center gap-3 rounded-2xl px-3 py-2 text-[13px] transition-colors ${
               isActive(profileUrl)
                 ? 'bg-stone-100 font-semibold text-stone-950'
                 : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'

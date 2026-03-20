@@ -36,7 +36,7 @@ class ErrorBoundary extends React.Component {
             </p>
             <button
               onClick={this.handleRetry}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-stone-950 text-white rounded-xl font-medium hover:bg-stone-800 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-stone-950 text-white rounded-2xl font-medium hover:bg-stone-800 transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
               Recargar página

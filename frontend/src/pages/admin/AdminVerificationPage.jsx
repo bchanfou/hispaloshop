@@ -39,14 +39,14 @@ function DocThumb({ url, label, status, onClick }) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1 group">
       <div
-        className="w-[52px] h-[52px] rounded-xl overflow-hidden flex items-center justify-center relative"
+        className="w-[52px] h-[52px] rounded-2xl overflow-hidden flex items-center justify-center relative"
         style={{ border: `1px solid ${T.border}`, background: T.surface }}
       >
         {url ? (
           url.toLowerCase().endsWith('.pdf') ? (
             <FileText className="w-5 h-5" style={{ color: T.stone }} />
           ) : (
-            <img src={url} alt={label} className="w-full h-full object-cover" />
+            <img loading="lazy" src={url} alt={label} className="w-full h-full object-cover" />
           )
         ) : (
           <span className="text-[10px]" style={{ color: T.stone }}>—</span>
@@ -185,7 +185,7 @@ function DocumentModal({ doc, docType, item, onClose }) {
 
         {/* Document viewer */}
         {doc.url && (
-          <div className="mb-4 rounded-xl overflow-hidden" style={{ border: `1px solid ${T.border}` }}>
+          <div className="mb-4 rounded-2xl overflow-hidden" style={{ border: `1px solid ${T.border}` }}>
             {isPdf ? (
               <div className="h-64 flex items-center justify-center" style={{ background: T.surface }}>
                 <a href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium" style={{ color: T.black }}>
@@ -193,7 +193,7 @@ function DocumentModal({ doc, docType, item, onClose }) {
                 </a>
               </div>
             ) : (
-              <img src={doc.url} alt="Document" className="w-full" style={{ maxHeight: '300px', objectFit: 'contain' }} />
+              <img loading="lazy" src={doc.url} alt="Document" className="w-full" style={{ maxHeight: '300px', objectFit: 'contain' }} />
             )}
           </div>
         )}

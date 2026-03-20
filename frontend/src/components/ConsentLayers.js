@@ -124,7 +124,7 @@ export function ConsentFullDisclosure({ isExpanded, onToggle }) {
   ];
 
   return (
-    <div className="border border-stone-200 rounded-xl overflow-hidden">
+    <div className="border border-stone-200 rounded-2xl overflow-hidden">
       <button
         type="button"
         onClick={onToggle}
@@ -164,7 +164,7 @@ export function ConsentFullDisclosure({ isExpanded, onToggle }) {
           
           {/* Disclaimer for non-English versions */}
           {!isEnglish && (
-            <div className="mt-4 p-3 bg-stone-50 border border-stone-200 rounded-xl">
+            <div className="mt-4 p-3 bg-stone-50 border border-stone-200 rounded-2xl">
               <p className="text-xs text-stone-700 italic">
                 {t('consent.layer2.disclaimer', 'En caso de discrepancia entre traducciones, prevalecerá la versión española de este documento.')}
               </p>
@@ -189,7 +189,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
       </h3>
       
       {/* Current Status */}
-      <div className={`p-4 rounded-xl ${hasConsent ? 'bg-stone-100 border border-stone-200' : 'bg-stone-100 border border-stone-200'}`}>
+      <div className={`p-4 rounded-2xl ${hasConsent ? 'bg-stone-100 border border-stone-200' : 'bg-stone-100 border border-stone-200'}`}>
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium text-stone-950">
@@ -207,7 +207,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
       {hasConsent ? (
         <>
           {/* Withdraw Section */}
-          <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl">
+          <div className="p-4 bg-stone-50 border border-stone-200 rounded-2xl">
             <h4 className="font-medium text-stone-800 mb-2 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               {t('consent.layer3.withdrawTitle')}
@@ -225,7 +225,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
               <button
                 type="button"
                 onClick={() => setShowConfirm(true)}
-                className="px-4 py-2 text-sm font-medium text-stone-700 border border-stone-200 hover:bg-stone-100 rounded-xl transition-colors"
+                className="px-4 py-2 text-sm font-medium text-stone-700 border border-stone-200 hover:bg-stone-100 rounded-2xl transition-colors"
                 data-testid="withdraw-consent-btn"
               >
                 {t('consent.layer3.withdrawButton')}
@@ -239,7 +239,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
                     setShowConfirm(false);
                   }}
                   disabled={loading}
-                  className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors disabled:opacity-50"
                   data-testid="confirm-withdraw-btn"
                 >
                   {loading ? t('common.loading') : t('common.confirm')}
@@ -247,7 +247,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
                 <button
                   type="button"
                   onClick={() => setShowConfirm(false)}
-                  className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+                  className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
                 >
                   {t('common.cancel')}
                 </button>
@@ -258,7 +258,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
       ) : (
         <>
           {/* Reactivate Section */}
-          <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl">
+          <div className="p-4 bg-stone-50 border border-stone-200 rounded-2xl">
             <h4 className="font-medium text-stone-950 mb-2">
               {t('consent.layer3.reactivateTitle')}
             </h4>
@@ -269,7 +269,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
               type="button"
               onClick={onReactivate}
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium bg-stone-950 text-white hover:bg-stone-800 rounded-xl transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium bg-stone-950 text-white hover:bg-stone-800 rounded-2xl transition-colors disabled:opacity-50"
               data-testid="reactivate-consent-btn"
             >
               {loading ? t('common.loading') : t('consent.layer3.reactivateButton')}
@@ -318,7 +318,7 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {/* Layer 1: Summary (always visible) */}
-          <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl">
+          <div className="p-4 bg-stone-50 border border-stone-200 rounded-2xl">
             <ConsentSummary />
           </div>
           
@@ -341,7 +341,7 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
           <button
             type="button"
             onClick={onDecline}
-            className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
             data-testid="decline-consent-btn"
           >
             {t('consent.modal.decline', 'Rechazar')}
@@ -349,7 +349,7 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
           <button
             type="button"
             onClick={onAccept}
-            className="px-8 py-2 text-sm font-medium bg-stone-950 text-white hover:bg-stone-800 rounded-xl transition-colors"
+            className="px-8 py-2 text-sm font-medium bg-stone-950 text-white hover:bg-stone-800 rounded-2xl transition-colors"
             data-testid="accept-consent-btn"
           >
             {t('consent.modal.accept', 'Aceptar')}

@@ -234,7 +234,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       {showMenu && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-          <div className="absolute right-3 top-10 z-50 bg-white rounded-xl shadow-lg border border-stone-200 py-1 min-w-[180px]">
+          <div className="absolute right-3 top-10 z-50 bg-white rounded-2xl shadow-lg border border-stone-200 py-1 min-w-[180px]">
             {isOwner && (
               <>
                 <button
@@ -304,7 +304,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             <textarea
               value={editCaption}
               onChange={(e) => setEditCaption(e.target.value.slice(0, 2200))}
-              className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
+              className="w-full border border-stone-200 rounded-2xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
               aria-label="Editar descripción"
             />
             <p className="text-[11px] text-stone-400">La imagen no se puede cambiar tras publicar.</p>

@@ -429,7 +429,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       {showOwnerMenu && (
         <>
           <div className="fixed inset-0 z-[6]" onClick={() => setShowOwnerMenu(false)} />
-          <div className="absolute top-14 left-4 z-[7] bg-white rounded-xl shadow-lg border border-stone-200 py-1 min-w-[170px]">
+          <div className="absolute top-14 left-4 z-[7] bg-white rounded-2xl shadow-lg border border-stone-200 py-1 min-w-[170px]">
             <button
               className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
               onClick={() => { setEditCaption(localCaption ?? reel.caption ?? ''); setShowEditCaption(true); setShowOwnerMenu(false); }}
@@ -458,7 +458,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
           <textarea
             value={editCaption}
             onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
-            className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
+            className="w-full border border-stone-200 rounded-2xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
             aria-label="Editar descripción"
           />
           <p className="text-[11px] text-stone-400">El vídeo no se puede cambiar tras publicar.</p>
@@ -724,7 +724,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       {product && (
         <div className="absolute bottom-4 left-4 right-4 bg-white/15 backdrop-blur-xl rounded-2xl p-2.5 flex items-center gap-2.5 z-[2]">
           <div
-            className="w-12 h-12 rounded-xl overflow-hidden bg-white/20 shrink-0 cursor-pointer"
+            className="w-12 h-12 rounded-2xl overflow-hidden bg-white/20 shrink-0 cursor-pointer"
             onClick={(e) => { e.stopPropagation(); const pid = product.id || product.product_id; if (pid) navigate(`/products/${pid}`); }}
           >
             {(product.image || product.thumbnail || product.images?.[0]) ? (
@@ -905,7 +905,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
                   className="flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0"
                 >
                   <div
-                    className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 shrink-0 cursor-pointer"
+                    className="w-12 h-12 rounded-2xl overflow-hidden bg-white/10 shrink-0 cursor-pointer"
                     onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
                   >
                     {(p.image || p.thumbnail) ? (

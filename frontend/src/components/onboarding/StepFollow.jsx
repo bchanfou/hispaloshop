@@ -109,7 +109,7 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
             <motion.div
               key={producer.id}
               layout
-              className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+              className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all cursor-pointer ${
                 isFollowing
                   ? 'border-stone-950 bg-stone-50'
                   : 'border-stone-200 hover:border-stone-300'
@@ -171,7 +171,7 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
         <button
           onClick={handleNext}
           disabled={!canProceed}
-          className="px-6 py-3 bg-stone-950 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-colors"
+          className="px-6 py-3 bg-stone-950 text-white rounded-2xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-colors"
         >
           {canProceed ? 'Comenzar' : `Selecciona ${3 - following.length} más`}
         </button>

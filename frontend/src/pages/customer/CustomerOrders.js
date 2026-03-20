@@ -83,7 +83,7 @@ export default function CustomerOrders() {
         })}
       </div>
 
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading', 'Loading...')}</div>
         ) : filteredOrders.length === 0 ? (

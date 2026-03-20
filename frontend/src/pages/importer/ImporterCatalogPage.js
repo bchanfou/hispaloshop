@@ -54,11 +54,11 @@ function B2BProductCard({ product, onRequest, convertAndFormatPrice }) {
     : product.price || 0;
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
       {/* Image */}
       <div className="relative aspect-square">
         {product.images?.[0] ? (
-          <img src={product.images[0]} alt={product.name || 'Producto'}
+          <img loading="lazy" src={product.images[0]} alt={product.name || 'Producto'}
             className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-stone-100 flex items-center justify-center">
@@ -110,7 +110,7 @@ function B2BProductCard({ product, onRequest, convertAndFormatPrice }) {
 
         <button
           onClick={() => onRequest(product)}
-          className="w-full py-2 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-xl transition-colors"
+          className="w-full py-2 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-2xl transition-colors"
         >
           Solicitar pedido
         </button>
@@ -183,9 +183,9 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
           {/* Product info */}
           <div className="flex gap-3 mb-5">
             {product.images?.[0] ? (
-              <img src={product.images[0]} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
+              <img loading="lazy" src={product.images[0]} alt="" className="w-16 h-16 rounded-2xl object-cover shrink-0" />
             ) : (
-              <div className="w-16 h-16 rounded-xl bg-stone-100 shrink-0" />
+              <div className="w-16 h-16 rounded-2xl bg-stone-100 shrink-0" />
             )}
             <div>
               <p className="text-[15px] font-bold text-stone-950">{product.name}</p>
@@ -208,7 +208,7 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
               type="number"
               value={quantity}
               onChange={e => setQuantity(Math.max(moq, parseInt(e.target.value) || 0))}
-              className="flex-1 text-center text-lg font-bold py-2 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-400"
+              className="flex-1 text-center text-lg font-bold py-2 border border-stone-200 rounded-2xl focus:outline-none focus:border-stone-400"
             />
             <button
               onClick={() => setQuantity(q => q + moq)}
@@ -225,7 +225,7 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
 
           {/* Price tiers */}
           {product.b2b_prices?.length > 1 && (
-            <div className="bg-stone-50 rounded-xl p-3 mb-4">
+            <div className="bg-stone-50 rounded-2xl p-3 mb-4">
               <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-2">
                 Precios por volumen
               </p>
@@ -245,7 +245,7 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
           )}
 
           {/* Price summary */}
-          <div className="bg-white border border-stone-200 rounded-xl p-3.5 mb-4">
+          <div className="bg-white border border-stone-200 rounded-2xl p-3.5 mb-4">
             <div className="flex justify-between mb-1">
               <span className="text-sm text-stone-500">
                 {quantity} {product.unit || 'uds'} × {convertAndFormatPrice(unitPrice, 'EUR')}
@@ -268,13 +268,13 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
             onChange={e => setNotes(e.target.value)}
             placeholder="Ej: Necesito entrega urgente, packaging especial..."
             rows={2}
-            className="w-full border border-stone-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:border-stone-400 mb-4"
+            className="w-full border border-stone-200 rounded-2xl p-3 text-sm resize-none focus:outline-none focus:border-stone-400 mb-4"
           />
 
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="w-full py-3 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm font-medium rounded-2xl transition-colors flex items-center justify-center gap-2"
           >
             {submitting ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Enviando...</>
@@ -351,7 +351,7 @@ export default function ImporterCatalogPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar productos, productores..."
-            className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-xl text-sm bg-white focus:outline-none focus:border-stone-400"
+            className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-2xl text-sm bg-white focus:outline-none focus:border-stone-400"
           />
         </div>
 
@@ -399,7 +399,7 @@ export default function ImporterCatalogPage() {
           <p className="text-sm font-semibold text-stone-950 mb-1">Error al cargar el catálogo</p>
           <button
             onClick={() => fetchProducts(1, false)}
-            className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+            className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
           >
             Reintentar
           </button>
@@ -407,7 +407,7 @@ export default function ImporterCatalogPage() {
       ) : loading && products.length === 0 ? (
         <div className="grid grid-cols-2 gap-3">
           {Array(6).fill(0).map((_, i) => (
-            <div key={i} className="h-60 rounded-xl bg-stone-100 animate-pulse" />
+            <div key={i} className="h-60 rounded-2xl bg-stone-100 animate-pulse" />
           ))}
         </div>
       ) : products.length === 0 ? (
@@ -432,7 +432,7 @@ export default function ImporterCatalogPage() {
             <button
               onClick={() => fetchProducts(page + 1, true)}
               disabled={loading}
-              className="w-full mt-4 py-2.5 border border-stone-200 rounded-xl text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
+              className="w-full mt-4 py-2.5 border border-stone-200 rounded-2xl text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ver más productos'}
             </button>

@@ -64,7 +64,7 @@ function EventBadge({ type }) {
 const DarkTooltip = ({ active, payload, label, formatter }) => {
   if (!active || !payload) return null;
   return (
-    <div className="bg-[#1c1917] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-xl">
+    <div className="bg-[#1c1917] border border-white/[0.1] rounded-2xl px-3 py-2 text-xs shadow-xl">
       <p className="text-white/50 mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} className="text-white font-medium">
@@ -204,7 +204,7 @@ export default function FinancialDashboard() {
           <button
             onClick={fetchData}
             data-testid="refresh-btn"
-            className="px-3 py-2 bg-white/[0.08] rounded-xl text-white/60 hover:bg-white/[0.12] transition-colors"
+            className="px-3 py-2 bg-white/[0.08] rounded-2xl text-white/60 hover:bg-white/[0.12] transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -212,21 +212,21 @@ export default function FinancialDashboard() {
             type="date"
             value={dateFrom}
             onChange={e => setDateFrom(e.target.value)}
-            className="bg-white/[0.06] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#44403c]"
+            className="bg-white/[0.06] border border-white/[0.08] rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#44403c]"
             title="Desde"
           />
           <input
             type="date"
             value={dateTo}
             onChange={e => setDateTo(e.target.value)}
-            className="bg-white/[0.06] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#44403c]"
+            className="bg-white/[0.06] border border-white/[0.08] rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#44403c]"
             title="Hasta"
           />
           <button
             onClick={handleDownloadExcel}
             disabled={downloading}
             data-testid="download-excel-btn"
-            className="px-4 py-2 bg-white/[0.08] rounded-xl text-white/60 hover:bg-white/[0.12] transition-colors disabled:opacity-50 inline-flex items-center text-sm"
+            className="px-4 py-2 bg-white/[0.08] rounded-2xl text-white/60 hover:bg-white/[0.12] transition-colors disabled:opacity-50 inline-flex items-center text-sm"
           >
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             <span className="ml-1.5">Excel</span>
@@ -236,7 +236,7 @@ export default function FinancialDashboard() {
 
       {/* Pending payouts alert */}
       {duePayouts.length > 0 && (
-        <div className="bg-[#a8a29e]/10 border border-[#a8a29e]/20 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3" data-testid="due-payouts-alert">
+        <div className="bg-[#a8a29e]/10 border border-[#a8a29e]/20 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-3" data-testid="due-payouts-alert">
           <div className="flex items-center gap-2 flex-1">
             <AlertTriangle className="w-5 h-5 text-[#a8a29e] flex-shrink-0" />
             <div>
@@ -251,7 +251,7 @@ export default function FinancialDashboard() {
           <button
             onClick={handleProcessPayouts}
             disabled={processing}
-            className="px-4 py-2 bg-[#a8a29e] hover:bg-[#78716c] disabled:opacity-50 text-white rounded-xl transition-colors self-start inline-flex items-center text-sm font-semibold"
+            className="px-4 py-2 bg-[#a8a29e] hover:bg-[#78716c] disabled:opacity-50 text-white rounded-2xl transition-colors self-start inline-flex items-center text-sm font-semibold"
             data-testid="process-payouts-btn"
           >
             {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
@@ -360,7 +360,7 @@ export default function FinancialDashboard() {
             <select
               value={filter}
               onChange={e => setFilter(e.target.value)}
-              className="text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl px-2 py-1.5 text-white focus:outline-none"
+              className="text-xs bg-white/[0.06] border border-white/[0.08] rounded-2xl px-2 py-1.5 text-white focus:outline-none"
               data-testid="ledger-filter"
             >
               <option value="all" className="bg-[#ffffff]">Todos</option>

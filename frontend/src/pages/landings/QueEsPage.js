@@ -254,7 +254,7 @@ export default function QueEsPage() {
                   onClick={() => navigate(r.href)}
                   className="bg-white rounded-2xl border border-stone-200 p-6 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center mb-4">
+                  <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center mb-4">
                     <Icon size={20} className="text-stone-950" />
                   </div>
                   <h3 className="text-lg font-bold text-stone-950 mb-2">

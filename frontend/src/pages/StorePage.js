@@ -381,7 +381,7 @@ export default function StorePage() {
             {productsQuery.isLoading ? (
               <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="animate-pulse rounded-xl bg-stone-100" style={{ aspectRatio: '4/5' }} />
+                  <div key={i} className="animate-pulse rounded-2xl bg-stone-100" style={{ aspectRatio: '4/5' }} />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (

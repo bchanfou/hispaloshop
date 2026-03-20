@@ -167,7 +167,7 @@ export default function LoginPage() {
 
       {/* Session expired message */}
       {sessionExpired && (
-        <p className="text-sm text-stone-950 text-center px-4 py-3 mb-6 bg-stone-100 rounded-xl">
+        <p className="text-sm text-stone-950 text-center px-4 py-3 mb-6 bg-stone-100 rounded-2xl">
           Tu sesión ha expirado. Inicia sesión de nuevo.
         </p>
       )}
@@ -284,7 +284,7 @@ export default function LoginPage() {
           {loginError && (
             <motion.p
               key={loginError}
-              className="text-sm text-red-600 text-center px-4 py-3 mb-4 bg-red-50 rounded-xl"
+              className="text-sm text-red-600 text-center px-4 py-3 mb-4 bg-red-50 rounded-2xl"
               animate={{ x: [0, -6, 6, -4, 4, 0] }}
               transition={{ duration: 0.4 }}
             >

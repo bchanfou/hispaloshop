@@ -35,7 +35,7 @@ function AlertBanner({ type = 'warning', message, actionLabel, onAction, onDismi
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className={`${variant.bg} ${variant.border} border rounded-xl p-3 flex items-center gap-3`}
+      className={`${variant.bg} ${variant.border} border rounded-2xl p-3 flex items-center gap-3`}
     >
       <Icon className={`w-5 h-5 ${variant.iconColor} flex-shrink-0`} />
       <p className={`text-sm ${variant.text} flex-1`}>{message}</p>

@@ -9,8 +9,8 @@ import {
   FileText,
   AlertCircle,
 } from 'lucide-react';
-import apiClient from '@/services/api/client';
-import { useAuth } from '@/context/AuthContext';
+import apiClient from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 
 /* ── V2 Design Tokens ─────────────────────────────── */
@@ -147,10 +147,10 @@ export default function B2BContractPage() {
         className="fixed inset-0 flex flex-col"
         style={{ background: V2.cream, fontFamily: V2.fontSans, padding: 16, paddingTop: 60 }}
       >
-        <div className="h-10 w-48 rounded-xl animate-pulse mb-4" style={{ background: V2.surface }} />
-        <div className="h-32 rounded-xl animate-pulse mb-4" style={{ background: V2.surface }} />
-        <div className="h-24 rounded-xl animate-pulse mb-4" style={{ background: V2.surface }} />
-        <div className="h-48 rounded-xl animate-pulse" style={{ background: V2.surface }} />
+        <div className="h-10 w-48 rounded-2xl animate-pulse mb-4" style={{ background: V2.surface }} />
+        <div className="h-32 rounded-2xl animate-pulse mb-4" style={{ background: V2.surface }} />
+        <div className="h-24 rounded-2xl animate-pulse mb-4" style={{ background: V2.surface }} />
+        <div className="h-48 rounded-2xl animate-pulse" style={{ background: V2.surface }} />
       </div>
     );
   }

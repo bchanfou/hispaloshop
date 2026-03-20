@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ArrowLeft, Users, Settings, Loader2, RefreshCw, Pin } from 'lucide-react';
+import { ArrowLeft, Users, Settings, RefreshCw, Pin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
@@ -137,10 +137,33 @@ export default function CommunityPage() {
           </button>
           <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Comunidad</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-          <Loader2 size={28} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
+        <div style={{ padding: '0 16px' }} aria-busy="true" aria-label="Cargando comunidad">
+          {/* Cover skeleton */}
+          <div className="mt-4 h-40 w-full animate-pulse rounded-2xl bg-stone-100" />
+          {/* Title + meta skeleton */}
+          <div className="mt-4 flex items-center gap-3">
+            <div className="h-12 w-12 animate-pulse rounded-full bg-stone-100" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-2/3 animate-pulse rounded-full bg-stone-100" />
+              <div className="h-3 w-1/3 animate-pulse rounded-full bg-stone-100" />
+            </div>
+          </div>
+          {/* Tabs skeleton */}
+          <div className="mt-5 flex gap-6 border-b border-stone-100 pb-3">
+            {[1,2,3].map(i => <div key={i} className="h-3 w-14 animate-pulse rounded-full bg-stone-100" />)}
+          </div>
+          {/* Posts skeleton */}
+          {[1,2,3].map(i => (
+            <div key={i} className="mt-4 flex gap-3">
+              <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-stone-100" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-1/4 animate-pulse rounded-full bg-stone-100" />
+                <div className="h-3 w-full animate-pulse rounded-full bg-stone-100" />
+                <div className="h-3 w-3/4 animate-pulse rounded-full bg-stone-100" />
+              </div>
+            </div>
+          ))}
         </div>
-        <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
       </div>
     );
   }
@@ -219,7 +242,7 @@ export default function CommunityPage() {
             : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
         }}>
           {community.cover_image ? (
-            <img src={community.cover_image} alt="" className="block h-full w-full object-cover" />
+            <img loading="lazy" src={community.cover_image} alt="" className="block h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-[56px]">
               {community.emoji || '🌿'}
@@ -563,7 +586,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
 
       {imagePreview && (
         <div style={{ position: 'relative', marginBottom: 10 }}>
-          <img src={imagePreview} alt=""
+          <img loading="lazy" src={imagePreview} alt=""
             style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: '12px' }} />
           <button onClick={() => { setImagePreview(null); setImageUrl(null); }}
             style={{
@@ -717,7 +740,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
       )}
 
       {post.image_url && (
-        <img src={post.image_url} alt="Imagen del post"
+        <img loading="lazy" src={post.image_url} alt="Imagen del post"
           loading="lazy"
           style={{ width: '100%', display: 'block', maxHeight: 400, objectFit: 'cover' }} />
       )}
