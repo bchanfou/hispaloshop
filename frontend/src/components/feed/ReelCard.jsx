@@ -25,6 +25,7 @@ import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import BottomSheet from '../motion/BottomSheet';
+import { useDwellTime } from '../../hooks/useDwellTime';
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
@@ -34,6 +35,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { addToCart } = useCart();
+  const dwellRef = useDwellTime(reel.id || reel.reel_id || reel.post_id, 'reel');
   const [addingToCart, setAddingToCart] = useState(null);
   const [showComments, setShowComments] = useState(false);
   const [showProductSheet, setShowProductSheet] = useState(false);
@@ -372,7 +374,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
 
   return (
     <div
-      ref={containerRef}
+      ref={(node) => { containerRef.current = node; dwellRef.current = node; }}
       className={`relative w-full bg-black overflow-hidden snap-start ${
         embedded ? 'h-[400px]' : 'h-dvh'
       }`}

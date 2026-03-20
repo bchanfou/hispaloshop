@@ -6,6 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { timeAgo } from '../../utils/time';
+import { useHaptics } from '../../hooks/useHaptics';
+import { useDwellTime } from '../../hooks/useDwellTime';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -53,6 +55,8 @@ function renderCaption(text, navigate) {
 function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, priority = false }) {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const { trigger } = useHaptics();
+  const dwellRef = useDwellTime(post.id, 'post');
 
   // Controlled state — single source of truth is React Query cache (via props)
   const liked = post.liked ?? post.is_liked ?? false;
@@ -92,8 +96,9 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
   // Like — delegate entirely to parent (React Query optimistic update)
   const handleLike = useCallback(() => {
+    trigger('light');
     onLike?.(post.id);
-  }, [onLike, post.id]);
+  }, [onLike, post.id, trigger]);
 
   const handleDoubleTap = useCallback(() => {
     const now = Date.now();
@@ -110,6 +115,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
   // Save — calls API directly with local optimistic override
   const handleSave = useCallback(async () => {
+    trigger('medium');
     const next = !effectiveSaved;
     setSavePending(next);
     try {
@@ -121,7 +127,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       setSavePending(null); // rollback to prop value
       toast.error('Error al guardar');
     }
-  }, [effectiveSaved, onSave, post.id]);
+  }, [effectiveSaved, onSave, post.id, trigger]);
 
   // Reset optimistic override when prop value catches up
   React.useEffect(() => {
@@ -224,6 +230,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
   return (
     <motion.article
+      ref={dwellRef}
       className="border-b border-stone-100 bg-white font-sans relative"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}

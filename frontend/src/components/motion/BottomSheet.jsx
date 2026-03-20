@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useHaptics } from '../../hooks/useHaptics';
 
 const SPRING = { type: 'spring', damping: 28, stiffness: 300 };
 
@@ -9,6 +10,7 @@ const SPRING = { type: 'spring', damping: 28, stiffness: 300 };
  */
 export default function BottomSheet({ isOpen, onClose, children, className = '', maxHeight = '85vh' }) {
   const sheetRef = useRef(null);
+  const { trigger } = useHaptics();
 
   // Close on Escape
   useEffect(() => {
@@ -29,9 +31,10 @@ export default function BottomSheet({ isOpen, onClose, children, className = '',
 
   const handleDragEnd = useCallback((_, info) => {
     if (info.velocity.y > 300 || info.offset.y > 120) {
+      trigger('medium');
       onClose();
     }
-  }, [onClose]);
+  }, [onClose, trigger]);
 
   return (
     <AnimatePresence>

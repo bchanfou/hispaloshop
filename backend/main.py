@@ -86,6 +86,7 @@ from routes.communities import router as communities_router
 from routes.content_moderation import router as content_moderation_router
 from routes.collaborations import router as collaborations_router
 from routes.documents import router as documents_router
+from routes.experiments import router as experiments_router
 
 logger = logging.getLogger(__name__)
 
@@ -235,6 +236,9 @@ app.include_router(collaborations_router, prefix="/api", tags=["collaborations"]
 
 # Documents & Digital Signature Routes (Fase 29)
 app.include_router(documents_router, prefix="/api", tags=["documents"])
+
+# A/B Experiments Routes (Ciclo 4)
+app.include_router(experiments_router, prefix="/api", tags=["experiments"])
 
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])

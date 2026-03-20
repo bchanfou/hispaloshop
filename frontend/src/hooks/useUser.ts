@@ -1,3 +1,4 @@
+// @ts-nocheck — deprecated hook, not imported anywhere (dead code from SWR era)
 import useSWR from 'swr';
 import { api } from '../lib/api';
 import { useCallback } from 'react';

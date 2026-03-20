@@ -37,3 +37,24 @@
   }
   [data-debug-wrapper="true"] { display: contents !important; }
 }
+
+/* ── Touch Ripple ── */
+@keyframes ripple-expand {
+  0% { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(4); opacity: 0; }
+}
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(168, 162, 158, 0.3);
+  transform: scale(0);
+  animation: ripple-expand 0.5s ease-out;
+  pointer-events: none;
+}

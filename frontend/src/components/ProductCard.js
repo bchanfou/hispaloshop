@@ -6,16 +6,19 @@ import ProductImage from './ui/ProductImage.tsx';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
+import { useHaptics } from '../hooks/useHaptics';
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
 function AddButton({ onAdd, isDisabled, testId }) {
   const [confirmed, setConfirmed] = useState(false);
+  const { trigger } = useHaptics();
 
   const handleClick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (confirmed || isDisabled) return;
+    trigger('light');
     await onAdd(e);
     setConfirmed(true);
     setTimeout(() => setConfirmed(false), 1200);

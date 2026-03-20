@@ -9,6 +9,7 @@ import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
 import { getWSUrl } from '../services/api/client';
+import { useHaptics } from '../hooks/useHaptics';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
@@ -46,6 +47,7 @@ export default function BottomNavBar() {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const { trigger } = useHaptics();
   const { conversations, reloadConversations } = useInternalChatData();
   const [messageToast, setMessageToast] = useState(null);
   const [showContentSheet, setShowContentSheet] = useState(false);
@@ -233,6 +235,7 @@ export default function BottomNavBar() {
 
   // Al pulsar el tab activo → scroll to top (igual que Instagram/Twitter)
   const handleNavClick = (e, isActive) => {
+    trigger('light');
     if (isActive) {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });

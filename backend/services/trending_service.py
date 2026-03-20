@@ -165,6 +165,108 @@ async def get_trending_recipes(
     return results
 
 
+# ── Trending posts (velocity-based) ────────────────────────────────────────────
+
+async def get_trending_posts(
+    country: Optional[str] = None,
+    limit: int = 10,
+    velocity_threshold: float = 3.0,
+) -> List[Dict]:
+    """
+    Posts trending by engagement velocity.
+    Compares engagement rate in last 2 hours vs previous 24-hour average.
+    Flags as trending when velocity > velocity_threshold (default 3x baseline).
+    """
+    db = get_db()
+    now = datetime.now(timezone.utc)
+    two_hours_ago = now - timedelta(hours=2)
+    twenty_six_hours_ago = now - timedelta(hours=26)  # 24h window before the 2h window
+
+    # Recent window: last 2 hours
+    recent_match: Dict = {
+        "entity_type": "post",
+        "created_at": {"$gte": two_hours_ago},
+    }
+    if country:
+        recent_match["$or"] = [{"country": country}, {"country": None}]
+
+    recent_pipeline = [
+        {"$match": recent_match},
+        {"$group": {
+            "_id": "$entity_id",
+            "recent_score": {"$sum": "$weight"},
+            "recent_count": {"$sum": 1},
+        }},
+    ]
+    recent_items = await db.growth_interactions.aggregate(recent_pipeline).to_list(length=200)
+    recent_map = {item["_id"]: item for item in recent_items}
+
+    if not recent_map:
+        return []
+
+    # Baseline window: 2h–26h ago (24h period)
+    baseline_match: Dict = {
+        "entity_type": "post",
+        "entity_id": {"$in": list(recent_map.keys())},
+        "created_at": {"$gte": twenty_six_hours_ago, "$lt": two_hours_ago},
+    }
+    baseline_pipeline = [
+        {"$match": baseline_match},
+        {"$group": {
+            "_id": "$entity_id",
+            "baseline_score": {"$sum": "$weight"},
+            "baseline_count": {"$sum": 1},
+        }},
+    ]
+    baseline_items = await db.growth_interactions.aggregate(baseline_pipeline).to_list(length=200)
+    baseline_map = {item["_id"]: item for item in baseline_items}
+
+    # Calculate velocity and filter
+    trending_candidates = []
+    for entity_id, recent in recent_map.items():
+        recent_rate = recent["recent_score"] / 2  # per-hour rate
+        baseline = baseline_map.get(entity_id)
+        if baseline:
+            baseline_rate = baseline["baseline_score"] / 24  # per-hour rate
+            velocity = recent_rate / max(baseline_rate, 0.1)
+        else:
+            # No baseline = new content with engagement, treat as trending if strong
+            velocity = recent_rate / 1.0  # baseline of 1.0 for new content
+
+        if velocity >= velocity_threshold:
+            trending_candidates.append({
+                "entity_id": entity_id,
+                "velocity": round(velocity, 2),
+                "recent_score": recent["recent_score"],
+                "recent_count": recent["recent_count"],
+            })
+
+    trending_candidates.sort(key=lambda x: x["velocity"], reverse=True)
+    trending_candidates = trending_candidates[:limit]
+
+    # Enrich with post data
+    from bson.objectid import ObjectId
+    results: List[Dict] = []
+    for candidate in trending_candidates:
+        entity_id = candidate["entity_id"]
+        try:
+            post = await db.posts.find_one(
+                {"_id": ObjectId(entity_id), "status": "published"},
+                {"title": 1, "caption": 1, "author_id": 1, "likes_count": 1,
+                 "comments_count": 1, "content_type": 1, "images": 1},
+            )
+            if post:
+                post["id"] = str(post.pop("_id", ""))
+                post["velocity"] = candidate["velocity"]
+                post["trend_score"] = candidate["recent_score"]
+                post["is_trending"] = True
+                results.append(post)
+        except Exception as e:
+            logger.warning("[TRENDING] Failed to fetch post %s: %s", entity_id, e)
+
+    return results
+
+
 # ── Creator discovery ──────────────────────────────────────────────────────────
 
 async def get_suggested_creators(
