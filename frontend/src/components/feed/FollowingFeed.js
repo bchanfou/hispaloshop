@@ -9,6 +9,7 @@ import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
+import SuggestedUsersCard from './SuggestedUsersCard';
 import { useFollowingFeed, useLikePost, feedKeys } from '../../features/feed/queries';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
@@ -61,6 +62,9 @@ function FollowingFeed() {
   const hasMore = Boolean(feedQuery.hasNextPage);
   const isInitialLoading = feedQuery.isLoading;
   const error = feedQuery.error;
+
+  // Suggested users dismissal (session-only)
+  const [dismissedSuggestions, setDismissedSuggestions] = useState(false);
 
   const [modalPost, setModalPost] = useState(null);
   const handleCloseModal = useCallback(() => setModalPost(null), []);
@@ -186,6 +190,9 @@ function FollowingFeed() {
             const shouldAnimate = index < 5;
             const animDelay = shouldAnimate ? index * 0.05 : 0;
 
+            // Inject suggested users after every 5th post (position 4, 14, 24...) unless dismissed
+            const showSuggestions = !dismissedSuggestions && (index === 4 || (index > 4 && (index - 4) % 10 === 0));
+
             const motionProps = shouldAnimate
               ? { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay } }
               : {};
@@ -193,6 +200,7 @@ function FollowingFeed() {
             if (isReel) {
               return (
                 <div className="px-4 py-3">
+                  {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                   <motion.div {...motionProps}>
                     <ReelCard
                       reel={{
@@ -217,6 +225,7 @@ function FollowingFeed() {
                       onComment={() => handleComment(post.id)}
                       onShare={() => handleShare(post.id)}
                       priority={index < 2}
+                      nextVideoUrl={allPosts.slice(index + 1).find(p => p.video_url || p.type === 'reel')?.video_url}
                     />
                   </motion.div>
                 </div>
@@ -225,6 +234,7 @@ function FollowingFeed() {
 
             return (
               <div>
+                {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                 <motion.div {...motionProps}>
                   <PostCard
                     post={{
@@ -259,6 +269,7 @@ function FollowingFeed() {
             }
           }}
           overscan={3}
+          increaseViewportBy={{ top: 0, bottom: 1500 }}
           style={{ height: 'calc(100vh - 56px - 64px)' }}
           components={{
             Footer: () => {

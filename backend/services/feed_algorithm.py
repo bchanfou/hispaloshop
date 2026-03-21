@@ -29,8 +29,8 @@ class FeedAlgorithm:
     COLD_START_WEIGHTS = {
         'recency': 0.25,
         'engagement': 0.30,
-        'personalization': 0.05,
-        'serendipity': 0.40,
+        'personalization': 0.15,
+        'serendipity': 0.30,
     }
 
     COLD_START_THRESHOLD = 5  # interactions (likes + comments + saves)
@@ -121,6 +121,18 @@ class FeedAlgorithm:
         # --- Track recent content types for diversity scoring ---
         recent_types = await self._get_recent_shown_types(user_id, db)
 
+        # --- Batch: dwell time per author (signal 1) ---
+        author_dwell_map = await self._batch_author_dwell(user_id, author_ids, db)
+
+        # --- Batch: dwell time per category (signal 1b) ---
+        category_dwell_map = await self._batch_category_dwell(user_id, db)
+
+        # --- Batch: creator affinity — interactions per author in last 30d (signal 2) ---
+        creator_affinity_map = await self._batch_creator_affinity(user_id, author_ids, db)
+
+        # --- Batch: content type preference — posts vs reels likes in last 14d (signal 3) ---
+        content_type_pref = await self._get_content_type_preference(user_id, db)
+
         # Scorear cada post
         scored_posts = []
         for post in candidates:
@@ -133,6 +145,10 @@ class FeedAlgorithm:
                 active_weights=active_weights,
                 category_scores=category_scores,
                 recent_types=recent_types,
+                author_dwell_map=author_dwell_map,
+                category_dwell_map=category_dwell_map,
+                creator_affinity_map=creator_affinity_map,
+                content_type_pref=content_type_pref,
             )
             scored_posts.append({
                 "post": post,
@@ -198,6 +214,104 @@ class FeedAlgorithm:
         except Exception:
             return []
 
+    async def _batch_author_dwell(self, user_id: str, author_ids: List[str], db) -> Dict[str, float]:
+        """
+        Avg dwell_time_seconds per author from social_events where user viewed
+        posts by each author with dwell > 5s. Returns {author_id: avg_dwell}.
+        """
+        if not author_ids:
+            return {}
+        try:
+            pipeline = [
+                {"$match": {
+                    "user_id": user_id,
+                    "event_type": "view_post",
+                    "dwell_time_seconds": {"$gt": 5},
+                    "author_id": {"$in": author_ids},
+                }},
+                {"$group": {
+                    "_id": "$author_id",
+                    "avg_dwell": {"$avg": "$dwell_time_seconds"},
+                }},
+            ]
+            results = await db.social_events.aggregate(pipeline).to_list(length=len(author_ids))
+            return {r["_id"]: r["avg_dwell"] for r in results if r.get("_id")}
+        except Exception:
+            return {}
+
+    async def _batch_category_dwell(self, user_id: str, db) -> Dict[str, float]:
+        """
+        Avg dwell_time_seconds per category from social_events where user
+        viewed posts with dwell > 5s. Returns {category_id: avg_dwell}.
+        """
+        try:
+            pipeline = [
+                {"$match": {
+                    "user_id": user_id,
+                    "event_type": "view_post",
+                    "dwell_time_seconds": {"$gt": 5},
+                    "category_id": {"$exists": True, "$ne": None},
+                }},
+                {"$group": {
+                    "_id": "$category_id",
+                    "avg_dwell": {"$avg": "$dwell_time_seconds"},
+                }},
+            ]
+            results = await db.social_events.aggregate(pipeline).to_list(length=100)
+            return {r["_id"]: r["avg_dwell"] for r in results if r.get("_id")}
+        except Exception:
+            return {}
+
+    async def _batch_creator_affinity(self, user_id: str, author_ids: List[str], db) -> Dict[str, int]:
+        """
+        Count of user's likes/saves/comments on posts by each author in last 30 days.
+        Returns {author_id: interaction_count}.
+        """
+        if not author_ids:
+            return {}
+        try:
+            since = datetime.now(timezone.utc) - timedelta(days=30)
+            pipeline = [
+                {"$match": {
+                    "user_id": user_id,
+                    "event_type": {"$in": ["like_post", "save_post", "comment_post"]},
+                    "author_id": {"$in": author_ids},
+                    "created_at": {"$gte": since},
+                }},
+                {"$group": {
+                    "_id": "$author_id",
+                    "count": {"$sum": 1},
+                }},
+            ]
+            results = await db.social_events.aggregate(pipeline).to_list(length=len(author_ids))
+            return {r["_id"]: r["count"] for r in results if r.get("_id")}
+        except Exception:
+            return {}
+
+    async def _get_content_type_preference(self, user_id: str, db) -> Dict[str, int]:
+        """
+        Count user's likes on posts vs reels in last 14 days.
+        Returns {'post': N, 'reel': M}.
+        """
+        try:
+            since = datetime.now(timezone.utc) - timedelta(days=14)
+            pipeline = [
+                {"$match": {
+                    "user_id": user_id,
+                    "event_type": "like_post",
+                    "created_at": {"$gte": since},
+                    "content_type": {"$in": ["post", "reel"]},
+                }},
+                {"$group": {
+                    "_id": "$content_type",
+                    "count": {"$sum": 1},
+                }},
+            ]
+            results = await db.social_events.aggregate(pipeline).to_list(length=2)
+            return {r["_id"]: r["count"] for r in results if r.get("_id")}
+        except Exception:
+            return {}
+
     async def _calculate_score(
         self,
         post: Dict,
@@ -211,6 +325,10 @@ class FeedAlgorithm:
         active_weights: Dict = None,
         category_scores: Dict = None,
         recent_types: List = None,
+        author_dwell_map: Dict = None,
+        category_dwell_map: Dict = None,
+        creator_affinity_map: Dict = None,
+        content_type_pref: Dict = None,
     ) -> Dict:
         """Calcula score multidimensional de un post"""
         db = get_db()
@@ -289,6 +407,37 @@ class FeedAlgorithm:
             best_affinity = max((category_scores.get(cat, 0) for cat in post_categories), default=0)
             # Up to +15 points for strong category affinity
             personalization_score += best_affinity * 15
+
+        # --- Signal: Dwell time on author (up to +15) ---
+        if author_dwell_map:
+            author_avg_dwell = author_dwell_map.get(author_id, 0)
+            if author_avg_dwell > 0:
+                # Scale linearly: 5s → +5, 10s → +10, 15s+ → +15
+                personalization_score += min(15, (author_avg_dwell / 15) * 15)
+
+        # --- Signal: Dwell time on category (up to +10) ---
+        if category_dwell_map and post_categories:
+            best_cat_dwell = max((category_dwell_map.get(cat, 0) for cat in post_categories), default=0)
+            if best_cat_dwell > 8:
+                personalization_score += 10
+
+        # --- Signal: Creator affinity — repeat engagement with this author (up to +15) ---
+        if creator_affinity_map:
+            author_interactions = creator_affinity_map.get(author_id, 0)
+            if author_interactions >= 3:
+                personalization_score += 15
+            elif author_interactions >= 1:
+                personalization_score += 5
+
+        # --- Signal: Content type preference — boost preferred format (up to +10) ---
+        content_type = post.get("content_type", "post")
+        if content_type_pref:
+            post_likes = content_type_pref.get("post", 0)
+            reel_likes = content_type_pref.get("reel", 0)
+            if content_type == "reel" and reel_likes >= 2 * max(post_likes, 1):
+                personalization_score += 10
+            elif content_type == "post" and post_likes >= 2 * max(reel_likes, 1):
+                personalization_score += 10
 
         # Country boost: prioritize local producers' content (use cached author doc)
         if user_country:

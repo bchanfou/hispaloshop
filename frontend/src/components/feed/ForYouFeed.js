@@ -212,6 +212,7 @@ export default function ForYouFeed() {
                       onComment={() => handleComment(post.id)}
                       onShare={() => handleShare(post.id)}
                       priority={index < 2}
+                      nextVideoUrl={allPosts.slice(index + 1).find(p => p.video_url || p.type === 'reel')?.video_url}
                     />
                   </motion.div>
                 </div>
@@ -255,6 +256,7 @@ export default function ForYouFeed() {
             }
           }}
           overscan={3}
+          increaseViewportBy={{ top: 0, bottom: 1500 }}
           style={{ height: 'calc(100vh - 56px - 64px)' }}
           components={{
             Footer: () => {

@@ -1,12 +1,18 @@
 import React, { useCallback, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import ForYouFeed from './ForYouFeed';
+import FollowingFeed from './FollowingFeed';
+import HomeHeader from './HomeHeader';
 import StoriesBar from './StoriesBar';
 import StoryViewer from './StoryViewer';
 
 /**
- * FeedContainer — unified feed (always ForYouFeed with recommended + followed content)
+ * FeedContainer — "Para ti" / "Siguiendo" tabbed feed with stories bar
  */
 function FeedContainer() {
+  // Feed tab state
+  const [feedTab, setFeedTab] = useState('foryou');
+
   // Story viewer state
   const [storyViewer, setStoryViewer] = useState(null);
 
@@ -26,11 +32,36 @@ function FeedContainer() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Header with tab toggle */}
+      <HomeHeader activeTab={feedTab} onTabChange={setFeedTab} />
+
       {/* Stories */}
       <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleStoryClick} />
 
-      {/* Unified Feed */}
-      <ForYouFeed />
+      {/* Tabbed Feed */}
+      <AnimatePresence mode="wait">
+        {feedTab === 'foryou' ? (
+          <motion.div
+            key="foryou"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+          >
+            <ForYouFeed />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="following"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 10 }}
+            transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+          >
+            <FollowingFeed />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Story Viewer (fullscreen modal) */}
       {storyViewer && (
