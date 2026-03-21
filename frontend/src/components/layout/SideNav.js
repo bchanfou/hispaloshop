@@ -439,7 +439,10 @@ export default function SideNav() {
       </aside>
 
       {/* Search panel overlay */}
-      <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
+      {/* SearchPanel — only on xl+ (desktop) where SideNav is visible */}
+      <div className="hidden xl:block">
+        <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
+      </div>
     </>
   );
 }
