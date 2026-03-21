@@ -50,6 +50,7 @@ const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
 const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
 const CreatePostPage = lazy(() => import('./pages/create/CreatePostPage'));
 const DraftsPage = lazy(() => import('./pages/DraftsPage'));
+const SavedPage = lazy(() => import('./pages/SavedPage'));
 const CreateReelPage = lazy(() => import('./pages/create/CreateReelPage'));
 const CreateStoryPage = lazy(() => import('./pages/create/CreateStoryPage'));
 const ProductsPage = lazy(() => import('./pages/ProductsPage'));
@@ -177,6 +178,7 @@ const ChatsPage = lazy(() => import('./pages/chat/ChatsPage'));
 const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const ActivityPage = lazy(() => import('./pages/ActivityPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const ChatToastContainer = lazy(() => import('./components/notifications/ChatToastContainer'));
 
@@ -363,6 +365,8 @@ function AppRouter() {
               <Route path="/create/text" element={<CreatePostPage />} />
               <Route path="/create/recipe" element={<CreateRecipePage />} />
               <Route path="/drafts" element={<DraftsPage />} />
+              <Route path="/saved" element={<SavedPage />} />
+              <Route path="/guardados" element={<Navigate to="/saved" replace />} />
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/productos" element={<Navigate to="/products" replace />} />
@@ -405,6 +409,7 @@ function AppRouter() {
               <Route path="/communities/new" element={<CreateCommunityPage />} />
               <Route path="/communities/:slug" element={<CommunityPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/activity" element={<ActivityPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/que-es" element={<InfoLayout><QueEsPage /></InfoLayout>} />
