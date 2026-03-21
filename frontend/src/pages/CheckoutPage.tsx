@@ -10,7 +10,7 @@ import { useLocale } from '../context/LocaleContext';
 import { useCartAddresses, useCartCheckout, useCartPricing } from '../features/cart/hooks';
 
 /* ── Stepper ── */
-function Stepper({ current }) {
+function Stepper({ current, onStepClick }) {
   const steps = ['Dirección', 'Pago', 'Confirmar'];
   return (
     <nav aria-label="Progreso del checkout" className="flex items-center justify-center gap-2 px-6 py-4 border-b border-stone-200 bg-white mb-0">
@@ -19,12 +19,19 @@ function Stepper({ current }) {
         const isCompleted = step < current;
         const isActive = step === current;
         const isFuture = step > current;
+        const isClickable = isCompleted || (step === 1);
         return (
           <React.Fragment key={step}>
             {i > 0 && (
               <div className={`w-6 h-px mx-0.5 ${isCompleted ? 'bg-stone-950' : 'bg-stone-200'}`} aria-hidden="true" />
             )}
-            <div className="flex flex-col items-center gap-1">
+            <button
+              type="button"
+              onClick={() => isClickable && onStepClick?.(step)}
+              className={`flex flex-col items-center gap-1 ${isClickable && !isActive ? 'cursor-pointer' : isFuture ? 'cursor-not-allowed' : ''}`}
+              disabled={isFuture}
+              aria-current={isActive ? 'step' : undefined}
+            >
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
                 isCompleted ? 'bg-stone-950 text-white'
                 : isActive   ? 'bg-stone-950 text-white'
@@ -33,11 +40,11 @@ function Stepper({ current }) {
                 {isCompleted ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : step}
               </div>
               <span className={`text-[11px] leading-none ${
-                isActive ? 'font-semibold text-stone-950' : isFuture ? 'text-stone-400' : 'text-stone-600'
+                isActive ? 'font-semibold text-stone-950' : isFuture ? 'text-stone-300' : 'text-stone-950'
               }`}>
                 {label}
               </span>
-            </div>
+            </button>
           </React.Fragment>
         );
       })}
@@ -110,6 +117,14 @@ export default function CheckoutPage() {
   const [saveAddress, setSaveAddress] = useState(true);
   const [discountCode, setDiscountCode] = useState('');
   const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountError, setDiscountError] = useState('');
+
+  // Auto-fill phone from user profile
+  useEffect(() => {
+    if (user?.phone && !newAddress.phone) {
+      setNewAddress(prev => ({ ...prev, phone: user.phone }));
+    }
+  }, [user]);
 
   // Redirect if not logged in or no items (guard against loading state)
   useEffect(() => {
@@ -165,13 +180,15 @@ export default function CheckoutPage() {
   const handleApplyDiscount = async () => {
     if (!discountCode.trim()) return;
     setDiscountLoading(true);
+    setDiscountError('');
     try {
       const result = await applyDiscount(discountCode.trim().toUpperCase());
       if (!result?.success) throw new Error(result?.error || 'Código no válido');
       setDiscountCode('');
+      setDiscountError('');
       toast.success('Descuento aplicado');
     } catch (err) {
-      toast.error(err?.message || 'Código no válido');
+      setDiscountError('Código no válido');
     } finally {
       setDiscountLoading(false);
     }
@@ -228,7 +245,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* Stepper */}
-      <Stepper current={step} />
+      <Stepper current={step} onStepClick={(s) => { if (s < step) setStep(s); }} />
 
       {/* Content — desktop: 2-col (form left 60%, summary right 40%) */}
       <div className="mx-auto max-w-[960px] px-4 pt-6 pb-24 lg:flex lg:gap-8 lg:items-start">
@@ -453,21 +470,24 @@ export default function CheckoutPage() {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <input
-                    value={discountCode}
-                    onChange={e => setDiscountCode(e.target.value)}
-                    placeholder="CODIGO10"
-                    className="flex-1 h-12 px-3.5 text-[13px] border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
-                    aria-label="Código de descuento"
-                  />
-                  <button
-                    onClick={handleApplyDiscount}
-                    disabled={discountLoading}
-                    className="h-12 px-5 bg-stone-950 text-white rounded-xl text-[13px] font-semibold flex-shrink-0 hover:bg-stone-800 transition-colors disabled:opacity-50"
-                  >
-                    Aplicar
-                  </button>
+                <div>
+                  <div className="flex gap-2">
+                    <input
+                      value={discountCode}
+                      onChange={e => { setDiscountCode(e.target.value); if (discountError) setDiscountError(''); }}
+                      placeholder="CODIGO10"
+                      className={`flex-1 h-12 px-3.5 text-[13px] border rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors ${discountError ? 'border-red-300' : 'border-stone-200'}`}
+                      aria-label="Código de descuento"
+                    />
+                    <button
+                      onClick={handleApplyDiscount}
+                      disabled={discountLoading}
+                      className="h-12 px-5 bg-stone-950 text-white rounded-xl text-[13px] font-semibold flex-shrink-0 hover:bg-stone-800 transition-colors disabled:opacity-50"
+                    >
+                      Aplicar
+                    </button>
+                  </div>
+                  {discountError && <p className="text-xs text-red-600 mt-1.5">{discountError}</p>}
                 </div>
               )}
             </div>
@@ -477,16 +497,11 @@ export default function CheckoutPage() {
               <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} formatPrice={formatPrice} />
             </div>
 
-            {/* Security text */}
-            <p className="flex items-center justify-center gap-1 text-xs text-stone-500 my-4">
-              <Lock className="w-3 h-3" /> Pago seguro con Stripe
-            </p>
-
             {/* Pay button */}
             <button
               onClick={handlePay}
               disabled={checkoutLoading}
-              className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 mt-4 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-live="polite"
             >
               {checkoutLoading ? (
@@ -495,6 +510,10 @@ export default function CheckoutPage() {
                 `Pagar ${total}`
               )}
             </button>
+            {/* Security badge */}
+            <p className="flex items-center justify-center gap-1.5 text-xs text-stone-400 mt-2">
+              <Lock className="w-3 h-3" /> Pago seguro con Stripe
+            </p>
           </motion.div>
         )}
         </div>

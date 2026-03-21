@@ -44,6 +44,11 @@ const AddToCartButton = ({
       await addToCart(productId, quantity, variantId, packId);
       setState('success');
       if (onAdd) onAdd(product);
+      const totalInCart = inCartQuantity + quantity;
+      toast.success(`✓ Añadido · ${totalInCart} en carrito`, {
+        action: { label: 'Ver carrito', onClick: () => navigate('/cart') },
+        duration: 3000,
+      });
       setTimeout(() => {
         if (mountedRef.current) {
           setState('idle');
@@ -69,7 +74,7 @@ const AddToCartButton = ({
     'default': {
       button: 'flex-1 py-3 px-4 bg-stone-950 text-white rounded-2xl font-medium',
       icon: 'w-5 h-5',
-      text: inCartQuantity > 0 ? `${inCartQuantity} en cesta` : 'Añadir al carrito'
+      text: inCartQuantity > 0 ? `Actualizar (${inCartQuantity + quantity})` : 'Añadir al carrito'
     },
     'small': {
       button: 'p-2 bg-stone-950 text-white rounded-2xl',
@@ -79,7 +84,7 @@ const AddToCartButton = ({
     'quick': {
       button: 'w-full py-2 bg-stone-950 text-white rounded-2xl text-sm font-medium',
       icon: 'w-4 h-4',
-      text: inCartQuantity > 0 ? `+${inCartQuantity}` : 'Añadir'
+      text: inCartQuantity > 0 ? `Actualizar (${inCartQuantity + quantity})` : 'Añadir'
     },
     'buy-now': {
       button: 'w-full py-3 bg-stone-950 text-white rounded-2xl font-semibold hover:bg-stone-800',

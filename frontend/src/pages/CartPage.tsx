@@ -462,13 +462,29 @@ export default function CartPage() {
                   </button>
                 </div>
               )}
-              {groupedItems.map(([producerName, items]) => (
+              {groupedItems.map(([producerName, items]) => {
+                  // Find matching store shipping data for this producer group
+                  const storeShipping = shippingData?.stores?.find(s =>
+                    s.seller_name === producerName || items.some(i => i.seller_id === s.seller_id)
+                  );
+                  return (
                   <div key={producerName} className="space-y-3">
                     <div className="flex items-center gap-2 pt-2">
                       <Package className="w-4 h-4 text-stone-400" />
                       <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{producerName}</span>
                       <span className="text-xs text-stone-400">· {items.length} {items.length === 1 ? 'producto' : 'productos'}</span>
                     </div>
+                    {/* Per-producer shipping estimate */}
+                    {storeShipping && (
+                      <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                        <Truck className="w-3.5 h-3.5 flex-shrink-0" />
+                        {storeShipping.is_free ? (
+                          <span className="font-semibold text-stone-950">Envío gratis</span>
+                        ) : (
+                          <span>Envío: {((storeShipping.shipping_cents || 0) / 100).toFixed(2)} €</span>
+                        )}
+                      </div>
+                    )}
                     <AnimatePresence>
                     {items.map((item) => {
                       const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
@@ -488,7 +504,12 @@ export default function CartPage() {
                             {(item.product_image || item.image) && <img src={item.product_image || item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-stone-950 text-sm md:text-base line-clamp-2">{item.product_name}</h3>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-medium text-stone-950 text-sm md:text-base line-clamp-2">{item.product_name}</h3>
+                              {item.stock != null && item.stock <= 5 && item.stock > 0 && (
+                                <span className="text-xs font-semibold text-amber-700 bg-amber-50 rounded-full px-2 py-0.5 flex-shrink-0">¡Quedan {item.stock}!</span>
+                              )}
+                            </div>
                             {(item.variant_name || item.pack_label) && (
                               <p className="text-xs md:text-sm text-stone-500">
                                 {item.variant_name && <span>{item.variant_name}</span>}
@@ -532,6 +553,16 @@ export default function CartPage() {
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
+                            {/* Delivery estimate per item */}
+                            <p className="text-[11px] text-stone-400 mt-1">
+                              <Calendar className="w-3 h-3 inline mr-0.5 -mt-px" />
+                              Entrega estimada: {(() => {
+                                const addBizDays = (d, n) => { let dt = new Date(d); let a = 0; while (a < n) { dt.setDate(dt.getDate() + 1); if (dt.getDay() !== 0 && dt.getDay() !== 6) a++; } return dt; };
+                                const now = new Date();
+                                const fmt = (d) => d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+                                return `${fmt(addBizDays(now, 3))} — ${fmt(addBizDays(now, 7))}`;
+                              })()}
+                            </p>
                             {/* Stock hold timer */}
                             <StockHoldTimer expiresAt={item.hold_expires_at} />
                             {hasStockIssue && (
@@ -554,7 +585,8 @@ export default function CartPage() {
                     })}
                     </AnimatePresence>
                   </div>
-                ))}
+                  );
+                })}
 
               {/* Per-store shipping progress */}
               {shippingData && shippingData.stores && shippingData.stores.length > 0 && (

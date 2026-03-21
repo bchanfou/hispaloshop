@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
@@ -9,6 +9,7 @@ const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading } = useCart();
   const [shippingData, setShippingData] = useState(null);
+  const prevCountRef = useRef(cartItems.length);
 
   const subtotal = cartItems.reduce((sum, item) => {
     const unitPrice = item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0);
@@ -23,6 +24,26 @@ const MiniCart = ({ isOpen, onClose }) => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, cartItems.length]);
+
+  // Track when new items are added for slide-in animation
+  const [newItemKeys, setNewItemKeys] = useState(new Set());
+  useEffect(() => {
+    if (cartItems.length > prevCountRef.current) {
+      // Identify new items by building a set of current keys vs what we had
+      const allKeys = cartItems.map(
+        (item) => `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`,
+      );
+      // Mark the last N new items (difference in count)
+      const newCount = cartItems.length - prevCountRef.current;
+      const newest = new Set(allKeys.slice(-newCount));
+      setNewItemKeys(newest);
+      // Clear after animation
+      const timer = setTimeout(() => setNewItemKeys(new Set()), 500);
+      prevCountRef.current = cartItems.length;
+      return () => clearTimeout(timer);
+    }
+    prevCountRef.current = cartItems.length;
+  }, [cartItems]);
 
   const shipping = shippingData?.total_shipping_cents != null
     ? shippingData.total_shipping_cents / 100
@@ -41,7 +62,19 @@ const MiniCart = ({ isOpen, onClose }) => {
     return groups;
   }, [cartItems]);
 
-  const handleCheckout = () => {
+  // Check if user has a saved address for direct checkout
+  const hasSavedAddress = useMemo(() => {
+    return cartItems.some(
+      (item) => item.shipping_address || item.address,
+    ) || !!localStorage.getItem('checkout_address');
+  }, [cartItems]);
+
+  const handleDirectCheckout = () => {
+    onClose();
+    navigate(hasSavedAddress ? '/checkout' : '/cart');
+  };
+
+  const handleViewCart = () => {
     onClose();
     navigate('/cart');
   };
@@ -53,6 +86,9 @@ const MiniCart = ({ isOpen, onClose }) => {
   const handleRemove = async (item) => {
     await removeFromCart(item.product_id, item.variant_id || null, item.pack_id || null);
   };
+
+  const getItemKey = (item) =>
+    `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
 
   return (
     <AnimatePresence>
@@ -67,7 +103,7 @@ const MiniCart = ({ isOpen, onClose }) => {
             className="fixed inset-0 bg-black/40 z-50"
             aria-hidden="true"
           />
-          
+
           {/* Drawer */}
           <FocusTrap focusTrapOptions={{ escapeDeactivates: true, onDeactivate: onClose, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
           <motion.div
@@ -125,67 +161,74 @@ const MiniCart = ({ isOpen, onClose }) => {
                     <div key={producerName}>
                       <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">{producerName}</p>
                       <div className="space-y-3">
-                        {items.map((item) => (
-                          <motion.div
-                            key={`${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`}
-                            layout
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, x: -100 }}
-                            className="flex gap-3 bg-stone-50 rounded-2xl p-3"
-                          >
-                            {(item.product_image || item.image || item.product?.image) ? (
-                              <img
-                                src={item.product_image || item.image || item.product?.image}
-                                alt={item.product_name || item.name || item.product?.name}
-                                className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
-                              />
-                            ) : (
-                              <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 flex items-center justify-center">
-                                <ShoppingBag className="w-6 h-6 text-stone-400" />
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <h4 className="font-medium text-stone-950 text-sm line-clamp-2">
-                                  {item.product_name || item.name || item.product?.name}
-                                </h4>
-                                <button
-                                  onClick={() => handleRemove(item)}
-                                  className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-50 rounded-full transition-colors"
-                                  aria-label={`Eliminar ${item.product_name || item.name || item.product?.name}`}
-                                >
-                                  <Trash2 className="w-4 h-4 text-stone-400 hover:text-stone-950 transition-colors" />
-                                </button>
-                              </div>
-
-                              <div className="flex items-center justify-between mt-2">
-                                <div className="flex items-center gap-2">
+                        <AnimatePresence initial={false}>
+                        {items.map((item) => {
+                          const key = getItemKey(item);
+                          const isNew = newItemKeys.has(key);
+                          return (
+                            <motion.div
+                              key={key}
+                              layout
+                              initial={isNew ? { x: 100, opacity: 0 } : { opacity: 0, y: 20 }}
+                              animate={{ x: 0, y: 0, opacity: 1 }}
+                              exit={{ opacity: 0, x: -100 }}
+                              transition={{ type: 'spring', damping: 22, stiffness: 260 }}
+                              className="flex gap-3 bg-stone-50 rounded-2xl p-3"
+                            >
+                              {(item.product_image || item.image || item.product?.image) ? (
+                                <img
+                                  src={item.product_image || item.image || item.product?.image}
+                                  alt={item.product_name || item.name || item.product?.name}
+                                  className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
+                                />
+                              ) : (
+                                <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 flex items-center justify-center">
+                                  <ShoppingBag className="w-6 h-6 text-stone-400" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <h4 className="font-medium text-stone-950 text-sm line-clamp-2">
+                                    {item.product_name || item.name || item.product?.name}
+                                  </h4>
                                   <button
-                                    onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
-                                    aria-label={`Disminuir cantidad de ${item.product_name || item.name || item.product?.name}`}
+                                    onClick={() => handleRemove(item)}
+                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-50 rounded-full transition-colors"
+                                    aria-label={`Eliminar ${item.product_name || item.name || item.product?.name}`}
                                   >
-                                    <Minus className="w-3.5 h-3.5 text-stone-950" />
-                                  </button>
-                                  <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
-                                    {item.quantity}
-                                  </span>
-                                  <button
-                                    onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
-                                    aria-label={`Aumentar cantidad de ${item.product_name || item.name || item.product?.name}`}
-                                  >
-                                    <Plus className="w-3.5 h-3.5 text-stone-950" />
+                                    <Trash2 className="w-4 h-4 text-stone-400 hover:text-stone-950 transition-colors" />
                                   </button>
                                 </div>
-                                <span className="font-semibold text-stone-950">
-                                  €{((item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0)) * item.quantity).toFixed(2)}
-                                </span>
+
+                                <div className="flex items-center justify-between mt-2">
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
+                                      className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
+                                      aria-label={`Disminuir cantidad de ${item.product_name || item.name || item.product?.name}`}
+                                    >
+                                      <Minus className="w-3.5 h-3.5 text-stone-950" />
+                                    </button>
+                                    <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
+                                      {item.quantity}
+                                    </span>
+                                    <button
+                                      onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
+                                      className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
+                                      aria-label={`Aumentar cantidad de ${item.product_name || item.name || item.product?.name}`}
+                                    >
+                                      <Plus className="w-3.5 h-3.5 text-stone-950" />
+                                    </button>
+                                  </div>
+                                  <span className="font-semibold text-stone-950">
+                                    €{((item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0)) * item.quantity).toFixed(2)}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          </motion.div>
-                        ))}
+                            </motion.div>
+                          );
+                        })}
+                        </AnimatePresence>
                       </div>
                     </div>
                   ))}
@@ -211,7 +254,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Summary */}
+                {/* Summary with shipping estimate */}
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-stone-500">
                     <span>Subtotal</span>
@@ -220,11 +263,11 @@ const MiniCart = ({ isOpen, onClose }) => {
                   <div className="flex justify-between text-stone-500">
                     <span className="flex items-center gap-1">
                       <Truck className="w-4 h-4" />
-                      Envío
+                      Envío estimado
                     </span>
                     <span>{shipping === 0 ? 'GRATIS' : `€${shipping.toFixed(2)}`}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t">
+                  <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t border-stone-200">
                     <span>Total</span>
                     <span>€{total.toFixed(2)}</span>
                   </div>
@@ -232,18 +275,18 @@ const MiniCart = ({ isOpen, onClose }) => {
 
                 {/* Actions */}
                 <button
-                  onClick={handleCheckout}
-                  className="w-full py-3 bg-stone-950 text-white rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors"
+                  onClick={handleDirectCheckout}
+                  className="w-full h-11 bg-stone-950 text-white rounded-full font-semibold text-sm flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors"
                 >
                   Pagar ahora
                   <ArrowRight className="w-5 h-5" />
                 </button>
 
                 <button
-                  onClick={onClose}
-                  className="w-full py-3 border-2 border-stone-200 text-stone-950 rounded-full font-medium hover:border-stone-950 hover:text-stone-950 transition-colors"
+                  onClick={handleViewCart}
+                  className="w-full py-3 border-2 border-stone-200 text-stone-950 rounded-full font-medium hover:border-stone-950 hover:text-stone-950 transition-colors text-sm"
                 >
-                  Seguir comprando
+                  Ver carrito
                 </button>
               </div>
             )}

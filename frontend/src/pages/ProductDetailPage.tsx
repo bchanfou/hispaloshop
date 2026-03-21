@@ -6,6 +6,7 @@ import {
   ChevronLeft, Share2, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
   CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle, Check,
+  ShoppingBag, Lock,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -70,7 +71,7 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
 export default function ProductDetailPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice } = useLocale();
   const { t } = useTranslation();
@@ -105,6 +106,7 @@ export default function ProductDetailPage() {
   const [descExpanded, setDescExpanded] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [showB2BModal, setShowB2BModal] = useState(false);
+  const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
   const galleryRef = useRef(null);
   const addedTimerRef = useRef(null);
   const rafRef = useRef(null);
@@ -231,6 +233,20 @@ export default function ProductDetailPage() {
     product?.display_currency || product?.currency || 'EUR'
   );
   const isFreeShipping = !product?.shipping_cost || product?.shipping_cost === 0;
+
+  // Check if this product+variant is already in cart
+  const cartVariantId = selectedVariant?.variant_id || null;
+  const cartPackId = selectedPack?.pack_id || null;
+  const existingCartItem = cartItems.find((item) => {
+    if (String(item.product_id) !== String(productId)) return false;
+    if (cartVariantId && String(item.variant_id || '') !== String(cartVariantId)) return false;
+    if (cartPackId && String(item.pack_id || '') !== String(cartPackId)) return false;
+    return true;
+  });
+  const inCartQty = existingCartItem?.quantity || 0;
+
+  const hasCertifications = product?.certifications?.length > 0 || product?.is_organic || product?.is_gluten_free || product?.is_vegan || product?.is_halal || product?.is_km0 || !!certificate;
+
   const images = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
   const primaryImage = images[0] || product?.image_url || null;
 
@@ -521,15 +537,69 @@ export default function ProductDetailPage() {
           return null;
         })()}
 
-        {/* Shipping */}
-        <div className="mt-3 flex items-center gap-2 py-2.5">
-          <Truck size={16} className={isFreeShipping ? 'text-stone-950' : 'text-stone-500'} />
-          <span className="text-[13px] font-medium text-stone-950">
-            {isFreeShipping
-              ? t('products.freeShipping', 'Envío gratis')
-              : `${t('products.shippingCost', 'Envío')}: ${convertAndFormatPrice(product.shipping_cost, product.display_currency || product.currency || 'EUR')}`
-            }
+        {/* Shipping estimate */}
+        <div className="mt-3 flex items-center gap-2 text-sm py-2">
+          <Truck size={16} className={isFreeShipping || product?.free_shipping ? 'text-stone-950' : 'text-stone-500'} />
+          {product?.free_shipping ? (
+            <span className="font-semibold text-stone-950">&#10003; Envío gratis</span>
+          ) : isFreeShipping ? (
+            <span className="font-semibold text-stone-950">&#10003; Envío gratis</span>
+          ) : (
+            <span className="text-stone-500">Envío desde €4.90</span>
+          )}
+        </div>
+
+        {/* Already in cart indicator */}
+        {inCartQty > 0 && (
+          <div className="flex items-center gap-1 text-xs text-stone-500 pb-1">
+            <ShoppingBag size={14} />
+            <span>&#10003; {inCartQty} en tu carrito</span>
+          </div>
+        )}
+
+        {/* Trust badges */}
+        <div className="flex gap-4 py-3 border-t border-stone-100 mt-3">
+          <span className="flex items-center gap-1.5 text-xs text-stone-500">
+            <Lock size={14} /> Pago seguro
           </span>
+          <span className="flex items-center gap-1.5 text-xs text-stone-500">
+            <Package size={14} /> Envío rastreable
+          </span>
+          {hasCertifications && (
+            <span className="flex items-center gap-1.5 text-xs text-stone-500">
+              <Check size={14} /> Certificado verificado
+            </span>
+          )}
+        </div>
+
+        {/* Return policy collapsible */}
+        <div className="border-t border-stone-100 py-3">
+          <button
+            type="button"
+            onClick={() => setReturnPolicyOpen((v) => !v)}
+            className="flex w-full items-center justify-between text-sm font-medium text-stone-950"
+          >
+            <span>Política de devolución</span>
+            <ChevronDown
+              size={16}
+              className={`text-stone-500 transition-transform duration-200 ${returnPolicyOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+          <AnimatePresence initial={false}>
+            {returnPolicyOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <p className="mt-2 text-xs leading-relaxed text-stone-500">
+                  Tienes 14 días desde la recepción para devolver tu pedido. Los productos alimentarios perecederos no admiten devolución.
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 

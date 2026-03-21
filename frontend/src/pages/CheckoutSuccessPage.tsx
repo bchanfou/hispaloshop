@@ -1,10 +1,27 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Check, Loader2, AlertCircle } from 'lucide-react';
+import { Check, Loader2, AlertCircle, Calendar, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { captureException } from '../lib/sentry';
+
+function estimateDeliveryRange(createdAt) {
+  const base = createdAt ? new Date(createdAt) : new Date();
+  const addBusinessDays = (date, days) => {
+    const result = new Date(date);
+    let added = 0;
+    while (added < days) {
+      result.setDate(result.getDate() + 1);
+      const dow = result.getDay();
+      if (dow !== 0 && dow !== 6) added++;
+    }
+    return result;
+  };
+  const fmt = (d) =>
+    d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  return `${fmt(addBusinessDays(base, 3))} – ${fmt(addBusinessDays(base, 7))}`;
+}
 
 export default function CheckoutSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -12,47 +29,51 @@ export default function CheckoutSuccessPage() {
   const [status, setStatus] = useState('checking'); // checking | success | error | timeout
   const [order, setOrder] = useState(null);
 
+  const tempRef = useMemo(
+    () => (sessionId ? `#HS-${sessionId.slice(-8).toUpperCase()}` : ''),
+    [sessionId],
+  );
+
   useEffect(() => {
     if (!sessionId) { setStatus('error'); return; }
+
+    // Show confirmed state immediately while we poll for details
+    setStatus('success');
 
     let cancelled = false;
     let attempt = 0;
     const MAX = 20;
 
-    const getDelay = (n) => Math.min(1000 + n * 500, 5000); // 1s, 1.5s, 2s... max 5s
+    const getDelay = (n) => Math.min(1000 + n * 500, 5000);
 
     const poll = async () => {
-      if (cancelled || attempt >= MAX) {
-        if (!cancelled && attempt >= MAX) setStatus('timeout');
-        return;
-      }
+      if (cancelled || attempt >= MAX) return;
       attempt++;
       try {
         const data = await apiClient.get(`/payments/checkout-status/${sessionId}`);
         if (data.payment_status === 'paid' || data.status === 'paid') {
-          if (!cancelled) {
-            setStatus('success');
-            // Try to fetch order details
-            if (data.order_id) {
-              try {
-                const orderData = await apiClient.get(`/customer/orders/${data.order_id}`);
-                setOrder(orderData);
-              } catch { /* ignore */ }
-            }
+          if (!cancelled && data.order_id) {
+            try {
+              const orderData = await apiClient.get(`/customer/orders/${data.order_id}`);
+              if (!cancelled) setOrder(orderData);
+            } catch { /* ignore */ }
           }
         } else if (!cancelled) {
           setTimeout(poll, getDelay(attempt));
         }
       } catch (err) {
         captureException(err);
-        if (!cancelled) setStatus('error');
+        // Don't switch to error — keep showing success with temp ref
+        if (!cancelled && attempt < MAX) {
+          setTimeout(poll, getDelay(attempt));
+        }
       }
     };
     poll();
     return () => { cancelled = true; };
   }, [sessionId]);
 
-  // Loading state
+  // Loading state — only if no sessionId at all (edge case)
   if (status === 'checking') {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center flex-col gap-4">
@@ -87,7 +108,7 @@ export default function CheckoutSuccessPage() {
                 Contactar soporte
               </Link>
             )}
-            <Link to="/" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
+            <Link to="/discover" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
               Seguir comprando
             </Link>
           </div>
@@ -98,7 +119,9 @@ export default function CheckoutSuccessPage() {
 
   // Success
   const orderId = order?.order_id || order?.id;
-  const orderRef = orderId ? `#HSP-${String(orderId).slice(-8).toUpperCase()}` : '';
+  const orderRef = orderId
+    ? `#HSP-${String(orderId).slice(-8).toUpperCase()}`
+    : tempRef;
   const totalPaid = order?.total_cents
     ? `${(order.total_cents / 100).toFixed(2)} €`
     : order?.total
@@ -107,7 +130,10 @@ export default function CheckoutSuccessPage() {
         ? `${Number(order.total_amount).toFixed(2)} €`
         : '';
   const email = order?.customer_email || order?.email || '';
-  const items = order?.items || order?.line_items || [];
+  const allItems = order?.items || order?.line_items || [];
+  const visibleItems = allItems.slice(0, 5);
+  const extraCount = allItems.length - 5;
+  const deliveryRange = estimateDeliveryRange(order?.created_at);
 
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4 py-6">
@@ -126,10 +152,22 @@ export default function CheckoutSuccessPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="text-2xl font-bold text-stone-950 mb-2"
+          className="text-2xl font-bold text-stone-950 mb-1"
         >
-          ¡Pedido confirmado!
+          Pedido confirmado
         </motion.h1>
+
+        {orderRef && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-sm text-stone-500 mb-1"
+          >
+            Tu referencia: <span className="font-semibold text-stone-700">{orderRef}</span>
+          </motion.p>
+        )}
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -159,24 +197,32 @@ export default function CheckoutSuccessPage() {
             </div>
           )}
           {email && (
-            <div className="flex justify-between">
+            <div className="flex justify-between mb-2">
               <span className="text-[13px] text-stone-500">Email</span>
               <span className="text-[13px] text-stone-950">{email}</span>
             </div>
           )}
+          {/* Estimated delivery */}
+          <div className="flex justify-between items-center">
+            <span className="text-[13px] text-stone-500 flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5" />
+              Entrega estimada
+            </span>
+            <span className="text-sm text-stone-500">{deliveryRange}</span>
+          </div>
         </motion.div>
 
-        {/* Items list */}
-        {items.length > 0 && (
+        {/* Items purchased list */}
+        {visibleItems.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.55 }}
-            className="bg-white border border-stone-200 rounded-2xl p-3.5 text-left mb-5"
+            className="bg-white border border-stone-200 rounded-2xl p-4 text-left mb-5"
           >
-            {items.map((item, i) => (
-              <div key={item.product_id || item.id || `item-${i}`} className={`flex items-center gap-2.5 py-2 ${i < items.length - 1 ? 'border-b border-stone-200' : ''}`}>
-                <div className="w-11 h-11 rounded-2xl bg-stone-100 overflow-hidden flex-shrink-0">
+            {visibleItems.map((item, i) => (
+              <div key={item.product_id || item.id || `item-${i}`} className={`flex items-center gap-2.5 py-2 ${i < visibleItems.length - 1 ? 'border-b border-stone-100' : ''}`}>
+                <div className="w-10 h-10 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
                   {(item.image || item.product_image) && (
                     <img loading="lazy" src={item.image || item.product_image} alt={item.name || item.product_name || ''} className="w-full h-full object-cover" />
                   )}
@@ -196,6 +242,11 @@ export default function CheckoutSuccessPage() {
                 </span>
               </div>
             ))}
+            {extraCount > 0 && (
+              <p className="text-xs text-stone-400 text-center pt-2 mt-2 border-t border-stone-100">
+                y {extraCount} más
+              </p>
+            )}
           </motion.div>
         )}
 
@@ -215,10 +266,25 @@ export default function CheckoutSuccessPage() {
             </Link>
           )}
           <Link
-            to="/"
+            to="/discover"
             className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors"
           >
             Seguir comprando
+          </Link>
+        </motion.div>
+
+        {/* Support contact */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.75 }}
+        >
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-1 text-xs text-stone-400 mt-4 no-underline hover:text-stone-600 transition-colors"
+          >
+            <MessageCircle className="w-3 h-3" />
+            ¿Algún problema? Contacta con soporte
           </Link>
         </motion.div>
       </div>
