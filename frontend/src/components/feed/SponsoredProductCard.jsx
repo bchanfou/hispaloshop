@@ -59,6 +59,11 @@ export default function SponsoredProductCard({ product, onDismiss }) {
           {producer && (
             <p className="mt-0.5 text-[12px] text-stone-400">{producer}</p>
           )}
+          {product.weekly_purchases > 0 && (
+            <p className="mt-1 text-[11px] text-stone-500">
+              🛒 {product.weekly_purchases} comprados esta semana
+            </p>
+          )}
           <div className="mt-2 flex items-center justify-between">
             {price && (
               <span className="text-[15px] font-bold text-stone-950">{price}</span>

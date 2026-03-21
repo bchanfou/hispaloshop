@@ -227,6 +227,8 @@ export default function ForYouFeed() {
                         comments: post.comments_count,
                         shares: post.shares_count || 0,
                         productTag: post.product_tag,
+                        tagged_products: post.tagged_products,
+                        products: post.products,
                         timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                       }}
                       embedded
@@ -268,6 +270,8 @@ export default function ForYouFeed() {
                       liked: post.is_liked,
                       comments: post.comments_count,
                       productTag: post.product_tag,
+                      tagged_products: post.tagged_products,
+                      products: post.products,
                       timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                     }}
                     onLike={() => handleLike(post.id)}

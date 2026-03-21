@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, ChevronDown, ChevronUp, Clock, ImagePlus, Loader2, Plus, Users, X } from 'lucide-react';
+import { ArrowLeft, Camera, ChevronDown, ChevronUp, Clock, ImagePlus, Loader2, Plus, Users, X, Salad, Flame, IceCreamCone, UtensilsCrossed, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -29,6 +29,93 @@ const DIFFICULTY_MAP = {
   hard: { label: 'Difícil', tw: 'text-stone-950' },
 };
 const DIFFICULTY_KEYS = ['easy', 'medium', 'hard'];
+
+const RECIPE_TEMPLATES = [
+  {
+    id: 'salad',
+    name: 'Ensalada rápida',
+    icon: Salad,
+    time: 10,
+    difficulty: 'easy',
+    titlePrefix: 'Ensalada de ',
+    ingredients: [
+      { name: 'Lechuga', quantity: '1', unit: 'ud' },
+      { name: 'Tomate', quantity: '2', unit: 'ud' },
+      { name: 'Aceite de oliva', quantity: '2', unit: 'cda' },
+    ],
+  },
+  {
+    id: 'stew',
+    name: 'Guiso tradicional',
+    icon: Flame,
+    time: 60,
+    difficulty: 'medium',
+    titlePrefix: 'Guiso de ',
+    ingredients: [
+      { name: 'Patatas', quantity: '3', unit: 'ud' },
+      { name: 'Cebolla', quantity: '1', unit: 'ud' },
+      { name: 'Caldo de verduras', quantity: '500', unit: 'ml' },
+    ],
+  },
+  {
+    id: 'dessert',
+    name: 'Postre fácil',
+    icon: IceCreamCone,
+    time: 30,
+    difficulty: 'easy',
+    titlePrefix: 'Postre de ',
+    ingredients: [
+      { name: 'Leche', quantity: '500', unit: 'ml' },
+      { name: 'Azúcar', quantity: '100', unit: 'g' },
+      { name: 'Huevos', quantity: '3', unit: 'ud' },
+    ],
+  },
+  {
+    id: 'tapa',
+    name: 'Tapa andaluza',
+    icon: UtensilsCrossed,
+    time: 20,
+    difficulty: 'easy',
+    titlePrefix: 'Tapa de ',
+    ingredients: [
+      { name: 'Pan de pueblo', quantity: '4', unit: 'rebanadas' },
+      { name: 'Tomate rallado', quantity: '2', unit: 'ud' },
+      { name: 'Aceite de oliva virgen extra', quantity: '3', unit: 'cda' },
+    ],
+  },
+];
+
+const KNOWN_ALLERGENS = {
+  gluten: ['harina', 'trigo', 'pan', 'pasta', 'cebada', 'centeno', 'avena', 'sémola', 'cuscús', 'espelta'],
+  lactosa: ['leche', 'queso', 'nata', 'mantequilla', 'yogur', 'crema', 'requesón'],
+  'frutos secos': ['almendra', 'nuez', 'avellana', 'pistacho', 'anacardo', 'cacahuete', 'maní'],
+  huevo: ['huevo', 'huevos'],
+  soja: ['soja', 'tofu', 'edamame', 'salsa de soja'],
+  marisco: ['gamba', 'langostino', 'cangrejo', 'mejillón', 'almeja', 'calamar', 'pulpo', 'sepia'],
+  pescado: ['bacalao', 'atún', 'salmón', 'merluza', 'anchoa', 'sardina', 'boquerón'],
+  apio: ['apio'],
+  mostaza: ['mostaza'],
+  sésamo: ['sésamo', 'tahini'],
+  sulfitos: ['vino', 'vinagre'],
+};
+
+function detectAllergens(ingredients) {
+  const detected = new Set();
+  for (const ingredient of ingredients) {
+    const name = ingredient.name.toLowerCase();
+    // Check from product allergen data first
+    if (ingredient.product?.allergens?.length) {
+      for (const a of ingredient.product.allergens) detected.add(a);
+    }
+    // Fallback: keyword matching
+    for (const [allergen, keywords] of Object.entries(KNOWN_ALLERGENS)) {
+      if (keywords.some(kw => name.includes(kw))) {
+        detected.add(allergen.charAt(0).toUpperCase() + allergen.slice(1));
+      }
+    }
+  }
+  return Array.from(detected);
+}
 
 export default function CreateRecipePage() {
   const navigate = useNavigate();
@@ -61,6 +148,30 @@ export default function CreateRecipePage() {
     () => recipe.ingredients.filter((ingredient) => ingredient.product_id),
     [recipe.ingredients],
   );
+
+  const detectedAllergens = useMemo(
+    () => detectAllergens(recipe.ingredients),
+    [recipe.ingredients],
+  );
+
+  const isFormEmpty = !recipe.title.trim();
+
+  const applyTemplate = (template) => {
+    setRecipe((prev) => ({
+      ...prev,
+      title: template.titlePrefix,
+      difficulty: template.difficulty,
+      time_minutes: template.time,
+      ingredients: template.ingredients.map((ing) => ({
+        name: ing.name,
+        quantity: ing.quantity,
+        unit: ing.unit,
+        product_id: null,
+        product: null,
+        source: 'template',
+      })),
+    }));
+  };
 
   useEffect(() => {
     if (!manualIngredientInput.trim()) {
@@ -179,6 +290,33 @@ export default function CreateRecipePage() {
         </div>
         <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleMainImage(e.target.files?.[0])} />
 
+        {/* Templates — only when form is empty */}
+        {isFormEmpty && (
+          <div className="mt-4 mb-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-stone-500 mb-2.5">Plantillas</p>
+            <div className="grid grid-cols-2 gap-2">
+              {RECIPE_TEMPLATES.map((tpl) => {
+                const Icon = tpl.icon;
+                return (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => applyTemplate(tpl)}
+                    className="rounded-2xl bg-stone-50 p-3 text-left cursor-pointer border-none hover:bg-stone-100 transition-colors"
+                  >
+                    <Icon size={18} className="text-stone-400 mb-1.5" />
+                    <p className="text-[13px] font-semibold text-stone-950 m-0">{tpl.name}</p>
+                    <p className="text-[11px] text-stone-500 m-0 mt-0.5">
+                      {tpl.time} min · {DIFFICULTY_MAP[tpl.difficulty].label}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-stone-400 text-center mt-2.5">O empieza desde cero</p>
+          </div>
+        )}
+
         {/* Recipe name */}
         <input
           value={recipe.title}
@@ -280,6 +418,16 @@ export default function CreateRecipePage() {
           <button type="button" onClick={() => setProductModalOpen(true)} className="mt-2 flex items-center gap-1 border-none bg-transparent text-[11px] font-medium text-stone-500 cursor-pointer hover:text-stone-700 p-0">
             <Plus size={13} /> Etiquetar producto
           </button>
+
+          {/* Allergen auto-detection */}
+          {detectedAllergens.length > 0 && (
+            <div className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3">
+              <AlertTriangle size={14} className="text-amber-700 shrink-0 mt-px" />
+              <p className="text-xs text-amber-700 m-0">
+                Contiene: {detectedAllergens.join(', ')}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* PASOS */}

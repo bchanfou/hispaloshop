@@ -356,9 +356,12 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const commentsCount = post.comments_count ?? post.comments ?? 0;
   const createdAt = post.created_at ?? post.timestamp;
   const hasStory = user.has_story ?? post.has_story ?? false;
-  const normalizedProducts = Array.isArray(post.products) && post.products.length > 0
-    ? post.products
-    : post.productTag ? [post.productTag] : [];
+  const normalizedProducts = useMemo(() => {
+    if (Array.isArray(post.tagged_products) && post.tagged_products.length > 0) return post.tagged_products;
+    if (Array.isArray(post.products) && post.products.length > 0) return post.products;
+    if (post.productTag) return [post.productTag];
+    return [];
+  }, [post.tagged_products, post.products, post.productTag]);
 
   const shouldClamp = !expanded && captionText && captionText.length > 120;
 
@@ -810,60 +813,41 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         </div>
       )}
 
-      {/* ---- Tagged products ---- */}
+      {/* ---- Tagged product pills ---- */}
       {normalizedProducts.length > 0 && (
-        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-3 pb-3">
-          {normalizedProducts.map((product) => (
-            <button
-              key={product.id || product.product_id}
-              className="flex shrink-0 items-center gap-2 rounded-full bg-stone-100 py-1 pl-1 pr-3 border-none cursor-pointer font-[inherit]"
-              onClick={() => navigate(`/products/${product.id || product.product_id}`)}
-            >
-              {(product.producer_avatar || product.store?.avatar) && (
-                <img
-                  src={product.producer_avatar || product.store?.avatar}
-                  alt={product.producer_name || product.store_name || product.store?.name || ''}
-                  loading="lazy"
-                  className="h-4 w-4 rounded-full object-cover"
-                />
-              )}
-              {(product.image || product.thumbnail) && (
-                <img
-                  src={product.image || product.thumbnail}
-                  alt={product.name || product.title}
-                  loading="lazy"
-                  className="h-8 w-8 rounded-full object-cover"
-                />
-              )}
-              <div className="flex flex-col items-start min-w-0">
-                <span className="max-w-[120px] truncate text-xs font-medium text-stone-950">
+        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-3 py-1 pb-3">
+          {normalizedProducts.slice(0, 3).map((product) => {
+            const img = product.image || product.thumbnail || product.images?.[0];
+            return (
+              <button
+                key={product.id || product.product_id}
+                className="flex shrink-0 items-center gap-1.5 rounded-full bg-stone-100 py-1 pl-1 pr-2.5 border-none cursor-pointer font-[inherit]"
+                onClick={() => navigate(`/products/${product.id || product.product_id}`)}
+              >
+                {img && (
+                  <img
+                    src={img}
+                    alt={product.name || product.title}
+                    loading="lazy"
+                    className="h-6 w-6 rounded-lg object-cover"
+                  />
+                )}
+                <span className="max-w-[80px] truncate text-[11px] font-medium text-stone-950">
                   {product.name || product.title}
                 </span>
-                {(product.producer_name || product.store_name || product.store?.name) && (
-                  <span className="max-w-[120px] truncate text-[10px] text-stone-500 flex items-center gap-0.5">
-                    {product.producer_name || product.store_name || product.store?.name}
-                    {product.verified && <span className="text-[9px]">✓</span>}
+                {product.price != null && (
+                  <span className="whitespace-nowrap text-[11px] font-bold text-stone-950">
+                    {formatPrice(product.price)}
                   </span>
                 )}
-                {/* Allergen/cert badges */}
-                {(product.certifications?.length > 0 || product.is_organic || product.is_vegan || product.is_gluten_free) && (
-                  <div className="flex gap-0.5 mt-0.5 flex-wrap">
-                    {product.is_organic && <span className="text-[8px] bg-stone-200 text-stone-700 rounded px-1">🌿 Eco</span>}
-                    {product.is_vegan && <span className="text-[8px] bg-stone-200 text-stone-700 rounded px-1">🌱 Vegano</span>}
-                    {product.is_gluten_free && <span className="text-[8px] bg-stone-200 text-stone-700 rounded px-1">🌾 Sin gluten</span>}
-                    {product.certifications?.slice(0, 2).map((cert, ci) => (
-                      <span key={ci} className="text-[8px] bg-stone-200 text-stone-700 rounded px-1">{cert.name || cert}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              {product.price != null && (
-                <span className="whitespace-nowrap text-xs font-bold text-stone-950">
-                  {formatPrice(product.price)}
-                </span>
-              )}
-            </button>
-          ))}
+              </button>
+            );
+          })}
+          {normalizedProducts.length > 3 && (
+            <span className="flex shrink-0 items-center text-[11px] font-medium text-stone-500">
+              +{normalizedProducts.length - 3} más
+            </span>
+          )}
         </div>
       )}
       {/* ---- Milestone toast ---- */}

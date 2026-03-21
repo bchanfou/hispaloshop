@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ArrowLeft, Users, Settings, RefreshCw, Pin } from 'lucide-react';
+import { ArrowLeft, Users, Settings, RefreshCw, Pin, Tag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
@@ -238,6 +238,19 @@ export default function CommunityPage() {
             ))}
           </div>
         )}
+
+        {/* Community stats */}
+        <div className="text-xs text-stone-500 flex items-center gap-1 mt-1.5">
+          <span>{(community.member_count || 0).toLocaleString()} miembros</span>
+          <span>·</span>
+          <span>{(community.post_count || 0).toLocaleString()} publicaciones</span>
+          {community.created_at && (
+            <>
+              <span>·</span>
+              <span>Creada {formatRelativeTime(community.created_at)}</span>
+            </>
+          )}
+        </div>
       </div>
 
       {/* ── Tabs ── */}
@@ -253,6 +266,21 @@ export default function CommunityPage() {
           </button>
         ))}
       </div>
+
+      {/* ── Ofertas para miembros ── */}
+      {tab === 'about' && (
+        <div className="max-w-[600px] mx-auto px-4 pt-4">
+          <div className="bg-stone-50 rounded-2xl p-4">
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <Tag size={14} className="text-stone-400" />
+              <span className="text-sm font-semibold text-stone-950">Ofertas para miembros</span>
+            </div>
+            <p className="text-sm text-stone-500 text-center m-0">
+              Próximamente — Los productores podrán ofrecer descuentos exclusivos para miembros de esta comunidad
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── Tab content ── */}
       <div className="max-w-[600px] mx-auto">
@@ -350,7 +378,15 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
   });
 
   const refetchFeed = () => queryClient.invalidateQueries({ queryKey: ['community-feed', communityId] });
-  const posts = data?.pages?.flatMap(p => p?.posts || []) ?? [];
+  const allPosts = data?.pages?.flatMap(p => p?.posts || []) ?? [];
+  // Pinned posts float to top
+  const posts = [...allPosts].sort((a, b) => {
+    const aPinned = a.pinned || a.is_pinned;
+    const bPinned = b.pinned || b.is_pinned;
+    if (aPinned && !bPinned) return -1;
+    if (!aPinned && bPinned) return 1;
+    return 0;
+  });
 
   return (
     <div className="px-4 pt-3">
@@ -553,11 +589,12 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 
   return (
     <div>
-      {/* G4 — Pinned indicator */}
-      {post.is_pinned && (
-        <div className="flex items-center gap-1 text-xs text-stone-500 mb-1">
-          <Pin size={12} className="text-stone-500" />
-          <span className="text-[11px] text-stone-500">Fijado</span>
+      {/* Pinned indicator */}
+      {(post.pinned || post.is_pinned) && (
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="bg-stone-100 text-stone-600 text-[11px] rounded-full px-2 py-0.5 inline-flex items-center gap-1">
+            <Pin size={10} /> Fijado
+          </span>
         </div>
       )}
     <div className="bg-white rounded-2xl border border-stone-200 mb-2.5 overflow-hidden">

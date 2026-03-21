@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat, AlertTriangle, Hash, ArrowRight } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat, AlertTriangle, Hash, ArrowRight, Bookmark } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -340,17 +340,24 @@ export default function DiscoverPage() {
       <div className="mx-auto max-w-[1200px]">
 
       {/* ─── SEARCH BAR (sticky) ─── */}
-      <div className="sticky top-0 z-20 bg-white px-3 py-2">
+      <div className="sticky top-0 z-20 bg-white px-3 py-2 flex items-center gap-2">
         <button
           onClick={() => navigate('/search')}
           aria-label="Buscar productos, tiendas, recetas"
           role="search"
-          className="relative block w-full text-left"
+          className="relative block flex-1 text-left"
         >
           <Search size={16} aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
           <div className="flex h-9 w-full items-center rounded-full bg-stone-100 pl-10 pr-4 text-[13px] text-stone-400">
             Buscar
           </div>
+        </button>
+        <button
+          onClick={() => navigate('/saved')}
+          aria-label="Guardados"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-500 transition-colors hover:bg-stone-200"
+        >
+          <Bookmark size={18} />
         </button>
       </div>
 

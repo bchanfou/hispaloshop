@@ -29,6 +29,13 @@ const DIET_PILLS = [
   { id: 'vegetariano', label: 'Vegetariano' },
 ];
 
+const ALLERGEN_PILLS = [
+  { id: 'gluten', label: 'Sin gluten' },
+  { id: 'lactose', label: 'Sin lactosa' },
+  { id: 'nuts', label: 'Sin frutos secos' },
+  { id: 'vegan', label: 'Vegano' },
+];
+
 const DIFFICULTY_CLASSES = {
   easy: { pill: 'bg-stone-100 text-stone-600', label: 'Fácil' },
   medium: { pill: 'bg-stone-100 text-stone-700', label: 'Medio' },
@@ -124,6 +131,7 @@ export default function RecipesPage() {
   const [difficulty, setDifficulty] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
   const [dietFilter, setDietFilter] = useState('all');
+  const [allergenFilters, setAllergenFilters] = useState(new Set());
   const [visibleCount, setVisibleCount] = useState(12);
   const sentinelRef = useRef(null);
 
@@ -156,11 +164,27 @@ export default function RecipesPage() {
         const diet = (r.diet || '').toLowerCase();
         if (!tags.includes(dietFilter) && diet !== dietFilter) return false;
       }
+      // Allergen filters: check ingredient allergens or recipe tags
+      if (allergenFilters.size > 0) {
+        const tags = (r.tags || []).map(t => t.toLowerCase());
+        const allergenFreeFlags = r.allergen_free || {};
+        for (const allergen of allergenFilters) {
+          const isFree =
+            allergenFreeFlags[allergen] === true ||
+            tags.includes(`sin_${allergen}`) ||
+            tags.includes(`${allergen}_free`) ||
+            (allergen === 'gluten' && tags.includes('sin gluten')) ||
+            (allergen === 'lactose' && tags.includes('sin lactosa')) ||
+            (allergen === 'nuts' && tags.includes('sin frutos secos')) ||
+            (allergen === 'vegan' && (tags.includes('vegano') || (r.diet || '').toLowerCase() === 'vegano'));
+          if (!isFree) return false;
+        }
+      }
       return true;
     });
-  }, [recipes, debouncedSearch, difficulty, timeFilter, dietFilter]);
+  }, [recipes, debouncedSearch, difficulty, timeFilter, dietFilter, allergenFilters]);
 
-  useEffect(() => { setVisibleCount(12); }, [debouncedSearch, difficulty, timeFilter, dietFilter]);
+  useEffect(() => { setVisibleCount(12); }, [debouncedSearch, difficulty, timeFilter, dietFilter, allergenFilters]);
 
   /* Infinite scroll */
   useEffect(() => {
@@ -174,7 +198,7 @@ export default function RecipesPage() {
     return () => observer.disconnect();
   }, [filtered.length, visibleCount]);
 
-  const hasFilters = difficulty !== 'all' || timeFilter !== 'all' || dietFilter !== 'all' || searchInput;
+  const hasFilters = difficulty !== 'all' || timeFilter !== 'all' || dietFilter !== 'all' || allergenFilters.size > 0 || searchInput;
 
   const handleRetry = () => {
     setLoading(true);
@@ -190,6 +214,16 @@ export default function RecipesPage() {
     setDifficulty('all');
     setTimeFilter('all');
     setDietFilter('all');
+    setAllergenFilters(new Set());
+  };
+
+  const toggleAllergen = (id) => {
+    setAllergenFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   return (
@@ -251,12 +285,33 @@ export default function RecipesPage() {
       </div>
 
       {/* ── Filters ── */}
-      <div className="scrollbar-hide flex gap-2 overflow-x-auto pt-3 pb-2">
+      <div className="scrollbar-hide flex gap-2 overflow-x-auto pt-3 pb-1">
         <FilterSection pills={DIFFICULTY_PILLS} active={difficulty} onSelect={setDifficulty} />
         <div className="w-px shrink-0 bg-stone-200" />
         <FilterSection pills={TIME_PILLS} active={timeFilter} onSelect={setTimeFilter} />
         <div className="w-px shrink-0 bg-stone-200" />
         <FilterSection pills={DIET_PILLS} active={dietFilter} onSelect={setDietFilter} />
+      </div>
+
+      {/* ── Allergen filters ── */}
+      <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-2">
+        {ALLERGEN_PILLS.map(p => {
+          const isActive = allergenFilters.has(p.id);
+          return (
+            <button
+              key={p.id}
+              onClick={() => toggleAllergen(p.id)}
+              aria-pressed={isActive}
+              className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-medium transition-colors ${
+                isActive
+                  ? 'bg-stone-950 text-white'
+                  : 'bg-stone-50 text-stone-500 hover:bg-stone-100'
+              }`}
+            >
+              {p.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="pb-24 pt-1">

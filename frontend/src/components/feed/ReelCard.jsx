@@ -834,10 +834,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         ) : null}
       </div>
 
-      {/* Product tag pill — shown when there are tagged products */}
+      {/* "Comprar" pill — shown when there are tagged products */}
       {(allProducts.length > 0 || reel.tagged_product || reel.productTag) && (
         <button
-          className="absolute bottom-16 left-4 z-[3] flex items-center gap-1.5 bg-stone-950/80 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full border-none cursor-pointer hover:bg-stone-950 transition-colors"
+          className="absolute bottom-16 left-4 z-[3] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-stone-950 text-xs font-semibold px-3.5 py-2 rounded-full border-none cursor-pointer shadow-lg hover:bg-white transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             if (hasMultipleProducts) {
@@ -847,10 +847,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
               if (p) navigate(`/products/${p.id || p.product_id}`);
             }
           }}
-          aria-label={hasMultipleProducts ? `Ver ${allProducts.length} productos` : `Ver producto`}
+          aria-label={hasMultipleProducts ? `Comprar ${allProducts.length} productos` : 'Comprar producto'}
         >
           <ShoppingBag size={13} className="shrink-0" />
-          <span>{hasMultipleProducts ? `Ver productos (${allProducts.length})` : 'Ver producto'}</span>
+          <span>Comprar{hasMultipleProducts ? ` (${allProducts.length})` : ''}</span>
         </button>
       )}
 
@@ -1034,55 +1034,58 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         </div>
       </BottomSheet>
 
-      {/* Multi-product bottom sheet */}
-      <BottomSheet isOpen={showProductSheet} onClose={() => setShowProductSheet(false)} maxHeight="55vh" className="!bg-stone-950/95 backdrop-blur-xl">
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
-            <span className="text-sm font-semibold text-white">Productos ({allProducts.length})</span>
-            <button
-              onClick={() => setShowProductSheet(false)}
-              className="bg-transparent border-none cursor-pointer p-1"
-              aria-label="Cerrar"
-            >
-              <XIcon size={18} className="text-white/60" />
-            </button>
-          </div>
-          <div className="overflow-y-auto flex-1 px-4 py-2">
+      {/* Multi-product expandable sheet */}
+      <AnimatePresence>
+        {showProductSheet && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="absolute bottom-20 left-3 right-3 z-[4] bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-lg max-h-[40vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold text-stone-950">Productos ({allProducts.length})</span>
+              <button
+                onClick={() => setShowProductSheet(false)}
+                className="bg-transparent border-none cursor-pointer p-1"
+                aria-label="Cerrar"
+              >
+                <XIcon size={16} className="text-stone-400" />
+              </button>
+            </div>
             {allProducts.map((p, i) => {
               const pid = p.id || p.product_id;
+              const pImg = p.image || p.thumbnail || p.images?.[0];
               return (
                 <div
                   key={pid || i}
-                  className="flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0"
+                  className="flex items-center gap-2.5 py-2 border-b border-stone-200/50 last:border-b-0"
                 >
                   <div
-                    className="w-12 h-12 rounded-2xl overflow-hidden bg-white/10 shrink-0 cursor-pointer"
-                    onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
+                    className="w-10 h-10 rounded-xl overflow-hidden bg-stone-100 shrink-0 cursor-pointer"
+                    onClick={() => { setShowProductSheet(false); if (pid) navigate(`/products/${pid}`); }}
                   >
-                    {(p.image || p.thumbnail) ? (
-                      <img
-                        src={p.image || p.thumbnail}
-                        alt={p.name || p.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.currentTarget.src = ''; e.currentTarget.className = 'w-full h-full bg-white/10'; }}
-                      />
+                    {pImg ? (
+                      <img src={pImg} alt={p.name || p.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ShoppingBag size={14} className="text-white/30" />
+                        <ShoppingBag size={14} className="text-stone-300" />
                       </div>
                     )}
                   </div>
                   <div
                     className="flex-1 min-w-0 cursor-pointer"
-                    onClick={(e) => { e.stopPropagation(); if (pid) { setShowProductSheet(false); navigate(`/products/${pid}`); } }}
+                    onClick={() => { setShowProductSheet(false); if (pid) navigate(`/products/${pid}`); }}
                   >
-                    <p className="text-[14px] font-semibold text-white font-sans truncate">{p.name || p.title}</p>
+                    <p className="text-[13px] font-semibold text-stone-950 truncate">{p.name || p.title}</p>
                     {p.price != null && (
-                      <p className="text-[12px] text-white/60 font-sans mt-0.5">{formatPrice(p.price)}</p>
+                      <p className="text-[12px] text-stone-500 mt-0.5">{formatPrice(p.price)}</p>
                     )}
                   </div>
                   <button
-                    className="flex items-center gap-1 bg-white text-stone-950 text-[11px] font-bold font-sans py-1.5 px-3 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-100 active:bg-stone-200 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1 bg-stone-950 text-white text-[11px] font-bold py-1.5 px-3 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-800 active:bg-stone-700 transition-colors disabled:opacity-50"
                     onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
                     disabled={addingToCart === pid}
                     aria-label={`Añadir ${p.name || p.title || 'producto'} al carrito`}
@@ -1093,9 +1096,9 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                 </div>
               );
             })}
-          </div>
-        </div>
-      </BottomSheet>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Progress bar — thin Instagram-style with touch scrubbing */}
       <div
