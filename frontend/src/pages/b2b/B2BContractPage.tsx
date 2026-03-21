@@ -14,27 +14,7 @@ import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 
-/* ── V2 Design Tokens ─────────────────────────────── */
-const V2 = {
-  black: '#0A0A0A',
-  cream: '#ffffff',
-  stone: '#8A8881',
-  white: '#FFFFFF',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  green: '#0c0a09',
-  greenLight: '#f5f5f4',
-  greenBorder: '#d6d3d1',
-  blue: '#57534e',
-  blueLight: '#f5f5f4',
-  amber: '#78716c',
-  amberLight: '#fafaf9',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-  radiusFull: 9999,
-};
-
-/* ── Helpers ───────────────────────────────────────── */
+/* -- Helpers -- */
 const fmtDate = (iso) => {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('es-ES', {
@@ -49,7 +29,7 @@ const fmtDate = (iso) => {
 const shortId = (id) => String(id).slice(-8).toUpperCase();
 const shortHash = (h) => (h ? `${String(h).slice(0, 12)}…` : '—');
 
-/* ── Component ─────────────────────────────────────── */
+/* -- Component -- */
 export default function B2BContractPage() {
   const { operationId } = useParams();
   const navigate = useNavigate();
@@ -64,7 +44,7 @@ export default function B2BContractPage() {
   const pollAttemptsRef = useRef(0);
   const MAX_POLL_ATTEMPTS = 12;
 
-  /* ── Fetch ──────────────────────────────────────── */
+  /* -- Fetch -- */
   const fetchOperation = useCallback(async () => {
     try {
       const { data } = await apiClient.get(`/b2b/operations/${operationId}`);
@@ -79,7 +59,7 @@ export default function B2BContractPage() {
     }
   }, [operationId]);
 
-  /* ── Mount + polling ────────────────────────────── */
+  /* -- Mount + polling -- */
   useEffect(() => {
     fetchOperation();
   }, [fetchOperation]);
@@ -107,7 +87,7 @@ export default function B2BContractPage() {
     };
   }, [operation?.status, fetchOperation]);
 
-  /* ── Derived state ──────────────────────────────── */
+  /* -- Derived state -- */
   const isGenerating = operation?.status === 'offer_accepted';
   const contractReady =
     operation?.status === 'contract_generated' ||
@@ -127,7 +107,7 @@ export default function B2BContractPage() {
 
   const pdfUrl = operation?.contract?.pdf_url;
 
-  /* ── Sign handler ───────────────────────────────── */
+  /* -- Sign handler -- */
   const handleSign = async () => {
     setSigning(true);
     try {
@@ -141,64 +121,38 @@ export default function B2BContractPage() {
     }
   };
 
-  /* ── Loading / Error screens ────────────────────── */
+  /* -- Loading / Error screens -- */
   if (loading) {
     return (
-      <div
-        className="fixed inset-0 flex flex-col"
-        style={{ background: V2.cream, fontFamily: V2.fontSans, padding: 16, paddingTop: 60 }}
-      >
-        <div className="h-10 w-48 rounded-2xl animate-pulse mb-4" style={{ background: V2.surface }} />
-        <div className="h-32 rounded-2xl animate-pulse mb-4" style={{ background: V2.surface }} />
-        <div className="h-24 rounded-2xl animate-pulse mb-4" style={{ background: V2.surface }} />
-        <div className="h-48 rounded-2xl animate-pulse" style={{ background: V2.surface }} />
+      <div className="fixed inset-0 flex flex-col bg-white font-sans p-4 pt-[60px]">
+        <div className="h-10 w-48 rounded-2xl animate-pulse mb-4 bg-stone-100" />
+        <div className="h-32 rounded-2xl animate-pulse mb-4 bg-stone-100" />
+        <div className="h-24 rounded-2xl animate-pulse mb-4 bg-stone-100" />
+        <div className="h-48 rounded-2xl animate-pulse bg-stone-100" />
       </div>
     );
   }
 
   if (error || !operation) {
     return (
-      <div
-        className="fixed inset-0 flex flex-col items-center justify-center gap-3"
-        style={{ background: V2.cream, fontFamily: V2.fontSans, padding: 24 }}
-      >
-        <AlertCircle size={36} style={{ color: V2.amber }} />
-        <p style={{ color: V2.black, fontSize: 15, fontWeight: 600 }}>
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans p-6">
+        <AlertCircle size={36} className="text-stone-500" />
+        <p className="text-stone-950 text-[15px] font-semibold">
           Operación no encontrada
         </p>
-        <p style={{ color: V2.stone, fontSize: 13, textAlign: 'center' }}>
+        <p className="text-stone-500 text-[13px] text-center">
           {error || 'La operación solicitada no existe o no tienes acceso.'}
         </p>
-        <div className="flex gap-3" style={{ marginTop: 12 }}>
+        <div className="flex gap-3 mt-3">
           <button
             onClick={fetchOperation}
-            style={{
-              background: V2.black,
-              color: V2.white,
-              border: 'none',
-              borderRadius: V2.radiusFull,
-              padding: '10px 28px',
-              fontSize: 14,
-              fontWeight: 600,
-              fontFamily: V2.fontSans,
-              cursor: 'pointer',
-            }}
+            className="bg-stone-950 text-white border-none rounded-full px-7 py-2.5 text-sm font-semibold cursor-pointer"
           >
             Reintentar
           </button>
           <button
             onClick={() => navigate(-1)}
-            style={{
-              background: V2.white,
-              color: V2.black,
-              border: `1px solid ${V2.border}`,
-              borderRadius: V2.radiusFull,
-              padding: '10px 28px',
-              fontSize: 14,
-              fontWeight: 600,
-              fontFamily: V2.fontSans,
-              cursor: 'pointer',
-            }}
+            className="bg-white text-stone-950 border border-stone-200 rounded-full px-7 py-2.5 text-sm font-semibold cursor-pointer"
           >
             Volver
           </button>
@@ -207,116 +161,63 @@ export default function B2BContractPage() {
     );
   }
 
-  /* ── Main render ────────────────────────────────── */
+  /* -- Main render -- */
   return (
-    <div
-      className="fixed inset-0 flex flex-col"
-      style={{
-        background: V2.cream,
-        fontFamily: V2.fontSans,
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-      }}
-    >
-      {/* ── TopBar ───────────────────────────────── */}
-      <div
-        className="flex items-center justify-between"
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 20,
-          background: 'rgba(247,246,242,0.85)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          padding: '12px 16px',
-          borderBottom: `1px solid ${V2.border}`,
-        }}
-      >
+    <div className="fixed inset-0 flex flex-col bg-white font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+      {/* -- TopBar -- */}
+      <div className="flex items-center justify-between sticky top-0 z-20 bg-white/85 backdrop-blur-xl px-4 py-3 border-b border-stone-200">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center justify-center"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: V2.radiusFull,
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-          }}
+          className="flex items-center justify-center w-9 h-9 rounded-full border-none bg-transparent cursor-pointer"
         >
-          <ArrowLeft size={20} style={{ color: V2.black }} />
+          <ArrowLeft size={20} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 14, fontWeight: 600, color: V2.black }}>
+        <span className="text-sm font-semibold text-stone-950">
           Contrato #HSP-B2B-{shortId(operationId)}
         </span>
         <button
           onClick={() => pdfUrl && window.open(pdfUrl, '_blank')}
-          className="flex items-center justify-center"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: V2.radiusFull,
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            opacity: pdfUrl ? 1 : 0.35,
-          }}
+          className="flex items-center justify-center w-9 h-9 rounded-full border-none bg-transparent cursor-pointer disabled:opacity-35"
           disabled={!pdfUrl}
         >
-          <Download size={20} style={{ color: V2.black }} />
+          <Download size={20} className="text-stone-950" />
         </button>
       </div>
 
-      {/* ── Scrollable Body ──────────────────────── */}
-      <div
-        className="flex-1 overflow-y-auto"
-        style={{ padding: 16, paddingBottom: 'calc(16px + env(safe-area-inset-bottom))' }}
-      >
-        {/* ─ Section 1: Operation Status ─────────── */}
+      {/* -- Scrollable Body -- */}
+      <div className="flex-1 overflow-y-auto p-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+        {/* - Section 1: Operation Status - */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          style={{
-            background: V2.black,
-            borderRadius: V2.radiusMd,
-            padding: 18,
-            marginBottom: 16,
-          }}
+          className="bg-stone-950 rounded-xl p-[18px] mb-4"
         >
-          <div className="flex items-center gap-2" style={{ marginBottom: 8 }}>
-            <div
-              className="flex items-center justify-center"
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: V2.radiusFull,
-                background: V2.green,
-              }}
-            >
-              <Check size={13} style={{ color: V2.white }} strokeWidth={3} />
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center justify-center w-[22px] h-[22px] rounded-full bg-stone-950">
+              <Check size={13} className="text-white" strokeWidth={3} />
             </div>
-            <span style={{ color: V2.white, fontSize: 14, fontWeight: 600 }}>
+            <span className="text-white text-sm font-semibold">
               Oferta v{operation.version ?? 1} aceptada
             </span>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginBottom: 10 }}>
+          <p className="text-white/70 text-xs mb-2.5">
             {fmtDate(operation.accepted_at || operation.updated_at)}
           </p>
-          <p style={{ color: V2.stone, fontSize: 9, fontFamily: 'monospace' }}>
+          <p className="text-stone-500 text-[9px] font-mono">
             {shortHash(operation.integrity_hash || operation.hash)}
           </p>
-          <p style={{ color: V2.stone, fontSize: 9, marginTop: 2 }}>
+          <p className="text-stone-500 text-[9px] mt-0.5">
             Hash de integridad
           </p>
         </motion.div>
 
-        {/* ─ Section 2: Contract Generation ──────── */}
+        {/* - Section 2: Contract Generation - */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.06 }}
-          style={{ marginBottom: 16 }}
+          className="mb-4"
         >
           <AnimatePresence mode="wait">
             {isGenerating && !pollTimedOut && (
@@ -325,18 +226,16 @@ export default function B2BContractPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center"
-                style={{ padding: '40px 0' }}
+                className="flex flex-col items-center justify-center py-10"
               >
                 <Loader2
                   size={32}
-                  className="animate-spin"
-                  style={{ color: V2.green, marginBottom: 14 }}
+                  className="animate-spin text-stone-950 mb-3.5"
                 />
-                <p style={{ color: V2.stone, fontSize: 14, fontWeight: 500 }}>
+                <p className="text-stone-500 text-sm font-medium">
                   La IA está generando el contrato...
                 </p>
-                <p style={{ color: V2.stone, fontSize: 12, marginTop: 4 }}>
+                <p className="text-stone-500 text-xs mt-1">
                   Esto puede tardar unos segundos
                 </p>
               </motion.div>
@@ -348,29 +247,18 @@ export default function B2BContractPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center"
-                style={{ padding: '40px 20px', textAlign: 'center' }}
+                className="flex flex-col items-center justify-center py-10 px-5 text-center"
               >
-                <AlertCircle size={32} style={{ color: V2.amber, marginBottom: 14 }} />
-                <p style={{ color: V2.black, fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+                <AlertCircle size={32} className="text-stone-500 mb-3.5" />
+                <p className="text-stone-950 text-sm font-semibold mb-2">
                   El contrato está tardando más de lo esperado
                 </p>
-                <p style={{ color: V2.stone, fontSize: 13, lineHeight: 1.5, marginBottom: 20 }}>
+                <p className="text-stone-500 text-[13px] leading-relaxed mb-5">
                   Recibirás una notificación cuando esté listo.
                 </p>
                 <button
                   onClick={() => navigate(-1)}
-                  style={{
-                    background: V2.black,
-                    color: V2.white,
-                    border: 'none',
-                    borderRadius: V2.radiusFull,
-                    padding: '10px 28px',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    fontFamily: V2.fontSans,
-                    cursor: 'pointer',
-                  }}
+                  className="bg-stone-950 text-white border-none rounded-full px-7 py-2.5 text-sm font-semibold cursor-pointer"
                 >
                   Volver
                 </button>
@@ -386,27 +274,11 @@ export default function B2BContractPage() {
                 <iframe
                   src={pdfUrl}
                   title="Contrato PDF"
-                  style={{
-                    width: '100%',
-                    height: 300,
-                    borderRadius: V2.radiusMd,
-                    border: `1px solid ${V2.border}`,
-                    background: V2.white,
-                  }}
+                  className="w-full h-[300px] rounded-xl border border-stone-200 bg-white"
                 />
                 <button
                   onClick={() => pdfUrl && window.open(pdfUrl, '_blank')}
-                  className="flex items-center justify-center gap-2"
-                  style={{
-                    marginTop: 10,
-                    width: '100%',
-                    background: 'transparent',
-                    border: 'none',
-                    color: V2.stone,
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    fontFamily: V2.fontSans,
-                  }}
+                  className="flex items-center justify-center gap-2 mt-2.5 w-full bg-transparent border-none text-stone-500 text-xs cursor-pointer"
                 >
                   <FileText size={14} />
                   Si no se muestra, pulsa para ver →
@@ -416,109 +288,79 @@ export default function B2BContractPage() {
           </AnimatePresence>
         </motion.div>
 
-        {/* ─ Section 3: Signatures ───────────────── */}
+        {/* - Section 3: Signatures - */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.12 }}
-          style={{
-            background: V2.white,
-            border: `1px solid ${V2.border}`,
-            borderRadius: V2.radiusMd,
-            padding: 18,
-            marginBottom: 16,
-          }}
+          className="bg-white border border-stone-200 rounded-xl p-[18px] mb-4"
         >
-          <p style={{ fontSize: 14, fontWeight: 600, color: V2.black, marginBottom: 14 }}>
+          <p className="text-sm font-semibold text-stone-950 mb-3.5">
             Firmas digitales
           </p>
 
           {/* Seller row */}
-          <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: V2.radiusFull,
-                  background: V2.surface,
-                }}
-              />
-              <span style={{ fontSize: 13, color: V2.black, fontWeight: 500 }}>
+              <div className="w-8 h-8 rounded-full bg-stone-100" />
+              <span className="text-[13px] text-stone-950 font-medium">
                 {operation.seller_name || 'Vendedor'}
               </span>
             </div>
             {sellerSigned ? (
-              <span style={{ fontSize: 11, color: V2.green, fontWeight: 500 }}>
+              <span className="text-[11px] text-stone-950 font-medium">
                 ✓ Firmado · {fmtDate(operation.contract?.seller_signature_at)}
               </span>
             ) : (
-              <span style={{ fontSize: 11, color: V2.amber, fontWeight: 500 }}>
+              <span className="text-[11px] text-stone-500 font-medium">
                 Pendiente
               </span>
             )}
           </div>
 
           {/* Separator */}
-          <div style={{ height: 0.5, background: V2.border, marginBottom: 12 }} />
+          <div className="h-px bg-stone-200 mb-3" />
 
           {/* Buyer row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: V2.radiusFull,
-                  background: V2.surface,
-                }}
-              />
-              <span style={{ fontSize: 13, color: V2.black, fontWeight: 500 }}>
+              <div className="w-8 h-8 rounded-full bg-stone-100" />
+              <span className="text-[13px] text-stone-950 font-medium">
                 {operation.buyer_name || 'Comprador'}
               </span>
             </div>
             {buyerSigned ? (
-              <span style={{ fontSize: 11, color: V2.green, fontWeight: 500 }}>
+              <span className="text-[11px] text-stone-950 font-medium">
                 ✓ Firmado · {fmtDate(operation.contract?.buyer_signature_at)}
               </span>
             ) : (
-              <span style={{ fontSize: 11, color: V2.amber, fontWeight: 500 }}>
+              <span className="text-[11px] text-stone-500 font-medium">
                 Pendiente
               </span>
             )}
           </div>
         </motion.div>
 
-        {/* ─ Section 4: Tu firma ─────────────────── */}
+        {/* - Section 4: Tu firma - */}
         {contractReady && myRole && !currentUserSigned && !bothSigned && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.18 }}
-            style={{ marginBottom: 16 }}
+            className="mb-4"
           >
-            <p style={{ fontSize: 14, fontWeight: 600, color: V2.black, marginBottom: 12 }}>
+            <p className="text-sm font-semibold text-stone-950 mb-3">
               Tu firma
             </p>
 
             {user?.signature_url ? (
               <>
                 {/* Signature preview */}
-                <div
-                  className="flex items-center justify-center"
-                  style={{
-                    width: '100%',
-                    height: 50,
-                    border: `1.5px dashed ${V2.border}`,
-                    borderRadius: V2.radiusMd,
-                    marginBottom: 14,
-                    overflow: 'hidden',
-                  }}
-                >
+                <div className="flex items-center justify-center w-full h-[50px] border-[1.5px] border-dashed border-stone-200 rounded-xl mb-3.5 overflow-hidden">
                   <img
                     src={user.signature_url}
                     alt="Tu firma"
-                    style={{ maxHeight: 40, objectFit: 'contain' }}
+                    className="max-h-10 object-contain"
                   />
                 </div>
 
@@ -526,20 +368,7 @@ export default function B2BContractPage() {
                 <button
                   onClick={handleSign}
                   disabled={signing}
-                  className="flex items-center justify-center gap-2"
-                  style={{
-                    width: '100%',
-                    height: 44,
-                    background: V2.black,
-                    color: V2.white,
-                    border: 'none',
-                    borderRadius: V2.radiusFull,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    fontFamily: V2.fontSans,
-                    cursor: signing ? 'default' : 'pointer',
-                    opacity: signing ? 0.7 : 1,
-                  }}
+                  className="flex items-center justify-center gap-2 w-full h-11 bg-stone-950 text-white border-none rounded-full text-sm font-semibold cursor-pointer disabled:opacity-70 disabled:cursor-default"
                 >
                   {signing ? (
                     <Loader2 size={18} className="animate-spin" />
@@ -549,7 +378,7 @@ export default function B2BContractPage() {
                 </button>
 
                 {/* Legal text */}
-                <p style={{ color: V2.stone, fontSize: 10, marginTop: 10, lineHeight: 1.5 }}>
+                <p className="text-stone-500 text-[10px] mt-2.5 leading-relaxed">
                   Al firmar confirmas que has leído y aceptas todos los términos del contrato.
                   La firma queda registrada con fecha, hora e IP.
                 </p>
@@ -557,36 +386,16 @@ export default function B2BContractPage() {
             ) : (
               <>
                 {/* No signature card */}
-                <div
-                  className="flex items-center gap-3"
-                  style={{
-                    background: V2.blueLight,
-                    border: `1px solid ${V2.border}`,
-                    borderRadius: V2.radiusMd,
-                    padding: 14,
-                    marginBottom: 14,
-                  }}
-                >
-                  <AlertCircle size={18} style={{ color: V2.blue, flexShrink: 0 }} />
-                  <p style={{ color: V2.black, fontSize: 13 }}>
+                <div className="flex items-center gap-3 bg-stone-100 border border-stone-200 rounded-xl p-3.5 mb-3.5">
+                  <AlertCircle size={18} className="text-stone-600 flex-shrink-0" />
+                  <p className="text-stone-950 text-[13px]">
                     Necesitas subir tu firma digital antes de poder firmar contratos
                   </p>
                 </div>
 
                 <button
                   onClick={() => navigate(`/settings/signature?returnTo=/b2b/contract/${operationId}`)}
-                  style={{
-                    width: '100%',
-                    height: 44,
-                    background: V2.black,
-                    color: V2.white,
-                    border: 'none',
-                    borderRadius: V2.radiusFull,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    fontFamily: V2.fontSans,
-                    cursor: 'pointer',
-                  }}
+                  className="w-full h-11 bg-stone-950 text-white border-none rounded-full text-sm font-semibold cursor-pointer"
                 >
                   Ir a configurar mi firma →
                 </button>
@@ -595,37 +404,22 @@ export default function B2BContractPage() {
           </motion.div>
         )}
 
-        {/* ─ Section 5: Both signed ──────────────── */}
+        {/* - Section 5: Both signed - */}
         {bothSigned && (
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            style={{
-              background: V2.greenLight,
-              border: `1px solid ${V2.greenBorder}`,
-              borderRadius: V2.radiusMd,
-              padding: 20,
-              marginBottom: 16,
-            }}
+            className="bg-stone-100 border border-stone-300 rounded-xl p-5 mb-4"
           >
-            <div className="flex flex-col items-center" style={{ textAlign: 'center' }}>
-              <div
-                className="flex items-center justify-center"
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: V2.radiusFull,
-                  background: V2.green,
-                  marginBottom: 12,
-                }}
-              >
-                <Check size={32} style={{ color: V2.white }} strokeWidth={2.5} />
+            <div className="flex flex-col items-center text-center">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-stone-950 mb-3">
+                <Check size={32} className="text-white" strokeWidth={2.5} />
               </div>
-              <p style={{ fontSize: 15, fontWeight: 600, color: V2.black, marginBottom: 4 }}>
+              <p className="text-[15px] font-semibold text-stone-950 mb-1">
                 Contrato firmado por ambas partes
               </p>
-              <p style={{ fontSize: 12, color: V2.stone }}>
+              <p className="text-xs text-stone-500">
                 {fmtDate(
                   (operation.contract?.buyer_signature_at || '') > (operation.contract?.seller_signature_at || '')
                     ? (operation.contract?.buyer_signature_at || operation.contract?.buyer_signed_at)
@@ -635,20 +429,7 @@ export default function B2BContractPage() {
 
               <button
                 onClick={() => pdfUrl && window.open(pdfUrl, '_blank')}
-                className="flex items-center justify-center gap-2"
-                style={{
-                  marginTop: 18,
-                  width: '100%',
-                  height: 44,
-                  background: V2.black,
-                  color: V2.white,
-                  border: 'none',
-                  borderRadius: V2.radiusFull,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  fontFamily: V2.fontSans,
-                  cursor: 'pointer',
-                }}
+                className="flex items-center justify-center gap-2 mt-[18px] w-full h-11 bg-stone-950 text-white border-none rounded-full text-sm font-semibold cursor-pointer"
               >
                 <Download size={16} />
                 Descargar contrato firmado
@@ -656,19 +437,7 @@ export default function B2BContractPage() {
 
               <button
                 onClick={() => navigate(`/b2b/operations/${operationId}`)}
-                style={{
-                  marginTop: 8,
-                  width: '100%',
-                  height: 44,
-                  background: V2.white,
-                  color: V2.black,
-                  border: `1px solid ${V2.border}`,
-                  borderRadius: V2.radiusFull,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  fontFamily: V2.fontSans,
-                  cursor: 'pointer',
-                }}
+                className="mt-2 w-full h-11 bg-white text-stone-950 border border-stone-200 rounded-full text-sm font-semibold cursor-pointer"
               >
                 Ir al seguimiento →
               </button>

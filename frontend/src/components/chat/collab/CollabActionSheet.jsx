@@ -3,47 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
 import { Camera, Video, Package, FileText, Link } from 'lucide-react';
 
-const V2 = {
-  black: '#0A0A0A',
-  stone: '#8A8881',
-  surface: '#F0EDE8',
-  white: '#fff',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-};
-
-const COLLAB = {
-  bg: '#F5F0F8',
-};
-
-const ICON_SIZE = 24;
-const CIRCLE_SIZE = 56;
-
 function ActionOption({ icon: Icon, label, onClick, bgColor }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-2"
-      style={{
-        border: 'none',
-        background: 'none',
-        cursor: 'pointer',
-        padding: 8,
-        fontFamily: V2.fontSans,
-      }}
+      className="flex flex-col items-center gap-2 border-none bg-transparent cursor-pointer p-2"
     >
       <div
-        className="flex items-center justify-center"
-        style={{
-          width: CIRCLE_SIZE,
-          height: CIRCLE_SIZE,
-          borderRadius: '50%',
-          background: bgColor || V2.surface,
-        }}
+        className={`flex items-center justify-center w-14 h-14 rounded-full ${bgColor || 'bg-stone-100'}`}
       >
-        <Icon size={ICON_SIZE} style={{ color: V2.black }} />
+        <Icon size={24} className="text-stone-950" />
       </div>
-      <span style={{ fontSize: 12, color: V2.black, fontWeight: 500 }}>
+      <span className="text-xs text-stone-950 font-medium">
         {label}
       </span>
     </button>
@@ -75,8 +46,7 @@ export default function CollabActionSheet({
           >
             {/* Backdrop */}
             <motion.div
-              className="absolute inset-0"
-              style={{ background: 'rgba(0,0,0,0.6)' }}
+              className="absolute inset-0 bg-black/60"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -85,35 +55,19 @@ export default function CollabActionSheet({
 
             {/* Sheet */}
             <motion.div
-              className="relative w-full"
-              style={{
-                background: V2.white,
-                borderRadius: '20px 20px 0 0',
-                paddingBottom: 'env(safe-area-inset-bottom, 16px)',
-                fontFamily: V2.fontSans,
-              }}
+              className="relative w-full bg-white rounded-t-[20px] pb-[env(safe-area-inset-bottom,16px)]"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             >
               {/* Handle bar */}
-              <div className="flex justify-center" style={{ padding: '10px 0 4px' }}>
-                <div
-                  style={{
-                    width: 36,
-                    height: 4,
-                    borderRadius: 2,
-                    background: V2.surface,
-                  }}
-                />
+              <div className="flex justify-center pt-2.5 pb-1">
+                <div className="w-9 h-1 rounded-sm bg-stone-100" />
               </div>
 
               {/* Options grid */}
-              <div
-                className="grid grid-cols-2 justify-items-center"
-                style={{ padding: '12px 24px 8px' }}
-              >
+              <div className="grid grid-cols-2 justify-items-center px-6 pt-3 pb-2">
                 <ActionOption
                   icon={Camera}
                   label="Foto"
@@ -133,7 +87,7 @@ export default function CollabActionSheet({
                   icon={FileText}
                   label="Propuesta"
                   onClick={onSelectProposal}
-                  bgColor={COLLAB.bg}
+                  bgColor="bg-stone-200"
                 />
                 <ActionOption
                   icon={Link}
@@ -143,21 +97,10 @@ export default function CollabActionSheet({
               </div>
 
               {/* Cancel */}
-              <div style={{ padding: '8px 16px 8px' }}>
+              <div className="px-4 pt-2 pb-2">
                 <button
                   onClick={onClose}
-                  className="w-full flex items-center justify-center"
-                  style={{
-                    height: 48,
-                    background: V2.surface,
-                    border: 'none',
-                    borderRadius: V2.radiusMd,
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: V2.black,
-                    cursor: 'pointer',
-                    fontFamily: V2.fontSans,
-                  }}
+                  className="w-full flex items-center justify-center h-12 bg-stone-100 border-none rounded-full text-sm font-medium text-stone-950 cursor-pointer"
                 >
                   Cancelar
                 </button>

@@ -6,21 +6,6 @@ import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 
-const V2 = {
-  black: '#0A0A0A',
-  cream: '#ffffff',
-  stone: '#8A8881',
-  white: '#FFFFFF',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  green: '#0c0a09',
-  greenLight: '#f5f5f4',
-  greenBorder: '#d6d3d1',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-  radiusFull: 9999,
-};
-
 const fmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
 const PAYMENT_TERMS = {
@@ -119,8 +104,8 @@ export default function B2BPaymentPage() {
           appearance: {
             theme: 'stripe',
             variables: {
-              colorPrimary: V2.black,
-              fontFamily: V2.fontSans,
+              colorPrimary: '#0A0A0A',
+              fontFamily: 'Inter, sans-serif',
               borderRadius: '12px',
             },
           },
@@ -161,33 +146,24 @@ export default function B2BPaymentPage() {
     }
   };
 
-  /* ── Render helpers ── */
+  /* -- Render helpers -- */
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ background: V2.cream, fontFamily: V2.fontSans }}>
-        <Loader2 size={32} className="animate-spin" style={{ color: V2.stone }} />
+      <div className="fixed inset-0 flex items-center justify-center bg-white font-sans">
+        <Loader2 size={32} className="animate-spin text-stone-500" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 px-6" style={{ background: V2.cream, fontFamily: V2.fontSans }}>
-        <AlertCircle size={32} style={{ color: V2.stone }} />
-        <p style={{ color: V2.black, fontSize: 15 }}>{error}</p>
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 px-6 bg-white font-sans">
+        <AlertCircle size={32} className="text-stone-500" />
+        <p className="text-stone-950 text-[15px]">{error}</p>
         <button
           onClick={fetchData}
-          style={{
-            background: V2.black,
-            color: V2.white,
-            border: 'none',
-            borderRadius: V2.radiusFull,
-            padding: '10px 28px',
-            fontSize: 14,
-            fontFamily: V2.fontSans,
-            cursor: 'pointer',
-          }}
+          className="bg-stone-950 text-white border-none rounded-full px-7 py-2.5 text-sm cursor-pointer"
         >
           Reintentar
         </button>
@@ -203,104 +179,65 @@ export default function B2BPaymentPage() {
   const depositPaid = operation?.payment_status === 'deposit_paid' || operation?.payment_status === 'paid';
 
   return (
-    <div className="fixed inset-0 flex flex-col" style={{ background: V2.cream, fontFamily: V2.fontSans }}>
+    <div className="fixed inset-0 flex flex-col bg-white font-sans">
       {/* TopBar */}
-      <div
-        className="sticky top-0 z-20 flex items-center gap-3 px-4"
-        style={{
-          height: 56,
-          background: 'rgba(247,246,242,0.85)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: `1px solid ${V2.border}`,
-        }}
-      >
+      <div className="sticky top-0 z-20 flex items-center gap-3 px-4 h-14 bg-white/85 backdrop-blur-xl border-b border-stone-200">
         <button
           onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          className="bg-transparent border-none cursor-pointer p-1"
         >
-          <ArrowLeft size={20} style={{ color: V2.black }} />
+          <ArrowLeft size={20} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 15, fontWeight: 600, color: V2.black }}>
+        <span className="text-[15px] font-semibold text-stone-950">
           Pago B2B · #HSP-B2B-{last8}
         </span>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 pb-10 pt-5" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="flex-1 overflow-y-auto px-4 pb-10 pt-5 flex flex-col gap-4">
 
         {/* Section 1: Contract Summary */}
-        <div
-          style={{
-            background: V2.white,
-            border: `1px solid ${V2.border}`,
-            borderRadius: V2.radiusMd,
-            padding: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="bg-white border border-stone-200 rounded-xl p-5 flex flex-col gap-3">
+          <div className="flex justify-between items-start">
             <div>
-              <p style={{ fontSize: 15, fontWeight: 600, color: V2.black, margin: 0 }}>
+              <p className="text-[15px] font-semibold text-stone-950 m-0">
                 {operation?.product_name}
               </p>
-              <p style={{ fontSize: 13, color: V2.stone, margin: '4px 0 0' }}>
+              <p className="text-[13px] text-stone-500 mt-1 mb-0">
                 {operation?.quantity} {operation?.unit}
               </p>
             </div>
-            <span
-              style={{
-                background: V2.greenLight,
-                color: V2.green,
-                borderRadius: V2.radiusFull,
-                padding: '3px 10px',
-                fontSize: 11,
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-              }}
-            >
+            <span className="bg-stone-100 text-stone-950 rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap">
               Contrato firmado ✓
             </span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 13, color: V2.stone }}>Total bruto</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: V2.black }}>{fmt.format(totalBruto)}</span>
+          <div className="flex justify-between items-center">
+            <span className="text-[13px] text-stone-500">Total bruto</span>
+            <span className="text-sm font-semibold text-stone-950">{fmt.format(totalBruto)}</span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 13, color: V2.stone }}>Condiciones de pago</span>
-            <span style={{ fontSize: 13, color: V2.black }}>
+          <div className="flex justify-between items-center">
+            <span className="text-[13px] text-stone-500">Condiciones de pago</span>
+            <span className="text-[13px] text-stone-950">
               {PAYMENT_TERMS[operation?.payment_terms] || operation?.payment_terms}
             </span>
           </div>
         </div>
 
         {/* Section 2: Payment Breakdown */}
-        <div
-          style={{
-            background: V2.white,
-            border: `1px solid ${V2.border}`,
-            borderRadius: V2.radiusMd,
-            padding: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 10,
-          }}
-        >
+        <div className="bg-white border border-stone-200 rounded-xl p-5 flex flex-col gap-2.5">
           {isBuyer && (
             <>
               <Row label="Subtotal" value={fmt.format(totalBruto)} />
               <Row label="Fee Stripe (1,4% + 0,25€)" value={`+${fmt.format(stripeFee)}`} />
-              <p style={{ fontSize: 10, color: V2.stone, margin: '-6px 0 0 0', paddingLeft: 12 }}>
+              <p className="text-[10px] text-stone-500 -mt-1.5 pl-3 m-0">
                 ↳ Asumido por el comprador
               </p>
-              <hr style={{ border: 'none', borderTop: `1px solid ${V2.border}`, margin: '4px 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: V2.black }}>TOTAL A PAGAR</span>
-                <span style={{ fontSize: 15, fontWeight: 700, color: V2.black }}>{fmt.format(buyerTotal)}</span>
+              <hr className="border-none border-t border-stone-200 my-1" />
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold text-stone-950">TOTAL A PAGAR</span>
+                <span className="text-[15px] font-bold text-stone-950">{fmt.format(buyerTotal)}</span>
               </div>
             </>
           )}
@@ -309,13 +246,13 @@ export default function B2BPaymentPage() {
             <>
               <Row label="Precio bruto" value={fmt.format(totalBruto)} />
               <Row label="Comisión Hispaloshop (3%)" value={`−${fmt.format(platformFee)}`} />
-              <p style={{ fontSize: 10, color: V2.stone, margin: '-6px 0 0 0', paddingLeft: 12 }}>
+              <p className="text-[10px] text-stone-500 -mt-1.5 pl-3 m-0">
                 ↳ Comisión de plataforma
               </p>
-              <hr style={{ border: 'none', borderTop: `1px solid ${V2.border}`, margin: '4px 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: V2.black }}>RECIBIRÁS</span>
-                <span style={{ fontSize: 15, fontWeight: 700, color: V2.green }}>{fmt.format(sellerReceives)}</span>
+              <hr className="border-none border-t border-stone-200 my-1" />
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold text-stone-950">RECIBIRÁS</span>
+                <span className="text-[15px] font-bold text-stone-950">{fmt.format(sellerReceives)}</span>
               </div>
             </>
           )}
@@ -323,70 +260,33 @@ export default function B2BPaymentPage() {
 
         {/* Section 3: Payment Form (buyer only, not yet paid) */}
         {isBuyer && !depositPaid && !paymentSuccess && (
-          <div
-            style={{
-              background: V2.white,
-              border: `1px solid ${V2.border}`,
-              borderRadius: V2.radiusMd,
-              padding: 20,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 16,
-            }}
-          >
-            <div ref={paymentRef} style={{ minHeight: 120 }} />
+          <div className="bg-white border border-stone-200 rounded-xl p-5 flex flex-col gap-4">
+            <div ref={paymentRef} className="min-h-[120px]" />
 
             <button
               onClick={handlePay}
               disabled={paying}
-              style={{
-                width: '100%',
-                height: 46,
-                background: V2.green,
-                color: V2.white,
-                border: 'none',
-                borderRadius: V2.radiusFull,
-                fontSize: 15,
-                fontWeight: 600,
-                fontFamily: V2.fontSans,
-                cursor: paying ? 'not-allowed' : 'pointer',
-                opacity: paying ? 0.7 : 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-              }}
+              className="w-full h-[46px] bg-stone-950 text-white border-none rounded-full text-[15px] font-semibold cursor-pointer flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {paying && <Loader2 size={18} className="animate-spin" />}
               Pagar {fmt.format(successAmount ?? buyerTotal)}
             </button>
 
-            <div className="flex items-center justify-center gap-1" style={{ marginTop: -4 }}>
-              <Shield size={14} style={{ color: V2.stone }} />
-              <span style={{ fontSize: 12, color: V2.stone }}>Pago seguro con Stripe</span>
+            <div className="flex items-center justify-center gap-1 -mt-1">
+              <Shield size={14} className="text-stone-500" />
+              <span className="text-xs text-stone-500">Pago seguro con Stripe</span>
             </div>
           </div>
         )}
 
         {/* Section 4: Seller waiting state */}
         {isSeller && !depositPaid && !paymentSuccess && (
-          <div
-            style={{
-              background: V2.surface,
-              borderRadius: V2.radiusMd,
-              padding: 20,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 12,
-              textAlign: 'center',
-            }}
-          >
-            <Loader2 size={32} className="animate-spin" style={{ color: V2.green }} />
-            <p style={{ fontSize: 14, color: V2.stone, margin: 0 }}>
+          <div className="bg-stone-100 rounded-xl p-5 flex flex-col items-center gap-3 text-center">
+            <Loader2 size={32} className="animate-spin text-stone-950" />
+            <p className="text-sm text-stone-500 m-0">
               Esperando el pago del comprador...
             </p>
-            <p style={{ fontSize: 12, color: V2.stone, margin: 0 }}>
+            <p className="text-xs text-stone-500 m-0">
               Recibirás una notificación cuando el pago se procese
             </p>
           </div>
@@ -394,57 +294,24 @@ export default function B2BPaymentPage() {
 
         {/* Section 5: Payment received */}
         {(depositPaid || paymentSuccess) && (
-          <div
-            style={{
-              background: V2.greenLight,
-              border: `1px solid ${V2.greenBorder}`,
-              borderRadius: V2.radiusMd,
-              padding: 20,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 12,
-              textAlign: 'center',
-            }}
-          >
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: '50%',
-                background: V2.green,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Check size={24} style={{ color: V2.white }} />
+          <div className="bg-stone-100 border border-stone-300 rounded-xl p-5 flex flex-col items-center gap-3 text-center">
+            <div className="w-11 h-11 rounded-full bg-stone-950 flex items-center justify-center">
+              <Check size={24} className="text-white" />
             </div>
 
-            <p style={{ fontSize: 15, fontWeight: 600, color: V2.black, margin: 0 }}>
+            <p className="text-[15px] font-semibold text-stone-950 m-0">
               {paymentType === 'deposit' ? '✓ Anticipo recibido' : '✓ Pago recibido'} · {fmt.format(successAmount ?? buyerTotal)}
             </p>
 
             {paymentType === 'deposit' && (
-              <p style={{ fontSize: 12, color: V2.stone, margin: 0 }}>
+              <p className="text-xs text-stone-500 m-0">
                 Los fondos están retenidos hasta que subas la documentación de envío
               </p>
             )}
 
             <button
               onClick={() => navigate(`/b2b/tracking/${operationId}`)}
-              style={{
-                width: '100%',
-                height: 46,
-                background: V2.black,
-                color: V2.white,
-                border: 'none',
-                borderRadius: V2.radiusFull,
-                fontSize: 15,
-                fontWeight: 600,
-                fontFamily: V2.fontSans,
-                cursor: 'pointer',
-              }}
+              className="w-full h-[46px] bg-stone-950 text-white border-none rounded-full text-[15px] font-semibold cursor-pointer"
             >
               Ir al seguimiento →
             </button>
@@ -455,12 +322,12 @@ export default function B2BPaymentPage() {
   );
 }
 
-/* ── Tiny row helper ── */
+/* -- Tiny row helper -- */
 function Row({ label, value }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <span style={{ fontSize: 13, color: V2.stone }}>{label}</span>
-      <span style={{ fontSize: 13, color: V2.black }}>{value}</span>
+    <div className="flex justify-between items-center">
+      <span className="text-[13px] text-stone-500">{label}</span>
+      <span className="text-[13px] text-stone-950">{value}</span>
     </div>
   );
 }

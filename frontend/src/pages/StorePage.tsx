@@ -18,7 +18,6 @@ import { useStoreFollow } from '../features/products/hooks';
 import { useChatContext } from '../context/chat/ChatProvider';
 import SEO from '../components/SEO';
 
-const F = 'inherit';
 const normalizeEntityId = (v) => (v == null ? '' : String(v));
 
 export default function StorePage() {
@@ -148,14 +147,14 @@ export default function StorePage() {
   /* ── Loading ── */
   if (storeQuery.isLoading) {
     return (
-      <div aria-busy="true" aria-label="Cargando tienda" style={{ minHeight: '100vh', background: '#fafaf9',  }}>
-        <div style={{ width: '100%', aspectRatio: '3/1', background: '#f5f5f4' }} />
-        <div style={{ padding: '0 16px', marginTop: -40 }}>
-          <div className="skeleton-shimmer" style={{ width: 80, height: 80, borderRadius: '14px', border: '3px solid #ffffff' }} />
-          <div className="skeleton-shimmer" style={{ marginTop: 12, height: 18, width: '50%', borderRadius: 4 }} />
-          <div className="skeleton-shimmer" style={{ marginTop: 8, height: 14, width: '30%', borderRadius: 4 }} />
-          <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-            {[1,2,3].map(i => <div key={i} className="skeleton-shimmer" style={{ flex: 1, height: 40, borderRadius: '12px' }} />)}
+      <div aria-busy="true" aria-label="Cargando tienda" className="min-h-screen bg-stone-50">
+        <div className="w-full aspect-[3/1] bg-stone-100" />
+        <div className="px-4 -mt-10">
+          <div className="skeleton-shimmer w-20 h-20 rounded-[14px] border-[3px] border-white" />
+          <div className="skeleton-shimmer mt-3 h-[18px] w-1/2 rounded" />
+          <div className="skeleton-shimmer mt-2 h-3.5 w-[30%] rounded" />
+          <div className="mt-4 flex gap-2">
+            {[1,2,3].map(i => <div key={i} className="skeleton-shimmer flex-1 h-10 rounded-xl" />)}
           </div>
         </div>
       </div>
@@ -165,11 +164,11 @@ export default function StorePage() {
   /* ── Not found ── */
   if (!store) {
     return (
-      <div style={{ minHeight: '100vh', background: '#fafaf9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center',  }}>
-        <Store size={64} color="#78716c" strokeWidth={1.2} />
-        <p style={{ fontSize: 18, fontWeight: 600, color: '#0c0a09', marginTop: 16 }}>Tienda no encontrada</p>
-        <p style={{ fontSize: 14, color: '#78716c', marginTop: 4 }}>Esta tienda no existe o ha sido eliminada.</p>
-        <button onClick={() => navigate('/stores')} style={{ marginTop: 16, background: '#0c0a09', color: '#fff', border: 'none', borderRadius: '9999px', padding: '12px 24px', minHeight: 44, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-8 text-center">
+        <Store size={64} className="text-stone-500" strokeWidth={1.2} />
+        <p className="text-lg font-semibold text-stone-950 mt-4">Tienda no encontrada</p>
+        <p className="text-sm text-stone-500 mt-1">Esta tienda no existe o ha sido eliminada.</p>
+        <button onClick={() => navigate('/stores')} className="mt-4 bg-stone-950 text-white border-none rounded-full px-6 py-3 min-h-[44px] text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors">
           Explorar tiendas
         </button>
       </div>
@@ -177,7 +176,7 @@ export default function StorePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 80 }} className="max-w-[975px] mx-auto">
+    <div className="min-h-screen bg-stone-50 pb-20 max-w-[975px] mx-auto">
       <SEO
         title={`${store?.name || 'Tienda'} — Hispaloshop`}
         description={store?.tagline || store?.story?.slice(0, 160) || `Tienda de productos artesanales en Hispaloshop`}
@@ -200,69 +199,59 @@ export default function StorePage() {
       />
 
       {/* ── TopBar (over hero) ── */}
-      <div style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', height: 52,
-        paddingTop: 'env(safe-area-inset-top, 0px)',
-      }}>
-        <button type="button" onClick={() => navigate(-1)} style={pillBtnStyle} aria-label="Volver">
-          <ChevronLeft size={20} strokeWidth={2} color="#fff" />
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-[52px] pt-[env(safe-area-inset-top,0px)]">
+        <button type="button" onClick={() => navigate(-1)} className="w-11 h-11 rounded-full bg-black/35 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center" aria-label="Volver">
+          <ChevronLeft size={20} strokeWidth={2} className="text-white" />
         </button>
-        <span style={{ fontSize: 15, fontWeight: 600, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
+        <span className="text-[15px] font-semibold text-white drop-shadow-md">
           {store.name}
         </span>
-        <button type="button" onClick={handleShare} style={pillBtnStyle} aria-label="Compartir">
-          <Share2 size={18} strokeWidth={1.8} color="#fff" />
+        <button type="button" onClick={handleShare} className="w-11 h-11 rounded-full bg-black/35 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center" aria-label="Compartir">
+          <Share2 size={18} strokeWidth={1.8} className="text-white" />
         </button>
       </div>
 
       {/* ── Hero Banner 3:1 ── */}
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '3/1', background: 'linear-gradient(135deg, #1c1917 0%, #0c0a09 100%)' }}>
+      <div className="relative w-full aspect-[3/1] bg-gradient-to-br from-stone-900 to-stone-950">
         {store.hero_image && (
-          <img src={store.hero_image} alt={`Banner de ${store.name}`} loading="eager" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={store.hero_image} alt={`Banner de ${store.name}`} loading="eager" className="w-full h-full object-cover" />
         )}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
       </div>
 
       {/* ── Store Info ── */}
-      <div style={{ position: 'relative', padding: '0 16px', marginTop: -40 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14 }}>
+      <div className="relative px-4 -mt-10">
+        <div className="flex items-end gap-3.5">
           {/* Avatar — square rounded */}
-          <div style={{
-            width: 80, height: 80, borderRadius: '14px', overflow: 'hidden',
-            border: '3px solid #ffffff', background: '#f5f5f4',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-          }}>
+          <div className="w-20 h-20 rounded-[14px] overflow-hidden border-[3px] border-white bg-stone-100 flex items-center justify-center shrink-0 shadow-md">
             {store.logo ? (
-              <img src={store.logo} alt={store.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={store.logo} alt={store.name} className="w-full h-full object-cover" />
             ) : (
-              <Store size={28} color="#78716c" />
+              <Store size={28} className="text-stone-500" />
             )}
           </div>
 
           {/* Name + username */}
-          <div style={{ flex: 1, minWidth: 0, paddingBottom: 4 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div className="flex-1 min-w-0 pb-1">
+            <h1 className="text-xl font-bold text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap">
               {store.name}
             </h1>
             {store.username && (
-              <p style={{ fontSize: 13, color: '#78716c', margin: '2px 0 0' }}>@{store.username}</p>
+              <p className="text-[13px] text-stone-500 mt-0.5 m-0">@{store.username}</p>
             )}
           </div>
         </div>
 
         {/* Badges row */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+        <div className="flex flex-wrap gap-1.5 mt-2.5">
           {isVerified && (
-            <span style={badgeStyle('#0c0a09', '#fff')}><CheckCircle size={11} /> Verificado</span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-950 text-white"><CheckCircle size={11} /> Verificado</span>
           )}
           {storePlan && storePlan !== 'free' && (
-            <span style={badgeStyle('#f5f5f4', '#0c0a09')}>{storePlan.toUpperCase()}</span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-100 text-stone-950">{storePlan.toUpperCase()}</span>
           )}
           {store.country && (
-            <span style={badgeStyle('#f5f5f4', '#0c0a09')}>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-[3px] rounded-full bg-stone-100 text-stone-950">
               {store.country === 'ES' ? '🇪🇸' : store.country === 'FR' ? '🇫🇷' : '🌍'} {store.location || store.country}
             </span>
           )}
@@ -270,65 +259,52 @@ export default function StorePage() {
 
         {/* Description with Ver más */}
         {tagline && (
-          <p style={{ fontSize: 14, color: '#78716c', lineHeight: 1.5, marginTop: 10, ...(!descExpanded && showVerMas ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : {}) }}>
+          <p className={`text-sm text-stone-500 leading-relaxed mt-2.5 ${!descExpanded && showVerMas ? 'line-clamp-2' : ''}`}>
             {tagline}
           </p>
         )}
         {showVerMas && (
-          <button onClick={() => setDescExpanded(!descExpanded)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#0c0a09', padding: '4px 0', minHeight: 44, marginTop: 2,  }}>
+          <button onClick={() => setDescExpanded(!descExpanded)} className="bg-transparent border-none cursor-pointer text-[13px] font-semibold text-stone-950 py-1 px-0 min-h-[44px] mt-0.5">
             {descExpanded ? 'Ver menos' : 'Ver más'}
           </button>
         )}
 
         {/* Stats inline */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 12, fontSize: 14, fontWeight: 500, color: '#0c0a09' }}>
+        <div className="flex items-center gap-1 mt-3 text-sm font-medium text-stone-950">
           <span>{productTotal} productos</span>
-          <span style={{ color: '#78716c' }}>·</span>
+          <span className="text-stone-500">·</span>
           <span>{store.follower_count || 0} seguidores</span>
-          <span style={{ color: '#78716c' }}>·</span>
+          <span className="text-stone-500">·</span>
           <Star size={13} fill="#0c0a09" stroke="#0c0a09" />
           <span>{Number(avgRating || 0).toFixed(1)}</span>
         </div>
 
         {/* 3 Action buttons */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-          <button type="button" onClick={handleToggleFollow} disabled={followLoading} style={{
-            flex: 1, height: 44, borderRadius: '9999px',
-            fontSize: 13, fontWeight: 600,
-            border: isFollowing ? '1px solid #e7e5e4' : 'none',
-            background: isFollowing ? '#ffffff' : '#0c0a09',
-            color: isFollowing ? '#0c0a09' : '#fff',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          }}>
+        <div className="flex gap-2 mt-3.5">
+          <button type="button" onClick={handleToggleFollow} disabled={followLoading}
+            className={`flex-1 h-11 rounded-full text-[13px] font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${
+              isFollowing
+                ? 'border border-stone-200 bg-white text-stone-950'
+                : 'border-none bg-stone-950 text-white'
+            }`}>
             <Heart size={15} fill={isFollowing ? '#0c0a09' : 'none'} />
             {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
           </button>
-          <button type="button" onClick={handleChat} style={{
-            flex: 1, height: 44, borderRadius: '9999px',
-            fontSize: 13, fontWeight: 600,
-            border: '1px solid #e7e5e4', background: '#ffffff', color: '#0c0a09',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          }}>
+          <button type="button" onClick={handleChat}
+            className="flex-1 h-11 rounded-full text-[13px] font-semibold border border-stone-200 bg-white text-stone-950 cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
             <MessageCircle size={15} /> Mensaje
           </button>
-          <button type="button" onClick={handleShare} style={{
-            flex: 1, height: 44, borderRadius: '9999px',
-            fontSize: 13, fontWeight: 600,
-            border: '1px solid #e7e5e4', background: '#ffffff', color: '#0c0a09',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          }}>
+          <button type="button" onClick={handleShare}
+            className="flex-1 h-11 rounded-full text-[13px] font-semibold border border-stone-200 bg-white text-stone-950 cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
             <Share2 size={15} /> Compartir
           </button>
         </div>
 
         {/* Free shipping bar */}
         {(storePlan === 'pro' || storePlan === 'elite') && store.free_shipping_min && (
-          <div style={{
-            marginTop: 12, padding: '10px 14px', borderRadius: '12px',
-            background: '#f5f5f4', display: 'flex', alignItems: 'center', gap: 8,
-          }}>
-            <Truck size={16} color="#0c0a09" />
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#0c0a09' }}>
+          <div className="mt-3 px-3.5 py-2.5 rounded-xl bg-stone-100 flex items-center gap-2">
+            <Truck size={16} className="text-stone-950" />
+            <span className="text-[13px] font-medium text-stone-950">
               Envío gratis desde {convertAndFormatPrice(store.free_shipping_min, 'EUR')} en esta tienda
             </span>
           </div>
@@ -336,40 +312,38 @@ export default function StorePage() {
       </div>
 
       {/* ── Sticky Tab Bar ── */}
-      <div className="sticky top-0 z-40" style={{ background: '#fafaf9', borderBottom: '1px solid #e7e5e4', marginTop: 16 }}>
-        <div role="tablist" aria-label="Secciones de la tienda" style={{ display: 'flex', overflowX: 'auto', padding: '0 16px', scrollbarWidth: 'none' }}>
+      <div className="sticky top-0 z-40 bg-stone-50 border-b border-stone-200 mt-4">
+        <div role="tablist" aria-label="Secciones de la tienda" className="flex overflow-x-auto px-4 scrollbar-hide">
           {tabs.map((tab) => (
-            <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} style={{
-              padding: '12px 16px', whiteSpace: 'nowrap', minHeight: 44,
-              fontSize: 13, fontWeight: activeTab === tab.id ? 600 : 400,
-              color: activeTab === tab.id ? '#0c0a09' : '#78716c',
-              background: 'none', border: 'none', cursor: 'pointer',
-              borderBottom: activeTab === tab.id ? '2px solid #0c0a09' : '2px solid transparent',
-            }}>
+            <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-3 whitespace-nowrap min-h-[44px] text-[13px] bg-transparent border-none cursor-pointer border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'font-semibold text-stone-950 border-b-stone-950'
+                  : 'font-normal text-stone-500 border-b-transparent'
+              }`}>
               {tab.icon} {tab.label}
-              {tab.count !== null && <span style={{ marginLeft: 4, fontSize: 11 }}>{tab.count}</span>}
+              {tab.count !== null && <span className="ml-1 text-[11px]">{tab.count}</span>}
             </button>
           ))}
         </div>
       </div>
 
       {/* ── Tab Content ── */}
-      <div style={{ padding: '12px 16px 32px' }}>
+      <div className="px-4 pt-3 pb-8">
 
         {/* ════ TAB: PRODUCTOS ════ */}
         {activeTab === 'products' && (
           <>
             {/* Category filter pills */}
             {productCategories.length > 1 && (
-              <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12, paddingBottom: 4, scrollbarWidth: 'none' }}>
+              <div className="flex gap-2 overflow-x-auto mb-3 pb-1 scrollbar-hide">
                 {productCategories.map(cat => (
-                  <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
-                    flexShrink: 0, padding: '10px 14px', minHeight: 44, borderRadius: '9999px',
-                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                    border: categoryFilter === cat ? 'none' : '1px solid #e7e5e4',
-                    background: categoryFilter === cat ? '#0c0a09' : '#ffffff',
-                    color: categoryFilter === cat ? '#fff' : '#0c0a09',
-                  }}>
+                  <button key={cat} onClick={() => setCategoryFilter(cat)}
+                    className={`shrink-0 px-3.5 py-2.5 min-h-[44px] rounded-full text-xs font-semibold cursor-pointer transition-colors ${
+                      categoryFilter === cat
+                        ? 'border-none bg-stone-950 text-white'
+                        : 'border border-stone-200 bg-white text-stone-950'
+                    }`}>
                     {cat === 'all' ? 'Todo' : cat}
                   </button>
                 ))}
@@ -378,18 +352,13 @@ export default function StorePage() {
 
             {/* Inline search (if > 12 products) */}
             {allProducts.length > 12 && (
-              <div style={{ position: 'relative', marginBottom: 12 }}>
-                <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#78716c' }} />
+              <div className="relative mb-3">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
                 <input
                   value={productSearch} onChange={e => setProductSearch(e.target.value)}
                   placeholder="Buscar en esta tienda..."
                   aria-label="Buscar productos en esta tienda"
-                  style={{
-                    width: '100%', height: 44, paddingLeft: 36, paddingRight: 12,
-                    fontSize: 13, color: '#0c0a09',
-                    background: '#f5f5f4', border: 'none',
-                    borderRadius: '9999px', outline: 'none',
-                  }}
+                  className="w-full h-11 pl-9 pr-3 text-[13px] text-stone-950 bg-stone-100 border-none rounded-full outline-none"
                 />
               </div>
             )}
@@ -397,7 +366,7 @@ export default function StorePage() {
             {productsQuery.isLoading ? (
               <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="skeleton-shimmer rounded-2xl" style={{ aspectRatio: '4/5' }} />
+                  <div key={i} className="skeleton-shimmer rounded-2xl aspect-[4/5]" />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (
@@ -421,20 +390,16 @@ export default function StorePage() {
               {recipes.map((recipe) => (
                 <button key={recipe.post_id || recipe.id || recipe.recipe_id} type="button"
                   onClick={() => navigate(`/recipes/${recipe.recipe_id || recipe.post_id || recipe.id}`)}
-                  style={{
-                    display: 'block', width: '100%', overflow: 'hidden',
-                    background: '#ffffff', border: '1px solid #e7e5e4',
-                    borderRadius: '14px', cursor: 'pointer', padding: 0, textAlign: 'left',
-                  }}
+                  className="block w-full overflow-hidden bg-white border border-stone-200 rounded-[14px] cursor-pointer p-0 text-left"
                 >
                   {recipe.image_url && (
-                    <img src={recipe.image_url} alt="" loading="lazy" style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover' }} />
+                    <img src={recipe.image_url} alt="" loading="lazy" className="w-full aspect-[4/3] object-cover" />
                   )}
-                  <div style={{ padding: 10 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <div className="p-2.5">
+                    <p className="text-[13px] font-semibold text-stone-950 m-0 line-clamp-2">
                       {recipe.title || recipe.caption || 'Receta'}
                     </p>
-                    <div style={{ display: 'flex', gap: 8, marginTop: 6, fontSize: 11, color: '#78716c',  }}>
+                    <div className="flex gap-2 mt-1.5 text-[11px] text-stone-500">
                       {recipe.prep_time && <span>⏱ {recipe.prep_time} min</span>}
                       {recipe.difficulty && <span>📊 {recipe.difficulty}</span>}
                     </div>
@@ -454,14 +419,11 @@ export default function StorePage() {
           ) : reviews.length > 0 ? (
             <div>
               {/* Rating summary card */}
-              <div style={{
-                background: '#f5f5f4', borderRadius: '14px',
-                padding: 20, marginBottom: 16, textAlign: 'center',
-              }}>
-                <p style={{ fontSize: 48, fontWeight: 700, color: '#0c0a09', margin: 0, lineHeight: 1 }}>
+              <div className="bg-stone-100 rounded-[14px] p-5 mb-4 text-center">
+                <p className="text-5xl font-bold text-stone-950 m-0 leading-none">
                   {Number(avgRating || 0).toFixed(1)}
                 </p>
-                <div role="img" aria-label={`Valoración: ${Number(avgRating || 0).toFixed(1)} de 5 estrellas`} style={{ display: 'flex', gap: 3, justifyContent: 'center', marginTop: 8 }}>
+                <div role="img" aria-label={`Valoración: ${Number(avgRating || 0).toFixed(1)} de 5 estrellas`} className="flex gap-[3px] justify-center mt-2">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star key={i} size={18} aria-hidden="true"
                       fill={i < Math.round(avgRating || 0) ? '#0c0a09' : '#e7e5e4'}
@@ -469,22 +431,22 @@ export default function StorePage() {
                     />
                   ))}
                 </div>
-                <p style={{ fontSize: 13, color: '#78716c', marginTop: 6 }}>
+                <p className="text-[13px] text-stone-500 mt-1.5">
                   {reviewsTotal} reseñas verificadas
                 </p>
 
                 {/* Distribution bars */}
-                <div style={{ marginTop: 16, maxWidth: 280, margin: '16px auto 0' }}>
+                <div className="mt-4 max-w-[280px] mx-auto">
                   {[5, 4, 3, 2, 1].map(star => {
                     const count = reviews.filter(r => r.rating === star).length;
                     const pct = reviewsTotal > 0 ? (count / reviewsTotal) * 100 : 0;
                     return (
-                      <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 12, color: '#78716c', width: 16, textAlign: 'right' }}>{star}★</span>
-                        <div style={{ flex: 1, height: 8, borderRadius: 4, background: '#e7e5e4', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', borderRadius: 4, background: '#0c0a09', width: `${pct}%`, transition: 'width 0.5s' }} />
+                      <div key={star} className="flex items-center gap-2 mb-1">
+                        <span className="text-xs text-stone-500 w-4 text-right">{star}★</span>
+                        <div className="flex-1 h-2 rounded bg-stone-200 overflow-hidden">
+                          <div className="h-full rounded bg-stone-950 transition-[width] duration-500" style={{ width: `${pct}%` }} />
                         </div>
-                        <span style={{ fontSize: 11, color: '#78716c', width: 30, textAlign: 'right' }}>
+                        <span className="text-[11px] text-stone-500 w-[30px] text-right">
                           {Math.round(pct)}%
                         </span>
                       </div>
@@ -494,21 +456,18 @@ export default function StorePage() {
               </div>
 
               {/* Review list */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="flex flex-col gap-3">
                 {reviews.map((review, idx) => (
-                  <div key={review.review_id || idx} style={{
-                    background: '#ffffff', borderRadius: '12px',
-                    border: '1px solid #e7e5e4', padding: 14,
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f5f5f4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <User size={16} color="#78716c" />
+                  <div key={review.review_id || idx} className="bg-white rounded-xl border border-stone-200 p-3.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-9 h-9 rounded-full bg-stone-100 flex items-center justify-center">
+                        <User size={16} className="text-stone-500" />
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0 }}>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold text-stone-950 m-0">
                           {review.user_name || review.username || 'Anónimo'}
                         </p>
-                        <div role="img" aria-label={`${review.rating || 0} de 5 estrellas`} style={{ display: 'flex', alignItems: 'center', gap: 2, marginTop: 2 }}>
+                        <div role="img" aria-label={`${review.rating || 0} de 5 estrellas`} className="flex items-center gap-0.5 mt-0.5">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star key={i} size={11} aria-hidden="true"
                               fill={i < (review.rating || 0) ? '#0c0a09' : '#e7e5e4'}
@@ -518,25 +477,25 @@ export default function StorePage() {
                         </div>
                       </div>
                       {review.created_at && (
-                        <span style={{ fontSize: 11, color: '#78716c',  }}>
+                        <span className="text-[11px] text-stone-500">
                           {new Date(review.created_at).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
                         </span>
                       )}
                     </div>
                     {(review.comment || review.text) && (
-                      <p style={{ fontSize: 13, color: '#78716c', lineHeight: 1.5, marginTop: 10 }}>
+                      <p className="text-[13px] text-stone-500 leading-relaxed mt-2.5">
                         {review.comment || review.text}
                       </p>
                     )}
                     {review.product_name && (
-                      <span style={{ display: 'inline-block', marginTop: 8, fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: '9999px', background: '#f5f5f4', color: '#78716c',  }}>
+                      <span className="inline-block mt-2 text-[11px] font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">
                         {review.product_name}
                       </span>
                     )}
                     {review.seller_reply && (
-                      <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: '12px', background: '#f5f5f4', borderLeft: '2px solid #e7e5e4' }}>
-                        <p style={{ fontSize: 11, fontWeight: 600, color: '#78716c', marginBottom: 4 }}>Respuesta del vendedor</p>
-                        <p style={{ fontSize: 13, color: '#78716c',  }}>{review.seller_reply}</p>
+                      <div className="mt-2.5 p-2 px-3 rounded-xl bg-stone-100 border-l-2 border-stone-200">
+                        <p className="text-[11px] font-semibold text-stone-500 mb-1">Respuesta del vendedor</p>
+                        <p className="text-[13px] text-stone-500">{review.seller_reply}</p>
                       </div>
                     )}
                   </div>
@@ -550,23 +509,19 @@ export default function StorePage() {
 
         {/* ════ TAB: SOBRE NOSOTROS ════ */}
         {activeTab === 'about' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div className="flex flex-col gap-6">
             {/* Story */}
             {(store.long_description || store.story || store.tagline) && (
               <div>
                 <SectionTitle>NUESTRA HISTORIA</SectionTitle>
-                <p style={{ fontSize: 15, lineHeight: 1.7, color: '#78716c', whiteSpace: 'pre-line' }}>
+                <p className="text-[15px] leading-[1.7] text-stone-500 whitespace-pre-line">
                   {store.long_description || store.story || store.tagline}
                 </p>
               </div>
             )}
 
             {store.founder_quote && (
-              <blockquote style={{
-                background: '#f5f5f4', borderRadius: '12px',
-                padding: 16, fontSize: 14, lineHeight: 1.6,
-                color: '#0c0a09', fontStyle: 'italic',
-              }}>
+              <blockquote className="bg-stone-100 rounded-xl p-4 text-sm leading-relaxed text-stone-950 italic">
                 &ldquo;{store.founder_quote}&rdquo;
               </blockquote>
             )}
@@ -574,22 +529,22 @@ export default function StorePage() {
             {/* Contact info */}
             <div>
               <SectionTitle>CONTACTO</SectionTitle>
-              <div style={{ background: '#f5f5f4', borderRadius: '12px', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="bg-stone-100 rounded-xl p-4 flex flex-col gap-3">
                 {store.location && (
                   <InfoRow icon={<MapPin size={16} />} text={store.location} />
                 )}
                 {store.contact_email && (
-                  <a href={`mailto:${store.contact_email}`} style={{ textDecoration: 'none' }}>
+                  <a href={`mailto:${store.contact_email}`} className="no-underline">
                     <InfoRow icon={<Mail size={16} />} text={store.contact_email} />
                   </a>
                 )}
                 {store.website && (
-                  <a href={store.website.startsWith('http') ? store.website : `https://${store.website}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                    <InfoRow icon={<Globe size={16} />} text={store.website} extra={<ExternalLink size={12} color="#78716c" />} />
+                  <a href={store.website.startsWith('http') ? store.website : `https://${store.website}`} target="_blank" rel="noopener noreferrer" className="no-underline">
+                    <InfoRow icon={<Globe size={16} />} text={store.website} extra={<ExternalLink size={12} className="text-stone-500" />} />
                   </a>
                 )}
                 {store.contact_phone && (
-                  <a href={`tel:${store.contact_phone}`} style={{ textDecoration: 'none' }}>
+                  <a href={`tel:${store.contact_phone}`} className="no-underline">
                     <InfoRow icon={<Phone size={16} />} text={store.contact_phone} />
                   </a>
                 )}
@@ -600,14 +555,9 @@ export default function StorePage() {
             {certificates.length > 0 && (
               <div>
                 <SectionTitle>CERTIFICACIONES</SectionTitle>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                <div className="flex flex-wrap gap-1.5">
                   {certificates.map((cert, i) => (
-                    <span key={i} style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 4,
-                      fontSize: 12, fontWeight: 500, padding: '4px 12px',
-                      borderRadius: '9999px',
-                      background: '#f5f5f4', color: '#0c0a09',
-                    }}>
+                    <span key={i} className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full bg-stone-100 text-stone-950">
                       <Award size={13} /> {cert.certificate_type || cert.product_name || 'Certificado'}
                     </span>
                   ))}
@@ -617,7 +567,7 @@ export default function StorePage() {
 
             {/* Member since */}
             {store.created_at && (
-              <p style={{ fontSize: 13, color: '#78716c',  }}>
+              <p className="text-[13px] text-stone-500">
                 Miembro desde {new Date(store.created_at).getFullYear()}
               </p>
             )}
@@ -626,10 +576,10 @@ export default function StorePage() {
             {store.process_photos?.length > 0 && (
               <div>
                 <SectionTitle>NUESTRO PROCESO</SectionTitle>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                <div className="grid grid-cols-2 gap-1.5">
                   {store.process_photos.map((photo, i) => (
                     <img key={i} src={photo} alt={`Proceso ${i + 1}`} loading="lazy"
-                      style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: '12px' }} />
+                      className="w-full aspect-[4/3] object-cover rounded-xl" />
                   ))}
                 </div>
               </div>
@@ -668,28 +618,9 @@ export default function StorePage() {
 
 /* ── Helpers ── */
 
-const pillBtnStyle = {
-  width: 44, height: 44, borderRadius: '50%',
-  background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)',
-  border: 'none', cursor: 'pointer',
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-};
-
-function badgeStyle(bg, color) {
-  return {
-    display: 'inline-flex', alignItems: 'center', gap: 4,
-    fontSize: 11, fontWeight: 600, padding: '3px 10px',
-    borderRadius: '9999px', fontFamily: 'inherit',
-    background: bg, color,
-  };
-}
-
 function SectionTitle({ children }) {
   return (
-    <p style={{
-      fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em',
-      color: '#78716c', fontFamily: 'inherit', margin: '0 0 10px',
-    }}>
+    <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-500 mb-2.5 m-0">
       {children}
     </p>
   );
@@ -697,8 +628,8 @@ function SectionTitle({ children }) {
 
 function InfoRow({ icon, text, extra }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#78716c', fontFamily: 'inherit' }}>
-      <span style={{ color: '#78716c', display: 'flex' }}>{icon}</span>
+    <div className="flex items-center gap-2 text-[13px] text-stone-500">
+      <span className="text-stone-500 flex">{icon}</span>
       <span>{text}</span>
       {extra}
     </div>
@@ -707,16 +638,16 @@ function InfoRow({ icon, text, extra }) {
 
 function EmptyState({ text }) {
   return (
-    <div style={{ textAlign: 'center', padding: '48px 16px', background: '#ffffff', borderRadius: '12px', border: '1px solid #e7e5e4' }}>
-      <p style={{ fontSize: 14, color: '#78716c', fontFamily: 'inherit' }}>{text}</p>
+    <div className="text-center py-12 px-4 bg-white rounded-xl border border-stone-200">
+      <p className="text-sm text-stone-500">{text}</p>
     </div>
   );
 }
 
 function LoadingSpinner() {
   return (
-    <div style={{ textAlign: 'center', padding: '48px 0' }}>
-      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2" style={{ borderColor: '#e7e5e4', borderTopColor: '#0c0a09' }} />
+    <div className="text-center py-12">
+      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
     </div>
   );
 }

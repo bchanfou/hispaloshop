@@ -6,35 +6,6 @@ import { ArrowLeft, AlertTriangle, Upload, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 
-// V2 Design Tokens
-const V2 = {
-  black: '#0A0A0A',
-  cream: '#ffffff',
-  stone: '#8A8881',
-  white: '#FFFFFF',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  green: '#0c0a09',
-  greenLight: '#f5f5f4',
-  amber: '#78716c',
-  amberLight: '#fafaf9',
-  red: '#dc2626',
-  redLight: '#fef2f2',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-  radiusFull: 9999,
-};
-
-const LABEL_STYLE = {
-  fontSize: 10,
-  textTransform: 'uppercase',
-  color: V2.stone,
-  fontWeight: 600,
-  letterSpacing: 1,
-  fontFamily: V2.fontSans,
-  marginBottom: 8,
-};
-
 const REASONS = [
   'Producto no recibido',
   'Producto diferente',
@@ -106,89 +77,54 @@ export default function B2BDisputePage() {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex flex-col"
-      style={{ background: V2.cream, fontFamily: V2.fontSans }}
-    >
+    <div className="fixed inset-0 flex flex-col bg-white font-sans">
       {/* TopBar */}
-      <div
-        className="flex items-center gap-3 px-4 shrink-0"
-        style={{
-          height: 56,
-          borderBottom: `1px solid ${V2.border}`,
-          background: V2.white,
-        }}
-      >
+      <div className="flex items-center gap-3 px-4 shrink-0 h-14 border-b border-stone-200 bg-white">
         <button
           onClick={() => navigate(-1)}
-          style={{ color: V2.black, background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          className="text-stone-950 bg-transparent border-none cursor-pointer p-1"
         >
           <ArrowLeft size={22} />
         </button>
-        <div style={{ fontSize: 15, fontWeight: 600, color: V2.black }}>
+        <div className="text-[15px] font-semibold text-stone-950">
           Abrir disputa · #HSP-B2B-{last8}
         </div>
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-4 py-5" style={{ paddingBottom: 100 }}>
+      <div className="flex-1 overflow-y-auto px-4 py-5 pb-[100px]">
         {/* Warning card */}
-        <div
-          style={{
-            background: V2.amberLight,
-            border: `1px solid rgba(120,113,108, 0.3)`,
-            borderRadius: V2.radiusMd,
-            padding: 16,
-            marginBottom: 24,
-          }}
-        >
-          <div className="flex items-start gap-3" style={{ marginBottom: 10 }}>
-            <AlertTriangle size={20} style={{ color: V2.amber, flexShrink: 0, marginTop: 1 }} />
-            <span style={{ fontSize: 13, color: V2.black, lineHeight: 1.4 }}>
+        <div className="bg-stone-50 border border-stone-300/30 rounded-xl p-4 mb-6">
+          <div className="flex items-start gap-3 mb-2.5">
+            <AlertTriangle size={20} className="text-stone-500 flex-shrink-0 mt-px" />
+            <span className="text-[13px] text-stone-950 leading-[1.4]">
               Antes de abrir una disputa, te recomendamos hablar con la otra parte en el chat.
             </span>
           </div>
           <button
             onClick={() => navigate(-1)}
-            style={{
-              background: V2.white,
-              border: `1px solid ${V2.border}`,
-              borderRadius: V2.radiusFull,
-              fontSize: 13,
-              padding: '6px 14px',
-              cursor: 'pointer',
-              color: V2.black,
-              marginBottom: 8,
-              fontFamily: V2.fontSans,
-            }}
+            className="bg-white border border-stone-200 rounded-full text-[13px] px-3.5 py-1.5 cursor-pointer text-stone-950 mb-2"
           >
             Ir al chat &rarr;
           </button>
-          <div style={{ fontSize: 11, color: V2.stone, lineHeight: 1.4 }}>
+          <div className="text-[11px] text-stone-500 leading-[1.4]">
             Si no llegáis a un acuerdo, el admin de Hispaloshop revisará el caso en 72h.
           </div>
         </div>
 
         {/* Reason selector */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={LABEL_STYLE}>MOTIVO</div>
+        <div className="mb-6">
+          <div className="text-[10px] uppercase text-stone-500 font-semibold tracking-wider mb-2">MOTIVO</div>
           <div className="grid grid-cols-2 gap-2">
             {REASONS.map((r) => (
               <button
                 key={r}
                 onClick={() => setReason(r)}
-                className="flex items-center justify-center"
-                style={{
-                  height: 36,
-                  background: reason === r ? V2.black : V2.white,
-                  color: reason === r ? V2.white : V2.black,
-                  border: `1px solid ${reason === r ? V2.black : V2.border}`,
-                  borderRadius: V2.radiusFull,
-                  fontSize: 12,
-                  cursor: 'pointer',
-                  fontFamily: V2.fontSans,
-                  transition: 'all 0.15s',
-                }}
+                className={`flex items-center justify-center h-9 rounded-full text-xs cursor-pointer transition-all duration-150 border ${
+                  reason === r
+                    ? 'bg-stone-950 text-white border-stone-950'
+                    : 'bg-white text-stone-950 border-stone-200'
+                }`}
               >
                 {r}
               </button>
@@ -197,58 +133,31 @@ export default function B2BDisputePage() {
         </div>
 
         {/* Description */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={LABEL_STYLE}>DESCRIPCIÓN</div>
+        <div className="mb-6">
+          <div className="text-[10px] uppercase text-stone-500 font-semibold tracking-wider mb-2">DESCRIPCIÓN</div>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe detalladamente el problema (mínimo 50 caracteres)..."
-            style={{
-              width: '100%',
-              minHeight: 120,
-              border: `1px solid ${V2.border}`,
-              borderRadius: V2.radiusMd,
-              padding: 12,
-              fontSize: 14,
-              fontFamily: V2.fontSans,
-              resize: 'vertical',
-              outline: 'none',
-              background: V2.white,
-              color: V2.black,
-              boxSizing: 'border-box',
-            }}
+            className="w-full min-h-[120px] border border-stone-200 rounded-xl p-3 text-sm resize-y outline-none bg-white text-stone-950 box-border"
           />
-          <div
-            style={{
-              fontSize: 10,
-              color: description.length < 50 ? V2.red : V2.stone,
-              marginTop: 4,
-              fontFamily: V2.fontSans,
-            }}
-          >
+          <div className={`text-[10px] mt-1 ${description.length < 50 ? 'text-red-600' : 'text-stone-500'}`}>
             {description.length}/50 mínimo
           </div>
         </div>
 
         {/* Evidence upload */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={LABEL_STYLE}>EVIDENCIAS (OPCIONAL)</div>
+        <div className="mb-6">
+          <div className="text-[10px] uppercase text-stone-500 font-semibold tracking-wider mb-2">EVIDENCIAS (OPCIONAL)</div>
           <div
             onClick={() => fileInputRef.current?.click()}
-            style={{
-              border: `2px dashed ${V2.border}`,
-              borderRadius: V2.radiusMd,
-              padding: 16,
-              textAlign: 'center',
-              cursor: 'pointer',
-              background: V2.white,
-            }}
+            className="border-2 border-dashed border-stone-200 rounded-xl p-4 text-center cursor-pointer bg-white"
           >
-            <Upload size={24} style={{ color: V2.stone, margin: '0 auto 6px' }} />
-            <div style={{ fontSize: 13, color: V2.black, marginBottom: 2 }}>
+            <Upload size={24} className="text-stone-500 mx-auto mb-1.5" />
+            <div className="text-[13px] text-stone-950 mb-0.5">
               Arrastra o pulsa para subir
             </div>
-            <div style={{ fontSize: 11, color: V2.stone }}>
+            <div className="text-[11px] text-stone-500">
               Máx. 5 archivos, 10MB cada uno
             </div>
           </div>
@@ -258,57 +167,31 @@ export default function B2BDisputePage() {
             multiple
             accept="image/*,.pdf"
             onChange={handleFileChange}
-            style={{ display: 'none' }}
+            className="hidden"
           />
 
           {/* Preview grid */}
           {files.length > 0 && (
-            <div className="flex flex-wrap gap-2" style={{ marginTop: 10 }}>
+            <div className="flex flex-wrap gap-2 mt-2.5">
               {files.map((file, idx) => (
                 <div
                   key={idx}
-                  style={{
-                    position: 'relative',
-                    width: 60,
-                    height: 60,
-                    borderRadius: 8,
-                    overflow: 'hidden',
-                    border: `1px solid ${V2.border}`,
-                    background: V2.surface,
-                  }}
+                  className="relative w-[60px] h-[60px] rounded-lg overflow-hidden border border-stone-200 bg-stone-100"
                 >
                   {file.type.startsWith('image/') ? (
                     <img
                       src={URL.createObjectURL(file)}
                       alt=""
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div
-                      className="flex items-center justify-center"
-                      style={{ width: '100%', height: '100%', fontSize: 9, color: V2.stone }}
-                    >
+                    <div className="flex items-center justify-center w-full h-full text-[9px] text-stone-500">
                       PDF
                     </div>
                   )}
                   <button
                     onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
-                    style={{
-                      position: 'absolute',
-                      top: 2,
-                      right: 2,
-                      width: 18,
-                      height: 18,
-                      borderRadius: '50%',
-                      background: V2.black,
-                      color: V2.white,
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: 0,
-                    }}
+                    className="absolute top-0.5 right-0.5 w-[18px] h-[18px] rounded-full bg-stone-950 text-white border-none cursor-pointer flex items-center justify-center p-0"
                   >
                     <X size={10} />
                   </button>
@@ -320,30 +203,15 @@ export default function B2BDisputePage() {
       </div>
 
       {/* Submit button */}
-      <div
-        className="shrink-0 px-4 pb-5 pt-3"
-        style={{ background: V2.cream, borderTop: `1px solid ${V2.border}` }}
-      >
+      <div className="shrink-0 px-4 pb-5 pt-3 bg-white border-t border-stone-200">
         <button
           onClick={handleSubmit}
           disabled={!isValid || loading}
-          style={{
-            width: '100%',
-            height: 44,
-            borderRadius: V2.radiusFull,
-            background: isValid && !loading ? V2.red : V2.border,
-            color: isValid && !loading ? V2.white : V2.stone,
-            border: 'none',
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: isValid && !loading ? 'pointer' : 'not-allowed',
-            fontFamily: V2.fontSans,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            transition: 'all 0.15s',
-          }}
+          className={`w-full h-11 rounded-full border-none text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-150 ${
+            isValid && !loading
+              ? 'bg-red-600 text-white cursor-pointer'
+              : 'bg-stone-200 text-stone-500 cursor-not-allowed'
+          }`}
         >
           {loading ? (
             <>
@@ -360,16 +228,14 @@ export default function B2BDisputePage() {
       <AnimatePresence>
         {showConfirm && (
           <motion.div
-            className="fixed inset-0 flex items-center justify-center px-6"
-            style={{ zIndex: 100 }}
+            className="fixed inset-0 flex items-center justify-center px-6 z-[100]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             {/* Backdrop */}
             <motion.div
-              className="fixed inset-0"
-              style={{ background: 'rgba(0,0,0,0.5)' }}
+              className="fixed inset-0 bg-black/50"
               onClick={() => setShowConfirm(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -378,78 +244,30 @@ export default function B2BDisputePage() {
 
             {/* Modal card */}
             <motion.div
-              style={{
-                background: V2.white,
-                borderRadius: 16,
-                padding: 24,
-                maxWidth: 340,
-                width: '100%',
-                position: 'relative',
-                zIndex: 101,
-              }}
+              className="bg-white rounded-2xl p-6 max-w-[340px] w-full relative z-[101]"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
             >
-              <div className="flex justify-center" style={{ marginBottom: 12 }}>
-                <AlertTriangle size={32} style={{ color: V2.red }} />
+              <div className="flex justify-center mb-3">
+                <AlertTriangle size={32} className="text-red-600" />
               </div>
-              <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: 600,
-                  textAlign: 'center',
-                  color: V2.black,
-                  marginBottom: 8,
-                  fontFamily: V2.fontSans,
-                }}
-              >
+              <div className="text-[15px] font-semibold text-center text-stone-950 mb-2">
                 ¿Confirmas que quieres abrir una disputa formal?
               </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: V2.stone,
-                  textAlign: 'center',
-                  marginBottom: 20,
-                  lineHeight: 1.4,
-                  fontFamily: V2.fontSans,
-                }}
-              >
+              <div className="text-[13px] text-stone-500 text-center mb-5 leading-[1.4]">
                 Esta acción notificará al admin de Hispaloshop y puede afectar a la reputación de la otra parte.
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowConfirm(false)}
-                  style={{
-                    flex: 1,
-                    height: 44,
-                    borderRadius: V2.radiusFull,
-                    background: V2.white,
-                    color: V2.black,
-                    border: `1px solid ${V2.border}`,
-                    fontSize: 14,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    fontFamily: V2.fontSans,
-                  }}
+                  className="flex-1 h-11 rounded-full bg-white text-stone-950 border border-stone-200 text-sm font-medium cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleConfirm}
-                  style={{
-                    flex: 1,
-                    height: 44,
-                    borderRadius: V2.radiusFull,
-                    background: V2.red,
-                    color: V2.white,
-                    border: 'none',
-                    fontSize: 14,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    fontFamily: V2.fontSans,
-                  }}
+                  className="flex-1 h-11 rounded-full bg-red-600 text-white border-none text-sm font-medium cursor-pointer"
                 >
                   Confirmar
                 </button>

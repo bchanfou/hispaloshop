@@ -25,7 +25,7 @@ const renderTextWithHashtags = (text) => {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} style={{ color: '#0c0a09', fontWeight: 600 }}>{part}</span>
+      <span key={i} className="text-stone-950 font-semibold">{part}</span>
     ) : part
   );
 };
@@ -82,38 +82,22 @@ export default function CommunityPage() {
     }
   }, [communityId, queryClient]);
 
-  const font = { fontFamily: 'inherit' };
-
   if (isError) {
     return (
-      <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
-        <div style={{
-          position: 'sticky', top: 0, zIndex: 40,
-          background: '#ffffff',
-          borderBottom: '1px solid #e7e5e4',
-          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-        }}>
+      <div className="min-h-screen bg-stone-50">
+        <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
           <button onClick={() => navigate(-1)}
             aria-label="Volver"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowLeft size={22} color="#0c0a09" />
+            className="bg-transparent border-none cursor-pointer p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
+            <ArrowLeft size={22} className="text-stone-950" />
           </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Comunidad</span>
+          <span className="text-[17px] font-bold text-stone-950">Comunidad</span>
         </div>
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: 12, padding: '60px 16px',
-        }}>
-          <Users size={56} color="#78716c" strokeWidth={1} />
-          <p style={{ fontSize: 15, color: '#78716c' }}>Error al cargar la comunidad</p>
+        <div className="flex flex-col items-center justify-center gap-3 px-4 py-[60px]">
+          <Users size={56} className="text-stone-500" strokeWidth={1} />
+          <p className="text-[15px] text-stone-500">Error al cargar la comunidad</p>
           <button onClick={() => refetch()}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              padding: '10px 24px', background: '#ffffff',
-              color: '#0c0a09', borderRadius: '9999px',
-              border: '1px solid #e7e5e4',
-              fontSize: 14, fontWeight: 600, cursor: 'pointer',
-            }}
+            className="flex items-center gap-2 px-6 py-2.5 bg-white text-stone-950 rounded-full border border-stone-200 text-sm font-semibold cursor-pointer"
             aria-label="Reintentar carga">
             <RefreshCw size={14} /> Reintentar
           </button>
@@ -124,21 +108,16 @@ export default function CommunityPage() {
 
   if (isLoading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
-        <div style={{
-          position: 'sticky', top: 0, zIndex: 40,
-          background: '#ffffff',
-          borderBottom: '1px solid #e7e5e4',
-          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-        }}>
+      <div className="min-h-screen bg-stone-50">
+        <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
           <button onClick={() => navigate(-1)}
             aria-label="Volver"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowLeft size={22} color="#0c0a09" />
+            className="bg-transparent border-none cursor-pointer p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
+            <ArrowLeft size={22} className="text-stone-950" />
           </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Comunidad</span>
+          <span className="text-[17px] font-bold text-stone-950">Comunidad</span>
         </div>
-        <div style={{ padding: '0 16px' }} aria-busy="true" aria-label="Cargando comunidad">
+        <div className="px-4" aria-busy="true" aria-label="Cargando comunidad">
           {/* Cover skeleton */}
           <div className="mt-4 h-40 w-full animate-pulse rounded-2xl bg-stone-100" />
           {/* Title + meta skeleton */}
@@ -171,31 +150,19 @@ export default function CommunityPage() {
 
   if (!community) {
     return (
-      <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
-        <div style={{
-          position: 'sticky', top: 0, zIndex: 40,
-          background: '#ffffff',
-          borderBottom: '1px solid #e7e5e4',
-          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-        }}>
+      <div className="min-h-screen bg-stone-50">
+        <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
           <button onClick={() => navigate(-1)}
             aria-label="Volver"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ArrowLeft size={22} color="#0c0a09" />
+            className="bg-transparent border-none cursor-pointer p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
+            <ArrowLeft size={22} className="text-stone-950" />
           </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Comunidad</span>
+          <span className="text-[17px] font-bold text-stone-950">Comunidad</span>
         </div>
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: 12, padding: '60px 16px',
-        }}>
-          <Users size={56} color="#78716c" strokeWidth={1} />
-          <p style={{ fontSize: 15, color: '#78716c' }}>Comunidad no encontrada</p>
-          <Link to="/communities" style={{
-            padding: '10px 24px', background: '#0c0a09',
-            color: '#ffffff', borderRadius: '9999px',
-            fontSize: 14, fontWeight: 600, textDecoration: 'none',
-          }}>
+        <div className="flex flex-col items-center justify-center gap-3 px-4 py-[60px]">
+          <Users size={56} className="text-stone-500" strokeWidth={1} />
+          <p className="text-[15px] text-stone-500">Comunidad no encontrada</p>
+          <Link to="/communities" className="px-6 py-2.5 bg-stone-950 text-white rounded-full text-sm font-semibold no-underline">
             Volver a comunidades
           </Link>
         </div>
@@ -207,29 +174,21 @@ export default function CommunityPage() {
   const isAdmin = community.is_admin || user?.id === community.creator_id;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 100, ...font }} className="max-w-[975px] mx-auto">
+    <div className="min-h-screen bg-stone-50 pb-[100px] max-w-[975px] mx-auto">
       {/* ── Topbar ── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: '#ffffff',
-        borderBottom: '1px solid #e7e5e4',
-        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-      }}>
+      <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
         <button onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          className="bg-transparent border-none cursor-pointer p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Volver">
-          <ArrowLeft size={22} color="#0c0a09" />
+          <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span style={{
-          fontSize: 17, fontWeight: 700, color: '#0c0a09', flex: 1,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
+        <span className="text-[17px] font-bold text-stone-950 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
           {community.name}
         </span>
         {isAdmin && (
           <Link to={`/communities/${slug}/settings`}
             aria-label="Configuración"
-            style={{ display: 'flex', padding: 10, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', color: '#78716c' }}>
+            className="flex p-2.5 min-w-[44px] min-h-[44px] items-center justify-center text-stone-500">
             <Settings size={20} />
           </Link>
         )}
@@ -251,7 +210,7 @@ export default function CommunityPage() {
           )}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/50 to-transparent" />
           <div className="absolute bottom-3 left-4 right-4">
-            <h1 className="text-xl font-bold text-white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+            <h1 className="text-xl font-bold text-white drop-shadow-md">
               {community.name}
             </h1>
             <p className="mt-0.5 text-[13px] text-white/85">
@@ -289,15 +248,14 @@ export default function CommunityPage() {
               tab === t.id
                 ? 'border-stone-950 font-semibold text-stone-950'
                 : 'border-transparent text-stone-500'
-            }`}
-            style={{ fontFamily: 'inherit' }}>
+            }`}>
             {t.label}
           </button>
         ))}
       </div>
 
       {/* ── Tab content ── */}
-      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+      <div className="max-w-[600px] mx-auto">
         {tab === 'feed' && (
           <CommunityFeed communityId={community.id || community._id} isMember={isMember} isAdmin={isAdmin} />
         )}
@@ -317,21 +275,11 @@ export default function CommunityPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.25 }}
-            style={{ position: 'fixed', top: 110, left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}
+            className="fixed top-[110px] left-1/2 -translate-x-1/2 z-50"
           >
             <button
               onClick={handleNewPostsPill}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '10px 20px',
-                background: '#0c0a09', color: '#ffffff',
-                borderRadius: '9999px',
-                border: 'none', cursor: 'pointer',
-                fontSize: 13, fontWeight: 600,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
-                fontFamily: 'inherit',
-                whiteSpace: 'nowrap',
-              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-stone-950 text-white rounded-full border-none cursor-pointer text-[13px] font-semibold shadow-lg whitespace-nowrap"
               aria-label="Ver nuevos posts"
             >
               ↑ Ver nuevos posts
@@ -339,11 +287,6 @@ export default function CommunityPage() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-      `}</style>
     </div>
   );
 }
@@ -383,16 +326,11 @@ const JoinButton = ({ communityId, isMember, onToggle }) => {
       onClick={toggle}
       disabled={loading}
       aria-label={joined ? 'Salir de la comunidad' : 'Unirse a la comunidad'}
-      style={{
-        padding: '8px 20px', borderRadius: '9999px',
-        border: joined ? '1px solid #e7e5e4' : 'none',
-        background: joined ? '#ffffff' : '#0c0a09',
-        color: joined ? '#78716c' : '#ffffff',
-        fontSize: 13, fontWeight: 600, cursor: 'pointer',
-        transition: 'all 0.15s ease',
-        fontFamily: 'inherit',
-        flexShrink: 0,
-      }}>
+      className={`px-5 py-2 rounded-full text-[13px] font-semibold cursor-pointer transition-all shrink-0 ${
+        joined
+          ? 'border border-stone-200 bg-white text-stone-500'
+          : 'border-none bg-stone-950 text-white'
+      }`}>
       {loading ? '...' : joined ? 'Unida' : 'Unirse'}
     </motion.button>
   );
@@ -415,19 +353,10 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
   const posts = data?.pages?.flatMap(p => p?.posts || []) ?? [];
 
   return (
-    <div style={{ padding: '12px 16px' }}>
+    <div className="px-4 pt-3">
       {isMember && (
         <button onClick={() => setShowPostForm(!showPostForm)}
-          style={{
-            width: '100%', padding: '12px 16px',
-            background: '#ffffff',
-            border: '1px solid #e7e5e4',
-            borderRadius: '9999px',
-            textAlign: 'left', cursor: 'pointer',
-            fontSize: 14, color: '#78716c',
-            marginBottom: 14, transition: 'all 0.15s ease',
-            fontFamily: 'inherit',
-          }}>
+          className="w-full px-4 py-3 bg-white border border-stone-200 rounded-full text-left cursor-pointer text-sm text-stone-500 mb-3.5 transition-all">
           Comparte algo con la comunidad...
         </button>
       )}
@@ -444,38 +373,22 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
 
       {isLoading ? (
         Array(3).fill(0).map((_, i) => (
-          <div key={i} style={{
-            height: 120, borderRadius: '16px',
-            marginBottom: 10, background: '#f5f5f4',
-            animation: 'pulse 1.5s ease-in-out infinite',
-          }} />
+          <div key={i} className="h-[120px] rounded-2xl mb-2.5 bg-stone-100 animate-pulse" />
         ))
       ) : isError ? (
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: 8, padding: '40px 0', color: '#78716c',
-        }}>
-          <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: 0 }}>Error al cargar posts</p>
+        <div className="flex flex-col items-center justify-center gap-2 py-10 text-stone-500">
+          <p className="text-[15px] font-semibold text-stone-950 m-0">Error al cargar posts</p>
           <button onClick={() => refetchQuery()}
             aria-label="Reintentar carga de posts"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 16px', borderRadius: '9999px',
-              border: '1px solid #e7e5e4', background: '#ffffff',
-              color: '#0c0a09', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}>
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-stone-200 bg-white text-stone-950 text-[13px] font-semibold cursor-pointer">
             <RefreshCw size={13} /> Reintentar
           </button>
         </div>
       ) : posts.length === 0 ? (
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: 8, padding: '40px 0', color: '#78716c',
-        }}>
-          <Users size={48} strokeWidth={1} color="#78716c" />
-          <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: 0 }}>Aún no hay posts</p>
-          <p style={{ fontSize: 13, margin: 0 }}>
+        <div className="flex flex-col items-center justify-center gap-2 py-10 text-stone-500">
+          <Users size={48} strokeWidth={1} className="text-stone-500" />
+          <p className="text-[15px] font-semibold text-stone-950 m-0">Aún no hay posts</p>
+          <p className="text-[13px] m-0">
             {isMember ? '¡Sé el primero en publicar algo!' : 'Únete para ver y publicar contenido'}
           </p>
         </div>
@@ -486,15 +399,7 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
           ))}
           {hasNextPage && (
             <button onClick={() => fetchNextPage()}
-              style={{
-                width: '100%', marginTop: 8, padding: '10px',
-                borderRadius: '9999px',
-                border: '1px solid #e7e5e4',
-                background: '#ffffff',
-                color: '#78716c',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}>
+              className="w-full mt-2 py-2.5 rounded-full border border-stone-200 bg-white text-stone-500 text-[13px] font-semibold cursor-pointer">
               Ver más posts
             </button>
           )}
@@ -562,81 +467,48 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      style={{
-        background: '#ffffff',
-        borderRadius: '16px',
-        border: '1px solid #e7e5e4',
-        padding: 14, marginBottom: 14,
-      }}>
+      className="bg-white rounded-2xl border border-stone-200 p-3.5 mb-3.5">
       <textarea
         value={text} onChange={e => setText(e.target.value)}
         placeholder="¿Qué quieres compartir? Puedes usar #hashtags"
         rows={3} maxLength={1000}
-        style={{
-          resize: 'none', marginBottom: 10, lineHeight: 1.5,
-          width: '100%', padding: '10px 12px',
-          background: '#f5f5f4',
-          border: '1px solid #e7e5e4',
-          borderRadius: '12px',
-          outline: 'none', color: '#0c0a09',
-          fontFamily: 'inherit', fontSize: 14,
-          boxSizing: 'border-box',
-        }}
+        className="resize-none mb-2.5 leading-relaxed w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border"
         autoFocus
       />
 
       {imagePreview && (
-        <div style={{ position: 'relative', marginBottom: 10 }}>
+        <div className="relative mb-2.5">
           <img loading="lazy" src={imagePreview} alt=""
-            style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: '12px' }} />
+            className="w-full max-h-[200px] object-cover rounded-xl" />
           <button onClick={() => { setImagePreview(null); setImageUrl(null); }}
-            style={{
-              position: 'absolute', top: 6, right: 6,
-              background: 'rgba(0,0,0,0.6)', color: '#ffffff',
-              border: 'none', borderRadius: '50%',
-              width: 26, height: 26, cursor: 'pointer', fontSize: 16,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            className="absolute top-1.5 right-1.5 bg-black/60 text-white border-none rounded-full w-[26px] h-[26px] cursor-pointer text-base flex items-center justify-center">
             ×
           </button>
           {isUploading && (
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '12px',
-              background: 'rgba(0,0,0,0.4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <div style={{ width: 24, height: 24, border: '2px solid #ffffff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+            <div className="absolute inset-0 rounded-xl bg-black/40 flex items-center justify-center">
+              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
             </div>
           )}
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div className="flex gap-2 items-center">
         <button onClick={() => fileRef.current?.click()}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#78716c', fontSize: 20, padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          className="bg-transparent border-none cursor-pointer text-stone-500 text-xl p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Subir imagen"
           title="Añadir imagen">
           📷
         </button>
-        <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} style={{ display: 'none' }} />
-        <span style={{ fontSize: 11, color: '#78716c', flex: 1, fontFamily: 'inherit' }}>{text.length}/1000</span>
+        <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} className="hidden" />
+        <span className="text-[11px] text-stone-500 flex-1">{text.length}/1000</span>
         <button onClick={onClose}
-          style={{
-            padding: '6px 12px', borderRadius: '9999px',
-            border: '1px solid #e7e5e4', background: '#ffffff',
-            color: '#78716c', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}>
+          className="px-3 py-1.5 rounded-full border border-stone-200 bg-white text-stone-500 text-xs font-semibold cursor-pointer">
           Cancelar
         </button>
         <button onClick={submit} disabled={isPosting || isUploading}
-          style={{
-            padding: '6px 12px', borderRadius: '9999px',
-            border: 'none', background: '#0c0a09', color: '#ffffff',
-            fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            opacity: (isPosting || isUploading) ? 0.5 : 1,
-            fontFamily: 'inherit',
-          }}>
+          className={`px-3 py-1.5 rounded-full border-none bg-stone-950 text-white text-xs font-semibold cursor-pointer ${
+            (isPosting || isUploading) ? 'opacity-50' : 'opacity-100'
+          }`}>
           {isPosting ? '...' : 'Publicar'}
         </button>
       </div>
@@ -683,41 +555,30 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
     <div>
       {/* G4 — Pinned indicator */}
       {post.is_pinned && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}
-          className="flex items-center gap-1 text-xs text-stone-500 mb-1">
-          <Pin size={12} color="#78716c" />
-          <span style={{ fontSize: 11, color: '#78716c', fontFamily: 'inherit' }}>Fijado</span>
+        <div className="flex items-center gap-1 text-xs text-stone-500 mb-1">
+          <Pin size={12} className="text-stone-500" />
+          <span className="text-[11px] text-stone-500">Fijado</span>
         </div>
       )}
-    <div style={{
-      background: '#ffffff',
-      borderRadius: '16px',
-      border: '1px solid #e7e5e4',
-      marginBottom: 10, overflow: 'hidden',
-    }}>
+    <div className="bg-white rounded-2xl border border-stone-200 mb-2.5 overflow-hidden">
       {/* Author */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px' }}>
+      <div className="flex items-center justify-between px-3.5 py-3">
         <Link to={`/${post.author_username}`}
-          style={{ display: 'flex', gap: 10, alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+          className="flex gap-2.5 items-center no-underline text-inherit">
           <img
             src={post.author_avatar || `https://ui-avatars.com/api/?name=${post.author_username}&size=36`}
-            style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}
+            className="w-9 h-9 rounded-full shrink-0"
             alt="" />
           <div>
-            <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: '#0c0a09', fontFamily: 'inherit' }}>
+            <p className="text-sm font-semibold m-0 text-stone-950">
               {post.author_username}
               {post.author_is_seller && (
-                <span style={{
-                  marginLeft: 6, fontSize: 9,
-                  padding: '1px 6px', borderRadius: 4,
-                  background: '#f5f5f4', color: '#78716c',
-                  fontWeight: 600,
-                }}>
+                <span className="ml-1.5 text-[9px] px-1.5 py-px rounded bg-stone-100 text-stone-500 font-semibold">
                   Vendedor
                 </span>
               )}
             </p>
-            <p style={{ fontSize: 11, color: '#78716c', margin: 0, fontFamily: 'inherit' }}>
+            <p className="text-[11px] text-stone-500 m-0">
               {formatRelativeTime(post.created_at)}
             </p>
           </div>
@@ -725,7 +586,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
         {(isOwn || isAdmin) && (
           <button onClick={deletePost}
             aria-label="Eliminar post"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#78716c', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            className="bg-transparent border-none cursor-pointer text-base text-stone-500 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
             ···
           </button>
         )}
@@ -733,8 +594,8 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 
       {/* Content */}
       {post.text && (
-        <div style={{ padding: '0 14px 12px' }}>
-          <p style={{ fontSize: 14, lineHeight: 1.55, color: '#0c0a09', margin: 0, fontFamily: 'inherit' }}>
+        <div className="px-3.5 pb-3">
+          <p className="text-sm leading-relaxed text-stone-950 m-0">
             {renderTextWithHashtags(post.text)}
           </p>
         </div>
@@ -742,33 +603,24 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 
       {post.image_url && (
         <img loading="lazy" src={post.image_url} alt="Imagen del post"
-          loading="lazy"
-          style={{ width: '100%', display: 'block', maxHeight: 400, objectFit: 'cover' }} />
+          className="w-full block max-h-[400px] object-cover" />
       )}
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 16, padding: '10px 14px', borderTop: '1px solid #e7e5e4' }}>
+      <div className="flex gap-4 px-3.5 py-2.5 border-t border-stone-200">
         <motion.button
           whileTap={{ scale: 0.85 }}
           onClick={toggleLike}
           aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 5,
-            fontSize: 13, color: liked ? '#0c0a09' : '#78716c',
-            fontWeight: liked ? 700 : 400, padding: 0,
-            fontFamily: 'inherit',
-          }}>
-          <span style={{ fontSize: 18 }}>{liked ? '❤️' : '🤍'}</span>
+          className={`bg-transparent border-none cursor-pointer flex items-center gap-[5px] text-[13px] p-0 ${
+            liked ? 'text-stone-950 font-bold' : 'text-stone-500 font-normal'
+          }`}>
+          <span className="text-lg">{liked ? '❤️' : '🤍'}</span>
           {likes > 0 && likes}
         </motion.button>
 
-        <span style={{
-          display: 'flex', alignItems: 'center', gap: 5,
-          fontSize: 13, color: '#78716c',
-          fontFamily: 'inherit',
-        }}>
-          <span style={{ fontSize: 18 }}>💬</span>
+        <span className="flex items-center gap-[5px] text-[13px] text-stone-500">
+          <span className="text-lg">💬</span>
           {post.comments_count > 0 && post.comments_count}
         </span>
 
@@ -782,12 +634,8 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
             }
           }}
           aria-label="Compartir post"
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 5,
-            fontSize: 13, color: '#78716c', padding: 0,
-          }}>
-          <span style={{ fontSize: 18 }}>↗️</span>
+          className="bg-transparent border-none cursor-pointer flex items-center gap-[5px] text-[13px] text-stone-500 p-0">
+          <span className="text-lg">↗️</span>
         </button>
       </div>
     </div>
@@ -819,37 +667,28 @@ const CommunityMembers = ({ communityId }) => {
   };
 
   return (
-    <div style={{ padding: '12px 16px' }}>
+    <div className="px-4 pt-3">
       {isLoading ? (
         Array(4).fill(0).map((_, i) => (
-          <div key={i} style={{
-            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0',
-            borderBottom: '1px solid #e7e5e4',
-          }}>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#f5f5f4', animation: 'pulse 1.5s ease-in-out infinite' }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ width: 100, height: 14, borderRadius: 4, background: '#f5f5f4', animation: 'pulse 1.5s ease-in-out infinite', marginBottom: 4 }} />
-              <div style={{ width: 60, height: 10, borderRadius: 4, background: '#f5f5f4', animation: 'pulse 1.5s ease-in-out infinite' }} />
+          <div key={i} className="flex items-center gap-3 py-3 border-b border-stone-200">
+            <div className="w-11 h-11 rounded-full bg-stone-100 animate-pulse" />
+            <div className="flex-1">
+              <div className="w-[100px] h-3.5 rounded bg-stone-100 animate-pulse mb-1" />
+              <div className="w-[60px] h-2.5 rounded bg-stone-100 animate-pulse" />
             </div>
           </div>
         ))
       ) : isError ? (
-        <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <p style={{ color: '#78716c', fontSize: 14, marginBottom: 8 }}>Error al cargar miembros</p>
+        <div className="text-center py-6">
+          <p className="text-stone-500 text-sm mb-2">Error al cargar miembros</p>
           <button onClick={() => refetch()}
             aria-label="Reintentar carga de miembros"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '8px 16px', borderRadius: '9999px',
-              border: '1px solid #e7e5e4', background: '#ffffff',
-              color: '#0c0a09', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}>
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-stone-200 bg-white text-stone-950 text-[13px] font-semibold cursor-pointer">
             <RefreshCw size={13} /> Reintentar
           </button>
         </div>
       ) : members.length === 0 ? (
-        <p style={{ textAlign: 'center', padding: '24px 0', color: '#78716c', fontSize: 14 }}>
+        <p className="text-center py-6 text-stone-500 text-sm">
           Sin miembros todavía
         </p>
       ) : (
@@ -858,22 +697,17 @@ const CommunityMembers = ({ communityId }) => {
             const isOwnProfile = user?.id === member.user_id || user?.user_id === member.user_id;
             return (
               <Link key={member.id || member._id || member.user_id} to={`/${member.username || member.user_id}`}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '12px 0',
-                  borderBottom: '1px solid #e7e5e4',
-                  textDecoration: 'none', color: 'inherit',
-                }}>
+                className="flex items-center gap-3 py-3 border-b border-stone-200 no-underline text-inherit">
                 <img
                   src={member.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username || 'U')}&size=44`}
-                  style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0 }}
+                  className="w-11 h-11 rounded-full shrink-0"
                   alt={member.username ? `Avatar de ${member.username}` : ''}
                   loading="lazy" />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: '#0c0a09', fontFamily: 'inherit' }}>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold m-0 text-stone-950">
                     {member.username || 'Usuario'}
                   </p>
-                  <p style={{ fontSize: 11, color: '#78716c', margin: 0, fontFamily: 'inherit' }}>
+                  <p className="text-[11px] text-stone-500 m-0">
                     {member.is_admin && '👑 Admin'}
                     {member.is_seller && (member.is_admin ? ' · ' : '') + '✓ Vendedor'}
                   </p>
@@ -882,13 +716,7 @@ const CommunityMembers = ({ communityId }) => {
                   <button
                     onClick={(e) => handleFollow(e, member)}
                     aria-label={`Seguir a ${member.username || 'usuario'}`}
-                    style={{
-                      padding: '6px 14px', borderRadius: '9999px',
-                      border: '1px solid #e7e5e4',
-                      background: '#ffffff', color: '#0c0a09',
-                      fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                      fontFamily: 'inherit', flexShrink: 0,
-                    }}>
+                    className="px-3.5 py-1.5 rounded-full border border-stone-200 bg-white text-stone-950 text-xs font-semibold cursor-pointer shrink-0">
                     Seguir
                   </button>
                 )}
@@ -897,14 +725,7 @@ const CommunityMembers = ({ communityId }) => {
           })}
           {hasMore && (
             <button onClick={() => setPage(p => p + 1)}
-              style={{
-                width: '100%', marginTop: 8, padding: '10px',
-                borderRadius: '9999px',
-                border: '1px solid #e7e5e4',
-                background: '#ffffff', color: '#78716c',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}>
+              className="w-full mt-2 py-2.5 rounded-full border border-stone-200 bg-white text-stone-500 text-[13px] font-semibold cursor-pointer">
               Ver más miembros
             </button>
           )}
@@ -916,53 +737,38 @@ const CommunityMembers = ({ communityId }) => {
 
 /* ── About Tab ── */
 const CommunityAbout = ({ community }) => (
-  <div style={{ padding: '20px 16px' }}>
+  <div className="px-4 pt-5">
     {community.description && (
-      <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: '#0c0a09', fontFamily: 'inherit', margin: '0 0 8px' }}>
+      <div className="mb-5">
+        <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">
           Descripción
         </h3>
-        <p style={{ fontSize: 14, lineHeight: 1.6, color: '#0c0a09', fontFamily: 'inherit', margin: 0 }}>
+        <p className="text-sm leading-relaxed text-stone-950 m-0">
           {community.description}
         </p>
       </div>
     )}
 
-    <div style={{
-      background: '#f5f5f4',
-      borderRadius: '16px', padding: 16, marginBottom: 20,
-    }}>
+    <div className="bg-stone-100 rounded-2xl p-4 mb-5">
       {[
         { label: 'Fundada', value: community.created_at ? new Date(community.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : '—' },
         { label: 'Miembros', value: community.member_count?.toLocaleString() },
         { label: 'Posts', value: community.post_count?.toLocaleString() },
         { label: 'Creada por', value: `@${community.creator_username}` },
       ].map((row, i, arr) => (
-        <div key={row.label} style={{
-          display: 'flex', justifyContent: 'space-between',
-          padding: '8px 0',
-          borderBottom: i < arr.length - 1 ? '1px solid #e7e5e4' : 'none',
-          fontSize: 14, fontFamily: 'inherit',
-        }}>
-          <span style={{ color: '#78716c' }}>{row.label}</span>
-          <span style={{ fontWeight: 600, color: '#0c0a09' }}>{row.value}</span>
+        <div key={row.label} className={`flex justify-between py-2 text-sm ${i < arr.length - 1 ? 'border-b border-stone-200' : ''}`}>
+          <span className="text-stone-500">{row.label}</span>
+          <span className="font-semibold text-stone-950">{row.value}</span>
         </div>
       ))}
     </div>
 
     {community.categories?.length > 0 && (
-      <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px', color: '#0c0a09', fontFamily: 'inherit' }}>Categorías</h3>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      <div className="mb-5">
+        <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">Categorías</h3>
+        <div className="flex gap-1.5 flex-wrap">
           {community.categories.map(cat => (
-            <span key={cat} style={{
-              fontSize: 12, padding: '5px 12px',
-              borderRadius: '9999px',
-              background: '#ffffff',
-              border: '1px solid #e7e5e4',
-              color: '#0c0a09', fontWeight: 500,
-              fontFamily: 'inherit',
-            }}>
+            <span key={cat} className="text-xs px-3 py-[5px] rounded-full bg-white border border-stone-200 text-stone-950 font-medium">
               {cat}
             </span>
           ))}
@@ -971,14 +777,10 @@ const CommunityAbout = ({ community }) => (
     )}
 
     <div>
-      <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px', color: '#0c0a09', fontFamily: 'inherit' }}>
+      <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">
         Normas de la comunidad
       </h3>
-      <div style={{
-        background: '#ffffff',
-        border: '1px solid #e7e5e4',
-        borderRadius: '16px', padding: '12px 14px',
-      }}>
+      <div className="bg-white border border-stone-200 rounded-2xl px-3.5 py-3">
         {[
           'Contenido relacionado con alimentación y gastronomía',
           'Trato respetuoso entre miembros',
@@ -986,8 +788,8 @@ const CommunityAbout = ({ community }) => (
           'Sin bebidas alcohólicas',
           'El admin puede eliminar posts que no cumplan las normas',
         ].map((rule, i) => (
-          <p key={i} style={{ fontSize: 13, color: '#0c0a09', margin: i < 4 ? '0 0 6px' : 0, display: 'flex', gap: 8, fontFamily: 'inherit' }}>
-            <span style={{ color: '#78716c', flexShrink: 0 }}>{i + 1}.</span>
+          <p key={i} className={`text-[13px] text-stone-950 flex gap-2 ${i < 4 ? 'mb-1.5' : 'm-0'} ${i === 0 ? 'mt-0' : ''}`}>
+            <span className="text-stone-500 shrink-0">{i + 1}.</span>
             {rule}
           </p>
         ))}

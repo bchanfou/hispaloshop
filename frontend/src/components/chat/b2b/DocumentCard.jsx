@@ -1,17 +1,6 @@
 import React from 'react';
 import { FileText } from 'lucide-react';
 
-const V2 = {
-  black: '#0A0A0A',
-  green: '#0c0a09',
-  greenLight: '#f5f5f4',
-  stone: '#8A8881',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-};
-
 function formatSize(sizeInBytes) {
   if (!sizeInBytes) return '';
   if (sizeInBytes >= 1048576) {
@@ -26,62 +15,26 @@ export default function DocumentCard({ document, isSigned }) {
   const signed = isSigned || document.signed;
 
   return (
-    <div
-      className="flex flex-col"
-      style={{
-        maxWidth: 260,
-        backgroundColor: V2.surface,
-        border: `1px solid ${V2.border}`,
-        borderRadius: V2.radiusMd,
-        padding: 12,
-        fontFamily: V2.fontSans,
-      }}
-    >
+    <div className="flex flex-col max-w-[260px] bg-stone-100 border border-stone-200 rounded-2xl p-3">
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <div className="shrink-0" style={{ paddingTop: 2 }}>
+        <div className="shrink-0 pt-0.5">
           <FileText
             size={16}
-            style={{ color: signed ? V2.green : V2.stone }}
+            className={signed ? 'text-stone-950' : 'text-stone-500'}
           />
         </div>
 
         {/* Info */}
-        <div className="flex-1" style={{ minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: 500,
-              color: V2.black,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
+        <div className="flex-1 min-w-0">
+          <div className="text-[13px] font-medium text-stone-950 overflow-hidden text-ellipsis whitespace-nowrap">
             {document.name}
           </div>
-          <div
-            style={{
-              fontSize: 11,
-              color: V2.stone,
-              marginTop: 2,
-            }}
-          >
+          <div className="text-[11px] text-stone-500 mt-0.5">
             {formatSize(document.size)}
           </div>
           {signed && (
-            <span
-              style={{
-                display: 'inline-block',
-                marginTop: 4,
-                fontSize: 10,
-                fontWeight: 500,
-                color: V2.green,
-                backgroundColor: V2.greenLight,
-                borderRadius: 999,
-                padding: '2px 8px',
-              }}
-            >
+            <span className="inline-block mt-1 text-[10px] font-medium text-stone-950 bg-stone-200 rounded-full px-2 py-0.5">
               Firmado
             </span>
           )}
@@ -91,18 +44,7 @@ export default function DocumentCard({ document, isSigned }) {
       {/* Download link */}
       <button
         onClick={() => window.open(document.url, '_blank')}
-        style={{
-          marginTop: 10,
-          fontSize: 12,
-          fontWeight: 500,
-          color: V2.black,
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0,
-          textAlign: 'left',
-          fontFamily: V2.fontSans,
-        }}
+        className="mt-2.5 text-xs font-medium text-stone-950 bg-transparent border-none cursor-pointer p-0 text-left"
       >
         Descargar
       </button>

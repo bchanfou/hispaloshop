@@ -222,19 +222,19 @@ export default function FiscalSetupPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#78716c' }} />
+        <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
       </div>
     );
   }
 
   return (
-    <div style={{ fontFamily: 'inherit', background: '#fafaf9', minHeight: '100vh' }}>
+    <div className="min-h-screen bg-stone-50 max-w-[600px] mx-auto">
       {/* TopBar */}
       <div className="flex items-center gap-3 mb-2">
-        <button onClick={() => navigate(-1)} className="shrink-0" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-          <ArrowLeft className="w-5 h-5" style={{ color: '#0c0a09' }} />
+        <button onClick={() => navigate(-1)} className="shrink-0 bg-transparent border-none cursor-pointer">
+          <ArrowLeft className="w-5 h-5 text-stone-950" />
         </button>
-        <h1 className="text-lg font-bold" style={{ color: '#0c0a09' }}>Configuración fiscal</h1>
+        <h1 className="text-lg font-bold text-stone-950">Configuración fiscal</h1>
       </div>
 
       {/* Step indicator */}
@@ -246,21 +246,18 @@ export default function FiscalSetupPage() {
           return (
             <div key={stepLabel} className="flex items-center gap-1.5">
               <div
-                style={{
-                  width: 20, height: 20, borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, fontWeight: 700,
-                  background: isComplete || isCurrent ? '#0c0a09' : 'transparent',
-                  color: isComplete || isCurrent ? '#fff' : '#78716c',
-                  border: isComplete || isCurrent ? 'none' : '1.5px solid #e7e5e4',
-                }}
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  isComplete || isCurrent
+                    ? 'bg-stone-950 text-white border-none'
+                    : 'bg-transparent text-stone-500 border-[1.5px] border-stone-200'
+                }`}
               >
                 {isComplete ? <Check size={10} /> : stepNum}
               </div>
-              <span style={{ fontSize: 10, color: isCurrent ? '#0c0a09' : '#78716c', fontWeight: isCurrent ? 600 : 400, fontFamily: 'inherit' }}>
+              <span className={`text-[10px] ${isCurrent ? 'text-stone-950 font-semibold' : 'text-stone-500 font-normal'}`}>
                 {stepLabel}
               </span>
-              {i < 3 && <span style={{ fontSize: 10, color: '#e7e5e4', margin: '0 2px' }}>—</span>}
+              {i < 3 && <span className="text-[10px] text-stone-200 mx-0.5">—</span>}
             </div>
           );
         })}
@@ -268,10 +265,10 @@ export default function FiscalSetupPage() {
 
       {/* Blocked banner */}
       {isBlocked && (
-        <div className="p-4 mb-5" style={{ background: '#f5f5f4', borderRadius: '16px', border: '1px solid #d6d3d1' }}>
+        <div className="p-4 mb-5 bg-stone-100 rounded-2xl border border-stone-300">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
-            <p className="text-sm font-medium" style={{ color: '#0c0a09' }}>
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
+            <p className="text-sm font-medium text-stone-950">
               Necesitas completar tu configuración fiscal para activar tus links de afiliado
             </p>
           </div>
@@ -281,12 +278,11 @@ export default function FiscalSetupPage() {
       {/* 1. Tax country */}
       <div className="mb-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold" style={{ color: '#0c0a09' }}>Residencia fiscal</h2>
+          <h2 className="text-sm font-bold text-stone-950">Residencia fiscal</h2>
           {country && certStatus !== 'verified' && (
             <button
               onClick={() => { setCountry(''); setCertStatus(null); }}
-              className="text-xs font-semibold"
-              style={{ color: '#78716c', background: 'none', border: 'none', cursor: 'pointer' }}
+              className="text-xs font-semibold text-stone-500 bg-transparent border-none cursor-pointer"
             >
               Cambiar
             </button>
@@ -295,25 +291,23 @@ export default function FiscalSetupPage() {
         <div className="relative">
           <button
             onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-            className="w-full flex items-center justify-between p-3.5 text-sm text-left"
-            style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4', color: country ? '#0c0a09' : '#78716c' }}
+            className={`w-full flex items-center justify-between h-12 px-3.5 text-sm text-left bg-white rounded-xl border border-stone-200 ${country ? 'text-stone-950' : 'text-stone-500'}`}
           >
             {country ? COUNTRIES.find(c => c.code === country)?.name || country : 'Selecciona tu país'}
-            <ChevronDown className="w-4 h-4 shrink-0" style={{ color: '#78716c' }} />
+            <ChevronDown className="w-4 h-4 shrink-0 text-stone-500" />
           </button>
 
           {showCountryDropdown && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowCountryDropdown(false)} />
-              <div className="absolute top-full left-0 right-0 z-50 mt-1 overflow-hidden" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
+              <div className="absolute top-full left-0 right-0 z-50 mt-1 overflow-hidden bg-white rounded-xl border border-stone-200 shadow-lg">
                 <div className="p-2">
                   <input
                     value={countrySearch}
                     onChange={(e) => setCountrySearch(e.target.value)}
                     placeholder="Buscar país..."
                     autoFocus
-                    className="w-full px-3 py-2 text-sm rounded-2xl focus:outline-none"
-                    style={{ background: '#f5f5f4', color: '#0c0a09' }}
+                    className="w-full h-12 px-3 text-sm rounded-xl bg-stone-100 text-stone-950 focus:outline-none border-none"
                   />
                 </div>
                 <div className="max-h-48 overflow-y-auto">
@@ -325,11 +319,10 @@ export default function FiscalSetupPage() {
                         setShowCountryDropdown(false);
                         setCountrySearch('');
                       }}
-                      className="w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-stone-50 flex items-center justify-between"
-                      style={{ color: '#0c0a09' }}
+                      className="w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-stone-50 flex items-center justify-between text-stone-950 bg-transparent border-none cursor-pointer"
                     >
                       {c.name}
-                      {c.code === country && <Check className="w-4 h-4" style={{ color: '#0c0a09' }} />}
+                      {c.code === country && <Check className="w-4 h-4 text-stone-950" />}
                     </button>
                   ))}
                 </div>
@@ -340,10 +333,9 @@ export default function FiscalSetupPage() {
 
         {/* Withholding badge */}
         {withholdingInfo && (
-          <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" style={{
-            background: withholdingInfo.color === 'stone-dark' ? '#e7e5e4' : '#f5f5f4',
-            color: withholdingInfo.color === 'stone-dark' ? '#44403c' : '#0c0a09',
-          }}>
+          <div className={`mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+            withholdingInfo.color === 'stone-dark' ? 'bg-stone-200 text-stone-700' : 'bg-stone-100 text-stone-950'
+          }`}>
             {withholdingInfo.label}
           </div>
         )}
@@ -351,13 +343,13 @@ export default function FiscalSetupPage() {
 
       {/* 2. Certificate */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>Certificado de residencia fiscal</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Certificado de residencia fiscal</h2>
 
         {certStatus === null && (
           <>
-            <div className="p-4 mb-3" style={{ background: '#f5f5f4', borderRadius: '16px' }}>
-              <p className="text-sm" style={{ color: '#78716c' }}>
-                <strong style={{ color: '#0c0a09' }}>¿Qué es esto?</strong> El certificado de residencia fiscal acredita que pagas tus impuestos en{' '}
+            <div className="p-4 mb-3 bg-stone-100 rounded-2xl">
+              <p className="text-sm text-stone-500">
+                <strong className="text-stone-950">¿Qué es esto?</strong> El certificado de residencia fiscal acredita que pagas tus impuestos en{' '}
                 {country ? (COUNTRIES.find(c => c.code === country)?.name || country) : 'tu país'}.
                 Lo emite tu agencia tributaria.
                 {country === 'ES' && ' En España: Agencia Tributaria (AEAT) → Certificados → Residencia fiscal.'}
@@ -367,51 +359,43 @@ export default function FiscalSetupPage() {
             <button
               onClick={() => fileRef.current?.click()}
               disabled={!country || uploading}
-              className="w-full flex flex-col items-center gap-2 p-6 transition-colors"
-              style={{
-                borderRadius: '16px',
-                border: '2px dashed #e7e5e4',
-                background: '#ffffff',
-                opacity: !country ? 0.5 : 1,
-                cursor: !country ? 'not-allowed' : 'pointer',
-              }}
+              className={`w-full flex flex-col items-center gap-2 p-6 transition-colors rounded-2xl border-2 border-dashed border-stone-200 bg-white ${!country ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
-              <Upload className="w-6 h-6" style={{ color: '#78716c' }} />
-              <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>Sube tu certificado</p>
-              <p className="text-xs" style={{ color: '#78716c' }}>PDF, JPG o PNG · Máx 5MB</p>
+              <Upload className="w-6 h-6 text-stone-500" />
+              <p className="text-sm font-semibold text-stone-950">Sube tu certificado</p>
+              <p className="text-xs text-stone-500">PDF, JPG o PNG · Máx 5MB</p>
             </button>
           </>
         )}
 
         {certStatus === 'uploading' && (
-          <div className="p-5 flex items-center gap-3" style={{ background: '#f5f5f4', borderRadius: '16px' }}>
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#0c0a09' }} />
-            <p className="text-sm font-medium" style={{ color: '#0c0a09' }}>
+          <div className="p-5 flex items-center gap-3 bg-stone-100 rounded-2xl">
+            <Loader2 className="w-5 h-5 animate-spin text-stone-950" />
+            <p className="text-sm font-medium text-stone-950">
               Analizando tu certificado... esto tarda unos segundos
             </p>
           </div>
         )}
 
         {certStatus === 'verified' && (
-          <div className="p-4" style={{ background: '#f5f5f4', borderRadius: '16px', border: '1px solid #e7e5e4' }}>
+          <div className="p-4 bg-stone-100 rounded-2xl border border-stone-200">
             <div className="flex items-start gap-3">
-              <Check className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#0c0a09' }} />
+              <Check className="w-5 h-5 shrink-0 mt-0.5 text-stone-950" />
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>Certificado verificado</p>
-                <p className="text-xs mt-1" style={{ color: '#78716c' }}>
+                <p className="text-sm font-semibold text-stone-950">Certificado verificado</p>
+                <p className="text-xs mt-1 text-stone-500">
                   País: {COUNTRIES.find(c => c.code === country)?.name || country}
                   {withholdingInfo && ` · Retención: ${withholdingInfo.label}`}
                 </p>
                 {fiscal?.verified_at && (
-                  <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>
+                  <p className="text-xs mt-0.5 text-stone-500">
                     Verificado el {new Date(fiscal.verified_at).toLocaleDateString('es-ES')}
                   </p>
                 )}
                 <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleUpload} className="hidden" />
                 <button
                   onClick={() => fileRef.current?.click()}
-                  className="mt-3 text-xs font-semibold underline"
-                  style={{ color: '#78716c', background: 'none', border: 'none', cursor: 'pointer' }}
+                  className="mt-3 text-xs font-semibold underline text-stone-500 bg-transparent border-none cursor-pointer"
                 >
                   Actualizar certificado
                 </button>
@@ -421,19 +405,18 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'rejected' && (
-          <div className="p-4" style={{ background: '#f5f5f4', borderRadius: '16px', border: '1px solid #d6d3d1' }}>
+          <div className="p-4 bg-stone-100 rounded-2xl border border-stone-300">
             <div className="flex items-start gap-3">
-              <X className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
+              <X className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>Certificado no válido</p>
+                <p className="text-sm font-semibold text-stone-950">Certificado no válido</p>
                 {fiscal?.block_reason && (
-                  <p className="text-xs mt-1" style={{ color: '#78716c' }}>{fiscal.block_reason}</p>
+                  <p className="text-xs mt-1 text-stone-500">{fiscal.block_reason}</p>
                 )}
                 <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleUpload} className="hidden" />
                 <button
                   onClick={() => fileRef.current?.click()}
-                  className="mt-3 px-4 py-2 text-sm font-semibold transition-colors"
-                  style={{ background: '#0c0a09', color: '#fff', borderRadius: '16px', border: 'none', cursor: 'pointer' }}
+                  className="mt-3 px-4 py-2 text-sm font-semibold bg-stone-950 text-white rounded-full border-none cursor-pointer transition-colors hover:bg-stone-800"
                 >
                   Subir nuevo certificado
                 </button>
@@ -443,12 +426,12 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'manual_review' && (
-          <div className="p-4" style={{ background: '#f5f5f4', borderRadius: '16px', border: '1px solid #d6d3d1' }}>
+          <div className="p-4 bg-stone-100 rounded-2xl border border-stone-300">
             <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
+              <Clock className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>En revisión manual</p>
-                <p className="text-xs mt-1" style={{ color: '#78716c' }}>
+                <p className="text-sm font-semibold text-stone-950">En revisión manual</p>
+                <p className="text-xs mt-1 text-stone-500">
                   Nuestro equipo revisará tu certificado en 48-72h hábiles
                 </p>
               </div>
@@ -459,7 +442,7 @@ export default function FiscalSetupPage() {
 
       {/* 3. Payout method */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">
           ¿Cómo quieres recibir tus comisiones?
         </h2>
         <div className="space-y-2">
@@ -470,55 +453,47 @@ export default function FiscalSetupPage() {
               handlePayoutSave('stripe');
             }}
             disabled={savingPayout}
-            className="w-full text-left p-4 transition-all"
-            style={{
-              background: '#ffffff',
-              borderRadius: '16px',
-              border: payoutMethod === 'stripe' ? '2px solid #0c0a09' : '1px solid #e7e5e4',
-              cursor: savingPayout ? 'wait' : 'pointer',
-            }}
+            className={`w-full text-left p-4 transition-all bg-white rounded-2xl ${
+              payoutMethod === 'stripe' ? 'border-2 border-stone-950' : 'border border-stone-200'
+            } ${savingPayout ? 'cursor-wait' : 'cursor-pointer'}`}
           >
             <div className="flex items-center gap-3 mb-1">
-              <CreditCard className="w-5 h-5 shrink-0" style={{ color: '#78716c' }} />
-              <span className="text-sm font-semibold" style={{ color: '#0c0a09' }}>Stripe</span>
+              <CreditCard className="w-5 h-5 shrink-0 text-stone-500" />
+              <span className="text-sm font-semibold text-stone-950">Stripe</span>
               {payoutMethod === 'stripe' && fiscal?.stripe_onboarding_complete && (
-                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#f5f5f4', color: '#0c0a09' }}>
+                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-950">
                   Conectado
                 </span>
               )}
             </div>
-            <p className="text-xs ml-8" style={{ color: '#78716c' }}>
+            <p className="text-xs ml-8 text-stone-500">
               Recibe en minutos en tu cuenta Stripe
             </p>
-            <p className="text-xs ml-8 mt-0.5" style={{ color: '#78716c', opacity: 0.7 }}>
+            <p className="text-xs ml-8 mt-0.5 text-stone-500 opacity-70">
               Fee: 0,25 por transferencia (se descuenta de tu comisión)
             </p>
           </button>
 
           {/* SEPA */}
           <div
-            className="p-4 transition-all"
-            style={{
-              background: '#ffffff',
-              borderRadius: '16px',
-              border: payoutMethod === 'sepa' ? '2px solid #0c0a09' : '1px solid #e7e5e4',
-            }}
+            className={`p-4 transition-all bg-white rounded-2xl ${
+              payoutMethod === 'sepa' ? 'border-2 border-stone-950' : 'border border-stone-200'
+            }`}
           >
             <button
               onClick={() => setPayoutMethod('sepa')}
-              className="w-full text-left"
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              className="w-full text-left bg-transparent border-none cursor-pointer"
             >
               <div className="flex items-center gap-3 mb-1">
-                <Building2 className="w-5 h-5 shrink-0" style={{ color: '#78716c' }} />
-                <span className="text-sm font-semibold" style={{ color: '#0c0a09' }}>Transferencia bancaria (SEPA)</span>
+                <Building2 className="w-5 h-5 shrink-0 text-stone-500" />
+                <span className="text-sm font-semibold text-stone-950">Transferencia bancaria (SEPA)</span>
                 {payoutMethod === 'sepa' && fiscal?.sepa_iban_last4 && (
-                  <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#f5f5f4', color: '#0c0a09' }}>
+                  <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-950">
                     Configurado
                   </span>
                 )}
               </div>
-              <p className="text-xs ml-8" style={{ color: '#78716c' }}>
+              <p className="text-xs ml-8 text-stone-500">
                 Sin comisión adicional · Procesado en 1-3 días hábiles
               </p>
             </button>
@@ -526,35 +501,29 @@ export default function FiscalSetupPage() {
             {payoutMethod === 'sepa' && (
               <div className="mt-4 ml-8 space-y-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: '#78716c' }}>IBAN</label>
+                  <label className="block text-xs font-medium mb-1 text-stone-500">IBAN</label>
                   <input
                     value={iban}
                     onChange={(e) => setIban(e.target.value)}
                     placeholder="ES00 0000 0000 0000 0000 0000"
-                    className="w-full px-3 py-2.5 text-sm focus:outline-none"
-                    style={{ background: '#f5f5f4', borderRadius: '12px', border: '1px solid #e7e5e4', color: '#0c0a09' }}
+                    className="w-full h-12 px-3 text-sm bg-stone-100 rounded-xl border border-stone-200 text-stone-950 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: '#78716c' }}>Titular de la cuenta</label>
+                  <label className="block text-xs font-medium mb-1 text-stone-500">Titular de la cuenta</label>
                   <input
                     value={accountName}
                     onChange={(e) => setAccountName(e.target.value)}
                     placeholder="Nombre completo"
-                    className="w-full px-3 py-2.5 text-sm focus:outline-none"
-                    style={{ background: '#f5f5f4', borderRadius: '12px', border: '1px solid #e7e5e4', color: '#0c0a09' }}
+                    className="w-full h-12 px-3 text-sm bg-stone-100 rounded-xl border border-stone-200 text-stone-950 focus:outline-none"
                   />
                 </div>
                 <button
                   onClick={() => handlePayoutSave('sepa')}
                   disabled={savingPayout || !iban.trim() || !accountName.trim()}
-                  className="px-4 py-2 text-sm font-semibold transition-colors"
-                  style={{
-                    background: '#0c0a09', color: '#fff',
-                    borderRadius: '16px', border: 'none',
-                    cursor: savingPayout ? 'wait' : 'pointer',
-                    opacity: (!iban.trim() || !accountName.trim()) ? 0.5 : 1,
-                  }}
+                  className={`px-4 py-2 text-sm font-semibold bg-stone-950 text-white rounded-full border-none transition-colors hover:bg-stone-800 ${
+                    savingPayout ? 'cursor-wait' : 'cursor-pointer'
+                  } ${(!iban.trim() || !accountName.trim()) ? 'opacity-50' : 'opacity-100'}`}
                 >
                   {savingPayout ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Guardar datos bancarios'}
                 </button>
@@ -566,28 +535,28 @@ export default function FiscalSetupPage() {
 
       {/* 4. Payout preview */}
       {grossPreview > 0 && (
-        <div className="mb-5 p-4" style={{ background: '#f5f5f4', borderRadius: '16px' }}>
-          <h3 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>Preview del cobro</h3>
+        <div className="mb-5 p-4 bg-stone-100 rounded-2xl">
+          <h3 className="text-sm font-bold mb-3 text-stone-950">Preview del cobro</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span style={{ color: '#78716c' }}>Balance bruto</span>
-              <span className="font-semibold" style={{ color: '#0c0a09' }}>{convertAndFormatPrice(Number(grossPreview || 0))}</span>
+              <span className="text-stone-500">Balance bruto</span>
+              <span className="font-semibold text-stone-950">{convertAndFormatPrice(Number(grossPreview || 0))}</span>
             </div>
             {country === 'ES' && withholdingPreview > 0 && (
               <div className="flex justify-between text-sm">
-                <span style={{ color: '#78716c' }}>Retención IRPF (15%)</span>
-                <span className="font-semibold" style={{ color: '#78716c' }}>−{convertAndFormatPrice(Number(withholdingPreview || 0))}</span>
+                <span className="text-stone-500">Retención IRPF (15%)</span>
+                <span className="font-semibold text-stone-500">−{convertAndFormatPrice(Number(withholdingPreview || 0))}</span>
               </div>
             )}
             {feePreview > 0 && (
               <div className="flex justify-between text-sm">
-                <span style={{ color: '#78716c' }}>Fee de transferencia</span>
-                <span className="font-semibold" style={{ color: '#78716c' }}>−{convertAndFormatPrice(Number(feePreview || 0))}</span>
+                <span className="text-stone-500">Fee de transferencia</span>
+                <span className="font-semibold text-stone-500">−{convertAndFormatPrice(Number(feePreview || 0))}</span>
               </div>
             )}
-            <div className="pt-2 flex justify-between text-sm" style={{ borderTop: '1px solid #e7e5e4' }}>
-              <span className="font-bold" style={{ color: '#0c0a09' }}>RECIBIRÁS</span>
-              <span className="font-bold" style={{ color: '#0c0a09' }}>{convertAndFormatPrice(Number(netPreview || 0))}</span>
+            <div className="pt-2 flex justify-between text-sm border-t border-stone-200">
+              <span className="font-bold text-stone-950">RECIBIRÁS</span>
+              <span className="font-bold text-stone-950">{convertAndFormatPrice(Number(netPreview || 0))}</span>
             </div>
           </div>
         </div>
@@ -600,14 +569,11 @@ export default function FiscalSetupPage() {
           navigate('/influencer/affiliate-links');
         }}
         disabled={!canSave}
-        className="w-full py-3.5 text-sm font-semibold transition-colors mb-8"
-        style={{
-          background: canSave ? '#0c0a09' : '#f5f5f4',
-          color: canSave ? '#fff' : '#78716c',
-          borderRadius: '16px',
-          border: 'none',
-          cursor: canSave ? 'pointer' : 'not-allowed',
-        }}
+        className={`w-full py-3.5 text-sm font-semibold rounded-full border-none transition-colors mb-8 ${
+          canSave
+            ? 'bg-stone-950 text-white cursor-pointer hover:bg-stone-800'
+            : 'bg-stone-100 text-stone-500 cursor-not-allowed'
+        }`}
       >
         {canSave ? 'Guardar y activar afiliados' : 'Completa todos los campos para continuar'}
       </button>

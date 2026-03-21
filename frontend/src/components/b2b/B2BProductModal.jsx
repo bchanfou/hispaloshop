@@ -93,100 +93,6 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
     }
   };
 
-  /* ---- shared inline styles ---- */
-
-  const labelStyle = {
-    fontSize: 11,
-    fontWeight: 600,
-    letterSpacing: '0.06em',
-    textTransform: 'uppercase',
-    color: '#78716c',
-    fontFamily: 'inherit',
-    marginBottom: 6,
-  };
-
-  const inputWrapStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    border: '1px solid #e7e5e4',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    background: '#ffffff',
-  };
-
-  const inputStyle = {
-    flex: 1,
-    padding: '10px 12px',
-    border: 'none',
-    outline: 'none',
-    fontSize: 15,
-    fontFamily: 'inherit',
-    background: 'transparent',
-    color: '#0c0a09',
-  };
-
-  const suffixStyle = {
-    padding: '0 12px',
-    fontSize: 13,
-    color: '#78716c',
-    fontFamily: 'inherit',
-    whiteSpace: 'nowrap',
-  };
-
-  const helperStyle = {
-    fontSize: 12,
-    color: '#78716c',
-    marginTop: 4,
-    fontFamily: 'inherit',
-  };
-
-  const sectionGap = { marginBottom: 22 };
-
-  const pillBase = {
-    padding: '7px 14px',
-    borderRadius: '9999px',
-    fontSize: 13,
-    fontFamily: 'inherit',
-    cursor: 'pointer',
-    border: '1px solid #e7e5e4',
-    transition: 'all 0.15s ease',
-  };
-
-  const pillActive = {
-    ...pillBase,
-    background: '#0c0a09',
-    color: '#ffffff',
-    borderColor: '#0c0a09',
-  };
-
-  const pillInactive = {
-    ...pillBase,
-    background: '#f5f5f4',
-    color: '#0c0a09',
-  };
-
-  const toggleTrack = (on) => ({
-    width: 44,
-    height: 24,
-    borderRadius: '9999px',
-    background: on ? '#0c0a09' : '#e7e5e4',
-    position: 'relative',
-    cursor: 'pointer',
-    transition: 'background 0.2s ease',
-    flexShrink: 0,
-  });
-
-  const toggleThumb = (on) => ({
-    width: 18,
-    height: 18,
-    borderRadius: '50%',
-    background: '#ffffff',
-    position: 'absolute',
-    top: 3,
-    left: on ? 22 : 3,
-    transition: 'left 0.2s ease',
-  });
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -199,12 +105,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
             animate="visible"
             exit="exit"
             onClick={onClose}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 999,
-              background: 'rgba(0,0,0,0.45)',
-            }}
+            className="fixed inset-0 z-[999] bg-black/45"
           />
 
           {/* Bottom sheet */}
@@ -214,60 +115,32 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 1000,
-              background: '#ffffff',
-              borderTopLeftRadius: '16px',
-              borderTopRightRadius: '16px',
-              maxHeight: '92vh',
-              display: 'flex',
-              flexDirection: 'column',
-              fontFamily: 'inherit',
-            }}
+            className="fixed bottom-0 left-0 right-0 z-[1000] bg-white rounded-t-2xl max-h-[92vh] flex flex-col"
           >
             {/* Header */}
-            <div
-              style={{
-                padding: '18px 20px 14px',
-                borderBottom: '1px solid #e7e5e4',
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
-                flexShrink: 0,
-              }}
-            >
+            <div className="px-5 pt-[18px] pb-3.5 border-b border-stone-200 flex items-start justify-between shrink-0">
               <div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>
+                <div className="text-[17px] font-bold text-stone-950">
                   Condiciones mayoristas
                 </div>
-                <div style={{ fontSize: 13, color: '#78716c', marginTop: 2 }}>
+                <div className="text-[13px] text-stone-500 mt-0.5">
                   {product?.name}
                 </div>
               </div>
               <button
                 onClick={onClose}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 4,
-                  color: '#78716c',
-                }}
+                className="bg-transparent border-none cursor-pointer p-1 text-stone-500"
               >
                 <X size={20} />
               </button>
             </div>
 
             {/* Scrollable body */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 0' }}>
+            <div className="flex-1 overflow-y-auto px-5 pt-5">
               {/* 1. Wholesale price */}
-              <div style={sectionGap}>
-                <div style={labelStyle}>Precio por unidad (mayorista)</div>
-                <div style={inputWrapStyle}>
+              <div className="mb-[22px]">
+                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">Precio por unidad (mayorista)</div>
+                <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden bg-white">
                   <input
                     type="number"
                     step="0.01"
@@ -275,76 +148,69 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                     value={wholesalePrice}
                     onChange={(e) => setWholesalePrice(e.target.value)}
                     placeholder="ej: 3.50"
-                    style={inputStyle}
+                    className="flex-1 px-3 py-2.5 border-none outline-none text-[15px] bg-transparent text-stone-950"
                   />
-                  <span style={suffixStyle}>€</span>
+                  <span className="px-3 text-[13px] text-stone-500 whitespace-nowrap">€</span>
                 </div>
-                <div style={helperStyle}>Tu precio B2C es {product?.price}€</div>
+                <div className="text-xs text-stone-500 mt-1">Tu precio B2C es {product?.price}€</div>
               </div>
 
               {/* 2. MOQ */}
-              <div style={sectionGap}>
-                <div style={labelStyle}>Cantidad mínima de pedido (MOQ)</div>
-                <div style={inputWrapStyle}>
+              <div className="mb-[22px]">
+                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">Cantidad mínima de pedido (MOQ)</div>
+                <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden bg-white">
                   <input
                     type="number"
                     min="1"
                     value={moq}
                     onChange={(e) => setMoq(e.target.value)}
                     placeholder="ej: 50"
-                    style={inputStyle}
+                    className="flex-1 px-3 py-2.5 border-none outline-none text-[15px] bg-transparent text-stone-950"
                   />
-                  <span style={suffixStyle}>unidades</span>
+                  <span className="px-3 text-[13px] text-stone-500 whitespace-nowrap">unidades</span>
                 </div>
               </div>
 
               {/* 3. Wholesale stock */}
-              <div style={sectionGap}>
-                <div style={labelStyle}>Stock disponible para mayoristas</div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: 8,
-                  }}
-                >
-                  <span style={{ fontSize: 13, color: '#0c0a09' }}>
+              <div className="mb-[22px]">
+                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">Stock disponible para mayoristas</div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[13px] text-stone-950">
                     Mismo stock que B2C
                   </span>
                   <div
-                    style={toggleTrack(sameStockAsB2C)}
+                    className={`w-11 h-6 rounded-full relative cursor-pointer shrink-0 transition-colors duration-200 ${sameStockAsB2C ? 'bg-stone-950' : 'bg-stone-200'}`}
                     onClick={() => setSameStockAsB2C(!sameStockAsB2C)}
                   >
-                    <div style={toggleThumb(sameStockAsB2C)} />
+                    <div className={`w-[18px] h-[18px] rounded-full bg-white absolute top-[3px] transition-[left] duration-200 ${sameStockAsB2C ? 'left-[22px]' : 'left-[3px]'}`} />
                   </div>
                 </div>
-                <div style={inputWrapStyle}>
+                <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden bg-white">
                   <input
                     type="number"
                     min="0"
                     value={sameStockAsB2C ? product?.stock ?? '' : wholesaleStock}
                     onChange={(e) => setWholesaleStock(e.target.value)}
                     disabled={sameStockAsB2C}
-                    style={{
-                      ...inputStyle,
-                      opacity: sameStockAsB2C ? 0.5 : 1,
-                      cursor: sameStockAsB2C ? 'not-allowed' : 'text',
-                    }}
+                    className={`flex-1 px-3 py-2.5 border-none outline-none text-[15px] bg-transparent text-stone-950 ${sameStockAsB2C ? 'opacity-50 cursor-not-allowed' : ''}`}
                   />
-                  <span style={suffixStyle}>unidades</span>
+                  <span className="px-3 text-[13px] text-stone-500 whitespace-nowrap">unidades</span>
                 </div>
               </div>
 
               {/* 4. Incoterm */}
-              <div style={sectionGap}>
-                <div style={labelStyle}>Incoterm por defecto</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div className="mb-[22px]">
+                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">Incoterm por defecto</div>
+                <div className="flex flex-wrap gap-2">
                   {INCOTERM_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setIncoterm(opt)}
-                      style={incoterm === opt ? pillActive : pillInactive}
+                      className={`px-3.5 py-[7px] rounded-full text-[13px] cursor-pointer border transition-all duration-150 ${
+                        incoterm === opt
+                          ? 'bg-stone-950 text-white border-stone-950'
+                          : 'bg-stone-100 text-stone-950 border-stone-200'
+                      }`}
                     >
                       {opt}
                     </button>
@@ -353,14 +219,18 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
               </div>
 
               {/* 5. Payment terms */}
-              <div style={sectionGap}>
-                <div style={labelStyle}>Condiciones de pago</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div className="mb-[22px]">
+                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">Condiciones de pago</div>
+                <div className="flex flex-wrap gap-2">
                   {PAYMENT_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setPaymentTerms(opt)}
-                      style={paymentTerms === opt ? pillActive : pillInactive}
+                      className={`px-3.5 py-[7px] rounded-full text-[13px] cursor-pointer border transition-all duration-150 ${
+                        paymentTerms === opt
+                          ? 'bg-stone-950 text-white border-stone-950'
+                          : 'bg-stone-100 text-stone-950 border-stone-200'
+                      }`}
                     >
                       {opt}
                     </button>
@@ -369,64 +239,45 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
               </div>
 
               {/* 6. Wholesale description */}
-              <div style={sectionGap}>
-                <div style={labelStyle}>Descripción mayorista</div>
+              <div className="mb-[22px]">
+                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">Descripción mayorista</div>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Incluye detalles sobre embalaje, etiquetado, certificaciones..."
                   rows={4}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #e7e5e4',
-                    borderRadius: '12px',
-                    fontSize: 14,
-                    fontFamily: 'inherit',
-                    resize: 'vertical',
-                    outline: 'none',
-                    color: '#0c0a09',
-                    background: '#ffffff',
-                    boxSizing: 'border-box',
-                  }}
+                  className="w-full px-3 py-2.5 border border-stone-200 rounded-xl text-sm resize-y outline-none text-stone-950 bg-white box-border"
                 />
               </div>
 
               {/* 7. Samples */}
-              <div style={{ ...sectionGap, marginBottom: 8 }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: offerSamples ? 10 : 0,
-                  }}
-                >
-                  <span style={{ fontSize: 14, fontWeight: 500, color: '#0c0a09' }}>
+              <div className="mb-2">
+                <div className={`flex items-center justify-between ${offerSamples ? 'mb-2.5' : ''}`}>
+                  <span className="text-sm font-medium text-stone-950">
                     Ofrezco muestras gratuitas
                   </span>
                   <div
-                    style={toggleTrack(offerSamples)}
+                    className={`w-11 h-6 rounded-full relative cursor-pointer shrink-0 transition-colors duration-200 ${offerSamples ? 'bg-stone-950' : 'bg-stone-200'}`}
                     onClick={() => setOfferSamples(!offerSamples)}
                   >
-                    <div style={toggleThumb(offerSamples)} />
+                    <div className={`w-[18px] h-[18px] rounded-full bg-white absolute top-[3px] transition-[left] duration-200 ${offerSamples ? 'left-[22px]' : 'left-[3px]'}`} />
                   </div>
                 </div>
                 {offerSamples && (
                   <div>
-                    <div style={{ ...labelStyle, marginTop: 4 }}>
+                    <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5 mt-1">
                       Máximo de muestras por solicitud
                     </div>
-                    <div style={inputWrapStyle}>
+                    <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden bg-white">
                       <input
                         type="number"
                         min="1"
                         value={maxSamples}
                         onChange={(e) => setMaxSamples(e.target.value)}
                         placeholder="ej: 3"
-                        style={inputStyle}
+                        className="flex-1 px-3 py-2.5 border-none outline-none text-[15px] bg-transparent text-stone-950"
                       />
-                      <span style={suffixStyle}>unidades</span>
+                      <span className="px-3 text-[13px] text-stone-500 whitespace-nowrap">unidades</span>
                     </div>
                   </div>
                 )}
@@ -434,31 +285,13 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
             </div>
 
             {/* Footer */}
-            <div
-              style={{
-                padding: '16px 20px',
-                paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
-                borderTop: '1px solid #e7e5e4',
-                flexShrink: 0,
-              }}
-            >
+            <div className="px-5 py-4 pb-[max(16px,env(safe-area-inset-bottom))] border-t border-stone-200 shrink-0">
               <button
                 onClick={handleSave}
                 disabled={saving}
-                style={{
-                  width: '100%',
-                  padding: '14px 0',
-                  borderRadius: '9999px',
-                  background: '#0c0a09',
-                  color: '#ffffff',
-                  fontSize: 15,
-                  fontWeight: 600,
-                  fontFamily: 'inherit',
-                  border: 'none',
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                  opacity: saving ? 0.6 : 1,
-                  transition: 'opacity 0.15s ease',
-                }}
+                className={`w-full py-3.5 rounded-full bg-stone-950 text-white text-[15px] font-semibold border-none transition-opacity duration-150 ${
+                  saving ? 'cursor-not-allowed opacity-60' : 'cursor-pointer opacity-100'
+                }`}
               >
                 {saving
                   ? 'Guardando...'
@@ -471,20 +304,9 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                 <button
                   onClick={handleRemove}
                   disabled={removing}
-                  style={{
-                    width: '100%',
-                    padding: '12px 0',
-                    marginTop: 10,
-                    borderRadius: '9999px',
-                    background: 'transparent',
-                    color: '#dc2626',
-                    fontSize: 14,
-                    fontWeight: 500,
-                    fontFamily: 'inherit',
-                    border: 'none',
-                    cursor: removing ? 'not-allowed' : 'pointer',
-                    opacity: removing ? 0.6 : 1,
-                  }}
+                  className={`w-full py-3 mt-2.5 rounded-full bg-transparent text-red-600 text-sm font-medium border-none ${
+                    removing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer opacity-100'
+                  }`}
                 >
                   {removing ? 'Eliminando...' : 'Quitar del catálogo B2B'}
                 </button>

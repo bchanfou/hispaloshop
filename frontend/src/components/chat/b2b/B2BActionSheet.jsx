@@ -11,52 +11,21 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const V2 = {
-  black: '#0A0A0A',
-  stone: '#8A8881',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  white: '#fff',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-};
-
-const ICON_SIZE = 24;
-const CIRCLE_SIZE = 56;
-
 function ActionOption({ icon: Icon, label, onClick, isBlack }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-2"
-      style={{
-        border: 'none',
-        background: 'none',
-        cursor: 'pointer',
-        padding: 8,
-        fontFamily: V2.fontSans,
-      }}
+      className="flex flex-col items-center gap-2 border-none bg-transparent cursor-pointer p-2"
     >
       <div
-        className="flex items-center justify-center"
-        style={{
-          width: CIRCLE_SIZE,
-          height: CIRCLE_SIZE,
-          borderRadius: '50%',
-          backgroundColor: isBlack ? V2.black : V2.surface,
-        }}
+        className={`flex items-center justify-center w-14 h-14 rounded-full ${
+          isBlack ? 'bg-stone-950' : 'bg-stone-100'
+        }`}
       >
-        <Icon
-          size={ICON_SIZE}
-          style={{ color: isBlack ? V2.white : V2.black }}
-        />
+        <Icon size={24} className={isBlack ? 'text-white' : 'text-stone-950'} />
       </div>
       <span
-        style={{
-          fontSize: 12,
-          fontWeight: 500,
-          color: isBlack ? V2.black : V2.stone,
-        }}
+        className={`text-xs font-medium ${isBlack ? 'text-stone-950' : 'text-stone-500'}`}
       >
         {label}
       </span>
@@ -102,8 +71,7 @@ export default function B2BActionSheet({
           >
             {/* Backdrop */}
             <motion.div
-              className="absolute inset-0"
-              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+              className="absolute inset-0 bg-black/60"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -112,35 +80,19 @@ export default function B2BActionSheet({
 
             {/* Sheet */}
             <motion.div
-              className="relative"
-              style={{
-                backgroundColor: V2.white,
-                borderRadius: '20px 20px 0 0',
-                paddingBottom: 'env(safe-area-inset-bottom, 16px)',
-                fontFamily: V2.fontSans,
-              }}
+              className="relative bg-white rounded-t-[20px] pb-[env(safe-area-inset-bottom,16px)]"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
             >
               {/* Handle bar */}
-              <div className="flex justify-center" style={{ paddingTop: 10, paddingBottom: 8 }}>
-                <div
-                  style={{
-                    width: 36,
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: V2.border,
-                  }}
-                />
+              <div className="flex justify-center pt-2.5 pb-2">
+                <div className="w-9 h-1 rounded-sm bg-stone-200" />
               </div>
 
               {/* Options grid */}
-              <div
-                className="grid grid-cols-3 justify-items-center"
-                style={{ padding: '8px 16px 16px' }}
-              >
+              <div className="grid grid-cols-3 justify-items-center px-4 pt-2 pb-4">
                 <ActionOption
                   icon={Camera}
                   label="Foto"
@@ -175,21 +127,10 @@ export default function B2BActionSheet({
               </div>
 
               {/* Cancel button */}
-              <div style={{ padding: '0 16px 8px' }}>
+              <div className="px-4 pb-2">
                 <button
                   onClick={onClose}
-                  className="w-full flex items-center justify-center"
-                  style={{
-                    height: 48,
-                    backgroundColor: V2.surface,
-                    border: 'none',
-                    borderRadius: V2.radiusMd,
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: V2.black,
-                    cursor: 'pointer',
-                    fontFamily: V2.fontSans,
-                  }}
+                  className="w-full flex items-center justify-center h-12 bg-stone-100 border-none rounded-full text-sm font-medium text-stone-950 cursor-pointer"
                 >
                   Cancelar
                 </button>
