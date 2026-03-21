@@ -78,7 +78,26 @@ export default function CustomerOverview() {
     return () => { active = false; };
   }, []);
 
-  if (loading) return <div className="flex justify-center py-20"><div className="loading-spinner" /></div>;
+  if (loading) return (
+    <div className="max-w-[975px] mx-auto space-y-4 px-4 py-4">
+      <div className="h-7 w-40 bg-stone-100 rounded-2xl animate-pulse" />
+      <div className="h-4 w-28 bg-stone-100 rounded animate-pulse" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[1,2,3,4].map(i => (
+          <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 space-y-2">
+            <div className="w-8 h-8 rounded-full bg-stone-100 animate-pulse" />
+            <div className="h-6 w-16 bg-stone-100 rounded animate-pulse" />
+            <div className="h-3 w-12 bg-stone-100 rounded animate-pulse" />
+          </div>
+        ))}
+      </div>
+      <div className="space-y-2">
+        {[1,2,3].map(i => (
+          <div key={i} className="h-16 bg-stone-100 rounded-2xl animate-pulse" />
+        ))}
+      </div>
+    </div>
+  );
 
   /* ── Quick actions data ── */
   const quickActions = [
@@ -99,7 +118,7 @@ export default function CustomerOverview() {
           Algunos datos no se han podido cargar. Desliza hacia abajo para reintentar.
         </div>
       )}
-      <div className="space-y-6 pb-4" data-testid="customer-dashboard">
+      <div className="max-w-[975px] mx-auto space-y-6 pb-4" data-testid="customer-dashboard">
 
         {/* ── Greeting ── */}
         <div className="px-4 pt-2">
@@ -109,16 +128,17 @@ export default function CustomerOverview() {
           <p className="text-sm mt-0.5 text-stone-500">Bienvenido de vuelta</p>
         </div>
 
-        {/* ── KPI horizontal scroll row ── */}
-        <div className="flex gap-3 px-4 overflow-x-auto scrollbar-hide py-1">
+        {/* ── KPI grid ── */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4">
           {[
             { label: 'Pedidos',    value: orders.length,         icon: Package },
             { label: 'Gastado',    value: convertAndFormatPrice(orders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0), currency), icon: ShoppingBag },
             { label: 'Guardados',  value: wishlist.length,       icon: Heart },
+            { label: 'Tiendas',    value: followedStores.length, icon: Store },
           ].map(({ label, value, icon: Icon }) => (
             <div
               key={label}
-              className="flex-shrink-0 flex flex-col items-center justify-center bg-white border border-stone-200 rounded-2xl px-5 py-3 min-w-[90px]"
+              className="flex flex-col items-center justify-center bg-white border border-stone-200 rounded-2xl px-5 py-3"
             >
               <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center mb-1.5">
                 <Icon size={16} className="text-stone-500" />

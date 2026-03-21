@@ -32,12 +32,27 @@ export default function WishlistPage() {
     return sanitizeImageUrl(url);
   }
 
-  if (loading) return <div className="py-12 text-center text-stone-400">{t('common.loading')}</div>;
-  if (loadError) return <div className="py-12 text-center text-stone-400">{t('errors.loadFailed', 'No se pudo cargar. Intenta de nuevo.')}</div>;
+  if (loading) return (
+    <div className="max-w-[975px] mx-auto">
+      <div className="h-8 w-48 bg-stone-100 rounded-2xl animate-pulse mb-4" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {[1,2,3,4].map(i => (
+          <div key={i} className="flex items-center gap-3 bg-white border border-stone-200 rounded-2xl p-3 animate-pulse">
+            <div className="w-16 h-16 rounded-2xl bg-stone-100 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-32 bg-stone-100 rounded" />
+              <div className="h-3 w-20 bg-stone-100 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  if (loadError) return <div className="max-w-[975px] mx-auto py-12 text-center text-stone-400">{t('errors.loadFailed', 'No se pudo cargar. Intenta de nuevo.')}</div>;
 
   if (items.length === 0) {
     return (
-      <div className="py-16 text-center" data-testid="wishlist-empty">
+      <div className="max-w-[975px] mx-auto py-16 text-center" data-testid="wishlist-empty">
         <Heart className="w-12 h-12 text-stone-300 mx-auto mb-3" />
         <h3 className="text-lg font-semibold text-stone-700 mb-1">{t('wishlist.emptyTitle', 'Tu lista de deseos está vacía')}</h3>
         <p className="text-sm text-stone-500 mb-4">{t('wishlist.emptyDesc', 'Guarda productos para recibir alertas de precios')}</p>
@@ -52,7 +67,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div data-testid="wishlist-page">
+    <div className="max-w-[975px] mx-auto" data-testid="wishlist-page">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-3xl font-semibold text-stone-950 flex items-center gap-2">
           <Heart className="w-5 h-5 text-stone-500" />

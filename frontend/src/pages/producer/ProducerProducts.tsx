@@ -1228,7 +1228,7 @@ export default function ProducerProducts() {
 
   // List View
   return (
-    <div>
+    <div className="max-w-[975px] mx-auto">
       <div className="flex items-center justify-between mb-6 gap-3">
         <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-950 mb-1">

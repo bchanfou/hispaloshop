@@ -139,7 +139,7 @@ export default function AdminSupport() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[24px] border border-stone-100 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[24px] border border-stone-100 bg-white shadow-sm -mx-4 px-4 sm:mx-0 sm:px-0">
         {loading ? (
           <div className="p-4 space-y-4" aria-busy="true" aria-label="Cargando casos de soporte">
             {[1,2,3,4].map(i => (

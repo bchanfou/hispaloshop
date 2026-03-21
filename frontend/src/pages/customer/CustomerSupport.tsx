@@ -209,7 +209,7 @@ export default function CustomerSupport() {
 
   if (selectedCase) {
     return (
-      <div className="mx-auto max-w-2xl p-4 sm:p-6">
+      <div className="mx-auto max-w-[975px] p-4 sm:p-6">
         <CaseDetail
           caseData={selectedCase}
           onBack={() => setSelectedCase(null)}
@@ -220,7 +220,7 @@ export default function CustomerSupport() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-4 sm:p-6">
+    <div className="mx-auto max-w-[975px] p-4 sm:p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight text-stone-950">Mis solicitudes</h1>
         <p className="mt-1 text-sm text-stone-500">
@@ -229,8 +229,17 @@ export default function CustomerSupport() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
+        <div className="space-y-3">
+          {[1,2,3].map(i => (
+            <div key={i} className="rounded-[24px] border border-stone-100 bg-white p-5 space-y-3 animate-pulse">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-16 bg-stone-100 rounded" />
+                <div className="h-5 w-20 bg-stone-100 rounded-full" />
+              </div>
+              <div className="h-4 w-48 bg-stone-100 rounded" />
+              <div className="h-3 w-32 bg-stone-100 rounded" />
+            </div>
+          ))}
         </div>
       ) : cases.length === 0 ? (
         <div className="rounded-[28px] border border-dashed border-stone-200 bg-white px-6 py-16 text-center">

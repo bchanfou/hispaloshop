@@ -367,7 +367,7 @@ export default function AdminProducts() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : filteredProducts.length === 0 ? (

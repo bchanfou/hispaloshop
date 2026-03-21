@@ -383,7 +383,7 @@ export default function AdminCertificates() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden -mx-4 px-4 sm:mx-0 sm:px-0">
         {loading ? (
           <div className="p-8 text-center text-stone-500">
             {t('common.loading', 'Cargando...')}

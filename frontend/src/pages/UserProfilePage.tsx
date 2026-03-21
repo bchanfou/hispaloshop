@@ -315,6 +315,7 @@ export default function UserProfilePage() {
         onMessage={handleMessage}
         highlights={highlights}
         onCreateHighlight={() => setShowCreateHighlight(true)}
+        onHighlightDeleted={() => queryClient.invalidateQueries({ queryKey: userKeys.highlights(userId) })}
         onSwitchTab={(tabId) => tabsRef.current?.switchTab(tabId)}
         onViewOwnStory={handleViewOwnStory}
         onViewHighlight={handleViewHighlight}

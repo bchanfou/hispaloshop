@@ -334,7 +334,7 @@ export default function CustomerProfile() {
   }
 
   return (
-    <div>
+    <div className="max-w-[975px] mx-auto">
       <h1 className="text-3xl font-bold text-stone-950 mb-2">
         {t('profile.title', 'My Profile')}
       </h1>

@@ -697,7 +697,7 @@ export default function B2BOfferPage() {
         className="flex-1"
         style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
       >
-        <div style={{ padding: '8px 20px 120px' }}>
+        <div style={{ padding: '8px 20px 120px' }} className="max-w-[600px] mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={step}

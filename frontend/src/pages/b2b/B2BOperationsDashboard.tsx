@@ -448,7 +448,7 @@ const B2BOperationsDashboard = () => {
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div style={{ flex: 1, overflowY: 'auto' }} className="max-w-[975px] mx-auto w-full">
         {loading ? (
           <div className="p-4 space-y-3">
             {[0, 1, 2].map((i) => (

@@ -276,7 +276,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-[1100px] px-4 py-6 sm:px-6">
         <Breadcrumbs className="mb-4" />
 
         <section className="mb-8 rounded-[28px] border border-stone-100 bg-white px-5 py-5 shadow-sm md:px-6">
@@ -523,7 +523,7 @@ export default function ProductsPage() {
         ) : (
           <>
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" data-testid="products-grid">
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4" data-testid="products-grid">
                 {products.map((product) => (
                   <ProductCard key={product.product_id} product={product} />
                 ))}

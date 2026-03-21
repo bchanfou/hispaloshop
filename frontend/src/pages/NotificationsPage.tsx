@@ -279,7 +279,7 @@ function NotifSkeleton() {
   );
 }
 
-// ── Single notification row ───────────────────────────────────────
+// ── Single notification row (swipe-to-delete) ────────────────────
 function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   const meta = TYPE_META[notif.type] || TYPE_META.system;
   const category = meta?.category || 'sistema';
@@ -288,11 +288,24 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   const isRead = !!notif.read_at;
 
   const navigate = useNavigate();
+  const notifKey = notif.notification_id || notif._id;
+
+  // Swipe-to-delete state
+  const [showDelete, setShowDelete] = useState(false);
+  const SWIPE_THRESHOLD = -60;
+
+  // Long-press state
+  const longPressTimer = useRef(null);
+  const handlePointerDown = () => {
+    longPressTimer.current = setTimeout(() => setShowDelete(true), 500);
+  };
+  const handlePointerUp = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+  };
 
   // Follow-back state
   const isFollowType = notif.type === 'follow' || notif.type === 'new_follower';
   const actorId = notif.actor_id || notif.data?.actor_id || notif.sender_id;
-  const notifKey = notif.notification_id || notif._id;
   const isFollowing = followedIds.has(notifKey);
   const [followLoading, setFollowLoading] = useState(false);
 
@@ -315,7 +328,8 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   };
 
   const handleClick = () => {
-    if (!isRead) onRead(notif.notification_id || notif._id);
+    if (showDelete) { setShowDelete(false); return; }
+    if (!isRead) onRead(notifKey);
     const url = notif.action_url || notif.data?.action_url;
     if (url) navigate(url);
   };
@@ -326,104 +340,128 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   const showThumbPlaceholder = ['post', 'product', 'reel'].includes(notif.entity_type) && !thumb;
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      className="flex items-center gap-3 cursor-pointer"
-      style={{
-        padding: '10px 16px',
-        borderLeft: !isRead ? '3px solid #0c0a09' : '3px solid transparent',
-        background: !isRead ? '#f5f5f4' : '#ffffff',
-        transition: 'background 0.15s',
-      }}
-      onClick={handleClick}
-    >
-      {/* Avatar (40px) with icon badge */}
-      <div className="relative w-10 h-10 flex-shrink-0">
-        <div className="w-10 h-10 rounded-full overflow-hidden" style={{ background: '#f5f5f4' }}>
-          {avatar
-            ? <img loading="lazy" src={avatar} alt={avatarName} className="w-full h-full object-cover" />
-            : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: '#78716c' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
-          }
-        </div>
-        {/* Category icon badge */}
-        <div
-          className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
-          style={{ background: catStyle.bg }}
-        >
-          <Icon style={{ width: 10, height: 10, color: catStyle.color }} strokeWidth={2} />
-        </div>
-      </div>
-
-      {/* Content + timestamp */}
-      <div className="flex-1 min-w-0">
-        <p style={{
-          fontSize: 13,
-          lineHeight: 1.4,
-          color: '#0c0a09',
-          fontWeight: isRead ? 400 : 500,
-          fontFamily: 'inherit',
-        }}>
-          {notif.title}
-        </p>
-        {notif.body && (
-          <p className="mt-0.5 line-clamp-2" style={{
-            fontSize: 12,
-            color: '#78716c',
-            lineHeight: 1.4,
-          }}>
-            {notif.body}
-          </p>
-        )}
-        <span style={{ fontSize: 11, color: '#a8a29e', marginTop: 2, display: 'inline-block' }}>
-          {relativeTime(notif.created_at)}
-        </span>
-      </div>
-
-      {/* Follow-back button */}
-      {isFollowType && actorId && (
-        <button
-          onClick={handleFollowBack}
-          disabled={followLoading}
-          className="rounded-full text-[11px] font-semibold cursor-pointer flex-shrink-0"
-          style={{
-            padding: '6px 16px',
-            border: isFollowing ? '1px solid #e7e5e4' : 'none',
-            background: isFollowing ? '#ffffff' : '#0c0a09',
-            color: isFollowing ? '#78716c' : '#ffffff',
-            fontFamily: 'inherit',
-            opacity: followLoading ? 0.6 : 1,
-            transition: 'all 0.15s',
-          }}
-          aria-label={isFollowing ? 'Ya sigues a este usuario' : 'Seguir a este usuario'}
-        >
-          {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
-        </button>
-      )}
-
-      {/* Thumbnail */}
-      {hasThumb ? (
-        <img
-          src={thumb}
-          alt=""
-          className="w-11 h-11 rounded-2xl object-cover flex-shrink-0"
-        />
-      ) : showThumbPlaceholder ? (
-        <div className="w-11 h-11 rounded-2xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
-      ) : null}
-
-      {/* Delete button */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onDelete(notif.notification_id || notif._id); }}
-        className="p-1 flex items-center justify-center flex-shrink-0"
-        style={{ color: '#78716c', background: 'none', border: 'none', cursor: 'pointer' }}
-        aria-label="Eliminar notificación"
+    <div className="relative overflow-hidden">
+      {/* Delete zone (revealed on swipe) */}
+      <div
+        className="absolute inset-y-0 right-0 flex items-center justify-center"
+        style={{ width: 72, background: '#dc2626' }}
       >
-        <Trash2 className="text-stone-400 hover:text-stone-600" style={{ width: 14, height: 14 }} />
-      </button>
-    </motion.div>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(notifKey); }}
+          className="flex flex-col items-center justify-center gap-0.5"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          aria-label="Eliminar notificación"
+        >
+          <Trash2 style={{ width: 18, height: 18, color: '#ffffff' }} strokeWidth={1.8} />
+          <span style={{ fontSize: 10, color: '#ffffff', fontWeight: 500 }}>Eliminar</span>
+        </button>
+      </div>
+
+      {/* Swipeable foreground row */}
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0, x: showDelete ? -72 : 0 }}
+        exit={{ opacity: 0, x: -300 }}
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: -72, right: 0 }}
+        dragElastic={0.1}
+        onDragEnd={(_e, info) => {
+          if (info.offset.x < SWIPE_THRESHOLD) {
+            setShowDelete(true);
+          } else {
+            setShowDelete(false);
+          }
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        className="flex items-center gap-3 cursor-pointer relative"
+        style={{
+          padding: '10px 16px',
+          borderLeft: !isRead ? '3px solid #0c0a09' : '3px solid transparent',
+          background: !isRead ? '#f5f5f4' : '#ffffff',
+          transition: showDelete ? 'none' : 'background 0.15s',
+          zIndex: 1,
+        }}
+        onClick={handleClick}
+      >
+        {/* Avatar (40px) with icon badge */}
+        <div className="relative w-10 h-10 flex-shrink-0">
+          <div className="w-10 h-10 rounded-full overflow-hidden" style={{ background: '#f5f5f4' }}>
+            {avatar
+              ? <img loading="lazy" src={avatar} alt={avatarName} className="w-full h-full object-cover" />
+              : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: '#78716c' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
+            }
+          </div>
+          {/* Category icon badge */}
+          <div
+            className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
+            style={{ background: catStyle.bg }}
+          >
+            <Icon style={{ width: 10, height: 10, color: catStyle.color }} strokeWidth={2} />
+          </div>
+        </div>
+
+        {/* Content + timestamp */}
+        <div className="flex-1 min-w-0">
+          <p style={{
+            fontSize: 13,
+            lineHeight: 1.4,
+            color: '#0c0a09',
+            fontWeight: isRead ? 400 : 500,
+            fontFamily: 'inherit',
+          }}>
+            {notif.title}
+          </p>
+          {notif.body && (
+            <p className="mt-0.5 line-clamp-2" style={{
+              fontSize: 12,
+              color: '#78716c',
+              lineHeight: 1.4,
+            }}>
+              {notif.body}
+            </p>
+          )}
+          <span style={{ fontSize: 11, color: '#a8a29e', marginTop: 2, display: 'inline-block' }}>
+            {relativeTime(notif.created_at)}
+          </span>
+        </div>
+
+        {/* Follow-back button */}
+        {isFollowType && actorId && (
+          <button
+            onClick={handleFollowBack}
+            disabled={followLoading}
+            className="rounded-full text-[11px] font-semibold cursor-pointer flex-shrink-0"
+            style={{
+              padding: '6px 16px',
+              border: isFollowing ? '1px solid #e7e5e4' : 'none',
+              background: isFollowing ? '#ffffff' : '#0c0a09',
+              color: isFollowing ? '#78716c' : '#ffffff',
+              fontFamily: 'inherit',
+              opacity: followLoading ? 0.6 : 1,
+              transition: 'all 0.15s',
+            }}
+            aria-label={isFollowing ? 'Ya sigues a este usuario' : 'Seguir a este usuario'}
+          >
+            {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
+          </button>
+        )}
+
+        {/* Thumbnail */}
+        {hasThumb ? (
+          <img
+            src={thumb}
+            alt=""
+            className="w-11 h-11 rounded-2xl object-cover flex-shrink-0"
+          />
+        ) : showThumbPlaceholder ? (
+          <div className="w-11 h-11 rounded-2xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
+        ) : null}
+      </motion.div>
+    </div>
   );
 }
 
@@ -521,7 +559,7 @@ export default function NotificationsPage() {
   const GROUP_ORDER = ['Hoy', 'Ayer', 'Esta semana', 'Este mes', 'Anterior'];
 
   return (
-    <div className="min-h-screen max-w-2xl mx-auto pb-20" style={{ background: '#fafaf9' }}>
+    <div className="min-h-screen max-w-[600px] mx-auto pb-20" style={{ background: '#fafaf9' }}>
 
       {/* ── Header ────────────────────────────────────────────── */}
       <div

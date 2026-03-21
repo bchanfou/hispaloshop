@@ -161,7 +161,8 @@ export default function AdminReviews() {
 
       {/* Reviews Table */}
       <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto -mx-4 px-4">
+        <table className="w-full min-w-[800px]">
           <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Product</th>
@@ -252,6 +253,7 @@ export default function AdminReviews() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

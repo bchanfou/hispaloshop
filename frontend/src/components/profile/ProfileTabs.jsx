@@ -128,6 +128,20 @@ const ProfileTabs = forwardRef(function ProfileTabs({
   onFollow,
 }, ref) {
   const navigate = useNavigate();
+  const [followLoading, setFollowLoading] = useState(false);
+
+  const handleFollowAndRefetch = useCallback(async () => {
+    if (followLoading) return;
+    setFollowLoading(true);
+    try {
+      await apiClient.post(`/users/${userId}/follow`);
+      if (onFollow) onFollow();
+    } catch {
+      toast.error('Error al seguir');
+    } finally {
+      setFollowLoading(false);
+    }
+  }, [userId, onFollow, followLoading]);
 
   const tabs = useMemo(() => getTabsForRole(role, isOwn), [role, isOwn]);
   const [activeTab, setActiveTab] = useState('posts');
@@ -450,10 +464,11 @@ const ProfileTabs = forwardRef(function ProfileTabs({
           </p>
           {!isOwn && (
             <button
-              onClick={onFollow}
-              className="mt-4 px-6 py-2.5 bg-stone-950 text-white text-sm font-medium rounded-full"
+              onClick={handleFollowAndRefetch}
+              disabled={followLoading}
+              className="mt-5 rounded-full bg-stone-950 px-8 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-stone-800 active:scale-95 disabled:opacity-50"
             >
-              Seguir para ver
+              {followLoading ? 'Siguiendo...' : 'Seguir'}
             </button>
           )}
         </div>

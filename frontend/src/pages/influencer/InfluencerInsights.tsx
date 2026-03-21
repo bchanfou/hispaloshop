@@ -70,7 +70,7 @@ export default function InfluencerInsights() {
     <div className="min-h-screen bg-stone-50 pb-20">
       {/* Header */}
       <div className="border-b border-stone-200 bg-white px-6 py-5">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-[975px] items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950">
               <BarChart3 className="h-5 w-5 text-white" />
@@ -105,9 +105,9 @@ export default function InfluencerInsights() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl space-y-8 px-6 py-6">
+      <div className="mx-auto max-w-[975px] space-y-8 px-6 py-6">
         {/* KPIs */}
-        <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
           <KpiCard
             icon={MousePointerClick}
             label="Clics en productos"

@@ -295,7 +295,7 @@ export default function B2BCatalogPage() {
 
   /* ── Render ──────────────────────────────────────────────── */
   return (
-    <div style={{ minHeight: '100dvh', background: '#fafaf9', paddingBottom: 88 }}>
+    <div style={{ minHeight: '100dvh', background: '#fafaf9', paddingBottom: 88 }} className="max-w-[1100px] mx-auto">
       {/* Keyframes for spinner */}
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 

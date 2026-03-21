@@ -66,7 +66,7 @@ export default function PayoutsPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <div className="max-w-xl mx-auto px-4 py-6 pb-28">
+      <div className="max-w-[975px] mx-auto px-4 py-6 pb-28">
         <h1 className="text-xl font-bold text-stone-950 mb-6">Cobros</h1>
 
         {/* Balance card */}
@@ -75,7 +75,10 @@ export default function PayoutsPage() {
             Pendiente de cobro
           </p>
           {loadingStats ? (
-            <Loader2 className="w-6 h-6 animate-spin text-stone-500 mx-auto" />
+            <div className="space-y-3 animate-pulse">
+              <div className="h-10 w-32 bg-stone-800 rounded mx-auto" />
+              <div className="h-4 w-48 bg-stone-800 rounded mx-auto" />
+            </div>
           ) : (
             <>
               <p className="text-4xl font-extrabold tracking-tight text-white mb-1">

@@ -148,23 +148,22 @@ export default function AffiliateLinksPage() {
   // Blocked by fiscal gate
   if (blocked) {
     return (
-      <div className="min-h-screen" style={{ background: '#fafaf9' }}>
-        <div className="max-w-xl mx-auto px-4 py-6 pb-28">
-          <h1 className="text-xl font-bold mb-1" style={{ color: '#0c0a09' }}>Mis links de afiliado</h1>
-          <div className="mt-6 p-5" style={{ background: '#f5f5f4', borderRadius: '16px', border: '1px solid #d6d3d1' }}>
+      <div className="min-h-screen bg-stone-50">
+        <div className="max-w-[975px] mx-auto px-4 py-6 pb-28">
+          <h1 className="text-xl font-bold mb-1 text-stone-950">Mis links de afiliado</h1>
+          <div className="mt-6 p-5 bg-stone-100 rounded-2xl border border-stone-300">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#57534e' }} />
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>
-                <p className="text-sm font-semibold mb-1" style={{ color: '#0c0a09' }}>
+                <p className="text-sm font-semibold mb-1 text-stone-950">
                   Configuración fiscal requerida
                 </p>
-                <p className="text-sm mb-4" style={{ color: '#78716c' }}>
+                <p className="text-sm mb-4 text-stone-500">
                   {blocked.reason || 'Necesitas completar tu configuración fiscal para activar tus links de afiliado.'}
                 </p>
                 <RouterLink
                   to="/influencer/fiscal-setup"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors"
-                  style={{ background: '#0c0a09', color: '#fff', borderRadius: '16px' }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors bg-stone-950 text-white rounded-2xl"
                 >
                   Activar afiliados
                 </RouterLink>
@@ -178,7 +177,7 @@ export default function AffiliateLinksPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <div className="max-w-xl mx-auto px-4 py-6 pb-28">
+      <div className="max-w-[975px] mx-auto px-4 py-6 pb-28">
         <h1 className="text-xl font-bold text-stone-950 mb-1">Mis links de afiliado</h1>
         <p className="text-sm text-stone-500 mb-6">
           Genera un link para cualquier producto. Cuando alguien compre a través de tu link, ganas comisión.
@@ -289,8 +288,22 @@ export default function AffiliateLinksPage() {
         {/* My links */}
         <h3 className="text-base font-bold text-stone-950 mb-3">Links activos</h3>
         {loadingLinks ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-stone-400" />
+          <div className="space-y-3">
+            {[1,2,3].map(i => (
+              <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 animate-pulse space-y-3">
+                <div className="flex gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-stone-100 shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-32 bg-stone-100 rounded" />
+                    <div className="h-3 w-16 bg-stone-100 rounded" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[1,2,3].map(j => <div key={j} className="h-14 bg-stone-50 rounded-2xl" />)}
+                </div>
+                <div className="h-10 bg-stone-100 rounded-2xl" />
+              </div>
+            ))}
           </div>
         ) : myLinks.length === 0 ? (
           <div className="text-center py-10">

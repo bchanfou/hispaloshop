@@ -1,16 +1,15 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const ROLES = ['Consumidor', 'Productor', 'Influencer', 'Importador', 'Prensa'];
 
 export default function ContactPage() {
   const navigate = useNavigate();
-  useScrollReveal();
   usePageTitle();
 
   const [name, setName] = useState('');
@@ -19,7 +18,7 @@ export default function ContactPage() {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !message.trim()) {
       toast.error('Completa todos los campos');
@@ -37,193 +36,136 @@ export default function ContactPage() {
     }
   };
 
-  const inputStyle = {
-    width: '100%',
-    height: 44,
-    padding: '0 14px',
-    fontSize: '14px',
-    border: '1px solid #e7e5e4',
-    borderRadius: '12px',
-    background: '#ffffff',
-    outline: 'none',
-    color: '#0c0a09',
-    fontFamily: 'inherit',
-    boxSizing: 'border-box',
-  };
-
   return (
-    <div style={{
-      background: '#fafaf9',
-      paddingTop: 64,
-      minHeight: '100vh',
-      fontFamily: 'inherit',
-    }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '60px 16px 80px' }}>
-        <h1 className="info-h1 hero-animate-in" style={{ color: '#0c0a09', marginBottom: 12 }}>Hablemos.</h1>
-        <p className="info-lead hero-animate-in-delay-1" style={{ color: '#78716c', marginBottom: 48 }}>
-          Para dudas sobre la plataforma, colaboraciones o prensa.
-          Respondemos en menos de 24 horas.
-        </p>
+    <div className="min-h-screen bg-stone-50 pt-16" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      <div className="max-w-[600px] mx-auto px-4 py-16 md:py-20">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-12"
+        >
+          <h1 className="text-3xl md:text-4xl font-bold text-stone-950 tracking-tight mb-3">
+            Hablemos.
+          </h1>
+          <p className="text-base text-stone-500 leading-relaxed">
+            Para dudas sobre la plataforma, colaboraciones o prensa.
+            Respondemos en menos de 24 horas.
+          </p>
+        </motion.div>
 
-        <div className="reveal contact-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: 64,
-        }}>
-          <style>{`
-            @media (min-width: 768px) {
-              .contact-grid { grid-template-columns: 1fr 1fr !important; }
-            }
-          `}</style>
-
-          {/* ── Left: Form ── */}
-          <div style={{
-            background: '#ffffff',
-            border: '1px solid #e7e5e4',
-            borderRadius: '16px',
-            padding: 32,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-          }}>
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: 20 }}>
-                <label style={labelStyle}>Nombre</label>
-                <input
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Tu nombre"
-                  style={inputStyle}
-                />
-              </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <label style={labelStyle}>Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="tu@email.com"
-                  style={inputStyle}
-                />
-              </div>
-
-              <div style={{ marginBottom: 20 }}>
-                <label style={labelStyle}>Soy</label>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {ROLES.map(r => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRole(r)}
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: '9999px',
-                        fontSize: '11px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        transition: 'all all 0.15s ease',
-                        border: role === r ? 'none' : '1px solid #e7e5e4',
-                        background: role === r ? '#0c0a09' : '#ffffff',
-                        color: role === r ? '#fff' : '#78716c',
-                      }}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 24 }}>
-                <label style={labelStyle}>Mensaje</label>
-                <textarea
-                  value={message}
-                  onChange={e => setMessage(e.target.value)}
-                  placeholder="¿En qué podemos ayudarte?"
-                  rows={5}
-                  style={{
-                    ...inputStyle,
-                    height: 'auto',
-                    minHeight: 120,
-                    padding: 14,
-                    resize: 'vertical',
-                  }}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={sending}
-                style={{
-                  width: '100%',
-                  height: 46,
-                  borderRadius: '9999px',
-                  background: '#0c0a09',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  border: 'none',
-                  cursor: sending ? 'default' : 'pointer',
-                  fontFamily: 'inherit',
-                  opacity: sending ? 0.6 : 1,
-                  transition: 'opacity all 0.15s ease',
-                }}
-              >
-                {sending ? 'Enviando...' : 'Enviar mensaje'}
-              </button>
-            </form>
-          </div>
-
-          {/* ── Right: Info ── */}
-          <div>
-            <h3 className="info-h3" style={{ marginBottom: 8 }}>Hispaloshop SL</h3>
-            <p className="info-body" style={{ color: '#78716c', marginBottom: 24 }}>
-              Reus, Tarragona, España
-            </p>
-
-            <p className="info-body" style={{ color: '#78716c', margin: '0 0 4px' }}>hola@hispaloshop.com</p>
-            <p className="info-body" style={{ color: '#78716c', margin: '0 0 4px' }}>@hispaloshop (Instagram)</p>
-            <p className="info-body" style={{ color: '#78716c', margin: '0 0 0' }}>@bchanfuah (fundador)</p>
-
-            <div style={{
-              marginTop: 32,
-              padding: 24,
-              background: '#f5f5f4',
-              borderRadius: '16px',
-              border: '1px solid #e7e5e4',
-            }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, color: '#0c0a09', margin: '0 0 12px' }}>
-                ¿Eres productor y quieres unirte?
-              </p>
-              <button
-                onClick={() => navigate('/register')}
-                style={{
-                  width: '100%',
-                  height: 40,
-                  borderRadius: '9999px',
-                  background: '#0c0a09',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
-                Crear cuenta gratuita →
-              </button>
+        {/* Form card */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          className="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm mb-10"
+        >
+          <form onSubmit={handleSubmit}>
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-stone-950 mb-1.5">
+                Nombre
+              </label>
+              <input
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Tu nombre"
+                className="w-full h-11 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+              />
             </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-stone-950 mb-1.5">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="tu@email.com"
+                className="w-full h-11 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+              />
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-stone-950 mb-1.5">
+                Soy
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {ROLES.map(r => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-150 ${
+                      role === r
+                        ? 'bg-stone-950 text-white border border-stone-950'
+                        : 'bg-white text-stone-500 border border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-stone-950 mb-1.5">
+                Mensaje
+              </label>
+              <textarea
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+                placeholder="&iquest;En qu&eacute; podemos ayudarte?"
+                rows={5}
+                className="w-full px-3.5 py-3 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors resize-y min-h-[120px]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={sending}
+              className="w-full h-12 bg-stone-950 text-white rounded-full text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-default"
+            >
+              {sending ? 'Enviando...' : 'Enviar mensaje'}
+            </button>
+          </form>
+        </motion.div>
+
+        {/* Info section */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <h3 className="text-lg font-bold text-stone-950 mb-2">
+            Hispaloshop SL
+          </h3>
+          <p className="text-sm text-stone-500 mb-6">
+            Reus, Tarragona, Espa&ntilde;a
+          </p>
+
+          <div className="space-y-1 text-sm text-stone-500 mb-8">
+            <p>hola@hispaloshop.com</p>
+            <p>@hispaloshop (Instagram)</p>
+            <p>@bchanfuah (fundador)</p>
           </div>
-        </div>
+
+          <div className="bg-stone-100 rounded-2xl border border-stone-200 p-6">
+            <p className="text-sm font-semibold text-stone-950 mb-3">
+              &iquest;Eres productor y quieres unirte?
+            </p>
+            <button
+              onClick={() => navigate('/register')}
+              className="w-full h-10 bg-stone-950 text-white rounded-full text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
+            >
+              Crear cuenta gratuita &rarr;
+            </button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
 }
-
-const labelStyle = {
-  display: 'block',
-  fontSize: '14px',
-  fontWeight: 500,
-  color: '#0c0a09',
-  marginBottom: 6,
-  fontFamily: 'inherit',
-};

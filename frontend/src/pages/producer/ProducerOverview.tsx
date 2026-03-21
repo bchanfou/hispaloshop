@@ -621,7 +621,7 @@ export default function ProducerOverview() {
       <div className="animate-pulse" style={{ width: w, height: h, borderRadius: r, background: '#f5f5f4', marginBottom: mb }} />
     );
     return (
-      <div className="space-y-4 px-4 py-4 md:px-6 md:py-6">
+      <div className="max-w-[975px] mx-auto space-y-4 px-4 py-4 md:px-6 md:py-6">
         {/* H1 skeleton */}
         <Bone w="55%" h={28} mb={4} />
         <Bone w="30%" h={14} mb={16} />
@@ -631,7 +631,7 @@ export default function ProducerOverview() {
           <Bone w="70%" h={12} />
         </div>
         {/* Stats grid skeleton */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1,2,3,4].map(i => (
             <div key={i} style={{ borderRadius: '16px', border: '1px solid #e7e5e4', padding: 16 }}>
               <Bone w="60%" h={12} mb={8} />
@@ -705,7 +705,7 @@ export default function ProducerOverview() {
   ];
 
   return (
-    <div className="space-y-4 md:space-y-6" style={{ fontFamily: 'inherit' }}>
+    <div className="max-w-[975px] mx-auto space-y-4 md:space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -948,7 +948,7 @@ export default function ProducerOverview() {
           },
         ];
         return (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {kpis.map((kpi, i) => (
               <div key={i} className="p-4 text-center bg-white border border-stone-200 rounded-2xl">
                 <p className="text-2xl font-bold text-stone-950">{kpi.value}</p>

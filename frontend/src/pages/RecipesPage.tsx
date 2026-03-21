@@ -194,6 +194,7 @@ export default function RecipesPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
+      <div className="mx-auto max-w-[975px] px-4">
       <SEO
         title="Recetas — Hispaloshop"
         description="Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta."
@@ -212,7 +213,7 @@ export default function RecipesPage() {
       />
 
       {/* ── Title bar ── */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-1">
+      <div className="flex items-center justify-between pt-3 pb-1">
         <h1 className="text-xl font-bold text-stone-950">Recetas</h1>
         {user && (
           <Link
@@ -225,7 +226,7 @@ export default function RecipesPage() {
       </div>
 
       {/* ── Search ── */}
-      <div className="px-4 pt-2">
+      <div className="pt-2">
         <div className="relative">
           <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
           <input
@@ -250,7 +251,7 @@ export default function RecipesPage() {
       </div>
 
       {/* ── Filters ── */}
-      <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pt-3 pb-2">
+      <div className="scrollbar-hide flex gap-2 overflow-x-auto pt-3 pb-2">
         <FilterSection pills={DIFFICULTY_PILLS} active={difficulty} onSelect={setDifficulty} />
         <div className="w-px shrink-0 bg-stone-200" />
         <FilterSection pills={TIME_PILLS} active={timeFilter} onSelect={setTimeFilter} />
@@ -258,7 +259,7 @@ export default function RecipesPage() {
         <FilterSection pills={DIET_PILLS} active={dietFilter} onSelect={setDietFilter} />
       </div>
 
-      <div className="px-4 pb-24 pt-1">
+      <div className="pb-24 pt-1">
         {/* Results header */}
         <div className="mb-2 flex items-center justify-between">
           {!loading && (
@@ -279,7 +280,7 @@ export default function RecipesPage() {
 
         {/* Grid */}
         {loading ? (
-          <div aria-busy="true" aria-label="Cargando recetas" className="grid grid-cols-2 gap-3">
+          <div aria-busy="true" aria-label="Cargando recetas" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array(6).fill(0).map((_, i) => (
               <div key={i} aria-hidden="true" className="aspect-[4/5] animate-pulse rounded-2xl bg-stone-100" />
             ))}
@@ -312,7 +313,7 @@ export default function RecipesPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {filtered.slice(0, visibleCount).map((recipe, i) => (
                 <motion.div
                   key={recipe.recipe_id}
@@ -331,6 +332,7 @@ export default function RecipesPage() {
             )}
           </>
         )}
+      </div>
       </div>
     </div>
   );

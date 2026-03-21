@@ -143,6 +143,7 @@ export default function ProfileHeader({
   onMessage,
   highlights = [],
   onCreateHighlight,
+  onHighlightDeleted,
   onSwitchTab,
   onViewOwnStory,
   onViewHighlight,
@@ -254,12 +255,13 @@ export default function ProfileHeader({
       toast.success('Nombre actualizado');
       setHighlightMenu(null);
       setHighlightEditMode(null);
+      onHighlightDeleted?.(); // reuse callback to refresh highlights list
     } catch {
       toast.error('Error al actualizar');
     } finally {
       setHighlightSavingName(false);
     }
-  }, [highlightMenu, highlightEditName]);
+  }, [highlightMenu, highlightEditName, onHighlightDeleted]);
 
   const handleHighlightDelete = useCallback(async () => {
     if (!highlightMenu) return;
@@ -269,12 +271,13 @@ export default function ProfileHeader({
       toast.success('Destacado eliminado');
       setHighlightMenu(null);
       setHighlightEditMode(null);
+      onHighlightDeleted?.();
     } catch {
       toast.error('Error al eliminar');
     } finally {
       setHighlightDeleting(false);
     }
-  }, [highlightMenu]);
+  }, [highlightMenu, onHighlightDeleted]);
 
   /* cleanup long-press timer */
   useEffect(() => {

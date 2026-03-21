@@ -68,14 +68,14 @@ export default function ProducerAnalytics() {
 
   if (loading) {
     return (
-      <div className="space-y-4 pt-6">
+      <div className="max-w-[975px] mx-auto space-y-4 pt-6">
         {/* Header skeleton */}
         <div className="flex items-center justify-between">
           <div className="h-8 w-36 animate-pulse bg-stone-100 rounded-2xl" />
           <div className="h-9 w-40 animate-pulse bg-stone-100 rounded-2xl" />
         </div>
         {/* Revenue + orders KPI cards */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map(i => (
             <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 space-y-3 h-32">
               <div className="h-3 w-16 animate-pulse bg-stone-100 rounded-2xl" />
@@ -122,7 +122,7 @@ export default function ProducerAnalytics() {
   }
 
   return (
-    <div>
+    <div className="max-w-[975px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-stone-950">Analítica</h1>
         <select

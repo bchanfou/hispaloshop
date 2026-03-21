@@ -143,7 +143,7 @@ export default function B2BMarketplacePage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <div className="bg-white border-b border-stone-200 px-4 pt-6 pb-0">
+      <div className="bg-white border-b border-stone-200 px-4 pt-6 pb-0 max-w-[1100px] mx-auto">
         <h1 className="text-2xl font-bold text-stone-950 mb-4">Marketplace B2B</h1>
 
         {activeTab !== 'rfq' && (
@@ -180,7 +180,7 @@ export default function B2BMarketplacePage() {
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 max-w-[1100px] mx-auto">
         {activeTab === 'catalog' && (
           <>
             {catalogQuery.isLoading ? (
@@ -205,7 +205,7 @@ export default function B2BMarketplacePage() {
                 <p>No hay productos disponibles</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product.id || product.product_id} product={product} convertAndFormatPrice={convertAndFormatPrice} />
                 ))}
@@ -237,7 +237,7 @@ export default function B2BMarketplacePage() {
                 <p>No hay productores disponibles</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {filteredProducers.map((producer) => (
                   <ProducerCard
                     key={producer.user_id || producer.id}

@@ -72,16 +72,16 @@ function ImporterPlanCard({ plan }) {
         to="/producer/commercial-ai"
         className="flex items-center gap-3.5 p-4 transition-colors bg-stone-950 rounded-2xl text-white"
       >
-        <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.1)' }}>
+        <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 bg-white/10">
           <Globe className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold">Agente Comercial IA</p>
-          <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          <p className="text-xs mt-0.5 text-white/45">
             Busca productores globales · Analiza mercados · Genera contratos
           </p>
         </div>
-        <ArrowRight className="w-5 h-5 shrink-0" style={{ color: 'rgba(255,255,255,0.45)' }} />
+        <ArrowRight className="w-5 h-5 shrink-0 text-white/45" />
       </Link>
     );
   }
@@ -338,7 +338,7 @@ export default function ImporterDashboardPage() {
             <h2 className="text-sm font-bold text-stone-950">Resumen</h2>
             <PeriodSelector value={period} onChange={setPeriod} />
           </div>
-          <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
             <KPICard
               icon={TrendingUp}
               value={convertAndFormatPrice(stats?.volume_month || 0, 'EUR')}
@@ -402,8 +402,7 @@ export default function ImporterDashboardPage() {
                     </div>
                     <Link
                       to={`/producer/orders`}
-                      className="shrink-0 flex items-center justify-center"
-                      className="w-8 h-8 rounded-full bg-stone-950 flex items-center justify-center"
+                      className="w-8 h-8 shrink-0 rounded-full bg-stone-950 flex items-center justify-center"
                     >
                       <ChevronRight className="w-4 h-4 text-white" />
                     </Link>
@@ -433,8 +432,7 @@ export default function ImporterDashboardPage() {
             {topProducts.length > 0 ? topProducts.map((product, i) => (
               <div
                 key={product.product_id || i}
-                className="flex items-center gap-3 py-2.5"
-                className={i < topProducts.length - 1 ? 'border-b border-stone-200' : ''}
+                className={`flex items-center gap-3 py-2.5 ${i < topProducts.length - 1 ? 'border-b border-stone-200' : ''}`}
               >
                 <div
                   className="w-10 h-10 shrink-0 overflow-hidden rounded-2xl bg-stone-100"
@@ -478,8 +476,7 @@ export default function ImporterDashboardPage() {
               {b2cOrders.filter(o => o.status !== 'pending' && o.status !== 'processing').slice(0, 3).map((order, i) => (
                 <div
                   key={order.order_id || i}
-                  className="flex items-center justify-between py-2.5"
-                  className={i < 2 ? 'border-b border-stone-200' : ''}
+                  className={`flex items-center justify-between py-2.5 ${i < 2 ? 'border-b border-stone-200' : ''}`}
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold truncate text-stone-950">
@@ -513,7 +510,7 @@ export default function ImporterDashboardPage() {
           </div>
 
           {/* KPIs */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
             <KPICard
               icon={Package}
               value={stats?.b2b_active_orders || stats?.total_orders || 0}
@@ -605,8 +602,7 @@ export default function ImporterDashboardPage() {
                 .map((order, i, arr) => (
                   <div
                     key={order.producer_id || i}
-                    className="flex items-center gap-3 py-2.5"
-                    className={i < arr.length - 1 ? 'border-b border-stone-200' : ''}
+                    className={`flex items-center gap-3 py-2.5 ${i < arr.length - 1 ? 'border-b border-stone-200' : ''}`}
                   >
                     <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-stone-100">
                       <Factory className="w-4 h-4 text-stone-500" />
@@ -622,11 +618,7 @@ export default function ImporterDashboardPage() {
                     {order.producer_id && (
                       <button
                         onClick={() => handleB2BChat(order.producer_id)}
-                        className="shrink-0 flex items-center justify-center"
-                        style={{
-                          width: 32, height: 32, borderRadius: '50%',
-                          background: '#f5f5f4', border: 'none', cursor: 'pointer',
-                        }}
+                        className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-stone-100 border-none cursor-pointer"
                         aria-label="Chat B2B"
                       >
                         <MessageCircle className="w-4 h-4 text-stone-500" />
@@ -656,8 +648,7 @@ export default function ImporterDashboardPage() {
               {recentB2B.map((order, i) => (
                 <div
                   key={order.id || i}
-                  className="flex items-center justify-between py-2.5"
-                  className={i < recentB2B.length - 1 ? 'border-b border-stone-200' : ''}
+                  className={`flex items-center justify-between py-2.5 ${i < recentB2B.length - 1 ? 'border-b border-stone-200' : ''}`}
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold truncate text-stone-950">
@@ -670,11 +661,7 @@ export default function ImporterDashboardPage() {
                   {order.producer_id && (
                     <button
                       onClick={(e) => { e.stopPropagation(); handleB2BChat(order.producer_id); }}
-                      className="shrink-0 flex items-center justify-center"
-                      style={{
-                        width: 32, height: 32, borderRadius: '50%',
-                        background: '#f5f5f4', border: 'none', cursor: 'pointer',
-                      }}
+                      className="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-stone-100 border-none cursor-pointer"
                       aria-label="Chat B2B"
                     >
                       <MessageCircle className="w-4 h-4 text-stone-500" />

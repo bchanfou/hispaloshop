@@ -63,7 +63,8 @@ export default function CommunitiesExplorePage() {
   return (
     <div className="min-h-screen bg-stone-50">
       {/* ── Topbar ── */}
-      <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
+      <div className="sticky top-0 z-40 border-b border-stone-200 bg-white">
+      <div className="mx-auto flex max-w-[975px] items-center gap-3 px-4 py-3">
         <button onClick={() => navigate(-1)} className="flex h-11 w-11 items-center justify-center" aria-label="Volver">
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
@@ -74,9 +75,10 @@ export default function CommunitiesExplorePage() {
           </Link>
         )}
       </div>
+      </div>
 
       {/* ── Search ── */}
-      <div role="search" aria-label="Buscar comunidades" className="mx-auto max-w-[600px] px-4 pt-3">
+      <div role="search" aria-label="Buscar comunidades" className="mx-auto max-w-[975px] px-4 pt-3">
         <div className="relative">
           <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
           <input
@@ -100,7 +102,7 @@ export default function CommunitiesExplorePage() {
       </div>
 
       {/* ── Filter Pills ── */}
-      <div className="mx-auto flex max-w-[600px] gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
+      <div className="mx-auto flex max-w-[975px] gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
         {FILTERS.map(f => {
           const active = filter === f.id;
           return (
@@ -121,7 +123,7 @@ export default function CommunitiesExplorePage() {
         })}
       </div>
 
-      <div className="mx-auto max-w-[600px] px-4 pb-24">
+      <div className="mx-auto max-w-[975px] px-4 pb-24">
 
         {/* ── Mis comunidades (horizontal scroll) ── */}
         {user && myCommunities.length > 0 && filter !== 'joined' && !searchInput && (
@@ -180,7 +182,7 @@ export default function CommunitiesExplorePage() {
         {/* ── Grid ── */}
         {filter !== 'joined' && (
           isLoading ? (
-            <div className="grid grid-cols-2 gap-2.5" aria-busy="true" aria-label="Cargando comunidades">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5" aria-busy="true" aria-label="Cargando comunidades">
               {Array(6).fill(0).map((_, i) => (
                 <div key={i} aria-hidden="true" className="overflow-hidden rounded-2xl border border-stone-100 bg-white">
                   {/* Cover placeholder */}
@@ -230,7 +232,7 @@ export default function CommunitiesExplorePage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {communities.map((c, i) => (
                 <motion.div
                   key={c.id || c._id}

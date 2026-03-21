@@ -504,9 +504,9 @@ export default function StoresListPage() {
       />
       <style>{`
         @keyframes storesPulse { 0%,100%{opacity:.4} 50%{opacity:1} }
-        .stores-grid { display:grid; gap:12px; grid-template-columns:repeat(2,1fr); }
-        @media(min-width:600px){ .stores-grid{grid-template-columns:repeat(3,1fr);gap:14px} }
-        @media(min-width:1024px){ .stores-grid{grid-template-columns:repeat(4,1fr);gap:16px} }
+        .stores-grid { display:grid; gap:12px; grid-template-columns:1fr; }
+        @media(min-width:640px){ .stores-grid{grid-template-columns:repeat(2,1fr);gap:14px} }
+        @media(min-width:1024px){ .stores-grid{grid-template-columns:repeat(3,1fr);gap:16px} }
       `}</style>
 
       {/* ── TOPBAR ── */}
@@ -515,6 +515,7 @@ export default function StoresListPage() {
         height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 16px', background: '#ffffff',
         borderBottom: '1px solid #e7e5e4',
+        maxWidth: 975, margin: '0 auto',
       }}>
         <button onClick={() => navigate(-1)} aria-label="Volver" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <ArrowLeft size={22} color="#0c0a09" />
@@ -532,7 +533,7 @@ export default function StoresListPage() {
         </button>
       </div>
 
-      <div style={{ padding: '12px 16px 0' }}>
+      <div style={{ padding: '12px 16px 0', maxWidth: 975, margin: '0 auto' }}>
 
         {/* ── SEARCH ── */}
         <div className="relative mb-3">

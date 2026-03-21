@@ -176,12 +176,12 @@ export default function ProducerPayments() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-[975px] mx-auto space-y-6">
         <div className="space-y-1">
           <div className="h-8 w-40 bg-stone-100 rounded-2xl animate-pulse" />
           <div className="h-4 w-56 bg-stone-100 rounded animate-pulse" />
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1,2,3,4].map(i => (
             <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 space-y-3">
               <div className="flex items-center gap-3">
@@ -213,7 +213,7 @@ export default function ProducerPayments() {
   const commissionPct = Math.round((data.commission_rate || 0.18) * 100);
 
   return (
-    <div className="space-y-6" data-testid="producer-payments-dashboard">
+    <div className="max-w-[975px] mx-auto space-y-6" data-testid="producer-payments-dashboard">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -243,7 +243,7 @@ export default function ProducerPayments() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <StatCard
           icon={DollarSign}
           label={t('producer.grossSales')}

@@ -335,8 +335,21 @@ export default function InfluencerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#fafaf9' }}>
-        <div className="animate-spin rounded-full h-8 w-8" style={{ borderBottom: '2px solid #0c0a09' }}></div>
+      <div className="min-h-screen" style={{ background: '#fafaf9' }}>
+        <div className="max-w-[975px] mx-auto px-4 py-4 md:py-8 space-y-6">
+          <div className="h-8 w-48 bg-stone-100 rounded-2xl animate-pulse" />
+          <div className="h-4 w-32 bg-stone-100 rounded animate-pulse" />
+          <div className="h-28 bg-stone-950 rounded-2xl animate-pulse" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 space-y-2 animate-pulse">
+                <div className="h-3 w-16 bg-stone-100 rounded" />
+                <div className="h-6 w-20 bg-stone-100 rounded" />
+              </div>
+            ))}
+          </div>
+          <div className="h-48 bg-white rounded-2xl border border-stone-200 animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -360,15 +373,15 @@ export default function InfluencerDashboard() {
   const influencerExampleAmount = Math.round((18 * tierPercent) / 100 * 100) / 100;
 
   return (
-    <div className="min-h-screen" style={{ background: '#fafaf9', fontFamily: 'inherit' }}>
-      <div className="max-w-6xl mx-auto px-4 py-4 md:py-8">
+    <div className="min-h-screen bg-stone-50">
+      <div className="max-w-[975px] mx-auto px-4 py-4 md:py-8">
         {/* Header — H1 with influencer name at top */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-3xl font-semibold tracking-tight" style={{ color: '#0c0a09' }}>
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
             {dashboard.full_name || t('influencer.dashboard')}
           </h1>
-          <p className="mt-1 text-sm md:text-base" style={{ color: '#78716c' }}>
-            {dashboard.current_tier && <span className="font-semibold" style={{ color: '#0c0a09' }}>{dashboard.current_tier} · {tierPercent}%</span>}
+          <p className="mt-1 text-sm md:text-base text-stone-500">
+            {dashboard.current_tier && <span className="font-semibold text-stone-950">{dashboard.current_tier} · {tierPercent}%</span>}
             {dashboard.current_tier && ' · '}{t('influencer.dashboard')}
           </p>
         </div>
@@ -454,7 +467,7 @@ export default function InfluencerDashboard() {
 
         {/* === KPI CARDS ROW === */}
         {dashboard.stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             <div className="rounded-2xl border border-stone-200 bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Clics 30d</p>
               <p className="text-xl font-bold text-stone-950">{dashboard.stats.clicks_30d || 0}</p>

@@ -59,6 +59,7 @@ export default function CustomerOrders() {
       {...handlers}
     >
       <PullIndicator progress={progress} isRefreshing={refreshing} />
+      <div className="max-w-[975px] mx-auto">
       <h1 className="text-3xl font-semibold text-stone-950 mb-2">
         {t('orders.title', 'My Orders')}
       </h1>
@@ -86,7 +87,18 @@ export default function CustomerOrders() {
 
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-stone-500">{t('common.loading', 'Loading...')}</div>
+          <div className="p-4 space-y-3">
+            {[1,2,3].map(i => (
+              <div key={i} className="flex items-center gap-4 p-4">
+                <div className="w-10 h-10 rounded-full bg-stone-100 animate-pulse shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 bg-stone-100 rounded animate-pulse" />
+                  <div className="h-3 w-20 bg-stone-100 rounded animate-pulse" />
+                </div>
+                <div className="h-4 w-16 bg-stone-100 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
         ) : filteredOrders.length === 0 ? (
           <div className="p-8 text-center">
             <ShoppingBag className="w-12 h-12 text-stone-300 mx-auto mb-4" />
@@ -159,6 +171,7 @@ export default function CustomerOrders() {
             })}
           </div>
         )}
+      </div>
       </div>
     </div>
   );
