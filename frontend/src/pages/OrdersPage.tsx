@@ -82,47 +82,31 @@ export default function OrdersPage() {
     });
   }, [orders, activeTab]);
 
-  const font = { fontFamily: 'inherit' };
-
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
+    <div className="min-h-screen bg-stone-50">
       {/* Topbar */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: '#ffffff',
-        borderBottom: '1px solid #e7e5e4',
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '12px 16px',
-      }}>
+      <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
         <button
           onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+          className="bg-transparent border-none cursor-pointer p-1 flex"
           aria-label="Volver"
         >
-          <ArrowLeft size={22} color="#0c0a09" />
+          <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Mis pedidos</span>
+        <span className="text-[17px] font-bold text-stone-950">Mis pedidos</span>
       </div>
 
       {/* Tabs */}
-      <div style={{
-        display: 'flex', gap: 0,
-        borderBottom: '1px solid #e7e5e4',
-        background: '#ffffff',
-      }}>
+      <div className="flex border-b border-stone-200 bg-white">
         {TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            style={{
-              flex: 1, padding: '12px 0',
-              fontSize: 14, fontWeight: activeTab === tab.id ? 600 : 400,
-              color: activeTab === tab.id ? '#0c0a09' : '#78716c',
-              background: 'none', border: 'none', cursor: 'pointer',
-              borderBottom: activeTab === tab.id ? '2px solid #0c0a09' : '2px solid transparent',
-              fontFamily: 'inherit',
-              transition: 'all 0.15s ease',
-            }}
+            className={`flex-1 py-3 text-sm bg-transparent border-none cursor-pointer transition-all duration-150 ${
+              activeTab === tab.id
+                ? 'font-semibold text-stone-950 border-b-2 border-stone-950'
+                : 'font-normal text-stone-500 border-b-2 border-transparent'
+            }`}
           >
             {tab.label}
           </button>
@@ -130,55 +114,41 @@ export default function OrdersPage() {
       </div>
 
       {/* Content */}
-      <div style={{ padding: '16px 16px 100px', maxWidth: 600, margin: '0 auto' }}>
+      <div className="px-4 pt-4 pb-[100px] max-w-[600px] mx-auto">
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-            <Loader2 size={28} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
+          <div className="flex justify-center py-12">
+            <Loader2 size={28} className="text-stone-500 animate-spin" />
           </div>
         ) : fetchError ? (
           /* Error state */
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', gap: 12, padding: '60px 0',
-          }}>
-            <Package size={64} color="#78716c" strokeWidth={1} />
-            <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center' }}>
+          <div className="flex flex-col items-center justify-center gap-3 py-[60px]">
+            <Package size={64} className="text-stone-500" strokeWidth={1} />
+            <p className="text-[15px] text-stone-500 text-center">
               No pudimos cargar tus pedidos
             </p>
             <button
               onClick={loadOrders}
-              style={{
-                padding: '10px 24px', background: '#0c0a09',
-                color: '#ffffff', borderRadius: '14px',
-                fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer',
-              }}
+              className="px-6 py-2.5 bg-stone-950 text-white rounded-xl text-sm font-semibold border-none cursor-pointer"
             >
               Reintentar
             </button>
           </div>
         ) : filtered.length === 0 ? (
           /* Empty state */
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', gap: 12, padding: '60px 0',
-          }}>
-            <Package size={64} color="#78716c" strokeWidth={1} />
-            <p style={{ fontSize: 15, color: '#78716c', textAlign: 'center' }}>
+          <div className="flex flex-col items-center justify-center gap-3 py-[60px]">
+            <Package size={64} className="text-stone-500" strokeWidth={1} />
+            <p className="text-[15px] text-stone-500 text-center">
               No tienes pedidos {activeTab === 'active' ? 'en curso' : activeTab === 'completed' ? 'completados' : 'cancelados'}
             </p>
             <Link
               to="/explore"
-              style={{
-                padding: '10px 24px', background: '#0c0a09',
-                color: '#ffffff', borderRadius: '14px',
-                fontSize: 14, fontWeight: 600, textDecoration: 'none',
-              }}
+              className="px-6 py-2.5 bg-stone-950 text-white rounded-xl text-sm font-semibold no-underline"
             >
               Explorar productos
             </Link>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex flex-col gap-3">
             {filtered.map(order => {
               const orderId = order.order_id || order.id || order._id;
               const ref = `#HSP-${String(orderId).slice(-4).toUpperCase()}`;
@@ -192,58 +162,43 @@ export default function OrdersPage() {
               return (
                 <div
                   key={orderId}
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #e7e5e4',
-                    borderRadius: '16px',
-                    padding: 16, cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className="bg-white border border-stone-200 rounded-2xl p-4 cursor-pointer transition-all duration-150"
                   onClick={() => navigate(`/dashboard/orders/${orderId}`)}
                 >
                   {/* Header */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                  <div className="flex justify-between items-start mb-3">
                     <div>
-                      <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: 0 }}>{ref}</p>
-                      <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>{formatDate(order.created_at)}</p>
+                      <p className="text-[15px] font-semibold text-stone-950 m-0">{ref}</p>
+                      <p className="text-xs text-stone-500 mt-0.5 m-0">{formatDate(order.created_at)}</p>
                     </div>
                     <StatusBadge status={status} />
                   </div>
 
                   {/* Items preview */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <div className="flex items-center gap-2 mb-3">
                     {items.slice(0, 2).map((item, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{
-                          width: 40, height: 40, borderRadius: '12px',
-                          background: '#f5f5f4', overflow: 'hidden', flexShrink: 0,
-                        }}>
+                      <div key={i} className="flex items-center gap-1.5">
+                        <div className="w-10 h-10 rounded-xl bg-stone-100 overflow-hidden shrink-0">
                           {(item.image || item.product_image) && (
-                            <img loading="lazy" src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img loading="lazy" src={item.image || item.product_image} alt="" className="w-full h-full object-cover" />
                           )}
                         </div>
-                        <div style={{ minWidth: 0 }}>
-                          <p style={{ fontSize: 12, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 100 }}>
+                        <div className="min-w-0">
+                          <p className="text-xs text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap max-w-[100px]">
                             {item.name || item.product_name}
                           </p>
-                          <p style={{ fontSize: 11, color: '#78716c', margin: 0 }}>x{item.quantity}</p>
+                          <p className="text-[11px] text-stone-500 m-0">x{item.quantity}</p>
                         </div>
                       </div>
                     ))}
                     {items.length > 2 && (
-                      <span style={{ fontSize: 12, color: '#78716c', fontWeight: 500 }}>+{items.length - 2} más</span>
+                      <span className="text-xs text-stone-500 font-medium">+{items.length - 2} más</span>
                     )}
                   </div>
 
                   {/* Shipping row */}
                   {isShipped && (
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      padding: '8px 12px', marginBottom: 12,
-                      background: '#f5f5f4',
-                      borderRadius: '12px',
-                      fontSize: 13, color: '#0c0a09',
-                    }}>
+                    <div className="flex items-center gap-1.5 px-3 py-2 mb-3 bg-stone-100 rounded-xl text-[13px] text-stone-950">
                       <Truck size={16} />
                       <span>En camino</span>
                       {order.carrier && <span>· {order.carrier}</span>}
@@ -253,7 +208,7 @@ export default function OrdersPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={e => e.stopPropagation()}
-                          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontWeight: 600, color: '#0c0a09', textDecoration: 'none' }}
+                          className="ml-auto flex items-center gap-0.5 font-semibold text-stone-950 no-underline"
                         >
                           Rastrear <ExternalLink size={12} />
                         </a>
@@ -262,9 +217,9 @@ export default function OrdersPage() {
                   )}
 
                   {/* Footer */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09' }}>{total}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[15px] font-semibold text-stone-950">{total}</span>
+                    <div className="flex items-center gap-2">
                       {isDelivered && (
                         <button
                           onClick={async (e) => {
@@ -276,17 +231,12 @@ export default function OrdersPage() {
                               toast.error(err?.message || 'Error al volver a pedir');
                             }
                           }}
-                          style={{
-                            padding: '6px 14px',
-                            background: '#0c0a09', color: '#ffffff',
-                            borderRadius: '9999px',
-                            fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
-                          }}
+                          className="px-3.5 py-1.5 bg-stone-950 text-white rounded-full text-xs font-semibold border-none cursor-pointer"
                         >
                           Volver a pedir
                         </button>
                       )}
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 600, color: '#78716c' }}>
+                      <span className="flex items-center gap-1 text-[13px] font-semibold text-stone-500">
                         Ver detalles <ChevronRight size={16} />
                       </span>
                     </div>

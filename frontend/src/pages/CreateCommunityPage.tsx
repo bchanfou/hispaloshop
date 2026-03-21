@@ -22,11 +22,11 @@ const CATEGORIES = [
 
 const FormField = ({ label, hint, children }) => (
   <div>
-    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#0c0a09', marginBottom: 6, fontFamily: 'inherit' }}>
+    <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">
       {label}
     </label>
     {children}
-    {hint && <p style={{ fontSize: 11, color: '#78716c', marginTop: 4, fontFamily: 'inherit' }}>{hint}</p>}
+    {hint && <p className="text-[11px] text-stone-500 mt-1">{hint}</p>}
   </div>
 );
 
@@ -36,70 +36,51 @@ const STONE_COVER_COLORS = ['#d6d3d1', '#a8a29e', '#78716c', '#57534e', '#44403c
 const CommunityPreviewCard = ({ form, coverPreview }) => {
   const coverColor = STONE_COVER_COLORS[(form.name.charCodeAt(0) || 100) % 5];
   return (
-    <div style={{
-      borderRadius: '16px',
-      border: '1px solid #e7e5e4',
-      background: '#ffffff',
-      overflow: 'hidden',
-      fontFamily: 'inherit',
-    }}>
+    <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
       {/* Cover */}
-      <div style={{
-        aspectRatio: '3/1', overflow: 'hidden',
-        background: coverPreview ? '#f5f5f4' : coverColor,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40,
-        position: 'relative',
-      }}>
+      <div
+        className="overflow-hidden flex items-center justify-center text-[40px] relative"
+        style={{
+          aspectRatio: '3/1',
+          background: coverPreview ? '#f5f5f4' : coverColor,
+        }}
+      >
         {coverPreview ? (
-          <img src={coverPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <img src={coverPreview} alt="" className="w-full h-full object-cover block" />
         ) : (
           form.emoji || '🌿'
         )}
         {/* Gradient overlay */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)',
-        }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[60%]" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }} />
         {/* Name overlay */}
-        <div style={{ position: 'absolute', bottom: 8, left: 12, right: 12 }}>
-          <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: 0, textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+        <div className="absolute bottom-2 left-3 right-3">
+          <p className="text-[15px] font-bold text-white m-0" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
             {form.name || 'Nombre de la comunidad'}
           </p>
         </div>
         {/* Category badge */}
         {form.category && (
-          <span style={{
-            position: 'absolute', top: 8, left: 8,
-            background: 'rgba(0,0,0,0.6)', color: '#fff',
-            fontSize: 9, fontWeight: 800, padding: '2px 6px',
-            borderRadius: 4, letterSpacing: '0.05em', textTransform: 'uppercase',
-          }}>
+          <span className="absolute top-2 left-2 bg-black/60 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wide">
             {form.category}
           </span>
         )}
       </div>
 
-      <div style={{ padding: '10px 12px' }}>
+      <div className="px-3 py-2.5">
         {form.description ? (
-          <p style={{ fontSize: 11, color: '#78716c', margin: '0 0 8px', lineHeight: 1.4 }}>
+          <p className="text-[11px] text-stone-500 mb-2 leading-snug m-0">
             {form.description.slice(0, 80)}{form.description.length > 80 ? '…' : ''}
           </p>
         ) : (
-          <p style={{ fontSize: 11, color: '#e7e5e4', margin: '0 0 8px', fontStyle: 'italic' }}>
+          <p className="text-[11px] text-stone-200 mb-2 italic m-0">
             Sin descripción todavía
           </p>
         )}
-        <p style={{ fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 4, margin: '0 0 10px' }}>
-          <Users size={11} style={{ flexShrink: 0 }} />
+        <p className="text-[11px] text-stone-500 flex items-center gap-1 mb-2.5 m-0">
+          <Users size={11} className="shrink-0" />
           0 miembros
         </p>
-        <button disabled style={{
-          width: '100%', padding: '7px 0',
-          background: '#0c0a09', color: '#fff',
-          border: 'none', borderRadius: '9999px',
-          fontSize: 12, fontWeight: 600, cursor: 'default',
-          opacity: 0.85, fontFamily: 'inherit',
-        }}>
+        <button disabled className="w-full py-[7px] bg-stone-950 text-white border-none rounded-full text-xs font-semibold cursor-default opacity-85">
           Unirse
         </button>
       </div>
@@ -125,51 +106,33 @@ export default function CreateCommunityPage() {
 
   if (!canCreate) {
     return (
-      <div style={{ background: '#fafaf9', minHeight: '100vh' }}>
+      <div className="bg-stone-50 min-h-screen">
         {/* TopBar */}
-        <div style={{
-          padding: '12px 16px',
-          background: '#ffffff',
-          borderBottom: '1px solid #e7e5e4',
-          display: 'flex', alignItems: 'center', gap: 12,
-        }}>
-          <Link to="/communities" style={{ color: '#0c0a09', display: 'flex', alignItems: 'center' }}>
+        <div className="px-4 py-3 bg-white border-b border-stone-200 flex items-center gap-3">
+          <Link to="/communities" className="text-stone-950 flex items-center">
             <ArrowLeft size={20} />
           </Link>
-          <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#0c0a09', fontFamily: 'inherit' }}>Nueva comunidad</h1>
+          <h1 className="text-lg font-bold m-0 text-stone-950">Nueva comunidad</h1>
         </div>
 
-        <div style={{ padding: '40px 20px', textAlign: 'center', maxWidth: 400, margin: '0 auto' }}>
-          <div style={{
-            background: '#f5f5f4',
-            borderRadius: '14px',
-            padding: '32px 24px',
-          }}>
-            <p style={{ fontSize: 48 }}>🔒</p>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0c0a09', fontFamily: 'inherit' }}>Necesitas más seguidores</h2>
-            <p style={{ color: '#78716c', fontFamily: 'inherit' }}>
+        <div className="px-5 pt-10 text-center max-w-[400px] mx-auto">
+          <div className="bg-stone-100 rounded-[14px] px-6 py-8">
+            <p className="text-5xl">🔒</p>
+            <h2 className="text-xl font-bold text-stone-950">Necesitas más seguidores</h2>
+            <p className="text-stone-500">
               Para crear una comunidad necesitas al menos 100 seguidores o ser vendedor verificado.
             </p>
-            <div style={{
-              marginTop: 16,
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '12px 16px',
-              border: '1px solid #e7e5e4',
-            }}>
-              <p style={{ fontSize: 13, color: '#78716c', margin: '0 0 8px', fontFamily: 'inherit' }}>
+            <div className="mt-4 bg-white rounded-xl px-4 py-3 border border-stone-200">
+              <p className="text-[13px] text-stone-500 mb-2 m-0">
                 Progreso hacia 100 seguidores
               </p>
-              <div style={{ height: 6, background: '#e7e5e4', borderRadius: 3, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%',
-                  width: `${Math.min(100, ((user?.follower_count || 0) / 100) * 100)}%`,
-                  background: '#0c0a09',
-                  borderRadius: 3,
-                  transition: 'width 0.3s ease',
-                }} />
+              <div className="h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-stone-950 rounded-full transition-[width] duration-300 ease-in-out"
+                  style={{ width: `${Math.min(100, ((user?.follower_count || 0) / 100) * 100)}%` }}
+                />
               </div>
-              <p style={{ fontSize: 12, color: '#78716c', marginTop: 6, fontFamily: 'inherit' }}>
+              <p className="text-xs text-stone-500 mt-1.5 m-0">
                 {user?.follower_count || 0}/100 seguidores
               </p>
             </div>
@@ -244,85 +207,66 @@ export default function CreateCommunityPage() {
   };
 
   return (
-    <div style={{ background: '#fafaf9', minHeight: '100vh' }}>
+    <div className="bg-stone-50 min-h-screen">
       {/* TopBar */}
-      <div style={{
-        padding: '12px 16px',
-        background: '#ffffff',
-        borderBottom: '1px solid #e7e5e4',
-        display: 'flex', alignItems: 'center', gap: 12,
-      }}>
-        <Link to="/communities" style={{ color: '#0c0a09', display: 'flex', alignItems: 'center' }}>
+      <div className="px-4 py-3 bg-white border-b border-stone-200 flex items-center gap-3">
+        <Link to="/communities" className="text-stone-950 flex items-center">
           <ArrowLeft size={20} />
         </Link>
-        <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#0c0a09', fontFamily: 'inherit', flex: 1 }}>Nueva comunidad</h1>
+        <h1 className="text-lg font-bold m-0 text-stone-950 flex-1">Nueva comunidad</h1>
       </div>
 
       {/* ── Mobile: collapsible preview toggle ── */}
-      <div className="md:hidden" style={{ padding: '10px 16px 0', maxWidth: 540, margin: '0 auto' }}>
+      <div className="md:hidden pt-2.5 px-4 max-w-[540px] mx-auto">
         <button
           type="button"
           onClick={() => setShowPreview(v => !v)}
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '10px 14px',
-            background: '#ffffff',
-            border: '1px solid #e7e5e4',
-            borderRadius: '16px',
-            cursor: 'pointer', fontFamily: 'inherit',
-            fontSize: 13, fontWeight: 600, color: '#0c0a09',
-          }}
+          className="w-full flex items-center justify-between px-3.5 py-2.5 bg-white border border-stone-200 rounded-2xl cursor-pointer text-[13px] font-semibold text-stone-950"
           aria-expanded={showPreview}
         >
           <span>Ver vista previa</span>
           {showPreview ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
         {showPreview && (
-          <div style={{ marginTop: 10 }}>
+          <div className="mt-2.5">
             <CommunityPreviewCard form={form} coverPreview={coverPreview} />
           </div>
         )}
       </div>
 
       {/* ── Desktop: two-column layout ── */}
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: 16, paddingBottom: 100, display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+      <div className="max-w-[960px] mx-auto p-4 pb-[100px] flex gap-6 items-start">
       {/* Form column */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="flex-1 min-w-0">
 
         {/* Cover */}
-        <label style={{ display: 'block', marginBottom: 16, cursor: 'pointer' }}>
-          <div style={{
-            height: 120, borderRadius: '14px', overflow: 'hidden',
-            background: coverPreview
-              ? '#f5f5f4'
-              : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(form.name.charCodeAt(0) || 100) % 5],
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
-            border: '2px dashed #e7e5e4',
-            position: 'relative',
-          }}>
+        <label className="block mb-4 cursor-pointer">
+          <div
+            className="h-[120px] rounded-[14px] overflow-hidden flex items-center justify-center cursor-pointer border-2 border-dashed border-stone-200 relative"
+            style={{
+              background: coverPreview
+                ? '#f5f5f4'
+                : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(form.name.charCodeAt(0) || 100) % 5],
+            }}
+          >
             {coverPreview ? (
-              <img src={coverPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={coverPreview} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div style={{ textAlign: 'center', color: '#78716c' }}>
-                <p style={{ fontSize: 32, marginBottom: 4 }}>{form.emoji}</p>
-                <p style={{ fontSize: 12, fontFamily: 'inherit' }}>Añadir foto de portada</p>
+              <div className="text-center text-stone-500">
+                <p className="text-[32px] mb-1">{form.emoji}</p>
+                <p className="text-xs">Añadir foto de portada</p>
               </div>
             )}
             {isUploadingCover && (
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'rgba(0,0,0,0.4)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <div style={{ width: 24, height: 24, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
               </div>
             )}
           </div>
-          <input type="file" accept="image/*" onChange={handleCover} style={{ display: 'none' }} aria-label="Subir foto de portada" />
+          <input type="file" accept="image/*" onChange={handleCover} className="hidden" aria-label="Subir foto de portada" />
         </label>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className="flex flex-col gap-3.5">
           {/* Name */}
           <FormField label="Nombre de la comunidad *">
             <input
@@ -335,46 +279,20 @@ export default function CreateCommunityPage() {
               }}
               placeholder="Ej: Aceites de España"
               maxLength={60}
-              style={{
-                width: '100%', padding: '10px 12px',
-                background: '#f5f5f4',
-                border: '1px solid #e7e5e4',
-                borderRadius: '12px',
-                outline: 'none', color: '#0c0a09',
-                fontFamily: 'inherit', fontSize: 14,
-                boxSizing: 'border-box',
-              }}
+              className="w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border"
             />
           </FormField>
 
           {/* Slug */}
           <FormField label="URL de la comunidad *">
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{
-                padding: '10px 10px',
-                background: '#f5f5f4',
-                border: '1px solid #e7e5e4',
-                borderRight: 'none',
-                borderRadius: '12px 0 0 12px',
-                fontSize: 12, color: '#78716c',
-                whiteSpace: 'nowrap',
-                fontFamily: 'inherit',
-              }}>
+            <div className="flex items-center">
+              <span className="px-2.5 py-2.5 bg-stone-100 border border-stone-200 border-r-0 rounded-l-xl text-xs text-stone-500 whitespace-nowrap">
                 /communities/
               </span>
               <input
                 value={form.slug}
                 onChange={e => update('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'))}
-                style={{
-                  flex: 1, padding: '10px 12px',
-                  background: '#f5f5f4',
-                  border: '1px solid #e7e5e4',
-                  borderLeft: 'none',
-                  borderRadius: '0 12px 12px 0',
-                  outline: 'none', color: '#0c0a09',
-                  fontFamily: 'inherit', fontSize: 14,
-                  boxSizing: 'border-box',
-                }}
+                className="flex-1 px-3 py-2.5 bg-stone-100 border border-stone-200 border-l-0 rounded-r-xl outline-none text-stone-950 text-sm box-border"
                 placeholder="aceites-de-espana"
               />
             </div>
@@ -382,27 +300,15 @@ export default function CreateCommunityPage() {
 
           {/* Description */}
           <FormField label="Descripción">
-            <div style={{ position: 'relative' }}>
+            <div className="relative">
               <textarea
                 value={form.description}
                 onChange={e => update('description', e.target.value)}
                 placeholder="¿De qué trata tu comunidad?"
                 rows={3} maxLength={300}
-                style={{
-                  resize: 'none', width: '100%', padding: '10px 12px',
-                  background: '#f5f5f4',
-                  border: '1px solid #e7e5e4',
-                  borderRadius: '12px',
-                  outline: 'none', color: '#0c0a09',
-                  fontFamily: 'inherit', fontSize: 14,
-                  boxSizing: 'border-box',
-                }}
+                className="resize-none w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border"
               />
-              <span style={{
-                position: 'absolute', bottom: 8, right: 10,
-                fontSize: 11, color: '#78716c',
-                fontFamily: 'inherit',
-              }}>
+              <span className="absolute bottom-2 right-2.5 text-[11px] text-stone-500">
                 {form.description.length}/300
               </span>
             </div>
@@ -410,18 +316,18 @@ export default function CreateCommunityPage() {
 
           {/* Emoji */}
           <FormField label="Icono de la comunidad">
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <div className="flex gap-1.5 flex-wrap">
               {EMOJIS.map(em => (
                 <button key={em} type="button"
                   onClick={() => update('emoji', em)}
                   aria-label={`Seleccionar icono ${em}`}
                   aria-pressed={form.emoji === em}
-                  style={{
-                    width: 40, height: 40, borderRadius: 8,
-                    background: form.emoji === em ? '#f5f5f4' : '#ffffff',
-                    border: form.emoji === em ? '2px solid #0c0a09' : '1px solid #e7e5e4',
-                    cursor: 'pointer', fontSize: 20,
-                  }}>
+                  className={`w-10 h-10 rounded-lg cursor-pointer text-xl ${
+                    form.emoji === em
+                      ? 'bg-stone-100 border-2 border-stone-950'
+                      : 'bg-white border border-stone-200'
+                  }`}
+                >
                   {em}
                 </button>
               ))}
@@ -430,19 +336,16 @@ export default function CreateCommunityPage() {
 
           {/* Category */}
           <FormField label="Categoría">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map(cat => (
                 <button key={cat} type="button"
                   onClick={() => update('category', form.category === cat ? '' : cat)}
-                  style={{
-                    padding: '6px 12px', borderRadius: '9999px',
-                    border: form.category === cat ? 'none' : '1px solid #e7e5e4',
-                    background: form.category === cat ? '#0c0a09' : '#ffffff',
-                    color: form.category === cat ? '#fff' : '#0c0a09',
-                    cursor: 'pointer', fontSize: 13,
-                    transition: 'all 0.15s ease',
-                    fontFamily: 'inherit',
-                  }}>
+                  className={`px-3 py-1.5 rounded-full text-[13px] cursor-pointer transition-all duration-150 ${
+                    form.category === cat
+                      ? 'bg-stone-950 text-white border-none'
+                      : 'bg-white text-stone-950 border border-stone-200'
+                  }`}
+                >
                   {cat}
                 </button>
               ))}
@@ -451,20 +354,13 @@ export default function CreateCommunityPage() {
 
           {/* Tags */}
           <FormField label="Etiquetas (máx. 5)" hint="Presiona Enter para añadir">
-            <div style={{ display: 'flex', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
+            <div className="flex gap-1.5 mb-1.5 flex-wrap">
               {form.tags.map(tag => (
-                <span key={tag} style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  fontSize: 12, padding: '3px 10px',
-                  background: '#f5f5f4',
-                  color: '#0c0a09',
-                  borderRadius: '9999px',
-                  fontFamily: 'inherit',
-                }}>
+                <span key={tag} className="flex items-center gap-1 text-xs px-2.5 py-0.5 bg-stone-100 text-stone-950 rounded-full">
                   #{tag}
                   <button type="button" onClick={() => update('tags', form.tags.filter(t => t !== tag))}
                     aria-label={`Eliminar etiqueta ${tag}`}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#78716c', padding: 0, lineHeight: 1 }}>
+                    className="bg-transparent border-none cursor-pointer text-sm text-stone-500 p-0 leading-none">
                     ×
                   </button>
                 </span>
@@ -476,46 +372,31 @@ export default function CreateCommunityPage() {
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
               placeholder="aceite-de-oliva"
               disabled={form.tags.length >= 5}
-              style={{
-                width: '100%', height: 38, padding: '0 12px',
-                background: '#f5f5f4',
-                border: '1px solid #e7e5e4',
-                borderRadius: '12px',
-                outline: 'none', color: '#0c0a09',
-                fontFamily: 'inherit', fontSize: 13,
-                boxSizing: 'border-box',
-              }}
+              className="w-full h-[38px] px-3 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-[13px] box-border"
             />
           </FormField>
         </div>
 
         {/* Submit */}
-        <div style={{ marginTop: 24 }}>
+        <div className="mt-6">
           <button
             onClick={create}
             disabled={isCreating || !form.name || !form.slug || isUploadingCover}
-            style={{
-              width: '100%', padding: '12px',
-              borderRadius: '9999px',
-              border: 'none',
-              background: '#0c0a09', color: '#fff',
-              fontSize: 15, fontWeight: 600, cursor: 'pointer',
-              opacity: (isCreating || !form.name || !form.slug) ? 0.5 : 1,
-              transition: 'all 0.15s ease',
-              fontFamily: 'inherit',
-            }}>
+            className="w-full py-3 rounded-full border-none bg-stone-950 text-white text-[15px] font-semibold cursor-pointer transition-all duration-150"
+            style={{ opacity: (isCreating || !form.name || !form.slug) ? 0.5 : 1 }}
+          >
             {isCreating ? 'Creando...' : 'Crear comunidad'}
           </button>
         </div>
       </div>
 
       {/* Desktop: sticky preview column */}
-      <div className="hidden md:block" style={{ width: 280, flexShrink: 0, position: 'sticky', top: 80, alignSelf: 'flex-start' }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: '#78716c', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10, fontFamily: 'inherit' }}>
+      <div className="hidden md:block w-[280px] shrink-0 sticky top-20 self-start">
+        <p className="text-[11px] font-bold text-stone-500 tracking-wide uppercase mb-2.5">
           Vista previa
         </p>
         <CommunityPreviewCard form={form} coverPreview={coverPreview} />
-        <p style={{ fontSize: 11, color: '#78716c', textAlign: 'center', marginTop: 8, fontFamily: 'inherit' }}>
+        <p className="text-[11px] text-stone-500 text-center mt-2">
           Así verán tu comunidad los demás
         </p>
       </div>
@@ -524,4 +405,3 @@ export default function CreateCommunityPage() {
     </div>
   );
 }
-

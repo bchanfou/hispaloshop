@@ -397,6 +397,7 @@ export default function CreatePostPage() {
         }
       });
     };
+
     const up = () => {
       cancelAnimationFrame(rafRef.current);
       if (dragRef.current) {
@@ -423,9 +424,9 @@ export default function CreatePostPage() {
   const hasFiles = selectedFiles.length > 0;
 
   const renderStep1 = () => (
-      <div className="bg-black flex flex-col" style={{ fontFamily: 'inherit', paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', width: '100%', height: '100%' }}>
+      <div className="bg-black flex flex-col w-full h-full" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {/* Top bar */}
-        <div className="flex items-center justify-between px-4 shrink-0" style={{ height: 52 }}>
+        <div className="flex items-center justify-between px-4 shrink-0 h-[52px]">
           <button
             onClick={() => {
               if (hasFiles && !window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
@@ -450,7 +451,7 @@ export default function CreatePostPage() {
         {hasFiles ? (
           <>
             {/* Preview image */}
-            <div className="relative flex-1 flex items-center justify-center bg-[#111] overflow-hidden shrink-0" style={{ maxHeight: '52vh' }}>
+            <div className="relative flex-1 flex items-center justify-center bg-[#111] overflow-hidden shrink-0 max-h-[52vh]">
               <img src={previewUrls[previewIndex]} alt="" className="w-full h-full object-cover" />
               {selectedFiles.length > 1 && (
                 <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
@@ -476,8 +477,8 @@ export default function CreatePostPage() {
                       setPreviewIndex(i);
                     }}
                     onClick={() => setPreviewIndex(i)}
-                    className="relative shrink-0 cursor-grab overflow-hidden rounded-lg transition-transform"
-                    style={{ width: 44, height: 44, border: previewIndex === i ? '2px solid #fff' : '2px solid transparent' }}
+                    className="relative shrink-0 cursor-grab overflow-hidden rounded-lg transition-transform w-11 h-11"
+                    style={{ border: previewIndex === i ? '2px solid #fff' : '2px solid transparent' }}
                   >
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     <span className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-stone-950 text-white text-[9px] font-bold flex items-center justify-center">{i + 1}</span>
@@ -569,22 +570,23 @@ export default function CreatePostPage() {
     const previewAspect = aspectRatio.value || 'auto';
 
     return (
-      <div style={{ width: '100%', height: '100%', background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+      <div className="w-full h-full bg-black flex flex-col">
         {/* top bar */}
-        <div style={{ background: 'rgba(0,0,0,0.8)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
-          <button onClick={() => goToStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div className="bg-black/80 h-[52px] flex items-center px-4 shrink-0">
+          <button onClick={() => goToStep(1)} className="bg-transparent border-none cursor-pointer text-white text-[13px] font-medium flex items-center gap-1">
             <ChevronLeft size={18} /> Volver
           </button>
-          <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Editar</span>
-          <button onClick={() => goToStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#ffffff' }}>
+          <span className="flex-1 text-center text-white text-[15px] font-medium">Editar</span>
+          <button onClick={() => goToStep(3)} className="bg-transparent border-none cursor-pointer text-[13px] font-semibold text-white">
             Siguiente →
           </button>
         </div>
 
         {/* preview area */}
-        <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#111', flexShrink: 0, maxHeight: '50%', overflow: 'hidden' }}>
+        <div className="relative w-full flex justify-center items-center bg-[#111] shrink-0 max-h-[50%] overflow-hidden">
           <div
-            style={{ position: 'relative', width: '100%', aspectRatio: previewAspect, maxHeight: '100%', overflow: 'hidden' }}
+            className="relative w-full overflow-hidden"
+            style={{ aspectRatio: previewAspect, maxHeight: '100%' }}
             onTouchStart={(e) => { filterSwipeRef.current.startX = e.touches[0].clientX; }}
             onTouchEnd={(e) => {
               const dx = e.changedTouches[0].clientX - filterSwipeRef.current.startX;
@@ -603,12 +605,13 @@ export default function CreatePostPage() {
                 initial={{ opacity: 0.7 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}
-                style={{ width: '100%', height: '100%' }}
+                className="w-full h-full"
               >
                 <img
                   src={previewUrls[previewIndex]}
                   alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', filter: filterCSS }}
+                  className="w-full h-full object-cover"
+                  style={{ filter: filterCSS }}
                 />
               </motion.div>
             </AnimatePresence>
@@ -619,7 +622,7 @@ export default function CreatePostPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '6px 16px', borderRadius: '9999px', fontSize: 13, fontWeight: 600, pointerEvents: 'none', zIndex: 3 }}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 text-white px-4 py-1.5 rounded-full text-[13px] font-semibold pointer-events-none z-[3]"
                 >
                   {activeFilter.emoji} {activeFilter.name}
                 </motion.div>
@@ -627,26 +630,22 @@ export default function CreatePostPage() {
             </AnimatePresence>
             {/* vignette overlay */}
             {adjustments.vignette > 0 && (
-              <div style={{ position: 'absolute', inset: 0, ...buildVignetteStyle(adjustments.vignette) }} />
+              <div className="absolute inset-0" style={buildVignetteStyle(adjustments.vignette)} />
             )}
-            {/* text overlays */}
+            {/* text overlays — dynamic positions require inline style */}
             {textOverlays.map((o) => (
               <div
                 key={o.id}
                 onMouseDown={(e) => handleDragStart(e, o)}
                 onTouchStart={(e) => handleDragStart(e, o)}
+                className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none font-semibold"
                 style={{
-                  position: 'absolute',
                   left: `${o.x}%`,
                   top: `${o.y}%`,
-                  transform: 'translate(-50%,-50%)',
                   fontFamily: o.font,
                   fontSize: o.size,
                   color: o.style === 'outline' ? 'transparent' : o.color,
-                  cursor: 'grab',
-                  userSelect: 'none',
                   textShadow: o.style === 'box' || o.style === 'outline' ? 'none' : '0 1px 4px rgba(0,0,0,0.6)',
-                  fontWeight: 600,
                   ...(o.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
                   ...(o.style === 'outline' ? { WebkitTextStroke: `2px ${o.color}` } : {}),
                 }}
@@ -656,21 +655,16 @@ export default function CreatePostPage() {
             ))}
 
             {/* aspect ratio pills */}
-            <div style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+            <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5">
               {ASPECT_RATIOS.map((ar) => (
                 <button
                   key={ar.label}
                   onClick={() => setAspectRatio(ar)}
-                  style={{
-                    background: aspectRatio.label === ar.label ? '#fff' : 'rgba(0,0,0,0.5)',
-                    color: aspectRatio.label === ar.label ? '#000' : '#fff',
-                    border: 'none',
-                    borderRadius: '9999px',
-                    padding: '4px 10px',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
+                  className={`border-none rounded-full px-2.5 py-1 text-[11px] font-semibold cursor-pointer ${
+                    aspectRatio.label === ar.label
+                      ? 'bg-white text-black'
+                      : 'bg-black/50 text-white'
+                  }`}
                 >
                   {ar.label}
                 </button>
@@ -681,50 +675,34 @@ export default function CreatePostPage() {
 
         {/* carousel image selector */}
         {selectedFiles.length > 1 && (
-          <div style={{ display: 'flex', gap: 6, padding: '8px 12px', overflowX: 'auto', background: 'rgba(0,0,0,0.6)', flexShrink: 0 }}>
+          <div className="flex gap-1.5 px-3 py-2 overflow-x-auto bg-black/60 shrink-0">
             {previewUrls.map((url, i) => (
               <div
                 key={i}
                 onClick={() => setPreviewIndex(i)}
+                className="w-11 h-11 rounded-[10px] overflow-hidden shrink-0 cursor-pointer transition-all duration-150"
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                  flexShrink: 0,
-                  cursor: 'pointer',
                   border: previewIndex === i ? '2px solid #fff' : '2px solid transparent',
                   opacity: previewIndex === i ? 1 : 0.55,
-                  transition: 'all 0.15s ease',
                 }}
               >
-                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={url} alt="" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
         )}
 
         {/* tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.15)', flexShrink: 0 }}>
+        <div className="flex border-b border-white/15 shrink-0">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
-              style={{
-                flex: 1,
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === t.key ? '2px solid #fff' : '2px solid transparent',
-                color: activeTab === t.key ? '#fff' : 'rgba(255,255,255,0.5)',
-                padding: '10px 0',
-                fontSize: 12,
-                fontWeight: 500,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 4,
-              }}
+              className={`flex-1 bg-transparent border-none py-2.5 text-xs font-medium cursor-pointer flex items-center justify-center gap-1 ${
+                activeTab === t.key
+                  ? 'text-white border-b-2 border-b-white'
+                  : 'text-white/50 border-b-2 border-b-transparent'
+              }`}
             >
               <t.icon size={14} />
               {t.label}
@@ -733,54 +711,50 @@ export default function CreatePostPage() {
         </div>
 
         {/* tab content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+        <div className="flex-1 overflow-y-auto p-3">
           {/* ─── Filtros ─── */}
           {activeTab === 'filtros' && (
             <div>
-              <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 12 }}>
+              <div className="flex gap-2.5 overflow-x-auto pb-3">
                 {FILTERS.map((f) => (
                   <div
                     key={f.name}
                     onClick={() => { setActiveFilter(f); if (navigator.vibrate) navigator.vibrate(10); }}
-                    style={{ flexShrink: 0, cursor: 'pointer', textAlign: 'center' }}
+                    className="shrink-0 cursor-pointer text-center"
                   >
                     <div
+                      className="w-14 h-14 rounded-xl overflow-hidden transition-all duration-150"
                       style={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: '12px',
-                        overflow: 'hidden',
                         border: activeFilter.name === f.name ? '2px solid #ffffff' : '2px solid transparent',
-                        transition: 'border-color 0.15s, transform 0.15s',
                         transform: activeFilter.name === f.name ? 'scale(1.05)' : 'scale(1)',
                       }}
                     >
                       {previewUrls[previewIndex] && (
-                        <img src={previewUrls[previewIndex]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: f.css === 'none' ? 'none' : f.css }} loading="lazy" />
+                        <img src={previewUrls[previewIndex]} alt="" className="w-full h-full object-cover" style={{ filter: f.css === 'none' ? 'none' : f.css }} loading="lazy" />
                       )}
                     </div>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 4, display: 'block' }}>{f.emoji} {f.name}</span>
+                    <span className="text-[10px] text-white/70 mt-1 block">{f.emoji} {f.name}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', minWidth: 60 }}>Intensidad</span>
+              <div className="flex items-center gap-2.5 py-1">
+                <span className="text-xs text-white/60 min-w-[60px]">Intensidad</span>
                 <input
                   type="range"
                   min={0}
                   max={100}
                   value={filterIntensity}
                   onChange={(e) => setFilterIntensity(Number(e.target.value))}
-                  style={{ flex: 1, accentColor: '#0c0a09' }}
+                  className="flex-1 accent-stone-950"
                 />
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 28, textAlign: 'right' }}>{filterIntensity}</span>
+                <span className="text-xs text-white/50 min-w-[28px] text-right">{filterIntensity}</span>
               </div>
             </div>
           )}
 
           {/* ─── Ajustes ─── */}
           {activeTab === 'ajustes' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="flex flex-col gap-3.5">
               {[
                 { key: 'brightness', label: 'Brillo', min: -100, max: 100 },
                 { key: 'contrast', label: 'Contraste', min: -100, max: 100 },
@@ -791,8 +765,8 @@ export default function CreatePostPage() {
                 { key: 'sharpness', label: 'Nitidez', min: 0, max: 100 },
                 { key: 'vignette', label: 'Viñeteado', min: 0, max: 100 },
               ].map((s) => (
-                <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', minWidth: 72 }}>{s.label}</span>
+                <div key={s.key} className="flex items-center gap-2.5">
+                  <span className="text-xs text-white/70 min-w-[72px]">{s.label}</span>
                   <input
                     type="range"
                     min={s.min}
@@ -801,9 +775,9 @@ export default function CreatePostPage() {
                     onChange={(e) => setAdjustments((p) => ({ ...p, [s.key]: Number(e.target.value) }))}
                     onDoubleClick={() => setAdjustments((p) => ({ ...p, [s.key]: 0 }))}
                     title="Doble clic para resetear"
-                    style={{ flex: 1, accentColor: '#0c0a09' }}
+                    className="flex-1 accent-stone-950"
                   />
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 28, textAlign: 'right' }}>{adjustments[s.key]}</span>
+                  <span className="text-xs text-white/50 min-w-[28px] text-right">{adjustments[s.key]}</span>
                 </div>
               ))}
             </div>
@@ -811,81 +785,61 @@ export default function CreatePostPage() {
 
           {/* ─── Texto ─── */}
           {activeTab === 'texto' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="flex flex-col gap-3.5">
               {textOverlays.length < 10 && (
                 <button
                   onClick={addTextOverlay}
-                  style={{
-                    alignSelf: 'center',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px dashed rgba(255,255,255,0.3)',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    padding: '10px 20px',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                  }}
+                  className="self-center bg-white/10 border border-dashed border-white/30 rounded-xl text-white px-5 py-2.5 text-[13px] cursor-pointer flex items-center gap-1.5"
                 >
                   <Type size={14} /> + Añadir texto
                 </button>
               )}
 
               {textOverlays.map((o) => (
-                <div key={o.id} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div key={o.id} className="bg-white/[0.08] rounded-xl p-2.5 flex flex-col gap-2">
+                  <div className="flex items-center gap-1.5">
                     <input
                       value={o.text}
                       onChange={(e) => updateOverlay(o.id, { text: e.target.value })}
-                      style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, color: '#fff', padding: '4px 8px', fontSize: 13, outline: 'none' }}
+                      className="flex-1 bg-transparent border border-white/20 rounded text-white px-2 py-1 text-[13px] outline-none"
                     />
-                    <button onClick={() => removeOverlay(o.id)} aria-label="Eliminar texto" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                      <X size={16} color="rgba(255,255,255,0.5)" />
+                    <button onClick={() => removeOverlay(o.id)} aria-label="Eliminar texto" className="bg-transparent border-none cursor-pointer">
+                      <X size={16} className="text-white/50" />
                     </button>
                   </div>
                   {/* fonts */}
-                  <div style={{ display: 'flex', gap: 6 }}>
+                  <div className="flex gap-1.5">
                     {FONT_OPTIONS.map((f) => (
                       <button
                         key={f.label}
                         onClick={() => updateOverlay(o.id, { font: f.value })}
-                        style={{
-                          background: o.font === f.value ? '#fff' : 'rgba(255,255,255,0.15)',
-                          color: o.font === f.value ? '#000' : '#fff',
-                          border: 'none',
-                          borderRadius: 4,
-                          padding: '3px 8px',
-                          fontSize: 11,
-                          cursor: 'pointer',
-                          fontFamily: f.value,
-                        }}
+                        className={`border-none rounded px-2 py-0.5 text-[11px] cursor-pointer ${
+                          o.font === f.value
+                            ? 'bg-white text-black'
+                            : 'bg-white/15 text-white'
+                        }`}
+                        style={{ fontFamily: f.value }}
                       >
                         {f.label}
                       </button>
                     ))}
                   </div>
                   {/* colors */}
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div className="flex gap-2">
                     {COLOR_DOTS.map((c) => (
                       <button
                         key={c.value}
                         onClick={() => updateOverlay(o.id, { color: c.value })}
+                        className="w-[22px] h-[22px] rounded-full cursor-pointer p-0"
                         style={{
-                          width: 22,
-                          height: 22,
-                          borderRadius: '50%',
                           background: c.value,
                           border: o.color === c.value ? '2px solid #ffffff' : '2px solid rgba(255,255,255,0.3)',
-                          cursor: 'pointer',
-                          padding: 0,
                         }}
                       />
                     ))}
                   </div>
                   {/* text style */}
-                  <div style={{ display: 'flex', gap: 6 }}>
+                  <div className="flex gap-1.5">
                     {[
                       { key: 'clean', label: 'Limpio' },
                       { key: 'box', label: 'Caja' },
@@ -895,18 +849,11 @@ export default function CreatePostPage() {
                         key={s.key}
                         onClick={() => updateOverlay(o.id, { style: s.key })}
                         aria-pressed={o.style === s.key}
-                        style={{
-                          flex: 1,
-                          background: o.style === s.key ? '#fff' : 'rgba(255,255,255,0.15)',
-                          color: o.style === s.key ? '#000' : '#fff',
-                          border: 'none',
-                          borderRadius: '9999px',
-                          padding: '6px 0',
-                          fontSize: 11,
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          transition: 'background 0.15s, color 0.15s',
-                        }}
+                        className={`flex-1 border-none rounded-full py-1.5 text-[11px] font-semibold cursor-pointer transition-colors duration-150 ${
+                          o.style === s.key
+                            ? 'bg-white text-black'
+                            : 'bg-white/15 text-white'
+                        }`}
                       >
                         <span style={s.key === 'outline' ? { WebkitTextStroke: '1px currentColor', color: 'transparent' } : s.key === 'box' ? { background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: 3 } : {}}>
                           {s.label}
@@ -915,17 +862,17 @@ export default function CreatePostPage() {
                     ))}
                   </div>
                   {/* size */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Tamaño</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-white/60">Tamaño</span>
                     <input
                       type="range"
                       min={14}
                       max={48}
                       value={o.size}
                       onChange={(e) => updateOverlay(o.id, { size: Number(e.target.value) })}
-                      style={{ flex: 1, accentColor: '#0c0a09' }}
+                      className="flex-1 accent-stone-950"
                     />
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{o.size}px</span>
+                    <span className="text-[11px] text-white/50">{o.size}px</span>
                   </div>
                 </div>
               ))}
@@ -934,7 +881,7 @@ export default function CreatePostPage() {
 
           {/* ─── Recorte ─── */}
           {activeTab === 'recorte' && (
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="flex gap-2 justify-center flex-wrap">
               {CROP_RATIOS.map((cr) => (
                 <button
                   key={cr.label}
@@ -942,16 +889,11 @@ export default function CreatePostPage() {
                     if (cr.value) setAspectRatio(cr);
                     else setAspectRatio({ label: 'Original', value: null });
                   }}
-                  style={{
-                    background: aspectRatio.label === cr.label ? '#fff' : 'rgba(255,255,255,0.12)',
-                    color: aspectRatio.label === cr.label ? '#000' : '#fff',
-                    border: 'none',
-                    borderRadius: '9999px',
-                    padding: '8px 18px',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
+                  className={`border-none rounded-full px-[18px] py-2 text-[13px] font-medium cursor-pointer ${
+                    aspectRatio.label === cr.label
+                      ? 'bg-white text-black'
+                      : 'bg-white/[0.12] text-white'
+                  }`}
                 >
                   {cr.label}
                 </button>
@@ -964,36 +906,29 @@ export default function CreatePostPage() {
   };
 
   const renderStep3 = () => (
-    <div style={{ width: '100%', height: '100%', background: '#ffffff', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+    <div className="w-full h-full bg-white flex flex-col">
       {/* top bar */}
-      <div style={{ background: '#ffffff', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: '1px solid #e7e5e4', flexShrink: 0 }}>
-        <button onClick={() => goToStep(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0c0a09', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div className="bg-white h-[52px] flex items-center px-4 border-b border-stone-200 shrink-0">
+        <button onClick={() => goToStep(2)} className="bg-transparent border-none cursor-pointer text-stone-950 text-[13px] font-medium flex items-center gap-1">
           <ChevronLeft size={18} /> Volver
         </button>
-        <span style={{ flex: 1, textAlign: 'center', color: '#0c0a09', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
-        <div style={{ width: 60 }} />
+        <span className="flex-1 text-center text-stone-950 text-[15px] font-medium">Nueva publicación</span>
+        <div className="w-[60px]" />
       </div>
 
       {/* scroll content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: 16, paddingBottom: 100 }}>
+      <div className="flex-1 overflow-y-auto p-4 pb-[100px]">
         {/* thumbnail row */}
         {selectedFiles.length > 1 && (
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 16 }}>
+          <div className="flex gap-2 overflow-x-auto mb-4">
             {previewUrls.map((url, i) => (
               <div
                 key={i}
                 onClick={() => setPreviewIndex(i)}
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  flexShrink: 0,
-                  cursor: 'pointer',
-                  border: previewIndex === i ? '2px solid #0c0a09' : '2px solid transparent',
-                }}
+                className="w-[52px] h-[52px] rounded-xl overflow-hidden shrink-0 cursor-pointer"
+                style={{ border: previewIndex === i ? '2px solid #0c0a09' : '2px solid transparent' }}
               >
-                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={url} alt="" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
@@ -1001,22 +936,11 @@ export default function CreatePostPage() {
 
         {/* draft banner */}
         {draftBanner && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 8,
-            padding: '10px 14px',
-            marginBottom: 12,
-            background: '#f5f5f4',
-            borderRadius: '14px',
-            border: '1px solid #e7e5e4',
-            fontFamily: 'inherit',
-          }}>
-            <span style={{ fontSize: 13, color: '#0c0a09', fontWeight: 500 }}>
+          <div className="flex items-center justify-between gap-2 px-3.5 py-2.5 mb-3 bg-stone-100 rounded-[14px] border border-stone-200">
+            <span className="text-[13px] text-stone-950 font-medium">
               Tienes un borrador guardado
             </span>
-            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            <div className="flex gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => {
@@ -1029,7 +953,7 @@ export default function CreatePostPage() {
                   } catch { /* ignore */ }
                   setDraftBanner(false);
                 }}
-                style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                className="text-[13px] font-semibold text-stone-950 bg-transparent border-none cursor-pointer p-0"
               >
                 Restaurar
               </button>
@@ -1039,7 +963,7 @@ export default function CreatePostPage() {
                   try { localStorage.removeItem('post_draft'); } catch { /* ignore */ }
                   setDraftBanner(false);
                 }}
-                style={{ fontSize: 13, color: '#78716c', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                className="text-[13px] text-stone-500 bg-transparent border-none cursor-pointer p-0"
               >
                 Descartar
               </button>
@@ -1048,32 +972,17 @@ export default function CreatePostPage() {
         )}
 
         {/* caption with hashtag/mention highlighting */}
-        <div style={{ position: 'relative', marginBottom: 12 }}>
+        <div className="relative mb-3">
           {/* Highlight backdrop — mirrors textarea text with colored tokens */}
           <div
             aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              padding: 12,
-              fontSize: 14,
-              fontFamily: 'inherit',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-              color: 'transparent',
-              pointerEvents: 'none',
-              boxSizing: 'border-box',
-              border: '1.5px solid transparent',
-            }}
+            className="absolute top-0 left-0 right-0 p-3 text-sm leading-relaxed whitespace-pre-wrap break-words text-transparent pointer-events-none box-border border-[1.5px] border-transparent"
           >
             {caption.split(/(#\w+|@\w+)/g).map((part, i) =>
               part.startsWith('#') ? (
-                <span key={i} style={{ color: '#78716c', fontWeight: 600 }}>{part}</span>
+                <span key={i} className="text-stone-500 font-semibold">{part}</span>
               ) : part.startsWith('@') ? (
-                <span key={i} style={{ color: '#57534e', fontWeight: 600 }}>{part}</span>
+                <span key={i} className="text-stone-600 font-semibold">{part}</span>
               ) : (
                 <span key={i}>{part}</span>
               )
@@ -1089,25 +998,9 @@ export default function CreatePostPage() {
             }}
             aria-label="Descripción de la publicación"
             placeholder="Escribe tu pie de foto... Usa # para hashtags y @ para menciones"
-            style={{
-              width: '100%',
-              border: '1.5px solid #e7e5e4',
-              borderRadius: '12px',
-              padding: 12,
-              resize: 'none',
-              minHeight: 80,
-              fontSize: 14,
-              fontFamily: 'inherit',
-              lineHeight: '1.5',
-              outline: 'none',
-              boxSizing: 'border-box',
-              overflow: 'hidden',
-              background: 'transparent',
-              position: 'relative',
-              caretColor: '#0c0a09',
-            }}
+            className="w-full border-[1.5px] border-stone-200 rounded-xl p-3 resize-none min-h-[80px] text-sm leading-relaxed outline-none box-border overflow-hidden bg-transparent relative caret-stone-950"
           />
-          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 11, color: caption.length > 2000 ? '#0c0a09' : '#78716c', fontWeight: caption.length > 2000 ? 600 : 400 }}>
+          <span className={`absolute bottom-2 right-3 text-[11px] ${caption.length > 2000 ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}>
             {caption.length} / 2200
           </span>
         </div>
@@ -1136,65 +1029,34 @@ export default function CreatePostPage() {
             }
           }}
           disabled={aiLoading}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            background: '#f5f5f4',
-            color: '#0c0a09',
-            fontSize: 13,
-            fontWeight: 500,
-            borderRadius: '9999px',
-            padding: '8px 16px',
-            border: 'none',
-            cursor: aiLoading ? 'wait' : 'pointer',
-            marginBottom: 16,
-            opacity: aiLoading ? 0.6 : 1,
-          }}
+          className="flex items-center bg-stone-100 text-stone-950 text-[13px] font-medium rounded-full px-4 py-2 border-none mb-4 transition-opacity"
+          style={{ cursor: aiLoading ? 'wait' : 'pointer', opacity: aiLoading ? 0.6 : 1 }}
         >
-          <Sparkles size={14} style={{ marginRight: 6, flexShrink: 0 }} /> {aiLoading ? 'Generando...' : 'Sugerir con David AI'}
+          <Sparkles size={14} className="mr-1.5 shrink-0" /> {aiLoading ? 'Generando...' : 'Sugerir con David AI'}
         </button>
 
         {/* tag products */}
-        <div style={{ marginBottom: 16 }}>
+        <div className="mb-4">
           <button
             onClick={() => setShowProductSearch(true)}
-            style={{
-              background: '#f5f5f4',
-              color: '#0c0a09',
-              border: '1px solid #e7e5e4',
-              borderRadius: '12px',
-              padding: '10px 16px',
-              fontSize: 13,
-              cursor: 'pointer',
-              width: '100%',
-              textAlign: 'left',
-            }}
+            className="bg-stone-100 text-stone-950 border border-stone-200 rounded-xl px-4 py-2.5 text-[13px] cursor-pointer w-full text-left"
           >
             🏷️ Etiquetar producto
           </button>
 
           {/* tagged chips */}
           {taggedProducts.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+            <div className="flex flex-wrap gap-1.5 mt-2">
               {taggedProducts.map((p) => (
                 <span
                   key={p.id}
-                  style={{
-                    background: '#f5f5f4',
-                    border: '1px solid #e7e5e4',
-                    borderRadius: '9999px',
-                    padding: '4px 10px',
-                    fontSize: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}
+                  className="bg-stone-100 border border-stone-200 rounded-full px-2.5 py-1 text-xs flex items-center gap-1"
                 >
                   {p.name}
                   <button
                     onClick={() => setTaggedProducts((prev) => prev.filter((x) => x.id !== p.id))}
                     aria-label={`Quitar ${p.name}`}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}
+                    className="bg-transparent border-none cursor-pointer p-0 leading-none"
                   >
                     <X size={12} />
                   </button>
@@ -1205,61 +1067,39 @@ export default function CreatePostPage() {
         </div>
 
         {/* location */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f5f5f4', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '10px 12px' }}>
-            <MapPin size={16} color="#78716c" style={{ flexShrink: 0 }} />
+        <div className="mb-4">
+          <div className="flex items-center gap-2 bg-stone-100 border border-stone-200 rounded-xl px-3 py-2.5">
+            <MapPin size={16} className="text-stone-500 shrink-0" />
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Añadir ubicación... (ej. Galicia, Costa Brava)"
               aria-label="Ubicación"
-              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontFamily: 'inherit', background: 'transparent' }}
+              className="flex-1 border-none outline-none text-[13px] bg-transparent"
             />
           </div>
         </div>
 
         {/* audience toggle */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', gap: 8 }}>
+        <div className="mb-4">
+          <div className="flex gap-2">
             <button
               onClick={() => setAudience('public')}
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                padding: '10px 0',
-                borderRadius: '9999px',
-                border: audience === 'public' ? '2px solid #0c0a09' : '1.5px solid #e7e5e4',
-                background: audience === 'public' ? '#0c0a09' : 'transparent',
-                color: audience === 'public' ? '#fff' : '#0c0a09',
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-              }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-medium cursor-pointer transition-all duration-150 ${
+                audience === 'public'
+                  ? 'border-2 border-stone-950 bg-stone-950 text-white'
+                  : 'border-[1.5px] border-stone-200 bg-transparent text-stone-950'
+              }`}
             >
               <Globe size={14} /> Público
             </button>
             <button
               onClick={() => setAudience('followers')}
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                padding: '10px 0',
-                borderRadius: '9999px',
-                border: audience === 'followers' ? '2px solid #0c0a09' : '1.5px solid #e7e5e4',
-                background: audience === 'followers' ? '#0c0a09' : 'transparent',
-                color: audience === 'followers' ? '#fff' : '#0c0a09',
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-              }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-medium cursor-pointer transition-all duration-150 ${
+                audience === 'followers'
+                  ? 'border-2 border-stone-950 bg-stone-950 text-white'
+                  : 'border-[1.5px] border-stone-200 bg-transparent text-stone-950'
+              }`}
             >
               <Lock size={14} /> Solo seguidores
             </button>
@@ -1267,23 +1107,23 @@ export default function CreatePostPage() {
         </div>
 
         {/* advanced settings */}
-        <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-            <span style={{ fontSize: 13, color: '#0c0a09' }}>Ocultar recuento de «Me gusta»</span>
+        <div className="mb-4 flex flex-col gap-3">
+          <label className="flex items-center justify-between cursor-pointer">
+            <span className="text-[13px] text-stone-950">Ocultar recuento de «Me gusta»</span>
             <input
               type="checkbox"
               checked={hideLikes}
               onChange={(e) => setHideLikes(e.target.checked)}
-              style={{ accentColor: '#0c0a09', width: 18, height: 18 }}
+              className="accent-stone-950 w-[18px] h-[18px]"
             />
           </label>
-          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-            <span style={{ fontSize: 13, color: '#0c0a09' }}>Desactivar comentarios</span>
+          <label className="flex items-center justify-between cursor-pointer">
+            <span className="text-[13px] text-stone-950">Desactivar comentarios</span>
             <input
               type="checkbox"
               checked={disableComments}
               onChange={(e) => setDisableComments(e.target.checked)}
-              style={{ accentColor: '#0c0a09', width: 18, height: 18 }}
+              className="accent-stone-950 w-[18px] h-[18px]"
             />
           </label>
         </div>
@@ -1291,23 +1131,23 @@ export default function CreatePostPage() {
 
       {/* product search modal */}
       {showProductSearch && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-          <div style={{ background: '#ffffff', width: '100%', maxHeight: '70vh', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #e7e5e4', gap: 8 }}>
-              <Search size={18} color="#78716c" />
+        <div className="absolute inset-0 z-[60] bg-black/50 flex items-end justify-center">
+          <div className="bg-white w-full max-h-[70vh] rounded-t-2xl flex flex-col overflow-hidden">
+            <div className="flex items-center px-4 py-3 border-b border-stone-200 gap-2">
+              <Search size={18} className="text-stone-500" />
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar producto..."
                 aria-label="Buscar producto para etiquetar"
                 autoFocus
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'inherit' }}
+                className="flex-1 border-none outline-none text-sm bg-transparent"
               />
-              <button onClick={() => { setShowProductSearch(false); setSearchQuery(''); setSearchResults([]); }} aria-label="Cerrar búsqueda" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button onClick={() => { setShowProductSearch(false); setSearchQuery(''); setSearchResults([]); }} aria-label="Cerrar búsqueda" className="bg-transparent border-none cursor-pointer">
                 <X size={18} />
               </button>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
+            <div className="flex-1 overflow-y-auto p-2">
               {searchResults.map((p) => (
                 <button
                   key={p.id}
@@ -1319,26 +1159,14 @@ export default function CreatePostPage() {
                     setSearchQuery('');
                     setSearchResults([]);
                   }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    width: '100%',
-                    padding: '10px 8px',
-                    background: 'none',
-                    border: 'none',
-                    borderBottom: '1px solid #e7e5e4',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontSize: 13,
-                  }}
+                  className="flex items-center gap-2.5 w-full px-2 py-2.5 bg-transparent border-none border-b border-stone-200 cursor-pointer text-left text-[13px]"
                 >
-                  {p.image && <img src={p.image} alt="" style={{ width: 36, height: 36, borderRadius: '12px', objectFit: 'cover' }} />}
+                  {p.image && <img src={p.image} alt="" className="w-9 h-9 rounded-xl object-cover" />}
                   <span>{p.name || p.title}</span>
                 </button>
               ))}
               {searchQuery && searchResults.length === 0 && (
-                <p style={{ textAlign: 'center', color: '#78716c', fontSize: 13, padding: 20 }}>Sin resultados</p>
+                <p className="text-center text-stone-500 text-[13px] py-5">Sin resultados</p>
               )}
             </div>
           </div>
@@ -1347,57 +1175,36 @@ export default function CreatePostPage() {
 
       {/* Publish success overlay */}
       {publishSuccess && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 70, background: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, animation: 'fadeIn 0.3s ease' }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#0c0a09', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+        <div className="absolute inset-0 z-[70] bg-white flex flex-col items-center justify-center gap-4 animate-[fadeIn_0.3s_ease]">
+          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
             <Check size={28} color="#fff" strokeWidth={2.5} />
           </div>
-          <span style={{ fontSize: 16, fontWeight: 600, color: '#0c0a09' }}>¡Publicado!</span>
+          <span className="text-base font-semibold text-stone-950">¡Publicado!</span>
         </div>
       )}
 
       {/* fixed publish button */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-200">
         {/* Upload progress bar */}
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
-          <div style={{ width: '100%', height: 3, background: '#e7e5e4', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
-            <div style={{ height: '100%', background: '#0c0a09', borderRadius: 2, width: `${uploadProgress}%`, transition: 'width 0.3s ease' }} />
+          <div className="w-full h-[3px] bg-stone-200 rounded-sm mb-2.5 overflow-hidden">
+            <div
+              className="h-full bg-stone-950 rounded-sm transition-[width] duration-300 ease-in-out"
+              style={{ width: `${uploadProgress}%` }}
+            />
           </div>
         )}
         <button
           onClick={handlePublish}
           disabled={publishing}
+          className="w-full bg-stone-950 text-white text-[15px] font-semibold py-3.5 rounded-full border-none flex items-center justify-center gap-2 transition-all duration-150 hover:bg-stone-800"
           style={{
-            width: '100%',
-            background: '#0c0a09',
-            color: '#fff',
-            fontSize: 15,
-            fontWeight: 600,
-            padding: 14,
-            borderRadius: '9999px',
-            border: 'none',
             cursor: publishing ? 'default' : 'pointer',
             opacity: publishing ? 0.8 : 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            transition: 'all 0.15s ease',
           }}
-          onMouseEnter={(e) => { if (!publishing) e.currentTarget.style.background = '#292524'; }}
-          onMouseLeave={(e) => { if (!publishing) e.currentTarget.style.background = '#0c0a09'; }}
         >
           {publishing && (
-            <span
-              style={{
-                width: 18,
-                height: 18,
-                border: '2px solid rgba(255,255,255,0.3)',
-                borderTopColor: '#fff',
-                borderRadius: '50%',
-                display: 'inline-block',
-                animation: 'spin 0.7s linear infinite',
-              }}
-            />
+            <span className="w-[18px] h-[18px] border-2 border-white/30 border-t-white rounded-full inline-block animate-spin" />
           )}
           {publishing
             ? uploadProgress < 100
@@ -1428,8 +1235,7 @@ export default function CreatePostPage() {
         animate="center"
         exit="exit"
         transition={stepTransition}
-        style={{ position: 'fixed', inset: 0, zIndex: 50 }}
-        className="lg:max-w-[480px] lg:mx-auto"
+        className="fixed inset-0 z-50 lg:max-w-[480px] lg:mx-auto"
       >
         {steps[step]()}
       </motion.div>

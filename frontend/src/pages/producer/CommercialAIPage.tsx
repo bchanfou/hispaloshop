@@ -13,32 +13,6 @@ import { useNavigate } from 'react-router-dom';
 
 /* ───────── constants ───────── */
 
-const S = {
-  font: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
-  black: '#0c0a09',
-  white: '#ffffff',
-  bg: '#fafaf9',
-  surface: '#ffffff',
-  surface2: '#fafaf9',
-  text1: '#0c0a09',
-  text2: '#78716c',
-  text3: '#a8a29e',
-  border: 'rgba(0,0,0,0.08)',
-  borderMed: 'rgba(0,0,0,0.12)',
-  purple: '#44403c',
-  purpleBg: '#f5f5f4',
-  green: '#0c0a09',
-  greenBg: '#f5f5f4',
-  orange: '#78716c',
-  orangeBg: '#fafaf9',
-  shadowSm: '0 2px 10px rgba(0,0,0,0.07)',
-  shadowMd: '0 4px 20px rgba(0,0,0,0.09)',
-  rLg: '16px',
-  rXl: '22px',
-  rFull: '9999px',
-  ease: 'var(cubic-bezier(0.4,0,0.2,1), cubic-bezier(0.4,0,0.2,1))',
-};
-
 const SUGGESTIONS = [
   { icon: '🇩🇪', text: 'Analiza Alemania para aceite' },
   { icon: '📊', text: '¿Qué mercados me recomiendas?' },
@@ -82,53 +56,23 @@ function UpgradeBanner() {
   const navigate = useNavigate();
 
   return (
-    <div style={{
-      minHeight: '70vh',
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      padding: '48px 24px', textAlign: 'center',
-      fontFamily: S.font,
-    }}>
-      <div style={{
-        width: 80, height: 80,
-        borderRadius: '50%',
-        background: S.surface2,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: 28,
-      }}>
-        <Lock size={36} color={S.text3} strokeWidth={1.5} />
+    <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 py-12 text-center">
+      <div className="w-20 h-20 rounded-full bg-stone-50 flex items-center justify-center mb-7">
+        <Lock size={36} className="text-stone-400" strokeWidth={1.5} />
       </div>
 
-      <h2 style={{
-        fontSize: 28, fontWeight: 700,
-        color: S.text1, letterSpacing: '-0.02em',
-        marginBottom: 12,
-      }}>
+      <h2 className="text-[28px] font-bold text-stone-950 tracking-tight mb-3">
         Agente Comercial IA
       </h2>
 
-      <p style={{
-        fontSize: 16, color: S.text2,
-        lineHeight: 1.6, maxWidth: 420,
-        marginBottom: 36,
-      }}>
+      <p className="text-base text-stone-500 leading-relaxed max-w-[420px] mb-9">
         Accede a tu representante de ventas internacional con análisis de mercados,
         matching con importadores y generación de contratos.
       </p>
 
       <button
         onClick={() => navigate('/productor')}
-        style={{
-          padding: '14px 32px',
-          borderRadius: S.rFull,
-          background: '#44403c', color: '#FFFFFF',
-          border: 'none', fontSize: 15, fontWeight: 600,
-          cursor: 'pointer',
-          fontFamily: S.font,
-          transition: `all 250ms ${S.ease}`,
-        }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+        className="px-8 py-3.5 rounded-full bg-stone-700 text-white border-none text-[15px] font-semibold cursor-pointer transition-transform duration-200 hover:scale-[1.03]"
       >
         Actualizar a ELITE
       </button>
@@ -144,55 +88,28 @@ function ToolCallCard({ toolCall }) {
   const Icon = meta.icon;
 
   return (
-    <div style={{
-      borderRadius: 14,
-      border: `1px solid ${S.border}`,
-      background: S.surface,
-      overflow: 'hidden',
-      marginBottom: 8,
-    }}>
+    <div className="rounded-[14px] border border-black/[0.08] bg-white overflow-hidden mb-2">
       <button
         onClick={() => setExpanded(!expanded)}
-        style={{
-          width: '100%',
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '10px 14px',
-          background: 'none', border: 'none', cursor: 'pointer',
-          fontFamily: S.font, fontSize: 13,
-          color: S.text1,
-        }}
+        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 bg-transparent border-none cursor-pointer text-[13px] text-stone-950"
       >
-        <div style={{
-          width: 28, height: 28, borderRadius: 8,
-          background: `${meta.color}14`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-        }}>
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+          style={{ background: `${meta.color}14` }}
+        >
           <Icon size={14} color={meta.color} />
         </div>
-        <span style={{ fontWeight: 600, flex: 1, textAlign: 'left' }}>
+        <span className="font-semibold flex-1 text-left">
           {meta.label}
         </span>
         <ChevronRight
           size={14}
-          color={S.text3}
-          style={{
-            transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-            transition: 'transform 200ms ease',
-          }}
+          className="text-stone-400 transition-transform duration-200"
+          style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
         />
       </button>
       {expanded && (
-        <div style={{
-          padding: '0 14px 12px',
-          fontSize: 12, color: S.text2,
-          fontFamily: 'monospace',
-          lineHeight: 1.6,
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          maxHeight: 200,
-          overflowY: 'auto',
-        }}>
+        <div className="px-3.5 pb-3 text-xs text-stone-500 font-mono leading-relaxed whitespace-pre-wrap break-words max-h-[200px] overflow-y-auto">
           {JSON.stringify(toolCall.result, null, 2)}
         </div>
       )}
@@ -278,34 +195,18 @@ export default function CommercialAIPage() {
   const hasMessages = messages.length > 0;
 
   return (
-    <div style={{
-      maxWidth: 920,
-      margin: '0 auto',
-      padding: '32px 20px 120px',
-      fontFamily: S.font,
-    }}>
+    <div className="max-w-[920px] mx-auto px-5 pt-8 pb-[120px]">
       {/* ── Header ── */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-          <h1 style={{
-            fontSize: 32, fontWeight: 700,
-            color: S.text1, letterSpacing: '-0.025em',
-            margin: 0,
-          }}>
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-1.5">
+          <h1 className="text-[32px] font-bold text-stone-950 tracking-tight m-0">
             Agente Comercial
           </h1>
-          <span style={{
-            padding: '4px 12px',
-            borderRadius: S.rFull,
-            background: S.purpleBg,
-            color: '#44403c',
-            fontSize: 11, fontWeight: 700,
-            letterSpacing: '0.06em',
-          }}>
+          <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-700 text-[11px] font-bold tracking-wide">
             ELITE
           </span>
         </div>
-        <p style={{ fontSize: 15, color: S.text2, margin: 0 }}>
+        <p className="text-[15px] text-stone-500 m-0">
           Tu representante de ventas internacional con IA
         </p>
       </div>
@@ -316,69 +217,36 @@ export default function CommercialAIPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          style={{ marginBottom: 32 }}
+          className="mb-8"
         >
-          <h2 style={{
-            fontSize: 17, fontWeight: 600,
-            color: S.text1, marginBottom: 16,
-          }}>
+          <h2 className="text-[17px] font-semibold text-stone-950 mb-4">
             Oportunidades detectadas
           </h2>
-          <div style={{
-            display: 'flex', gap: 12,
-            overflowX: 'auto',
-            paddingBottom: 8,
-            scrollSnapType: 'x mandatory',
-          }}>
+          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory">
             {OPPORTUNITIES.map((opp, i) => (
               <motion.div
                 key={opp.country}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                style={{
-                  minWidth: 220, flexShrink: 0,
-                  scrollSnapAlign: 'start',
-                  borderRadius: 16,
-                  border: `0.5px solid ${S.border}`,
-                  background: S.surface,
-                  padding: '20px 18px',
-                  boxShadow: S.shadowSm,
-                  cursor: 'pointer',
-                  transition: `all 250ms ${S.ease}`,
-                }}
+                className="min-w-[220px] shrink-0 snap-start rounded-2xl border border-black/[0.08] bg-white px-[18px] py-5 shadow-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                 onClick={() => handleSend(`Analiza el mercado de ${opp.product} en ${opp.country}`)}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.09)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = S.shadowSm;
-                }}
               >
-                <span style={{ fontSize: 28 }}>{opp.flag}</span>
-                <p style={{
-                  fontSize: 15, fontWeight: 600,
-                  color: S.text1, marginTop: 10, marginBottom: 4,
-                }}>
+                <span className="text-[28px]">{opp.flag}</span>
+                <p className="text-[15px] font-semibold text-stone-950 mt-2.5 mb-1">
                   {opp.country}
                 </p>
-                <p style={{ fontSize: 13, color: S.text2, margin: 0, marginBottom: 10 }}>
+                <p className="text-[13px] text-stone-500 m-0 mb-2.5">
                   {opp.product}
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <TrendingUp size={13} color="#0c0a09" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09' }}>
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp size={13} className="text-stone-950" />
+                  <span className="text-[13px] font-semibold text-stone-950">
                     {opp.trend}
                   </span>
-                  <span style={{ fontSize: 11, color: S.text3 }}>{opp.period}</span>
+                  <span className="text-[11px] text-stone-400">{opp.period}</span>
                 </div>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  marginTop: 10,
-                  fontSize: 13, fontWeight: 500, color: S.text1,
-                }}>
+                <div className="flex items-center gap-1 mt-2.5 text-[13px] font-medium text-stone-950">
                   Ver análisis <ArrowRight size={13} />
                 </div>
               </motion.div>
@@ -388,91 +256,43 @@ export default function CommercialAIPage() {
       )}
 
       {/* ── Chat Container ── */}
-      <div style={{
-        borderRadius: 18,
-        border: `0.5px solid ${S.border}`,
-        background: S.surface,
-        boxShadow: S.shadowMd,
-        overflow: 'hidden',
-      }}>
+      <div className="rounded-[18px] border border-black/[0.08] bg-white shadow-md overflow-hidden">
         {/* Chat Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          padding: '16px 20px',
-          borderBottom: `0.5px solid ${S.border}`,
-        }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 12,
-            background: 'linear-gradient(135deg, #44403c, #57534e)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-black/[0.08]">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #44403c, #57534e)' }}>
             <Globe size={20} color="#FFFFFF" />
           </div>
           <div>
-            <p style={{ fontSize: 15, fontWeight: 600, color: S.text1, margin: 0 }}>
+            <p className="text-[15px] font-semibold text-stone-950 m-0">
               Chat con el Agente
             </p>
-            <p style={{ fontSize: 12, color: S.text2, margin: 0 }}>
+            <p className="text-xs text-stone-500 m-0">
               Claude Sonnet — análisis avanzado
             </p>
           </div>
-          <div style={{
-            marginLeft: 'auto',
-            width: 8, height: 8, borderRadius: '50%',
-            background: '#0c0a09',
-          }} />
+          <div className="ml-auto w-2 h-2 rounded-full bg-stone-950" />
         </div>
 
         {/* Messages Area */}
-        <div style={{
-          height: hasMessages ? 420 : 320,
-          overflowY: 'auto',
-          padding: '20px 20px 12px',
-          transition: 'height 300ms ease',
-        }}>
+        <div
+          className="overflow-y-auto px-5 pt-5 pb-3 transition-[height] duration-300 ease-in-out"
+          style={{ height: hasMessages ? 420 : 320 }}
+        >
           {/* Empty state */}
           {!hasMessages && !isLoading && (
-            <div style={{
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center',
-              height: '100%', textAlign: 'center',
-            }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: 16,
-                background: S.surface2,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginBottom: 16,
-              }}>
-                <Globe size={28} color={S.text3} strokeWidth={1.5} />
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="w-14 h-14 rounded-2xl bg-stone-50 flex items-center justify-center mb-4">
+                <Globe size={28} className="text-stone-400" strokeWidth={1.5} />
               </div>
-              <p style={{
-                fontSize: 15, color: S.text2, margin: '0 0 20px',
-                maxWidth: 320,
-              }}>
+              <p className="text-[15px] text-stone-500 mb-5 max-w-[320px] m-0">
                 Pregunta sobre mercados, regulaciones o importadores
               </p>
-              <div style={{
-                display: 'flex', flexWrap: 'wrap',
-                justifyContent: 'center', gap: 8,
-                maxWidth: 480,
-              }}>
+              <div className="flex flex-wrap justify-center gap-2 max-w-[480px]">
                 {SUGGESTIONS.map(s => (
                   <button
                     key={s.text}
                     onClick={() => handleSend(s.text)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      padding: '8px 14px',
-                      borderRadius: S.rFull,
-                      border: `1px solid ${S.border}`,
-                      background: S.surface,
-                      fontFamily: S.font,
-                      fontSize: 13, color: S.text1,
-                      cursor: 'pointer',
-                      transition: `all 200ms ${S.ease}`,
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = S.surface2; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = S.surface; }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-black/[0.08] bg-white text-[13px] text-stone-950 cursor-pointer transition-colors duration-200 hover:bg-stone-50"
                   >
                     <span>{s.icon}</span> {s.text}
                   </button>
@@ -491,43 +311,32 @@ export default function CommercialAIPage() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25 }}
-                  style={{
-                    display: 'flex',
-                    justifyContent: isUser ? 'flex-end' : 'flex-start',
-                    marginBottom: 12,
-                  }}
+                  className={`flex mb-3 ${isUser ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div style={{ maxWidth: '80%' }}>
+                  <div className="max-w-[80%]">
                     {/* Tool call cards before assistant message */}
                     {!isUser && msg.toolCalls?.length > 0 && (
-                      <div style={{ marginBottom: 8 }}>
+                      <div className="mb-2">
                         {msg.toolCalls.map((tc, j) => (
                           <ToolCallCard key={j} toolCall={tc} />
                         ))}
                       </div>
                     )}
-                    <div style={{
-                      borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                      padding: '12px 16px',
-                      background: isUser ? '#0A0A0A' : S.surface2,
-                      color: isUser ? '#FFFFFF' : S.text1,
-                    }}>
+                    <div
+                      className={`px-4 py-3 ${isUser ? 'bg-[#0A0A0A] text-white rounded-[18px_18px_4px_18px]' : 'bg-stone-50 text-stone-950 rounded-[18px_18px_18px_4px]'}`}
+                    >
                       {isUser ? (
-                        <p style={{ fontSize: 15, lineHeight: 1.55, margin: 0 }}>
+                        <p className="text-[15px] leading-relaxed m-0">
                           {msg.content}
                         </p>
                       ) : (
                         <div
-                          style={{ fontSize: 15, lineHeight: 1.55 }}
+                          className="text-[15px] leading-relaxed"
                           dangerouslySetInnerHTML={{ __html: parseMarkdownSafe(msg.content) }}
                         />
                       )}
                     </div>
-                    <p style={{
-                      fontSize: 11, color: S.text3,
-                      margin: '4px 4px 0',
-                      textAlign: isUser ? 'right' : 'left',
-                    }}>
+                    <p className={`text-[11px] text-stone-400 mt-1 mx-1 ${isUser ? 'text-right' : 'text-left'}`}>
                       {new Date(msg.timestamp).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
@@ -541,21 +350,12 @@ export default function CommercialAIPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              style={{
-                display: 'flex', gap: 5,
-                padding: '12px 16px',
-                borderRadius: '18px 18px 18px 4px',
-                background: S.surface2,
-                width: 'fit-content',
-              }}
+              className="flex gap-[5px] px-4 py-3 rounded-[18px_18px_18px_4px] bg-stone-50 w-fit"
             >
               {[0, 1, 2].map(i => (
                 <motion.span
                   key={i}
-                  style={{
-                    display: 'block', width: 7, height: 7,
-                    borderRadius: '50%', background: S.text3,
-                  }}
+                  className="block w-[7px] h-[7px] rounded-full bg-stone-400"
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
                 />
@@ -567,18 +367,8 @@ export default function CommercialAIPage() {
         </div>
 
         {/* Input Area */}
-        <div style={{
-          padding: '12px 16px',
-          borderTop: `0.5px solid ${S.border}`,
-        }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '6px 6px 6px 18px',
-            borderRadius: S.rFull,
-            background: S.surface2,
-            border: `1px solid ${S.border}`,
-            transition: `all 200ms ${S.ease}`,
-          }}>
+        <div className="px-4 py-3 border-t border-black/[0.08]">
+          <div className="flex items-center gap-2.5 pl-[18px] pr-1.5 py-1.5 rounded-full bg-stone-50 border border-black/[0.08] transition-all duration-200">
             <input
               ref={inputRef}
               type="text"
@@ -586,29 +376,16 @@ export default function CommercialAIPage() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Pregunta al Agente Comercial..."
-              style={{
-                flex: 1,
-                border: 'none',
-                background: 'transparent',
-                fontSize: 15, color: S.text1,
-                fontFamily: S.font,
-                outline: 'none',
-              }}
+              className="flex-1 border-none bg-transparent text-[15px] text-stone-950 outline-none"
             />
             <button
               onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
-              style={{
-                width: 36, height: 36,
-                borderRadius: '50%',
-                border: 'none',
-                background: input.trim() ? '#0A0A0A' : S.surface2,
-                color: input.trim() ? '#FFFFFF' : S.text3,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: input.trim() ? 'pointer' : 'default',
-                transition: `all 200ms ${S.ease}`,
-                flexShrink: 0,
-              }}
+              className={`w-9 h-9 rounded-full border-none flex items-center justify-center shrink-0 transition-all duration-200 ${
+                input.trim()
+                  ? 'bg-[#0A0A0A] text-white cursor-pointer'
+                  : 'bg-stone-50 text-stone-400 cursor-default'
+              }`}
             >
               <Send size={16} />
             </button>
@@ -622,12 +399,7 @@ export default function CommercialAIPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-            gap: 12,
-            marginTop: 24,
-          }}
+          className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 mt-6"
         >
           {[
             { label: 'Mercados', value: '9', sub: 'países analizados' },
@@ -635,24 +407,14 @@ export default function CommercialAIPage() {
             { label: 'Contratos', value: 'PDF', sub: 'generación automática' },
             { label: 'Datos', value: '2026', sub: 'actualizados' },
           ].map((stat, i) => (
-            <div key={stat.label} style={{
-              borderRadius: 14,
-              background: S.surface,
-              border: `0.5px solid ${S.border}`,
-              padding: '18px 16px',
-              textAlign: 'center',
-            }}>
-              <p style={{
-                fontSize: 24, fontWeight: 700,
-                color: S.text1, letterSpacing: '-0.02em',
-                margin: '0 0 2px',
-              }}>
+            <div key={stat.label} className="rounded-[14px] bg-white border border-black/[0.08] px-4 py-[18px] text-center">
+              <p className="text-2xl font-bold text-stone-950 tracking-tight mb-0.5 m-0">
                 {stat.value}
               </p>
-              <p style={{ fontSize: 13, fontWeight: 600, color: S.text1, margin: '0 0 2px' }}>
+              <p className="text-[13px] font-semibold text-stone-950 mb-0.5 m-0">
                 {stat.label}
               </p>
-              <p style={{ fontSize: 12, color: S.text3, margin: 0 }}>
+              <p className="text-xs text-stone-400 m-0">
                 {stat.sub}
               </p>
             </div>

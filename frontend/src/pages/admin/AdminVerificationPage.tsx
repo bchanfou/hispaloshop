@@ -9,28 +9,18 @@ import {
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
-/* ── Design tokens ──────────────────────────────────────── */
-const T = {
-  black: '#0A0A0A', cream: '#ffffff', stone: '#8A8881',
-  white: '#FFFFFF', border: '#E5E2DA', surface: '#F0EDE8',
-  green: '#0c0a09', greenLight: '#f5f5f4',
-  amber: '#78716c', amberLight: '#fafaf9',
-  red: '#DC2626', redLight: '#FEE2E2',
-  radius: '16px',
-};
-
 const STATUS_LABELS = {
-  verified: { label: 'Verificado', bg: T.greenLight, color: T.green },
-  rejected: { label: 'Rechazado', bg: T.redLight, color: T.red },
-  manual_review: { label: 'Revisión', bg: T.amberLight, color: T.amber },
-  pending: { label: 'Pendiente', bg: T.surface, color: T.stone },
-  expired: { label: 'Caducado', bg: T.redLight, color: T.red },
+  verified: { label: 'Verificado', bg: 'bg-stone-100', color: 'text-stone-950' },
+  rejected: { label: 'Rechazado', bg: 'bg-red-100', color: 'text-red-600' },
+  manual_review: { label: 'Revisión', bg: 'bg-stone-50', color: 'text-stone-500' },
+  pending: { label: 'Pendiente', bg: 'bg-stone-200', color: 'text-stone-500' },
+  expired: { label: 'Caducado', bg: 'bg-red-100', color: 'text-red-600' },
 };
 
 function DocBadge({ status }) {
   const s = STATUS_LABELS[status] || STATUS_LABELS.pending;
   return (
-    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: s.bg, color: s.color }}>
+    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${s.bg} ${s.color}`}>
       {s.label}
     </span>
   );
@@ -39,24 +29,21 @@ function DocBadge({ status }) {
 function DocThumb({ url, label, status, onClick }) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1 group">
-      <div
-        className="w-[52px] h-[52px] rounded-2xl overflow-hidden flex items-center justify-center relative"
-        style={{ border: `1px solid ${T.border}`, background: T.surface }}
-      >
+      <div className="w-[52px] h-[52px] rounded-2xl overflow-hidden flex items-center justify-center relative border border-stone-200 bg-stone-200/50">
         {url ? (
           url.toLowerCase().endsWith('.pdf') ? (
-            <FileText className="w-5 h-5" style={{ color: T.stone }} />
+            <FileText className="w-5 h-5 text-stone-500" />
           ) : (
             <img loading="lazy" src={url} alt={label} className="w-full h-full object-cover" />
           )
         ) : (
-          <span className="text-[10px]" style={{ color: T.stone }}>—</span>
+          <span className="text-[10px] text-stone-500">—</span>
         )}
         <div className="absolute -bottom-1 -right-1">
           <DocBadge status={status} />
         </div>
       </div>
-      <span className="text-[10px]" style={{ color: T.stone }}>{label}</span>
+      <span className="text-[10px] text-stone-500">{label}</span>
     </button>
   );
 }
@@ -69,32 +56,26 @@ function VerificationCard({ item, onApprove, onReject, onRequestDocs, onViewDoc 
   const certs = docs.certificates || [];
 
   return (
-    <div className="p-4" style={{ background: T.white, borderRadius: T.radius, border: `1px solid ${T.border}` }}>
+    <div className="p-4 bg-white rounded-2xl border border-stone-200">
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-bold"
-          style={{ background: T.surface, color: T.black }}
-        >
+        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-bold bg-stone-200/50 text-stone-950">
           {(item.business_name || '?')[0].toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium truncate" style={{ color: T.black }}>{item.business_name}</p>
-          <p className="text-[10px] truncate" style={{ color: T.stone }}>
+          <p className="font-medium truncate text-stone-950">{item.business_name}</p>
+          <p className="text-[10px] truncate text-stone-500">
             {item.email} · {item.country || 'ES'} · {item.role}
           </p>
         </div>
-        <span
-          className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-          style={{ background: T.amberLight, color: T.amber }}
-        >
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 bg-stone-50 text-stone-500">
           Revisión manual
         </span>
       </div>
 
       {/* Review reason */}
       {item.admin_review_reason && (
-        <p className="text-[11px] mb-3 px-2 py-1.5" style={{ color: T.amber, background: T.amberLight, borderRadius: '8px' }}>
+        <p className="text-[11px] mb-3 px-2 py-1.5 text-stone-500 bg-stone-50 rounded-xl">
           {item.admin_review_reason}
         </p>
       )}
@@ -127,22 +108,19 @@ function VerificationCard({ item, onApprove, onReject, onRequestDocs, onViewDoc 
       {/* Action buttons */}
       <div className="flex gap-2">
         <button
-          className="flex-1 py-2.5 text-xs font-bold transition-colors"
-          style={{ background: T.green, color: T.white, borderRadius: T.radius }}
+          className="flex-1 py-2.5 text-xs font-bold transition-colors bg-stone-950 text-white rounded-2xl"
           onClick={() => onApprove(item)}
         >
           Aprobar
         </button>
         <button
-          className="flex-1 py-2.5 text-xs font-bold transition-colors"
-          style={{ background: T.white, color: T.black, borderRadius: T.radius, border: `1px solid ${T.border}` }}
+          className="flex-1 py-2.5 text-xs font-bold transition-colors bg-white text-stone-950 rounded-2xl border border-stone-200"
           onClick={() => onRequestDocs(item)}
         >
           Solicitar docs
         </button>
         <button
-          className="flex-1 py-2.5 text-xs font-bold transition-colors"
-          style={{ background: T.red, color: T.white, borderRadius: T.radius }}
+          className="flex-1 py-2.5 text-xs font-bold transition-colors bg-red-600 text-white rounded-2xl"
           onClick={() => onReject(item)}
         >
           Rechazar
@@ -163,38 +141,36 @@ function DocumentModal({ doc, docType, item, onClose }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.6)' }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60"
       onClick={onClose}
     >
       <motion.div
         initial={{ y: 40 }}
         animate={{ y: 0 }}
         exit={{ y: 40 }}
-        className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto"
-        style={{ background: T.white, borderRadius: '20px 20px 0 0', padding: '20px' }}
+        className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-t-[20px] sm:rounded-2xl p-5"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold" style={{ color: T.black }}>
+          <h3 className="font-bold text-stone-950">
             {docType === 'cif_nif' ? 'CIF/NIF' : docType === 'facility_photo' ? 'Foto de instalación' : 'Certificado'}
           </h3>
           <button onClick={onClose}>
-            <X className="w-5 h-5" style={{ color: T.stone }} />
+            <X className="w-5 h-5 text-stone-500" />
           </button>
         </div>
 
         {/* Document viewer */}
         {doc.url && (
-          <div className="mb-4 rounded-2xl overflow-hidden" style={{ border: `1px solid ${T.border}` }}>
+          <div className="mb-4 rounded-2xl overflow-hidden border border-stone-200">
             {isPdf ? (
-              <div className="h-64 flex items-center justify-center" style={{ background: T.surface }}>
-                <a href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium" style={{ color: T.black }}>
+              <div className="h-64 flex items-center justify-center bg-stone-200/50">
+                <a href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium text-stone-950">
                   <FileText className="w-5 h-5" /> Abrir PDF en nueva pestaña
                 </a>
               </div>
             ) : (
-              <img loading="lazy" src={doc.url} alt="Document" className="w-full" style={{ maxHeight: '300px', objectFit: 'contain' }} />
+              <img loading="lazy" src={doc.url} alt="Document" className="w-full max-h-[300px] object-contain" />
             )}
           </div>
         )}
@@ -220,11 +196,11 @@ function DocumentModal({ doc, docType, item, onClose }) {
           <DocBadge status={doc.status} />
           {confidence && (
             <span
-              className="text-[10px] font-bold px-2 py-0.5 rounded-full ml-2"
-              style={{
-                background: confidence === 'high' ? T.greenLight : confidence === 'medium' ? T.amberLight : T.redLight,
-                color: confidence === 'high' ? T.green : confidence === 'medium' ? T.amber : T.red,
-              }}
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ml-2 ${
+                confidence === 'high' ? 'bg-stone-100 text-stone-950' :
+                confidence === 'medium' ? 'bg-stone-50 text-stone-500' :
+                'bg-red-100 text-red-600'
+              }`}
             >
               Confianza {confidence}
             </span>
@@ -232,8 +208,7 @@ function DocumentModal({ doc, docType, item, onClose }) {
         </div>
 
         <button
-          className="w-full py-2.5 text-sm font-semibold transition-colors"
-          style={{ background: T.black, color: T.white, borderRadius: T.radius }}
+          className="w-full py-2.5 text-sm font-semibold transition-colors bg-stone-950 text-white rounded-2xl"
           onClick={onClose}
         >
           Cerrar
@@ -246,8 +221,8 @@ function DocumentModal({ doc, docType, item, onClose }) {
 function InfoRow({ label, value }) {
   return (
     <div className="flex items-start gap-2 text-sm">
-      <span className="font-medium shrink-0" style={{ color: T.stone }}>{label}:</span>
-      <span style={{ color: T.black }}>{value}</span>
+      <span className="font-medium shrink-0 text-stone-500">{label}:</span>
+      <span className="text-stone-950">{value}</span>
     </div>
   );
 }
@@ -272,31 +247,28 @@ function RejectModal({ item, onClose, onConfirm }) {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.6)' }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60"
       onClick={onClose}
     >
       <motion.div
         initial={{ y: 40 }} animate={{ y: 0 }} exit={{ y: 40 }}
-        className="w-full sm:max-w-md"
-        style={{ background: T.white, borderRadius: '20px 20px 0 0', padding: '20px' }}
+        className="w-full sm:max-w-md bg-white rounded-t-[20px] sm:rounded-2xl p-5"
         onClick={e => e.stopPropagation()}
       >
-        <h3 className="font-bold mb-4" style={{ color: T.black }}>Rechazar verificación</h3>
+        <h3 className="font-bold mb-4 text-stone-950">Rechazar verificación</h3>
 
         <textarea
           value={reason}
           onChange={e => setReason(e.target.value)}
           placeholder="Motivo del rechazo (obligatorio)"
           rows={3}
-          className="w-full p-3 text-sm mb-3 resize-none"
-          style={{ border: `1px solid ${T.border}`, borderRadius: '12px', outline: 'none', color: T.black }}
+          className="w-full p-3 text-sm mb-3 resize-none border border-stone-200 rounded-xl outline-none text-stone-950"
         />
 
-        <p className="text-xs font-medium mb-2" style={{ color: T.stone }}>Documentos problemáticos:</p>
+        <p className="text-xs font-medium mb-2 text-stone-500">Documentos problemáticos:</p>
         <div className="space-y-2 mb-4">
           {['CIF/NIF no válido', 'Foto de instalación no válida', 'Certificado no válido', 'Datos inconsistentes'].map(d => (
-            <label key={d} className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: T.black }}>
+            <label key={d} className="flex items-center gap-2 text-sm cursor-pointer text-stone-950">
               <input
                 type="checkbox"
                 checked={docs.includes(d)}
@@ -310,15 +282,13 @@ function RejectModal({ item, onClose, onConfirm }) {
 
         <div className="flex gap-2">
           <button
-            className="flex-1 py-2.5 text-sm font-semibold transition-colors"
-            style={{ border: `1px solid ${T.border}`, borderRadius: T.radius, color: T.black, background: T.white }}
+            className="flex-1 py-2.5 text-sm font-semibold transition-colors border border-stone-200 rounded-2xl text-stone-950 bg-white"
             onClick={onClose}
           >
             Cancelar
           </button>
           <button
-            className="flex-1 py-2.5 text-sm font-bold transition-colors disabled:opacity-50"
-            style={{ background: T.red, color: T.white, borderRadius: T.radius }}
+            className="flex-1 py-2.5 text-sm font-bold transition-colors disabled:opacity-50 bg-red-600 text-white rounded-2xl"
             onClick={handleConfirm}
             disabled={submitting || !reason.trim()}
           >
@@ -348,37 +318,32 @@ function RequestDocsModal({ item, onClose, onConfirm }) {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.6)' }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60"
       onClick={onClose}
     >
       <motion.div
         initial={{ y: 40 }} animate={{ y: 0 }} exit={{ y: 40 }}
-        className="w-full sm:max-w-md"
-        style={{ background: T.white, borderRadius: '20px 20px 0 0', padding: '20px' }}
+        className="w-full sm:max-w-md bg-white rounded-t-[20px] sm:rounded-2xl p-5"
         onClick={e => e.stopPropagation()}
       >
-        <h3 className="font-bold mb-4" style={{ color: T.black }}>Solicitar documentación</h3>
+        <h3 className="font-bold mb-4 text-stone-950">Solicitar documentación</h3>
 
         <textarea
           value={message}
           onChange={e => setMessage(e.target.value)}
           rows={4}
-          className="w-full p-3 text-sm mb-4 resize-none"
-          style={{ border: `1px solid ${T.border}`, borderRadius: '12px', outline: 'none', color: T.black }}
+          className="w-full p-3 text-sm mb-4 resize-none border border-stone-200 rounded-xl outline-none text-stone-950"
         />
 
         <div className="flex gap-2">
           <button
-            className="flex-1 py-2.5 text-sm font-semibold transition-colors"
-            style={{ border: `1px solid ${T.border}`, borderRadius: T.radius, color: T.black, background: T.white }}
+            className="flex-1 py-2.5 text-sm font-semibold transition-colors border border-stone-200 rounded-2xl text-stone-950 bg-white"
             onClick={onClose}
           >
             Cancelar
           </button>
           <button
-            className="flex-1 py-2.5 text-sm font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-            style={{ background: T.black, color: T.white, borderRadius: T.radius }}
+            className="flex-1 py-2.5 text-sm font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 bg-stone-950 text-white rounded-2xl"
             onClick={handleConfirm}
             disabled={submitting || !message.trim()}
           >
@@ -457,33 +422,28 @@ export default function AdminVerificationPage() {
   const pendingCount = filter === 'pending' ? queue.length : null;
 
   return (
-    <div style={{ fontFamily: 'inherit', background: T.cream }}>
+    <div className="bg-white">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
-        <h1 className="text-xl font-bold" style={{ color: T.black }}>Verificaciones</h1>
+        <h1 className="text-xl font-bold text-stone-950">Verificaciones</h1>
         {pendingCount > 0 && (
-          <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{ background: T.redLight, color: T.red }}
-          >
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
             {pendingCount}
           </span>
         )}
       </div>
-      <p className="text-sm mb-4" style={{ color: T.stone }}>Revisión manual de productores</p>
+      <p className="text-sm mb-4 text-stone-500">Revisión manual de productores</p>
 
       {/* Filters */}
       <div className="flex gap-2 mb-5">
         {filters.map(f => (
           <button
             key={f.key}
-            className="px-4 py-2 text-xs font-semibold transition-colors"
-            style={{
-              borderRadius: T.radius,
-              background: filter === f.key ? T.black : T.white,
-              color: filter === f.key ? T.white : T.black,
-              border: `1px solid ${filter === f.key ? T.black : T.border}`,
-            }}
+            className={`px-4 py-2 text-xs font-semibold transition-colors rounded-2xl border ${
+              filter === f.key
+                ? 'bg-stone-950 text-white border-stone-950'
+                : 'bg-white text-stone-950 border-stone-200'
+            }`}
             onClick={() => setFilter(f.key)}
           >
             {f.label}
@@ -494,12 +454,12 @@ export default function AdminVerificationPage() {
       {/* Content */}
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin" style={{ color: T.stone }} />
+          <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
         </div>
       ) : queue.length === 0 ? (
         <div className="text-center py-16">
-          <ShieldCheck className="w-10 h-10 mx-auto mb-3" style={{ color: T.stone }} />
-          <p className="text-sm font-medium" style={{ color: T.stone }}>
+          <ShieldCheck className="w-10 h-10 mx-auto mb-3 text-stone-500" />
+          <p className="text-sm font-medium text-stone-500">
             {filter === 'pending' ? 'No hay verificaciones pendientes' : `No hay verificaciones ${filter === 'approved' ? 'aprobadas' : 'rechazadas'}`}
           </p>
         </div>

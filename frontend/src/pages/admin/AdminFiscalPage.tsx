@@ -10,16 +10,16 @@ import { toast } from 'sonner';
 
 function StatusBadge({ verified, needsReview, blocked, hasUrl }) {
   if (verified) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#f5f5f4', color: '#0c0a09' }}>Verificado</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-950">Verificado</span>
   );
   if (needsReview) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#fffbeb', color: '#d97706' }}>Revisión manual</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">Revisión manual</span>
   );
   if (hasUrl && !verified) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#fef2f2', color: '#dc2626' }}>Rechazado</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600">Rechazado</span>
   );
   return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#f5f5f4', color: '#78716c' }}>Pendiente</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">Pendiente</span>
   );
 }
 
@@ -94,40 +94,40 @@ export default function AdminFiscalPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#78716c' }} />
+        <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
       </div>
     );
   }
 
   return (
-    <div style={{ fontFamily: 'inherit', background: '#fafaf9' }}>
+    <div className="bg-stone-50">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
-        <button onClick={() => navigate('/admin')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-          <ArrowLeft className="w-5 h-5" style={{ color: '#0c0a09' }} />
+        <button onClick={() => navigate('/admin')} className="bg-transparent border-none cursor-pointer">
+          <ArrowLeft className="w-5 h-5 text-stone-950" />
         </button>
-        <h1 className="text-xl font-bold" style={{ color: '#0c0a09' }}>Gestión fiscal</h1>
+        <h1 className="text-xl font-bold text-stone-950">Gestión fiscal</h1>
       </div>
-      <p className="text-sm mb-5 ml-8" style={{ color: '#78716c' }}>Retenciones, certificados y Modelo 190</p>
+      <p className="text-sm mb-5 ml-8 text-stone-500">Retenciones, certificados y Modelo 190</p>
 
       {/* KPI Cards */}
       {stats && (
         <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="p-4" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4' }}>
-            <p className="text-2xl font-extrabold" style={{ color: '#d97706' }}>{(stats.total_withheld_ytd || 0).toFixed(0)}€</p>
-            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>Total retenido YTD</p>
+          <div className="p-4 bg-white rounded-2xl border border-stone-200">
+            <p className="text-2xl font-extrabold text-amber-600">{(stats.total_withheld_ytd || 0).toFixed(0)}€</p>
+            <p className="text-xs mt-0.5 text-stone-500">Total retenido YTD</p>
           </div>
-          <div className="p-4" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4' }}>
-            <p className="text-2xl font-extrabold" style={{ color: '#0c0a09' }}>{stats.es_active_count || 0}</p>
-            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>Influencers ES activos</p>
+          <div className="p-4 bg-white rounded-2xl border border-stone-200">
+            <p className="text-2xl font-extrabold text-stone-950">{stats.es_active_count || 0}</p>
+            <p className="text-xs mt-0.5 text-stone-500">Influencers ES activos</p>
           </div>
-          <div className="p-4" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4' }}>
-            <p className="text-2xl font-extrabold" style={{ color: stats.pending_review > 0 ? '#dc2626' : '#0c0a09' }}>{stats.pending_review || 0}</p>
-            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>Pendientes revisión</p>
+          <div className="p-4 bg-white rounded-2xl border border-stone-200">
+            <p className={`text-2xl font-extrabold ${stats.pending_review > 0 ? 'text-red-600' : 'text-stone-950'}`}>{stats.pending_review || 0}</p>
+            <p className="text-xs mt-0.5 text-stone-500">Pendientes revisión</p>
           </div>
-          <div className="p-4" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4' }}>
-            <p className="text-sm font-bold" style={{ color: '#0c0a09' }}>{stats.next_190_quarter}</p>
-            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>Próximo 190: {stats.next_190_deadline}</p>
+          <div className="p-4 bg-white rounded-2xl border border-stone-200">
+            <p className="text-sm font-bold text-stone-950">{stats.next_190_quarter}</p>
+            <p className="text-xs mt-0.5 text-stone-500">Próximo 190: {stats.next_190_deadline}</p>
           </div>
         </div>
       )}
@@ -135,23 +135,22 @@ export default function AdminFiscalPage() {
       {/* Pending manual reviews */}
       {pendingReviews.length > 0 && (
         <div className="mb-5">
-          <h2 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>Revisión manual pendiente</h2>
+          <h2 className="text-sm font-bold mb-3 text-stone-950">Revisión manual pendiente</h2>
           <div className="space-y-2">
             {pendingReviews.map(inf => (
-              <div key={inf.influencer_id} className="flex items-center gap-3 p-3.5" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4' }}>
-                <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: '50%', background: '#fffbeb' }}>
-                  <AlertTriangle className="w-4 h-4" style={{ color: '#d97706' }} />
+              <div key={inf.influencer_id} className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200">
+                <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-full bg-amber-50">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: '#0c0a09' }}>{inf.full_name || inf.email}</p>
-                  <p className="text-xs" style={{ color: '#78716c' }}>
+                  <p className="text-sm font-semibold truncate text-stone-950">{inf.full_name || inf.email}</p>
+                  <p className="text-xs text-stone-500">
                     País: {inf.tax_country || '—'} · Confianza: Baja
                   </p>
                 </div>
                 <button
                   onClick={() => setReviewModal(inf)}
-                  className="shrink-0 px-3 py-1.5 text-xs font-semibold transition-colors"
-                  style={{ background: '#0c0a09', color: '#fff', borderRadius: '16px', border: 'none', cursor: 'pointer' }}
+                  className="shrink-0 px-3 py-1.5 text-xs font-semibold transition-colors bg-stone-950 text-white rounded-2xl border-none cursor-pointer"
                 >
                   Revisar
                 </button>
@@ -162,14 +161,13 @@ export default function AdminFiscalPage() {
       )}
 
       {/* Generate report */}
-      <div className="p-4 mb-5" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4' }}>
-        <h2 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>Generar informe Modelo 190</h2>
+      <div className="p-4 mb-5 bg-white rounded-2xl border border-stone-200">
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Generar informe Modelo 190</h2>
         <div className="flex gap-2 mb-3">
           <select
             value={genQuarter}
             onChange={e => setGenQuarter(Number(e.target.value))}
-            className="flex-1 px-3 py-2 text-sm"
-            style={{ borderRadius: '12px', border: '1px solid #e7e5e4', background: '#ffffff', color: '#0c0a09' }}
+            className="flex-1 px-3 py-2 text-sm rounded-xl border border-stone-200 bg-white text-stone-950"
           >
             <option value={1}>Q1 (Ene-Mar)</option>
             <option value={2}>Q2 (Abr-Jun)</option>
@@ -179,8 +177,7 @@ export default function AdminFiscalPage() {
           <select
             value={genYear}
             onChange={e => setGenYear(Number(e.target.value))}
-            className="px-3 py-2 text-sm"
-            style={{ borderRadius: '12px', border: '1px solid #e7e5e4', background: '#ffffff', color: '#0c0a09' }}
+            className="px-3 py-2 text-sm rounded-xl border border-stone-200 bg-white text-stone-950"
           >
             {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
           </select>
@@ -188,8 +185,8 @@ export default function AdminFiscalPage() {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="w-full py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2"
-          style={{ background: '#0c0a09', color: '#fff', borderRadius: '16px', border: 'none', cursor: generating ? 'wait' : 'pointer' }}
+          className="w-full py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2 bg-stone-950 text-white rounded-2xl border-none cursor-pointer"
+          style={{ cursor: generating ? 'wait' : 'pointer' }}
         >
           {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
           Generar informe Modelo 190
@@ -199,10 +196,10 @@ export default function AdminFiscalPage() {
         {reports.length > 0 && (
           <div className="mt-4 space-y-2">
             {reports.map((r, i) => (
-              <div key={i} className="flex items-center justify-between py-2" style={{ borderTop: '1px solid #e7e5e4' }}>
+              <div key={i} className="flex items-center justify-between py-2 border-t border-stone-200">
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>Q{r.quarter} {r.year}</p>
-                  <p className="text-xs" style={{ color: '#78716c' }}>
+                  <p className="text-sm font-semibold text-stone-950">Q{r.quarter} {r.year}</p>
+                  <p className="text-xs text-stone-500">
                     {r.perceptors_count} perceptores · {(r.total_withheld || 0).toFixed(2)}€ retenido
                   </p>
                 </div>
@@ -210,8 +207,7 @@ export default function AdminFiscalPage() {
                   href={r.pdf_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold transition-colors"
-                  style={{ background: '#f5f5f4', color: '#0c0a09', borderRadius: '16px' }}
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold transition-colors bg-stone-100 text-stone-950 rounded-2xl"
                 >
                   <Download className="w-3.5 h-3.5" /> PDF
                 </a>
@@ -223,7 +219,7 @@ export default function AdminFiscalPage() {
 
       {/* Influencer list with filters */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>Influencers</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Influencers</h2>
 
         {/* Filters */}
         <div className="flex gap-1 mb-3 overflow-x-auto pb-1">
@@ -237,13 +233,11 @@ export default function AdminFiscalPage() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className="px-3 py-1.5 text-xs font-semibold shrink-0 transition-colors"
-              style={{
-                borderRadius: '9999px',
-                background: filter === f.key ? '#0c0a09' : '#f5f5f4',
-                color: filter === f.key ? '#fff' : '#78716c',
-                border: 'none', cursor: 'pointer',
-              }}
+              className={`px-3 py-1.5 text-xs font-semibold shrink-0 transition-colors rounded-full border-none cursor-pointer ${
+                filter === f.key
+                  ? 'bg-stone-950 text-white'
+                  : 'bg-stone-100 text-stone-500'
+              }`}
             >
               {f.label}
             </button>
@@ -252,26 +246,25 @@ export default function AdminFiscalPage() {
 
         {/* Search */}
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#78716c' }} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre o NIF..."
-            className="w-full pl-10 pr-4 py-2.5 text-sm focus:outline-none"
-            style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4', color: '#0c0a09' }}
+            className="w-full pl-10 pr-4 py-2.5 text-sm focus:outline-none bg-white rounded-2xl border border-stone-200 text-stone-950"
           />
         </div>
 
         {/* List */}
         <div className="space-y-2">
           {influencers.map(inf => (
-            <div key={inf.influencer_id} className="flex items-center gap-3 p-3.5" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e7e5e4' }}>
-              <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: '50%', background: '#f5f5f4' }}>
-                <Shield className="w-4 h-4" style={{ color: '#78716c' }} />
+            <div key={inf.influencer_id} className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200">
+              <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-full bg-stone-100">
+                <Shield className="w-4 h-4 text-stone-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ color: '#0c0a09' }}>{inf.full_name || inf.email}</p>
-                <p className="text-xs" style={{ color: '#78716c' }}>
+                <p className="text-sm font-semibold truncate text-stone-950">{inf.full_name || inf.email}</p>
+                <p className="text-xs text-stone-500">
                   {inf.tax_country || '—'} · {inf.withholding_pct > 0 ? `${inf.withholding_pct}% IRPF` : 'Sin retención'}
                   {inf.payout_method ? ` · ${inf.payout_method === 'sepa' ? 'SEPA' : 'Stripe'}` : ''}
                 </p>
@@ -285,7 +278,7 @@ export default function AdminFiscalPage() {
             </div>
           ))}
           {influencers.length === 0 && (
-            <p className="text-sm text-center py-6" style={{ color: '#78716c' }}>
+            <p className="text-sm text-center py-6 text-stone-500">
               No se encontraron influencers
             </p>
           )}
@@ -294,18 +287,18 @@ export default function AdminFiscalPage() {
 
       {/* Review Modal */}
       {reviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}>
-          <div className="mx-4 max-w-md w-full p-6" style={{ background: '#ffffff', borderRadius: '16px' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 max-w-md w-full p-6 bg-white rounded-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold" style={{ color: '#0c0a09' }}>Revisar certificado</h3>
-              <button onClick={() => { setReviewModal(null); setRejectReason(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                <X className="w-5 h-5" style={{ color: '#78716c' }} />
+              <h3 className="text-sm font-bold text-stone-950">Revisar certificado</h3>
+              <button onClick={() => { setReviewModal(null); setRejectReason(''); }} className="bg-transparent border-none cursor-pointer">
+                <X className="w-5 h-5 text-stone-500" />
               </button>
             </div>
 
             <div className="mb-4">
-              <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{reviewModal.full_name || reviewModal.email}</p>
-              <p className="text-xs" style={{ color: '#78716c' }}>
+              <p className="text-sm font-semibold text-stone-950">{reviewModal.full_name || reviewModal.email}</p>
+              <p className="text-xs text-stone-500">
                 País declarado: {reviewModal.tax_country || '—'} · Nombre detectado: {reviewModal.entity_name || '—'}
               </p>
             </div>
@@ -315,8 +308,7 @@ export default function AdminFiscalPage() {
                 href={reviewModal.certificate_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-3 mb-4 text-sm font-semibold transition-colors"
-                style={{ background: '#f5f5f4', borderRadius: '16px', color: '#0c0a09' }}
+                className="flex items-center gap-2 p-3 mb-4 text-sm font-semibold transition-colors bg-stone-100 rounded-2xl text-stone-950"
               >
                 <Eye className="w-4 h-4" />
                 Ver certificado
@@ -324,14 +316,13 @@ export default function AdminFiscalPage() {
             )}
 
             <div className="mb-4">
-              <label className="block text-xs font-medium mb-1" style={{ color: '#78716c' }}>Motivo de rechazo (opcional)</label>
+              <label className="block text-xs font-medium mb-1 text-stone-500">Motivo de rechazo (opcional)</label>
               <textarea
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
                 placeholder="Motivo del rechazo..."
                 rows={2}
-                className="w-full px-3 py-2 text-sm resize-none focus:outline-none"
-                style={{ background: '#f5f5f4', borderRadius: '12px', border: '1px solid #e7e5e4', color: '#0c0a09' }}
+                className="w-full px-3 py-2 text-sm resize-none focus:outline-none bg-stone-100 rounded-xl border border-stone-200 text-stone-950"
               />
             </div>
 
@@ -339,8 +330,7 @@ export default function AdminFiscalPage() {
               <button
                 onClick={() => handleReview('approve')}
                 disabled={reviewing}
-                className="flex-1 py-2.5 text-sm font-semibold flex items-center justify-center gap-1 transition-colors"
-                style={{ background: '#0c0a09', color: '#fff', borderRadius: '16px', border: 'none', cursor: 'pointer' }}
+                className="flex-1 py-2.5 text-sm font-semibold flex items-center justify-center gap-1 transition-colors bg-stone-950 text-white rounded-2xl border-none cursor-pointer"
               >
                 {reviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 Verificar
@@ -348,8 +338,7 @@ export default function AdminFiscalPage() {
               <button
                 onClick={() => handleReview('reject')}
                 disabled={reviewing}
-                className="flex-1 py-2.5 text-sm font-semibold flex items-center justify-center gap-1 transition-colors"
-                style={{ background: '#dc2626', color: '#fff', borderRadius: '16px', border: 'none', cursor: 'pointer' }}
+                className="flex-1 py-2.5 text-sm font-semibold flex items-center justify-center gap-1 transition-colors bg-red-600 text-white rounded-2xl border-none cursor-pointer"
               >
                 {reviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
                 Rechazar

@@ -28,11 +28,7 @@ function formatDateTime(dateStr) {
 
 function SectionLabel({ children }) {
   return (
-    <p style={{
-      fontSize: 11, fontWeight: 700, color: '#78716c',
-      textTransform: 'uppercase', letterSpacing: '0.08em',
-      margin: '24px 0 8px', fontFamily: 'inherit',
-    }}>
+    <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider mt-6 mb-2">
       {children}
     </p>
   );
@@ -129,8 +125,6 @@ export default function OrderDetailPage() {
     }
   };
 
-  const font = { fontFamily: 'inherit' };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
@@ -162,35 +156,24 @@ export default function OrderDetailPage() {
   const addr = order.shipping_address || order.address || {};
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 100, ...font }}>
+    <div className="min-h-screen bg-stone-50 pb-[100px]">
       {/* Topbar */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 30,
-        background: '#ffffff',
-        borderBottom: '1px solid #e7e5e4',
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '12px 16px',
-      }}>
+      <div className="sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
         <button
           onClick={() => navigate('/orders')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+          className="bg-transparent border-none cursor-pointer p-1 flex"
         >
-          <ArrowLeft size={22} color="#0c0a09" />
+          <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09' }}>{ref}</span>
+        <span className="text-[15px] font-semibold text-stone-950">{ref}</span>
       </div>
 
-      <div style={{ padding: '16px', maxWidth: 600, margin: '0 auto' }}>
+      <div className="px-4 max-w-[600px] mx-auto pt-4">
         {/* ── Status Timeline ── */}
         {!isCancelled && currentStepIdx >= 0 && (
-          <div style={{
-            background: '#ffffff',
-            border: '1px solid #e7e5e4',
-            borderRadius: '16px',
-            padding: 20, marginBottom: 16,
-          }}>
+          <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-4">
             {/* Horizontal 4-step timeline */}
-            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+            <div className="flex items-start">
               {STATUS_FLOW.map((s, i) => {
                 const isCompleted = i < currentStepIdx || (i === currentStepIdx && isDelivered);
                 const isActive = i === currentStepIdx && !isDelivered;
@@ -200,18 +183,14 @@ export default function OrderDetailPage() {
 
                 return (
                   <React.Fragment key={s}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: isLast ? '0 0 auto' : 0 }}>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: '50%',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: isCompleted ? '#0c0a09' : isActive ? '#0c0a09' : 'transparent',
-                        border: isPending ? '2px solid #e7e5e4' : 'none',
-                        position: 'relative',
-                      }}>
+                    <div className={`flex flex-col items-center ${isLast ? 'flex-none' : 'flex-0'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
+                        isCompleted || isActive ? 'bg-stone-950' : 'bg-transparent border-2 border-stone-200'
+                      }`}>
                         {isCompleted ? (
-                          <Check size={16} color="#fff" />
+                          <Check size={16} className="text-white" />
                         ) : (
-                          <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#78716c' }}>
+                          <span className={`text-xs font-bold ${isActive ? 'text-white' : 'text-stone-500'}`}>
                             {i + 1}
                           </span>
                         )}
@@ -219,27 +198,25 @@ export default function OrderDetailPage() {
                           <motion.div
                             animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            style={{
-                              position: 'absolute', inset: -4,
-                              borderRadius: '50%', border: '2px solid #0c0a09',
-                            }}
+                            className="absolute -inset-1 rounded-full border-2 border-stone-950"
                           />
                         )}
                       </div>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: isActive ? '#0c0a09' : isCompleted ? '#0c0a09' : '#78716c', marginTop: 6, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <span className={`text-[10px] font-semibold mt-1.5 text-center whitespace-nowrap ${
+                        isActive || isCompleted ? 'text-stone-950' : 'text-stone-500'
+                      }`}>
                         {STATUS_LABELS[s] || s}
                       </span>
                       {ts && (isCompleted || isActive) && (
-                        <span style={{ fontSize: 9, color: '#78716c', marginTop: 2, textAlign: 'center' }}>
+                        <span className="text-[9px] text-stone-500 mt-0.5 text-center">
                           {formatDateTime(ts)}
                         </span>
                       )}
                     </div>
                     {!isLast && (
-                      <div style={{
-                        flex: 1, height: 2, marginTop: 15,
-                        background: i < currentStepIdx ? '#0c0a09' : '#e7e5e4',
-                      }} />
+                      <div className={`flex-1 h-0.5 mt-[15px] ${
+                        i < currentStepIdx ? 'bg-stone-950' : 'bg-stone-200'
+                      }`} />
                     )}
                   </React.Fragment>
                 );
@@ -250,16 +227,10 @@ export default function OrderDetailPage() {
 
         {/* Tracking card */}
         {(status === 'shipped' || status === 'in_transit') && (
-          <div style={{
-            background: '#f5f5f4',
-            border: '1px solid #e7e5e4',
-            borderRadius: '16px',
-            padding: 14, marginBottom: 16,
-            display: 'flex', alignItems: 'center', gap: 10,
-          }}>
-            <Truck size={20} color="#0c0a09" />
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0 }}>
+          <div className="bg-stone-100 border border-stone-200 rounded-2xl p-3.5 mb-4 flex items-center gap-2.5">
+            <Truck size={20} className="text-stone-950" />
+            <div className="flex-1">
+              <p className="text-[13px] font-semibold text-stone-950 m-0">
                 {order.carrier || 'Transportista'} {order.tracking_number && `· ${order.tracking_number}`}
               </p>
             </div>
@@ -268,10 +239,7 @@ export default function OrderDetailPage() {
                 href={order.tracking_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  fontSize: 13, fontWeight: 600, color: '#0c0a09', textDecoration: 'none',
-                }}
+                className="flex items-center gap-1 text-[13px] font-semibold text-stone-950 no-underline"
               >
                 Rastrear <ExternalLink size={14} />
               </a>
@@ -281,33 +249,21 @@ export default function OrderDetailPage() {
 
         {/* ── Products ── */}
         <SectionLabel>PRODUCTOS</SectionLabel>
-        <div style={{
-          background: '#ffffff',
-          border: '1px solid #e7e5e4',
-          borderRadius: '16px',
-          overflow: 'hidden',
-        }}>
+        <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
           {items.map((item, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              padding: 14,
-              borderBottom: i < items.length - 1 ? '1px solid #e7e5e4' : 'none',
-            }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: '12px',
-                background: '#f5f5f4', overflow: 'hidden', flexShrink: 0,
-              }}>
+            <div key={i} className={`flex items-center gap-3 p-3.5 ${i < items.length - 1 ? 'border-b border-stone-200' : ''}`}>
+              <div className="w-14 h-14 rounded-xl bg-stone-100 overflow-hidden shrink-0">
                 {(item.image || item.product_image) && (
-                  <img loading="lazy" src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img loading="lazy" src={item.image || item.product_image} alt="" className="w-full h-full object-cover" />
                 )}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 14, fontWeight: 500, color: '#0c0a09', margin: 0 }}>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-stone-950 m-0">
                   {item.name || item.product_name}
                 </p>
-                <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>x{item.quantity}</p>
+                <p className="text-xs text-stone-500 mt-0.5 mb-0">x{item.quantity}</p>
               </div>
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#0c0a09', flexShrink: 0 }}>
+              <span className="text-sm font-semibold text-stone-950 shrink-0">
                 {item.unit_price_cents
                   ? `${(item.unit_price_cents / 100 * item.quantity).toFixed(2)} €`
                   : item.price
@@ -320,44 +276,35 @@ export default function OrderDetailPage() {
 
         {/* ── Shipping Address ── */}
         <SectionLabel>DIRECCIÓN DE ENVÍO</SectionLabel>
-        <div style={{
-          background: '#f5f5f4',
-          borderRadius: '16px',
-          padding: 16,
-        }}>
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#0c0a09', margin: 0 }}>
+        <div className="bg-stone-100 rounded-2xl p-4">
+          <p className="text-sm font-semibold text-stone-950 m-0">
             {addr.full_name || addr.name || ''}
           </p>
-          <p style={{ fontSize: 13, color: '#78716c', margin: '4px 0 0', lineHeight: 1.5 }}>
+          <p className="text-[13px] text-stone-500 mt-1 mb-0 leading-normal">
             {addr.street}{addr.city ? `, ${addr.city}` : ''}{addr.postal_code ? ` ${addr.postal_code}` : ''}
             {addr.country ? `, ${addr.country}` : ''}
           </p>
           {addr.phone && (
-            <p style={{ fontSize: 13, color: '#78716c', margin: '2px 0 0' }}>{addr.phone}</p>
+            <p className="text-[13px] text-stone-500 mt-0.5 mb-0">{addr.phone}</p>
           )}
         </div>
 
         {/* ── Payment Summary ── */}
         <SectionLabel>RESUMEN DE PAGO</SectionLabel>
-        <div style={{
-          background: '#ffffff',
-          border: '1px solid #e7e5e4',
-          borderRadius: '16px',
-          padding: 16,
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div className="bg-white border border-stone-200 rounded-2xl p-4">
+          <div className="flex flex-col gap-1.5">
             {subtotal && <PaymentRow label="Subtotal" value={`${subtotal}€`} />}
-            {discount && Number(discount) > 0 && <PaymentRow label="Descuento" value={`-${discount}€`} color="#0c0a09" />}
+            {discount && Number(discount) > 0 && <PaymentRow label="Descuento" value={`-${discount}€`} />}
             {shipping != null && <PaymentRow label="Envío" value={Number(shipping) === 0 ? 'Gratis' : `${shipping}€`} />}
-            <div style={{ height: 1, background: '#e7e5e4', margin: '4px 0' }} />
+            <div className="h-px bg-stone-200 my-1" />
             <PaymentRow label="Total" value={`${total}€`} bold />
           </div>
           {order.payment_method && (
-            <p style={{ fontSize: 12, color: '#78716c', marginTop: 12 }}>
+            <p className="text-xs text-stone-500 mt-3">
               Método: {order.payment_method}
             </p>
           )}
-          <p style={{ fontSize: 12, color: '#78716c', marginTop: 4 }}>
+          <p className="text-xs text-stone-500 mt-1">
             Fecha: {formatDate(order.created_at)}
           </p>
         </div>
@@ -366,41 +313,22 @@ export default function OrderDetailPage() {
         {order.seller_name && (
           <>
             <SectionLabel>VENDEDORES</SectionLabel>
-            <div style={{
-              background: '#ffffff',
-              border: '1px solid #e7e5e4',
-              borderRadius: '16px',
-              padding: 14,
-              display: 'flex', alignItems: 'center', gap: 10,
-            }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: '50%',
-                background: '#f5f5f4', overflow: 'hidden', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
+            <div className="bg-white border border-stone-200 rounded-2xl p-3.5 flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-full bg-stone-100 overflow-hidden shrink-0 flex items-center justify-center">
                 {order.seller_avatar ? (
-                  <img loading="lazy" src={order.seller_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img loading="lazy" src={order.seller_avatar} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <Package size={18} color="#78716c" />
+                  <Package size={18} className="text-stone-500" />
                 )}
               </div>
-              <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#0c0a09' }}>
+              <span className="flex-1 text-sm font-medium text-stone-950">
                 {order.seller_name}
               </span>
               <button
                 onClick={() => {
                   if (order.producer_id) navigate(`/messages?to=${order.producer_id}`);
                 }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  padding: '6px 14px',
-                  background: '#ffffff',
-                  border: '1px solid #e7e5e4',
-                  borderRadius: '12px',
-                  fontSize: 13, fontWeight: 600,
-                  color: '#0c0a09',
-                  cursor: 'pointer',
-                }}
+                className="flex items-center gap-1 px-3.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[13px] font-semibold text-stone-950 cursor-pointer"
               >
                 <MessageCircle size={14} /> Contactar
               </button>
@@ -410,24 +338,17 @@ export default function OrderDetailPage() {
 
         {/* ── Review form (if delivered) ── */}
         {isDelivered && (
-          <div style={{
-            background: '#f5f5f4',
-            border: '1px solid #e7e5e4',
-            borderRadius: '16px',
-            padding: 16, marginTop: 24,
-          }}>
-            <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', marginBottom: 12 }}>
+          <div className="bg-stone-100 border border-stone-200 rounded-2xl p-4 mt-6">
+            <p className="text-[15px] font-semibold text-stone-950 mb-3">
               ¿Cómo fue tu experiencia?
             </p>
             {/* Stars */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+            <div className="flex gap-1 mb-3">
               {[1, 2, 3, 4, 5].map(s => (
                 <button
                   key={s}
                   onClick={() => setReviewRating(s)}
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer', padding: 2,
-                  }}
+                  className="bg-transparent border-none cursor-pointer p-0.5"
                 >
                   <Star
                     size={28}
@@ -442,26 +363,12 @@ export default function OrderDetailPage() {
               onChange={e => setReviewText(e.target.value)}
               placeholder="Deja una reseña..."
               rows={3}
-              style={{
-                width: '100%', padding: 12, fontSize: 14,
-                border: '1px solid #e7e5e4',
-                borderRadius: '14px',
-                background: '#ffffff',
-                color: '#0c0a09',
-                outline: 'none', resize: 'vertical',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-              }}
+              className="w-full p-3 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none resize-y box-border"
             />
             <button
               onClick={submitReview}
               disabled={reviewSubmitting}
-              style={{
-                marginTop: 10, padding: '8px 20px',
-                background: '#0c0a09', color: '#fff',
-                border: 'none', borderRadius: '12px',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              }}
+              className="mt-2.5 px-5 py-2 bg-stone-950 text-white border-none rounded-xl text-[13px] font-semibold cursor-pointer"
             >
               {reviewSubmitting ? 'Publicando...' : 'Publicar reseña'}
             </button>
@@ -470,21 +377,11 @@ export default function OrderDetailPage() {
 
         {/* ── Actions ── */}
         {!isCancelled && (
-          <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="mt-6 flex flex-col gap-2.5">
             <button
               onClick={downloadInvoice}
               disabled={invoiceLoading}
-              style={{
-                width: '100%', height: 48,
-                background: '#f5f5f4',
-                border: 'none',
-                borderRadius: '16px',
-                fontSize: 14, fontWeight: 600,
-                color: '#0c0a09',
-                cursor: 'pointer', fontFamily: 'inherit',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                opacity: invoiceLoading ? 0.5 : 1,
-              }}
+              className={`w-full h-12 bg-stone-100 border-none rounded-2xl text-sm font-semibold text-stone-950 cursor-pointer flex items-center justify-center gap-2 ${invoiceLoading ? 'opacity-50' : ''}`}
             >
               {invoiceLoading ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -496,15 +393,7 @@ export default function OrderDetailPage() {
 
             <button
               onClick={() => navigate('/help')}
-              style={{
-                width: '100%', height: 44,
-                background: '#ffffff',
-                border: '1px solid #e7e5e4',
-                borderRadius: '14px',
-                fontSize: 14, fontWeight: 600,
-                color: '#0c0a09',
-                cursor: 'pointer', fontFamily: 'inherit',
-              }}
+              className="w-full h-11 bg-white border border-stone-200 rounded-xl text-sm font-semibold text-stone-950 cursor-pointer"
             >
               Contactar con soporte
             </button>
@@ -512,15 +401,7 @@ export default function OrderDetailPage() {
             {canCancel && (
               <button
                 onClick={cancelOrder}
-                style={{
-                  width: '100%', height: 44,
-                  background: 'transparent',
-                  border: '1px solid #78716c',
-                  borderRadius: '14px',
-                  fontSize: 14, fontWeight: 600,
-                  color: '#78716c',
-                  cursor: 'pointer', fontFamily: 'inherit',
-                }}
+                className="w-full h-11 bg-transparent border border-stone-500 rounded-xl text-sm font-semibold text-stone-500 cursor-pointer"
               >
                 Cancelar pedido
               </button>
@@ -532,15 +413,11 @@ export default function OrderDetailPage() {
   );
 }
 
-function PaymentRow({ label, value, bold, color }) {
+function PaymentRow({ label, value, bold }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <span style={{ fontSize: 13, color: '#78716c' }}>{label}</span>
-      <span style={{
-        fontSize: bold ? 18 : 14,
-        fontWeight: bold ? 700 : 500,
-        color: color || '#0c0a09',
-      }}>{value}</span>
+    <div className="flex justify-between items-center">
+      <span className="text-[13px] text-stone-500">{label}</span>
+      <span className={`${bold ? 'text-lg font-bold' : 'text-sm font-medium'} text-stone-950`}>{value}</span>
     </div>
   );
 }

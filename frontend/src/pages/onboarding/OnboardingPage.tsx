@@ -14,14 +14,13 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { useSaveOnboardingMutation } from '../../features/onboarding/queries';
 
-// ── Helpers ──────────────────────────────────────────────
+// -- Helpers --
 
 function getCountrySubtitle() {
   const lang = (navigator.language || 'es').toLowerCase();
   if (lang.startsWith('es')) return 'La alimentación artesanal española';
   if (lang.startsWith('fr')) return "L'alimentation artisanale française";
   if (lang.startsWith('ko')) return '한국 전통 식품';
-  // Attempt to get country name from locale
   try {
     const region = new Intl.Locale(navigator.language).region;
     if (region) {
@@ -36,76 +35,49 @@ function toggleInArray(arr, id) {
   return arr.includes(id) ? arr.filter(x => x !== id) : [...arr, id];
 }
 
-// ── Progress Dots ────────────────────────────────────────
+// -- Progress Dots --
 
 function ProgressDots({ current, total }) {
   return (
-    <div className="flex items-center justify-center gap-2" style={{ padding: '20px 0' }}>
+    <div className="flex items-center justify-center gap-2 py-5">
       {Array.from({ length: total }, (_, i) => (
         <div
           key={i}
-          style={{
-            width: i === current ? 20 : 6,
-            height: 6,
-            borderRadius: '9999px',
-            background: i === current ? '#0c0a09' : '#e7e5e4',
-            transition: 'all 0.3s ease',
-          }}
+          className={`h-1.5 rounded-full transition-all duration-300 ${
+            i === current ? 'w-5 bg-stone-950' : 'w-1.5 bg-stone-200'
+          }`}
         />
       ))}
     </div>
   );
 }
 
-// ── Toggle Pill ──────────────────────────────────────────
+// -- Toggle Pill --
 
 function TogglePill({ emoji, icon, label, selected, variant, onClick }) {
-  const styles = useMemo(() => {
-    if (!selected) {
-      return {
-        background: '#ffffff',
-        border: '1px solid #e7e5e4',
-        color: '#44403c',
-      };
-    }
-    // All selected variants: stone-950 bg, white text
-    return {
-      background: '#0c0a09',
-      border: '1px solid #0c0a09',
-      color: '#ffffff',
-    };
-  }, [selected]);
-
   return (
     <motion.button
       whileTap={{ scale: 0.95 }}
       animate={{ scale: selected ? 1.05 : 1 }}
       transition={{ type: 'spring', stiffness: 400, damping: 20 }}
       onClick={onClick}
-      style={{
-        ...styles,
-        borderRadius: '9999px',
-        padding: '8px 16px',
-        fontSize: 13,
-        fontWeight: 500,
-        fontFamily: 'inherit',
-        cursor: 'pointer',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-      }}
+      className={`rounded-full py-2 px-4 text-[13px] font-medium cursor-pointer inline-flex items-center gap-1.5 border transition-all ${
+        selected
+          ? 'bg-stone-950 border-stone-950 text-white'
+          : 'bg-white border-stone-200 text-stone-700'
+      }`}
     >
       {selected ? (
-        <Check size={12} strokeWidth={3} style={{ flexShrink: 0 }} />
+        <Check size={12} strokeWidth={3} className="shrink-0" />
       ) : (
-        <span style={{ fontSize: 15, display: 'inline-flex', alignItems: 'center' }}>{icon || emoji}</span>
+        <span className="text-[15px] inline-flex items-center">{icon || emoji}</span>
       )}
       {label}
     </motion.button>
   );
 }
 
-// ── Data ─────────────────────────────────────────────────
+// -- Data --
 
 const DIETS = [
   { id: 'vegano', emoji: '\uD83C\uDF31', label: 'Vegano' },
@@ -162,66 +134,31 @@ const ROLES = [
   },
 ];
 
-// ── Screen 1: Welcome & Register ─────────────────────────
+// -- Screen 1: Welcome & Register --
 
 function ScreenWelcome({ onNext }) {
   const navigate = useNavigate();
   const subtitle = useMemo(() => getCountrySubtitle(), []);
 
   return (
-    <div className="flex flex-col items-center" style={{ padding: '0 24px' }}>
+    <div className="flex flex-col items-center px-6">
       {/* App icon */}
-      <div
-        className="flex items-center justify-center"
-        style={{
-          width: 80,
-          height: 80,
-          borderRadius: 24,
-          background: '#0c0a09',
-          marginBottom: 20,
-        }}
-      >
-        <span style={{ fontSize: 36 }}>{'\uD83C\uDF3F'}</span>
+      <div className="w-20 h-20 rounded-3xl bg-stone-950 flex items-center justify-center mb-5">
+        <span className="text-4xl">{'\uD83C\uDF3F'}</span>
       </div>
 
       {/* Title */}
-      <h1
-        style={{
-          fontSize: 22,
-          fontWeight: 500,
-          letterSpacing: '-0.03em',
-          color: '#0c0a09',
-          fontFamily: 'inherit',
-          margin: '0 0 6px',
-        }}
-      >
+      <h1 className="text-[22px] font-medium tracking-tight text-stone-950 m-0 mb-1.5">
         hispaloshop
       </h1>
 
       {/* Dynamic subtitle */}
-      <p
-        style={{
-          fontSize: 14,
-          color: '#78716c',
-          fontFamily: 'inherit',
-          margin: '0 0 16px',
-        }}
-      >
+      <p className="text-sm text-stone-500 m-0 mb-4">
         {subtitle}
       </p>
 
       {/* Description */}
-      <p
-        style={{
-          fontSize: 13,
-          color: '#78716c',
-          lineHeight: 1.6,
-          fontFamily: 'inherit',
-          textAlign: 'center',
-          margin: '0 0 32px',
-          maxWidth: 320,
-        }}
-      >
+      <p className="text-[13px] text-stone-500 leading-relaxed text-center m-0 mb-8 max-w-[320px]">
         Conectamos productores artesanales con personas que valoran la alimentación auténtica y de calidad.
       </p>
 
@@ -229,22 +166,11 @@ function ScreenWelcome({ onNext }) {
       <ProgressDots current={0} total={3} />
 
       {/* Buttons */}
-      <div className="w-full flex flex-col gap-3" style={{ maxWidth: 360, marginTop: 12 }}>
+      <div className="w-full flex flex-col gap-3 max-w-[360px] mt-3">
         {/* Registrarme */}
         <button
           onClick={onNext}
-          style={{
-            width: '100%',
-            height: 48,
-            borderRadius: '9999px',
-            background: '#0c0a09',
-            color: '#ffffff',
-            border: 'none',
-            fontSize: 15,
-            fontWeight: 500,
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-          }}
+          className="w-full h-12 rounded-full bg-stone-950 text-white border-none text-[15px] font-medium cursor-pointer"
         >
           Registrarme
         </button>
@@ -252,29 +178,18 @@ function ScreenWelcome({ onNext }) {
         {/* Ya tengo cuenta */}
         <button
           onClick={() => navigate('/login')}
-          style={{
-            width: '100%',
-            height: 48,
-            borderRadius: '9999px',
-            background: '#f5f5f4',
-            color: '#0c0a09',
-            border: 'none',
-            fontSize: 15,
-            fontWeight: 500,
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-          }}
+          className="w-full h-12 rounded-full bg-stone-100 text-stone-950 border-none text-[15px] font-medium cursor-pointer"
         >
           Ya tengo cuenta
         </button>
 
         {/* Separator */}
-        <div className="flex items-center gap-3" style={{ margin: '4px 0' }}>
-          <div className="flex-1" style={{ height: 1, background: '#e7e5e4' }} />
-          <span style={{ fontSize: 12, color: '#78716c', fontFamily: 'inherit' }}>
+        <div className="flex items-center gap-3 my-1">
+          <div className="flex-1 h-px bg-stone-200" />
+          <span className="text-xs text-stone-500">
             o continúa con
           </span>
-          <div className="flex-1" style={{ height: 1, background: '#e7e5e4' }} />
+          <div className="flex-1 h-px bg-stone-200" />
         </div>
 
         {/* Social row */}
@@ -282,18 +197,7 @@ function ScreenWelcome({ onNext }) {
           {/* Google */}
           <button
             onClick={() => toast('Google Sign-In próximamente')}
-            className="flex-1 flex items-center justify-center gap-2"
-            style={{
-              height: 48,
-              borderRadius: '9999px',
-              background: '#ffffff',
-              border: '1px solid #e7e5e4',
-              fontSize: 14,
-              fontWeight: 500,
-              fontFamily: 'inherit',
-              color: '#0c0a09',
-              cursor: 'pointer',
-            }}
+            className="flex-1 flex items-center justify-center gap-2 h-12 rounded-full bg-white border border-stone-200 text-sm font-medium text-stone-950 cursor-pointer"
           >
             <svg width="18" height="18" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -307,18 +211,7 @@ function ScreenWelcome({ onNext }) {
           {/* Apple */}
           <button
             onClick={() => toast('Apple Sign-In próximamente')}
-            className="flex-1 flex items-center justify-center gap-2"
-            style={{
-              height: 48,
-              borderRadius: '9999px',
-              background: '#0c0a09',
-              border: 'none',
-              fontSize: 14,
-              fontWeight: 500,
-              fontFamily: 'inherit',
-              color: '#ffffff',
-              cursor: 'pointer',
-            }}
+            className="flex-1 flex items-center justify-center gap-2 h-12 rounded-full bg-stone-950 border-none text-sm font-medium text-white cursor-pointer"
           >
             <svg width="16" height="18" viewBox="0 0 17 20" fill="white">
               <path d="M13.54 10.58c-.01-1.63.72-2.86 2.2-3.76-.83-1.2-2.08-1.86-3.72-1.98-1.56-.12-3.27.92-3.89.92-.66 0-2.13-.88-3.27-.88C2.78 4.92.5 6.88.5 10.79c0 1.15.21 2.34.63 3.57.56 1.62 2.58 5.6 4.7 5.54 1.1-.03 1.87-.78 3.28-.78 1.36 0 2.08.78 3.27.76 2.15-.04 3.94-3.63 4.47-5.25-2.85-1.35-2.82-3.96-2.8-4.05zM11.04 3.45C12.22 2.06 12.1.8 12.07.5c-1.07.06-2.31.74-3.03 1.57-.78.88-1.24 1.97-1.14 3.2 1.17.09 2.24-.53 3.14-1.82z"/>
@@ -331,7 +224,7 @@ function ScreenWelcome({ onNext }) {
   );
 }
 
-// ── Screen 2: Food Preferences ───────────────────────────
+// -- Screen 2: Food Preferences --
 
 function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
   const [diet, setDiet] = useState(data.diet || []);
@@ -343,52 +236,24 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
     onNext();
   };
 
-  const sectionLabelStyle = {
-    fontSize: 10,
-    fontWeight: 600,
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
-    color: '#78716c',
-    fontFamily: 'inherit',
-    margin: '0 0 10px',
-  };
-
   return (
-    <div style={{ padding: '0 24px' }}>
+    <div className="px-6">
       {/* Progress dots */}
       <ProgressDots current={1} total={3} />
 
       {/* Title */}
-      <h2
-        style={{
-          fontSize: 19,
-          fontWeight: 500,
-          color: '#0c0a09',
-          fontFamily: 'inherit',
-          margin: '0 0 6px',
-          textAlign: 'center',
-        }}
-      >
+      <h2 className="text-[19px] font-medium text-stone-950 m-0 mb-1.5 text-center">
         ¿Cómo comes?
       </h2>
 
       {/* Subtitle */}
-      <p
-        style={{
-          fontSize: 12,
-          color: '#78716c',
-          fontFamily: 'inherit',
-          textAlign: 'center',
-          margin: '0 0 28px',
-          lineHeight: 1.5,
-        }}
-      >
+      <p className="text-xs text-stone-500 text-center m-0 mb-7 leading-normal">
         Personalizamos tu feed y ocultamos productos que no son para ti.
       </p>
 
       {/* DIET section */}
-      <p style={sectionLabelStyle}>DIETA</p>
-      <div className="flex flex-wrap gap-2" style={{ marginBottom: 24 }}>
+      <p className="text-[10px] font-semibold tracking-wider uppercase text-stone-500 m-0 mb-2.5">DIETA</p>
+      <div className="flex flex-wrap gap-2 mb-6">
         {DIETS.map(d => (
           <TogglePill
             key={d.id}
@@ -402,8 +267,8 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
       </div>
 
       {/* ALLERGIES section */}
-      <p style={sectionLabelStyle}>ALERGIAS</p>
-      <div className="flex flex-wrap gap-2" style={{ marginBottom: 24 }}>
+      <p className="text-[10px] font-semibold tracking-wider uppercase text-stone-500 m-0 mb-2.5">ALERGIAS</p>
+      <div className="flex flex-wrap gap-2 mb-6">
         {ALLERGIES.map(a => (
           <TogglePill
             key={a.id}
@@ -417,8 +282,8 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
       </div>
 
       {/* INTERESTS section */}
-      <p style={sectionLabelStyle}>INTERESES</p>
-      <div className="flex flex-wrap gap-2" style={{ marginBottom: 32 }}>
+      <p className="text-[10px] font-semibold tracking-wider uppercase text-stone-500 m-0 mb-2.5">INTERESES</p>
+      <div className="flex flex-wrap gap-2 mb-8">
         {INTERESTS.map(item => (
           <TogglePill
             key={item.id}
@@ -435,18 +300,7 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
       {/* Continue button */}
       <button
         onClick={handleContinue}
-        style={{
-          width: '100%',
-          height: 48,
-          borderRadius: '9999px',
-          background: '#0c0a09',
-          color: '#ffffff',
-          border: 'none',
-          fontSize: 15,
-          fontWeight: 500,
-          fontFamily: 'inherit',
-          cursor: 'pointer',
-        }}
+        className="w-full h-12 rounded-full bg-stone-950 text-white border-none text-[15px] font-medium cursor-pointer"
       >
         Continuar
       </button>
@@ -455,18 +309,7 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
       {onBack && (
         <button
           onClick={onBack}
-          style={{
-            display: 'block',
-            width: '100%',
-            marginTop: 12,
-            background: 'none',
-            border: 'none',
-            fontSize: 13,
-            color: '#78716c',
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-            padding: 8,
-          }}
+          className="block w-full mt-3 bg-transparent border-none text-[13px] text-stone-500 cursor-pointer p-2"
         >
           ← Atrás
         </button>
@@ -475,7 +318,7 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
   );
 }
 
-// ── Screen 3: Choose Role ────────────────────────────────
+// -- Screen 3: Choose Role --
 
 function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
   const [selectedRole, setSelectedRole] = useState(data.role || '');
@@ -490,26 +333,17 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
   };
 
   return (
-    <div style={{ padding: '0 24px' }}>
+    <div className="px-6">
       {/* Progress dots */}
       <ProgressDots current={2} total={3} />
 
       {/* Title */}
-      <h2
-        style={{
-          fontSize: 19,
-          fontWeight: 500,
-          color: '#0c0a09',
-          fontFamily: 'inherit',
-          margin: '0 0 24px',
-          textAlign: 'center',
-        }}
-      >
+      <h2 className="text-[19px] font-medium text-stone-950 m-0 mb-6 text-center">
         ¿Cómo quieres usar Hispaloshop?
       </h2>
 
       {/* Role cards */}
-      <div className="flex flex-col gap-3" style={{ marginBottom: 32 }}>
+      <div className="flex flex-col gap-3 mb-8">
         {ROLES.map(role => {
           const isSelected = selectedRole === role.id;
           return (
@@ -517,42 +351,16 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
               key={role.id}
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedRole(role.id)}
-              className="flex items-center gap-4"
-              style={{
-                width: '100%',
-                padding: '16px',
-                borderRadius: '12px',
-                background: '#ffffff',
-                border: isSelected
-                  ? '1px solid #0c0a09'
-                  : '0.5px solid #e7e5e4',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.2s ease',
-              }}
+              className={`flex items-center gap-4 w-full p-4 rounded-xl bg-white cursor-pointer text-left transition-all duration-200 ${
+                isSelected ? 'border border-stone-950' : 'border border-stone-200'
+              }`}
             >
-              <span style={{ fontSize: 28, flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}>{role.icon}</span>
+              <span className="text-[28px] shrink-0 inline-flex items-center">{role.icon}</span>
               <div>
-                <p
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: '#0c0a09',
-                    fontFamily: 'inherit',
-                    margin: '0 0 2px',
-                  }}
-                >
+                <p className="text-[13px] font-medium text-stone-950 m-0 mb-0.5">
                   {role.title}
                 </p>
-                <p
-                  style={{
-                    fontSize: 11,
-                    color: '#78716c',
-                    fontFamily: 'inherit',
-                    margin: 0,
-                    lineHeight: 1.4,
-                  }}
-                >
+                <p className="text-[11px] text-stone-500 m-0 leading-snug">
                   {role.description}
                 </p>
               </div>
@@ -565,19 +373,11 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
       <button
         onClick={handleStart}
         disabled={!selectedRole || saving}
-        style={{
-          width: '100%',
-          height: 48,
-          borderRadius: '9999px',
-          background: selectedRole ? '#0c0a09' : '#e7e5e4',
-          color: selectedRole ? '#ffffff' : '#78716c',
-          border: 'none',
-          fontSize: 15,
-          fontWeight: 500,
-          fontFamily: 'inherit',
-          cursor: selectedRole ? 'pointer' : 'not-allowed',
-          transition: 'all 0.2s ease',
-        }}
+        className={`w-full h-12 rounded-full border-none text-[15px] font-medium transition-all duration-200 ${
+          selectedRole
+            ? 'bg-stone-950 text-white cursor-pointer'
+            : 'bg-stone-200 text-stone-500 cursor-not-allowed'
+        }`}
       >
         {saving ? 'Guardando...' : 'Empezar'}
       </button>
@@ -586,18 +386,7 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
       {onBack && (
         <button
           onClick={onBack}
-          style={{
-            display: 'block',
-            width: '100%',
-            marginTop: 12,
-            background: 'none',
-            border: 'none',
-            fontSize: 13,
-            color: '#78716c',
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-            padding: 8,
-          }}
+          className="block w-full mt-3 bg-transparent border-none text-[13px] text-stone-500 cursor-pointer p-2"
         >
           ← Atrás
         </button>
@@ -606,7 +395,7 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
   );
 }
 
-// ── Main Onboarding Page ─────────────────────────────────
+// -- Main Onboarding Page --
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -682,14 +471,8 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center"
-      style={{
-        background: '#fafaf9',
-        fontFamily: 'inherit',
-      }}
-    >
-      <div className="w-full" style={{ maxWidth: 420 }}>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50">
+      <div className="w-full max-w-[420px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
@@ -724,29 +507,10 @@ export default function OnboardingPage() {
       </div>
 
       {saving && (
-        <div
-          className="fixed inset-0 flex items-center justify-center"
-          style={{ background: 'rgba(10,10,10,0.4)', zIndex: '50' }}
-        >
-          <div
-            className="flex flex-col items-center gap-3"
-            style={{
-              background: '#ffffff',
-              padding: 24,
-              borderRadius: '14px',
-            }}
-          >
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                border: '2px solid #0c0a09',
-                borderTopColor: 'transparent',
-                borderRadius: '50%',
-              }}
-              className="animate-spin"
-            />
-            <p style={{ fontSize: 14, color: '#0c0a09', margin: 0 }}>Guardando...</p>
+        <div className="fixed inset-0 flex items-center justify-center bg-stone-950/40 z-50">
+          <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-xl">
+            <div className="w-8 h-8 border-2 border-stone-950 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-stone-950 m-0">Guardando...</p>
           </div>
         </div>
       )}

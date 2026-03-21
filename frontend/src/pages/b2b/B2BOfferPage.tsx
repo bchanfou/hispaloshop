@@ -12,26 +12,6 @@ import {
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 
-/* ── V2 Design Tokens ─────────────────────────────────────── */
-const V2 = {
-  black: '#0A0A0A',
-  cream: '#ffffff',
-  stone: '#8A8881',
-  white: '#FFFFFF',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  green: '#0c0a09',
-  greenLight: '#f5f5f4',
-  blue: '#57534e',
-  blueLight: '#f5f5f4',
-  blueBorder: '#d6d3d1',
-  amber: '#78716c',
-  amberLight: '#fafaf9',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-  radiusFull: 9999,
-};
-
 /* ── Constants ─────────────────────────────────────────────── */
 const STEP_LABELS = ['Producto', 'Precio', 'Logística', 'Revisar'];
 
@@ -77,47 +57,10 @@ const fmt = (n, currency = 'EUR') => {
   return `${sym}${Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-/* ── Shared style builders ─────────────────────────────────── */
-const inputStyle = {
-  width: '100%',
-  height: 44,
-  borderRadius: V2.radiusMd,
-  border: `1px solid ${V2.border}`,
-  padding: '0 14px',
-  fontSize: 14,
-  fontFamily: V2.fontSans,
-  color: V2.black,
-  backgroundColor: V2.white,
-  outline: 'none',
-  boxSizing: 'border-box',
-};
-
-const labelStyle = {
-  fontSize: 13,
-  fontWeight: 500,
-  color: V2.black,
-  marginBottom: 6,
-  display: 'block',
-};
-
-const pillBase = (active) => ({
-  height: 36,
-  padding: '0 16px',
-  borderRadius: V2.radiusFull,
-  border: `1.5px solid ${active ? V2.black : V2.border}`,
-  backgroundColor: active ? V2.black : V2.white,
-  color: active ? V2.white : V2.black,
-  fontSize: 13,
-  fontWeight: 500,
-  fontFamily: V2.fontSans,
-  cursor: 'pointer',
-  transition: 'all 150ms',
-});
-
 /* ── Step indicator ────────────────────────────────────────── */
 function StepIndicator({ current }) {
   return (
-    <div className="flex items-center justify-center" style={{ padding: '16px 24px 12px' }}>
+    <div className="flex items-center justify-center px-6 pt-4 pb-3">
       {STEP_LABELS.map((label, i) => {
         const done = i < current;
         const active = i === current;
@@ -125,41 +68,25 @@ function StepIndicator({ current }) {
           <React.Fragment key={label}>
             {i > 0 && (
               <div
-                style={{
-                  flex: 1,
-                  height: 2,
-                  backgroundColor: done ? V2.black : V2.border,
-                  maxWidth: 48,
-                  margin: '0 4px',
-                  borderRadius: 1,
-                  transition: 'background-color 300ms',
-                }}
+                className={`flex-1 h-0.5 max-w-[48px] mx-1 rounded-sm transition-colors duration-300 ${
+                  done ? 'bg-stone-950' : 'bg-stone-200'
+                }`}
               />
             )}
-            <div className="flex flex-col items-center" style={{ minWidth: 56 }}>
+            <div className="flex flex-col items-center min-w-[56px]">
               <div
-                className="flex items-center justify-center"
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 14,
-                  border: `2px solid ${done || active ? V2.black : V2.border}`,
-                  backgroundColor: done || active ? V2.black : 'transparent',
-                  color: done || active ? V2.white : V2.stone,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  transition: 'all 300ms',
-                }}
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 border-2 ${
+                  done || active
+                    ? 'border-stone-950 bg-stone-950 text-white'
+                    : 'border-stone-200 bg-transparent text-stone-500'
+                }`}
               >
                 {done ? <Check size={14} strokeWidth={2.5} /> : i + 1}
               </div>
               <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: active ? 600 : 400,
-                  color: active ? V2.black : V2.stone,
-                  marginTop: 4,
-                }}
+                className={`text-[11px] mt-1 ${
+                  active ? 'font-semibold text-stone-950' : 'font-normal text-stone-500'
+                }`}
               >
                 {label}
               </span>
@@ -178,12 +105,17 @@ function PillSelector({ options, value, onChange, getLabel, getValue }) {
       {options.map((opt) => {
         const v = getValue ? getValue(opt) : opt;
         const l = getLabel ? getLabel(opt) : opt;
+        const active = value === v;
         return (
           <button
             key={v}
             type="button"
             onClick={() => onChange(v)}
-            style={pillBase(value === v)}
+            className={`h-9 px-4 rounded-full text-[13px] font-medium cursor-pointer transition-all duration-150 border-[1.5px] ${
+              active
+                ? 'border-stone-950 bg-stone-950 text-white'
+                : 'border-stone-200 bg-white text-stone-950'
+            }`}
           >
             {l}
           </button>
@@ -198,42 +130,42 @@ function StepProducto({ form, set }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <label style={labelStyle}>Producto *</label>
-        <div style={{ position: 'relative' }}>
+        <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Producto *</label>
+        <div className="relative">
           <Search
             size={16}
-            style={{ position: 'absolute', left: 14, top: 14, color: V2.stone, pointerEvents: 'none' }}
+            className="absolute left-3.5 top-3.5 text-stone-500 pointer-events-none"
           />
           <input
             type="text"
             placeholder="Buscar producto..."
             value={form.product_name}
             onChange={(e) => set('product_name', e.target.value)}
-            style={{ ...inputStyle, paddingLeft: 38 }}
+            className="w-full h-11 rounded-xl border border-stone-200 pl-[38px] pr-3.5 text-sm text-stone-950 bg-white outline-none box-border"
           />
         </div>
       </div>
 
       <div>
-        <label style={labelStyle}>ID de producto (opcional)</label>
+        <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">ID de producto (opcional)</label>
         <input
           type="text"
           placeholder="SKU o referencia"
           value={form.product_id}
           onChange={(e) => set('product_id', e.target.value)}
-          style={{ ...inputStyle, fontSize: 13, color: V2.stone }}
+          className="w-full h-11 rounded-xl border border-stone-200 px-3.5 text-[13px] text-stone-500 bg-white outline-none box-border"
         />
       </div>
 
       <div>
-        <label style={labelStyle}>Cantidad *</label>
+        <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Cantidad *</label>
         <input
           type="number"
           min="1"
           placeholder="0"
           value={form.quantity}
           onChange={(e) => set('quantity', e.target.value)}
-          style={inputStyle}
+          className="w-full h-11 rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 bg-white outline-none box-border"
         />
         {form.moq && Number(form.quantity) > 0 && Number(form.quantity) < Number(form.moq) && (
           <p className="text-xs text-stone-500 mt-1">
@@ -243,7 +175,7 @@ function StepProducto({ form, set }) {
       </div>
 
       <div>
-        <label style={labelStyle}>Unidad *</label>
+        <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Unidad *</label>
         <PillSelector options={UNITS} value={form.unit} onChange={(v) => set('unit', v)} />
       </div>
     </div>
@@ -266,7 +198,7 @@ function StepPrecio({ form, set }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <label style={labelStyle}>Precio por unidad *</label>
+        <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Precio por unidad *</label>
         <div className="flex gap-3 items-end">
           <input
             type="number"
@@ -275,7 +207,7 @@ function StepPrecio({ form, set }) {
             placeholder="0.00"
             value={form.price_per_unit}
             onChange={(e) => set('price_per_unit', e.target.value)}
-            style={{ ...inputStyle, flex: 1 }}
+            className="flex-1 h-11 rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 bg-white outline-none box-border"
           />
           <PillSelector
             options={CURRENCIES}
@@ -289,13 +221,9 @@ function StepPrecio({ form, set }) {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{
-            backgroundColor: V2.surface,
-            borderRadius: V2.radiusMd,
-            padding: 16,
-          }}
+          className="bg-stone-200/50 rounded-xl p-4"
         >
-          <div style={{ fontSize: 13, fontWeight: 600, color: V2.black, marginBottom: 12 }}>
+          <div className="text-[13px] font-semibold text-stone-950 mb-3">
             Desglose
           </div>
           {[
@@ -303,22 +231,12 @@ function StepPrecio({ form, set }) {
             ['Comisión (3%)', `−${fmt(commission, form.currency)}`],
             ['Stripe (1,4%)', `−${fmt(stripe, form.currency)}`],
           ].map(([l, v]) => (
-            <div key={l} className="flex justify-between" style={{ fontSize: 13, color: V2.stone, marginBottom: 6 }}>
+            <div key={l} className="flex justify-between text-[13px] text-stone-500 mb-1.5">
               <span>{l}</span>
               <span>{v}</span>
             </div>
           ))}
-          <div
-            className="flex justify-between"
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: V2.black,
-              borderTop: `1px solid ${V2.border}`,
-              paddingTop: 8,
-              marginTop: 4,
-            }}
-          >
+          <div className="flex justify-between text-sm font-semibold text-stone-950 border-t border-stone-200 pt-2 mt-1">
             <span>Total neto</span>
             <span>{fmt(net, form.currency)}</span>
           </div>
@@ -326,7 +244,7 @@ function StepPrecio({ form, set }) {
       )}
 
       <div>
-        <label style={labelStyle}>Condiciones de pago *</label>
+        <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Condiciones de pago *</label>
         <PillSelector
           options={PAYMENT_TERMS}
           value={form.payment_terms}
@@ -344,7 +262,7 @@ function StepLogistica({ form, set }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <label style={labelStyle}>Incoterm *</label>
+        <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Incoterm *</label>
         <div className="flex flex-col gap-2">
           {INCOTERMS.map((ic) => {
             const active = form.incoterm === ic.code;
@@ -353,26 +271,19 @@ function StepLogistica({ form, set }) {
                 key={ic.code}
                 type="button"
                 onClick={() => set('incoterm', ic.code)}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  textAlign: 'left',
-                  padding: '12px 14px',
-                  borderRadius: V2.radiusMd,
-                  border: `1.5px solid ${active ? V2.black : V2.border}`,
-                  backgroundColor: active ? V2.cream : V2.white,
-                  cursor: 'pointer',
-                  transition: 'all 150ms',
-                }}
+                className={`flex flex-col items-start text-left p-3 rounded-xl cursor-pointer transition-all duration-150 border-[1.5px] ${
+                  active
+                    ? 'border-stone-950 bg-white'
+                    : 'border-stone-200 bg-white'
+                }`}
               >
-                <span style={{ fontSize: 14, fontWeight: 600, color: V2.black }}>
+                <span className="text-sm font-semibold text-stone-950">
                   {ic.code}
-                  <span style={{ fontWeight: 400, color: V2.stone, marginLeft: 6 }}>
+                  <span className="font-normal text-stone-500 ml-1.5">
                     {ic.name}
                   </span>
                 </span>
-                <span style={{ fontSize: 12, color: V2.stone, marginTop: 2 }}>{ic.desc}</span>
+                <span className="text-xs text-stone-500 mt-0.5">{ic.desc}</span>
               </button>
             );
           })}
@@ -380,23 +291,16 @@ function StepLogistica({ form, set }) {
       </div>
 
       {/* AI suggestion */}
-      <div
-        className="flex gap-3"
-        style={{
-          backgroundColor: V2.greenLight,
-          borderRadius: V2.radiusMd,
-          padding: 14,
-        }}
-      >
-        <Sparkles size={18} style={{ color: V2.green, flexShrink: 0, marginTop: 1 }} />
-        <span style={{ fontSize: 13, color: V2.black, lineHeight: 1.5 }}>
+      <div className="flex gap-3 bg-stone-100 rounded-xl p-3.5">
+        <Sparkles size={18} className="text-stone-950 shrink-0 mt-0.5" />
+        <span className="text-[13px] text-stone-950 leading-normal">
           Para envíos dentro de la UE, <strong>DAP</strong> o <strong>DDP</strong> son los más
           habituales. DAP si el comprador gestiona aduanas, DDP si el vendedor asume todo.
         </span>
       </div>
 
       <div>
-        <label style={labelStyle}>
+        <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">
           Ciudad de entrega {form.incoterm !== 'EXW' ? '*' : '(opcional)'}
         </label>
         <input
@@ -404,7 +308,7 @@ function StepLogistica({ form, set }) {
           placeholder="Ej: Barcelona"
           value={form.incoterm_city}
           onChange={(e) => set('incoterm_city', e.target.value)}
-          style={inputStyle}
+          className="w-full h-11 rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 bg-white outline-none box-border"
         />
         {form.incoterm && form.incoterm !== 'EXW' && !(form.incoterm_city || '').trim() && (
           <p className="text-xs text-stone-500 mt-1">La ciudad de entrega es obligatoria para {form.incoterm}</p>
@@ -412,31 +316,28 @@ function StepLogistica({ form, set }) {
       </div>
 
       <div className="flex gap-3">
-        <div style={{ flex: 1 }}>
-          <label style={labelStyle}>Plazo de entrega (días) *</label>
+        <div className="flex-1">
+          <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Plazo de entrega (días) *</label>
           <input
             type="number"
             min="1"
             placeholder="0"
             value={form.delivery_days}
             onChange={(e) => set('delivery_days', e.target.value)}
-            style={{
-              ...inputStyle,
-              borderColor: form.delivery_days && Number(form.delivery_days) >= 1 ? undefined : '#E5E2DA',
-            }}
+            className="w-full h-11 rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 bg-white outline-none box-border"
           />
           {(!form.delivery_days || Number(form.delivery_days) < 1) && (
             <p className="text-xs text-stone-500 mt-1">Indica el plazo mínimo de entrega</p>
           )}
         </div>
-        <div style={{ flex: 1 }}>
-          <label style={labelStyle}>Validez (días)</label>
+        <div className="flex-1">
+          <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Validez (días)</label>
           <input
             type="number"
             min="1"
             value={form.validity_days}
             onChange={(e) => set('validity_days', e.target.value)}
-            style={inputStyle}
+            className="w-full h-11 rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 bg-white outline-none box-border"
           />
         </div>
       </div>
@@ -472,44 +373,23 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div
-        style={{
-          backgroundColor: V2.white,
-          borderRadius: V2.radiusMd,
-          border: `1px solid ${V2.border}`,
-          overflow: 'hidden',
-        }}
-      >
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {rows.map(([label, value, key], i) => {
           const modified = modifiedFields.includes(key);
           return (
             <div
               key={key}
-              className="flex justify-between items-start"
-              style={{
-                padding: '12px 14px',
-                borderBottom: i < rows.length - 1 ? `1px solid ${V2.border}` : 'none',
-                backgroundColor: modified ? V2.amberLight : 'transparent',
-              }}
+              className={`flex justify-between items-start px-3.5 py-3 ${
+                i < rows.length - 1 ? 'border-b border-stone-200' : ''
+              } ${modified ? 'bg-stone-50' : ''}`}
             >
-              <span style={{ fontSize: 13, color: V2.stone, flexShrink: 0, marginRight: 12 }}>
+              <span className="text-[13px] text-stone-500 shrink-0 mr-3">
                 {label}
               </span>
-              <div className="flex items-center gap-2" style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: 13, fontWeight: 500, color: V2.black }}>{value}</span>
+              <div className="flex items-center gap-2 text-right">
+                <span className="text-[13px] font-medium text-stone-950">{value}</span>
                 {modified && (
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: V2.amber,
-                      backgroundColor: V2.amberLight,
-                      border: `1px solid ${V2.amber}`,
-                      borderRadius: 6,
-                      padding: '1px 6px',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <span className="text-[11px] font-semibold text-stone-500 bg-stone-50 border border-stone-500 rounded-md px-1.5 py-px whitespace-nowrap">
                     Modificado
                   </span>
                 )}
@@ -519,20 +399,14 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
         })}
       </div>
 
-      <label className="flex items-start gap-3" style={{ cursor: 'pointer' }}>
+      <label className="flex items-start gap-3 cursor-pointer">
         <input
           type="checkbox"
           checked={confirmed}
           onChange={(e) => setConfirmed(e.target.checked)}
-          style={{
-            width: 18,
-            height: 18,
-            accentColor: V2.black,
-            marginTop: 2,
-            flexShrink: 0,
-          }}
+          className="w-[18px] h-[18px] accent-stone-950 mt-0.5 shrink-0"
         />
-        <span style={{ fontSize: 13, color: V2.black, lineHeight: 1.5 }}>
+        <span className="text-[13px] text-stone-950 leading-normal">
           He revisado los datos y confirmo esta oferta
         </span>
       </label>
@@ -663,27 +537,16 @@ export default function B2BOfferPage() {
   ];
 
   return (
-    <div
-      className="fixed inset-0 flex flex-col"
-      style={{ backgroundColor: V2.cream, fontFamily: V2.fontSans }}
-    >
+    <div className="fixed inset-0 flex flex-col bg-white">
       {/* ── Header ──────────────────────────────────────── */}
-      <div
-        className="flex items-center gap-3 shrink-0"
-        style={{
-          padding: '12px 16px',
-          borderBottom: `1px solid ${V2.border}`,
-          backgroundColor: V2.cream,
-          zIndex: 10,
-        }}
-      >
+      <div className="flex items-center gap-3 shrink-0 px-4 py-3 border-b border-stone-200 bg-white z-10">
         <button
           onClick={goBack}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: V2.black }}
+          className="bg-transparent border-none cursor-pointer p-1 text-stone-950"
         >
           <ArrowLeft size={20} />
         </button>
-        <span style={{ fontSize: 16, fontWeight: 600, color: V2.black }}>
+        <span className="text-base font-semibold text-stone-950">
           {isCounteroffer ? 'Contraoferta' : 'Nueva oferta B2B'}
         </span>
       </div>
@@ -694,10 +557,10 @@ export default function B2BOfferPage() {
       {/* ── Scrollable content ──────────────────────────── */}
       <div
         ref={scrollRef}
-        className="flex-1"
-        style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
+        className="flex-1 overflow-y-auto"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        <div style={{ padding: '8px 20px 120px' }} className="max-w-[600px] mx-auto">
+        <div className="px-5 pt-2 pb-[120px] max-w-[600px] mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={step}
@@ -713,32 +576,15 @@ export default function B2BOfferPage() {
       </div>
 
       {/* ── Bottom CTA ──────────────────────────────────── */}
-      <div
-        className="shrink-0"
-        style={{
-          padding: '12px 20px',
-          paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
-          borderTop: `1px solid ${V2.border}`,
-          backgroundColor: V2.cream,
-        }}
-      >
+      <div className="shrink-0 px-5 py-3 pb-[max(12px,env(safe-area-inset-bottom))] border-t border-stone-200 bg-white">
         <button
           onClick={goNext}
           disabled={!canAdvance || submitting}
-          className="flex items-center justify-center gap-2"
-          style={{
-            width: '100%',
-            height: 48,
-            borderRadius: V2.radiusFull,
-            backgroundColor: canAdvance && !submitting ? V2.black : V2.border,
-            color: canAdvance && !submitting ? V2.white : V2.stone,
-            border: 'none',
-            fontSize: 15,
-            fontWeight: 600,
-            fontFamily: V2.fontSans,
-            cursor: canAdvance && !submitting ? 'pointer' : 'not-allowed',
-            transition: 'all 200ms',
-          }}
+          className={`flex items-center justify-center gap-2 w-full h-12 rounded-full border-none text-[15px] font-semibold transition-all duration-200 ${
+            canAdvance && !submitting
+              ? 'bg-stone-950 text-white cursor-pointer'
+              : 'bg-stone-200 text-stone-500 cursor-not-allowed'
+          }`}
         >
           {submitting && <Loader2 size={18} className="animate-spin" />}
           {step === 3 ? (submitting ? 'Enviando...' : 'Enviar oferta') : 'Siguiente'}
