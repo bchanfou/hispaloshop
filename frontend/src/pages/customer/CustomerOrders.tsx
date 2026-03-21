@@ -171,7 +171,7 @@ export default function CustomerOrders() {
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-4 space-y-3">
             {[1,2,3].map(i => (

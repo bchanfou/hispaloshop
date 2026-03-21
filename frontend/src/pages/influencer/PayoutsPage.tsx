@@ -314,14 +314,14 @@ export default function PayoutsPage() {
         )}
 
         {/* Stripe fees info */}
-        <div className="bg-white border border-stone-200 rounded-2xl px-4 py-3 mb-6 text-xs text-stone-500 leading-relaxed">
+        <div className="bg-white shadow-sm rounded-2xl px-4 py-3 mb-6 text-xs text-stone-500 leading-relaxed">
           Las comisiones de transferencia de Stripe (aprox. 1-2%) se descuentan automáticamente
           de cada pago. Recibirás el importe neto en tu cuenta bancaria.
         </div>
 
         {/* Fiscal summary */}
         {withholdingSummary && (withholdingSummary.total_withheld_cents > 0 || withholdingSummary.total_gross_cents > 0) && (
-          <div className="bg-white border border-stone-200 rounded-2xl px-4 py-3 mb-6 flex items-center justify-between">
+          <div className="bg-white shadow-sm rounded-2xl px-4 py-3 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FileText className="w-4 h-4 text-stone-500 shrink-0" />
               <div>

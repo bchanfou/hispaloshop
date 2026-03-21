@@ -194,7 +194,7 @@ export default function AdminProducts() {
           {t('adminProducts.backToProducts')}
         </button>
 
-        <div className="bg-white rounded-2xl border border-stone-200 p-6 max-w-2xl">
+        <div className="bg-white rounded-2xl shadow-sm p-6 max-w-2xl">
           <h2 className="text-2xl font-bold text-stone-950 mb-6">{t('adminProducts.createProduct')}</h2>
           
           <form onSubmit={createProduct} className="space-y-4">
@@ -367,7 +367,7 @@ export default function AdminProducts() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="bg-white rounded-2xl shadow-sm overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : filteredProducts.length === 0 ? (

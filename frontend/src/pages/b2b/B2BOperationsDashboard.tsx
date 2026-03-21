@@ -388,7 +388,7 @@ const B2BOperationsDashboard = () => {
                   {kpis.map((k) => (
                     <div
                       key={k.label}
-                      className="min-w-[120px] bg-white border border-stone-200 rounded-xl p-3 shrink-0"
+                      className="min-w-[120px] bg-white shadow-sm rounded-xl p-3 shrink-0"
                     >
                       <div className="text-[11px] text-stone-500 mb-1.5">
                         {k.label}

@@ -498,7 +498,7 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
   return (
     <div className="flex flex-col gap-5">
       {/* Product summary card */}
-      <div className="bg-white rounded-xl border border-stone-200 p-4">
+      <div className="bg-white rounded-xl shadow-sm p-4">
         <div className="flex items-center gap-2 mb-3">
           <Package size={16} className="text-stone-950" />
           <span className="text-[13px] font-semibold text-stone-950">Producto</span>
@@ -527,7 +527,7 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
       </div>
 
       {/* Delivery terms card */}
-      <div className="bg-white rounded-xl border border-stone-200 p-4">
+      <div className="bg-white rounded-xl shadow-sm p-4">
         <div className="flex items-center gap-2 mb-3">
           <Truck size={16} className="text-stone-950" />
           <span className="text-[13px] font-semibold text-stone-950">Entrega</span>
@@ -557,7 +557,7 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
       </div>
 
       {/* Payment & commission card */}
-      <div className="bg-white rounded-xl border border-stone-200 p-4">
+      <div className="bg-white rounded-xl shadow-sm p-4">
         <div className="flex items-center gap-2 mb-3">
           <CreditCard size={16} className="text-stone-950" />
           <span className="text-[13px] font-semibold text-stone-950">Pago y comisiones</span>

@@ -372,7 +372,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   return (
     <motion.article
       ref={dwellRef}
-      className="border-b border-stone-100 bg-white font-sans relative"
+      className="bg-white rounded-2xl shadow-sm mx-3 mb-3 overflow-hidden font-sans relative"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}

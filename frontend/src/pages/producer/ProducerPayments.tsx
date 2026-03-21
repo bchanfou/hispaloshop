@@ -40,7 +40,7 @@ function StatCard({ icon: Icon, label, value, sublabel, color = "default", testI
   };
   const c = colors[color] || colors.default;
   return (
-    <div className={`bg-white rounded-2xl border ${c.border} p-5 transition-shadow hover:shadow-sm`} data-testid={testId}>
+    <div className={`bg-white rounded-2xl shadow-sm p-5 transition-shadow hover:shadow-md`} data-testid={testId}>
       <div className="flex items-center gap-3 mb-3">
         <div className={`p-2 rounded-2xl ${c.bg}`}>
           <Icon className={`w-4 h-4 ${c.icon}`} />
@@ -184,7 +184,7 @@ export default function ProducerPayments() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1,2,3,4].map(i => (
-            <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 space-y-3">
+            <div key={i} className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-stone-100 rounded-2xl animate-pulse" />
                 <div className="h-3 w-20 bg-stone-100 rounded animate-pulse" />
@@ -194,8 +194,8 @@ export default function ProducerPayments() {
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-5 h-64 animate-pulse" />
-          <div className="lg:col-span-3 bg-white rounded-2xl border border-stone-200 p-5 h-64 animate-pulse" />
+          <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm p-5 h-64 animate-pulse" />
+          <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm p-5 h-64 animate-pulse" />
         </div>
       </div>
     );
@@ -337,7 +337,7 @@ export default function ProducerPayments() {
       {/* Chart + Recent Orders Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
         {/* Monthly Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-5">
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm p-5">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-4 h-4 text-stone-500" />
             <h2 className="font-medium text-stone-950 text-sm">Ventas mensuales</h2>
@@ -354,7 +354,7 @@ export default function ProducerPayments() {
         </div>
 
         {/* Recent Orders */}
-        <div className="lg:col-span-3 bg-white rounded-2xl border border-stone-200 overflow-hidden">
+        <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-4 h-4 text-stone-500" />
@@ -398,7 +398,7 @@ export default function ProducerPayments() {
 
       {/* Monthly Breakdown Table */}
       {(data.monthly_summary || []).length > 0 && (
-        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden" data-testid="monthly-breakdown">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden" data-testid="monthly-breakdown">
           <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
             <h2 className="font-medium text-stone-950 text-sm flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-stone-500" />

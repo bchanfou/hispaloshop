@@ -84,7 +84,7 @@ export default function AdminOrders() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-2xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-2xl">
               <ShoppingBag className="w-5 h-5 text-stone-700" />
@@ -95,7 +95,7 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-2xl">
               <DollarSign className="w-5 h-5 text-stone-700" />
@@ -108,7 +108,7 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-2xl">
               <TrendingUp className="w-5 h-5 text-stone-700" />
@@ -121,7 +121,7 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-stone-200 p-4">
+        <div className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-stone-100 rounded-2xl">
               <DollarSign className="w-5 h-5 text-stone-700" />
@@ -194,7 +194,7 @@ export default function AdminOrders() {
       )}
 
       {/* Content */}
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="bg-white rounded-2xl shadow-sm overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         {loading ? (
           <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : activeTab === 'orders' ? (

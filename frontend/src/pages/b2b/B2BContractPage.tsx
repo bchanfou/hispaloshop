@@ -320,7 +320,7 @@ export default function B2BContractPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.09 }}
-            className="rounded-2xl border border-stone-200 p-4 mb-4"
+            className="rounded-2xl shadow-sm p-4 mb-4"
           >
             <p className="text-sm font-semibold text-stone-950 mb-3">
               Resumen de condiciones
@@ -406,7 +406,7 @@ export default function B2BContractPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.12 }}
-          className="bg-white border border-stone-200 rounded-xl p-[18px] mb-4"
+          className="bg-white shadow-sm rounded-xl p-[18px] mb-4"
         >
           <p className="text-sm font-semibold text-stone-950 mb-3.5">
             Firmas digitales

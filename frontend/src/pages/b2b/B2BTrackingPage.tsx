@@ -263,7 +263,7 @@ export default function B2BTrackingPage() {
         <div className="flex flex-col gap-4">
 
           {/* === Section 1 -- Timeline === */}
-          <div className="bg-white border border-stone-200 rounded-xl p-4">
+          <div className="bg-white shadow-sm rounded-xl p-4">
             <div className="flex items-center relative">
               {STAGES.map((stage, i) => {
                 const completed = i < currentStep;
@@ -332,7 +332,7 @@ export default function B2BTrackingPage() {
 
           {/* === Tracking History Timeline === */}
           {operation?.status_history && operation.status_history.length > 0 && (
-            <div className="bg-white border border-stone-200 rounded-xl p-4">
+            <div className="bg-white shadow-sm rounded-xl p-4">
               <div className="text-sm font-semibold text-stone-950 mb-3.5">Historial de seguimiento</div>
               <div className="relative pl-6">
                 {/* Connecting vertical line */}
@@ -379,7 +379,7 @@ export default function B2BTrackingPage() {
           )}
 
           {/* === Section 2 -- Shipping === */}
-          <div className="bg-white border border-stone-200 rounded-xl p-4">
+          <div className="bg-white shadow-sm rounded-xl p-4">
             {!shipment && isProducer && (
               <div className="flex flex-col gap-3.5">
                 <div className="text-sm font-semibold text-stone-950">Confirmar envío</div>
@@ -471,7 +471,7 @@ export default function B2BTrackingPage() {
           </div>
 
           {/* === Section 3 -- Documentation === */}
-          <div className="bg-white border border-stone-200 rounded-xl p-4">
+          <div className="bg-white shadow-sm rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
               <FileText size={18} className="text-stone-950" />
               <span className="text-sm font-semibold text-stone-950">Documentación</span>

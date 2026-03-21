@@ -365,7 +365,7 @@ export default function ProducerOrders() {
           ))}
         </div>
         {[1,2,3].map(i => (
-          <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+          <div key={i} className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-stone-100 rounded-2xl animate-pulse" />
               <div className="space-y-2 flex-1">
@@ -438,7 +438,7 @@ export default function ProducerOrders() {
       </div>
 
       {filteredOrders.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
+        <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
           <ShoppingBag className="w-16 h-16 text-stone-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-stone-950 mb-2">
             {activeFilter === 'all' ? t('orders.noOrders') : 'Sin pedidos en esta categoría'}
@@ -457,7 +457,7 @@ export default function ProducerOrders() {
             return (
               <div
                 key={order.order_id}
-                className="bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
               >
                 {/* Order Header */}
                 <div className="p-4 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">

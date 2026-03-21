@@ -12,7 +12,7 @@ function KPICard({ icon: Icon, title, value, description, to }) {
   return (
     <Wrapper
       to={to}
-      className="p-4 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300"
+      className="p-4 bg-white rounded-2xl shadow-sm transition-all hover:shadow-md"
     >
       <div className="w-9 h-9 flex items-center justify-center rounded-2xl bg-stone-100 mb-3">
         <Icon className="w-4 h-4 text-stone-500" />
@@ -28,7 +28,7 @@ function PendingRow({ label, count, to }) {
   return (
     <Link
       to={to}
-      className="flex items-center justify-between p-3.5 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300 text-sm"
+      className="flex items-center justify-between p-3.5 bg-white rounded-2xl shadow-sm transition-all hover:shadow-md text-sm"
     >
       <span className="font-medium text-stone-700">{label}</span>
       <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ function QuickLink({ icon: Icon, label, to }) {
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300 text-sm font-semibold text-stone-950"
+      className="flex items-center gap-3 p-3.5 bg-white rounded-2xl shadow-sm transition-all hover:shadow-md text-sm font-semibold text-stone-950"
     >
       <Icon className="w-5 h-5 shrink-0 text-stone-500" />
       {label}
@@ -185,7 +185,7 @@ export default function AdminOverview() {
               </div>
             </Link>
           ) : (
-            <div className="flex items-center gap-2 p-3.5 bg-white rounded-2xl border border-stone-200 text-sm">
+            <div className="flex items-center gap-2 p-3.5 bg-white rounded-2xl shadow-sm text-sm">
               <Clock className="w-4 h-4 text-stone-400" />
               <span className="text-stone-500">No hay certificados próximos a expirar</span>
             </div>
@@ -198,7 +198,7 @@ export default function AdminOverview() {
         <div className="mb-5">
           <Link
             to="/admin/verification"
-            className="flex items-center gap-3 p-3.5 bg-stone-100 rounded-2xl border border-stone-200 transition-all hover:border-stone-300 text-sm"
+            className="flex items-center gap-3 p-3.5 bg-stone-100 rounded-2xl shadow-sm transition-all hover:shadow-md text-sm"
           >
             <span className="font-medium text-stone-950">
               {stats.blocked_by_expired_cert} productor(es) bloqueados por certificado caducado
@@ -230,7 +230,7 @@ export default function AdminOverview() {
         </div>
         <Link
           to="/admin/fiscal"
-          className="flex items-center justify-center gap-2 mt-3 py-2.5 text-sm font-semibold bg-white rounded-2xl border border-stone-200 text-stone-950 hover:border-stone-300 transition-colors"
+          className="flex items-center justify-center gap-2 mt-3 py-2.5 text-sm font-semibold bg-white rounded-2xl shadow-sm text-stone-950 hover:shadow-md transition-colors"
         >
           Gestión fiscal <ArrowRight className="w-4 h-4" />
         </Link>

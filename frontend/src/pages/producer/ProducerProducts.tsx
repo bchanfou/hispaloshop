@@ -762,7 +762,7 @@ export default function ProducerProducts() {
           {t('producerProducts.backToProducts')}
         </button>
 
-        <div className="bg-white rounded-2xl border border-stone-200 p-4 md:p-6 max-w-3xl">
+        <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 max-w-3xl">
           <h2 className="text-2xl font-bold text-stone-950 mb-2">
             {editingProduct ? t('producerProducts.editProduct') : t('producerProducts.createNewProduct')}
           </h2>
@@ -1403,7 +1403,7 @@ export default function ProducerProducts() {
       </AnimatePresence>
 
       {/* Products */}
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="divide-y divide-stone-200">
             {[1,2,3,4].map(i => (

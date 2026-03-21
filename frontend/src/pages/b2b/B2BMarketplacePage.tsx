@@ -31,7 +31,7 @@ function ProductCard({ product, convertAndFormatPrice }) {
   return (
     <div
       onClick={() => navigate(`/products/${product.id || product.product_id}`)}
-      className="bg-white rounded-2xl border border-stone-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+      className="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
     >
       {product.image_url ? (
         <img loading="lazy" src={product.image_url} alt={product.name || 'Producto'} className="w-full h-40 object-cover" />
@@ -60,7 +60,7 @@ function ProductCard({ product, convertAndFormatPrice }) {
 
 function ProducerCard({ producer, onContact, onChat }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-4">
+    <div className="bg-white rounded-2xl shadow-sm p-4">
       <div className="flex items-start gap-3">
         {producer.profile_image ? (
           <img loading="lazy" src={producer.profile_image} alt={producer.full_name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />

@@ -18,7 +18,7 @@ function AffiliateLinkCard({ link, convertAndFormatPrice }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-4">
+    <div className="bg-white rounded-2xl shadow-sm p-4">
       <div className="flex gap-3 mb-3">
         {link.product_image ? (
           <img
@@ -309,7 +309,7 @@ export default function AffiliateLinksPage() {
         {loadingLinks ? (
           <div className="space-y-3">
             {[1,2,3].map(i => (
-              <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 animate-pulse space-y-3">
+              <div key={i} className="bg-white rounded-2xl shadow-sm p-4 animate-pulse space-y-3">
                 <div className="flex gap-3">
                   <div className="w-12 h-12 rounded-2xl bg-stone-100 shrink-0" />
                   <div className="flex-1 space-y-2">

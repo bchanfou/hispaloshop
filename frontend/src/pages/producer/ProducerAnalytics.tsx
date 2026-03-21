@@ -5,7 +5,7 @@ import apiClient from '../../services/api/client';
 
 function AnalyticsSection({ title, icon: Icon, children }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-4 mb-4">
+    <div className="bg-white rounded-2xl shadow-sm p-4 mb-4">
       <h3 className="text-sm font-bold text-stone-950 mb-4 flex items-center gap-2">
         {Icon && <Icon className="w-4 h-4" />}
         {title}
@@ -77,7 +77,7 @@ export default function ProducerAnalytics() {
         {/* Revenue + orders KPI cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 space-y-3 h-32">
+            <div key={i} className="bg-white rounded-2xl shadow-sm p-5 space-y-3 h-32">
               <div className="h-3 w-16 animate-pulse bg-stone-100 rounded-2xl" />
               <div className="h-7 w-24 animate-pulse bg-stone-100 rounded-2xl" />
               <div className="h-3 w-12 animate-pulse bg-stone-100 rounded-2xl" />
@@ -85,12 +85,12 @@ export default function ProducerAnalytics() {
           ))}
         </div>
         {/* Chart skeleton */}
-        <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
           <div className="h-4 w-32 animate-pulse bg-stone-100 rounded-2xl" />
           <div className="h-48 animate-pulse bg-stone-100 rounded-2xl" />
         </div>
         {/* Table skeleton */}
-        <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
           <div className="h-4 w-40 animate-pulse bg-stone-100 rounded-2xl" />
           {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="flex items-center gap-3">
@@ -181,7 +181,7 @@ export default function ProducerAnalytics() {
         ].map((kpi) => {
           const hasData = kpi.value !== '—';
           return (
-            <div key={kpi.label} className="bg-white rounded-2xl border border-stone-200 p-4">
+            <div key={kpi.label} className="bg-white rounded-2xl shadow-sm p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="p-1.5 rounded-xl bg-stone-100">
                   <kpi.icon className="w-3.5 h-3.5 text-stone-600" />
