@@ -4,6 +4,21 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
+const MONTH_LABELS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+function getLastSixMonthLabels() {
+  const now = new Date();
+  const labels = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    labels.push(MONTH_LABELS[d.getMonth()]);
+  }
+  return labels;
+}
+
+const PRO_PRICE = 29;
+const ELITE_PRICE = 79;
+
 function SACard({ children, className = '' }) {
   return (
     <div
@@ -138,6 +153,66 @@ export default function SuperAdminOverview() {
         />
       </div>
 
+      {/* Revenue trend mini-chart */}
+      <SACard className="mb-5">
+        <h3 className="text-sm font-bold mb-4 text-stone-100">Tendencia MRR (6 meses)</h3>
+        {(() => {
+          const mrrHistory = data?.mrr_history || [];
+          if (mrrHistory.length === 0) {
+            return <p className="text-sm py-4 text-center text-stone-500">Sin datos de tendencia</p>;
+          }
+          const last6 = mrrHistory.slice(-6);
+          const maxVal = Math.max(...last6.map(m => m.value || 0), 1);
+          const monthLabels = last6.length === 6
+            ? getLastSixMonthLabels()
+            : last6.map((m, i) => m.label || MONTH_LABELS[i] || `M${i + 1}`);
+          return (
+            <div className="flex items-end justify-between gap-2 h-28">
+              {last6.map((m, i) => {
+                const val = m.value || 0;
+                const heightPct = Math.max((val / maxVal) * 100, 4);
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <span className="text-[10px] font-bold text-stone-400">{val > 0 ? `${val}€` : ''}</span>
+                    <div className="w-full flex justify-center" style={{ height: '80px' }}>
+                      <div
+                        className="w-full max-w-[32px] bg-stone-700 rounded-t transition-all"
+                        style={{ height: `${heightPct}%`, marginTop: 'auto' }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-stone-500">{monthLabels[i]}</span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </SACard>
+
+      {/* MRR by plan breakdown */}
+      <SACard className="mb-5">
+        <h3 className="text-sm font-bold mb-3 text-stone-100">MRR por plan</h3>
+        <div className="space-y-3">
+          {[
+            { label: 'FREE', count: planDist.FREE || 0, price: 0, barClass: 'bg-stone-500' },
+            { label: 'PRO', count: planDist.PRO || 0, price: PRO_PRICE, barClass: 'bg-stone-400' },
+            { label: 'ELITE', count: planDist.ELITE || 0, price: ELITE_PRICE, barClass: 'bg-stone-300' },
+          ].map(p => (
+            <div key={p.label}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold text-stone-100">{p.label}</span>
+                <span className="text-xs text-stone-400">
+                  {p.count} usuarios · {p.count * p.price}€/mes
+                </span>
+              </div>
+              <div className="h-2 rounded-full overflow-hidden bg-stone-800">
+                <div className={`h-full rounded-full transition-all ${p.barClass}`} style={{ width: `${(p.count / planTotal) * 100}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </SACard>
+
       {/* Pending actions */}
       <SACard className="mb-5">
         <div className="flex items-center justify-between mb-4">
@@ -242,7 +317,13 @@ export default function SuperAdminOverview() {
             {gdprAlerts.map((alert, i) => (
               <div key={i} className="flex items-start gap-2 text-sm text-stone-400">
                 <span>{'\u26A0\uFE0F'}</span>
-                <p>{alert.message || alert}</p>
+                <p className="flex-1">{alert.message || alert}</p>
+                <Link
+                  to="/super-admin/gdpr"
+                  className="text-xs font-semibold text-stone-300 hover:text-white transition-colors shrink-0"
+                >
+                  Revisar
+                </Link>
               </div>
             ))}
           </div>

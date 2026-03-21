@@ -69,7 +69,7 @@ function ImporterPlanCard({ plan }) {
   if (plan === 'ELITE' || plan === 'elite') {
     return (
       <Link
-        to="/producer/commercial-ai"
+        to="/importer/catalog"
         className="flex items-center gap-3.5 p-4 transition-colors bg-stone-950 rounded-2xl text-white"
       >
         <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 bg-white/10">
@@ -598,21 +598,27 @@ export default function ImporterDashboardPage() {
             {recentB2B.length > 0 ? (
               recentB2B
                 .filter((order, i, arr) => arr.findIndex(o => o.producer_id === order.producer_id) === i)
-                .slice(0, 3)
+                .slice(0, 5)
                 .map((order, i, arr) => (
                   <div
                     key={order.producer_id || i}
                     className={`flex items-center gap-3 py-2.5 ${i < arr.length - 1 ? 'border-b border-stone-200' : ''}`}
                   >
-                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-stone-100">
-                      <Factory className="w-4 h-4 text-stone-500" />
+                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-full bg-stone-100 overflow-hidden">
+                      {order.producer_avatar ? (
+                        <img src={order.producer_avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-bold text-stone-500">
+                          {(order.producer_name || 'P').charAt(0).toUpperCase()}
+                        </span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate text-stone-950">
                         {order.producer_name || 'Productor'}
                       </p>
                       <p className="text-xs text-stone-500">
-                        {formatRelativeTime(order.created_at)}
+                        Último pedido: {order.created_at ? new Date(order.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                       </p>
                     </div>
                     {order.producer_id && (
@@ -627,10 +633,14 @@ export default function ImporterDashboardPage() {
                   </div>
                 ))
             ) : (
-              <div className="flex flex-col items-center py-4 gap-2">
-                <p className="text-sm text-stone-500">Aún no tienes proveedores contactados.</p>
-                <Link to="/b2b/marketplace" className="text-xs font-semibold hover:underline flex items-center gap-1 text-stone-950">
-                  Explorar el marketplace B2B <ArrowRight className="w-3 h-3 inline" />
+              <div className="flex flex-col items-center py-6 gap-3">
+                <Factory className="w-8 h-8 text-stone-300" />
+                <p className="text-sm text-stone-500">Aún no tienes proveedores</p>
+                <Link
+                  to="/b2b/marketplace"
+                  className="px-5 py-2.5 bg-stone-950 text-white rounded-full text-sm font-bold hover:bg-stone-800 transition-colors inline-flex items-center gap-1.5"
+                >
+                  Explorar marketplace <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             )}

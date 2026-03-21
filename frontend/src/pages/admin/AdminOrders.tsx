@@ -39,10 +39,11 @@ export default function AdminOrders() {
   };
 
   const searchNeedle = asLowerText(searchTerm);
-  const filteredOrders = orders.filter(o => 
+  const filteredOrders = orders.filter(o =>
     asLowerText(o.order_id).includes(searchNeedle) ||
     asLowerText(o.user_email).includes(searchNeedle) ||
-    asLowerText(o.user_name).includes(searchNeedle)
+    asLowerText(o.user_name).includes(searchNeedle) ||
+    asLowerText(o.producer_name).includes(searchNeedle)
   );
 
   const exportCSV = () => {
@@ -165,10 +166,10 @@ export default function AdminOrders() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
           <input
             type="text"
-            placeholder={activeTab === 'orders' ? t('adminOrders.searchOrdersPlaceholder') : t('adminOrders.searchPaymentsPlaceholder')}
+            placeholder={activeTab === 'orders' ? 'Buscar por nº pedido, cliente o productor...' : t('adminOrders.searchPaymentsPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl bg-white text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+            className="w-full h-10 pl-10 pr-3 rounded-xl bg-stone-100 text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-300 mb-3"
             data-testid="search-input"
           />
         </div>

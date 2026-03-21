@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import {
   FileCheck, Package, ShieldAlert, ShoppingBag, Users,
-  TrendingUp, UserPlus, RotateCcw, HeadphonesIcon, Shield, ArrowRight
+  TrendingUp, UserPlus, RotateCcw, HeadphonesIcon, Shield, ArrowRight, Clock
 } from 'lucide-react';
 
 function KPICard({ icon: Icon, title, value, description, to }) {
@@ -161,6 +161,35 @@ export default function AdminOverview() {
           <PendingRow label="Moderación de contenido" count={pendingModeration} to="/admin/moderation" />
           <PendingRow label="Soporte abierto" count={openSupport} to="/admin/support" />
           <PendingRow label="Reembolsos" count={stats?.refunded_orders || 0} to="/admin/refunds" />
+        </div>
+      </div>
+
+      {/* Certificate expiry queue */}
+      <div className="mb-5">
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Certificados por expirar</h2>
+        <div className="space-y-2">
+          {(stats?.expiring_certificates || 0) > 0 ? (
+            <Link
+              to="/admin/certificates"
+              className="flex items-center justify-between p-3.5 bg-amber-50 rounded-2xl border border-amber-200 transition-all hover:border-amber-300 text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <span className="font-medium text-amber-800">Certificados que expiran en 30 días</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center bg-amber-100 text-amber-800">
+                  {stats.expiring_certificates}
+                </span>
+                <ArrowRight className="w-4 h-4 text-amber-600" />
+              </div>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 p-3.5 bg-white rounded-2xl border border-stone-200 text-sm">
+              <Clock className="w-4 h-4 text-stone-400" />
+              <span className="text-stone-500">No hay certificados próximos a expirar</span>
+            </div>
+          )}
         </div>
       </div>
 

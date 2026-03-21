@@ -1,10 +1,129 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
-import { CheckCircle2, CreditCard, Loader2, Wallet, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle2, CreditCard, Loader2, Wallet, FileText, ChevronLeft, ChevronRight, X, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { useLocale } from '../../context/LocaleContext';
+
+const STATUS_TABS = [
+  { key: 'all', label: 'Todos' },
+  { key: 'paid', label: 'Pagados' },
+  { key: 'pending', label: 'Pendientes' },
+  { key: 'failed', label: 'Fallidos' },
+];
+
+function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPrice, onSuccess }) {
+  const [amount, setAmount] = useState('');
+  const [method, setMethod] = useState('sepa');
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setAmount(String(availableBalance || 0));
+      setMethod('sepa');
+      setNotes('');
+    }
+  }, [open, availableBalance]);
+
+  if (!open) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const numAmount = parseFloat(amount);
+    if (!numAmount || numAmount <= 0) {
+      toast.error('Introduce un importe válido');
+      return;
+    }
+    if (numAmount > (availableBalance || 0)) {
+      toast.error('El importe supera tu saldo disponible');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await apiClient.post('/influencer/withdrawal', { amount: numAmount, method, notes });
+      toast.success('Solicitud de retirada enviada');
+      onSuccess?.();
+      onClose();
+    } catch {
+      toast.error('Error al solicitar la retirada');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 border-none cursor-pointer"
+          aria-label="Cerrar"
+        >
+          <X className="w-4 h-4 text-stone-500" />
+        </button>
+
+        <h2 className="text-lg font-bold text-stone-950 mb-1">Solicitar retirada</h2>
+        <p className="text-xs text-stone-500 mb-5">
+          Disponible: {convertAndFormatPrice(availableBalance || 0)}
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Amount */}
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">Importe (€)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max={availableBalance || 0}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full h-12 rounded-xl border border-stone-200 px-4 text-sm text-stone-950 focus:outline-none focus:border-stone-400"
+              placeholder="0.00"
+              required
+            />
+          </div>
+
+          {/* Method */}
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">Método de pago</label>
+            <select
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+              className="w-full h-12 rounded-xl border border-stone-200 px-4 text-sm text-stone-950 bg-white focus:outline-none focus:border-stone-400"
+            >
+              <option value="sepa">Transferencia SEPA</option>
+              <option value="stripe">Stripe</option>
+            </select>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">Notas (opcional)</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={200}
+              rows={3}
+              className="w-full rounded-xl border border-stone-200 px-4 py-3 text-sm text-stone-950 resize-none focus:outline-none focus:border-stone-400"
+              placeholder="Añade notas si lo necesitas..."
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full h-12 bg-stone-950 text-white rounded-full text-sm font-bold hover:bg-stone-800 transition-colors disabled:opacity-50 border-none cursor-pointer"
+          >
+            {submitting ? 'Enviando...' : 'Solicitar retirada'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 export default function PayoutsPage() {
   const { convertAndFormatPrice } = useLocale();
@@ -15,6 +134,8 @@ export default function PayoutsPage() {
   const [connectingStripe, setConnectingStripe] = useState(false);
   const [withholdingSummary, setWithholdingSummary] = useState(null);
   const [payoutPage, setPayoutPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const PAYOUTS_PER_PAGE = 10;
 
   const fetchPayouts = useCallback(async () => {
@@ -64,10 +185,75 @@ export default function PayoutsPage() {
 
   const loading = loadingPayouts || loadingStats;
 
+  // Filter payouts by status
+  const filteredPayouts = statusFilter === 'all'
+    ? payouts
+    : payouts.filter((p) => {
+        const s = (p.status || 'paid').toLowerCase();
+        if (statusFilter === 'paid') return s === 'paid' || s === 'completed';
+        if (statusFilter === 'pending') return s === 'pending' || s === 'processing';
+        if (statusFilter === 'failed') return s === 'failed' || s === 'error' || s === 'rejected';
+        return true;
+      });
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setPayoutPage(1);
+  }, [statusFilter]);
+
+  const totalFilteredPages = Math.ceil(filteredPayouts.length / PAYOUTS_PER_PAGE);
+
+  const getStatusBadge = (status) => {
+    const s = (status || 'paid').toLowerCase();
+    if (s === 'paid' || s === 'completed') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-600">
+          <CheckCircle2 className="w-3 h-3" />
+          Pagado
+        </span>
+      );
+    }
+    if (s === 'pending' || s === 'processing') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-400">
+          <Loader2 className="w-3 h-3 animate-spin" />
+          Pendiente
+        </span>
+      );
+    }
+    if (s === 'failed' || s === 'error' || s === 'rejected') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-red-500">
+          <AlertCircle className="w-3 h-3" />
+          Fallido
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-500">
+        {status}
+      </span>
+    );
+  };
+
+  const handleWithdrawalSuccess = () => {
+    fetchPayouts();
+    fetchStats();
+  };
+
   return (
     <div className="min-h-screen bg-stone-50">
       <div className="max-w-[975px] mx-auto px-4 py-6 pb-28">
-        <h1 className="text-xl font-bold text-stone-950 mb-6">Cobros</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-bold text-stone-950">Cobros</h1>
+          <button
+            onClick={() => setShowWithdrawalModal(true)}
+            disabled={!stats || (stats.pending_eur || 0) < 20}
+            className="px-5 py-2.5 bg-stone-950 text-white rounded-full text-sm font-bold hover:bg-stone-800 transition-colors disabled:opacity-40 border-none cursor-pointer"
+          >
+            Solicitar retirada
+          </button>
+        </div>
 
         {/* Balance card */}
         <div className="bg-stone-950 rounded-2xl p-6 mb-5 text-center">
@@ -157,29 +343,48 @@ export default function PayoutsPage() {
           Historial de pagos
         </h3>
 
+        {/* Status filter tabs */}
+        <div className="flex gap-1.5 mb-4 overflow-x-auto no-scrollbar">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setStatusFilter(tab.key)}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-full whitespace-nowrap transition-colors border-none cursor-pointer ${
+                statusFilter === tab.key
+                  ? 'bg-stone-950 text-white'
+                  : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         {loading ? (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-16 bg-stone-100 rounded-2xl animate-pulse" />
             ))}
           </div>
-        ) : payouts.length === 0 ? (
+        ) : filteredPayouts.length === 0 ? (
           <div className="text-center py-10">
             <Wallet className="w-10 h-10 text-stone-300 mx-auto mb-3" />
             <p className="text-sm text-stone-500">
-              Aún no tienes pagos. Comparte tu código y empieza a ganar.
+              {statusFilter === 'all'
+                ? 'Aún no tienes pagos. Comparte tu código y empieza a ganar.'
+                : 'No hay pagos con este estado.'}
             </p>
           </div>
         ) : (<>
           <div className="divide-y divide-stone-100">
-            {payouts.slice((payoutPage - 1) * PAYOUTS_PER_PAGE, payoutPage * PAYOUTS_PER_PAGE).map((payout) => (
+            {filteredPayouts.slice((payoutPage - 1) * PAYOUTS_PER_PAGE, payoutPage * PAYOUTS_PER_PAGE).map((payout) => (
               <div
                 key={payout.id}
                 className="flex items-center justify-between py-4"
               >
                 <div>
                   <p className="text-sm font-semibold text-stone-950">
-                    {new Date(payout.paid_at).toLocaleDateString('es-ES', {
+                    {new Date(payout.paid_at || payout.created_at).toLocaleDateString('es-ES', {
                       month: 'long',
                       year: 'numeric',
                     })}
@@ -190,21 +395,33 @@ export default function PayoutsPage() {
                       <> · Transfer #{payout.stripe_transfer_id.slice(-8)}</>
                     )}
                   </p>
+                  {/* Fees breakdown */}
+                  {(payout.fee_amount_eur != null || payout.withholding_amount_eur != null) && (
+                    <div className="flex gap-3 mt-0.5">
+                      {payout.fee_amount_eur != null && (
+                        <span className="text-[11px] text-stone-400">
+                          Comisión: {convertAndFormatPrice(Number(payout.fee_amount_eur))}
+                        </span>
+                      )}
+                      {payout.withholding_amount_eur != null && (
+                        <span className="text-[11px] text-stone-400">
+                          Retención: {convertAndFormatPrice(Number(payout.withholding_amount_eur))}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-base font-bold text-stone-950">
                     {convertAndFormatPrice(Number(payout.net_amount_eur || 0))}
                   </p>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-600">
-                    <CheckCircle2 className="w-3 h-3" />
-                    Pagado
-                  </span>
+                  {getStatusBadge(payout.status)}
                 </div>
               </div>
             ))}
           </div>
           {/* Pagination */}
-          {payouts.length > PAYOUTS_PER_PAGE && (
+          {filteredPayouts.length > PAYOUTS_PER_PAGE && (
             <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-100">
               <button
                 onClick={() => setPayoutPage(p => Math.max(1, p - 1))}
@@ -214,11 +431,11 @@ export default function PayoutsPage() {
                 <ChevronLeft className="w-4 h-4" /> Anterior
               </button>
               <span className="text-xs text-stone-500">
-                {payoutPage} de {Math.ceil(payouts.length / PAYOUTS_PER_PAGE)}
+                {payoutPage} de {totalFilteredPages}
               </span>
               <button
-                onClick={() => setPayoutPage(p => Math.min(Math.ceil(payouts.length / PAYOUTS_PER_PAGE), p + 1))}
-                disabled={payoutPage >= Math.ceil(payouts.length / PAYOUTS_PER_PAGE)}
+                onClick={() => setPayoutPage(p => Math.min(totalFilteredPages, p + 1))}
+                disabled={payoutPage >= totalFilteredPages}
                 className="flex items-center gap-1 text-sm text-stone-600 disabled:opacity-40"
               >
                 Siguiente <ChevronRight className="w-4 h-4" />
@@ -228,6 +445,15 @@ export default function PayoutsPage() {
           </>
         )}
       </div>
+
+      {/* Withdrawal Modal */}
+      <WithdrawalModal
+        open={showWithdrawalModal}
+        onClose={() => setShowWithdrawalModal(false)}
+        availableBalance={Number(stats?.pending_eur || 0)}
+        convertAndFormatPrice={convertAndFormatPrice}
+        onSuccess={handleWithdrawalSuccess}
+      />
     </div>
   );
 }
