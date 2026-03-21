@@ -141,6 +141,125 @@ BADGE_DEFINITIONS = [
         "threshold": 5,
         "counter": "stores_followed",
     },
+    # Streak badges
+    {
+        "badge_id": "streak_7",
+        "name_key": "badges.streak7",
+        "name_default": "Racha de 7 dias",
+        "description_key": "badges.streak7Desc",
+        "description_default": "7 dias consecutivos activo",
+        "icon": "flame",
+        "category": "engagement",
+        "threshold": 7,
+        "counter": "streak_days",
+    },
+    {
+        "badge_id": "streak_30",
+        "name_key": "badges.streak30",
+        "name_default": "Racha de 30 dias",
+        "description_key": "badges.streak30Desc",
+        "description_default": "30 dias consecutivos activo",
+        "icon": "flame",
+        "category": "engagement",
+        "threshold": 30,
+        "counter": "streak_days",
+    },
+    # Viral badge
+    {
+        "badge_id": "viral",
+        "name_key": "badges.viral",
+        "name_default": "Viral",
+        "description_key": "badges.viralDesc",
+        "description_default": "Un post con 100+ likes",
+        "icon": "zap",
+        "category": "social",
+        "threshold": 100,
+        "counter": "max_post_likes",
+    },
+    # Ambassador badge
+    {
+        "badge_id": "ambassador",
+        "name_key": "badges.ambassador",
+        "name_default": "Embajador",
+        "description_key": "badges.ambassadorDesc",
+        "description_default": "Referiste a 3+ usuarios",
+        "icon": "users",
+        "category": "engagement",
+        "threshold": 3,
+        "counter": "referrals_count",
+    },
+    # Deep explorer badge
+    {
+        "badge_id": "deep_explorer",
+        "name_key": "badges.deepExplorer",
+        "name_default": "Explorador Experto",
+        "description_key": "badges.deepExplorerDesc",
+        "description_default": "Visitaste 50+ tiendas",
+        "icon": "map",
+        "category": "explore",
+        "threshold": 50,
+        "counter": "stores_visited",
+    },
+    # Reviewer badge
+    {
+        "badge_id": "reviewer",
+        "name_key": "badges.reviewer",
+        "name_default": "Critico",
+        "description_key": "badges.reviewerDesc",
+        "description_default": "20+ resenas escritas",
+        "icon": "pen-line",
+        "category": "reviews",
+        "threshold": 20,
+        "counter": "reviews_count",
+    },
+    # Collector badge
+    {
+        "badge_id": "collector",
+        "name_key": "badges.collector",
+        "name_default": "Coleccionista",
+        "description_key": "badges.collectorDesc",
+        "description_default": "10+ productos guardados",
+        "icon": "bookmark",
+        "category": "engagement",
+        "threshold": 10,
+        "counter": "saves_count",
+    },
+    # Eco buyer badge
+    {
+        "badge_id": "eco_buyer",
+        "name_key": "badges.ecoBuyer",
+        "name_default": "Sostenible",
+        "description_key": "badges.ecoBuyerDesc",
+        "description_default": "3+ compras eco-certificadas",
+        "icon": "leaf",
+        "category": "shopping",
+        "threshold": 3,
+        "counter": "eco_purchases",
+    },
+    # First reel badge
+    {
+        "badge_id": "first_reel",
+        "name_key": "badges.firstReel",
+        "name_default": "Primer Reel",
+        "description_key": "badges.firstReelDesc",
+        "description_default": "Creaste tu primer reel",
+        "icon": "clapperboard",
+        "category": "social",
+        "threshold": 1,
+        "counter": "reels_count",
+    },
+    # Community leader badge
+    {
+        "badge_id": "community_leader",
+        "name_key": "badges.communityLeader",
+        "name_default": "Lider",
+        "description_key": "badges.communityLeaderDesc",
+        "description_default": "Creaste una comunidad",
+        "icon": "shield",
+        "category": "social",
+        "threshold": 1,
+        "counter": "communities_created",
+    },
 ]
 
 BADGE_MAP = {b["badge_id"]: b for b in BADGE_DEFINITIONS}
@@ -162,8 +281,40 @@ async def _get_user_counters(user_id: str) -> dict:
     user_post_ids_cursor = db.user_posts.find({"user_id": user_id}, {"_id": 0, "post_id": 1})
     user_post_ids = [p["post_id"] async for p in user_post_ids_cursor]
     likes_received = 0
+    max_post_likes = 0
     if user_post_ids:
         likes_received = await db.post_likes.count_documents({"post_id": {"$in": user_post_ids}})
+        # Max likes on a single post (for "viral" badge)
+        for pid in user_post_ids:
+            count = await db.post_likes.count_documents({"post_id": pid})
+            if count > max_post_likes:
+                max_post_likes = count
+
+    # Streak days (from user doc)
+    user_doc = await db.users.find_one({"user_id": user_id}, {"streak_days": 1})
+    streak_days = user_doc.get("streak_days", 0) if user_doc else 0
+
+    # Referrals
+    referrals_count = await db.referrals.count_documents({"referrer_id": user_id})
+
+    # Stores visited (unique store profile views)
+    stores_visited = await db.store_visits.count_documents({"user_id": user_id})
+
+    # Saves (wishlist items)
+    saves_count = await db.wishlists.count_documents({"user_id": user_id})
+
+    # Eco-certified purchases
+    eco_purchases = await db.orders.count_documents({
+        "user_id": user_id,
+        "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]},
+        "items.eco_certified": True,
+    })
+
+    # Reels created
+    reels_count = await db.user_posts.count_documents({"user_id": user_id, "type": "reel"})
+
+    # Communities created
+    communities_created = await db.communities.count_documents({"created_by": user_id})
 
     return {
         "orders_count": orders_count,
@@ -173,6 +324,14 @@ async def _get_user_counters(user_id: str) -> dict:
         "reviews_count": reviews_count,
         "stores_followed": stores_followed,
         "likes_received": likes_received,
+        "max_post_likes": max_post_likes,
+        "streak_days": streak_days,
+        "referrals_count": referrals_count,
+        "stores_visited": stores_visited,
+        "saves_count": saves_count,
+        "eco_purchases": eco_purchases,
+        "reels_count": reels_count,
+        "communities_created": communities_created,
     }
 
 
@@ -191,7 +350,7 @@ async def check_and_award_badges(user_id: str) -> list:
     for badge in BADGE_DEFINITIONS:
         if badge["badge_id"] in earned_ids:
             continue
-        counter_value = counters.get(badge["counter"], 0)
+        counter_value = counters.get(badge.get("counter", ""), 0)
         if counter_value >= badge["threshold"]:
             await db.user_badges.insert_one({
                 "user_id": user_id,
@@ -236,7 +395,7 @@ async def get_user_badges(user_id: str):
 
     result = []
     for b in BADGE_DEFINITIONS:
-        counter_value = counters.get(b["counter"], 0)
+        counter_value = counters.get(b.get("counter", ""), 0)
         earned = b["badge_id"] in earned_map
         result.append({
             "badge_id": b["badge_id"],
