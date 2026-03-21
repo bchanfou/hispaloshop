@@ -79,7 +79,7 @@ export default function ProducerConnectPage() {
   const isReady = Boolean(status?.onboarding_completed);
 
   return (
-    <div className="max-w-3xl mx-auto p-4 md:p-6">
+    <div className="max-w-[600px] mx-auto p-4 md:p-6">
       <h1 className="text-2xl font-bold text-stone-950 mb-2">Stripe Connect</h1>
       <p className="text-sm text-stone-500 mb-6">Configura tu cuenta para recibir transferencias automaticas.</p>
 
@@ -96,48 +96,31 @@ export default function ProducerConnectPage() {
               <React.Fragment key={step.key}>
                 <div className="flex flex-col items-center" style={{ flex: isLast ? '0 0 auto' : 0 }}>
                   <div
-                    className="flex items-center justify-center rounded-full transition-colors"
-                    style={{
-                      width: 36,
-                      height: 36,
-                      background: isCompleted || isActive ? '#0c0a09' : 'transparent',
-                      border: isPending ? '2px solid #d6d3d1' : 'none',
-                    }}
+                    className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors ${
+                      isCompleted || isActive
+                        ? 'bg-stone-950'
+                        : 'bg-transparent border-2 border-stone-300'
+                    }`}
                   >
                     {isCompleted ? (
-                      <Check size={16} color="#fff" strokeWidth={2.5} />
+                      <Check size={16} className="text-white" strokeWidth={2.5} />
                     ) : (
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: isActive ? '#fff' : '#a8a29e',
-                        }}
-                      >
+                      <span className={`text-[13px] font-bold ${isActive ? 'text-white' : 'text-stone-400'}`}>
                         {i + 1}
                       </span>
                     )}
                   </div>
-                  <span
-                    className="mt-2 text-center whitespace-nowrap"
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: isCompleted || isActive ? '#0c0a09' : '#a8a29e',
-                    }}
-                  >
+                  <span className={`mt-2 text-center whitespace-nowrap text-[11px] font-semibold ${
+                    isCompleted || isActive ? 'text-stone-950' : 'text-stone-400'
+                  }`}>
                     {step.label}
                   </span>
                 </div>
                 {!isLast && (
                   <div
-                    className="transition-colors"
-                    style={{
-                      flex: 1,
-                      height: 2,
-                      marginTop: -18,
-                      background: i < currentStep ? '#0c0a09' : '#d6d3d1',
-                    }}
+                    className={`flex-1 h-0.5 -mt-[18px] transition-colors ${
+                      i < currentStep ? 'bg-stone-950' : 'bg-stone-300'
+                    }`}
                   />
                 )}
               </React.Fragment>
@@ -177,7 +160,7 @@ export default function ProducerConnectPage() {
             type="button"
             onClick={handleStart}
             disabled={submitting}
-            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
+            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-full transition-colors"
           >
             {submitting ? 'Procesando...' : status?.has_account ? 'Completar onboarding' : 'Crear cuenta y conectar'}
           </button>

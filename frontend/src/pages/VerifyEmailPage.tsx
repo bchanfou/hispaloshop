@@ -73,7 +73,7 @@ export default function VerifyEmailPage() {
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 py-6 md:py-12">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-[400px]">
 
           {status === 'verifying' && (
             <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="verifying-card">

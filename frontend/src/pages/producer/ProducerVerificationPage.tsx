@@ -8,16 +8,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
-/* ── Design tokens ──────────────────────────────────────── */
-const T = {
-  black: '#0A0A0A', cream: '#ffffff', stone: '#8A8881',
-  white: '#FFFFFF', border: '#E5E2DA', surface: '#F0EDE8',
-  green: '#0c0a09', greenLight: '#f5f5f4',
-  amber: '#78716c', amberLight: '#fafaf9',
-  red: '#DC2626', redLight: '#FEE2E2',
-  blue: '#3060A0', blueLight: '#EBF0F8',
-  radius: '16px', radiusMd: '12px',
-};
+/* ── Design tokens (Tailwind stone palette) ────────────── */
 
 const CERT_TYPES = [
   { id: 'ecological_eu', label: 'Ecológico EU', emoji: '🌿' },
@@ -32,29 +23,24 @@ const CERT_TYPES = [
 /* ── Stepper ────────────────────────────────────────────── */
 function StepIndicator({ steps, current }) {
   return (
-    <div
-      className="flex items-center justify-between p-5 mb-5"
-      style={{ background: T.black, borderRadius: T.radius }}
-    >
+    <div className="flex items-center justify-between p-5 mb-5 bg-stone-950 rounded-2xl">
       {steps.map((s, i) => {
         const done = s.done;
         const active = i === current;
         return (
           <React.Fragment key={i}>
             {i > 0 && (
-              <div className="flex-1 h-px mx-2" style={{ background: done ? T.white : 'rgba(255,255,255,0.2)' }} />
+              <div className={`flex-1 h-px mx-2 ${done ? 'bg-white' : 'bg-white/20'}`} />
             )}
             <div className="flex items-center gap-2">
               <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0${active && !done ? ' step-active' : ''}`}
-                style={{
-                  background: done ? T.white : active ? T.green : 'rgba(255,255,255,0.15)',
-                  color: done ? T.black : T.white,
-                }}
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                  done ? 'bg-white text-stone-950' : active ? 'bg-stone-950 text-white ring-2 ring-white/40' : 'bg-white/15 text-white'
+                }`}
               >
                 {done ? <Check className="w-3.5 h-3.5" /> : i + 1}
               </div>
-              <span className="text-xs font-medium hidden sm:block" style={{ color: done || active ? T.white : 'rgba(255,255,255,0.5)' }}>
+              <span className={`text-xs font-medium hidden sm:block ${done || active ? 'text-white' : 'text-white/50'}`}>
                 {s.label}
               </span>
             </div>
@@ -68,20 +54,17 @@ function StepIndicator({ steps, current }) {
 /* ── Status Card ────────────────────────────────────────── */
 function StatusCard({ status, children }) {
   const styles = {
-    verified: { bg: T.greenLight, border: T.green, icon: Check, color: T.green },
-    rejected: { bg: T.redLight, border: T.red, icon: AlertCircle, color: T.red },
-    manual_review: { bg: T.amberLight, border: T.amber, icon: Clock, color: T.amber },
-    pending: { bg: T.blueLight, border: T.blue, icon: Loader2, color: T.blue },
+    verified: { bg: 'bg-stone-100', border: 'border-stone-300', icon: Check, color: 'text-stone-800' },
+    rejected: { bg: 'bg-stone-100', border: 'border-stone-300', icon: AlertCircle, color: 'text-stone-700' },
+    manual_review: { bg: 'bg-stone-50', border: 'border-stone-200', icon: Clock, color: 'text-stone-600' },
+    pending: { bg: 'bg-stone-50', border: 'border-stone-200', icon: Loader2, color: 'text-stone-500' },
   };
   const s = styles[status] || styles.pending;
   const Icon = s.icon;
   return (
-    <div
-      className="p-4 flex items-start gap-3"
-      style={{ background: s.bg, borderRadius: T.radius, border: `1px solid ${s.border}30` }}
-    >
-      <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${status === 'pending' ? 'animate-spin' : ''}`} style={{ color: s.color }} />
-      <div className="flex-1 text-sm" style={{ color: s.color }}>{children}</div>
+    <div className={`p-4 flex items-start gap-3 rounded-2xl border ${s.bg} ${s.border}`}>
+      <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${s.color} ${status === 'pending' ? 'animate-spin' : ''}`} />
+      <div className={`flex-1 text-sm ${s.color}`}>{children}</div>
     </div>
   );
 }
@@ -95,26 +78,21 @@ function UploadArea({ accept, maxSize, hint, onFile, uploading }) {
   };
   return (
     <div
-      className="flex flex-col items-center justify-center gap-2 p-8 cursor-pointer transition-colors"
-      style={{
-        border: `2px dashed ${T.border}`,
-        borderRadius: T.radius,
-        background: T.surface,
-        opacity: uploading ? 0.5 : 1,
-        pointerEvents: uploading ? 'none' : 'auto',
-      }}
+      className={`flex flex-col items-center justify-center gap-2 p-8 cursor-pointer transition-colors border-2 border-dashed border-stone-200 rounded-2xl bg-stone-50 ${
+        uploading ? 'opacity-50 pointer-events-none' : 'hover:border-stone-400'
+      }`}
       onClick={() => ref.current?.click()}
     >
       <input ref={ref} type="file" accept={accept} className="hidden" onChange={handleChange} />
       {uploading ? (
-        <Loader2 className="w-8 h-8 animate-spin" style={{ color: T.stone }} />
+        <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
       ) : (
-        <Upload className="w-8 h-8" style={{ color: T.stone }} />
+        <Upload className="w-8 h-8 text-stone-500" />
       )}
-      <p className="text-sm font-medium text-center" style={{ color: T.black }}>
+      <p className="text-sm font-medium text-center text-stone-950">
         {uploading ? 'Verificando con IA...' : 'Pulsa para subir'}
       </p>
-      {hint && <p className="text-xs text-center" style={{ color: T.stone }}>{hint}</p>}
+      {hint && <p className="text-xs text-center text-stone-500">{hint}</p>}
     </div>
   );
 }
@@ -227,37 +205,37 @@ export default function ProducerVerificationPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: T.stone }} />
+        <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
       </div>
     );
   }
 
   return (
-    <div style={{ fontFamily: 'inherit', background: T.cream, minHeight: '100dvh' }}>
+    <div className="bg-white min-h-dvh">
       {/* TopBar */}
-      <div className="flex items-center gap-3 p-4 pb-2">
-        <button onClick={() => navigate(-1)} className="p-1.5" style={{ color: T.black }}>
+      <div className="max-w-[600px] mx-auto flex items-center gap-3 p-4 pb-2">
+        <button onClick={() => navigate(-1)} className="p-1.5 text-stone-950">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-lg font-bold" style={{ color: T.black }}>Verificación de cuenta</h1>
+        <h1 className="text-lg font-bold text-stone-950">Verificación de cuenta</h1>
       </div>
 
-      <div className="px-4 pb-8">
+      <div className="max-w-[600px] mx-auto px-4 pb-8">
         {/* Stepper */}
         <StepIndicator steps={steps} current={currentStep} />
 
         {/* ── Section 1: CIF/NIF ──────────────────────── */}
         <section className="mb-5">
           <div className="flex items-center gap-2 mb-2">
-            <Building2 className="w-4 h-4" style={{ color: T.stone }} />
-            <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: T.stone }}>
+            <Building2 className="w-4 h-4 text-stone-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
               Documento CIF o NIF
             </span>
           </div>
 
           {!cifDoc.status && (
             <>
-              <p className="text-sm mb-3" style={{ color: T.stone }}>
+              <p className="text-sm mb-3 text-stone-500">
                 Sube tu CIF empresarial o NIF personal. Debe ser el documento oficial de la AEAT.
               </p>
               <UploadArea
@@ -291,8 +269,7 @@ export default function ProducerVerificationPage() {
                 <p className="mt-1">{cifDoc.rejection_reason}</p>
               </StatusCard>
               <button
-                className="w-full mt-3 py-2.5 text-sm font-semibold transition-colors"
-                style={{ background: T.black, color: T.white, borderRadius: T.radius }}
+                className="w-full mt-3 py-2.5 text-sm font-semibold transition-colors bg-stone-950 text-white rounded-full hover:bg-stone-800"
                 onClick={() => {
                   setVs(prev => ({
                     ...prev,
@@ -316,19 +293,19 @@ export default function ProducerVerificationPage() {
         {/* ── Section 2: Facility Photo ───────────────── */}
         <section className="mb-5">
           <div className="flex items-center gap-2 mb-2">
-            <Camera className="w-4 h-4" style={{ color: T.stone }} />
-            <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: T.stone }}>
+            <Camera className="w-4 h-4 text-stone-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
               Foto de instalación
             </span>
           </div>
 
           {!facilityDoc.status && (
             <>
-              <p className="text-sm mb-3" style={{ color: T.stone }}>
+              <p className="text-sm mb-3 text-stone-500">
                 Sube una foto de tu local, obrador, finca, almacén o lugar de trabajo.
                 La IA verificará que es una instalación real relacionada con la producción de alimentos.
               </p>
-              <ul className="text-xs mb-3 space-y-1" style={{ color: T.stone }}>
+              <ul className="text-xs mb-3 space-y-1 text-stone-500">
                 <li>• Foto real, no ilustraciones</li>
                 <li>• Buena iluminación</li>
                 <li>• Que se vea la actividad</li>
@@ -363,8 +340,7 @@ export default function ProducerVerificationPage() {
                 <p className="mt-1">{facilityDoc.rejection_reason}</p>
               </StatusCard>
               <button
-                className="w-full mt-3 py-2.5 text-sm font-semibold transition-colors"
-                style={{ background: T.black, color: T.white, borderRadius: T.radius }}
+                className="w-full mt-3 py-2.5 text-sm font-semibold transition-colors bg-stone-950 text-white rounded-full hover:bg-stone-800"
                 onClick={() => {
                   setVs(prev => ({
                     ...prev,
@@ -388,8 +364,8 @@ export default function ProducerVerificationPage() {
         {/* ── Section 3: Certificates ─────────────────── */}
         <section className="mb-5">
           <div className="flex items-center gap-2 mb-2">
-            <Award className="w-4 h-4" style={{ color: T.stone }} />
-            <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: T.stone }}>
+            <Award className="w-4 h-4 text-stone-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
               Al menos 1 certificado válido
             </span>
           </div>
@@ -399,13 +375,11 @@ export default function ProducerVerificationPage() {
             {CERT_TYPES.map(ct => (
               <button
                 key={ct.id}
-                className="px-3 py-1.5 text-xs font-medium transition-colors"
-                style={{
-                  borderRadius: '999px',
-                  border: `1px solid ${selectedCertType === ct.id ? T.black : T.border}`,
-                  background: selectedCertType === ct.id ? T.black : T.white,
-                  color: selectedCertType === ct.id ? T.white : T.black,
-                }}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors rounded-full border ${
+                  selectedCertType === ct.id
+                    ? 'border-stone-950 bg-stone-950 text-white'
+                    : 'border-stone-200 bg-white text-stone-950 hover:border-stone-400'
+                }`}
                 onClick={() => setSelectedCertType(ct.id)}
               >
                 {ct.emoji} {ct.label}
@@ -438,42 +412,41 @@ export default function ProducerVerificationPage() {
                 return (
                   <div
                     key={c.cert_id || i}
-                    className="flex items-center gap-3 p-3"
-                    style={{ background: T.white, borderRadius: T.radius, border: `1px solid ${T.border}` }}
+                    className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-stone-200"
                   >
                     <span className="text-lg">{typeInfo.emoji}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate" style={{ color: T.black }}>{typeInfo.label}</p>
-                      {c.issued_to && <p className="text-xs truncate" style={{ color: T.stone }}>{c.issued_to}</p>}
+                      <p className="text-sm font-semibold truncate text-stone-950">{typeInfo.label}</p>
+                      {c.issued_to && <p className="text-xs truncate text-stone-500">{c.issued_to}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       {c.status === 'verified' && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: T.greenLight, color: T.green }}>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-800">
                           Verificado
                         </span>
                       )}
                       {c.status === 'rejected' && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: T.redLight, color: T.red }}>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
                           Rechazado
                         </span>
                       )}
                       {c.status === 'manual_review' && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: T.amberLight, color: T.amber }}>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">
                           En revisión
                         </span>
                       )}
                       {isExpired && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: T.redLight, color: T.red }}>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
                           Caducado
                         </span>
                       )}
                       {hasWarning && daysLeft !== null && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: T.amberLight, color: T.amber }}>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">
                           Caduca en {daysLeft}d
                         </span>
                       )}
                       {c.status === 'pending' && (
-                        <Loader2 className="w-4 h-4 animate-spin" style={{ color: T.blue }} />
+                        <Loader2 className="w-4 h-4 animate-spin text-stone-500" />
                       )}
                     </div>
                   </div>
@@ -489,22 +462,17 @@ export default function ProducerVerificationPage() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-6 text-center"
-              style={{ background: T.greenLight, borderRadius: T.radius, border: `1px solid ${T.green}30` }}
+              className="p-6 text-center bg-stone-50 rounded-2xl border border-stone-200"
             >
-              <div
-                className="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center"
-                style={{ background: T.green }}
-              >
-                <ShieldCheck className="w-7 h-7" style={{ color: T.white }} />
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center bg-stone-950">
+                <ShieldCheck className="w-7 h-7 text-white" />
               </div>
-              <h2 className="text-lg font-bold mb-1" style={{ color: T.green }}>Cuenta verificada</h2>
-              <p className="text-sm mb-4" style={{ color: T.green }}>
+              <h2 className="text-lg font-bold mb-1 text-stone-950">Cuenta verificada</h2>
+              <p className="text-sm mb-4 text-stone-600">
                 Ya puedes publicar y vender en Hispaloshop
               </p>
               <button
-                className="w-full py-3 text-sm font-bold transition-colors"
-                style={{ background: T.green, color: T.white, borderRadius: T.radius }}
+                className="w-full py-3 text-sm font-bold transition-colors bg-stone-950 text-white rounded-full hover:bg-stone-800"
                 onClick={() => navigate('/producer/products')}
               >
                 Publicar mi primer producto
@@ -516,12 +484,11 @@ export default function ProducerVerificationPage() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-5 text-center"
-              style={{ background: T.amberLight, borderRadius: T.radius, border: `1px solid ${T.amber}30` }}
+              className="p-5 text-center bg-stone-50 rounded-2xl border border-stone-200"
             >
-              <Clock className="w-10 h-10 mx-auto mb-2" style={{ color: T.amber }} />
-              <h2 className="text-base font-bold mb-1" style={{ color: T.amber }}>En revisión manual</h2>
-              <p className="text-sm" style={{ color: T.amber }}>
+              <Clock className="w-10 h-10 mx-auto mb-2 text-stone-600" />
+              <h2 className="text-base font-bold mb-1 text-stone-700">En revisión manual</h2>
+              <p className="text-sm text-stone-600">
                 Nuestro equipo revisará tu documentación en 48-72h hábiles. Te avisaremos por email.
               </p>
             </motion.div>
@@ -531,23 +498,22 @@ export default function ProducerVerificationPage() {
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-5"
-              style={{ background: T.surface, borderRadius: T.radius, border: `1px solid ${T.border}` }}
+              className="p-5 bg-stone-50 rounded-2xl border border-stone-200"
             >
-              <h2 className="text-sm font-bold mb-3" style={{ color: T.black }}>Completa la verificación</h2>
+              <h2 className="text-sm font-bold mb-3 text-stone-950">Completa la verificación</h2>
               <div className="space-y-2">
                 {!cifDone && (
-                  <div className="flex items-center gap-2 text-sm" style={{ color: T.amber }}>
+                  <div className="flex items-center gap-2 text-sm text-stone-600">
                     <AlertCircle className="w-4 h-4 shrink-0" /> Falta: CIF/NIF
                   </div>
                 )}
                 {!facilityDone && (
-                  <div className="flex items-center gap-2 text-sm" style={{ color: T.amber }}>
+                  <div className="flex items-center gap-2 text-sm text-stone-600">
                     <AlertCircle className="w-4 h-4 shrink-0" /> Falta: Foto de instalación
                   </div>
                 )}
                 {!certsDone && (
-                  <div className="flex items-center gap-2 text-sm" style={{ color: T.amber }}>
+                  <div className="flex items-center gap-2 text-sm text-stone-600">
                     <AlertCircle className="w-4 h-4 shrink-0" /> Falta: Al menos 1 certificado
                   </div>
                 )}

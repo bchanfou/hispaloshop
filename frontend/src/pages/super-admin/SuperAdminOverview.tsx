@@ -1,47 +1,38 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Loader2, ArrowRight } from 'lucide-react';
+import { AlertTriangle, ArrowRight } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
-/* Dark theme uses CSS variables from .superadmin-theme or fallback hardcoded values.
-   All colors reference dark-themed tokens. */
-
-const dark = {
-  bg: '#0A0A0A',
-  card: '#1C1C1E',
-  border: 'rgba(255,255,255,0.08)',
-  text: '#FFFFFF',
-  textMuted: 'rgba(255,255,255,0.40)',
-  textSubtle: 'rgba(255,255,255,0.30)',
-  accent: '#0c0a09',        /* stone-950 black */
-  accentBlue: '#a8a29e',
-  accentPurple: '#78716c',
-  accentAmber: '#57534e',
-  hoverBg: 'rgba(255,255,255,0.08)',
-  cardHover: 'rgba(255,255,255,0.04)',
-};
-
-function SACard({ children, className = '', style = {} }) {
+function SACard({ children, className = '' }) {
   return (
     <div
-      className={className}
-      style={{ background: dark.card, borderRadius: '14px', border: `1px solid ${dark.border}`, padding: '16px', ...style }}
+      className={`bg-stone-900 rounded-[14px] border border-stone-800 p-4 hover:border-stone-700 transition-colors ${className}`}
     >
       {children}
     </div>
   );
 }
 
-function KPICard({ label, value, sub, color = dark.accent }) {
+function KPICard({ label, value, sub, light = false }) {
   return (
     <SACard>
-      <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: dark.textSubtle }}>{label}</p>
-      <p className="text-[26px] font-extrabold tracking-tight leading-none mb-1" style={{ color }}>
+      <p className="text-[11px] font-bold uppercase tracking-widest mb-2 text-stone-500">{label}</p>
+      <p className={`text-[26px] font-extrabold tracking-tight leading-none mb-1 ${light ? 'text-stone-100' : 'text-stone-100'}`}>
         {value}
       </p>
-      <p className="text-[11px]" style={{ color: dark.textSubtle }}>{sub}</p>
+      <p className="text-[11px] text-stone-500">{sub}</p>
     </SACard>
+  );
+}
+
+function SkeletonCard({ className = '' }) {
+  return (
+    <div className={`bg-stone-900 rounded-[14px] border border-stone-800 p-4 animate-pulse ${className}`}>
+      <div className="h-3 w-20 bg-stone-800 rounded mb-3" />
+      <div className="h-7 w-24 bg-stone-800 rounded mb-2" />
+      <div className="h-3 w-16 bg-stone-800 rounded" />
+    </div>
   );
 }
 
@@ -69,19 +60,32 @@ export default function SuperAdminOverview() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin" style={{ color: dark.textSubtle }} />
+      <div className="max-w-[1100px] mx-auto pb-16">
+        <div className="mb-8">
+          <div className="h-7 w-48 bg-stone-800 rounded animate-pulse mb-2" />
+          <div className="h-4 w-64 bg-stone-800/60 rounded animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <SkeletonCard className="mb-5 !h-48" />
+        <div className="grid md:grid-cols-2 gap-4 mb-5">
+          <SkeletonCard className="!h-40" />
+          <SkeletonCard className="!h-40" />
+        </div>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <SACard className="text-center py-12">
-        <AlertTriangle className="w-8 h-8 mx-auto mb-3" style={{ color: dark.textSubtle }} />
-        <h2 className="text-lg font-bold mb-1" style={{ color: dark.text }}>No se pudo cargar el overview</h2>
-        <p className="text-sm" style={{ color: dark.textMuted }}>Revisa la conexión con el backend.</p>
-      </SACard>
+      <div className="max-w-[1100px] mx-auto">
+        <SACard className="text-center py-12">
+          <AlertTriangle className="w-8 h-8 mx-auto mb-3 text-stone-500" />
+          <h2 className="text-lg font-bold mb-1 text-stone-100">No se pudo cargar el overview</h2>
+          <p className="text-sm text-stone-400">Revisa la conexión con el backend.</p>
+        </SACard>
+      </div>
     );
   }
 
@@ -102,45 +106,42 @@ export default function SuperAdminOverview() {
   const planTotal = (planDist.FREE || 0) + (planDist.PRO || 0) + (planDist.ELITE || 0) || 1;
 
   return (
-    <div className="superadmin-theme max-w-[1000px] mx-auto pb-16" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="superadmin-theme max-w-[1100px] mx-auto pb-16" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-[26px] font-extrabold tracking-tight mb-1" style={{ color: dark.text }}>Panel Global</h1>
-        <p className="text-sm" style={{ color: dark.textMuted }}>{formatDate()}</p>
+        <h1 className="text-[26px] font-extrabold tracking-tight mb-1 text-stone-100">Panel Global</h1>
+        <p className="text-sm text-stone-400">{formatDate()}</p>
       </div>
 
-      {/* KPI Grid 2x2 */}
+      {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KPICard
           label="MRR"
-          value={`${mrr}€`}
-          sub={`ARR ~${Math.round(mrr * 12).toLocaleString()}€`}
-          color={dark.accent}
+          value={`${mrr}\u20AC`}
+          sub={`ARR ~${Math.round(mrr * 12).toLocaleString()}\u20AC`}
         />
         <KPICard
           label="GMV 30d"
-          value={`${Math.round(gmvMonth)}€`}
+          value={`${Math.round(gmvMonth)}\u20AC`}
           sub={`${orders.last_30d || 0} pedidos`}
-          color={dark.accent}
         />
         <KPICard
           label="Usuarios"
           value={users.total || 0}
-          sub={`+${users.new_7d || 0} últimos 7d`}
-          color={dark.text}
+          sub={`+${users.new_7d || 0} \u00FAltimos 7d`}
+          light
         />
         <KPICard
           label="Comisiones"
-          value={`${Math.round(revenue.platform_commission || 0)}€`}
+          value={`${Math.round(revenue.platform_commission || 0)}\u20AC`}
           sub="Total acumulado"
-          color={dark.accent}
         />
       </div>
 
       {/* Pending actions */}
       <SACard className="mb-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold" style={{ color: dark.text }}>Acciones pendientes</h3>
+          <h3 className="text-base font-bold text-stone-100">Acciones pendientes</h3>
         </div>
         <div className="space-y-2">
           {[
@@ -152,82 +153,79 @@ export default function SuperAdminOverview() {
             <Link
               key={item.label}
               to={item.to}
-              className="flex items-center justify-between px-3 py-2.5 transition-colors"
-              style={{ borderRadius: '8px', background: dark.cardHover }}
+              className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition-colors"
             >
-              <span className="text-sm" style={{ color: 'rgba(255,255,255,0.60)' }}>{item.label}</span>
+              <span className="text-sm text-stone-400">{item.label}</span>
               <div className="flex items-center gap-2">
                 {item.count > 0 && (
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center" style={{ background: dark.accentPurple, color: '#fff' }}>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center bg-stone-600 text-stone-100">
                     {item.count}
                   </span>
                 )}
-                <ArrowRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.20)' }} />
+                <ArrowRight className="w-4 h-4 text-stone-700" />
               </div>
             </Link>
           ))}
         </div>
       </SACard>
 
-      {/* Countries list — real data from /superadmin/overview */}
+      {/* Countries list */}
       {countries.length > 0 && (
         <SACard className="mb-5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold" style={{ color: dark.text }}>Paises</h3>
-            <Link to="/super-admin/markets" className="text-xs font-semibold" style={{ color: dark.accentPurple }}>
+            <h3 className="text-sm font-bold text-stone-100">Pa\u00EDses</h3>
+            <Link to="/super-admin/markets" className="text-xs font-semibold text-stone-500 hover:text-stone-300 transition-colors">
               Gestionar
             </Link>
           </div>
           <div className="space-y-2">
-            {countries.map((c, i) => {
-              const statusStyles = {
-                active: { bg: 'rgba(12,10,9,0.15)', border: dark.accent, color: dark.accent },
-                beta: { bg: 'rgba(255,149,0,0.12)', border: dark.accentAmber, color: dark.accentAmber },
-                pending: { bg: '#f5f5f4', border: '#dc2626', color: '#dc2626' },
-              };
-              const s = statusStyles[c.status] || statusStyles.pending;
-              return (
-                <div key={c.code || i} className="flex items-center justify-between py-2" style={{ borderBottom: `1px solid ${dark.border}` }}>
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">{c.flag || '\uD83C\uDF10'}</span>
-                    <div>
-                      <p className="text-sm font-semibold" style={{ color: dark.text }}>{c.name}</p>
-                      <p className="text-xs" style={{ color: dark.textMuted }}>{c.producers || 0} productores · {c.users || 0} usuarios</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
-                      {c.status}
-                    </span>
-                    {!c.admin && (
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: '#f5f5f4', color: '#dc2626' }}>
-                        Sin admin
-                      </span>
-                    )}
+            {countries.map((c, i) => (
+              <div key={c.code || i} className="flex items-center justify-between py-2 border-b border-stone-800">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">{c.flag || '\uD83C\uDF10'}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-stone-100">{c.name}</p>
+                    <p className="text-xs text-stone-400">{c.producers || 0} productores \u00B7 {c.users || 0} usuarios</p>
                   </div>
                 </div>
-              );
-            })}
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+                    c.status === 'active'
+                      ? 'bg-stone-800 border-stone-700 text-stone-300'
+                      : c.status === 'beta'
+                        ? 'bg-stone-800 border-stone-600 text-stone-400'
+                        : 'bg-stone-800 border-stone-600 text-stone-400'
+                  }`}>
+                    {c.status}
+                  </span>
+                  {!c.admin && (
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-stone-800 border border-stone-600 text-stone-400">
+                      Sin admin
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </SACard>
       )}
 
       {/* Plan distribution */}
       <SACard className="mb-5">
-        <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Distribución de planes</h3>
+        <h3 className="text-sm font-bold mb-3 text-stone-100">Distribuci\u00F3n de planes</h3>
         <div className="space-y-3">
           {[
-            { label: 'FREE', count: planDist.FREE || 0, color: 'rgba(255,255,255,0.30)' },
-            { label: 'PRO', count: planDist.PRO || 0, color: dark.accent },
-            { label: 'ELITE', count: planDist.ELITE || 0, color: dark.accentAmber },
+            { label: 'FREE', count: planDist.FREE || 0, barClass: 'bg-stone-500' },
+            { label: 'PRO', count: planDist.PRO || 0, barClass: 'bg-stone-300' },
+            { label: 'ELITE', count: planDist.ELITE || 0, barClass: 'bg-stone-100' },
           ].map(p => (
             <div key={p.label}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold" style={{ color: dark.text }}>{p.label}</span>
-                <span className="text-xs" style={{ color: dark.textMuted }}>{p.count}</span>
+                <span className="text-xs font-semibold text-stone-100">{p.label}</span>
+                <span className="text-xs text-stone-400">{p.count}</span>
               </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ background: dark.cardHover }}>
-                <div className="h-full rounded-full transition-all" style={{ width: `${(p.count / planTotal) * 100}%`, background: p.color }} />
+              <div className="h-2 rounded-full overflow-hidden bg-stone-800">
+                <div className={`h-full rounded-full transition-all ${p.barClass}`} style={{ width: `${(p.count / planTotal) * 100}%` }} />
               </div>
             </div>
           ))}
@@ -236,14 +234,14 @@ export default function SuperAdminOverview() {
 
       {/* GDPR Alerts */}
       {gdprAlerts.length > 0 && (
-        <SACard className="mb-5" style={{ border: `1px solid #FF3B30` }}>
-          <h3 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ color: dark.text }}>
-            <span>\u26A0\uFE0F</span> Alertas GDPR
+        <SACard className="mb-5 !border-stone-600">
+          <h3 className="text-sm font-bold mb-3 flex items-center gap-2 text-stone-100">
+            <span>{'\u26A0\uFE0F'}</span> Alertas GDPR
           </h3>
           <div className="space-y-2">
             {gdprAlerts.map((alert, i) => (
-              <div key={i} className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.60)' }}>
-                <span>\u26A0\uFE0F</span>
+              <div key={i} className="flex items-start gap-2 text-sm text-stone-400">
+                <span>{'\u26A0\uFE0F'}</span>
                 <p>{alert.message || alert}</p>
               </div>
             ))}
@@ -254,33 +252,33 @@ export default function SuperAdminOverview() {
       {/* Users by role + Visits side by side */}
       <div className="grid md:grid-cols-2 gap-4 mb-5">
         <SACard>
-          <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Usuarios por rol</h3>
+          <h3 className="text-sm font-bold mb-3 text-stone-100">Usuarios por rol</h3>
           <div className="space-y-2">
             {Object.entries(users.by_role || {}).map(([role, count]) => (
-              <div key={role} className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${dark.border}` }}>
-                <span className="text-xs capitalize" style={{ color: 'rgba(255,255,255,0.50)' }}>{role.replace('_', ' ')}</span>
-                <span className="text-sm font-bold" style={{ color: dark.text }}>{count}</span>
+              <div key={role} className="flex items-center justify-between py-1.5 border-b border-stone-800">
+                <span className="text-xs capitalize text-stone-400">{role.replace('_', ' ')}</span>
+                <span className="text-sm font-bold text-stone-100">{count}</span>
               </div>
             ))}
           </div>
         </SACard>
 
         <SACard>
-          <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Visitas</h3>
+          <h3 className="text-sm font-bold mb-3 text-stone-100">Visitas</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="rounded-2xl p-3 text-center" style={{ background: dark.cardHover }}>
-              <p className="text-xl font-extrabold" style={{ color: dark.accent }}>{visits.total || 0}</p>
-              <p className="text-[10px]" style={{ color: dark.textSubtle }}>Total</p>
+            <div className="rounded-2xl p-3 text-center bg-stone-800/60">
+              <p className="text-xl font-extrabold text-stone-100">{visits.total || 0}</p>
+              <p className="text-[10px] text-stone-500">Total</p>
             </div>
-            <div className="rounded-2xl p-3 text-center" style={{ background: dark.cardHover }}>
-              <p className="text-xl font-extrabold" style={{ color: dark.accent }}>{visits.last_7d || 0}</p>
-              <p className="text-[10px]" style={{ color: dark.textSubtle }}>Últimos 7d</p>
+            <div className="rounded-2xl p-3 text-center bg-stone-800/60">
+              <p className="text-xl font-extrabold text-stone-100">{visits.last_7d || 0}</p>
+              <p className="text-[10px] text-stone-500">\u00DAltimos 7d</p>
             </div>
           </div>
           {(visits.by_country || []).slice(0, 5).map((v, i) => (
-            <div key={i} className="flex items-center justify-between py-1" style={{ borderBottom: `1px solid ${dark.border}` }}>
-              <span className="text-xs" style={{ color: 'rgba(255,255,255,0.50)' }}>{v.country || 'Desconocido'}</span>
-              <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.70)' }}>{v.count}</span>
+            <div key={i} className="flex items-center justify-between py-1 border-b border-stone-800">
+              <span className="text-xs text-stone-400">{v.country || 'Desconocido'}</span>
+              <span className="text-xs font-bold text-stone-300">{v.count}</span>
             </div>
           ))}
         </SACard>
@@ -289,20 +287,21 @@ export default function SuperAdminOverview() {
       {/* Top sellers */}
       {(data?.top_sellers || []).length > 0 && (
         <SACard className="mb-5">
-          <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Top vendedores (30d)</h3>
+          <h3 className="text-sm font-bold mb-3 text-stone-100">Top vendedores (30d)</h3>
           {data.top_sellers.map((seller, i) => (
             <div
               key={seller.seller_id || i}
               className="flex items-center justify-between py-2.5"
-              style={{ borderBottom: i < data.top_sellers.length - 1 ? `1px solid ${dark.border}` : 'none' }}
+              style={{ borderBottom: i < data.top_sellers.length - 1 ? undefined : 'none' }}
+              {...(i < data.top_sellers.length - 1 ? { className: 'flex items-center justify-between py-2.5 border-b border-stone-800' } : { className: 'flex items-center justify-between py-2.5' })}
             >
               <div className="flex items-center gap-3">
-                <span className="text-xs font-bold w-5" style={{ color: dark.textSubtle }}>{i + 1}</span>
-                <span className="text-sm font-semibold" style={{ color: dark.text }}>{seller.name}</span>
+                <span className="text-xs font-bold w-5 text-stone-500">{i + 1}</span>
+                <span className="text-sm font-semibold text-stone-100">{seller.name}</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-bold" style={{ color: dark.accent }}>{seller.revenue?.toFixed(0)}€</span>
-                <span className="text-[10px] ml-2" style={{ color: dark.textSubtle }}>{seller.orders} pedidos</span>
+                <span className="text-sm font-bold text-stone-100">{seller.revenue?.toFixed(0)}\u20AC</span>
+                <span className="text-[10px] ml-2 text-stone-500">{seller.orders} pedidos</span>
               </div>
             </div>
           ))}
@@ -312,36 +311,35 @@ export default function SuperAdminOverview() {
       {/* Recent activity */}
       <SACard>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold" style={{ color: dark.text }}>Actividad reciente</h3>
-          <Link to="/super-admin/finance" className="text-xs font-semibold hover:underline" style={{ color: dark.accentPurple }}>
+          <h3 className="text-sm font-bold text-stone-100">Actividad reciente</h3>
+          <Link to="/super-admin/finance" className="text-xs font-semibold text-stone-500 hover:text-stone-300 transition-colors">
             Ver todo
           </Link>
         </div>
         {(data?.recent_orders || []).slice(0, 5).map((order, i) => (
           <div
             key={order.order_id || i}
-            className="flex items-center justify-between py-2.5"
-            style={{ borderBottom: i < Math.min((data?.recent_orders || []).length, 5) - 1 ? `1px solid ${dark.border}` : 'none' }}
+            className={`flex items-center justify-between py-2.5 ${i < Math.min((data?.recent_orders || []).length, 5) - 1 ? 'border-b border-stone-800' : ''}`}
           >
             <div>
-              <p className="text-sm font-semibold" style={{ color: dark.text }}>#{(order.order_id || '').slice(-8)}</p>
-              <p className="text-[11px]" style={{ color: dark.textMuted }}>{order.user_name || 'Usuario'}</p>
+              <p className="text-sm font-semibold text-stone-100">#{(order.order_id || '').slice(-8)}</p>
+              <p className="text-[11px] text-stone-400">{order.user_name || 'Usuario'}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-bold" style={{ color: dark.text }}>{Number(order.total_amount || 0).toFixed(2)}€</p>
-              <p className="text-[11px] capitalize" style={{ color: dark.textMuted }}>{order.status}</p>
+              <p className="text-sm font-bold text-stone-100">{Number(order.total_amount || 0).toFixed(2)}\u20AC</p>
+              <p className="text-[11px] capitalize text-stone-400">{order.status}</p>
             </div>
           </div>
         ))}
         {(data?.recent_orders || []).length === 0 && (
-          <p className="text-sm py-4 text-center" style={{ color: dark.textSubtle }}>Sin actividad reciente</p>
+          <p className="text-sm py-4 text-center text-stone-500">Sin actividad reciente</p>
         )}
       </SACard>
 
       {/* Quick links */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-5">
         {[
-          { label: 'Países', to: '/super-admin/markets' },
+          { label: 'Pa\u00EDses', to: '/super-admin/markets' },
           { label: 'Admins', to: '/super-admin/admins' },
           { label: 'Finanzas', to: '/super-admin/finance' },
           { label: 'GDPR', to: '/super-admin/gdpr' },
@@ -349,8 +347,7 @@ export default function SuperAdminOverview() {
           <Link
             key={link.to}
             to={link.to}
-            className="px-4 py-3 text-sm font-semibold text-center transition-colors"
-            style={{ background: dark.cardHover, borderRadius: '16px', color: 'rgba(255,255,255,0.60)' }}
+            className="px-4 py-3 text-sm font-semibold text-center rounded-2xl bg-stone-800/60 text-stone-400 hover:bg-stone-800 hover:text-stone-300 transition-colors"
           >
             {link.label}
           </Link>

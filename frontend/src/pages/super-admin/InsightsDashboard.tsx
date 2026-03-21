@@ -13,18 +13,18 @@ import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import FocusTrap from 'focus-trap-react';
 
-// Color palette
+// Color palette — stone-based for dark/neutral theme
 const COLORS = {
-  primary: '#0c0a09',
-  secondary: '#78716c',
-  accent: '#E53E3E',
-  success: '#38A169',
-  warning: '#D69E2E',
-  info: '#3182CE',
-  chart: ['#1C1C1C', '#4A4A4A', '#7A7A7A', '#A3A3A3', '#D4D4D4']
+  primary: '#0c0a09',     // stone-950
+  secondary: '#78716c',   // stone-500
+  accent: '#57534e',      // stone-600
+  success: '#78716c',     // stone-500
+  warning: '#a8a29e',     // stone-400
+  info: '#44403c',        // stone-700
+  chart: ['#0c0a09', '#44403c', '#78716c', '#a8a29e', '#d6d3d1']   // stone 950→300
 };
 
-const PIE_COLORS = ['#1C1C1C', '#E53E3E', '#3182CE', '#38A169', '#D69E2E', '#805AD5'];
+const PIE_COLORS = ['#0c0a09', '#44403c', '#57534e', '#78716c', '#a8a29e', '#d6d3d1'];
 
 const asArray = (value) => (Array.isArray(value) ? value : []);
 const asObject = (value) => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
@@ -391,11 +391,11 @@ function GlobalOverviewTab({ data }) {
         <h3 className="font-medium text-stone-500 mb-4">Top Countries</h3>
         <ResponsiveContainer width="100%" height={200}>
           <RechartsBarChart data={safeTopCountries.slice(0, 8)}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#44403c" />
             <XAxis dataKey="country" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
-            <Bar dataKey="count" fill="#1C1C1C" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="count" fill="#0c0a09" radius={[4, 4, 0, 0]} />
           </RechartsBarChart>
         </ResponsiveContainer>
       </div>
@@ -611,11 +611,11 @@ function AIPerformanceTab({ data }) {
         {actionData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <RechartsBarChart data={actionData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#44403c" />
               <XAxis type="number" tick={{ fontSize: 12 }} />
               <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={150} />
               <Tooltip />
-              <Bar dataKey="value" fill="#1C1C1C" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="value" fill="#0c0a09" radius={[0, 4, 4, 0]} />
             </RechartsBarChart>
           </ResponsiveContainer>
         ) : (
@@ -666,7 +666,7 @@ function TrendsTab({ data }) {
           {asArray(data?.diet_trends).length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <RechartsBarChart data={asArray(data?.diet_trends).slice(0, 8)}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#44403c" />
                 <XAxis dataKey="tag" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip formatter={(value) => `${value}%`} />
@@ -1005,11 +1005,11 @@ function ComplianceTab({ data, config }) {
                   <h3 className="font-medium text-stone-950 mb-4">Consent Trend (Last 14 Days)</h3>
                   <ResponsiveContainer width="100%" height={200}>
                     <AreaChart data={asArray(auditLog?.consent_trend)}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#44403c" />
                       <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip />
-                      <Area type="monotone" dataKey="consents" fill="#38A169" stroke="#38A169" fillOpacity={0.3} />
+                      <Area type="monotone" dataKey="consents" fill="#78716c" stroke="#78716c" fillOpacity={0.3} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>

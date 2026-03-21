@@ -562,7 +562,7 @@ export default function PostDetailPage() {
               onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendComment(); } }}
               placeholder="Añade un comentario..."
-              className="flex-1 bg-transparent border-none outline-none text-[13px] text-stone-950 placeholder:text-stone-400 font-sans min-h-[36px]"
+              className="flex-1 h-9 rounded-full bg-stone-100 px-3.5 text-[13px] text-stone-950 placeholder:text-stone-400 font-sans outline-none border-none"
               disabled={sending}
             />
             <button

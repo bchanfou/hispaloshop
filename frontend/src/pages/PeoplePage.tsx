@@ -80,7 +80,7 @@ export default function PeoplePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafaf9] font-sans pb-20">
+    <div className="min-h-screen bg-white pb-20">
       {/* Topbar */}
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button
@@ -94,7 +94,7 @@ export default function PeoplePage() {
       </div>
 
       {/* Role filter pills */}
-      <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 py-3">
+      <div className="mx-auto max-w-[600px] scrollbar-hide flex gap-2 overflow-x-auto px-4 py-3">
         {ROLE_PILLS.map(pill => (
           <button
             key={pill.id}
@@ -112,7 +112,7 @@ export default function PeoplePage() {
       </div>
 
       {/* Users grid */}
-      <div className="px-4">
+      <div className="mx-auto max-w-[600px] px-4">
         {loading && users.length === 0 ? (
           <div className="flex justify-center py-16">
             <Loader2 size={28} className="animate-spin text-stone-400" />
@@ -145,7 +145,11 @@ export default function PeoplePage() {
                     <span className="mt-1 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
                       {ROLE_LABELS[u.role] || u.role}
                     </span>
-                    <p className="mt-1 text-[11px] text-stone-400">{u.followers_count || 0} seguidores</p>
+                    {u.mutual_followers_count > 0 ? (
+                      <p className="mt-1 text-[11px] text-stone-500">{u.mutual_followers_count} seguidor{u.mutual_followers_count > 1 ? 'es' : ''} en comun</p>
+                    ) : (
+                      <p className="mt-1 text-[11px] text-stone-400">{u.followers_count || 0} seguidores</p>
+                    )}
 
                     {currentUser ? (
                       <button
@@ -153,7 +157,7 @@ export default function PeoplePage() {
                         disabled={isFollowed}
                         className={`mt-2.5 flex w-full min-h-[36px] items-center justify-center gap-1 rounded-full text-[11px] font-semibold border-none cursor-pointer transition-colors ${
                           isFollowed
-                            ? 'bg-stone-100 text-stone-500'
+                            ? 'bg-stone-100 text-stone-950'
                             : 'bg-stone-950 text-white hover:bg-stone-800'
                         }`}
                       >

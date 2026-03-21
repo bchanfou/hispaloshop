@@ -138,13 +138,14 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
       </label>
       <div className="grid grid-cols-3 gap-3">
         {images.map((img, idx) => (
-          <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-stone-200">
+          <div key={idx} className="group relative aspect-square rounded-xl overflow-hidden border border-stone-200">
             <img loading="lazy" src={img} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-stone-950/0 group-hover:bg-stone-950/20 transition-colors" />
             <button
               type="button"
               onClick={() => removeImage(idx)}
               aria-label={`Eliminar imagen ${idx + 1}`}
-              className="absolute top-1 right-1 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-stone-950 text-white rounded-full hover:bg-stone-800"
+              className="absolute top-1 right-1 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-stone-950 text-white rounded-full hover:bg-stone-800 opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <X className="w-3 h-3" />
             </button>
@@ -303,7 +304,7 @@ export default function ProducerStoreProfile() {
         <button
           type="button"
           onClick={fetchStoreProfile}
-          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-2xl transition-colors"
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-full transition-colors"
         >
           Reintentar
         </button>
@@ -312,7 +313,7 @@ export default function ProducerStoreProfile() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-[975px] mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -324,7 +325,7 @@ export default function ProducerStoreProfile() {
         </div>
         <div className="flex items-center gap-3">
           {profile.slug && (
-            <Link to={`/store/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-stone-200 rounded-2xl text-sm text-stone-700 hover:bg-stone-50 transition-colors no-underline">
+            <Link to={`/store/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-stone-200 rounded-full text-sm text-stone-700 hover:bg-stone-50 transition-colors no-underline">
               <Eye className="w-4 h-4" />
               Ver tienda
             </Link>
@@ -333,7 +334,7 @@ export default function ProducerStoreProfile() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm rounded-2xl transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm rounded-full transition-colors"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Guardar cambios
@@ -348,7 +349,7 @@ export default function ProducerStoreProfile() {
             <p className="text-sm text-stone-500">URL de tu tienda:</p>
             <p className="text-stone-950 font-medium">{window.location.origin}/store/{profile.slug}</p>
           </div>
-          <Link to={`/store/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors">
+          <Link to={`/store/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-full transition-colors">
             Ver mi tienda →
           </Link>
         </div>
@@ -615,7 +616,7 @@ export default function ProducerStoreProfile() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-full transition-colors"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Guardar todos los cambios
