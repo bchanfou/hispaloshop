@@ -295,7 +295,16 @@ export default function CreatePostPage() {
   const [publishSuccess, setPublishSuccess] = useState(false);
 
   const handlePublish = async () => {
-    if (publishing || !selectedFiles.length) return;
+    if (publishing) return;
+    if (!selectedFiles.length && !caption.trim()) {
+      toast.error('Añade al menos una imagen o escribe algo');
+      return;
+    }
+    if (caption.length > 2200) {
+      toast.error('La descripción es demasiado larga');
+      return;
+    }
+    if (!selectedFiles.length) return;
     setPublishing(true);
     setUploadProgress(0);
     try {
@@ -996,12 +1005,13 @@ export default function CreatePostPage() {
               e.target.style.height = 'auto';
               e.target.style.height = e.target.scrollHeight + 'px';
             }}
+            maxLength={2200}
             aria-label="Descripción de la publicación"
             placeholder="Escribe tu pie de foto... Usa # para hashtags y @ para menciones"
             className="w-full border-[1.5px] border-stone-200 rounded-xl p-3 resize-none min-h-[80px] text-sm leading-relaxed outline-none box-border overflow-hidden bg-transparent relative caret-stone-950"
           />
-          <span className={`absolute bottom-2 right-3 text-[11px] ${caption.length > 2000 ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}>
-            {caption.length} / 2200
+          <span className={`absolute bottom-2 right-3 text-[11px] ${caption.length > 2200 ? 'text-red-600 font-semibold' : caption.length > 2000 ? 'text-red-600 font-semibold' : 'text-stone-500'}`}>
+            {caption.length}/2200
           </span>
         </div>
 

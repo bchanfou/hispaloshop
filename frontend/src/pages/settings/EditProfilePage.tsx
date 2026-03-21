@@ -24,7 +24,7 @@ export default function EditProfilePage() {
   const usernameTimerRef = useRef(null);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
-  const canSave = hasChanges() && !saving && usernameStatus !== 'taken';
+  const canSave = hasChanges() && !saving && usernameStatus !== 'taken' && usernameStatus !== 'checking';
 
   /* cleanup username debounce timer + blob URL on unmount */
   useEffect(() => {
@@ -159,7 +159,7 @@ export default function EditProfilePage() {
   };
 
   const usernameBorderClass = usernameStatus === 'taken'
-    ? 'border-red-400'
+    ? 'border-red-500'
     : usernameStatus === 'available'
       ? 'border-stone-950'
       : 'border-stone-200';
@@ -243,7 +243,10 @@ export default function EditProfilePage() {
             )}
           </div>
           {usernameStatus === 'taken' && (
-            <p className="mt-1 text-xs text-stone-500">Este usuario ya está en uso</p>
+            <p className="mt-1 text-xs text-red-600">Este nombre de usuario no está disponible</p>
+          )}
+          {usernameStatus === 'available' && (
+            <p className="mt-1 text-xs text-stone-500">Disponible</p>
           )}
         </div>
 

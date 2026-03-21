@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Award, CheckCircle, ChefHat, ChevronLeft, ExternalLink, Globe,
+  AlertTriangle, Award, CheckCircle, ChefHat, ChevronLeft, ExternalLink, Globe,
   Heart, Info, Mail, MapPin, MessageCircle, Package, Phone, Search, Share2,
   Star, Store, Truck, User,
 } from 'lucide-react';
@@ -157,6 +157,20 @@ export default function StorePage() {
             {[1,2,3].map(i => <div key={i} className="skeleton-shimmer flex-1 h-10 rounded-xl" />)}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  /* ── Error ── */
+  if (storeQuery.isError) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-8 text-center">
+        <AlertTriangle size={48} className="text-stone-300" strokeWidth={1.5} />
+        <p className="text-lg font-semibold text-stone-950 mt-4">Error al cargar</p>
+        <p className="text-sm text-stone-500 mt-1">No se pudo cargar la tienda. Comprueba tu conexión.</p>
+        <button onClick={() => storeQuery.refetch()} className="mt-4 bg-stone-950 text-white border-none rounded-full px-6 py-3 min-h-[44px] text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors">
+          Reintentar
+        </button>
       </div>
     );
   }
@@ -363,7 +377,9 @@ export default function StorePage() {
               </div>
             )}
 
-            {productsQuery.isLoading ? (
+            {productsQuery.isError ? (
+              <InlineError onRetry={() => productsQuery.refetch()} />
+            ) : productsQuery.isLoading ? (
               <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                 {[1,2,3,4,5,6].map(i => (
                   <div key={i} className="skeleton-shimmer rounded-2xl aspect-[4/5]" />
@@ -383,7 +399,9 @@ export default function StorePage() {
 
         {/* ════ TAB: RECETAS ════ */}
         {activeTab === 'recipes' && (
-          recipesQuery.isLoading ? (
+          recipesQuery.isError ? (
+            <InlineError onRetry={() => recipesQuery.refetch()} />
+          ) : recipesQuery.isLoading ? (
             <LoadingSpinner />
           ) : recipes.length > 0 ? (
             <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
@@ -414,7 +432,9 @@ export default function StorePage() {
 
         {/* ════ TAB: RESEÑAS ════ */}
         {activeTab === 'reviews' && (
-          reviewsQuery.isLoading ? (
+          reviewsQuery.isError ? (
+            <InlineError onRetry={() => reviewsQuery.refetch()} />
+          ) : reviewsQuery.isLoading ? (
             <LoadingSpinner />
           ) : reviews.length > 0 ? (
             <div>
@@ -640,6 +660,18 @@ function EmptyState({ text }) {
   return (
     <div className="text-center py-12 px-4 bg-white rounded-xl border border-stone-200">
       <p className="text-sm text-stone-500">{text}</p>
+    </div>
+  );
+}
+
+function InlineError({ onRetry }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl border border-stone-200 gap-3">
+      <AlertTriangle size={32} className="text-stone-300" strokeWidth={1.5} />
+      <p className="text-sm font-semibold text-stone-950">Error al cargar</p>
+      <button onClick={onRetry} className="bg-stone-950 text-white border-none rounded-full px-5 py-2.5 min-h-[44px] text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors">
+        Reintentar
+      </button>
     </div>
   );
 }

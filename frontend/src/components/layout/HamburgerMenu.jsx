@@ -196,7 +196,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               <SectionLabel>EXPLORAR</SectionLabel>
               <MenuItem to="/products" icon={<Package size={20} />} label="Productos" onClose={onClose} />
               <MenuItem to="/stores" icon={<Store size={20} />} label="Tiendas" onClose={onClose} />
-              <MenuItem to="/community" icon={<Users size={20} />} label="Comunidades" onClose={onClose} />
+              <MenuItem to="/communities" icon={<Users size={20} />} label="Comunidades" onClose={onClose} />
               <MenuItem to="/recipes" icon={<ChefHat size={20} />} label="Recetas" onClose={onClose} />
 
               <Divider />
@@ -205,7 +205,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               <SectionLabel>CONTENIDO</SectionLabel>
               <MenuItem to="/saved" icon={<Bookmark size={20} />} label="Guardados" onClose={onClose} />
               <MenuItem to="/orders" icon={<Package size={20} />} label="Mis pedidos" onClose={onClose} />
-              <MenuItem to="/activity" icon={<Activity size={20} />} label="Actividad" onClose={onClose} />
+              <MenuItem to="/activity" icon={<Activity size={20} />} label="Tu actividad" onClose={onClose} />
 
               <Divider />
 

@@ -43,6 +43,7 @@ export default function CreateRecipePage() {
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [descriptionOpen, setDescriptionOpen] = useState(false);
   const [showAIPanel, setShowAIPanel] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const [recipe, setRecipe] = useState({
     image_url: '',
@@ -124,11 +125,12 @@ export default function CreateRecipePage() {
   const cycleDifficulty = () => { const idx = DIFFICULTY_KEYS.indexOf(recipe.difficulty); updateRecipe('difficulty', DIFFICULTY_KEYS[(idx + 1) % DIFFICULTY_KEYS.length]); };
 
   const handleSubmit = async () => {
+    setSubmitAttempted(true);
     const ci = recipe.ingredients.map((i) => ({ name: normalizeIngredientName(i.name), quantity: i.quantity || '', unit: i.unit || '', product_id: i.product_id || null })).filter((i) => i.name);
     const cs = recipe.steps.map((s) => ({ text: s.text?.trim() || '', image_url: s.image_url || '' })).filter((s) => s.text || s.image_url);
-    if (!recipe.title.trim()) { toast.error(t('recipes.missingTitle', 'Añade un título a la receta')); return; }
+    if (!recipe.title.trim()) { toast.error(t('recipes.missingTitle', 'Añade un título')); return; }
     if (ci.length === 0) { toast.error(t('recipes.missingIngredients', 'Añade al menos un ingrediente')); return; }
-    if (cs.length === 0) { toast.error(t('recipes.missingSteps', 'Añade al menos un paso de preparación')); return; }
+    if (cs.length === 0 || !recipe.steps[0]?.text?.trim()) { toast.error(t('recipes.missingSteps', 'Añade al menos un paso')); return; }
     setSubmitting(true);
     try {
       const data = await apiClient.post('/recipes', { ...recipe, title: recipe.title.trim(), description: recipe.description.trim(), ingredients: ci, steps: cs });
@@ -184,7 +186,7 @@ export default function CreateRecipePage() {
           placeholder="Nombre de la receta"
           aria-label="Nombre de la receta"
           data-testid="recipe-title-input"
-          className="w-full border-none bg-transparent py-4 pb-3 text-base font-medium text-stone-950 outline-none placeholder:text-stone-400"
+          className={`w-full bg-transparent py-4 pb-3 text-base font-medium text-stone-950 outline-none placeholder:text-stone-400 ${submitAttempted && !recipe.title.trim() ? 'border-b-2 border-red-500' : 'border-none'}`}
         />
 
         {/* Metadata grid */}
@@ -216,7 +218,7 @@ export default function CreateRecipePage() {
 
         {/* INGREDIENTES */}
         <div className="mb-6">
-          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-stone-500">Ingredientes</p>
+          <p className={`mb-2.5 text-[10px] font-semibold uppercase tracking-widest ${submitAttempted && recipe.ingredients.length === 0 ? 'text-red-500' : 'text-stone-500'}`}>Ingredientes {submitAttempted && recipe.ingredients.length === 0 && <span className="normal-case tracking-normal font-normal text-red-500">— requerido</span>}</p>
 
           {recipe.ingredients.map((ingredient, index) => (
             <div key={`${ingredient.name}-${index}`} className={`flex items-center gap-2.5 py-2 ${index < recipe.ingredients.length - 1 ? 'border-b border-stone-200' : ''}`}>
@@ -296,7 +298,7 @@ export default function CreateRecipePage() {
                   onChange={(e) => updateStep(index, 'text', e.target.value)}
                   placeholder={t('recipes.stepPlaceholder', 'Describe este paso')}
                   aria-label={`Paso ${index + 1}`}
-                  className="w-full min-h-[70px] resize-none rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
+                  className={`w-full min-h-[70px] resize-none rounded-2xl border bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border ${submitAttempted && index === 0 && !step.text?.trim() ? 'border-red-500' : 'border-stone-200'}`}
                 />
                 {step.image_url ? (
                   <div className="relative mt-1.5 overflow-hidden rounded-2xl">
