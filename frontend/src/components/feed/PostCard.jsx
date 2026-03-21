@@ -470,7 +470,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
               >
                 <Heart
                   size={80}
-                  className="fill-[#FF3040] text-[#FF3040]"
+                  className="fill-white text-white drop-shadow-lg"
                 />
               </motion.div>
             )}

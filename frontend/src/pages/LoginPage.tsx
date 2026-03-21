@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
 import { setToken } from '../lib/auth';
-import Logo from '../components/brand/Logo.jsx';
 
 const ROLE_DESTINATIONS = {
   customer:    '/',
@@ -148,18 +147,8 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* Logo */}
-      <motion.div
-        className="flex justify-center mb-8"
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <Logo variant="full" theme="light" size={110} />
-      </motion.div>
-
       {/* Heading */}
-      <h1 className="text-2xl font-black tracking-tight text-stone-950 text-center mb-1">
+      <h1 className="text-2xl font-bold tracking-tight text-stone-950 text-center mb-1">
         Bienvenido
       </h1>
       <p className="text-sm text-stone-500 text-center mb-8">
@@ -177,7 +166,7 @@ export default function LoginPage() {
       <motion.button
         type="button"
         onClick={handleGoogleLogin}
-        className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-3 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors"
+        className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-3 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors"
         whileTap={{ scale: 0.97 }}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -193,7 +182,7 @@ export default function LoginPage() {
       <motion.button
         type="button"
         onClick={() => toast('Apple Sign-In próximamente')}
-        className="w-full flex items-center justify-center gap-3 px-4 py-3 mb-6 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors"
+        className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-6 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors"
         whileTap={{ scale: 0.97 }}
       >
         <svg width="16" height="18" viewBox="0 0 17 20" fill="currentColor" aria-hidden="true">
@@ -216,10 +205,11 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.35 }}
+        className="flex flex-col gap-4"
       >
         {/* Email */}
-        <div className="mb-5">
-          <label className="block text-xs font-semibold text-stone-950 mb-2 tracking-wide uppercase">
+        <div>
+          <label className="block text-xs font-semibold text-stone-950 mb-1.5 tracking-wide uppercase">
             Email o usuario
           </label>
           <input
@@ -228,20 +218,20 @@ export default function LoginPage() {
             onChange={(e) => handleChange('email', e.target.value)}
             placeholder="hola@ejemplo.com"
             autoComplete="email"
-            className={`w-full bg-transparent border-0 border-b pb-2 text-[15px] text-stone-950 placeholder:text-stone-400 outline-none transition-colors focus:outline-none ${
+            className={`w-full h-12 px-4 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
               errors.email
-                ? 'border-red-500 focus:border-red-500'
-                : 'border-stone-200 focus:border-stone-950'
+                ? 'border-stone-500'
+                : 'border-stone-200 focus:border-stone-400'
             }`}
           />
           {errors.email && (
-            <p className="text-xs text-red-500 mt-1.5">{errors.email}</p>
+            <p className="text-xs text-stone-600 mt-1.5">{errors.email}</p>
           )}
         </div>
 
         {/* Password */}
-        <div className="mb-5">
-          <label className="block text-xs font-semibold text-stone-950 mb-2 tracking-wide uppercase">
+        <div>
+          <label className="block text-xs font-semibold text-stone-950 mb-1.5 tracking-wide uppercase">
             Contraseña
           </label>
           <div className="relative">
@@ -251,16 +241,16 @@ export default function LoginPage() {
               onChange={(e) => handleChange('password', e.target.value)}
               placeholder="Tu contraseña"
               autoComplete="current-password"
-              className={`w-full bg-transparent border-0 border-b pb-2 text-[15px] text-stone-950 placeholder:text-stone-400 outline-none transition-colors focus:outline-none pr-10 ${
+              className={`w-full h-12 px-4 pr-11 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
                 errors.password
-                  ? 'border-red-500 focus:border-red-500'
-                  : 'border-stone-200 focus:border-stone-950'
+                  ? 'border-stone-500'
+                  : 'border-stone-200 focus:border-stone-400'
               }`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-0 bottom-2 text-stone-400 hover:text-stone-700 transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 transition-colors"
               tabIndex={-1}
               aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             >
@@ -268,7 +258,7 @@ export default function LoginPage() {
             </button>
           </div>
           {errors.password && (
-            <p className="text-xs text-red-500 mt-1.5">{errors.password}</p>
+            <p className="text-xs text-stone-600 mt-1.5">{errors.password}</p>
           )}
           <div className="text-right mt-2">
             <Link
@@ -285,7 +275,7 @@ export default function LoginPage() {
           {loginError && (
             <motion.p
               key={loginError}
-              className="text-sm text-red-600 text-center px-4 py-3 mb-4 bg-red-50 rounded-2xl"
+              className="text-sm text-stone-700 text-center px-4 py-3 bg-stone-100 rounded-2xl"
               animate={{ x: [0, -6, 6, -4, 4, 0] }}
               transition={{ duration: 0.4 }}
             >
@@ -298,7 +288,7 @@ export default function LoginPage() {
         <motion.button
           type="submit"
           disabled={loading}
-          className="w-full bg-stone-950 text-white py-3 rounded-full font-medium text-[15px] flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+          className="w-full bg-stone-950 text-white h-12 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           whileTap={{ scale: 0.97 }}
           transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         >

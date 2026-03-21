@@ -29,7 +29,7 @@ function ItemIcon({ children, className = 'bg-stone-100 text-stone-600' }) {
 /* ── Single settings row ── */
 function SettingsItem({ icon, iconClass, label, sublabel, to, onClick, rightContent }) {
   const inner = (
-    <div className="flex items-center justify-between py-3 px-0 cursor-pointer group">
+    <div className="flex items-center justify-between py-3 px-2 -mx-2 rounded-xl cursor-pointer group hover:bg-stone-50 transition-colors">
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <ItemIcon className={iconClass}>{icon}</ItemIcon>
         <div className="min-w-0 flex-1">

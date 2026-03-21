@@ -10,15 +10,15 @@ import apiClient from '../services/api/client';
 
 /* ── Password strength helper ── */
 function getPasswordStrength(pw) {
-  if (pw.length < 8) return { level: 0, label: 'Muy corta', color: '#dc2626' };
+  if (pw.length < 8) return { level: 0, label: 'Muy corta' };
   const hasUpper = /[A-Z]/.test(pw);
   const hasNumber = /[0-9]/.test(pw);
   const hasSpecial = /[^A-Za-z0-9]/.test(pw);
   if (pw.length >= 12 && hasUpper && hasNumber && hasSpecial)
-    return { level: 3, label: 'Fuerte', color: '#0c0a09' };
+    return { level: 3, label: 'Fuerte' };
   if (hasUpper && hasNumber)
-    return { level: 2, label: 'Buena', color: '#0c0a09' };
-  return { level: 1, label: 'Débil', color: '#78716c' };
+    return { level: 2, label: 'Buena' };
+  return { level: 1, label: 'Débil' };
 }
 
 export default function RegisterPage() {
@@ -54,7 +54,6 @@ export default function RegisterPage() {
     setUsernameStatus('checking');
     try {
       const res = await apiClient.get(`/users/check-username/${clean}`);
-      // apiClient already unwraps .data — check res directly
       setUsernameStatus(res?.available ?? res?.data?.available ? 'available' : 'taken');
     } catch {
       setUsernameStatus(null);
@@ -118,7 +117,6 @@ export default function RegisterPage() {
       });
 
       if (data?.user) {
-        // Save auth token so subsequent API calls are authenticated
         if (data.session_token || data.access_token) {
           setToken(data.session_token || data.access_token, data.refresh_token);
         }
@@ -159,54 +157,24 @@ export default function RegisterPage() {
     usernameStatus !== 'checking';
 
   const strength = getPasswordStrength(form.password);
-
-  const inputStyle = {
-    width: '100%', height: 48, padding: '0 16px',
-    fontSize: 15, fontFamily: 'inherit',
-    border: '1px solid #e7e5e4',
-    borderRadius: '14px',
-    background: '#ffffff',
-    color: '#0c0a09',
-    outline: 'none',
-    transition: 'all 0.15s ease',
-    boxSizing: 'border-box',
-  };
-
-  const labelStyle = {
-    display: 'block', fontSize: 13, fontWeight: 600,
-    color: '#0c0a09', marginBottom: 6,
-    fontFamily: 'inherit',
-  };
+  const strengthWidth = `${((strength.level + 1) / 4) * 100}%`;
 
   // Age-blocked screen
   if (ageBlocked) {
     return (
-      <div style={{
-        textAlign: 'center', padding: '40px 0',
-        fontFamily: 'inherit',
-      }}>
-        <div style={{
-          width: 72, height: 72, borderRadius: '50%', margin: '0 auto 20px',
-          background: '#f5f5f4',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 36,
-        }}>
+      <div className="text-center py-10">
+        <div className="w-[72px] h-[72px] rounded-full mx-auto mb-5 bg-stone-100 flex items-center justify-center text-4xl">
           🔒
         </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: '#0c0a09' }}>
+        <h1 className="text-[22px] font-bold text-stone-950 mb-2">
           Debes tener al menos 16 años
         </h1>
-        <p style={{ fontSize: 15, color: '#78716c', marginBottom: 24, lineHeight: 1.5 }}>
+        <p className="text-[15px] text-stone-500 mb-6 leading-relaxed">
           para usar Hispaloshop
         </p>
         <button
           onClick={() => setAgeBlocked(false)}
-          style={{
-            padding: '12px 32px', background: '#0c0a09',
-            color: '#ffffff', border: 'none',
-            borderRadius: '14px', fontSize: 15, fontWeight: 600,
-            cursor: 'pointer', fontFamily: 'inherit',
-          }}
+          className="px-8 h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold hover:bg-stone-800 transition-colors"
         >
           Volver
         </button>
@@ -217,18 +185,10 @@ export default function RegisterPage() {
   return (
     <>
       {/* Header */}
-      <h1 style={{
-        fontSize: '24px', fontWeight: 600,
-        color: '#0c0a09', textAlign: 'center',
-        margin: 0, fontFamily: 'inherit',
-      }}>
+      <h1 className="text-2xl font-bold text-stone-950 text-center mb-1">
         Crear cuenta
       </h1>
-      <p style={{
-        fontSize: '16px', color: '#78716c',
-        textAlign: 'center', marginTop: 4, marginBottom: 32,
-        fontFamily: 'inherit',
-      }}>
+      <p className="text-base text-stone-500 text-center mb-8">
         Únete a la plataforma artesanal
       </p>
 
@@ -236,16 +196,7 @@ export default function RegisterPage() {
       <button
         type="button"
         onClick={handleGoogleRegister}
-        style={{
-          width: '100%', height: 48,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-          background: '#ffffff',
-          border: '1px solid #e7e5e4',
-          borderRadius: '14px',
-          fontSize: 15, fontWeight: 600,
-          color: '#0c0a09',
-          cursor: 'pointer', fontFamily: 'inherit',
-        }}
+        className="w-full h-12 flex items-center justify-center gap-2.5 bg-white border border-stone-200 rounded-full text-[15px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -257,252 +208,205 @@ export default function RegisterPage() {
       </button>
 
       {/* Divider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '20px 0' }}>
-        <div style={{ flex: 1, height: 1, background: '#e7e5e4' }} />
-        <span style={{ fontSize: 13, color: '#78716c', fontFamily: 'inherit' }}>o</span>
-        <div style={{ flex: 1, height: 1, background: '#e7e5e4' }} />
+      <div className="flex items-center gap-4 my-5">
+        <div className="flex-1 h-px bg-stone-200" />
+        <span className="text-[13px] text-stone-500">o</span>
+        <div className="flex-1 h-px bg-stone-200" />
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* Name */}
-          <div>
-            <label style={labelStyle}>Nombre completo</label>
-            <input
-              value={form.fullName}
-              onChange={e => updateForm('fullName', e.target.value)}
-              placeholder="María García"
-              autoComplete="name"
-              style={{ ...inputStyle, ...(errors.fullName ? { borderColor: '#dc2626' } : {}) }}
-            />
-            {errors.fullName && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.fullName}</p>}
-          </div>
-
-          {/* Email */}
-          <div>
-            <label style={labelStyle}>Email</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={e => updateForm('email', e.target.value)}
-              placeholder="hola@ejemplo.com"
-              autoComplete="email"
-              style={{ ...inputStyle, ...(errors.email ? { borderColor: '#dc2626' } : {}) }}
-            />
-            {errors.email && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.email}</p>}
-          </div>
-
-          {/* Username */}
-          <div>
-            <label style={labelStyle}>Usuario</label>
-            <div style={{ position: 'relative' }}>
-              <span style={{
-                position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
-                fontSize: 15, color: '#78716c', fontFamily: 'inherit',
-              }}>@</span>
-              <input
-                value={form.username}
-                onChange={e => {
-                  const val = e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
-                  updateForm('username', val);
-                }}
-                placeholder="tu_usuario"
-                autoComplete="username"
-                style={{
-                  ...inputStyle,
-                  paddingLeft: 32,
-                  paddingRight: 40,
-                  ...(errors.username ? { borderColor: '#dc2626' } : {}),
-                }}
-              />
-              {/* Status icon */}
-              {form.username.length >= 3 && usernameStatus && usernameStatus !== 'checking' && (
-                <span style={{
-                  position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-                  display: 'flex',
-                }}>
-                  {usernameStatus === 'available'
-                    ? <Check size={18} color="#0c0a09" />
-                    : <XIcon size={18} color="#dc2626" />
-                  }
-                </span>
-              )}
-              {usernameStatus === 'checking' && (
-                <span style={{
-                  position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-                }}>
-                  <Loader2 size={16} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
-                </span>
-              )}
-            </div>
-            {usernameStatus === 'taken' && (
-              <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>Este usuario ya está en uso</p>
-            )}
-            {errors.username && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.username}</p>}
-          </div>
-
-          {/* Password */}
-          <div>
-            <label style={labelStyle}>Contraseña</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={form.password}
-                onChange={e => updateForm('password', e.target.value)}
-                placeholder="Mínimo 8 caracteres"
-                autoComplete="new-password"
-                style={{
-                  ...inputStyle,
-                  paddingRight: 48,
-                  ...(errors.password ? { borderColor: '#dc2626' } : {}),
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: '#78716c', padding: 4, display: 'flex',
-                }}
-                tabIndex={-1}
-                aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-            {/* Strength indicator */}
-            {form.password.length > 0 && (
-              <div style={{ marginTop: 6 }}>
-                <div style={{
-                  height: 3, borderRadius: 2,
-                  background: '#f5f5f4',
-                  overflow: 'hidden',
-                }}>
-                  <div style={{
-                    height: '100%', borderRadius: 2,
-                    background: strength.color,
-                    width: `${((strength.level + 1) / 4) * 100}%`,
-                    transition: 'width 0.3s ease',
-                  }} />
-                </div>
-                <p style={{ fontSize: 11, color: strength.color, marginTop: 3 }}>{strength.label}</p>
-              </div>
-            )}
-            {errors.password && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.password}</p>}
-          </div>
-
-          {/* Birth date */}
-          <div>
-            <label style={labelStyle}>Fecha de nacimiento</label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <select
-                value={form.birthDay}
-                onChange={e => updateForm('birthDay', e.target.value)}
-                style={{
-                  ...inputStyle, flex: 1, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: '#dc2626' } : {}),
-                }}
-              >
-                <option value="">Día</option>
-                {Array.from({ length: 31 }, (_, i) => (
-                  <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
-                ))}
-              </select>
-              <select
-                value={form.birthMonth}
-                onChange={e => updateForm('birthMonth', e.target.value)}
-                style={{
-                  ...inputStyle, flex: 1.3, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: '#dc2626' } : {}),
-                }}
-              >
-                <option value="">Mes</option>
-                {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((m, i) => (
-                  <option key={i + 1} value={String(i + 1)}>{m}</option>
-                ))}
-              </select>
-              <select
-                value={form.birthYear}
-                onChange={e => updateForm('birthYear', e.target.value)}
-                style={{
-                  ...inputStyle, flex: 1.3, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: '#dc2626' } : {}),
-                }}
-              >
-                <option value="">Año</option>
-                {Array.from({ length: 100 }, (_, i) => {
-                  const y = new Date().getFullYear() - i;
-                  return <option key={y} value={String(y)}>{y}</option>;
-                })}
-              </select>
-            </div>
-            {errors.birthDate && <p style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>{errors.birthDate}</p>}
-          </div>
-
-          {/* Terms checkbox */}
-          <label style={{
-            display: 'flex', alignItems: 'flex-start', gap: 10,
-            cursor: 'pointer', fontSize: 13, color: '#78716c',
-            fontFamily: 'inherit', lineHeight: 1.5,
-          }}>
-            <input
-              type="checkbox"
-              checked={termsAccepted}
-              onChange={e => {
-                setTermsAccepted(e.target.checked);
-                if (errors.terms) setErrors(prev => ({ ...prev, terms: '' }));
-              }}
-              style={{
-                width: 18, height: 18, marginTop: 2,
-                accentColor: '#0c0a09',
-                cursor: 'pointer', flexShrink: 0,
-              }}
-            />
-            <span>
-              Acepto los{' '}
-              <Link to="/terms" style={{ color: '#0c0a09', textDecoration: 'underline' }}>
-                Términos y condiciones
-              </Link>
-              {' '}y la{' '}
-              <Link to="/privacy" style={{ color: '#0c0a09', textDecoration: 'underline' }}>
-                Política de privacidad
-              </Link>
-            </span>
-          </label>
-          {errors.terms && <p style={{ fontSize: 12, color: '#dc2626', marginTop: -6 }}>{errors.terms}</p>}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+        {/* Name */}
+        <div>
+          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">Nombre completo</label>
+          <input
+            value={form.fullName}
+            onChange={e => updateForm('fullName', e.target.value)}
+            placeholder="María García"
+            autoComplete="name"
+            className={`w-full h-12 px-4 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
+              errors.fullName ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
+            }`}
+          />
+          {errors.fullName && <p className="text-xs text-stone-600 mt-1">{errors.fullName}</p>}
         </div>
+
+        {/* Email */}
+        <div>
+          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">Email</label>
+          <input
+            type="email"
+            value={form.email}
+            onChange={e => updateForm('email', e.target.value)}
+            placeholder="hola@ejemplo.com"
+            autoComplete="email"
+            className={`w-full h-12 px-4 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
+              errors.email ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
+            }`}
+          />
+          {errors.email && <p className="text-xs text-stone-600 mt-1">{errors.email}</p>}
+        </div>
+
+        {/* Username */}
+        <div>
+          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">Usuario</label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[15px] text-stone-500">@</span>
+            <input
+              value={form.username}
+              onChange={e => {
+                const val = e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
+                updateForm('username', val);
+              }}
+              placeholder="tu_usuario"
+              autoComplete="username"
+              className={`w-full h-12 pl-8 pr-10 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
+                errors.username ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
+              }`}
+            />
+            {/* Status icon */}
+            {form.username.length >= 3 && usernameStatus && usernameStatus !== 'checking' && (
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 flex">
+                {usernameStatus === 'available'
+                  ? <Check size={18} className="text-stone-950" />
+                  : <XIcon size={18} className="text-stone-500" />
+                }
+              </span>
+            )}
+            {usernameStatus === 'checking' && (
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                <Loader2 size={16} className="text-stone-500 animate-spin" />
+              </span>
+            )}
+          </div>
+          {usernameStatus === 'taken' && (
+            <p className="text-xs text-stone-600 mt-1">Este usuario ya está en uso</p>
+          )}
+          {errors.username && <p className="text-xs text-stone-600 mt-1">{errors.username}</p>}
+        </div>
+
+        {/* Password */}
+        <div>
+          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">Contraseña</label>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={form.password}
+              onChange={e => updateForm('password', e.target.value)}
+              placeholder="Mínimo 8 caracteres"
+              autoComplete="new-password"
+              className={`w-full h-12 px-4 pr-12 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
+                errors.password ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
+              }`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 transition-colors p-1 flex"
+              tabIndex={-1}
+              aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+          {/* Strength indicator */}
+          {form.password.length > 0 && (
+            <div className="mt-1.5">
+              <div className="h-[3px] rounded-sm bg-stone-200 overflow-hidden">
+                <div
+                  className="h-full rounded-sm bg-stone-950 transition-all duration-300"
+                  style={{ width: strengthWidth }}
+                />
+              </div>
+              <p className="text-[11px] text-stone-500 mt-1">{strength.label}</p>
+            </div>
+          )}
+          {errors.password && <p className="text-xs text-stone-600 mt-1">{errors.password}</p>}
+        </div>
+
+        {/* Birth date */}
+        <div>
+          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">Fecha de nacimiento</label>
+          <div className="flex gap-2">
+            <select
+              value={form.birthDay}
+              onChange={e => updateForm('birthDay', e.target.value)}
+              className={`flex-1 h-12 px-2 text-[15px] text-stone-950 bg-white border rounded-xl outline-none transition-colors appearance-none ${
+                errors.birthDate ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
+              }`}
+            >
+              <option value="">Día</option>
+              {Array.from({ length: 31 }, (_, i) => (
+                <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
+              ))}
+            </select>
+            <select
+              value={form.birthMonth}
+              onChange={e => updateForm('birthMonth', e.target.value)}
+              className={`flex-[1.3] h-12 px-2 text-[15px] text-stone-950 bg-white border rounded-xl outline-none transition-colors appearance-none ${
+                errors.birthDate ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
+              }`}
+            >
+              <option value="">Mes</option>
+              {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((m, i) => (
+                <option key={i + 1} value={String(i + 1)}>{m}</option>
+              ))}
+            </select>
+            <select
+              value={form.birthYear}
+              onChange={e => updateForm('birthYear', e.target.value)}
+              className={`flex-[1.3] h-12 px-2 text-[15px] text-stone-950 bg-white border rounded-xl outline-none transition-colors appearance-none ${
+                errors.birthDate ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
+              }`}
+            >
+              <option value="">Año</option>
+              {Array.from({ length: 100 }, (_, i) => {
+                const y = new Date().getFullYear() - i;
+                return <option key={y} value={String(y)}>{y}</option>;
+              })}
+            </select>
+          </div>
+          {errors.birthDate && <p className="text-xs text-stone-600 mt-1">{errors.birthDate}</p>}
+        </div>
+
+        {/* Terms checkbox */}
+        <label className="flex items-start gap-2.5 cursor-pointer text-[13px] text-stone-500 leading-relaxed">
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={e => {
+              setTermsAccepted(e.target.checked);
+              if (errors.terms) setErrors(prev => ({ ...prev, terms: '' }));
+            }}
+            className="w-[18px] h-[18px] mt-0.5 accent-stone-950 cursor-pointer flex-shrink-0"
+          />
+          <span>
+            Acepto los{' '}
+            <Link to="/terms" className="text-stone-950 underline">
+              Términos y condiciones
+            </Link>
+            {' '}y la{' '}
+            <Link to="/privacy" className="text-stone-950 underline">
+              Política de privacidad
+            </Link>
+          </span>
+        </label>
+        {errors.terms && <p className="text-xs text-stone-600 -mt-1.5">{errors.terms}</p>}
 
         {/* Submit */}
         <button
           type="submit"
           disabled={!canSubmit || isLoading}
-          style={{
-            width: '100%', height: 48, marginTop: 24,
-            background: canSubmit ? '#0c0a09' : '#78716c',
-            color: '#ffffff',
-            border: 'none', borderRadius: '14px',
-            fontSize: 15, fontWeight: 600,
-            cursor: canSubmit && !isLoading ? 'pointer' : 'not-allowed',
-            opacity: canSubmit ? 1 : 0.5,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            fontFamily: 'inherit',
-            transition: 'all 0.15s ease',
-          }}
+          className="w-full h-12 mt-2 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Crear cuenta'}
+          {isLoading ? <Loader2 size={20} className="animate-spin" /> : 'Crear cuenta'}
         </button>
       </form>
 
       {/* Footer */}
-      <p style={{
-        textAlign: 'center', marginTop: 24,
-        fontSize: '14px', color: '#78716c',
-        fontFamily: 'inherit',
-      }}>
+      <p className="text-center mt-6 text-sm text-stone-500">
         ¿Ya tienes cuenta?{' '}
-        <Link to="/login" style={{ color: '#0c0a09', fontWeight: 600, textDecoration: 'none' }}>
+        <Link to="/login" className="text-stone-950 font-semibold no-underline hover:underline">
           Entrar
         </Link>
       </p>

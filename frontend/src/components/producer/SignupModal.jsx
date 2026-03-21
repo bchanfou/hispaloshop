@@ -833,7 +833,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
             </label>
             <p className="mt-1 text-sm text-stone-600">
               Puedes revisarlos antes de seguir en{' '}
-              <Link to="/legal" target="_blank" className="font-semibold text-stone-950 underline underline-offset-2">
+              <Link to="/legal" target="_blank" rel="noopener noreferrer" className="font-semibold text-stone-950 underline underline-offset-2">
                 /legal
               </Link>
               .

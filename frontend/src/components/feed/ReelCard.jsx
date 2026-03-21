@@ -400,7 +400,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           onClick={handleVideoTap}
         >
           {thumbnailUrl ? (
-            <img src={thumbnailUrl} alt="" className="w-full h-full object-cover" />
+            <img src={thumbnailUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
           ) : (
             <Play size={48} className="text-white/30" />
           )}

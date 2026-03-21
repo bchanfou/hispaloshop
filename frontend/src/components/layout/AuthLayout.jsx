@@ -8,46 +8,21 @@ import Logo from '../brand/Logo';
  */
 export default function AuthLayout({ children }) {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      background: '#fafaf9',
-      fontFamily: 'inherit',
-    }}>
+    <div className="min-h-screen flex flex-col items-center bg-stone-50">
       {/* Logo */}
-      <div style={{
-        padding: '32px 0 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+      <div className="pt-8 pb-6 flex items-center justify-center">
+        <Link to="/" className="flex items-center gap-2.5 no-underline">
           <Logo variant="full" theme="light" size={120} />
         </Link>
       </div>
 
       {/* Content card */}
-      <main style={{
-        width: '100%',
-        maxWidth: 440,
-        padding: '0 16px',
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
+      <main className="w-full max-w-[400px] px-4 flex-1 flex flex-col">
         {children}
       </main>
 
       {/* Footer links */}
-      <div style={{
-        padding: '24px 16px',
-        display: 'flex',
-        gap: 16,
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-      }}>
+      <div className="py-6 px-4 flex gap-4 justify-center flex-wrap">
         {[
           { label: 'Términos', to: '/terms' },
           { label: 'Privacidad', to: '/privacy' },
@@ -56,11 +31,7 @@ export default function AuthLayout({ children }) {
           <Link
             key={link.to}
             to={link.to}
-            style={{
-              fontSize: 12,
-              color: '#78716c',
-              textDecoration: 'none',
-            }}
+            className="text-xs text-stone-500 no-underline hover:text-stone-950 transition-colors"
           >
             {link.label}
           </Link>

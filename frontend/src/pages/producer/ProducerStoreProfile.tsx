@@ -324,7 +324,7 @@ export default function ProducerStoreProfile() {
         </div>
         <div className="flex items-center gap-3">
           {profile.slug && (
-            <Link to={`/store/${profile.slug}`} target="_blank" className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-stone-200 rounded-2xl text-sm text-stone-700 hover:bg-stone-50 transition-colors no-underline">
+            <Link to={`/store/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-stone-200 rounded-2xl text-sm text-stone-700 hover:bg-stone-50 transition-colors no-underline">
               <Eye className="w-4 h-4" />
               Ver tienda
             </Link>
@@ -348,7 +348,7 @@ export default function ProducerStoreProfile() {
             <p className="text-sm text-stone-500">URL de tu tienda:</p>
             <p className="text-stone-950 font-medium">{window.location.origin}/store/{profile.slug}</p>
           </div>
-          <Link to={`/store/${profile.slug}`} target="_blank" className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors">
+          <Link to={`/store/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-2xl transition-colors">
             Ver mi tienda →
           </Link>
         </div>

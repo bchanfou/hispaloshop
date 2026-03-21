@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 import apiClient from '../services/api/client';
 
 export default function ForgotPasswordPage() {
@@ -23,54 +23,31 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  const inputStyle = {
-    width: '100%', height: 48, padding: '0 16px',
-    fontSize: 15, fontFamily: 'inherit',
-    border: '1px solid #e7e5e4',
-    borderRadius: '14px',
-    background: '#ffffff',
-    color: '#0c0a09',
-    outline: 'none', boxSizing: 'border-box',
-  };
-
   // Step 2: Confirmation
   if (sent) {
     return (
-      <div style={{ textAlign: 'center', fontFamily: 'inherit' }}>
-        <div style={{
-          width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
-          background: '#f5f5f4',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 32, color: '#0c0a09',
-        }}>
-          ✉️
+      <div className="text-center">
+        <div className="w-16 h-16 rounded-full mx-auto mb-5 bg-stone-100 flex items-center justify-center">
+          <Mail size={28} className="text-stone-950" />
         </div>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0c0a09', marginBottom: 8 }}>
+        <h2 className="text-[22px] font-bold text-stone-950 mb-2">
           Revisa tu email
         </h2>
-        <p style={{ fontSize: 15, color: '#78716c', lineHeight: 1.5, marginBottom: 8 }}>
-          Hemos enviado un enlace a <strong style={{ color: '#0c0a09' }}>{email}</strong>.
+        <p className="text-[15px] text-stone-500 leading-relaxed mb-2">
+          Hemos enviado un enlace a <strong className="text-stone-950">{email}</strong>.
           Puede tardar unos minutos.
         </p>
 
         <button
           type="button"
           onClick={() => { setSent(false); handleSubmit({ preventDefault: () => {} }); }}
-          style={{
-            width: '100%', height: 48, marginTop: 24,
-            background: '#ffffff',
-            color: '#0c0a09',
-            border: '1px solid #e7e5e4',
-            borderRadius: '14px',
-            fontSize: 15, fontWeight: 600,
-            cursor: 'pointer', fontFamily: 'inherit',
-          }}
+          className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors"
         >
           Reenviar email
         </button>
 
-        <p style={{ marginTop: 20, fontSize: 14, color: '#78716c' }}>
-          <Link to="/login" style={{ color: '#0c0a09', fontWeight: 600, textDecoration: 'none' }}>
+        <p className="mt-5 text-sm">
+          <Link to="/login" className="text-stone-950 font-semibold no-underline hover:underline">
             Volver al login
           </Link>
         </p>
@@ -81,28 +58,16 @@ export default function ForgotPasswordPage() {
   // Step 1: Email form
   return (
     <>
-      <h1 style={{
-        fontSize: '24px', fontWeight: 600,
-        color: '#0c0a09', textAlign: 'center',
-        margin: 0, fontFamily: 'inherit',
-      }}>
+      <h1 className="text-2xl font-bold text-stone-950 text-center mb-1">
         Recuperar contraseña
       </h1>
-      <p style={{
-        fontSize: '16px', color: '#78716c',
-        textAlign: 'center', marginTop: 4, marginBottom: 32,
-        fontFamily: 'inherit',
-      }}>
+      <p className="text-base text-stone-500 text-center mb-8">
         Te enviaremos un enlace para restablecer tu contraseña.
       </p>
 
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 20 }}>
-          <label style={{
-            display: 'block', fontSize: 13, fontWeight: 600,
-            color: '#0c0a09', marginBottom: 6,
-            fontFamily: 'inherit',
-          }}>
+        <div className="mb-5">
+          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">
             Email
           </label>
           <input
@@ -112,35 +77,21 @@ export default function ForgotPasswordPage() {
             placeholder="hola@ejemplo.com"
             required
             autoComplete="email"
-            style={inputStyle}
+            className="w-full h-12 px-4 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border border-stone-200 rounded-xl outline-none transition-colors focus:border-stone-400"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: '100%', height: 48,
-            background: '#0c0a09',
-            color: '#ffffff',
-            border: 'none', borderRadius: '14px',
-            fontSize: 15, fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            fontFamily: 'inherit',
-          }}
+          className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {loading ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Enviar enlace'}
+          {loading ? <Loader2 size={20} className="animate-spin" /> : 'Enviar enlace'}
         </button>
       </form>
 
-      <p style={{
-        textAlign: 'center', marginTop: 24,
-        fontSize: 14, color: '#78716c',
-        fontFamily: 'inherit',
-      }}>
-        <Link to="/login" style={{ color: '#0c0a09', fontWeight: 600, textDecoration: 'none' }}>
+      <p className="text-center mt-6 text-sm">
+        <Link to="/login" className="text-stone-950 font-semibold no-underline hover:underline">
           Volver al login
         </Link>
       </p>
