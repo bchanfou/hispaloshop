@@ -15,7 +15,7 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
           aria-label="Volver a selección de rol"
           className="rounded-full p-2 transition-colors hover:bg-stone-100"
         >
-          <ArrowLeft className="h-5 w-5 text-stone-900" />
+          <ArrowLeft className="h-5 w-5 text-stone-950" />
         </button>
         <h2 className="text-xl font-semibold text-stone-950">Crear cuenta</h2>
       </div>

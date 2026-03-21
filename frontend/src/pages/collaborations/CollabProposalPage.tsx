@@ -99,75 +99,78 @@ export default function CollabProposalPage() {
     : '0.00';
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#fafaf9' }}>
+    <div className="min-h-screen bg-stone-50 pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-40" style={{ background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-        <div className="flex items-center justify-between p-4">
+      <div className="sticky top-0 z-40 border-b border-stone-200 bg-white/95 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[600px] items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-full">
-              <ArrowLeft className="w-5 h-5" style={{ color: '#0c0a09' }} />
+            <button
+              onClick={() => navigate(-1)}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
+              aria-label="Volver"
+            >
+              <ArrowLeft className="h-5 w-5" />
             </button>
-            <h1 className="text-lg font-bold" style={{ color: '#0c0a09' }}>Nueva colaboración</h1>
+            <h1 className="text-lg font-bold text-stone-950">Nueva colaboración</h1>
           </div>
           <button
             onClick={handleSubmit}
             disabled={!canSubmit || loading}
-            className="px-4 py-2 rounded-full text-sm font-semibold disabled:opacity-40"
-            style={{ background: '#0c0a09', color: '#fff', border: 'none' }}
+            className="rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enviar'}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Enviar'}
           </button>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto p-4 space-y-5">
+      <div className="mx-auto max-w-[600px] space-y-5 p-4">
 
         {/* 1. Product selector */}
         <section>
-          <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#78716c' }}>
-            <Package className="w-3.5 h-3.5 inline mr-1" /> Producto a promocionar
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+            <Package className="mr-1 inline h-3.5 w-3.5" /> Producto a promocionar
           </label>
           {selectedProduct ? (
-            <div className="flex items-center gap-3 p-3" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+            <div className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-3">
               {selectedProduct.images?.[0]?.url && (
-                <img loading="lazy" src={selectedProduct.images[0].url} alt="" className="w-14 h-14 rounded-2xl object-cover" />
+                <img loading="lazy" src={selectedProduct.images[0].url} alt="" className="h-14 w-14 rounded-2xl object-cover" />
               )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ color: '#0c0a09' }}>{selectedProduct.name}</p>
-                <p className="text-xs" style={{ color: '#78716c' }}>{selectedProduct.price?.toFixed(2)}€</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-stone-950">{selectedProduct.name}</p>
+                <p className="text-xs text-stone-500">{selectedProduct.price?.toFixed(2)}\u20AC</p>
               </div>
-              <button onClick={() => setSelectedProduct(null)} className="text-xs font-medium px-3 py-1 rounded-full" style={{ border: '1px solid #e7e5e4', color: '#78716c' }}>
+              <button onClick={() => setSelectedProduct(null)} className="rounded-full border border-stone-200 px-3 py-1 text-xs font-medium text-stone-500">
                 Cambiar
               </button>
             </div>
           ) : loadingProducts ? (
-            <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 animate-spin" style={{ color: '#78716c' }} /></div>
+            <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-stone-500" /></div>
           ) : (
-            <div className="space-y-1.5 max-h-[240px] overflow-y-auto" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
+            <div className="max-h-[240px] space-y-1.5 overflow-y-auto rounded-xl border border-stone-200 bg-white">
               {products.map(p => (
                 <button
                   key={p._id || p.product_id}
                   onClick={() => setSelectedProduct(p)}
-                  className="flex items-center gap-3 w-full p-3 text-left hover:bg-stone-50 transition-colors"
+                  className="flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-stone-50"
                 >
-                  {p.images?.[0]?.url && <img loading="lazy" src={p.images[0].url} alt="" className="w-10 h-10 rounded-2xl object-cover" />}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate" style={{ color: '#0c0a09' }}>{p.name}</p>
-                    <p className="text-xs" style={{ color: '#78716c' }}>{p.price?.toFixed(2)}€</p>
+                  {p.images?.[0]?.url && <img loading="lazy" src={p.images[0].url} alt="" className="h-10 w-10 rounded-2xl object-cover" />}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-stone-950">{p.name}</p>
+                    <p className="text-xs text-stone-500">{p.price?.toFixed(2)}\u20AC</p>
                   </div>
                 </button>
               ))}
-              {products.length === 0 && <p className="text-center text-sm py-6" style={{ color: '#78716c' }}>No tienes productos</p>}
+              {products.length === 0 && <p className="py-6 text-center text-sm text-stone-500">No tienes productos</p>}
             </div>
           )}
         </section>
 
         {/* 2. Commission */}
         <section>
-          <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#78716c' }}>
-            <Percent className="w-3.5 h-3.5 inline mr-1" /> Comisión para el influencer
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+            <Percent className="mr-1 inline h-3.5 w-3.5" /> Comisión para el influencer
           </label>
-          <p className="text-xs mb-2" style={{ color: '#78716c' }}>
+          <p className="mb-2 text-xs text-stone-500">
             Tier {influencerTier.name}: {tierRate}% estándar (Hércules 3% / Atenea 5% / Zeus 7%)
           </p>
           <div className="flex flex-wrap gap-2">
@@ -175,42 +178,38 @@ export default function CollabProposalPage() {
               <button
                 key={pill.value}
                 onClick={() => setCommissionPct(pill.value)}
-                className="px-4 py-1.5 text-sm font-medium"
-                style={{
-                  borderRadius: '9999px',
-                  border: commissionPct === pill.value ? '1px solid #0c0a09' : '1px solid #e7e5e4',
-                  background: commissionPct === pill.value ? '#0c0a09' : '#ffffff',
-                  color: commissionPct === pill.value ? '#fff' : '#0c0a09',
-                }}
+                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                  commissionPct === pill.value
+                    ? 'border-stone-950 bg-stone-950 text-white'
+                    : 'border-stone-200 bg-white text-stone-950'
+                }`}
               >
                 {pill.label}
               </button>
             ))}
           </div>
           {selectedProduct && commissionPct && (
-            <div className="mt-3 p-3 text-xs" style={{ background: '#f5f5f4', borderRadius: '16px', color: '#78716c' }}>
-              El influencer ganará {commissionPct}% de comisión. Para un producto de {selectedProduct.price?.toFixed(2)}€ → <strong style={{ color: '#0c0a09' }}>{previewEarning}€ por venta</strong>.
+            <div className="mt-3 rounded-xl bg-stone-100 p-3 text-xs text-stone-500">
+              El influencer ganará {commissionPct}% de comisión. Para un producto de {selectedProduct.price?.toFixed(2)}\u20AC → <strong className="text-stone-950">{previewEarning}\u20AC por venta</strong>.
             </div>
           )}
         </section>
 
         {/* 3. Duration */}
         <section>
-          <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#78716c' }}>
-            <Clock className="w-3.5 h-3.5 inline mr-1" /> Duración
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-500">
+            <Clock className="mr-1 inline h-3.5 w-3.5" /> Duración
           </label>
           <div className="flex gap-2">
             {DURATIONS.map(d => (
               <button
                 key={d.days}
                 onClick={() => setDurationDays(d.days)}
-                className="flex-1 py-2 text-sm font-medium"
-                style={{
-                  borderRadius: '9999px',
-                  border: durationDays === d.days ? '1px solid #0c0a09' : '1px solid #e7e5e4',
-                  background: durationDays === d.days ? '#0c0a09' : '#ffffff',
-                  color: durationDays === d.days ? '#fff' : '#0c0a09',
-                }}
+                className={`flex-1 rounded-full border py-2 text-sm font-medium transition-colors ${
+                  durationDays === d.days
+                    ? 'border-stone-950 bg-stone-950 text-white'
+                    : 'border-stone-200 bg-white text-stone-950'
+                }`}
               >
                 {d.label}
               </button>
@@ -220,32 +219,30 @@ export default function CollabProposalPage() {
 
         {/* 4. Sample toggle */}
         <section>
-          <div className="flex items-center justify-between p-4" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+          <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-4">
             <div>
-              <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>Enviar muestra</p>
-              <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>El coste corre a cargo del productor</p>
+              <p className="text-sm font-semibold text-stone-950">Enviar muestra</p>
+              <p className="mt-0.5 text-xs text-stone-500">El coste corre a cargo del productor</p>
             </div>
             <button
               onClick={() => setSendSample(!sendSample)}
-              className="w-11 h-6 rounded-full relative"
-              style={{ background: sendSample ? '#0c0a09' : '#e7e5e4', transition: 'background 0.2s' }}
+              className={`relative h-6 w-11 rounded-full transition-colors ${sendSample ? 'bg-stone-950' : 'bg-stone-200'}`}
             >
-              <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all" style={{ left: sendSample ? 22 : 2 }} />
+              <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${sendSample ? 'left-[22px]' : 'left-[2px]'}`} />
             </button>
           </div>
           {sendSample && (
-            <div className="flex items-center gap-3 mt-2 px-4">
-              <span className="text-xs" style={{ color: '#78716c' }}>Cantidad:</span>
+            <div className="mt-2 flex items-center gap-3 px-4">
+              <span className="text-xs text-stone-500">Cantidad:</span>
               {[1, 2, 3, 5].map(n => (
                 <button
                   key={n}
                   onClick={() => setSampleQty(n)}
-                  className="w-8 h-8 rounded-full text-xs font-medium"
-                  style={{
-                    border: sampleQty === n ? '1px solid #0c0a09' : '1px solid #e7e5e4',
-                    background: sampleQty === n ? '#0c0a09' : '#ffffff',
-                    color: sampleQty === n ? '#fff' : '#0c0a09',
-                  }}
+                  className={`h-8 w-8 rounded-full text-xs font-medium transition-colors ${
+                    sampleQty === n
+                      ? 'border border-stone-950 bg-stone-950 text-white'
+                      : 'border border-stone-200 bg-white text-stone-950'
+                  }`}
                 >
                   {n}
                 </button>
@@ -256,7 +253,7 @@ export default function CollabProposalPage() {
 
         {/* 5. Notes */}
         <section>
-          <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#78716c' }}>
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-500">
             Nota personal (opcional)
           </label>
           <textarea
@@ -264,37 +261,30 @@ export default function CollabProposalPage() {
             onChange={e => setNotes(e.target.value)}
             rows={3}
             placeholder="Hola! Vi tu contenido y creo que encajarías perfectamente con nuestros productos..."
-            className="w-full px-4 py-3 text-sm resize-none"
-            style={{
-              border: '1px solid #e7e5e4',
-              borderRadius: '16px',
-              background: '#ffffff',
-              color: '#0c0a09',
-              outline: 'none',
-            }}
+            className="h-12 min-h-[80px] w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400"
           />
         </section>
 
         {/* 6. Preview */}
         {selectedProduct && commissionPct && (
           <section>
-            <label className="text-xs font-semibold uppercase tracking-wider mb-2 block" style={{ color: '#78716c' }}>
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-500">
               Preview de la propuesta
             </label>
-            <div className="p-4 space-y-2" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+            <div className="space-y-2 rounded-xl border border-stone-200 bg-white p-4">
               <div className="flex items-center gap-3">
-                {selectedProduct.images?.[0]?.url && <img loading="lazy" src={selectedProduct.images[0].url} alt="" className="w-12 h-12 rounded-2xl object-cover" />}
+                {selectedProduct.images?.[0]?.url && <img loading="lazy" src={selectedProduct.images[0].url} alt="" className="h-12 w-12 rounded-2xl object-cover" />}
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{selectedProduct.name}</p>
-                  <p className="text-xs" style={{ color: '#78716c' }}>{selectedProduct.price?.toFixed(2)}€</p>
+                  <p className="text-sm font-semibold text-stone-950">{selectedProduct.name}</p>
+                  <p className="text-xs text-stone-500">{selectedProduct.price?.toFixed(2)}\u20AC</p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 text-xs" style={{ color: '#78716c' }}>
-                <span className="px-2.5 py-1 rounded-full" style={{ background: '#f5f5f4' }}>{commissionPct}% comisión</span>
-                <span className="px-2.5 py-1 rounded-full" style={{ background: '#f5f5f4' }}>{durationDays} días</span>
-                {sendSample && <span className="px-2.5 py-1 rounded-full" style={{ background: '#f5f5f4' }}>Muestra ×{sampleQty}</span>}
+              <div className="flex flex-wrap gap-2 text-xs text-stone-500">
+                <span className="rounded-full bg-stone-100 px-2.5 py-1">{commissionPct}% comisión</span>
+                <span className="rounded-full bg-stone-100 px-2.5 py-1">{durationDays} días</span>
+                {sendSample && <span className="rounded-full bg-stone-100 px-2.5 py-1">Muestra ×{sampleQty}</span>}
               </div>
-              {notes && <p className="text-xs mt-1 line-clamp-2" style={{ color: '#78716c' }}>"{notes}"</p>}
+              {notes && <p className="mt-1 line-clamp-2 text-xs text-stone-500">"{notes}"</p>}
             </div>
           </section>
         )}
@@ -303,10 +293,9 @@ export default function CollabProposalPage() {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit || loading}
-          className="w-full py-3 rounded-full text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
-          style={{ background: '#0c0a09', color: '#fff', border: 'none' }}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           Enviar propuesta
         </button>
       </div>

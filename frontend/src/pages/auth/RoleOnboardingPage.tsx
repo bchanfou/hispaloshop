@@ -14,42 +14,30 @@ const DESTINATIONS = {
   influencer: '/influencer/dashboard',
 };
 
-// ── Shared styles ─────────────────────────────────────
-const titleStyle = {
-  fontSize: 24, fontWeight: 700,
-  letterSpacing: '-0.02em', marginBottom: 8,
-  color: '#0c0a09',
-};
-const subtitleStyle = {
-  fontSize: 15, color: '#78716c',
-  lineHeight: 1.6, marginBottom: 24,
-};
-const labelStyle = {
-  display: 'block', fontSize: 13, fontWeight: 600,
-  color: '#0c0a09', marginBottom: 6,
-};
-
 // ── Nav buttons ───────────────────────────────────────
 function OnboardingNav({ onBack, onNext, nextLabel = 'Continuar →', nextDisabled = false, skipLabel, onSkip }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <button className="hs-btn-primary" onClick={onNext} disabled={nextDisabled}
-        style={{ width: '100%', height: 48 }}>
+    <div className="flex flex-col gap-2">
+      <button
+        onClick={onNext}
+        disabled={nextDisabled}
+        className="flex h-12 w-full items-center justify-center rounded-full bg-stone-950 text-sm font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-stone-300"
+      >
         {nextLabel}
       </button>
       {skipLabel && onSkip && (
-        <button onClick={onSkip} style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 14, color: '#78716c', padding: '8px',
-        }}>
+        <button
+          onClick={onSkip}
+          className="bg-transparent border-none cursor-pointer p-2 text-sm text-stone-500"
+        >
           {skipLabel}
         </button>
       )}
       {onBack && (
-        <button onClick={onBack} style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 14, color: '#78716c', padding: '8px',
-        }}>
+        <button
+          onClick={onBack}
+          className="bg-transparent border-none cursor-pointer p-2 text-sm text-stone-500"
+        >
           ← Atrás
         </button>
       )}
@@ -60,25 +48,20 @@ function OnboardingNav({ onBack, onNext, nextLabel = 'Continuar →', nextDisabl
 // ── Select Grid ───────────────────────────────────────
 function SelectGrid({ options, selected, onToggle }) {
   return (
-    <div style={{
-      display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: 8, marginBottom: 24,
-    }}>
+    <div className="mb-6 grid grid-cols-2 gap-2">
       {options.map(opt => (
-        <motion.button key={opt.id} whileTap={{ scale: 0.95 }}
+        <motion.button
+          key={opt.id}
+          whileTap={{ scale: 0.95 }}
           onClick={() => onToggle(opt.id)}
-          style={{
-            padding: '14px 12px',
-            borderRadius: '12px',
-            border: selected.includes(opt.id) ? '2px solid #0c0a09' : '1.5px solid #e7e5e4',
-            background: selected.includes(opt.id) ? '#0c0a09' : '#f5f5f4',
-            color: selected.includes(opt.id) ? 'white' : '#0c0a09',
-            cursor: 'pointer', textAlign: 'center',
-            transition: 'all 0.2s ease',
-          }}
+          className={`cursor-pointer rounded-xl border-2 px-3 py-3.5 text-center transition-all ${
+            selected.includes(opt.id)
+              ? 'border-stone-950 bg-stone-950 text-white'
+              : 'border-stone-200 bg-stone-100 text-stone-950 hover:border-stone-300'
+          }`}
         >
-          <div style={{ fontSize: 24, marginBottom: 4 }}>{opt.emoji}</div>
-          <div style={{ fontSize: 13, fontWeight: 500 }}>{opt.label}</div>
+          <div className="mb-1 text-2xl">{opt.emoji}</div>
+          <div className="text-[13px] font-medium">{opt.label}</div>
         </motion.button>
       ))}
     </div>
@@ -91,25 +74,25 @@ function toggleItem(arr, setArr, id) {
 
 // ── CUSTOMER ONBOARDING ───────────────────────────────
 const DIET_OPTIONS = [
-  { id: 'omnivoro', emoji: '\uD83C\uDF7D\uFE0F', label: 'Omnívoro' },
-  { id: 'vegetariano', emoji: '\uD83E\uDD66', label: 'Vegetariano' },
-  { id: 'vegano', emoji: '\uD83C\uDF31', label: 'Vegano' },
-  { id: 'flexitariano', emoji: '\uD83E\uDD57', label: 'Flexitariano' },
-  { id: 'sin_gluten', emoji: '\uD83C\uDF3E', label: 'Sin gluten' },
-  { id: 'halal', emoji: '\u262A\uFE0F', label: 'Halal' },
-  { id: 'kosher', emoji: '\u2721\uFE0F', label: 'Kosher' },
-  { id: 'keto', emoji: '\uD83E\uDD69', label: 'Keto' },
+  { id: 'omnivoro', emoji: '🍽️', label: 'Omnívoro' },
+  { id: 'vegetariano', emoji: '🥦', label: 'Vegetariano' },
+  { id: 'vegano', emoji: '🌱', label: 'Vegano' },
+  { id: 'flexitariano', emoji: '🥗', label: 'Flexitariano' },
+  { id: 'sin_gluten', emoji: '🌾', label: 'Sin gluten' },
+  { id: 'halal', emoji: '☪️', label: 'Halal' },
+  { id: 'kosher', emoji: '✡️', label: 'Kosher' },
+  { id: 'keto', emoji: '🥩', label: 'Keto' },
 ];
 
 const ALLERGY_OPTIONS = [
-  { id: 'gluten', emoji: '\uD83C\uDF3E', label: 'Gluten' },
-  { id: 'lactosa', emoji: '\uD83E\uDD5B', label: 'Lácteos' },
-  { id: 'frutos_secos', emoji: '\uD83E\uDD5C', label: 'Frutos secos' },
-  { id: 'marisco', emoji: '\uD83E\uDD90', label: 'Marisco' },
-  { id: 'soja', emoji: '\uD83E\uDED8', label: 'Soja' },
-  { id: 'huevos', emoji: '\uD83E\uDD5A', label: 'Huevos' },
-  { id: 'pescado', emoji: '\uD83D\uDC1F', label: 'Pescado' },
-  { id: 'cacahuetes', emoji: '\uD83E\uDD5C', label: 'Cacahuetes' },
+  { id: 'gluten', emoji: '🌾', label: 'Gluten' },
+  { id: 'lactosa', emoji: '🥛', label: 'Lácteos' },
+  { id: 'frutos_secos', emoji: '🥜', label: 'Frutos secos' },
+  { id: 'marisco', emoji: '🦐', label: 'Marisco' },
+  { id: 'soja', emoji: '🫘', label: 'Soja' },
+  { id: 'huevos', emoji: '🥚', label: 'Huevos' },
+  { id: 'pescado', emoji: '🐟', label: 'Pescado' },
+  { id: 'cacahuetes', emoji: '🥜', label: 'Cacahuetes' },
 ];
 
 function CustomerOnboarding({ step, setStep, onFinish }) {
@@ -148,11 +131,11 @@ function CustomerOnboarding({ step, setStep, onFinish }) {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: 480 }}>
+    <div className="w-full max-w-[400px]">
       {step === 1 && (
         <>
-          <h2 style={titleStyle}>¿Cómo comes?</h2>
-          <p style={subtitleStyle}>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">¿Cómo comes?</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">
             Para recomendarte los mejores productos. Puedes elegir varias opciones.
           </p>
           <SelectGrid options={DIET_OPTIONS} selected={diet}
@@ -163,8 +146,8 @@ function CustomerOnboarding({ step, setStep, onFinish }) {
       )}
       {step === 2 && (
         <>
-          <h2 style={titleStyle}>¿Alguna alergia?</h2>
-          <p style={subtitleStyle}>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">¿Alguna alergia?</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">
             Nunca te recomendaremos productos que te puedan afectar.
           </p>
           <SelectGrid options={ALLERGY_OPTIONS} selected={allergies}
@@ -175,55 +158,39 @@ function CustomerOnboarding({ step, setStep, onFinish }) {
       )}
       {step === 3 && (
         <>
-          <h2 style={titleStyle}>Sigue a productores</h2>
-          <p style={subtitleStyle}>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">Sigue a productores</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">
             Tu feed se personalizará con sus productos y contenido.
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+          <div className="mb-6 flex flex-col gap-2.5">
             {suggestedProducers.map(p => (
-              <div key={p.producer_id || p.id || p.store_id} style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '12px 14px', background: '#f5f5f4',
-                borderRadius: '12px', border: '0.5px solid #e7e5e4',
-              }}>
+              <div key={p.producer_id || p.id || p.store_id} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-stone-100 px-3.5 py-3">
                 {p.logo_url || p.avatar_url ? (
-                  <img src={p.logo_url || p.avatar_url} alt="" style={{
-                    width: 44, height: 44, borderRadius: '50%', objectFit: 'cover',
-                  }} />
+                  <img src={p.logo_url || p.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                 ) : (
-                  <div style={{
-                    width: 44, height: 44, borderRadius: '50%',
-                    background: '#fafaf9',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 20,
-                  }}>{(p.name || p.store_name || '?')[0]}</div>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-50 text-xl">
+                    {(p.name || p.store_name || '?')[0]}
+                  </div>
                 )}
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 2px' }}>
-                    {p.name || p.store_name}
-                  </p>
-                  <p style={{ fontSize: 12, color: '#78716c', margin: 0 }}>
-                    {p.tagline || p.region || ''}
-                  </p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-stone-950 truncate">{p.name || p.store_name}</p>
+                  <p className="text-xs text-stone-500 truncate">{p.tagline || p.region || ''}</p>
                 </div>
-                <motion.button whileTap={{ scale: 0.92 }}
+                <motion.button
+                  whileTap={{ scale: 0.92 }}
                   onClick={() => toggleItem(followedProducers, setFollowedProducers, p.producer_id || p.id)}
-                  style={{
-                    padding: '7px 16px', borderRadius: '9999px',
-                    border: 'none', cursor: 'pointer',
-                    background: followedProducers.includes(p.producer_id || p.id)
-                      ? '#fafaf9' : '#0c0a09',
-                    color: followedProducers.includes(p.producer_id || p.id)
-                      ? '#0c0a09' : 'white',
-                    fontSize: 13, fontWeight: 600, transition: 'all 0.2s ease',
-                  }}
+                  className={`shrink-0 rounded-full border-none px-4 py-1.5 text-[13px] font-semibold transition-all ${
+                    followedProducers.includes(p.producer_id || p.id)
+                      ? 'bg-stone-50 text-stone-950'
+                      : 'bg-stone-950 text-white'
+                  }`}
                 >
                   {followedProducers.includes(p.producer_id || p.id) ? 'Siguiendo' : 'Seguir'}
                 </motion.button>
               </div>
             ))}
             {suggestedProducers.length === 0 && (
-              <p style={{ fontSize: 13, color: '#78716c', textAlign: 'center', padding: 20 }}>
+              <p className="py-5 text-center text-[13px] text-stone-500">
                 Cargando productores...
               </p>
             )}
@@ -294,63 +261,76 @@ function ProducerOnboarding({ step, setStep, onFinish }) {
     }
   };
 
+  const inputClass = "h-12 w-full rounded-xl border border-stone-200 bg-white px-3.5 text-sm text-stone-950 placeholder:text-stone-400 focus:border-stone-950 focus:outline-none transition-colors";
+
   return (
-    <div style={{ width: '100%', maxWidth: 480 }}>
+    <div className="w-full max-w-[400px]">
       {step === 1 && (
         <>
-          <h2 style={titleStyle}>Crea tu tienda</h2>
-          <p style={subtitleStyle}>Esto es lo primero que verán tus clientes.</p>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">Crea tu tienda</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">Esto es lo primero que verán tus clientes.</p>
 
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <label htmlFor="logo-upload" style={{ cursor: 'pointer' }}>
-              <div style={{
-                width: 96, height: 96, borderRadius: '50%',
-                background: '#fafaf9', border: '2px dashed #e7e5e4',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 8px', overflow: 'hidden',
-              }}>
+          <div className="mb-6 text-center">
+            <label htmlFor="logo-upload" className="cursor-pointer">
+              <div className="mx-auto mb-2 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-stone-200 bg-stone-50">
                 {logoPreview ? (
-                  <img src={logoPreview} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={logoPreview} alt="Logo" className="h-full w-full object-cover" />
                 ) : (
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 28 }}>📷</div>
-                    <div style={{ fontSize: 11, color: '#78716c' }}>Añadir logo</div>
+                  <div className="text-center">
+                    <div className="text-[28px]">📷</div>
+                    <div className="text-[11px] text-stone-500">Añadir logo</div>
                   </div>
                 )}
               </div>
             </label>
-            <input id="logo-upload" type="file" accept="image/*" onChange={handleLogoChange} style={{ display: 'none' }} />
-            <p style={{ fontSize: 11, color: '#78716c' }}>JPG, PNG o WebP · Máximo 5MB</p>
+            <input id="logo-upload" type="file" accept="image/*" onChange={handleLogoChange} className="hidden" />
+            <p className="text-[11px] text-stone-500">JPG, PNG o WebP · Máximo 5MB</p>
           </div>
 
-          <label style={labelStyle}>Nombre de tu tienda</label>
-          <input className="hs-input" value={storeName} onChange={e => setStoreName(e.target.value)}
-            placeholder="Ej: Aceites Cortijo El Bosque" style={{ marginBottom: 24 }} />
+          <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">Nombre de tu tienda</label>
+          <input
+            className={`${inputClass} mb-6`}
+            value={storeName}
+            onChange={e => setStoreName(e.target.value)}
+            placeholder="Ej: Aceites Cortijo El Bosque"
+          />
           <OnboardingNav onNext={saveStep1} nextLabel="Continuar →" />
         </>
       )}
 
       {step === 2 && (
         <>
-          <h2 style={titleStyle}>Tu primer producto</h2>
-          <p style={subtitleStyle}>Puedes añadir más desde tu panel. Este paso es opcional.</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">Tu primer producto</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">Puedes añadir más desde tu panel. Este paso es opcional.</p>
+          <div className="mb-6 flex flex-col gap-3">
             <div>
-              <label style={labelStyle}>Nombre del producto</label>
-              <input className="hs-input" value={product.name}
+              <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">Nombre del producto</label>
+              <input
+                className={inputClass}
+                value={product.name}
                 onChange={e => setProduct({ ...product, name: e.target.value })}
-                placeholder="Ej: Aceite de Oliva Virgen Extra Bio" />
+                placeholder="Ej: Aceite de Oliva Virgen Extra Bio"
+              />
             </div>
             <div>
-              <label style={labelStyle}>Precio (€)</label>
-              <input className="hs-input" type="number" value={product.price}
+              <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">Precio (€)</label>
+              <input
+                className={inputClass}
+                type="number"
+                value={product.price}
                 onChange={e => setProduct({ ...product, price: e.target.value })}
-                placeholder="12.90" min="0" step="0.01" />
+                placeholder="12.90"
+                min="0"
+                step="0.01"
+              />
             </div>
             <div>
-              <label style={labelStyle}>Categoría</label>
-              <select className="hs-input" value={product.category}
-                onChange={e => setProduct({ ...product, category: e.target.value })}>
+              <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">Categoría</label>
+              <select
+                className={inputClass}
+                value={product.category}
+                onChange={e => setProduct({ ...product, category: e.target.value })}
+              >
                 <option value="">Selecciona una categoría</option>
                 <option value="conservas">Conservas</option>
                 <option value="aceites">Aceites</option>
@@ -370,32 +350,32 @@ function ProducerOnboarding({ step, setStep, onFinish }) {
 
       {step === 3 && (
         <>
-          <h2 style={titleStyle}>Conecta tu cuenta bancaria</h2>
-          <p style={subtitleStyle}>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">Conecta tu cuenta bancaria</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">
             Necesitamos verificar tu identidad para transferirte el dinero de tus ventas de forma segura.
           </p>
-          <div style={{
-            background: '#fafaf9', borderRadius: '14px',
-            padding: 20, marginBottom: 24,
-          }}>
+          <div className="mb-6 rounded-2xl bg-stone-50 p-5">
             {['Proceso seguro gestionado por Stripe',
               'Tus datos bancarios nunca pasan por Hispaloshop',
               'Recibirás tus pagos automáticamente',
               'Puedes hacerlo más tarde desde tu panel',
             ].map((text, i) => (
-              <p key={i} style={{ fontSize: 13, color: '#78716c', margin: '0 0 8px' }}>
+              <p key={i} className="mb-2 text-[13px] text-stone-500 last:mb-0">
                 ✓ {text}
               </p>
             ))}
           </div>
-          <button className="hs-btn-primary" onClick={connectStripe} disabled={stripeLoading}
-            style={{ width: '100%', height: 48, marginBottom: 10 }}>
+          <button
+            onClick={connectStripe}
+            disabled={stripeLoading}
+            className="mb-2.5 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-stone-950 text-sm font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-stone-300"
+          >
             {stripeLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Redirigiendo...</> : 'Conectar cuenta bancaria →'}
           </button>
-          <button onClick={onFinish} style={{
-            width: '100%', padding: 12, background: 'none', border: 'none',
-            cursor: 'pointer', fontSize: 14, color: '#78716c',
-          }}>
+          <button
+            onClick={onFinish}
+            className="w-full cursor-pointer border-none bg-transparent p-3 text-sm text-stone-500"
+          >
             Lo haré más tarde
           </button>
         </>
@@ -436,44 +416,45 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: 480 }}>
+    <div className="w-full max-w-[400px]">
       {step === 1 && (
         <>
-          <h2 style={titleStyle}>Elige tus favoritos</h2>
-          <p style={subtitleStyle}>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">Elige tus favoritos</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">
             Aparecerán en tu perfil. Cuando alguien los compre, ganas comisión.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 24 }}>
-            {trending.map(product => (
-              <motion.div key={product.product_id || product.id} whileTap={{ scale: 0.95 }}
-                onClick={() => toggleItem(selectedProducts, setSelectedProducts, product.product_id || product.id)}
-                style={{
-                  borderRadius: '12px', overflow: 'hidden', cursor: 'pointer',
-                  border: selectedProducts.includes(product.product_id || product.id)
-                    ? '2.5px solid #0c0a09' : '1.5px solid transparent',
-                  position: 'relative',
-                }}>
-                <img src={product.images?.[0] || '/placeholder.png'} alt={product.name}
-                  style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', display: 'block' }} />
-                {selectedProducts.includes(product.product_id || product.id) && (
-                  <div style={{
-                    position: 'absolute', top: 6, right: 6,
-                    background: '#0c0a09', color: 'white',
-                    borderRadius: '50%', width: 20, height: 20,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11,
-                  }}>✓</div>
-                )}
-                <div style={{ padding: '6px 6px 8px' }}>
-                  <p style={{
-                    fontSize: 11, margin: '0 0 2px', color: '#0c0a09', fontWeight: 500,
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>{product.name}</p>
-                  <p style={{ fontSize: 11, color: '#78716c', margin: 0 }}>{product.price}€</p>
-                </div>
-              </motion.div>
-            ))}
+          <div className="mb-6 grid grid-cols-3 gap-2">
+            {trending.map(product => {
+              const pid = product.product_id || product.id;
+              const isSelected = selectedProducts.includes(pid);
+              return (
+                <motion.div
+                  key={pid}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => toggleItem(selectedProducts, setSelectedProducts, pid)}
+                  className={`relative cursor-pointer overflow-hidden rounded-xl border-2 transition-all ${
+                    isSelected ? 'border-stone-950' : 'border-transparent'
+                  }`}
+                >
+                  <img
+                    src={product.images?.[0] || '/placeholder.png'}
+                    alt={product.name}
+                    className="block aspect-square w-full object-cover"
+                  />
+                  {isSelected && (
+                    <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-stone-950 text-[11px] text-white">
+                      ✓
+                    </div>
+                  )}
+                  <div className="p-1.5 pb-2">
+                    <p className="truncate text-[11px] font-medium text-stone-950">{product.name}</p>
+                    <p className="text-[11px] text-stone-500">{product.price}€</p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
-          <p style={{ fontSize: 12, color: '#78716c', textAlign: 'center', marginBottom: 16 }}>
+          <p className="mb-4 text-center text-xs text-stone-500">
             {selectedProducts.length} seleccionados
           </p>
           <OnboardingNav onNext={saveProducts} nextLabel="Continuar →" />
@@ -482,32 +463,24 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
 
       {step === 2 && (
         <>
-          <h2 style={titleStyle}>Tu código de descuento</h2>
-          <p style={subtitleStyle}>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">Tu código de descuento</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">
             Tus seguidores obtienen un 10% de descuento en su primera compra. Tú ganas comisión de por vida.
           </p>
-          <div style={{
-            background: '#0c0a09', borderRadius: '14px',
-            padding: 24, textAlign: 'center', marginBottom: 24,
-          }}>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, margin: '0 0 8px' }}>TU CÓDIGO PERSONAL</p>
-            <p style={{ color: 'white', fontSize: 28, fontWeight: 800, letterSpacing: '0.08em', margin: '0 0 16px' }}>
+          <div className="mb-6 rounded-2xl bg-stone-950 p-6 text-center">
+            <p className="mb-2 text-xs text-stone-400">TU CÓDIGO PERSONAL</p>
+            <p className="mb-4 text-[28px] font-extrabold tracking-widest text-white">
               {discountCode || '...'}
             </p>
-            <button onClick={() => { navigator.clipboard.writeText(discountCode); toast.success('¡Código copiado!'); }}
-              style={{
-                background: 'white', color: 'black', border: 'none',
-                borderRadius: '9999px', padding: '10px 20px',
-                fontSize: 14, fontWeight: 600, cursor: 'pointer',
-              }}>
+            <button
+              onClick={() => { navigator.clipboard.writeText(discountCode); toast.success('¡Código copiado!'); }}
+              className="cursor-pointer rounded-full border-none bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100"
+            >
               Copiar código
             </button>
           </div>
-          <div style={{
-            background: '#fafaf9', borderRadius: '12px',
-            padding: 16, marginBottom: 24,
-          }}>
-            <p style={{ fontSize: 13, color: '#78716c', margin: '0 0 6px' }}>
+          <div className="mb-6 rounded-xl bg-stone-50 p-4">
+            <p className="mb-1.5 text-[13px] text-stone-500">
               Cómo ganas dinero:
             </p>
             {['Alguien usa tu código → 10% de descuento para ellos',
@@ -515,7 +488,7 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
               'Cada compra que hagan te genera comisión',
               'Cobras automáticamente en tu cuenta bancaria',
             ].map((t, i) => (
-              <p key={i} style={{ fontSize: 12, color: '#78716c', margin: '0 0 4px' }}>
+              <p key={i} className="mb-1 text-xs text-stone-500">
                 {i + 1}. {t}
               </p>
             ))}
@@ -526,28 +499,27 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
 
       {step === 3 && (
         <>
-          <h2 style={titleStyle}>¡Todo listo!</h2>
-          <p style={subtitleStyle}>Empieza compartiendo tu código con tus seguidores.</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-stone-950">¡Todo listo!</h2>
+          <p className="mb-6 text-[15px] leading-relaxed text-stone-500">Empieza compartiendo tu código con tus seguidores.</p>
+          <div className="mb-8 flex flex-col gap-2.5">
             {[
               { emoji: '📊', title: 'Tu dashboard', desc: 'Ve tus comisiones en tiempo real' },
               { emoji: '🔗', title: 'Tus links', desc: 'Genera links para cada producto' },
               { emoji: '💸', title: 'Cobra cada mes', desc: 'Mínimo 20€, transferencia automática' },
             ].map(item => (
-              <div key={item.title} style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                padding: '14px 16px', background: '#f5f5f4',
-                borderRadius: '12px', border: '0.5px solid #e7e5e4',
-              }}>
-                <span style={{ fontSize: 28 }}>{item.emoji}</span>
+              <div key={item.title} className="flex items-center gap-3.5 rounded-xl border border-stone-200 bg-stone-100 px-4 py-3.5">
+                <span className="text-[28px]">{item.emoji}</span>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{item.title}</p>
-                  <p style={{ fontSize: 12, color: '#78716c', margin: 0 }}>{item.desc}</p>
+                  <p className="text-sm font-semibold text-stone-950">{item.title}</p>
+                  <p className="text-xs text-stone-500">{item.desc}</p>
                 </div>
               </div>
             ))}
           </div>
-          <button className="hs-btn-primary" onClick={onFinish} style={{ width: '100%', height: 48 }}>
+          <button
+            onClick={onFinish}
+            className="flex h-12 w-full items-center justify-center rounded-full bg-stone-950 text-sm font-medium text-white transition-colors hover:bg-black"
+          >
             Ir a mi dashboard →
           </button>
         </>
@@ -584,65 +556,51 @@ export default function RoleOnboardingPage() {
 
   if (authLoading) {
     return (
-      <div style={{
-        minHeight: '100dvh', display: 'flex',
-        alignItems: 'center', justifyContent: 'center',
-        background: '#fafaf9',
-      }}>
-        <div className="hs-spinner" style={{ width: 32, height: 32 }} />
+      <div className="flex min-h-dvh items-center justify-center bg-stone-50">
+        <Loader2 className="h-8 w-8 animate-spin text-stone-400" />
       </div>
     );
   }
 
   return (
-    <div style={{
-      minHeight: '100dvh', background: '#fafaf9',
-      display: 'flex', flexDirection: 'column',
-    }}>
+    <div className="flex min-h-dvh flex-col bg-stone-50">
       {/* Header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '16px 20px', background: '#f5f5f4',
-        borderBottom: '0.5px solid #e7e5e4',
-      }}>
-        <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em' }}>
+      <div className="flex items-center justify-between border-b border-stone-200 bg-stone-100 px-5 py-4">
+        <span className="text-lg font-extrabold tracking-tight text-stone-950">
           hispaloshop
         </span>
-        <button onClick={handleFinish} style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 14, color: '#78716c', fontWeight: 500,
-        }}>
+        <button
+          onClick={handleFinish}
+          className="cursor-pointer border-none bg-transparent text-sm font-medium text-stone-500 transition-colors hover:text-stone-700"
+        >
           Saltar
         </button>
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 3, background: '#fafaf9' }}>
-        <div style={{
-          height: '100%', background: '#0c0a09',
-          width: `${(step / totalSteps) * 100}%`,
-          transition: 'width 0.4s ease',
-        }} />
+      <div className="h-[3px] bg-stone-50">
+        <div
+          className="h-full bg-stone-950 transition-[width] duration-400 ease-out"
+          style={{ width: `${(step / totalSteps) * 100}%` }}
+        />
       </div>
 
       {/* Step content */}
-      <div style={{
-        flex: 1, display: 'flex', alignItems: 'center',
-        justifyContent: 'center', padding: '24px 20px',
-      }}>
+      <div className="flex flex-1 items-center justify-center px-5 py-6">
         {(role === 'customer') && <CustomerOnboarding step={step} setStep={setStep} onFinish={handleFinish} />}
         {(role === 'producer' || role === 'importer') && <ProducerOnboarding step={step} setStep={setStep} onFinish={handleFinish} />}
         {(role === 'influencer') && <InfluencerOnboarding step={step} setStep={setStep} onFinish={handleFinish} />}
       </div>
 
       {/* Progress dots */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '16px 0 32px' }}>
+      <div className="flex justify-center gap-1.5 pb-8 pt-4">
         {[1, 2, 3].map(i => (
-          <div key={i} style={{
-            width: i === step ? 20 : 7, height: 7, borderRadius: 4,
-            background: i === step ? '#0c0a09' : '#e7e5e4',
-            transition: 'all 0.3s ease',
-          }} />
+          <div
+            key={i}
+            className={`h-[7px] rounded-full transition-all duration-300 ${
+              i === step ? 'w-5 bg-stone-950' : 'w-[7px] bg-stone-200'
+            }`}
+          />
         ))}
       </div>
     </div>

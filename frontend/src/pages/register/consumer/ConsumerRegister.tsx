@@ -83,7 +83,7 @@ const ConsumerRegister = () => {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <div className="mx-auto max-w-xl px-4 py-6 md:py-10">
+      <div className="mx-auto max-w-[400px] px-4 py-6 md:py-10">
         <div className="mb-6 flex items-center justify-between">
           <button
             type="button"

@@ -15,26 +15,8 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
-const V2 = {
-  black: '#0A0A0A',
-  cream: '#ffffff',
-  stone: '#8A8881',
-  white: '#FFFFFF',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  green: '#0c0a09',
-  greenLight: '#f5f5f4',
-  red: '#DC2626',
-  redLight: '#FEE2E2',
-  amber: '#78716c',
-  amberLight: '#fafaf9',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-  radiusFull: 9999,
-};
-
 const fmtDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) return '\u2014';
   return new Date(iso).toLocaleDateString('es-ES', {
     day: 'numeric',
     month: 'long',
@@ -42,7 +24,7 @@ const fmtDate = (iso) => {
   });
 };
 
-const shortHash = (h) => (h ? `${String(h).slice(0, 12)}…` : '—');
+const shortHash = (h) => (h ? `${String(h).slice(0, 12)}\u2026` : '\u2014');
 
 /* ── Verification Modal ──────────────────────────────── */
 function VerifyModal({ operationId, onClose }) {
@@ -61,8 +43,7 @@ function VerifyModal({ operationId, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.5)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={onClose}
     >
       <motion.div
@@ -70,192 +51,98 @@ function VerifyModal({ operationId, onClose }) {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: V2.white,
-          borderRadius: V2.radiusMd,
-          padding: 24,
-          width: '90%',
-          maxWidth: 380,
-          fontFamily: V2.fontSans,
-        }}
+        className="w-[90%] max-w-[380px] rounded-2xl bg-white p-6"
       >
         {loading ? (
-          <div className="flex flex-col items-center py-8 gap-3">
-            <Loader2 size={28} className="animate-spin" style={{ color: V2.stone }} />
-            <p style={{ fontSize: 13, color: V2.stone }}>
+          <div className="flex flex-col items-center gap-3 py-8">
+            <Loader2 size={28} className="animate-spin text-stone-500" />
+            <p className="text-[13px] text-stone-500">
               Verificando integridad del documento...
             </p>
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center py-6 gap-3">
-            <div
-              className="flex items-center justify-center"
-              style={{ width: 48, height: 48, borderRadius: V2.radiusFull, background: V2.redLight }}
-            >
-              <X size={24} style={{ color: V2.red }} />
+          <div className="flex flex-col items-center gap-3 py-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+              <X size={24} className="text-red-600" />
             </div>
-            <p style={{ fontSize: 14, fontWeight: 600, color: V2.black }}>{error}</p>
+            <p className="text-sm font-semibold text-stone-950">{error}</p>
             <button
               onClick={onClose}
-              style={{
-                marginTop: 8,
-                background: V2.black,
-                color: V2.white,
-                border: 'none',
-                borderRadius: V2.radiusFull,
-                padding: '10px 24px',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: V2.fontSans,
-              }}
+              className="mt-2 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white"
             >
               Cerrar
             </button>
           </div>
         ) : result?.verified ? (
-          <div className="flex flex-col items-center text-center gap-3">
-            <div
-              className="flex items-center justify-center"
-              style={{ width: 48, height: 48, borderRadius: V2.radiusFull, background: V2.green }}
-            >
-              <Check size={28} style={{ color: V2.white }} strokeWidth={2.5} />
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-950">
+              <Check size={28} className="text-white" strokeWidth={2.5} />
             </div>
-            <p style={{ fontSize: 15, fontWeight: 600, color: V2.black }}>
+            <p className="text-[15px] font-semibold text-stone-950">
               Documento íntegro
             </p>
-            <p style={{ fontSize: 12, color: V2.stone }}>
+            <p className="text-xs text-stone-500">
               El contrato no ha sido modificado desde su firma.
             </p>
-            <div
-              style={{
-                width: '100%',
-                background: V2.surface,
-                borderRadius: 8,
-                padding: 12,
-                marginTop: 4,
-              }}
-            >
-              <p style={{ fontSize: 10, color: V2.stone, margin: 0 }}>Hash SHA-256</p>
-              <p
-                style={{
-                  fontSize: 10,
-                  fontFamily: 'monospace',
-                  color: V2.black,
-                  margin: '4px 0 0',
-                  wordBreak: 'break-all',
-                }}
-              >
+            <div className="mt-1 w-full rounded-lg bg-stone-100 p-3">
+              <p className="text-[10px] text-stone-500">Hash SHA-256</p>
+              <p className="mt-1 break-all font-mono text-[10px] text-stone-950">
                 {showFullHash ? result.stored_hash : shortHash(result.stored_hash)}
               </p>
               {!showFullHash && (
                 <button
                   onClick={() => setShowFullHash(true)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: 10,
-                    color: V2.stone,
-                    cursor: 'pointer',
-                    padding: 0,
-                    marginTop: 4,
-                    textDecoration: 'underline',
-                    fontFamily: V2.fontSans,
-                  }}
+                  className="mt-1 bg-transparent p-0 text-[10px] text-stone-500 underline"
                 >
                   Ver completo
                 </button>
               )}
             </div>
-            <p style={{ fontSize: 10, color: V2.stone }}>
+            <p className="text-[10px] text-stone-500">
               Verificado el {fmtDate(result.verified_at)}
             </p>
             <button
               onClick={onClose}
-              style={{
-                marginTop: 4,
-                background: V2.black,
-                color: V2.white,
-                border: 'none',
-                borderRadius: V2.radiusFull,
-                padding: '10px 24px',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: V2.fontSans,
-              }}
+              className="mt-1 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white"
             >
               Cerrar
             </button>
           </div>
         ) : (
-          <div className="flex flex-col items-center text-center gap-3">
-            <div
-              className="flex items-center justify-center"
-              style={{ width: 48, height: 48, borderRadius: V2.radiusFull, background: V2.red }}
-            >
-              <X size={28} style={{ color: V2.white }} strokeWidth={2.5} />
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600">
+              <X size={28} className="text-white" strokeWidth={2.5} />
             </div>
-            <p style={{ fontSize: 15, fontWeight: 600, color: V2.black }}>
+            <p className="text-[15px] font-semibold text-stone-950">
               El documento ha sido modificado
             </p>
-            <p style={{ fontSize: 12, color: V2.stone }}>
+            <p className="text-xs text-stone-500">
               El hash del documento no coincide con el registrado en el momento de la firma. Contacta con soporte.
             </p>
-            <div
-              style={{
-                width: '100%',
-                background: V2.redLight,
-                borderRadius: 8,
-                padding: 12,
-                marginTop: 4,
-              }}
-            >
-              <div style={{ marginBottom: 8 }}>
-                <p style={{ fontSize: 10, color: V2.stone, margin: 0 }}>Hash guardado</p>
-                <p style={{ fontSize: 9, fontFamily: 'monospace', color: V2.black, margin: '2px 0 0', wordBreak: 'break-all' }}>
-                  {result?.stored_hash || '—'}
+            <div className="mt-1 w-full rounded-lg bg-red-50 p-3">
+              <div className="mb-2">
+                <p className="text-[10px] text-stone-500">Hash guardado</p>
+                <p className="mt-0.5 break-all font-mono text-[9px] text-stone-950">
+                  {result?.stored_hash || '\u2014'}
                 </p>
               </div>
               <div>
-                <p style={{ fontSize: 10, color: V2.stone, margin: 0 }}>Hash actual</p>
-                <p style={{ fontSize: 9, fontFamily: 'monospace', color: V2.red, margin: '2px 0 0', wordBreak: 'break-all' }}>
-                  {result?.calculated_hash || '—'}
+                <p className="text-[10px] text-stone-500">Hash actual</p>
+                <p className="mt-0.5 break-all font-mono text-[9px] text-red-600">
+                  {result?.calculated_hash || '\u2014'}
                 </p>
               </div>
             </div>
-            <div className="flex gap-2 w-full" style={{ marginTop: 4 }}>
+            <div className="mt-1 flex w-full gap-2">
               <button
                 onClick={onClose}
-                style={{
-                  flex: 1,
-                  background: V2.surface,
-                  color: V2.black,
-                  border: 'none',
-                  borderRadius: V2.radiusFull,
-                  padding: '10px 0',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontFamily: V2.fontSans,
-                }}
+                className="flex-1 rounded-full bg-stone-100 py-2.5 text-[13px] font-semibold text-stone-950"
               >
                 Cerrar
               </button>
               <button
                 onClick={() => { window.location.href = '/support'; }}
-                style={{
-                  flex: 1,
-                  background: V2.black,
-                  color: V2.white,
-                  border: 'none',
-                  borderRadius: V2.radiusFull,
-                  padding: '10px 0',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontFamily: V2.fontSans,
-                }}
+                className="flex-1 rounded-full bg-stone-950 py-2.5 text-[13px] font-semibold text-white"
               >
                 Contactar soporte
               </button>
@@ -272,62 +159,54 @@ function ContractCard({ contract, onVerify }) {
   const isSigned = contract.status === 'contract_signed' || contract.status === 'completed';
 
   return (
-    <div
-      style={{
-        background: V2.white,
-        border: `1px solid ${V2.border}`,
-        borderRadius: V2.radiusMd,
-        padding: 16,
-        fontFamily: V2.fontSans,
-      }}
-    >
-      <div className="flex items-start justify-between gap-3 mb-3">
+    <div className="rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p style={{ fontSize: 14, fontWeight: 600, color: V2.black, margin: 0 }}>
+          <p className="text-sm font-semibold text-stone-950">
             #HSP-B2B-{contract.operation_id_short}
           </p>
-          <p style={{ fontSize: 12, color: V2.stone, margin: '2px 0 0' }}>
+          <p className="mt-0.5 text-xs text-stone-500">
             {contract.counterpart_name}
           </p>
         </div>
         <span
-          className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-semibold"
-          style={{
-            background: isSigned ? V2.greenLight : V2.amberLight,
-            color: isSigned ? V2.green : V2.amber,
-          }}
+          className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+            isSigned
+              ? 'bg-stone-100 text-stone-950'
+              : 'bg-stone-50 text-stone-500'
+          }`}
         >
           {isSigned ? 'Firmado' : 'En curso'}
         </span>
       </div>
 
-      <div className="space-y-1 mb-3">
+      <div className="mb-3 space-y-1">
         <div className="flex items-center justify-between text-xs">
-          <span style={{ color: V2.stone }}>Producto</span>
-          <span style={{ color: V2.black, fontWeight: 500 }}>{contract.product_name}</span>
+          <span className="text-stone-500">Producto</span>
+          <span className="font-medium text-stone-950">{contract.product_name}</span>
         </div>
         {contract.quantity > 0 && (
           <div className="flex items-center justify-between text-xs">
-            <span style={{ color: V2.stone }}>Cantidad</span>
-            <span style={{ color: V2.black, fontWeight: 500 }}>{contract.quantity} uds</span>
+            <span className="text-stone-500">Cantidad</span>
+            <span className="font-medium text-stone-950">{contract.quantity} uds</span>
           </div>
         )}
         {contract.total_amount > 0 && (
           <div className="flex items-center justify-between text-xs">
-            <span style={{ color: V2.stone }}>Importe</span>
-            <span style={{ color: V2.black, fontWeight: 500 }}>{(Number(contract.total_amount) || 0).toFixed(2)}€</span>
+            <span className="text-stone-500">Importe</span>
+            <span className="font-medium text-stone-950">{(Number(contract.total_amount) || 0).toFixed(2)}\u20AC</span>
           </div>
         )}
         <div className="flex items-center justify-between text-xs">
-          <span style={{ color: V2.stone }}>Fecha de firma</span>
-          <span style={{ color: V2.black, fontWeight: 500 }}>{fmtDate(contract.signed_at)}</span>
+          <span className="text-stone-500">Fecha de firma</span>
+          <span className="font-medium text-stone-950">{fmtDate(contract.signed_at)}</span>
         </div>
       </div>
 
       {contract.contract_hash && (
-        <div className="mb-3 px-3 py-2" style={{ background: V2.surface, borderRadius: 8 }}>
-          <p style={{ fontSize: 9, color: V2.stone, margin: 0 }}>Hash de integridad</p>
-          <p style={{ fontSize: 10, fontFamily: 'monospace', color: V2.black, margin: '2px 0 0' }}>
+        <div className="mb-3 rounded-lg bg-stone-100 px-3 py-2">
+          <p className="text-[9px] text-stone-500">Hash de integridad</p>
+          <p className="mt-0.5 font-mono text-[10px] text-stone-950">
             {shortHash(contract.contract_hash)}
           </p>
         </div>
@@ -337,18 +216,7 @@ function ContractCard({ contract, onVerify }) {
         {contract.pdf_url && (
           <button
             onClick={() => window.open(contract.pdf_url, '_blank')}
-            className="flex-1 flex items-center justify-center gap-1.5"
-            style={{
-              height: 36,
-              background: V2.black,
-              color: V2.white,
-              border: 'none',
-              borderRadius: V2.radiusFull,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: V2.fontSans,
-            }}
+            className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-950 text-xs font-semibold text-white"
           >
             <Download size={14} />
             Descargar PDF
@@ -356,19 +224,7 @@ function ContractCard({ contract, onVerify }) {
         )}
         <button
           onClick={() => onVerify(contract.operation_id)}
-          className="flex items-center justify-center gap-1.5"
-          style={{
-            height: 36,
-            background: V2.surface,
-            color: V2.black,
-            border: 'none',
-            borderRadius: V2.radiusFull,
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontFamily: V2.fontSans,
-            padding: '0 16px',
-          }}
+          className="flex h-9 items-center justify-center gap-1.5 rounded-full bg-stone-100 px-4 text-xs font-semibold text-stone-950"
         >
           <ShieldCheck size={14} />
           Verificar
@@ -410,58 +266,33 @@ export default function SignedDocumentsPage() {
   ];
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: V2.cream, fontFamily: V2.fontSans }}
-    >
+    <div className="min-h-screen bg-white">
       {/* TopBar */}
-      <div
-        className="sticky top-0 z-40 flex items-center gap-3"
-        style={{
-          background: `${V2.cream}e6`,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          padding: '12px 16px',
-          borderBottom: `1px solid ${V2.border}`,
-        }}
-      >
+      <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white/90 px-4 py-3 backdrop-blur-xl">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center justify-center"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: V2.radiusFull,
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: V2.black,
-          }}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-transparent text-stone-950 active:bg-stone-100"
+          aria-label="Volver"
         >
           <ArrowLeft size={20} />
         </button>
-        <span style={{ fontSize: 16, fontWeight: 600, color: V2.black }}>
+        <span className="text-base font-semibold text-stone-950">
           Mis documentos
         </span>
       </div>
 
-      <div className="max-w-xl mx-auto px-4 py-5">
+      <div className="mx-auto max-w-[975px] px-4 py-5">
         {/* Tabs */}
-        <div
-          className="flex gap-0 p-1 mb-5"
-          style={{ borderRadius: V2.radiusFull, background: V2.surface }}
-        >
+        <div className="mb-5 flex gap-0 rounded-full bg-stone-100 p-1">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold transition-all"
-              style={{
-                borderRadius: V2.radiusFull,
-                background: activeTab === tab.key ? V2.white : 'transparent',
-                color: activeTab === tab.key ? V2.black : V2.stone,
-                boxShadow: activeTab === tab.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              }}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-xs font-semibold transition-all ${
+                activeTab === tab.key
+                  ? 'bg-white text-stone-950 shadow-sm'
+                  : 'bg-transparent text-stone-500'
+              }`}
             >
               <tab.icon size={13} />
               {tab.label}
@@ -471,7 +302,7 @@ export default function SignedDocumentsPage() {
 
         {loading ? (
           <div className="flex justify-center py-16">
-            <Loader2 size={24} className="animate-spin" style={{ color: V2.stone }} />
+            <Loader2 size={24} className="animate-spin text-stone-500" />
           </div>
         ) : (
           <>
@@ -487,9 +318,9 @@ export default function SignedDocumentsPage() {
                     />
                   ))
                 ) : (
-                  <div className="text-center py-16">
-                    <FileText size={32} style={{ color: V2.stone, margin: '0 auto 12px' }} />
-                    <p style={{ fontSize: 14, color: V2.stone }}>
+                  <div className="py-16 text-center">
+                    <FileText size={32} className="mx-auto mb-3 text-stone-300" />
+                    <p className="text-sm text-stone-500">
                       No tienes contratos firmados todavía
                     </p>
                   </div>
@@ -504,45 +335,33 @@ export default function SignedDocumentsPage() {
                   certificates.map((cert, i) => (
                     <div
                       key={i}
-                      style={{
-                        background: V2.white,
-                        border: `1px solid ${V2.border}`,
-                        borderRadius: V2.radiusMd,
-                        padding: 16,
-                      }}
+                      className="rounded-2xl border border-stone-200 bg-white p-4"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <p style={{ fontSize: 13, fontWeight: 600, color: V2.black, margin: 0 }}>
+                      <div className="mb-2 flex items-center justify-between">
+                        <p className="text-[13px] font-semibold text-stone-950">
                           {cert.name || cert.type || 'Certificado'}
                         </p>
                         <span
-                          className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                          style={{
-                            background: cert.status === 'approved' ? V2.greenLight : cert.status === 'expired' ? V2.redLight : V2.surface,
-                            color: cert.status === 'approved' ? V2.green : cert.status === 'expired' ? V2.red : V2.stone,
-                          }}
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                            cert.status === 'approved'
+                              ? 'bg-stone-100 text-stone-950'
+                              : cert.status === 'expired'
+                                ? 'bg-red-50 text-red-600'
+                                : 'bg-stone-100 text-stone-500'
+                          }`}
                         >
                           {cert.status === 'approved' ? 'Aprobado' : cert.status === 'expired' ? 'Caducado' : cert.status === 'pending' ? 'Pendiente' : cert.status}
                         </span>
                       </div>
                       {cert.expiry_date && (
-                        <p style={{ fontSize: 11, color: V2.stone, margin: 0 }}>
+                        <p className="text-[11px] text-stone-500">
                           Caduca: {fmtDate(cert.expiry_date)}
                         </p>
                       )}
                       {cert.url && (
                         <button
                           onClick={() => window.open(cert.url, '_blank')}
-                          className="flex items-center gap-1.5 mt-3"
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            fontSize: 12,
-                            color: V2.stone,
-                            cursor: 'pointer',
-                            padding: 0,
-                            fontFamily: V2.fontSans,
-                          }}
+                          className="mt-3 flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-950"
                         >
                           <Download size={13} />
                           Descargar
@@ -551,9 +370,9 @@ export default function SignedDocumentsPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-16">
-                    <Award size={32} style={{ color: V2.stone, margin: '0 auto 12px' }} />
-                    <p style={{ fontSize: 14, color: V2.stone }}>
+                  <div className="py-16 text-center">
+                    <Award size={32} className="mx-auto mb-3 text-stone-300" />
+                    <p className="text-sm text-stone-500">
                       No tienes certificados subidos
                     </p>
                   </div>
@@ -563,12 +382,12 @@ export default function SignedDocumentsPage() {
 
             {/* Invoices tab (placeholder) */}
             {activeTab === 'invoices' && (
-              <div className="text-center py-16">
-                <Receipt size={32} style={{ color: V2.stone, margin: '0 auto 12px' }} />
-                <p style={{ fontSize: 14, fontWeight: 500, color: V2.black }}>
+              <div className="py-16 text-center">
+                <Receipt size={32} className="mx-auto mb-3 text-stone-300" />
+                <p className="text-sm font-medium text-stone-950">
                   Facturas
                 </p>
-                <p style={{ fontSize: 13, color: V2.stone, marginTop: 4 }}>
+                <p className="mt-1 text-[13px] text-stone-500">
                   Las facturas estarán disponibles próximamente
                 </p>
               </div>

@@ -147,7 +147,7 @@ export default function NewConversationPage() {
   const showResults = query.length >= 2;
 
   return (
-    <div className="flex min-h-screen flex-col bg-white font-apple">
+    <div className="mx-auto flex min-h-screen max-w-[600px] flex-col bg-white font-apple">
       {/* TopBar */}
       <div className="sticky top-0 z-30 flex h-14 items-center border-b border-stone-100 bg-white/95 px-4 pt-[env(safe-area-inset-top,0px)] backdrop-blur-xl">
         <button
@@ -165,7 +165,7 @@ export default function NewConversationPage() {
 
       {/* Search input */}
       <div className="px-4 py-3">
-        <label className="flex h-[36px] items-center gap-2 rounded-[10px] bg-stone-100 px-4">
+        <label className="flex h-12 items-center gap-2 rounded-full bg-stone-100 px-4">
           <Search size={18} className="shrink-0 text-stone-500" />
           <input
             type="text"
@@ -211,8 +211,13 @@ export default function NewConversationPage() {
                         </span>
                       )}
                     </div>
+                    {u.username && u.name && (
+                      <p className="mt-0.5 truncate text-[13px] text-stone-500">
+                        @{u.username}
+                      </p>
+                    )}
                     {(u.city || u.description) && (
-                      <p className="mt-0.5 truncate text-xs text-stone-500">
+                      <p className="mt-0.5 truncate text-xs text-stone-400">
                         {u.city || u.description}
                       </p>
                     )}

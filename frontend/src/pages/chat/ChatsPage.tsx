@@ -84,7 +84,7 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) 
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
         onClick={onClick}
-        className="flex w-full items-start gap-3 border-none bg-white px-4 py-3.5 text-left font-apple active:bg-stone-50"
+        className="flex h-[72px] w-full items-center gap-3 border-none bg-white px-4 text-left font-apple active:bg-stone-50"
       >
         {/* Avatar */}
         <div className="relative shrink-0">
@@ -92,10 +92,10 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) 
             <img
               src={avatar_url}
               alt={name}
-              className={`h-14 w-14 object-cover ${isStore ? 'rounded-2xl' : 'rounded-full'}`}
+              className={`h-12 w-12 object-cover ${isStore ? 'rounded-2xl' : 'rounded-full'}`}
             />
           ) : (
-            <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-2xl' : 'rounded-full'}`}>
+            <div className={`flex h-12 w-12 items-center justify-center bg-stone-950 text-base font-semibold text-white ${isStore ? 'rounded-2xl' : 'rounded-full'}`}>
               {getInitial(name)}
             </div>
           )}
@@ -211,7 +211,7 @@ export default function ChatsPage() {
   const isEmpty = filteredConversations.length === 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-white font-apple">
+    <div className="mx-auto flex min-h-screen max-w-[600px] flex-col bg-white font-apple">
       {/* TopBar — Instagram style */}
       <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl">
         <button
@@ -234,7 +234,7 @@ export default function ChatsPage() {
 
       {/* Search bar */}
       <div className="px-4 pb-2 pt-2">
-        <label className="flex h-[36px] items-center gap-2 rounded-[10px] bg-stone-100 px-3">
+        <label className="flex h-12 items-center gap-2 rounded-full bg-stone-100 px-4">
           <Search size={16} className="text-stone-400" strokeWidth={2} />
           <input
             type="text"
@@ -355,7 +355,7 @@ export default function ChatsPage() {
                     isTyping={!!typingUsers[conv.id]}
                   />
                   {i < filteredConversations.length - 1 && (
-                    <div className="ml-[84px] mr-4 h-px bg-stone-100/80" />
+                    <div className="ml-[76px] mr-4 h-px bg-stone-100/80" />
                   )}
                 </React.Fragment>
               ))}

@@ -105,7 +105,7 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
           value={postalCode}
           onChange={(e) => setPostalCode(e.target.value)}
           placeholder="41001"
-          className="mt-2 h-12 w-full rounded-2xl border border-stone-200 bg-white px-3 text-base md:h-11 md:text-sm"
+          className="mt-2 h-12 w-full rounded-xl border border-stone-200 bg-white px-3 text-base md:h-11 md:text-sm"
         />
         <p className="mt-1 text-xs text-stone-500">Nos ayuda a mostrar productores y envíos más relevantes.</p>
       </div>
