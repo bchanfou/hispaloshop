@@ -146,6 +146,7 @@ export default function ProducerPayments() {
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [openingDashboard, setOpeningDashboard] = useState(false);
+  const [visibleOrders, setVisibleOrders] = useState(20);
 
   useEffect(() => { fetchPayments(); }, []);
 
@@ -241,6 +242,29 @@ export default function ProducerPayments() {
           </button>
         )}
       </div>
+
+      {/* Solicitar pago CTA */}
+      <button
+        type="button"
+        onClick={() => toast.info('Los pagos se procesan automáticamente cada 15 días')}
+        className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
+        data-testid="request-payout-cta"
+      >
+        Solicitar pago
+      </button>
+
+      {/* Fiscal summary */}
+      {data.tax_withholding_pct != null && (
+        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-white">
+            <Receipt className="w-4 h-4 text-stone-600" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-stone-950">Retención fiscal aplicada</p>
+            <p className="text-xs text-stone-500">Se retiene el <strong className="text-stone-700">{data.tax_withholding_pct}%</strong> sobre tus ganancias netas según tu configuración fiscal.</p>
+          </div>
+        </div>
+      )}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
@@ -345,16 +369,28 @@ export default function ProducerPayments() {
                 <p className="text-sm">Aún no tienes pedidos</p>
               </div>
             ) : (
-              (data.recent_orders || []).map((order) => (
-                <OrderRow
-                  key={order.order_id}
-                  order={order}
-                  expanded={expandedOrder === order.order_id}
-                  onToggle={() => setExpandedOrder(
-                    expandedOrder === order.order_id ? null : order.order_id
-                  )}
-                />
-              ))
+              <>
+                {(data.recent_orders || []).slice(0, visibleOrders).map((order) => (
+                  <OrderRow
+                    key={order.order_id}
+                    order={order}
+                    expanded={expandedOrder === order.order_id}
+                    onToggle={() => setExpandedOrder(
+                      expandedOrder === order.order_id ? null : order.order_id
+                    )}
+                  />
+                ))}
+                {(data.recent_orders || []).length > visibleOrders && (
+                  <button
+                    type="button"
+                    onClick={() => setVisibleOrders(prev => prev + 20)}
+                    className="w-full py-3 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors border-t border-stone-100"
+                    data-testid="load-more-orders"
+                  >
+                    Cargar más ({(data.recent_orders.length - visibleOrders)} restantes)
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>

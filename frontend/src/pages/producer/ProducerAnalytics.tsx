@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Users, Target, Loader2, ShoppingBag } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Target, Loader2, ShoppingBag, ArrowUp, ArrowDown, Euro, Star } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
 function AnalyticsSection({ title, icon: Icon, children }) {
@@ -137,7 +137,105 @@ export default function ProducerAnalytics() {
         </select>
       </div>
 
-      {/* Top products */}
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        {[
+          {
+            label: 'Ingresos',
+            value: data?.revenue?.current != null
+              ? data.revenue.current.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })
+              : '—',
+            icon: Euro,
+            trend: data?.revenue?.current != null && data?.revenue?.previous != null && data.revenue.previous > 0
+              ? ((data.revenue.current - data.revenue.previous) / data.revenue.previous) * 100
+              : null,
+          },
+          {
+            label: 'Pedidos',
+            value: data?.orders_count?.current ?? data?.conversion?.purchases ?? '—',
+            icon: ShoppingBag,
+            trend: data?.orders_count?.current != null && data?.orders_count?.previous != null && data.orders_count.previous > 0
+              ? ((data.orders_count.current - data.orders_count.previous) / data.orders_count.previous) * 100
+              : null,
+          },
+          {
+            label: 'Ticket medio',
+            value: data?.avg_ticket?.current != null
+              ? data.avg_ticket.current.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })
+              : data?.revenue?.current != null && (data?.orders_count?.current || data?.conversion?.purchases)
+                ? (data.revenue.current / (data.orders_count?.current || data.conversion.purchases || 1)).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })
+                : '—',
+            icon: Target,
+            trend: data?.avg_ticket?.current != null && data?.avg_ticket?.previous != null && data.avg_ticket.previous > 0
+              ? ((data.avg_ticket.current - data.avg_ticket.previous) / data.avg_ticket.previous) * 100
+              : null,
+          },
+          {
+            label: 'Rating',
+            value: data?.rating?.current != null ? data.rating.current.toFixed(1) : '—',
+            icon: Star,
+            trend: data?.rating?.current != null && data?.rating?.previous != null && data.rating.previous > 0
+              ? ((data.rating.current - data.rating.previous) / data.rating.previous) * 100
+              : null,
+          },
+        ].map((kpi) => {
+          const hasData = kpi.value !== '—';
+          return (
+            <div key={kpi.label} className="bg-white rounded-2xl border border-stone-200 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 rounded-xl bg-stone-100">
+                  <kpi.icon className="w-3.5 h-3.5 text-stone-600" />
+                </div>
+                <span className="text-xs text-stone-500">{kpi.label}</span>
+              </div>
+              {hasData ? (
+                <div className="flex items-end gap-2">
+                  <p className="text-xl font-bold text-stone-950 tracking-tight">{kpi.value}</p>
+                  {kpi.trend !== null && kpi.trend !== 0 && (
+                    <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold mb-0.5 ${kpi.trend > 0 ? 'text-stone-950' : 'text-stone-500'}`}>
+                      {kpi.trend > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                      {Math.abs(kpi.trend).toFixed(1)}%
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-stone-400">Datos insuficientes</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Top 5 productos */}
+      <AnalyticsSection title="Top 5 productos" icon={ShoppingBag}>
+        {data?.top_products?.length ? (
+          <div className="space-y-0">
+            {data.top_products.slice(0, 5).map((product, i) => (
+              <div key={product.product_id || i} className="flex items-center gap-3 py-2.5 border-b border-stone-100 last:border-0">
+                <span className="text-lg font-bold text-stone-300 w-6 text-center shrink-0">
+                  {i === 0 ? '1' : i === 1 ? '2' : i === 2 ? '3' : i === 3 ? '4' : '5'}
+                </span>
+                {product.image ? (
+                  <img loading="lazy" src={product.image} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 rounded-2xl bg-stone-100 shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-stone-950 truncate">{product.name}</p>
+                  <p className="text-xs text-stone-500">{product.units_sold ?? 0} uds.</p>
+                </div>
+                <p className="text-sm font-bold text-stone-950 shrink-0">
+                  {(product.revenue || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-stone-400 text-center py-4">Datos insuficientes</p>
+        )}
+      </AnalyticsSection>
+
+      {/* Todos los productos vendidos */}
       <AnalyticsSection title="Productos más vendidos" icon={ShoppingBag}>
         {data?.top_products?.length ? (
           <div className="space-y-0">

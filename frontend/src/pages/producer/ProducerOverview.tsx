@@ -127,7 +127,8 @@ function StripeConnectSection() {
     );
   }
 
-  const isConnected = Boolean(stripeStatus?.onboarding_completed);
+  const isConnected = Boolean(stripeStatus?.onboarding_completed && stripeStatus?.charges_enabled);
+  const isPending = Boolean(stripeStatus?.has_account && !stripeStatus?.onboarding_completed);
   const pendingRequirements = stripeStatus?.requirements_due || [];
 
   return (
@@ -142,23 +143,30 @@ function StripeConnectSection() {
           </div>
           <div>
             <h3 className="font-medium text-stone-950">Stripe Payouts</h3>
-            <p className="text-sm flex items-center gap-1 text-stone-500">
+            <p className="text-sm flex items-center gap-1.5 mt-0.5">
               {isConnected ? (
-                <>
+                <span className="inline-flex items-center gap-1 text-stone-700">
                   <CheckCircle className="w-4 h-4" />
-                  Conectado
-                </>
+                  Stripe conectado
+                </span>
+              ) : isPending ? (
+                <span className="inline-flex items-center gap-1 text-stone-500">
+                  <AlertTriangle className="w-4 h-4" />
+                  Verificación pendiente
+                </span>
               ) : (
-                <>
+                <span className="inline-flex items-center gap-1 text-stone-500">
                   <AlertCircle className="w-4 h-4" />
                   Sin conectar
-                </>
+                </span>
               )}
             </p>
             <p className="text-xs mt-1 text-stone-500">
               {isConnected
                 ? 'Recibirás tu porcentaje de cada venta automáticamente según tu plan.'
-                : 'Conecta Stripe para recibir pagos.'}
+                : isPending
+                  ? 'Completa la verificación en Stripe para activar los pagos automáticos.'
+                  : 'Conecta Stripe para recibir pagos.'}
             </p>
             {!isConnected && pendingRequirements.length > 0 && (
               <p className="text-xs mt-1 text-stone-500">
@@ -179,6 +187,14 @@ function StripeConnectSection() {
               <ExternalLink className="w-4 h-4" />
               <span className="hidden sm:inline">Ver Dashboard</span>
             </button>
+          ) : isPending ? (
+            <Link
+              to="/producer/connect"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors bg-stone-950 text-white rounded-xl"
+              data-testid="complete-stripe-verification"
+            >
+              Completar verificación
+            </Link>
           ) : (
             <button
               type="button"

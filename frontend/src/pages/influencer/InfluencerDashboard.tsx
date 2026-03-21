@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
-import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2, HelpCircle, Building2, X, Handshake, ChevronRight } from 'lucide-react';
+import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2, HelpCircle, Building2, X, Handshake, ChevronRight, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
@@ -239,6 +239,58 @@ function CreateCodeCard({ onCodeCreated }) {
   );
 }
 
+// Discount Codes List Component
+function DiscountCodesList({ codes, convertAndFormatPrice }) {
+  if (!codes || codes.length === 0) {
+    return (
+      <div className="bg-white border border-stone-200 rounded-2xl">
+        <div className="px-6 pt-6 pb-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
+            <Tag className="w-5 h-5 text-stone-500" />
+            Mis códigos de descuento
+          </h3>
+        </div>
+        <div className="px-6 pb-6 text-center py-4">
+          <p className="text-sm text-stone-500">Crea tu primer código de descuento</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white border border-stone-200 rounded-2xl">
+      <div className="px-6 pt-6 pb-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
+          <Tag className="w-5 h-5 text-stone-500" />
+          Mis códigos de descuento
+        </h3>
+      </div>
+      <div className="px-6 pb-6 space-y-2">
+        {codes.map((dc, i) => (
+          <div
+            key={dc.code || i}
+            className="rounded-2xl border border-stone-200 p-3 flex items-center justify-between gap-3"
+          >
+            <div className="min-w-0">
+              <p className="font-mono text-sm font-semibold text-stone-950 truncate">{dc.code}</p>
+            </div>
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="text-right">
+                <p className="text-xs text-stone-500">Usos</p>
+                <p className="text-sm font-semibold text-stone-950">{dc.usage_count ?? dc.uses ?? 0}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-stone-500">Ingresos</p>
+                <p className="text-sm font-semibold text-stone-950">{convertAndFormatPrice(Number(dc.revenue ?? dc.total_revenue ?? 0))}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function InfluencerDashboard() {
   const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
@@ -254,6 +306,7 @@ export default function InfluencerDashboard() {
   const [payoutHistory, setPayoutHistory] = useState([]);
   const [showIrpfModal, setShowIrpfModal] = useState(false);
   const [collabs, setCollabs] = useState([]);
+  const [discountCodes, setDiscountCodes] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -269,6 +322,9 @@ export default function InfluencerDashboard() {
     apiClient.get('/collaborations').then(d => {
       if (active) setCollabs(d?.collaborations || []);
     }).catch(logFetchErr('collaborations'));
+    apiClient.get('/influencer/discount-codes').then(d => {
+      if (active) setDiscountCodes(d?.codes || d || []);
+    }).catch(logFetchErr('discount-codes'));
     apiClient
       .get('/intelligence/influencer-performance')
       .then((data) => {
@@ -302,6 +358,9 @@ export default function InfluencerDashboard() {
 
   const handleCodeCreated = useCallback((_newCode) => {
     refetchDashboard();
+    apiClient.get('/influencer/discount-codes').then(d => {
+      setDiscountCodes(d?.codes || d || []);
+    }).catch(() => {});
   }, [refetchDashboard]);
 
   const scrollToWithdrawals = useCallback(() => {
@@ -384,18 +443,29 @@ export default function InfluencerDashboard() {
 
         {/* Hero Balance Card */}
         <div className="mb-6 bg-stone-950 text-white rounded-2xl p-5">
-          <p className="text-xs text-white/60 mb-1">Balance disponible</p>
-          <p className="text-3xl font-bold">{convertAndFormatPrice(asNumber(dashboard.available_balance))}</p>
-          {dashboard.payment_schedule?.available_soon > 0 && (
-            <p className="text-xs text-white/40 mt-1">
-              +{convertAndFormatPrice(asNumber(dashboard.payment_schedule.available_soon))} próximamente
-            </p>
-          )}
-          {dashboard.payment_schedule?.pending_amount > 0 && (
-            <p className="text-[10px] text-white/30 mt-0.5" title="Las comisiones están disponibles 15 días después de la venta">
-              {convertAndFormatPrice(asNumber(dashboard.payment_schedule.pending_amount))} en retención (15 días)
-            </p>
-          )}
+          <p className="text-xs text-white/60 mb-1">Balance total</p>
+          <p className="text-xl font-bold">{convertAndFormatPrice(
+            asNumber(dashboard.available_balance) +
+            asNumber(dashboard.payment_schedule?.pending_amount) +
+            asNumber(dashboard.payment_schedule?.in_transit)
+          )}</p>
+
+          {/* Balance breakdown rows */}
+          <div className="mt-3 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/50">Disponible</span>
+              <span className="text-sm font-semibold">{convertAndFormatPrice(asNumber(dashboard.available_balance))}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/50">Pendiente 15 días</span>
+              <span className="text-sm font-semibold">{convertAndFormatPrice(asNumber(dashboard.payment_schedule?.pending_amount))}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/50">En tránsito</span>
+              <span className="text-sm font-semibold">{convertAndFormatPrice(asNumber(dashboard.payment_schedule?.in_transit))}</span>
+            </div>
+          </div>
+
           {(dashboard.available_balance || 0) >= MINIMUM_WITHDRAWAL && (
             <button
               onClick={() => navigate('/influencer/withdrawal')}
@@ -518,6 +588,11 @@ export default function InfluencerDashboard() {
             <CreateCodeCard onCodeCreated={handleCodeCreated} />
           </div>
         )}
+
+        {/* Discount Codes List */}
+        <div className="mb-4 md:mb-6">
+          <DiscountCodesList codes={discountCodes} convertAndFormatPrice={convertAndFormatPrice} />
+        </div>
 
         {/* Tier Progress */}
         <TierProgress />

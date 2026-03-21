@@ -251,8 +251,10 @@ export default function ProducerOrders() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(o =>
-        o.user_email?.toLowerCase().includes(q) ||
         o.order_id?.toLowerCase().includes(q) ||
+        o.order_number?.toLowerCase().includes(q) ||
+        o.customer_name?.toLowerCase().includes(q) ||
+        o.user_email?.toLowerCase().includes(q) ||
         o.shipping_address?.name?.toLowerCase().includes(q)
       );
     }
@@ -410,8 +412,8 @@ export default function ProducerOrders() {
         <input
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          placeholder="Buscar por cliente o número..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-stone-200 bg-white text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400"
+          placeholder="Buscar por nº pedido o cliente..."
+          className="h-10 w-full pl-10 pr-4 rounded-xl bg-stone-100 border-none text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-300"
         />
       </div>
 

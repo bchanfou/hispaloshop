@@ -84,6 +84,7 @@ export default function AffiliateLinksPage() {
   const [myLinks, setMyLinks] = useState([]);
   const [loadingLinks, setLoadingLinks] = useState(true);
   const [blocked, setBlocked] = useState(null);
+  const [sortBy, setSortBy] = useState('recent');
 
   const fetchLinks = useCallback(async () => {
     try {
@@ -158,9 +159,14 @@ export default function AffiliateLinksPage() {
                 <p className="text-sm font-semibold mb-1 text-stone-950">
                   Configuración fiscal requerida
                 </p>
-                <p className="text-sm mb-4 text-stone-500">
-                  {blocked.reason || 'Necesitas completar tu configuración fiscal para activar tus links de afiliado.'}
+                <p className="text-sm mb-2 text-stone-500">
+                  Necesitas completar tu configuración fiscal para activar tus links de afiliado.
                 </p>
+                {(blocked.reason || blocked.detail) && (
+                  <p className="text-sm text-stone-500 mb-4">
+                    Motivo: {blocked.reason || blocked.detail}
+                  </p>
+                )}
                 <RouterLink
                   to="/influencer/fiscal-setup"
                   className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors bg-stone-950 text-white rounded-2xl"
@@ -286,7 +292,20 @@ export default function AffiliateLinksPage() {
         )}
 
         {/* My links */}
-        <h3 className="text-base font-bold text-stone-950 mb-3">Links activos</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-bold text-stone-950">Links activos</h3>
+          {myLinks.length > 1 && (
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-white text-sm text-stone-950 px-3 py-1.5 focus:outline-none focus:border-stone-400"
+            >
+              <option value="revenue">Más ingresos</option>
+              <option value="clicks">Más clics</option>
+              <option value="recent">Más recientes</option>
+            </select>
+          )}
+        </div>
         {loadingLinks ? (
           <div className="space-y-3">
             {[1,2,3].map(i => (
@@ -314,7 +333,12 @@ export default function AffiliateLinksPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {myLinks.map((link) => (
+            {[...myLinks].sort((a, b) => {
+              if (sortBy === 'revenue') return Number(b.commission_eur || 0) - Number(a.commission_eur || 0);
+              if (sortBy === 'clicks') return Number(b.clicks || 0) - Number(a.clicks || 0);
+              // recent — newest first by created_at
+              return (new Date(b.created_at || 0)).getTime() - (new Date(a.created_at || 0)).getTime();
+            }).map((link) => (
               <AffiliateLinkCard key={link.link_id || link.id} link={link} convertAndFormatPrice={convertAndFormatPrice} />
             ))}
           </div>
