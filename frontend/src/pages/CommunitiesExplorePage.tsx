@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Search, ChevronRight, Users, X, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Search, ChevronRight, Users, X, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
@@ -196,40 +196,43 @@ export default function CommunitiesExplorePage() {
               ))}
             </div>
           ) : isError ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-16">
-              <Users size={56} className="text-stone-400" strokeWidth={1} />
-              <p className="text-center text-[15px] text-stone-500">Error al cargar comunidades</p>
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <AlertTriangle className="w-10 h-10 text-stone-300" />
+              <p className="text-base font-semibold text-stone-950">Error al cargar</p>
+              <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
               <button
                 onClick={() => refetch()}
-                className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 cursor-pointer"
+                className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
                 aria-label="Reintentar carga"
               >
-                <RefreshCw size={14} /> Reintentar
+                Reintentar
               </button>
             </div>
           ) : communities.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-16">
-              <Users size={56} className="text-stone-300" strokeWidth={1} />
-              <p className="text-center text-[15px] font-semibold text-stone-950">
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Users size={48} className="text-stone-300" strokeWidth={1.5} />
+              <p className="text-base font-semibold text-stone-950">
                 {filter !== 'all' && !searchInput
                   ? 'No hay comunidades en esta categoría'
                   : searchInput
                   ? 'Sin resultados para tu búsqueda'
-                  : 'Sin comunidades todavía'}
+                  : 'Aún no hay comunidades'}
               </p>
-              <p className="text-center text-[13px] text-stone-500">
+              <p className="text-sm text-stone-500">
                 {filter !== 'all' && !searchInput
-                  ? '¿Por qué no creas la primera?'
+                  ? 'Crea la primera comunidad de esta categoría'
                   : searchInput
                   ? 'Prueba con otros términos'
-                  : 'Sé el primero en crear una'}
+                  : 'Sé el primero en crear una y conectar con la comunidad'}
               </p>
-              <button
-                onClick={() => navigate('/communities/create')}
-                className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors"
-              >
-                Crear comunidad
-              </button>
+              {canCreate && (
+                <button
+                  onClick={() => navigate('/communities/create')}
+                  className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
+                >
+                  Crear comunidad
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">

@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List, Globe, Check } from 'lucide-react';
+import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List, Globe, Check, AlertTriangle } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CategoryNav from '../components/CategoryNav';
 import ProductCard from '../components/ProductCard';
@@ -496,7 +496,16 @@ export default function ProductsPage() {
           {products.length} {t('products.resultsFound', 'resultados')}
         </p>
 
-        {catalogQuery.isLoading ? (
+        {catalogQuery.isError ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <AlertTriangle className="w-10 h-10 text-stone-300" />
+            <p className="text-base font-semibold text-stone-950">Error al cargar</p>
+            <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
+            <button onClick={() => catalogQuery.refetch()} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors">
+              Reintentar
+            </button>
+          </div>
+        ) : catalogQuery.isLoading ? (
           <div className="py-16 text-center" data-testid="loading-spinner" role="status" aria-label={t('common.loading', 'Cargando')}>
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
             <p className="text-stone-500">{t('common.loading', 'Cargando...')}</p>

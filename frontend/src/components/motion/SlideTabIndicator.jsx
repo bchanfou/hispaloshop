@@ -43,7 +43,7 @@ export default function SlideTabIndicator({
               <motion.div
                 layoutId={layoutId}
                 className="absolute top-0 left-0 right-0 h-[2px] bg-stone-950"
-                transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             )}
             {isActive && variant === 'pill' && (

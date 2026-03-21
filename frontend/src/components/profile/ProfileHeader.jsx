@@ -668,6 +668,7 @@ export default function ProfileHeader({
           <>
             <motion.button
               whileTap={{ scale: 0.96 }}
+              animate={user?.is_following ? { scale: [1, 1.1, 1] } : { scale: 1 }}
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={onFollowToggle}
               aria-label={
@@ -679,7 +680,7 @@ export default function ProfileHeader({
                   ? `Solicitar seguir a ${user?.name}`
                   : `Seguir a ${user?.name}`
               }
-              className={`min-h-[34px] flex-1 rounded-2xl px-3 py-1.5 text-[13px] font-semibold ${
+              className={`min-h-[34px] flex-1 rounded-2xl px-3 py-1.5 text-[13px] font-semibold overflow-hidden ${
                 user?.is_following
                   ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
@@ -687,13 +688,24 @@ export default function ProfileHeader({
                   : 'bg-stone-950 text-white hover:bg-stone-800'
               }`}
             >
-              {user?.follow_request_pending
-                ? 'Solicitado'
-                : user?.is_following
-                ? 'Siguiendo'
-                : user?.is_private
-                ? 'Solicitar'
-                : 'Seguir'}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={user?.follow_request_pending ? 'requested' : user?.is_following ? 'following' : 'follow'}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                  className="block"
+                >
+                  {user?.follow_request_pending
+                    ? 'Solicitado'
+                    : user?.is_following
+                    ? 'Siguiendo'
+                    : user?.is_private
+                    ? 'Solicitar'
+                    : 'Seguir'}
+                </motion.span>
+              </AnimatePresence>
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.96 }}

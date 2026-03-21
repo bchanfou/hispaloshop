@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ChefHat, Clock, Loader2, Plus, X, Bookmark } from 'lucide-react';
+import { Search, ChefHat, Clock, Loader2, Plus, X, Bookmark, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
@@ -286,30 +286,41 @@ export default function RecipesPage() {
             ))}
           </div>
         ) : fetchError ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-16">
-            <ChefHat size={56} className="text-stone-300" strokeWidth={1} />
-            <p className="text-[15px] text-stone-500">No pudimos cargar las recetas</p>
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <AlertTriangle className="w-10 h-10 text-stone-300" />
+            <p className="text-base font-semibold text-stone-950">Error al cargar</p>
+            <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
             <button
               type="button"
               onClick={handleRetry}
-              className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors"
+              className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
             >
               Reintentar
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-16">
-            <ChefHat size={56} className="text-stone-300" strokeWidth={1} />
-            <p className="text-[15px] text-stone-500">No se encontraron recetas</p>
-            {hasFilters && (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <ChefHat size={48} className="text-stone-300" strokeWidth={1.5} />
+            <p className="text-base font-semibold text-stone-950">Aún no hay recetas</p>
+            <p className="text-sm text-stone-500">
+              {hasFilters ? 'Prueba con otros filtros o busca otra categoría' : 'Sé el primero en compartir una receta con la comunidad'}
+            </p>
+            {hasFilters ? (
               <button
                 type="button"
                 onClick={clearFilters}
-                className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors"
+                className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
               >
                 Limpiar filtros
               </button>
-            )}
+            ) : user ? (
+              <Link
+                to="/recipes/create"
+                className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors no-underline"
+              >
+                Crear receta
+              </Link>
+            ) : null}
           </div>
         ) : (
           <>

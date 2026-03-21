@@ -3,15 +3,15 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Loader2, Check, UserPlus, ShoppingCart, Wheat, Star, Globe,
-  Camera, MapPin, Building2, Instagram, Youtube, Users,
+  ArrowLeft, Loader2, Check, ShoppingCart, Wheat, Star, Globe,
+  Camera, MapPin,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
 /* ── Constants ── */
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 4;
 
 const ROLES = [
   { id: 'consumer', icon: <ShoppingCart size={24} />, label: 'Consumidor', desc: 'Descubrir y comprar productos artesanales' },
@@ -26,28 +26,11 @@ const INTERESTS = [
   'Snacks', 'Superfoods', 'Bio/Ecológico', 'Sin gluten',
 ];
 
-const COMPANY_SIZES = [
-  { id: 'artesano', label: 'Artesano' },
-  { id: 'pequeno', label: 'Pequeño' },
-  { id: 'mediano', label: 'Mediano' },
-  { id: 'grande', label: 'Grande' },
-];
-
-const PLATFORMS = [
-  { id: 'instagram', label: 'Instagram', icon: <Instagram size={18} /> },
-  { id: 'tiktok', label: 'TikTok', icon: <Users size={18} /> },
-  { id: 'youtube', label: 'YouTube', icon: <Youtube size={18} /> },
-];
-
-const FOLLOWER_RANGES = ['1K–5K', '5K–25K', '25K–100K', '100K+'];
-
-const IMPORTER_COUNTRIES = [
-  'España', 'Francia', 'Alemania', 'Italia', 'Portugal',
-  'Reino Unido', 'Países Bajos', 'Bélgica', 'Suiza', 'EE.UU.',
-];
-
-const ROLE_LABELS = {
-  producer: 'Productor', influencer: 'Influencer', consumer: 'Consumidor', importer: 'Importador',
+const ROLE_WELCOME_SUBTITLES = {
+  consumer: 'Descubre productos artesanales únicos de productores locales.',
+  producer: 'Tu tienda está lista. Empieza a vender tus productos artesanales.',
+  influencer: 'Conecta con marcas y empieza a crear contenido que inspira.',
+  importer: 'Explora el marketplace B2B y encuentra los mejores productores.',
 };
 
 const slideVariants = {
@@ -104,11 +87,11 @@ const StepShell = ({ step, onBack, onSkip, children }) => (
   </div>
 );
 
-const PrimaryButton = ({ onClick, disabled, loading, children }) => (
+const PrimaryButton = ({ onClick, disabled, loading, children, className = '' }) => (
   <button
     onClick={onClick}
     disabled={disabled || loading}
-    className="w-full rounded-full bg-stone-950 text-white font-semibold text-base cursor-pointer border-none flex items-center justify-center gap-2 transition-colors hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
+    className={`w-full rounded-full bg-stone-950 text-white font-semibold text-base cursor-pointer border-none flex items-center justify-center gap-2 transition-colors hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     style={{ fontFamily: 'inherit', height: 52, padding: '0 24px' }}
   >
     {loading ? <Loader2 size={20} className="animate-spin" /> : children}
@@ -124,29 +107,18 @@ export default function OnboardingPage() {
   const [direction, setDirection] = useState(1);
   const [saving, setSaving] = useState(false);
 
-  // Step 1: Profile photo
-  const [profilePhoto, setProfilePhoto] = useState(null);
-  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
-
-  // Step 2: Role
+  // Step 1: Role
   const [selectedRole, setSelectedRole] = useState('');
 
-  // Step 3: Interests
+  // Step 2: Interests
   const [selectedInterests, setSelectedInterests] = useState([]);
 
-  // Step 4: Suggested accounts
-  const [suggestions, setSuggestions] = useState([]);
-  const [sugLoading, setSugLoading] = useState(false);
-  const [followedIds, setFollowedIds] = useState(new Set());
-  const sugFetched = useRef(false);
-
-  // Step 5: Role config
-  const [roleConfig, setRoleConfig] = useState({
-    city: '', country: 'España',
-    companyName: '', companySize: '',
-    platforms: [], followerRange: '',
-    importerCompany: '', importerCountries: [],
-  });
+  // Step 3: Profile personalization
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
+  const [displayName, setDisplayName] = useState('');
+  const [bio, setBio] = useState('');
+  const [location, setLocation] = useState('');
 
   // Redirect if not authenticated or already onboarded
   useEffect(() => {
@@ -167,27 +139,6 @@ export default function OnboardingPage() {
       await apiClient.post('/users/me/onboarding', data);
     } catch {
       // silent — best effort
-    }
-  }, []);
-
-  // Fetch suggestions when reaching step 4
-  useEffect(() => {
-    if (step !== 4 || sugFetched.current) return;
-    sugFetched.current = true;
-    setSugLoading(true);
-    const prefs = selectedInterests.map(i => i.toLowerCase().replace(/\//g, '-')).join(',');
-    apiClient.get(`/discovery/suggested-users?context=onboarding&limit=8${prefs ? `&preferences=${prefs}` : ''}`)
-      .then(data => setSuggestions(data?.users || []))
-      .catch(() => setSuggestions([]))
-      .finally(() => setSugLoading(false));
-  }, [step, selectedInterests]);
-
-  const handleFollow = useCallback(async (userId) => {
-    try {
-      await apiClient.post(`/users/${userId}/follow`, {});
-      setFollowedIds(prev => new Set([...prev, userId]));
-    } catch {
-      toast.error('No se pudo seguir a este usuario');
     }
   }, []);
 
@@ -216,12 +167,25 @@ export default function OnboardingPage() {
         }
       }
 
+      // Save profile details if provided
+      const profileData = {};
+      if (displayName.trim()) profileData.display_name = displayName.trim();
+      if (bio.trim()) profileData.bio = bio.trim();
+      if (location.trim()) profileData.location = location.trim();
+
+      if (Object.keys(profileData).length > 0) {
+        try {
+          await apiClient.patch('/users/me', profileData);
+        } catch {
+          // non-blocking
+        }
+      }
+
       await apiClient.post('/auth/set-role', {
         role: selectedRole,
         preferences: selectedInterests.map(i => i.toLowerCase().replace(/\//g, '-')),
-        role_config: roleConfig,
       });
-      await saveProgress({ step: 6, completed: true });
+      await saveProgress({ step: 4, completed: true });
       await checkAuth();
 
       if (selectedRole === 'producer') {
@@ -237,10 +201,9 @@ export default function OnboardingPage() {
     } finally {
       setSaving(false);
     }
-  }, [profilePhoto, selectedRole, selectedInterests, roleConfig, saveProgress, checkAuth, navigate]);
+  }, [profilePhoto, displayName, bio, location, selectedRole, selectedInterests, saveProgress, checkAuth, navigate]);
 
   const handleSkip = useCallback(() => {
-    // Skip jumps to next step, or finishes if on last content step
     if (step < TOTAL_STEPS) {
       saveProgress({ step, skipped: true });
       goTo(step + 1);
@@ -255,56 +218,9 @@ export default function OnboardingPage() {
     );
   }
 
-  /* ═══════════════ STEP 1: Profile Photo ═══════════════ */
+  /* ═══════════════ STEP 1: Role Selection ═══════════════ */
   const Step1 = (
-    <StepShell step={1} onSkip={() => { saveProgress({ step: 1, skipped: true }); goTo(2); }}>
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <label className="cursor-pointer group" htmlFor="avatar-upload">
-          <div
-            className="w-[120px] h-[120px] rounded-full bg-stone-100 border-2 border-dashed border-stone-200 flex items-center justify-center overflow-hidden transition-colors group-hover:border-stone-400"
-          >
-            {profilePhotoPreview ? (
-              <img src={profilePhotoPreview} alt="Preview" className="w-full h-full object-cover" />
-            ) : (
-              <Camera size={36} className="text-stone-400" />
-            )}
-          </div>
-        </label>
-        <input
-          id="avatar-upload"
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handlePhotoSelect}
-        />
-
-        <h2 className="text-2xl font-bold text-stone-950 text-center mt-8 mb-2">
-          Añadir foto de perfil
-        </h2>
-        <p className="text-sm text-stone-500 text-center mb-10">
-          Ayuda a que la gente te reconozca
-        </p>
-
-        {profilePhotoPreview && (
-          <button
-            onClick={() => { setProfilePhoto(null); setProfilePhotoPreview(null); }}
-            className="text-sm text-stone-500 bg-transparent border-none cursor-pointer mb-6"
-            style={{ fontFamily: 'inherit' }}
-          >
-            Eliminar foto
-          </button>
-        )}
-      </div>
-
-      <PrimaryButton onClick={() => { saveProgress({ step: 1, photo: !!profilePhoto }); goTo(2); }}>
-        {profilePhotoPreview ? 'Siguiente' : 'Continuar sin foto'}
-      </PrimaryButton>
-    </StepShell>
-  );
-
-  /* ═══════════════ STEP 2: Role Selection ═══════════════ */
-  const Step2 = (
-    <StepShell step={2} onBack={() => goTo(1)} onSkip={null}>
+    <StepShell step={1} onBack={null} onSkip={null}>
       <div className="flex-1 flex flex-col items-center pt-6">
         <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
           ¿Cómo quieres participar?
@@ -341,7 +257,7 @@ export default function OnboardingPage() {
 
       <div className="mt-8">
         <PrimaryButton
-          onClick={() => { saveProgress({ step: 2, role: selectedRole }); goTo(3); }}
+          onClick={() => { saveProgress({ step: 1, role: selectedRole }); goTo(2); }}
           disabled={!selectedRole}
         >
           Siguiente
@@ -350,15 +266,15 @@ export default function OnboardingPage() {
     </StepShell>
   );
 
-  /* ═══════════════ STEP 3: Interests ═══════════════ */
+  /* ═══════════════ STEP 2: Interests / Preferences ═══════════════ */
   const toggleInterest = (name) => {
     setSelectedInterests(prev =>
       prev.includes(name) ? prev.filter(p => p !== name) : [...prev, name]
     );
   };
 
-  const Step3 = (
-    <StepShell step={3} onBack={() => goTo(2)} onSkip={() => { setSelectedInterests([]); saveProgress({ step: 3, skipped: true }); goTo(4); }}>
+  const Step2 = (
+    <StepShell step={2} onBack={() => goTo(1)} onSkip={() => { setSelectedInterests([]); saveProgress({ step: 2, skipped: true }); goTo(3); }}>
       <div className="flex-1 flex flex-col items-center pt-6">
         <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
           ¿Qué te interesa?
@@ -397,7 +313,7 @@ export default function OnboardingPage() {
 
       <div className="mt-8">
         <PrimaryButton
-          onClick={() => { saveProgress({ step: 3, interests: selectedInterests }); goTo(4); }}
+          onClick={() => { saveProgress({ step: 2, interests: selectedInterests }); goTo(3); }}
           disabled={selectedInterests.length < 3}
         >
           Siguiente
@@ -406,304 +322,118 @@ export default function OnboardingPage() {
     </StepShell>
   );
 
-  /* ═══════════════ STEP 4: Suggested Accounts ═══════════════ */
-
-  const Step4 = (
-    <StepShell step={4} onBack={() => goTo(3)} onSkip={() => { saveProgress({ step: 4, skipped: true }); goTo(5); }}>
+  /* ═══════════════ STEP 3: Personalización ═══════════════ */
+  const Step3 = (
+    <StepShell step={3} onBack={() => goTo(2)} onSkip={() => { saveProgress({ step: 3, skipped: true }); goTo(4); }}>
       <div className="flex-1 flex flex-col items-center pt-6">
         <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
-          Cuentas sugeridas
+          Personaliza tu perfil
         </h2>
         <p className="text-sm text-stone-500 text-center mb-8">
-          Sigue a creadores y productores para llenar tu feed
+          Esto es lo que verán otros usuarios
         </p>
 
-        {sugLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 size={24} className="text-stone-400 animate-spin" />
+        {/* Avatar upload */}
+        <label className="cursor-pointer group mb-6" htmlFor="avatar-upload">
+          <div className="w-24 h-24 rounded-full bg-stone-100 border-2 border-dashed border-stone-200 flex items-center justify-center overflow-hidden transition-colors group-hover:border-stone-400">
+            {profilePhotoPreview ? (
+              <img src={profilePhotoPreview} alt="Preview" className="w-full h-full object-cover" />
+            ) : (
+              <Camera size={28} className="text-stone-400" />
+            )}
           </div>
-        ) : suggestions.length === 0 ? (
-          <p className="text-center text-sm text-stone-500 py-12">
-            No hay sugerencias disponibles ahora
-          </p>
-        ) : (
-          <div className="w-full space-y-3">
-            {suggestions.map(u => {
-              const isFollowed = followedIds.has(u.user_id);
-              return (
-                <div key={u.user_id} className="flex items-center gap-3 w-full">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-stone-100 flex-shrink-0">
-                    {u.profile_image ? (
-                      <img src={u.profile_image} alt={u.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-lg font-bold text-stone-500">
-                        {(u.name || '?')[0].toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-stone-950 truncate">{u.name}</p>
-                    <p className="text-xs text-stone-500">
-                      {u.username ? `@${u.username}` : (ROLE_LABELS[u.role] || u.role)}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => !isFollowed && handleFollow(u.user_id)}
-                    disabled={isFollowed}
-                    className={`flex-shrink-0 h-9 px-5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                      isFollowed
-                        ? 'bg-stone-950 text-white border-stone-950'
-                        : 'bg-transparent text-stone-950 border-stone-200 hover:border-stone-400'
-                    }`}
-                    style={{ fontFamily: 'inherit' }}
-                  >
-                    {isFollowed ? 'Siguiendo' : 'Seguir'}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+        </label>
+        <input
+          id="avatar-upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handlePhotoSelect}
+        />
+
+        {profilePhotoPreview && (
+          <button
+            onClick={() => { setProfilePhoto(null); setProfilePhotoPreview(null); }}
+            className="text-xs text-stone-500 bg-transparent border-none cursor-pointer mb-4"
+            style={{ fontFamily: 'inherit' }}
+          >
+            Eliminar foto
+          </button>
         )}
+
+        {/* Display name */}
+        <div className="w-full mb-4">
+          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Nombre visible</label>
+          <input
+            type="text"
+            value={displayName}
+            onChange={e => setDisplayName(e.target.value)}
+            placeholder="Tu nombre o alias"
+            className="w-full h-12 px-4 rounded-xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
+            style={{ fontFamily: 'inherit' }}
+          />
+        </div>
+
+        {/* Bio */}
+        <div className="w-full mb-4">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-medium text-stone-500">Bio</label>
+            <span className={`text-xs ${bio.length > 140 ? 'text-stone-950 font-semibold' : 'text-stone-400'}`}>
+              {bio.length}/150
+            </span>
+          </div>
+          <textarea
+            value={bio}
+            onChange={e => { if (e.target.value.length <= 150) setBio(e.target.value); }}
+            placeholder="Cuéntanos algo sobre ti..."
+            rows={3}
+            className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400 resize-none"
+            style={{ fontFamily: 'inherit' }}
+          />
+        </div>
+
+        {/* Location */}
+        <div className="w-full">
+          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Ubicación (opcional)</label>
+          <div className="relative">
+            <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              placeholder="Tu ciudad"
+              className="w-full h-12 pl-10 pr-4 rounded-xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
+              style={{ fontFamily: 'inherit' }}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="mt-8">
-        <PrimaryButton onClick={() => { saveProgress({ step: 4, followed: [...followedIds] }); goTo(5); }}>
-          {followedIds.size > 0 ? `Siguiente (${followedIds.size} seguidos)` : 'Siguiente'}
-        </PrimaryButton>
-      </div>
-    </StepShell>
-  );
-
-  /* ═══════════════ STEP 5: Role Config ═══════════════ */
-  const updateConfig = (key, val) => setRoleConfig(prev => ({ ...prev, [key]: val }));
-
-  const toggleArrayItem = (key, val) => {
-    setRoleConfig(prev => {
-      const arr = prev[key];
-      return { ...prev, [key]: arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val] };
-    });
-  };
-
-  const ConsumerConfig = (
-    <>
-      <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mb-6 mx-auto">
-        <MapPin size={24} className="text-stone-700" />
-      </div>
-      <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
-        ¿Dónde te gustaría recibir pedidos?
-      </h2>
-      <p className="text-sm text-stone-500 text-center mb-8">
-        Para mostrarte productores cercanos
-      </p>
-      <div className="space-y-4">
-        <div>
-          <label className="text-xs font-medium text-stone-500 mb-1.5 block">País</label>
-          <input
-            type="text"
-            value={roleConfig.country}
-            onChange={e => updateConfig('country', e.target.value)}
-            className="w-full h-12 px-4 rounded-2xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400"
-            style={{ fontFamily: 'inherit' }}
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Ciudad</label>
-          <input
-            type="text"
-            value={roleConfig.city}
-            onChange={e => updateConfig('city', e.target.value)}
-            placeholder="Ej: Sevilla"
-            className="w-full h-12 px-4 rounded-2xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
-            style={{ fontFamily: 'inherit' }}
-          />
-        </div>
-      </div>
-    </>
-  );
-
-  const ProducerConfig = (
-    <>
-      <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mb-6 mx-auto">
-        <Building2 size={24} className="text-stone-700" />
-      </div>
-      <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
-        Cuéntanos sobre tu negocio
-      </h2>
-      <p className="text-sm text-stone-500 text-center mb-8">
-        Esto nos ayuda a personalizar tu experiencia
-      </p>
-      <div className="space-y-4">
-        <div>
-          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Nombre de empresa</label>
-          <input
-            type="text"
-            value={roleConfig.companyName}
-            onChange={e => updateConfig('companyName', e.target.value)}
-            placeholder="Ej: Aceites del Sur"
-            className="w-full h-12 px-4 rounded-2xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
-            style={{ fontFamily: 'inherit' }}
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Tamaño</label>
-          <div className="grid grid-cols-2 gap-2">
-            {COMPANY_SIZES.map(s => (
-              <button
-                key={s.id}
-                onClick={() => updateConfig('companySize', s.id)}
-                className={`h-11 rounded-2xl text-sm font-medium cursor-pointer border transition-all ${
-                  roleConfig.companySize === s.id
-                    ? 'bg-stone-950 text-white border-stone-950'
-                    : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
-                }`}
-                style={{ fontFamily: 'inherit' }}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
-  const InfluencerConfig = (
-    <>
-      <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mb-6 mx-auto">
-        <Star size={24} className="text-stone-700" />
-      </div>
-      <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
-        Tu perfil de creador
-      </h2>
-      <p className="text-sm text-stone-500 text-center mb-8">
-        Cuéntanos dónde creas contenido
-      </p>
-      <div className="space-y-6">
-        <div>
-          <label className="text-xs font-medium text-stone-500 mb-2 block">Plataformas</label>
-          <div className="flex gap-2">
-            {PLATFORMS.map(p => (
-              <button
-                key={p.id}
-                onClick={() => toggleArrayItem('platforms', p.id)}
-                className={`flex-1 h-11 rounded-2xl text-sm font-medium cursor-pointer border transition-all flex items-center justify-center gap-2 ${
-                  roleConfig.platforms.includes(p.id)
-                    ? 'bg-stone-950 text-white border-stone-950'
-                    : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
-                }`}
-                style={{ fontFamily: 'inherit' }}
-              >
-                {p.icon} {p.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <label className="text-xs font-medium text-stone-500 mb-2 block">Rango de seguidores</label>
-          <div className="grid grid-cols-2 gap-2">
-            {FOLLOWER_RANGES.map(r => (
-              <button
-                key={r}
-                onClick={() => updateConfig('followerRange', r)}
-                className={`h-11 rounded-2xl text-sm font-medium cursor-pointer border transition-all ${
-                  roleConfig.followerRange === r
-                    ? 'bg-stone-950 text-white border-stone-950'
-                    : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
-                }`}
-                style={{ fontFamily: 'inherit' }}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
-  const ImporterConfig = (
-    <>
-      <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mb-6 mx-auto">
-        <Globe size={24} className="text-stone-700" />
-      </div>
-      <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
-        Tu empresa importadora
-      </h2>
-      <p className="text-sm text-stone-500 text-center mb-8">
-        Información básica para empezar
-      </p>
-      <div className="space-y-4">
-        <div>
-          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Nombre de empresa</label>
-          <input
-            type="text"
-            value={roleConfig.importerCompany}
-            onChange={e => updateConfig('importerCompany', e.target.value)}
-            placeholder="Ej: Global Foods S.L."
-            className="w-full h-12 px-4 rounded-2xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400"
-            style={{ fontFamily: 'inherit' }}
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-stone-500 mb-2 block">Países de interés</label>
-          <div className="flex flex-wrap gap-2">
-            {IMPORTER_COUNTRIES.map(c => (
-              <button
-                key={c}
-                onClick={() => toggleArrayItem('importerCountries', c)}
-                className={`px-3.5 py-2 rounded-full text-xs font-medium cursor-pointer border transition-all ${
-                  roleConfig.importerCountries.includes(c)
-                    ? 'bg-stone-950 text-white border-stone-950'
-                    : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'
-                }`}
-                style={{ fontFamily: 'inherit' }}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
-  const roleConfigContent = {
-    consumer: ConsumerConfig,
-    producer: ProducerConfig,
-    influencer: InfluencerConfig,
-    importer: ImporterConfig,
-  };
-
-  const Step5 = (
-    <StepShell step={5} onBack={() => goTo(4)} onSkip={() => { saveProgress({ step: 5, skipped: true }); goTo(6); }}>
-      <div className="flex-1 flex flex-col pt-6">
-        {roleConfigContent[selectedRole] || roleConfigContent.consumer}
-      </div>
-      <div className="mt-8">
-        <PrimaryButton onClick={() => { saveProgress({ step: 5, roleConfig }); goTo(6); }}>
+        <PrimaryButton onClick={() => { saveProgress({ step: 3, displayName, bio, location }); goTo(4); }}>
           Siguiente
         </PrimaryButton>
       </div>
     </StepShell>
   );
 
-  /* ═══════════════ STEP 6: All Done ═══════════════ */
-  const Step6 = (
+  /* ═══════════════ STEP 4: Bienvenida ═══════════════ */
+  const Step4 = (
     <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center px-6" style={{ fontFamily: 'inherit' }}>
-      <ProgressBar step={6} />
+      <ProgressBar step={4} />
 
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', damping: 15, stiffness: 200, delay: 0.1 }}
-        className="w-20 h-20 rounded-full bg-stone-950 flex items-center justify-center mb-8 ring-8 ring-stone-200"
+        className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center mb-8 ring-8 ring-stone-200"
       >
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.35, type: 'spring', damping: 12, stiffness: 200 }}
         >
-          <Check size={36} color="#fff" strokeWidth={2.5} />
+          <Check size={32} color="#fff" strokeWidth={2.5} />
         </motion.div>
       </motion.div>
 
@@ -719,26 +449,30 @@ export default function OnboardingPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="text-sm text-stone-500 text-center mb-12"
+        className="text-sm text-stone-500 text-center mb-12 max-w-xs"
       >
-        Tu feed personalizado te espera
+        {ROLE_WELCOME_SUBTITLES[selectedRole] || ROLE_WELCOME_SUBTITLES.consumer}
       </motion.p>
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="w-full max-w-md"
       >
-        <PrimaryButton onClick={handleFinish} loading={saving}>
-          Empezar
-        </PrimaryButton>
+        <button
+          onClick={handleFinish}
+          disabled={saving}
+          className="bg-stone-950 text-white rounded-full px-12 py-3 text-base font-semibold border-none cursor-pointer transition-colors hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          style={{ fontFamily: 'inherit' }}
+        >
+          {saving ? <Loader2 size={20} className="animate-spin" /> : 'Empezar'}
+        </button>
       </motion.div>
     </div>
   );
 
   /* ═══════════════ Render ═══════════════ */
-  const steps = { 1: Step1, 2: Step2, 3: Step3, 4: Step4, 5: Step5, 6: Step6 };
+  const steps = { 1: Step1, 2: Step2, 3: Step3, 4: Step4 };
 
   return (
     <div className="overflow-hidden">

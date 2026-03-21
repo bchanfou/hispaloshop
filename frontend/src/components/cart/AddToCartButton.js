@@ -98,7 +98,7 @@ const AddToCartButton = ({
         disabled={state === 'loading' || !productId}
         aria-label="Comprar ahora"
         className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-50`}
-        whileTap={{ scale: 0.98 }}
+        whileTap={{ scale: 0.95 }}
       >
         <Zap className={style.icon} />
         <span>Comprar ahora</span>
@@ -139,7 +139,7 @@ const AddToCartButton = ({
         } ${inCartQuantity > 0 && state === 'idle' ? 'bg-stone-700' : ''}`}
         animate={state === 'success' ? { scale: [1, 1.15, 1] } : {}}
         transition={state === 'success' ? { duration: 0.35, ease: 'easeOut' } : {}}
-        whileTap={{ scale: 0.98 }}
+        whileTap={{ scale: 0.95 }}
       >
         <AnimatePresence mode="wait">
           {state === 'loading' ? (

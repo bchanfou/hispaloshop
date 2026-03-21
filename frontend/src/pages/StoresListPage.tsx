@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Star, MapPin, Package, Truck, X, Map as MapIcon, List, Navigation, Check } from 'lucide-react';
+import { ArrowLeft, Search, Star, MapPin, Package, Truck, X, Map as MapIcon, List, Navigation, Check, AlertTriangle, Store as StoreIcon } from 'lucide-react';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
@@ -356,6 +356,7 @@ export default function StoresListPage() {
   const [stores, setStores] = useState([]);
   const [eliteStores, setEliteStores] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 400);
 
@@ -367,20 +368,22 @@ export default function StoresListPage() {
   const sentinelRef = useRef(null);
 
   /* ── fetch stores ── */
-  useEffect(() => {
-    let active = true;
+  const fetchStores = useCallback(() => {
     setLoading(true);
+    setFetchError(false);
     const params = debouncedSearch ? `?search=${encodeURIComponent(debouncedSearch)}` : '';
     apiClient.get(`/stores${params}`)
       .then(data => {
-        if (!active) return;
         const list = Array.isArray(data) ? data : data?.stores || [];
         setStores(list);
       })
-      .catch(() => { if (active) setStores([]); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .catch(() => { setStores([]); setFetchError(true); })
+      .finally(() => { setLoading(false); });
   }, [debouncedSearch]);
+
+  useEffect(() => {
+    fetchStores();
+  }, [fetchStores]);
 
   /* ── fetch elite stores (skip during search) ── */
   useEffect(() => {
@@ -676,12 +679,21 @@ export default function StoresListPage() {
                     </div>
                   ))}
                 </div>
+              ) : fetchError ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <AlertTriangle className="w-10 h-10 text-stone-300" />
+                  <p className="text-base font-semibold text-stone-950">Error al cargar</p>
+                  <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
+                  <button onClick={fetchStores} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors">
+                    Reintentar
+                  </button>
+                </div>
               ) : filteredStores.length === 0 ? (
-                <div className="flex flex-col items-center py-16 text-center">
-                  <MapPin size={48} className="text-stone-300" />
-                  <p className="mt-4 text-lg font-semibold text-stone-950">No hay tiendas</p>
-                  <p className="mt-1 text-sm text-stone-500">
-                    {debouncedSearch ? 'Prueba con otro término' : 'No hay tiendas en esta región todavía'}
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <StoreIcon size={48} className="text-stone-300" strokeWidth={1.5} />
+                  <p className="text-base font-semibold text-stone-950">Aún no hay tiendas</p>
+                  <p className="text-sm text-stone-500">
+                    {debouncedSearch ? 'Prueba con otro término de búsqueda' : 'No hay tiendas en esta región todavía'}
                   </p>
                 </div>
               ) : (

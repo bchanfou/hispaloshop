@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat, AlertTriangle } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -92,6 +92,7 @@ export default function DiscoverPage() {
   const [eliteStores, setEliteStores] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   const { products, isLoading: loadingProducts } = useProducts({
     limit: '24',
@@ -105,30 +106,38 @@ export default function DiscoverPage() {
   const eliteFadeTimer = useRef(null);
 
   /* ── fetch data ── */
-  useEffect(() => {
-    let active = true;
+  const fetchAllData = useCallback(() => {
+    setLoadingTrending(true);
+    setLoadingRecipes(true);
+    setFetchError(false);
+
+    let trendingFailed = false;
+    let productsFailed = false;
 
     apiClient.get('/discovery/trending', { params: { type: 'products', limit: 6 } })
-      .then(data => { if (active) setTrending(Array.isArray(data) ? data.slice(0, 6) : (data?.items || data?.products || []).slice(0, 6)); })
-      .catch(() => {})
-      .finally(() => { if (active) setLoadingTrending(false); });
+      .then(data => { setTrending(Array.isArray(data) ? data.slice(0, 6) : (data?.items || data?.products || []).slice(0, 6)); })
+      .catch(() => { trendingFailed = true; })
+      .finally(() => { setLoadingTrending(false); if (trendingFailed && productsFailed) setFetchError(true); });
 
     apiClient.get('/stores', { params: { plan: 'elite', country: userCountry, limit: 10 } })
       .then(data => {
         const list = Array.isArray(data) ? data : data?.stores || [];
-        if (active) setEliteStores(list);
+        setEliteStores(list);
       })
       .catch(() => {});
 
     apiClient.get('/recipes', { params: { sort: 'popular', limit: 6 } })
       .then(data => {
         const list = Array.isArray(data) ? data : data?.recipes || [];
-        if (active) setRecipes(list.slice(0, 6));
+        setRecipes(list.slice(0, 6));
       })
       .catch(() => {})
-      .finally(() => { if (active) setLoadingRecipes(false); });
+      .finally(() => { setLoadingRecipes(false); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userCountry]);
 
-    return () => { active = false; };
+  useEffect(() => {
+    fetchAllData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userCountry, user?.user_id]);
 
@@ -333,7 +342,16 @@ export default function DiscoverPage() {
       <EliteCarousel />
 
       {/* ─── EXPLORE GRID (Instagram-style 3-col) ─── */}
-      {(loadingProducts && loadingTrending) ? (
+      {fetchError && !loadingProducts && exploreItems.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <AlertTriangle className="w-10 h-10 text-stone-300" />
+          <p className="text-base font-semibold text-stone-950">Error al cargar</p>
+          <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
+          <button onClick={fetchAllData} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors">
+            Reintentar
+          </button>
+        </div>
+      ) : (loadingProducts && loadingTrending) ? (
         <SkeletonGrid />
       ) : exploreItems.length > 0 ? (
         <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-0.5">

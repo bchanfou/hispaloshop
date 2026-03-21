@@ -22,19 +22,19 @@ const Toaster = ({ ...props }) => {
         }
       `}</style>
       <Sonner
-        theme="light"
+        theme="dark"
         className="toaster group"
         position="top-center"
         toastOptions={{
           duration: 3000,
           classNames: {
             toast:
-              "group toast group-[.toaster]:bg-white group-[.toaster]:text-primary group-[.toaster]:border-stone-200 group-[.toaster]:shadow-lg group-[.toaster]:rounded-xl group-[.toaster]:pointer-events-auto group-[.toaster]:text-sm",
-            description: "group-[.toast]:text-text-muted",
+              "group toast group-[.toaster]:bg-stone-950 group-[.toaster]:text-white group-[.toaster]:border-stone-800 group-[.toaster]:shadow-lg group-[.toaster]:rounded-2xl group-[.toaster]:pointer-events-auto group-[.toaster]:text-sm group-[.toaster]:font-sans",
+            description: "group-[.toast]:text-stone-300",
             actionButton:
-              "group-[.toast]:bg-primary group-[.toast]:text-white",
+              "group-[.toast]:bg-white group-[.toast]:text-stone-950",
             cancelButton:
-              "group-[.toast]:bg-stone-100 group-[.toast]:text-text-muted",
+              "group-[.toast]:bg-stone-800 group-[.toast]:text-stone-300",
           },
         }}
         containerStyle={{
