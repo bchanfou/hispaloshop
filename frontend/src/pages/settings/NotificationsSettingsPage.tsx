@@ -90,7 +90,8 @@ export default function NotificationsSettingsPage() {
   const handleToggle = async (key, val) => {
     setPrefs(p => ({ ...p, [key]: val }));
     try {
-      await apiClient.put('/notifications/preferences', { [key]: val });
+      await apiClient.patch('/notifications/preferences', { [key]: val });
+      toast.success('Preferencias guardadas');
     } catch {
       setPrefs(p => ({ ...p, [key]: !val }));
       toast.error('Error al actualizar');

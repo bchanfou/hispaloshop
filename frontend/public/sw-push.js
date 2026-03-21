@@ -40,6 +40,14 @@ self.addEventListener('notificationclick', (event) => {
       url = '/influencer/dashboard';
     } else if (data.type === 'order_shipped') {
       url = '/orders';
+    } else if (data.type === 'verification_approved' || data.type === 'verification_rejected') {
+      url = '/producer/verification';
+    } else if (data.type === 'b2b_offer_received' || data.type === 'b2b_offer_accepted') {
+      url = '/b2b/operations';
+    } else if (data.type === 'collab_proposal') {
+      url = '/collaborations';
+    } else if (data.type === 'new_follower' || data.type === 'post_liked' || data.type === 'post_commented') {
+      url = '/notifications';
     }
   }
 

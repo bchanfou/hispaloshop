@@ -34,6 +34,9 @@ export default function ForYouFeed() {
   const isInitialLoading = feedQuery.isLoading;
   const error = feedQuery.error;
 
+  // Suggested users dismissal (session-only)
+  const [dismissedSuggestions, setDismissedSuggestions] = useState(false);
+
   // Post detail modal state
   const [modalPost, setModalPost] = useState(null);
   const handleCloseModal = useCallback(() => setModalPost(null), []);
@@ -175,8 +178,8 @@ export default function ForYouFeed() {
             const shouldAnimate = index < 5;
             const animDelay = shouldAnimate ? index * 0.05 : 0;
 
-            // Inject suggested users after every 5th post (position 4, 14, 24...)
-            const showSuggestions = index === 4 || (index > 4 && (index - 4) % 10 === 0);
+            // Inject suggested users after every 5th post (position 4, 14, 24...) unless dismissed
+            const showSuggestions = !dismissedSuggestions && (index === 4 || (index > 4 && (index - 4) % 10 === 0));
 
             const motionProps = shouldAnimate
               ? { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay } }
@@ -217,7 +220,7 @@ export default function ForYouFeed() {
 
             return (
               <div>
-                {showSuggestions && <SuggestedUsersCard />}
+                {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                 <motion.div {...motionProps}>
                   <PostCard
                     post={{
