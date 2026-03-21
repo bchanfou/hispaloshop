@@ -1,10 +1,45 @@
 import React, { useMemo } from 'react';
 import * as HoverCard from '@radix-ui/react-hover-card';
 import { Link } from 'react-router-dom';
-import { Coffee, Droplets, Leaf, Milk, Package, Pill, Sparkles, Snowflake, Soup, Wine, Apple, Croissant, Cookie } from 'lucide-react';
+import { Coffee, Droplets, Leaf, Milk, Package, Pill, Sparkles, Snowflake, Soup, Wine, Apple, Croissant, Cookie, LucideIcon } from 'lucide-react';
 import { CATEGORY_CONFIG, getProductsForCategory } from '../config/categories';
 
-const isNewProduct = (product) => {
+interface CategoryConfig {
+  slug: string;
+  shortLabel: string;
+  label: string;
+  icon: LucideIcon;
+  bg: string;
+  color: string;
+  border: string;
+  description: string;
+  matchTerms?: string[];
+  aliases?: string[];
+  fallbackCount?: number;
+}
+
+interface Product {
+  product_id?: string;
+  name?: string;
+  description?: string;
+  category?: string;
+  images?: string[];
+  created_at?: string;
+  [key: string]: any;
+}
+
+type CategoryNavVariant = 'default' | 'home-minimal' | 'catalog';
+
+interface CategoryNavProps {
+  products?: Product[];
+  activeCategory?: string;
+  getCategoryHref?: (slug: string) => string;
+  onSelectCategory?: (slug: string) => void;
+  title?: string;
+  variant?: CategoryNavVariant;
+}
+
+const isNewProduct = (product: Product): boolean => {
   if (!product?.created_at) return false;
   const createdAt = new Date(product.created_at).getTime();
   if (Number.isNaN(createdAt)) return false;
@@ -12,7 +47,7 @@ const isNewProduct = (product) => {
   return Date.now() - createdAt <= sevenDays;
 };
 
-const HOME_MINIMAL_CATEGORY_CONFIG = [
+const HOME_MINIMAL_CATEGORY_CONFIG: CategoryConfig[] = [
   { slug: 'aceites-vinagres', shortLabel: 'Aceites', label: 'Aceites', icon: Droplets, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Aceites y aliños con origen claro.', matchTerms: ['aceite', 'aove', 'oliva'] },
   { slug: 'lacteos', shortLabel: 'Lacteos', label: 'Lacteos', icon: Milk, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Mantequillas, yogures y elaboraciones lacteas.', matchTerms: ['leche', 'yogur', 'yogurt', 'mantequilla', 'lacteo'] },
   { slug: 'conservas-mermeladas', shortLabel: 'Conservas', label: 'Conservas', icon: Package, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Tarros, mermeladas y despensa artesana.', matchTerms: ['conserva', 'mermelada', 'tarro'] },
@@ -35,22 +70,22 @@ export default function CategoryNav({
   onSelectCategory,
   title = 'Descubre por Categoria',
   variant = 'default',
-}) {
-  const sourceConfig = variant === 'home-minimal' ? HOME_MINIMAL_CATEGORY_CONFIG : CATEGORY_CONFIG;
+}: CategoryNavProps) {
+  const sourceConfig: any[] = variant === 'home-minimal' ? HOME_MINIMAL_CATEGORY_CONFIG : CATEGORY_CONFIG;
   const isCatalog = variant === 'catalog';
 
   const categoryData = useMemo(
     () =>
-      sourceConfig.map((category) => {
-        const baseCategory =
-          CATEGORY_CONFIG.find((item) => item.slug === category.slug) ||
-          CATEGORY_CONFIG.find((item) => (item.aliases || []).includes(category.slug)) ||
+      sourceConfig.map((category: any) => {
+        const baseCategory: any =
+          CATEGORY_CONFIG.find((item: any) => item.slug === category.slug) ||
+          CATEGORY_CONFIG.find((item: any) => (item.aliases || []).includes(category.slug)) ||
           {};
         const matchingProducts =
           variant === 'home-minimal'
             ? products.filter((product) => {
                 const haystack = `${product.name || ''} ${product.description || ''} ${product.category || ''}`.toLowerCase();
-                return category.slug === product.category || (category.matchTerms || []).some((term) => haystack.includes(term));
+                return category.slug === product.category || (category.matchTerms || []).some((term: string) => haystack.includes(term));
               })
             : getProductsForCategory(products, category.slug);
 
@@ -83,7 +118,7 @@ export default function CategoryNav({
         </div>
 
         <div className={`flex snap-x snap-mandatory overflow-x-auto pb-2 scrollbar-hide ${isCatalog ? 'gap-4' : 'gap-3'}`}>
-          {categoryData.map((category) => {
+          {categoryData.map((category: any) => {
             const Icon = category.icon;
             const isActive = activeCategory === category.slug;
             const href = getCategoryHref ? getCategoryHref(category.slug) : `/products?category=${category.slug}`;
@@ -150,7 +185,7 @@ export default function CategoryNav({
                     <p className="mt-1 text-xs leading-5 text-stone-500">{category.description}</p>
                     <div className="mt-3 space-y-2">
                       {category.previewProducts.length > 0 ? (
-                        category.previewProducts.map((product) => (
+                        category.previewProducts.map((product: any) => (
                           <Link
                             key={product.product_id}
                             to={`/products/${product.product_id}`}

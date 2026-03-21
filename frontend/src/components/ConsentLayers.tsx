@@ -5,16 +5,20 @@ import { useTranslation } from 'react-i18next';
 
 /**
  * 3-Layer Consent Component for GDPR-compliant AI data processing consent
- * 
+ *
  * Layer 1: Quick Summary (always visible) - 5 bullet points
  * Layer 2: Full Legal Disclosure (expandable accordion)
  * Layer 3: Settings Control (toggle with immediate effect)
  */
 
+interface ConsentSummaryProps {
+  className?: string;
+}
+
 // Layer 1: Quick Summary Component
-export function ConsentSummary({ className = '' }) {
+export function ConsentSummary({ className = '' }: ConsentSummaryProps) {
   const { t } = useTranslation();
-  
+
   return (
     <div className={`space-y-2 ${className}`}>
       <h4 className="font-medium text-stone-950 flex items-center gap-2 text-sm">
@@ -47,12 +51,23 @@ export function ConsentSummary({ className = '' }) {
   );
 }
 
+interface ConsentFullDisclosureProps {
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
 // Layer 2: Full Legal Disclosure Component
-export function ConsentFullDisclosure({ isExpanded, onToggle }) {
+export function ConsentFullDisclosure({ isExpanded, onToggle }: ConsentFullDisclosureProps) {
   const { t, i18n } = useTranslation();
   const isEnglish = i18n.language === 'en';
-  
-  const sections = [
+
+  interface Section {
+    title: string;
+    content: string;
+    list?: string[];
+  }
+
+  const sections: Section[] = [
     {
       title: t('consent.layer2.section1Title'),
       content: t('consent.layer2.section1Text')
@@ -141,13 +156,13 @@ export function ConsentFullDisclosure({ isExpanded, onToggle }) {
           <ChevronDown className="w-5 h-5 text-stone-500" />
         )}
       </button>
-      
+
       {isExpanded && (
         <div className="px-4 py-4 space-y-4 text-sm text-stone-600 max-h-[400px] overflow-y-auto">
           <p className="font-medium text-stone-950 text-xs">
             {t('consent.version', 'Version 1.0')}
           </p>
-          
+
           {sections.map((section, idx) => (
             <div key={idx}>
               <h4 className="font-semibold text-stone-950 mb-1">{section.title}</h4>
@@ -161,7 +176,7 @@ export function ConsentFullDisclosure({ isExpanded, onToggle }) {
               )}
             </div>
           ))}
-          
+
           {/* Disclaimer for non-English versions */}
           {!isEnglish && (
             <div className="mt-4 p-3 bg-stone-50 border border-stone-200 rounded-2xl">
@@ -176,18 +191,25 @@ export function ConsentFullDisclosure({ isExpanded, onToggle }) {
   );
 }
 
+interface ConsentSettingsProps {
+  hasConsent: boolean;
+  onWithdraw: () => void;
+  onReactivate: () => void;
+  loading?: boolean;
+}
+
 // Layer 3: Consent Settings Control (for profile page)
-export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading = false }) {
+export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading = false }: ConsentSettingsProps) {
   const { t } = useTranslation();
   const [showConfirm, setShowConfirm] = useState(false);
-  
+
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-stone-950 flex items-center gap-2">
         <Shield className="w-5 h-5 text-stone-950" />
         {t('consent.layer3.title', 'Configuración de consentimiento')}
       </h3>
-      
+
       {/* Current Status */}
       <div className={`p-4 rounded-2xl ${hasConsent ? 'bg-stone-100 border border-stone-200' : 'bg-stone-100 border border-stone-200'}`}>
         <div className="flex items-center justify-between">
@@ -203,7 +225,7 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
           </span>
         </div>
       </div>
-      
+
       {hasConsent ? (
         <>
           {/* Withdraw Section */}
@@ -281,14 +303,21 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
   );
 }
 
+interface ConsentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAccept: () => void;
+  onDecline: () => void;
+}
+
 // Complete Consent Modal for Registration
-export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
+export function ConsentModal({ isOpen, onClose, onAccept, onDecline }: ConsentModalProps) {
   const { t, i18n } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const isEnglish = i18n.language === 'en';
-  
+
   if (!isOpen) return null;
-  
+
   return (
     <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" data-testid="consent-modal">
@@ -314,20 +343,20 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
             <X className="w-5 h-5 text-stone-500" />
           </button>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {/* Layer 1: Summary (always visible) */}
           <div className="p-4 bg-stone-50 border border-stone-200 rounded-2xl">
             <ConsentSummary />
           </div>
-          
+
           {/* Layer 2: Full Disclosure (expandable) */}
-          <ConsentFullDisclosure 
-            isExpanded={isExpanded} 
-            onToggle={() => setIsExpanded(!isExpanded)} 
+          <ConsentFullDisclosure
+            isExpanded={isExpanded}
+            onToggle={() => setIsExpanded(!isExpanded)}
           />
-          
+
           {/* Translation disclaimer */}
           {!isEnglish && (
             <p className="text-xs text-stone-500 text-center italic">
@@ -335,7 +364,7 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
             </p>
           )}
         </div>
-        
+
         {/* Footer Actions */}
         <div className="sticky bottom-0 bg-white border-t border-stone-200 px-6 py-4 flex justify-between gap-3">
           <button

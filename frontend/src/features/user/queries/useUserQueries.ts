@@ -1,16 +1,49 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient, { API_BASE_URL } from '../../../services/api/client';
 
+interface UserProfile {
+  user_id: string;
+  name: string;
+  bio: string;
+  followers_count: number;
+  following_count: number;
+  posts_count: number;
+  is_following?: boolean;
+  follow_request_pending?: boolean;
+  profile_image?: string;
+  [key: string]: any;
+}
+
+interface UserQueryOptions {
+  bookmarked?: boolean;
+  enabled?: boolean;
+}
+
+interface ToggleFollowVariables {
+  userId: string;
+  isFollowing: boolean;
+}
+
+interface UploadAvatarVariables {
+  file: File;
+  userId: string;
+}
+
+interface CreatePostVariables {
+  file: File;
+  caption: string;
+}
+
 export const userKeys = {
-  profile: (userId) => ['user', 'profile', userId],
-  posts: (userId, options = {}) => ['user', 'posts', userId, options.bookmarked ? 'bookmarked' : 'all'],
-  badges: (userId) => ['user', 'badges', userId],
-  products: (userId) => ['user', 'products', userId],
-  recipes: (userId) => ['user', 'recipes', userId],
-  highlights: (userId) => ['user', 'highlights', userId],
+  profile: (userId: string) => ['user', 'profile', userId] as const,
+  posts: (userId: string, options: UserQueryOptions = {}) => ['user', 'posts', userId, options.bookmarked ? 'bookmarked' : 'all'] as const,
+  badges: (userId: string) => ['user', 'badges', userId] as const,
+  products: (userId: string) => ['user', 'products', userId] as const,
+  recipes: (userId: string) => ['user', 'recipes', userId] as const,
+  highlights: (userId: string) => ['user', 'highlights', userId] as const,
 };
 
-function buildFallbackProfile(userId) {
+function buildFallbackProfile(userId: string): UserProfile {
   return {
     user_id: userId,
     name: 'Usuario',
@@ -21,7 +54,7 @@ function buildFallbackProfile(userId) {
   };
 }
 
-function normalizeProfileResponse(data, userId) {
+function normalizeProfileResponse(data: any, userId: string): UserProfile {
   const profile =
     data?.profile ??
     data?.data?.profile ??
@@ -39,7 +72,7 @@ function normalizeProfileResponse(data, userId) {
   };
 }
 
-function normalizeListResponse(data, candidates = []) {
+function normalizeListResponse(data: any, candidates: string[] = []): any[] {
   if (Array.isArray(data)) {
     return data;
   }
@@ -60,7 +93,7 @@ function normalizeListResponse(data, candidates = []) {
   return [];
 }
 
-export function resolveUserImage(url) {
+export function resolveUserImage(url: string | null | undefined): string | null {
   if (!url) {
     return null;
   }
@@ -72,14 +105,14 @@ export function resolveUserImage(url) {
   return `${API_BASE_URL}${url}`;
 }
 
-export function useUserProfileQuery(userId) {
+export function useUserProfileQuery(userId: string) {
   return useQuery({
     queryKey: userKeys.profile(userId),
-    queryFn: async () => {
+    queryFn: async (): Promise<UserProfile> => {
       try {
         const data = await apiClient.get(`/users/${userId}/profile`);
         return normalizeProfileResponse(data, userId);
-      } catch (error) {
+      } catch (error: any) {
         if (error?.status === 404) {
           return buildFallbackProfile(userId);
         }
@@ -91,7 +124,7 @@ export function useUserProfileQuery(userId) {
   });
 }
 
-export function useUserPostsQuery(userId, options = {}) {
+export function useUserPostsQuery(userId: string, options: UserQueryOptions = {}) {
   return useQuery({
     queryKey: userKeys.posts(userId, options),
     queryFn: async () => {
@@ -103,7 +136,7 @@ export function useUserPostsQuery(userId, options = {}) {
   });
 }
 
-export function useUserBadgesQuery(userId, options = {}) {
+export function useUserBadgesQuery(userId: string, options: UserQueryOptions = {}) {
   return useQuery({
     queryKey: userKeys.badges(userId),
     queryFn: () => apiClient.get(`/users/${userId}/badges`),
@@ -111,7 +144,7 @@ export function useUserBadgesQuery(userId, options = {}) {
   });
 }
 
-export function useUserProductsQuery(userId, options = {}) {
+export function useUserProductsQuery(userId: string, options: UserQueryOptions = {}) {
   return useQuery({
     queryKey: userKeys.products(userId),
     queryFn: async () => {
@@ -122,7 +155,7 @@ export function useUserProductsQuery(userId, options = {}) {
   });
 }
 
-export function useUserRecipesQuery(userId, options = {}) {
+export function useUserRecipesQuery(userId: string, options: UserQueryOptions = {}) {
   return useQuery({
     queryKey: userKeys.recipes(userId),
     queryFn: async () => {
@@ -137,12 +170,12 @@ export function useToggleUserFollowMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, isFollowing }) =>
+    mutationFn: ({ userId, isFollowing }: ToggleFollowVariables) =>
       isFollowing
         ? apiClient.delete(`/users/${userId}/follow`)
         : apiClient.post(`/users/${userId}/follow`, {}),
-    onSuccess: (data, { userId, isFollowing }) => {
-      queryClient.setQueryData(userKeys.profile(userId), (current) => {
+    onSuccess: (data: any, { userId, isFollowing }: ToggleFollowVariables) => {
+      queryClient.setQueryData(userKeys.profile(userId), (current: any) => {
         if (!current) {
           return current;
         }
@@ -170,13 +203,13 @@ export function useUploadUserAvatarMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ file }) => {
+    mutationFn: ({ file }: UploadAvatarVariables) => {
       const formData = new FormData();
       formData.append('file', file);
       return apiClient.post('/users/upload-avatar', formData);
     },
-    onSuccess: (data, { userId }) => {
-      queryClient.setQueryData(userKeys.profile(userId), (current) =>
+    onSuccess: (data: any, { userId }: UploadAvatarVariables) => {
+      queryClient.setQueryData(userKeys.profile(userId), (current: any) =>
         current
           ? {
               ...current,
@@ -188,21 +221,21 @@ export function useUploadUserAvatarMutation() {
   });
 }
 
-export function useCreateUserPostMutation(userId) {
+export function useCreateUserPostMutation(userId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ file, caption }) => {
+    mutationFn: ({ file, caption }: CreatePostVariables) => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('caption', caption);
       return apiClient.post('/posts', formData);
     },
-    onSuccess: (newPost) => {
-      queryClient.setQueryData(userKeys.posts(userId), (current) =>
+    onSuccess: (newPost: any) => {
+      queryClient.setQueryData(userKeys.posts(userId), (current: any) =>
         Array.isArray(current) ? [newPost, ...current] : [newPost],
       );
-      queryClient.setQueryData(userKeys.profile(userId), (current) =>
+      queryClient.setQueryData(userKeys.profile(userId), (current: any) =>
         current
           ? {
               ...current,
@@ -218,14 +251,14 @@ export function useCheckUserBadgesMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId) => apiClient.post(`/users/${userId}/badges/check`, {}),
-    onSuccess: (_data, userId) => {
+    mutationFn: (userId: string) => apiClient.post(`/users/${userId}/badges/check`, {}),
+    onSuccess: (_data: any, userId: string) => {
       queryClient.invalidateQueries({ queryKey: userKeys.badges(userId) });
     },
   });
 }
 
-export function useUserHighlightsQuery(userId) {
+export function useUserHighlightsQuery(userId: string) {
   return useQuery({
     queryKey: userKeys.highlights(userId),
     queryFn: async () => {

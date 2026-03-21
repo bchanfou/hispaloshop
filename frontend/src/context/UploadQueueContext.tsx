@@ -1,14 +1,43 @@
-import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useRef, useState, ReactNode } from 'react';
 import apiClient from '../services/api/client';
 
-async function publishSocialContent({ publishData, onProgress }) {
+type UploadStatus = 'pending' | 'uploading' | 'done' | 'error';
+
+interface PublishData {
+  contentType?: string;
+  caption?: string;
+  files?: File[];
+  products?: any[];
+  location?: string;
+  [key: string]: any;
+}
+
+interface QueueEntry {
+  id: string;
+  contentType: string | undefined;
+  caption: string;
+  status: UploadStatus;
+  progress: number;
+  error: string | null;
+  publishData: PublishData;
+}
+
+interface UploadQueueContextValue {
+  queue: QueueEntry[];
+  enqueueAndProcess: (publishData: PublishData) => string;
+  retry: (entryId: string) => void;
+  dismiss: (entryId: string) => void;
+  hasActiveUploads: boolean;
+}
+
+async function publishSocialContent({ publishData, onProgress }: { publishData: PublishData; onProgress?: (progress: number) => void }) {
   const fd = new FormData();
   if (publishData.caption) fd.append('caption', publishData.caption);
   if (publishData.files) {
     publishData.files.forEach((f) => fd.append('files', f));
   }
   if (publishData.products) {
-    fd.append('tagged_products_json', JSON.stringify(publishData.products.map((p) => ({ product_id: p.id || p }))));
+    fd.append('tagged_products_json', JSON.stringify(publishData.products.map((p: any) => ({ product_id: p.id || p }))));
   }
   if (publishData.location) fd.append('location', publishData.location);
   onProgress?.(50);
@@ -32,19 +61,23 @@ async function publishSocialContent({ publishData, onProgress }) {
   return res;
 }
 
-const UploadQueueContext = createContext(null);
+const UploadQueueContext = createContext<UploadQueueContextValue | null>(null);
 
-export function UploadQueueProvider({ children }) {
-  const [queue, setQueue] = useState([]);
+interface UploadQueueProviderProps {
+  children: ReactNode;
+}
+
+export function UploadQueueProvider({ children }: UploadQueueProviderProps) {
+  const [queue, setQueue] = useState<QueueEntry[]>([]);
   const processingRef = useRef(false);
 
-  const enqueue = useCallback((publishData) => {
+  const enqueue = useCallback((publishData: PublishData): string => {
     const id = `upload-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const entry = {
+    const entry: QueueEntry = {
       id,
       contentType: publishData.contentType,
       caption: publishData.caption || '',
-      status: 'pending',   // pending | uploading | done | error
+      status: 'pending',
       progress: 0,
       error: null,
       publishData,
@@ -58,7 +91,7 @@ export function UploadQueueProvider({ children }) {
     processingRef.current = true;
 
     while (true) {
-      let nextEntry = null;
+      let nextEntry: QueueEntry | null = null;
       setQueue((prev) => {
         const idx = prev.findIndex((e) => e.status === 'pending');
         if (idx === -1) return prev;
@@ -69,25 +102,25 @@ export function UploadQueueProvider({ children }) {
       });
 
       if (!nextEntry) break;
-      const entryId = nextEntry.id;
+      const entryId = (nextEntry as QueueEntry).id;
 
       try {
         await publishSocialContent({
-          publishData: nextEntry.publishData,
-          onProgress: (progress) => {
+          publishData: (nextEntry as QueueEntry).publishData,
+          onProgress: (progress: number) => {
             setQueue((prev) =>
               prev.map((e) => (e.id === entryId ? { ...e, progress } : e))
             );
           },
         });
         setQueue((prev) =>
-          prev.map((e) => (e.id === entryId ? { ...e, status: 'done', progress: 100 } : e))
+          prev.map((e) => (e.id === entryId ? { ...e, status: 'done' as UploadStatus, progress: 100 } : e))
         );
-      } catch (err) {
+      } catch (err: any) {
         setQueue((prev) =>
           prev.map((e) =>
             e.id === entryId
-              ? { ...e, status: 'error', error: err?.message || 'Error de subida' }
+              ? { ...e, status: 'error' as UploadStatus, error: err?.message || 'Error de subida' }
               : e
           )
         );
@@ -98,7 +131,7 @@ export function UploadQueueProvider({ children }) {
   }, []);
 
   const enqueueAndProcess = useCallback(
-    (publishData) => {
+    (publishData: PublishData): string => {
       const id = enqueue(publishData);
       // Start processing on next tick
       setTimeout(() => processQueue(), 0);
@@ -108,16 +141,16 @@ export function UploadQueueProvider({ children }) {
   );
 
   const retry = useCallback(
-    (entryId) => {
+    (entryId: string) => {
       setQueue((prev) =>
-        prev.map((e) => (e.id === entryId ? { ...e, status: 'pending', error: null, progress: 0 } : e))
+        prev.map((e) => (e.id === entryId ? { ...e, status: 'pending' as UploadStatus, error: null, progress: 0 } : e))
       );
       setTimeout(() => processQueue(), 0);
     },
     [processQueue]
   );
 
-  const dismiss = useCallback((entryId) => {
+  const dismiss = useCallback((entryId: string) => {
     setQueue((prev) => prev.filter((e) => e.id !== entryId));
   }, []);
 
@@ -133,7 +166,7 @@ export function UploadQueueProvider({ children }) {
   );
 }
 
-export function useUploadQueue() {
+export function useUploadQueue(): UploadQueueContextValue {
   const ctx = useContext(UploadQueueContext);
   if (!ctx) throw new Error('useUploadQueue must be used within UploadQueueProvider');
   return ctx;

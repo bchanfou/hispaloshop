@@ -4,12 +4,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 
-export default function ReviewModal({ open, onClose, order }) {
+interface OrderItem {
+  product_id?: string;
+  id?: string;
+  name?: string;
+  product_name?: string;
+  image?: string;
+  product_image?: string;
+  quantity?: number;
+}
+
+interface Order {
+  order_id: string;
+  line_items?: OrderItem[];
+}
+
+interface ReviewModalProps {
+  open: boolean;
+  onClose: () => void;
+  order: Order | null;
+}
+
+export default function ReviewModal({ open, onClose, order }: ReviewModalProps) {
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState<OrderItem | null>(null);
 
   if (!open || !order) return null;
 
@@ -34,7 +55,7 @@ export default function ReviewModal({ open, onClose, order }) {
       setComment('');
       setSelectedProduct(null);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.message || 'Error al enviar valoración');
     } finally {
       setSubmitting(false);

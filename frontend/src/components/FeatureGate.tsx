@@ -1,22 +1,27 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Lock, Zap, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+type PlanName = 'FREE' | 'PRO' | 'ELITE';
+
+interface FeatureGateProps {
+  requiredPlan: PlanName;
+  currentPlan: PlanName;
+  featureName: string;
+  children: ReactNode;
+}
+
 /**
  * Wraps a feature section and shows a lock overlay if the seller's plan
  * doesn't include the feature. Used in seller dashboard.
- * 
- * @param {string} requiredPlan - 'FREE' | 'PRO' | 'ELITE'
- * @param {string} currentPlan - seller's current plan
- * @param {string} featureName - translated feature name to show in lock message
  */
-export default function FeatureGate({ requiredPlan, currentPlan, featureName, children }) {
+export default function FeatureGate({ requiredPlan, currentPlan, featureName, children }: FeatureGateProps) {
   const { t } = useTranslation();
-  const planLevel = { FREE: 0, PRO: 1, ELITE: 2 };
+  const planLevel: Record<string, number> = { FREE: 0, PRO: 1, ELITE: 2 };
   const hasAccess = (planLevel[currentPlan] || 0) >= (planLevel[requiredPlan] || 0);
 
-  if (hasAccess) return children;
+  if (hasAccess) return <>{children}</>;
 
   return (
     <div className="relative" data-testid={`feature-gate-${requiredPlan}`}>

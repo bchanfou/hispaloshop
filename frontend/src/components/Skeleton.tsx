@@ -1,10 +1,20 @@
-export function Skeleton({ className }) {
+import React from 'react';
+
+interface SkeletonProps {
+  className?: string;
+}
+
+export function Skeleton({ className }: SkeletonProps) {
   return (
     <div className={`skeleton-shimmer rounded ${className}`} />
   );
 }
 
-export function SkeletonText({ lines = 3 }) {
+interface SkeletonTextProps {
+  lines?: number;
+}
+
+export function SkeletonText({ lines = 3 }: SkeletonTextProps) {
   return (
     <div className="space-y-2">
       {Array.from({ length: lines }).map((_, i) => (
@@ -33,7 +43,11 @@ export function ProductCardSkeleton() {
   );
 }
 
-export function ProductGridSkeleton({ count = 8 }) {
+interface ProductGridSkeletonProps {
+  count?: number;
+}
+
+export function ProductGridSkeleton({ count = 8 }: ProductGridSkeletonProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
       {Array.from({ length: count }).map((_, i) => (

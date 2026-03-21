@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Crown, Star, ArrowRight, Loader2, Calendar, Shield, AlertTriangle } from 'lucide-react';
+import { Zap, Crown, Star, ArrowRight, Loader2, Calendar, Shield, AlertTriangle, LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 
+type PlanName = 'FREE' | 'PRO' | 'ELITE';
+
+interface PlanData {
+  plan: PlanName;
+  commission_rate: number;
+  plan_status: string;
+  stripe_subscription_id?: string;
+  trial_ends_at?: string;
+  grace_period_ends_at?: string;
+  current_period_end?: string;
+}
+
 export default function PlanManager() {
-  const [plan, setPlan] = useState(null);
+  const [plan, setPlan] = useState<PlanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [changing, setChanging] = useState(false);
 
@@ -21,7 +33,7 @@ export default function PlanManager() {
     }
   };
 
-  const handleUpgrade = async (newPlan) => {
+  const handleUpgrade = async (newPlan: PlanName) => {
     setChanging(true);
     try {
       if (!plan?.stripe_subscription_id && newPlan !== 'FREE') {
@@ -32,7 +44,7 @@ export default function PlanManager() {
         toast.success(`Plan cambiado a ${newPlan}`);
         fetchPlan();
       }
-    } catch (err) {
+    } catch (err: any) {
       toast.error(err.message || 'Error al cambiar plan');
     } finally {
       setChanging(false);
@@ -42,8 +54,8 @@ export default function PlanManager() {
   if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-stone-500" /></div>;
   if (!plan) return null;
 
-  const icons = { FREE: Star, PRO: Zap, ELITE: Crown };
-  const colors = { FREE: 'text-stone-500', PRO: 'text-stone-950', ELITE: 'text-stone-950' };
+  const icons: Record<PlanName, LucideIcon> = { FREE: Star, PRO: Zap, ELITE: Crown };
+  const colors: Record<PlanName, string> = { FREE: 'text-stone-500', PRO: 'text-stone-950', ELITE: 'text-stone-950' };
   const Icon = icons[plan.plan] || Star;
   const isTrialing = plan.plan_status === 'trialing';
   const isPastDue = plan.plan_status === 'past_due';
@@ -109,16 +121,14 @@ export default function PlanManager() {
               {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Zap className="w-4 h-4 mr-1" /> Upgrade a PRO (18%)</>}
             </button>
           )}
-          {plan.plan !== 'ELITE' && (
-            <button
-              onClick={() => handleUpgrade('ELITE')}
-              disabled={changing}
-              className="flex-1 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl h-10 text-sm transition-colors flex items-center justify-center"
-              data-testid="upgrade-elite"
-            >
-              {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Crown className="w-4 h-4 mr-1" /> Upgrade a ELITE (15%)</>}
-            </button>
-          )}
+          <button
+            onClick={() => handleUpgrade('ELITE')}
+            disabled={changing}
+            className="flex-1 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl h-10 text-sm transition-colors flex items-center justify-center"
+            data-testid="upgrade-elite"
+          >
+            {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Crown className="w-4 h-4 mr-1" /> Upgrade a ELITE (15%)</>}
+          </button>
         </div>
       )}
     </div>

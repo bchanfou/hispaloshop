@@ -1,8 +1,33 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
+interface SEOProduct {
+  name: string;
+  description?: string;
+  images?: string[];
+  product_id?: string;
+  producer_name?: string;
+  currency?: string;
+  price?: number;
+  stock?: number;
+  avg_rating?: number;
+  review_count?: number;
+}
+
+interface SEOProps {
+  title?: string;
+  description?: string;
+  url?: string;
+  image?: string;
+  type?: string;
+  product?: SEOProduct | null;
+  noindex?: boolean;
+  lang?: string;
+  structuredData?: any[] | any;
+}
+
 /**
- * SEO component — dynamic meta tags, Open Graph, Twitter Cards, Structured Data.
+ * SEO component -- dynamic meta tags, Open Graph, Twitter Cards, Structured Data.
  * Use on every page for proper indexing.
  */
 export default function SEO({
@@ -15,10 +40,10 @@ export default function SEO({
   noindex = false,
   lang = 'es',
   structuredData = [],
-}) {
+}: SEOProps) {
   const fullTitle = title.includes('Hispaloshop') ? title : `${title} | Hispaloshop`;
   const canonical = url || (typeof window !== 'undefined' ? window.location.href : 'https://www.hispaloshop.com');
-  const extraStructuredData = Array.isArray(structuredData) ? structuredData : [structuredData];
+  const extraStructuredData: any[] = Array.isArray(structuredData) ? structuredData : [structuredData];
 
   return (
     <Helmet>
@@ -50,7 +75,7 @@ export default function SEO({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
 
-      {/* Structured Data — Organization */}
+      {/* Structured Data -- Organization */}
       <script type="application/ld+json">{JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Organization",
@@ -61,7 +86,7 @@ export default function SEO({
         "description": "Marketplace global de productos alimentarios certificados"
       })}</script>
 
-      {/* Structured Data — Product (if provided) */}
+      {/* Structured Data -- Product (if provided) */}
       {product && (
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -76,7 +101,7 @@ export default function SEO({
             "url": canonical,
             "priceCurrency": product.currency || "EUR",
             "price": product.price,
-            "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "availability": (product.stock ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
             "seller": { "@type": "Organization", "name": product.producer_name }
           },
           ...(product.avg_rating && {
@@ -90,7 +115,7 @@ export default function SEO({
         })}</script>
       )}
 
-      {/* Structured Data — BreadcrumbList */}
+      {/* Structured Data -- BreadcrumbList */}
       {product && (
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -103,7 +128,7 @@ export default function SEO({
         })}</script>
       )}
 
-      {extraStructuredData.map((item, index) => (
+      {extraStructuredData.map((item: any, index: number) => (
         item ? <script key={index} type="application/ld+json">{JSON.stringify(item)}</script> : null
       ))}
     </Helmet>

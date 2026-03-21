@@ -1,20 +1,35 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Zap, Crown } from 'lucide-react';
+import { Lock, Zap, Crown, LucideIcon } from 'lucide-react';
 import { useProducerPlan } from '../context/ProducerPlanContext';
 import { useTranslation } from 'react-i18next';
 
-const PLAN_ICONS = { PRO: Zap, ELITE: Crown };
-const PLAN_COLORS = {
+type PlanName = 'FREE' | 'PRO' | 'ELITE';
+
+interface PlanColorSet {
+  bg: string;
+  border: string;
+  text: string;
+  btn: string;
+}
+
+const PLAN_ICONS: Record<string, LucideIcon> = { PRO: Zap, ELITE: Crown };
+const PLAN_COLORS: Record<string, PlanColorSet> = {
   PRO: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-700', btn: 'bg-stone-950 hover:bg-stone-800' },
   ELITE: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-700', btn: 'bg-stone-950 hover:bg-stone-800' },
 };
 
-export default function LockedFeature({ requiredPlan, featureName, children }) {
+interface LockedFeatureProps {
+  requiredPlan: PlanName;
+  featureName: string;
+  children: ReactNode;
+}
+
+export default function LockedFeature({ requiredPlan, featureName, children }: LockedFeatureProps) {
   const { hasAccess } = useProducerPlan();
   const { t } = useTranslation();
 
-  if (hasAccess(requiredPlan)) return children;
+  if (hasAccess(requiredPlan)) return <>{children}</>;
 
   const colors = PLAN_COLORS[requiredPlan] || PLAN_COLORS.PRO;
   const Icon = PLAN_ICONS[requiredPlan] || Lock;

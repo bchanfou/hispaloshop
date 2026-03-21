@@ -2,10 +2,31 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ShoppingBag, UtensilsCrossed, Crown, Image, Megaphone,
-  MessageCircle, Heart, ChefHat, Flame, Star, Compass, Lock
+  MessageCircle, Heart, ChefHat, Flame, Star, Compass, Lock, LucideIcon
 } from 'lucide-react';
 
-const ICON_MAP = {
+interface Badge {
+  badge_id: string;
+  icon: string;
+  category: string;
+  name_key: string;
+  name_default: string;
+  description_key: string;
+  description_default: string;
+  earned: boolean;
+  current: number;
+  threshold: number;
+  awarded_at?: string;
+}
+
+interface ColorSet {
+  bg: string;
+  border: string;
+  text: string;
+  ring: string;
+}
+
+const ICON_MAP: Record<string, LucideIcon> = {
   'shopping-bag': ShoppingBag,
   'utensils-crossed': UtensilsCrossed,
   'crown': Crown,
@@ -19,7 +40,7 @@ const ICON_MAP = {
   'compass': Compass,
 };
 
-const CATEGORY_COLORS = {
+const CATEGORY_COLORS: Record<string, ColorSet> = {
   shopping: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-700', ring: 'ring-stone-400' },
   social: { bg: 'bg-stone-100', border: 'border-stone-200', text: 'text-stone-700', ring: 'ring-stone-400' },
   recipes: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-600', ring: 'ring-stone-300' },
@@ -27,7 +48,12 @@ const CATEGORY_COLORS = {
   explore: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-600', ring: 'ring-stone-300' },
 };
 
-function BadgeItem({ badge }) {
+interface BadgeItemProps {
+  key?: string;
+  badge: Badge;
+}
+
+function BadgeItem({ badge }: BadgeItemProps) {
   const { t } = useTranslation();
   const Icon = ICON_MAP[badge.icon] || Star;
   const colors = CATEGORY_COLORS[badge.category] || CATEGORY_COLORS.shopping;
@@ -85,7 +111,12 @@ function BadgeItem({ badge }) {
   );
 }
 
-export default function BadgeGrid({ badges, compact = false }) {
+interface BadgeGridProps {
+  badges: Badge[];
+  compact?: boolean;
+}
+
+export default function BadgeGrid({ badges, compact = false }: BadgeGridProps) {
   const { t } = useTranslation();
   const earnedBadges = badges.filter(b => b.earned);
   const unearnedBadges = badges.filter(b => !b.earned);

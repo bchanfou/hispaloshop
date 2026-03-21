@@ -6,33 +6,77 @@ import { toast } from 'sonner';
 import { timeAgo } from '../utils/time';
 import apiClient from '../services/api/client';
 
-export default function PostViewer({ post, posts = [], profile, onClose, onLike, onComment, isOwn = false, onDelete }) {
+interface PostUser {
+  name?: string;
+  username?: string;
+  user_id?: string;
+  profile_image?: string;
+  avatar_url?: string;
+  avatar?: string;
+  id?: string;
+}
+
+interface Post {
+  id?: string;
+  post_id?: string;
+  postId?: string;
+  content?: string;
+  caption?: string;
+  images?: string[];
+  media?: any[];
+  image_url?: string;
+  user?: PostUser;
+  is_liked?: boolean;
+  liked?: boolean;
+  is_saved?: boolean;
+  saved?: boolean;
+  likes_count?: number;
+  likes?: number;
+  comments_count?: number;
+  comments?: number;
+  created_at?: string;
+  timestamp?: string;
+  [key: string]: any;
+}
+
+interface PostViewerProps {
+  post: Post;
+  posts?: Post[];
+  profile?: PostUser;
+  onClose?: () => void;
+  onLike?: (postId: string) => void;
+  onComment?: (postId: string) => void;
+  isOwn?: boolean;
+  onDelete?: (postId: string) => void;
+}
+
+export default function PostViewer({ post, posts = [], profile, onClose, onLike, onComment, isOwn = false, onDelete }: PostViewerProps) {
   const navigate = useNavigate();
   const [currentIndex] = useState(() => {
     const idx = posts.findIndex((p) => (p.post_id || p.id) === (post?.post_id || post?.id));
     return idx >= 0 ? idx : 0;
   });
-  const [showMenu, setShowMenu] = useState(null);
+  const [showMenu, setShowMenu] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // Scroll to clicked post on mount
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
     const target = container.querySelector(`[data-post-index="${currentIndex}"]`);
-    if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+    if (target) (target as HTMLElement).scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const handler = (e) => {
+    const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose?.();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  const handleDelete = useCallback(async (postId) => {
+  const handleDelete = useCallback(async (postId: string) => {
     if (!postId) return;
     setDeleting(true);
     try {
@@ -93,26 +137,41 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
   );
 }
 
-/* ── Individual post card in feed layout ──────────────────────── */
+/* -- Individual post card in feed layout -- */
 
-function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setShowMenu, deleting, onDelete, onLike, onComment, onClose }) {
+interface PostFeedCardProps {
+  key?: string | number;
+  post: Post;
+  profile?: PostUser;
+  index: number;
+  isOwn: boolean;
+  showMenu: string | null;
+  setShowMenu: (id: string | null) => void;
+  deleting: boolean;
+  onDelete?: (postId: string) => void;
+  onLike?: (postId: string) => void;
+  onComment?: (postId: string) => void;
+  onClose?: () => void;
+}
+
+function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setShowMenu, deleting, onDelete, onLike, onComment, onClose }: PostFeedCardProps) {
   const navigate = useNavigate();
   const [imageIndex, setImageIndex] = useState(0);
   const [liked, setLiked] = useState(currentPost.is_liked ?? currentPost.liked ?? false);
   const [saved, setSaved] = useState(currentPost.is_saved ?? currentPost.saved ?? false);
   const [localLikesCount, setLocalLikesCount] = useState(currentPost.likes_count ?? currentPost.likes ?? 0);
 
-  const images = (() => {
+  const images: string[] = (() => {
     if (Array.isArray(currentPost.images) && currentPost.images.length > 0) return currentPost.images;
-    if (Array.isArray(currentPost.media) && currentPost.media.length > 0) return currentPost.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean);
+    if (Array.isArray(currentPost.media) && currentPost.media.length > 0) return currentPost.media.map((m: any) => (typeof m === 'string' ? m : m?.url)).filter(Boolean);
     if (currentPost.image_url) return [currentPost.image_url];
     return [];
   })();
-  const user = currentPost.user || profile || {};
+  const user: PostUser = currentPost.user || profile || {};
   const avatarUrl = user.profile_image || user.avatar_url || user.avatar;
   const caption = currentPost.content ?? currentPost.caption ?? '';
   const commentsCount = currentPost.comments_count ?? currentPost.comments ?? 0;
-  const postId = currentPost.id || currentPost.post_id;
+  const postId = currentPost.id || currentPost.post_id || '';
 
   const handleLike = useCallback(async () => {
     const wasLiked = liked;

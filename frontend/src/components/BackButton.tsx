@@ -2,6 +2,15 @@ import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
+type ButtonSize = 'small' | 'default' | 'large';
+
+interface BackButtonProps {
+  className?: string;
+  label?: string;
+  showLabel?: boolean;
+  size?: ButtonSize;
+}
+
 /**
  * BackButton - A consistent back navigation button that preserves user context
  * Uses history.back() / navigate(-1) to return to actual previous view.
@@ -11,20 +20,20 @@ export default function BackButton({
   className = '',
   label = 'Back',
   showLabel = true,
-  size = 'default' // 'small', 'default', 'large'
-}) {
+  size = 'default',
+}: BackButtonProps) {
   const navigate = useNavigate();
-  const touchStartX = useRef(null);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (window.innerWidth >= 768) return;
 
-    const handleTouchStart = (e) => {
+    const handleTouchStart = (e: TouchEvent) => {
       const x = e.touches[0].clientX;
       touchStartX.current = x < 20 ? x : null;
     };
 
-    const handleTouchEnd = (e) => {
+    const handleTouchEnd = (e: TouchEvent) => {
       if (touchStartX.current === null) return;
       const deltaX = e.changedTouches[0].clientX - touchStartX.current;
       if (deltaX > 60) {
@@ -47,13 +56,13 @@ export default function BackButton({
     navigate(-1);
   };
 
-  const sizeClasses = {
+  const sizeClasses: Record<ButtonSize, string> = {
     small: 'px-3 py-1.5 text-sm',
     default: 'px-4 py-2 text-base',
     large: 'px-5 py-2.5 text-lg'
   };
 
-  const iconSizes = {
+  const iconSizes: Record<ButtonSize, string> = {
     small: 'w-4 h-4',
     default: 'w-5 h-5',
     large: 'w-6 h-6'
