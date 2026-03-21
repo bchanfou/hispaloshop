@@ -703,7 +703,7 @@ export default function ProductDetailPage() {
         <span className="text-sm font-semibold text-stone-950">
           {t('productDetail.quantity', 'Cantidad')}
         </span>
-        <div className="flex items-center rounded-2xl border border-stone-200">
+        <div className="flex items-center rounded-2xl shadow-sm">
           <button
             type="button"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -972,7 +972,7 @@ export default function ProductDetailPage() {
 
         {/* Review Form */}
         {showReviewForm && (
-          <div className="mb-4 rounded-2xl border border-stone-200 bg-white p-4">
+          <div className="mb-4 rounded-2xl shadow-sm bg-white p-4">
             <p className="mb-3 text-sm font-semibold text-stone-950">
               {t('productDetail.yourReview', 'Tu reseña')}
             </p>
@@ -1035,7 +1035,7 @@ export default function ProductDetailPage() {
                 return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
               })
               .slice(0, 3).map((review) => (
-              <div key={review.review_id || `${review.user_id}-${review.created_at}`} className="rounded-2xl border border-stone-200 bg-white p-3.5">
+              <div key={review.review_id || `${review.user_id}-${review.created_at}`} className="rounded-2xl shadow-sm bg-white p-3.5">
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100">
@@ -1068,7 +1068,7 @@ export default function ProductDetailPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center">
+          <div className="rounded-2xl shadow-sm bg-white p-8 text-center">
             <Star size={32} className="mx-auto mb-3 text-stone-200" />
             <p className="text-sm text-stone-500">
               {t('productDetail.noReviews', 'Aún no hay reseñas')}
@@ -1114,7 +1114,7 @@ export default function ProductDetailPage() {
       {user && (user.role === 'producer' || user.role === 'importer') &&
         (user.user_id === product.seller_id || user.id === product.seller_id) && (
         <div className="px-4 pb-4">
-          <div className="rounded-2xl border border-stone-200 bg-stone-100 p-4">
+          <div className="rounded-2xl shadow-sm bg-stone-100 p-4">
             <p className="mb-1 text-[15px] font-semibold text-stone-950">
               Oferta mayorista
             </p>

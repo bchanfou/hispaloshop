@@ -388,7 +388,7 @@ export default function CartPage() {
         </h1>
 
         {emailVerified === false && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-6" data-testid="verification-banner">
+          <div className="mb-8 rounded-2xl shadow-sm bg-white p-6" data-testid="verification-banner">
             <div className="flex items-start gap-4">
               <AlertTriangle className="mt-0.5 h-6 w-6 text-stone-700" />
               <div className="flex-1">
@@ -425,7 +425,7 @@ export default function CartPage() {
         )}
 
         {emailVerified === true && (
-          <div className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 py-3" data-testid="verified-badge">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-2xl shadow-sm bg-white px-4 py-3" data-testid="verified-badge">
             <CheckCircle className="h-5 w-5 text-stone-950" />
             <span className="font-medium text-stone-950">{t('checkout.emailVerified', 'Email verificado')}</span>
           </div>
@@ -447,7 +447,7 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-4">
               {/* Reservation expired banner */}
               {cartItems.some(i => i.hold_expires_at && new Date(i.hold_expires_at).getTime() < Date.now()) && (
-                <div className="flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-3">
+                <div className="flex items-center justify-between gap-3 rounded-2xl shadow-sm bg-stone-50 p-3">
                   <div className="flex items-center gap-2 text-sm text-stone-700">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
                     <span>La reserva de algún producto expiró. Comprueba disponibilidad.</span>
@@ -590,7 +590,7 @@ export default function CartPage() {
 
               {/* Per-store shipping progress */}
               {shippingData && shippingData.stores && shippingData.stores.length > 0 && (
-                <div className="bg-white rounded-2xl border border-stone-200 p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-progress-section">
+                <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-progress-section">
                   <h3 className="text-base font-semibold text-stone-950 mb-3 flex items-center gap-2">
                     <Truck className="w-4 h-4" />
                     Envio por tienda
@@ -610,7 +610,7 @@ export default function CartPage() {
                 </div>
               )}
 
-              <div className="bg-white rounded-2xl border border-stone-200 p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-address-section">
+              <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-address-section">
                 <h3 className="text-base md:text-lg font-semibold text-stone-950 mb-3 md:mb-4 flex items-center gap-2">
                   <MapPin className="w-4 h-4 md:w-5 md:h-5" />
                   {t('checkout.shippingAddress')}
@@ -661,7 +661,7 @@ export default function CartPage() {
                 )}
 
                 {showNewAddressForm && (
-                  <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 border border-stone-200 rounded-2xl" data-testid="new-address-form">
+                  <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 shadow-sm rounded-2xl" data-testid="new-address-form">
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.addressName') || 'Nombre de direccion'}</label>
                       <input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} className="w-full h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors" data-testid="new-address-name" />
@@ -737,7 +737,7 @@ export default function CartPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-stone-200 p-4 md:p-6 h-fit lg:sticky lg:top-24">
+            <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 h-fit lg:sticky lg:top-24">
               <h2 className="text-[16px] font-semibold text-stone-950 mb-3 md:mb-4">{t('checkout.orderSummary')}</h2>
               <div className="mb-4 md:mb-6">
                 {!appliedDiscount ? (
@@ -748,7 +748,7 @@ export default function CartPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-stone-100 p-3" data-testid="applied-discount">
+                  <div className="flex items-center justify-between rounded-2xl shadow-sm bg-stone-100 p-3" data-testid="applied-discount">
                     <div className="flex items-center gap-2">
                       <Tag className="h-4 w-4 text-stone-700" />
                       <span className="font-medium text-stone-950">{appliedDiscount.code}</span>

@@ -103,7 +103,7 @@ export default function SuggestedUsersCard({ onDismiss }: SuggestedUsersCardProp
           return (
             <div
               key={user.user_id}
-              className="relative flex w-[140px] shrink-0 flex-col items-center rounded-2xl border border-stone-100 bg-white px-3 pt-4 pb-3"
+              className="relative flex w-[140px] shrink-0 flex-col items-center rounded-2xl shadow-sm bg-white px-3 pt-4 pb-3"
             >
               {/* Dismiss X */}
               <button

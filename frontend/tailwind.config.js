@@ -48,6 +48,10 @@ module.exports = {
         'hs-md': '0 4px 20px rgba(0,0,0,0.09)',
         'hs-lg': '0 8px 36px rgba(0,0,0,0.11)',
         'hs-xl': '0 16px 56px rgba(0,0,0,0.14)',
+        'card':       '0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06)',
+        'card-hover': '0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06)',
+        'modal':      '0 8px 30px rgba(0,0,0,0.12)',
+        'nav':        '0 1px 3px rgba(0,0,0,0.05)',
       },
       transitionTimingFunction: {
         'hs':        'cubic-bezier(0.4, 0, 0.2, 1)',

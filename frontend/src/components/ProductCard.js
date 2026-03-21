@@ -119,8 +119,7 @@ function ProductCard({ product, variant = 'default' }) {
     return (
       <Link
         to={`/products/${productId}`}
-        className="group block overflow-hidden rounded-2xl bg-white"
-        style={{ border: '0.5px solid #e7e5e4' }}
+        className="group block overflow-hidden rounded-2xl bg-white shadow-sm"
         data-testid={`product-card-${productId}`}
       >
         <div className={`relative overflow-hidden bg-stone-100 aspect-[4/5] ${isBlocked ? 'opacity-60' : ''}`}>
@@ -179,8 +178,7 @@ function ProductCard({ product, variant = 'default' }) {
   return (
     <Link
       to={`/products/${productId}`}
-      className="group block overflow-hidden rounded-2xl bg-white"
-      style={{ border: '0.5px solid #e7e5e4' }}
+      className="group block overflow-hidden rounded-2xl bg-white shadow-sm"
       data-testid={`product-card-${productId}`}
     >
       {/* Image — 4:5 aspect ratio */}

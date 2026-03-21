@@ -118,7 +118,7 @@ function StripeConnectSection() {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6 bg-white border border-stone-200 rounded-2xl">
+      <div className="p-4 md:p-6 bg-white shadow-sm rounded-2xl">
         <div className="animate-pulse space-y-3">
           <div className="w-1/2 h-3.5 rounded-md bg-stone-100" />
           <div className="w-[70%] h-3 rounded-md bg-stone-100" />
@@ -133,7 +133,7 @@ function StripeConnectSection() {
 
   return (
     <div
-      className="p-4 md:p-6 bg-stone-100 border border-stone-200 rounded-2xl"
+      className="p-4 md:p-6 bg-stone-100 shadow-sm rounded-2xl"
       data-testid="stripe-connect-section"
     >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -261,15 +261,15 @@ function HealthScoreCard() {
 
         {/* Metrics Summary - Mobile */}
         <div className="grid grid-cols-3 gap-3 mt-4">
-          <div className="p-3 text-center bg-white border border-stone-200 rounded-2xl">
+          <div className="p-3 text-center bg-white shadow-sm rounded-2xl">
             <div className="text-xl font-bold text-stone-950">{healthData.metrics.orders_30d}</div>
             <div className="text-[10px] uppercase tracking-wider text-stone-500">{t('customerDashboard.orders', 'Pedidos')}</div>
           </div>
-          <div className="p-3 text-center bg-white border border-stone-200 rounded-2xl">
+          <div className="p-3 text-center bg-white shadow-sm rounded-2xl">
             <div className="text-xl font-bold text-stone-950">€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
             <div className="text-[10px] uppercase tracking-wider text-stone-500">Ventas</div>
           </div>
-          <div className="p-3 text-center bg-white border border-stone-200 rounded-2xl">
+          <div className="p-3 text-center bg-white shadow-sm rounded-2xl">
             <div className="flex items-center justify-center gap-1">
               <Star className="w-4 h-4 text-stone-500" />
               <span className="text-xl font-bold text-stone-950">{healthData.metrics.avg_rating || '-'}</span>
@@ -290,7 +290,7 @@ function HealthScoreCard() {
 // Desktop health score
 function DesktopHealthScore({ healthData, t }) {
   return (
-    <div className="p-6 bg-stone-100 border border-stone-200 rounded-2xl">
+    <div className="p-6 bg-stone-100 shadow-sm rounded-2xl">
       <div className="flex items-start justify-between mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -396,7 +396,7 @@ function FollowerGrowthChart() {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6 bg-white border border-stone-200 rounded-2xl">
+      <div className="p-4 md:p-6 bg-white shadow-sm rounded-2xl">
         <div className="flex items-center justify-center h-48">
           <Loader2 className="w-6 h-6 animate-spin text-stone-950" />
         </div>
@@ -405,7 +405,7 @@ function FollowerGrowthChart() {
   }
 
   return (
-    <div className="p-4 md:p-6 bg-white border border-stone-200 rounded-2xl">
+    <div className="p-4 md:p-6 bg-white shadow-sm rounded-2xl">
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-stone-950" />
@@ -493,7 +493,7 @@ function B2BOperationsSection() {
   if (ops.length === 0) return null;
 
   return (
-    <div className="bg-white border border-stone-200 rounded-2xl p-4 mb-1">
+    <div className="bg-white shadow-sm rounded-2xl p-4 mb-1">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-stone-950">Operaciones B2B</h3>
         <Link to="/b2b/operations" className="text-xs font-semibold text-stone-500">
@@ -635,14 +635,14 @@ export default function ProducerOverview() {
         <Bone w="55%" h={28} mb={4} />
         <Bone w="30%" h={14} mb={16} />
         {/* Stripe Connect card skeleton */}
-        <div className="rounded-2xl border border-stone-200 p-5">
+        <div className="rounded-2xl shadow-sm p-5">
           <Bone w="40%" h={16} mb={12} />
           <Bone w="70%" h={12} />
         </div>
         {/* Stats grid skeleton */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1,2,3,4].map(i => (
-            <div key={i} className="rounded-2xl border border-stone-200 p-4">
+            <div key={i} className="rounded-2xl shadow-sm p-4">
               <Bone w="60%" h={12} mb={8} />
               <Bone w="40%" h={24} />
             </div>
@@ -728,7 +728,7 @@ export default function ProducerOverview() {
         </div>
         <div className="flex items-center gap-2">
           {/* Period selector */}
-          <div className="flex p-0.5 rounded-2xl border border-stone-200 bg-white">
+          <div className="flex p-0.5 rounded-2xl shadow-sm bg-white">
             {[
               { key: 'today', label: 'Hoy' },
               { key: 'week', label: 'Semana' },
@@ -816,7 +816,7 @@ export default function ProducerOverview() {
       )}
 
       {dataWarnings.length > 0 && !error && (
-        <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100">
+        <div className="p-4 rounded-2xl shadow-sm bg-stone-100">
           <div className="flex items-start gap-2">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-stone-500" />
             <div className="space-y-1 text-sm text-stone-500">
@@ -831,7 +831,7 @@ export default function ProducerOverview() {
       {alerts.length > 0 && (
         <div className="space-y-2" data-testid="producer-alerts">
           {alerts.map((alert, i) => (
-            <div key={i} className={`flex items-start gap-3 p-3 rounded-2xl bg-stone-100 ${alert.type === 'danger' ? 'border border-stone-500' : 'border border-stone-200'}`}>
+            <div key={i} className={`flex items-start gap-3 p-3 rounded-2xl bg-stone-100 ${alert.type === 'danger' ? 'border border-stone-500' : 'shadow-sm'}`}>
               <span className="text-lg shrink-0">{alert.type === 'danger' ? '\uD83D\uDEA8' : '\u26A0\uFE0F'}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-stone-950">{alert.title}</p>
@@ -866,7 +866,7 @@ export default function ProducerOverview() {
           <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">Top productos esta semana</p>
           <div className="flex gap-3 overflow-x-auto">
             {stats.top_products.slice(0, 3).map((tp, i) => (
-              <div key={tp.product_id || i} className="flex items-center gap-2 rounded-xl border border-stone-200 p-2 min-w-0 shrink-0">
+              <div key={tp.product_id || i} className="flex items-center gap-2 rounded-xl shadow-sm p-2 min-w-0 shrink-0">
                 {tp.image && (
                   <img src={tp.image} alt={tp.name} className="w-10 h-10 rounded-lg object-cover shrink-0" loading="lazy" />
                 )}
@@ -887,7 +887,7 @@ export default function ProducerOverview() {
           <Package className="w-8 h-8" />
           <span className="text-sm font-semibold">{t('sellerDashboard.newProduct', 'Publicar nuevo producto')}</span>
         </Link>
-        <Link to="/producer/orders" className="relative flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] bg-white border border-stone-200 rounded-2xl" data-testid="quick-orders">
+        <Link to="/producer/orders" className="relative flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] bg-white shadow-sm rounded-2xl" data-testid="quick-orders">
           <ShoppingBag className="w-8 h-8 text-stone-950" />
           <span className="text-sm font-semibold text-stone-950">{t('customerDashboard.orders', 'Pedidos')}</span>
           {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full bg-stone-950 text-white">{stats.pending_orders}</span>}
@@ -895,7 +895,7 @@ export default function ProducerOverview() {
       </div>
 
       {/* Demand Signals Section */}
-      <section className="p-5 rounded-2xl border border-stone-200 bg-white">
+      <section className="p-5 rounded-2xl shadow-sm bg-white">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-medium text-stone-950">Señales de demanda</h2>
@@ -904,7 +904,7 @@ export default function ProducerOverview() {
           <Target className="h-5 w-5 text-stone-500" />
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
-          <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100">
+          <div className="p-4 rounded-2xl shadow-sm bg-stone-100">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Trending ingredients</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.trending_ingredients || []).slice(0, 4).map((item) => (
@@ -916,7 +916,7 @@ export default function ProducerOverview() {
               {!(demandSignals.trending_ingredients || []).length ? <p className="text-sm text-stone-500">Sin datos todavía.</p> : null}
             </div>
           </div>
-          <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100">
+          <div className="p-4 rounded-2xl shadow-sm bg-stone-100">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Most tagged products</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.most_tagged_products || []).slice(0, 4).map((item) => (
@@ -928,7 +928,7 @@ export default function ProducerOverview() {
               {!(demandSignals.most_tagged_products || []).length ? <p className="text-sm text-stone-500">Sin etiquetas suficientes.</p> : null}
             </div>
           </div>
-          <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100">
+          <div className="p-4 rounded-2xl shadow-sm bg-stone-100">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Content driving sales</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.content_driving_sales || []).slice(0, 4).map((item) => (
@@ -982,7 +982,7 @@ export default function ProducerOverview() {
         return (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {kpis.map((kpi, i) => (
-              <div key={i} className="p-4 text-center bg-white border border-stone-200 rounded-2xl">
+              <div key={i} className="p-4 text-center bg-white shadow-sm rounded-2xl">
                 <p className="text-2xl font-bold text-stone-950">{kpi.value}</p>
                 <p className="text-[10px] uppercase mt-1 text-stone-500">{kpi.label}</p>
                 {kpi.trend !== null && (
@@ -997,14 +997,14 @@ export default function ProducerOverview() {
       })()}
 
       {/* Net earnings */}
-      <div className="p-4 text-center bg-white border border-stone-200 rounded-2xl">
+      <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
         <p className="text-2xl font-bold text-stone-950">{asNumber(payments?.total_net).toFixed(0)}€</p>
         <p className="text-[10px] uppercase mt-1 text-stone-500">{t('sellerDashboard.earned', 'Ganado neto')}</p>
       </div>
 
       {/* Sales Chart — 30 days */}
       {salesChart.length > 0 && (
-        <div className="p-4 bg-white border border-stone-200 rounded-2xl" data-testid="sales-chart">
+        <div className="p-4 bg-white shadow-sm rounded-2xl" data-testid="sales-chart">
           <p className="text-sm font-bold mb-4 text-stone-950">Ventas — últimos 30 días</p>
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={salesChart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
@@ -1037,7 +1037,7 @@ export default function ProducerOverview() {
 
       {/* Low Stock Alert */}
       {stats?.low_stock_products?.length > 0 && (
-        <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100" data-testid="low-stock-alert">
+        <div className="p-4 rounded-2xl shadow-sm bg-stone-100" data-testid="low-stock-alert">
           <div className="flex items-center gap-2 mb-2">
             <AlertCircle className="w-4 h-4 text-stone-500" />
             <span className="text-sm font-semibold text-stone-950">{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
@@ -1055,7 +1055,7 @@ export default function ProducerOverview() {
 
       {/* Recent Reviews */}
       {stats?.recent_reviews?.length > 0 && (
-        <div className="p-4 bg-white border border-stone-200 rounded-2xl" data-testid="recent-reviews">
+        <div className="p-4 bg-white shadow-sm rounded-2xl" data-testid="recent-reviews">
           <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 text-stone-500">{t('sellerDashboard.latestReviews')}</h3>
           <div className="space-y-2">
             {stats.recent_reviews.slice(0, 3).map((r, i) => (
@@ -1072,7 +1072,7 @@ export default function ProducerOverview() {
 
       {/* Pending Warning */}
       {isPending && (
-        <div className="p-4 border border-stone-200 bg-stone-100 rounded-2xl">
+        <div className="p-4 shadow-sm bg-stone-100 rounded-2xl">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 mt-0.5 text-stone-500" />
             <div>
@@ -1085,7 +1085,7 @@ export default function ProducerOverview() {
 
       {/* Active Collaborations */}
       {collabs.length > 0 && (
-        <section className="p-5 rounded-2xl border border-stone-200 bg-white">
+        <section className="p-5 rounded-2xl shadow-sm bg-white">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Handshake className="w-5 h-5 text-stone-500" />
@@ -1110,7 +1110,7 @@ export default function ProducerOverview() {
                 <Link
                   key={c.collab_id}
                   to={`/messages/${c.conversation_id}`}
-                  className="flex items-center gap-3 p-3 transition-colors rounded-xl border border-stone-200"
+                  className="flex items-center gap-3 p-3 transition-colors rounded-xl shadow-sm"
                 >
                   {proposal.product_image_url && (
                     <img loading="lazy" src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
@@ -1199,7 +1199,7 @@ export default function ProducerOverview() {
       </div>
 
       {/* Desktop Quick Actions */}
-      <div className="hidden md:block p-6 bg-white border border-stone-200 rounded-2xl">
+      <div className="hidden md:block p-6 bg-white shadow-sm rounded-2xl">
         <h2 className="text-lg font-semibold mb-4 text-stone-950">
           {t('producer.quickActions')}
         </h2>
@@ -1208,7 +1208,7 @@ export default function ProducerOverview() {
             <Link
               key={idx}
               to={action.to}
-              className="relative flex items-center gap-3 p-4 transition-colors rounded-xl border border-stone-200 bg-white"
+              className="relative flex items-center gap-3 p-4 transition-colors rounded-xl shadow-sm bg-white"
               data-testid={`desktop-quick-action-${idx}`}
             >
               <div
@@ -1228,7 +1228,7 @@ export default function ProducerOverview() {
       </div>
 
       {/* Account & Configuration */}
-      <section className="p-5 rounded-2xl border border-stone-200 bg-white">
+      <section className="p-5 rounded-2xl shadow-sm bg-white">
         <h2 className="text-sm font-bold mb-3 text-stone-950">Cuenta y configuración</h2>
         <div className="space-y-1">
           {[

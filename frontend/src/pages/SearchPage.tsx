@@ -105,7 +105,7 @@ function ProductCardLocal({ p }) {
   const { convertAndFormatPrice } = useLocale();
   const img = p.images?.[0] || p.image_url;
   return (
-    <Link to={`/products/${p.product_id || p.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline border border-stone-200">
+    <Link to={`/products/${p.product_id || p.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline shadow-sm">
       <div className="overflow-hidden bg-stone-100 aspect-[4/5]">
         {img ? (
           <img src={img} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />
@@ -133,7 +133,7 @@ function ProductCardLocal({ p }) {
 function RecipeCard({ r }) {
   const img = r.cover_image || r.image_url;
   return (
-    <Link to={`/recipes/${r.recipe_id || r.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline border border-stone-200">
+    <Link to={`/recipes/${r.recipe_id || r.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline shadow-sm">
       <div className="overflow-hidden bg-stone-100 aspect-[4/5]">
         {img ? (
           <img src={img} alt={r.title} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />
@@ -435,7 +435,7 @@ export default function SearchPage() {
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
-              <div className="mt-2 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+              <div className="mt-2 rounded-2xl bg-white p-4 shadow-sm">
                 {/* Price range */}
                 <p className="mb-2 text-[13px] font-semibold text-stone-950">Rango de precio</p>
                 <div className="mb-4 flex items-center gap-2">

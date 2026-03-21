@@ -218,7 +218,7 @@ export default function CheckoutSuccessPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.55 }}
-            className="bg-white border border-stone-200 rounded-2xl p-4 text-left mb-5"
+            className="bg-white shadow-sm rounded-2xl p-4 text-left mb-5"
           >
             {visibleItems.map((item, i) => (
               <div key={item.product_id || item.id || `item-${i}`} className={`flex items-center gap-2.5 py-2 ${i < visibleItems.length - 1 ? 'border-b border-stone-100' : ''}`}>

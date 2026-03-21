@@ -5,7 +5,7 @@ export default function MentionDropdown({ suggestions, activeIndex, onSelect }) 
   if (!suggestions?.length) return null;
 
   return (
-    <div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-2xl border border-stone-200 shadow-lg overflow-hidden z-50 max-h-[200px] overflow-y-auto">
+    <div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-2xl shadow-lg overflow-hidden z-50 max-h-[200px] overflow-y-auto">
       {suggestions.map((user, i) => (
         <button
           key={user.user_id || user.username || i}

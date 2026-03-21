@@ -84,7 +84,7 @@ export default function CustomerOverview() {
       <div className="h-4 w-28 bg-stone-100 rounded animate-pulse" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[1,2,3,4].map(i => (
-          <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 space-y-2">
+          <div key={i} className="bg-white rounded-2xl shadow-sm p-4 space-y-2">
             <div className="w-8 h-8 rounded-full bg-stone-100 animate-pulse" />
             <div className="h-6 w-16 bg-stone-100 rounded animate-pulse" />
             <div className="h-3 w-12 bg-stone-100 rounded animate-pulse" />
@@ -138,7 +138,7 @@ export default function CustomerOverview() {
           ].map(({ label, value, icon: Icon }) => (
             <div
               key={label}
-              className="flex flex-col items-center justify-center bg-white border border-stone-200 rounded-2xl px-5 py-3"
+              className="flex flex-col items-center justify-center bg-white shadow-sm rounded-2xl px-5 py-3"
             >
               <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center mb-1.5">
                 <Icon size={16} className="text-stone-500" />
@@ -169,7 +169,7 @@ export default function CustomerOverview() {
                   <Link
                     key={order.id}
                     to={`/customer/orders/${order.id}`}
-                    className="flex items-center gap-3 bg-white border border-stone-200 rounded-2xl px-3 py-3 hover:bg-stone-50 transition-colors"
+                    className="flex items-center gap-3 bg-white shadow-sm rounded-2xl px-3 py-3 hover:bg-stone-50 transition-colors"
                     data-testid="recent-order-row"
                   >
                     {/* Thumbnail */}
@@ -212,7 +212,7 @@ export default function CustomerOverview() {
           <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
             {quickActions.map(({ label, icon: Icon, path, onClick }) => {
               const inner = (
-                <div className="rounded-2xl bg-white border border-stone-200 flex items-center gap-3 px-4 py-3 hover:bg-stone-50 transition-colors w-full text-left">
+                <div className="rounded-2xl bg-white shadow-sm flex items-center gap-3 px-4 py-3 hover:bg-stone-50 transition-colors w-full text-left">
                   <Icon size={18} className="text-stone-500 shrink-0" />
                   <span className="text-sm font-medium text-stone-950">{label}</span>
                 </div>
@@ -241,7 +241,7 @@ export default function CustomerOverview() {
                 const daysAbs = Math.abs(p.days_until_next);
                 const isOverdue = p.status === 'overdue';
                 return (
-                  <div key={p.product_id} className="shrink-0 w-[240px] flex items-center gap-3 p-3 bg-stone-50 border border-stone-200 rounded-2xl">
+                  <div key={p.product_id} className="shrink-0 w-[240px] flex items-center gap-3 p-3 bg-stone-50 shadow-sm rounded-2xl">
                     {p.image ? (
                       <img loading="lazy" src={p.image} alt="" className="w-10 h-10 object-cover rounded-2xl" onError={e => { e.target.style.display = 'none'; }} />
                     ) : (
@@ -266,7 +266,7 @@ export default function CustomerOverview() {
         <div className="px-4">
           <button
             onClick={() => dispatchEvent(new Event('open-hispal-ai'))}
-            className="w-full block p-4 bg-stone-50 border border-stone-200 rounded-2xl hover:bg-stone-100 transition-colors text-left"
+            className="w-full block p-4 bg-stone-50 shadow-sm rounded-2xl hover:bg-stone-100 transition-colors text-left"
             data-testid="hispal-ai-card"
           >
             <div className="flex items-center gap-3">
@@ -296,7 +296,7 @@ export default function CustomerOverview() {
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-4">
               {wishlist.map(item => (
-                <Link key={item.product_id} to={`/products/${item.product_id}`} className="shrink-0 w-[140px] overflow-hidden bg-white border border-stone-200 rounded-2xl transition-all group">
+                <Link key={item.product_id} to={`/products/${item.product_id}`} className="shrink-0 w-[140px] overflow-hidden bg-white shadow-sm rounded-2xl transition-all group">
                   <div className="aspect-square overflow-hidden bg-stone-50">
                     {(item.image || item.product_image)
                       ? <img loading="lazy" src={item.image || item.product_image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
@@ -328,7 +328,7 @@ export default function CustomerOverview() {
             {recommended.map(p => {
               const productId = getProductId(p);
               return (
-                <Link key={productId || p.name} to={productId ? `/products/${productId}` : '/products'} className="shrink-0 w-[160px] overflow-hidden bg-white border border-stone-200 rounded-2xl transition-all group">
+                <Link key={productId || p.name} to={productId ? `/products/${productId}` : '/products'} className="shrink-0 w-[160px] overflow-hidden bg-white shadow-sm rounded-2xl transition-all group">
                   <div className="aspect-square overflow-hidden bg-stone-50">
                     {p.images?.[0]
                       ? <img loading="lazy" src={p.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
@@ -384,7 +384,7 @@ export default function CustomerOverview() {
               {trending.map((p, i) => {
                 const productId = getProductId(p);
                 return (
-                  <Link key={productId || `${p.name}-${i}`} to={productId ? `/products/${productId}` : '/products'} className="flex items-center gap-3 p-3 bg-white border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors">
+                  <Link key={productId || `${p.name}-${i}`} to={productId ? `/products/${productId}` : '/products'} className="flex items-center gap-3 p-3 bg-white shadow-sm rounded-2xl hover:bg-stone-50 transition-colors">
                     <span className="text-lg font-bold w-6 text-center text-stone-300">{i + 1}</span>
                     <div className="w-12 h-12 overflow-hidden shrink-0 rounded-2xl bg-stone-100">
                       {p.images?.[0]

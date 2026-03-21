@@ -61,7 +61,7 @@ function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel, 
   const fmt = formatPrice || ((v) => `${v.toFixed(2)}€`);
 
   return (
-    <div className="bg-white border border-stone-200 rounded-2xl p-4">
+    <div className="bg-white shadow-sm rounded-2xl p-4">
       {cartItems.slice(0, 5).map((item) => (
         <div key={`${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`} className="flex items-center gap-2.5 pb-2.5 mb-2.5 border-b border-stone-200">
           <div className="w-11 h-11 rounded-2xl bg-stone-200 overflow-hidden flex-shrink-0">
@@ -273,7 +273,7 @@ export default function CheckoutPage() {
                       key={addr.address_id}
                       onClick={() => { setSelectedAddressId(addr.address_id); setShowNewForm(false); }}
                       className={`w-full flex items-start gap-3 p-3.5 mb-2.5 text-left bg-white rounded-2xl cursor-pointer transition-colors ${
-                        isSelected ? 'border-2 border-stone-950' : 'border border-stone-200 hover:border-stone-400'
+                        isSelected ? 'border-2 border-stone-950' : 'shadow-sm hover:shadow-md'
                       }`}
                       aria-pressed={isSelected}
                     >
@@ -309,7 +309,7 @@ export default function CheckoutPage() {
 
                 {/* New address form */}
                 {showNewForm && (
-                  <div className="bg-white border border-stone-200 rounded-2xl p-4 mt-2">
+                  <div className="bg-white shadow-sm rounded-2xl p-4 mt-2">
                     <div className="flex flex-col gap-3">
                       <div>
                         <label className="block text-xs font-semibold text-stone-950 mb-1">Nombre completo</label>
@@ -442,7 +442,7 @@ export default function CheckoutPage() {
 
             {/* Shipping summary */}
             {selectedAddress && (
-              <div className="bg-white border border-stone-200 rounded-2xl p-3.5 mb-4">
+              <div className="bg-white shadow-sm rounded-2xl p-3.5 mb-4">
                 <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1.5">
                   Envío a
                 </p>
@@ -453,7 +453,7 @@ export default function CheckoutPage() {
             )}
 
             {/* Discount code */}
-            <div className="bg-white border border-stone-200 rounded-2xl p-3.5 mb-4">
+            <div className="bg-white shadow-sm rounded-2xl p-3.5 mb-4">
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">
                 Código de descuento
               </p>

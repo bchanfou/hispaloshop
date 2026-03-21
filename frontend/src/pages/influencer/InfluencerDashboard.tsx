@@ -48,7 +48,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
   const canWithdraw = stripeConnected && availableToWithdraw >= MINIMUM_WITHDRAWAL;
 
   return (
-    <div className="bg-white border border-stone-200 rounded-2xl">
+    <div className="bg-white shadow-sm rounded-2xl">
       <div className="px-6 pt-6 pb-4">
         <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
           <Wallet className="w-5 h-5 text-stone-500" />
@@ -58,7 +58,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
       <div className="px-6 pb-6">
         <div className="space-y-4">
           {/* Available to withdraw */}
-          <div className="text-center p-4 bg-white border border-stone-200 rounded-xl">
+          <div className="text-center p-4 bg-white shadow-sm rounded-xl">
             <p className="text-sm mb-1 text-stone-500">Disponible para retirar</p>
             <p className="text-3xl font-bold text-stone-950">{convertAndFormatPrice(Number(availableToWithdraw || 0))}</p>
             <p className="text-xs mt-1 text-stone-500">Mínimo: {convertAndFormatPrice(MINIMUM_WITHDRAWAL)}</p>
@@ -66,13 +66,13 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
 
           {/* Withdraw button */}
           {!stripeConnected ? (
-            <div className="text-center p-3 bg-stone-100 rounded-xl border border-stone-200">
+            <div className="text-center p-3 bg-stone-100 rounded-xl shadow-sm">
               <p className="text-sm text-stone-500">
                 Conecta tu cuenta de Stripe para poder retirar tus comisiones
               </p>
             </div>
           ) : availableToWithdraw < MINIMUM_WITHDRAWAL ? (
-            <div className="text-center p-3 bg-stone-100 rounded-xl border border-stone-200">
+            <div className="text-center p-3 bg-stone-100 rounded-xl shadow-sm">
               <p className="text-sm text-stone-500">
                 Necesitas {convertAndFormatPrice(Math.max(0, MINIMUM_WITHDRAWAL - Number(availableToWithdraw || 0)))} más para alcanzar el mínimo de retiro
               </p>
@@ -111,7 +111,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
           {showHistory && withdrawals.length > 0 && (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {withdrawals.slice(0, 5).map((wd) => (
-                <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 rounded bg-white border border-stone-200">
+                <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 rounded bg-white shadow-sm">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-stone-950" />
                     <span className="text-sm font-medium text-stone-950">{convertAndFormatPrice(Number(wd.amount || 0))}</span>
@@ -158,7 +158,7 @@ function EmailVerificationBanner({ user, onVerified }) {
   };
 
   return (
-    <div className="p-6 mb-6 bg-stone-100 border border-stone-200 rounded-xl">
+    <div className="p-6 mb-6 bg-stone-100 shadow-sm rounded-xl">
       <div className="flex items-start gap-4">
         <Mail className="w-6 h-6 flex-shrink-0 mt-1 text-stone-500" />
         <div className="flex-1">
@@ -208,7 +208,7 @@ function CreateCodeCard({ onCodeCreated }) {
   };
 
   return (
-    <div className="bg-white border border-stone-200 rounded-2xl">
+    <div className="bg-white shadow-sm rounded-2xl">
       <div className="px-6 pt-6 pb-4">
         <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
           <Sparkles className="w-5 h-5 text-stone-500" />
@@ -243,7 +243,7 @@ function CreateCodeCard({ onCodeCreated }) {
 function DiscountCodesList({ codes, convertAndFormatPrice }) {
   if (!codes || codes.length === 0) {
     return (
-      <div className="bg-white border border-stone-200 rounded-2xl">
+      <div className="bg-white shadow-sm rounded-2xl">
         <div className="px-6 pt-6 pb-4">
           <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
             <Tag className="w-5 h-5 text-stone-500" />
@@ -258,7 +258,7 @@ function DiscountCodesList({ codes, convertAndFormatPrice }) {
   }
 
   return (
-    <div className="bg-white border border-stone-200 rounded-2xl">
+    <div className="bg-white shadow-sm rounded-2xl">
       <div className="px-6 pt-6 pb-4">
         <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
           <Tag className="w-5 h-5 text-stone-500" />
@@ -269,7 +269,7 @@ function DiscountCodesList({ codes, convertAndFormatPrice }) {
         {codes.map((dc, i) => (
           <div
             key={dc.code || i}
-            className="rounded-2xl border border-stone-200 p-3 flex items-center justify-between gap-3"
+            className="rounded-2xl shadow-sm p-3 flex items-center justify-between gap-3"
           >
             <div className="min-w-0">
               <p className="font-mono text-sm font-semibold text-stone-950 truncate">{dc.code}</p>
@@ -397,13 +397,13 @@ export default function InfluencerDashboard() {
           <div className="h-28 bg-stone-950 rounded-2xl animate-pulse" />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[1,2,3,4].map(i => (
-              <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 space-y-2 animate-pulse">
+              <div key={i} className="bg-white rounded-2xl shadow-sm p-4 space-y-2 animate-pulse">
                 <div className="h-3 w-16 bg-stone-100 rounded" />
                 <div className="h-6 w-20 bg-stone-100 rounded" />
               </div>
             ))}
           </div>
-          <div className="h-48 bg-white rounded-2xl border border-stone-200 animate-pulse" />
+          <div className="h-48 bg-white rounded-2xl shadow-sm animate-pulse" />
         </div>
       </div>
     );
@@ -412,7 +412,7 @@ export default function InfluencerDashboard() {
   if (!dashboard) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50">
-        <div className="max-w-md bg-white rounded-2xl border border-stone-200">
+        <div className="max-w-md bg-white rounded-2xl shadow-sm">
           <div className="p-8 text-center">
             <h2 className="text-xl font-medium mb-4 text-stone-950">{t('influencer.notInfluencer')}</h2>
             <p className="text-stone-500">
@@ -478,7 +478,7 @@ export default function InfluencerDashboard() {
 
         {/* Compact Tier Progress */}
         {dashboard.current_tier && (
-          <div className="mb-6 p-4 rounded-2xl bg-white border border-stone-200">
+          <div className="mb-6 p-4 rounded-2xl bg-white shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
                 Nivel actual: <span className="text-stone-950">{dashboard.current_tier}</span>
@@ -505,7 +505,7 @@ export default function InfluencerDashboard() {
 
         {/* Status Banner - Pending Approval */}
         {dashboard.status === 'pending' && (
-          <div className="mb-4 p-4 md:mb-6 md:p-6 rounded-2xl border border-stone-200 bg-stone-100">
+          <div className="mb-4 p-4 md:mb-6 md:p-6 rounded-2xl shadow-sm bg-stone-100">
             <div className="flex items-start gap-3 md:gap-4">
               <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 md:h-6 md:w-6 text-stone-500" />
               <div>
@@ -523,7 +523,7 @@ export default function InfluencerDashboard() {
 
         {/* Status Banner - Other statuses */}
         {dashboard.status !== 'active' && dashboard.status !== 'pending' && (
-          <div className="mb-4 p-3 md:mb-6 md:p-4 rounded-2xl border border-stone-200 bg-stone-100">
+          <div className="mb-4 p-3 md:mb-6 md:p-4 rounded-2xl shadow-sm bg-stone-100">
             <p className="text-sm text-stone-500">
               {t('influencer.accountStatus')} <strong>{dashboard.status}</strong>.
               {dashboard.status === 'suspended' && ` ${t('influencer.accountSuspended')}`}
@@ -534,15 +534,15 @@ export default function InfluencerDashboard() {
         {/* === KPI CARDS ROW === */}
         {dashboard.stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div className="rounded-2xl border border-stone-200 bg-white p-4">
+            <div className="rounded-2xl shadow-sm bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Clics 30d</p>
               <p className="text-xl font-bold text-stone-950">{dashboard.stats.clicks_30d || 0}</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4">
+            <div className="rounded-2xl shadow-sm bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Ventas 30d</p>
               <p className="text-xl font-bold text-stone-950">{dashboard.stats.sales_30d || 0}</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4">
+            <div className="rounded-2xl shadow-sm bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Conversión</p>
               <p className="text-xl font-bold text-stone-950">
                 {(dashboard.stats.clicks_30d || 0) > 0
@@ -550,7 +550,7 @@ export default function InfluencerDashboard() {
                   : '—'}
               </p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4">
+            <div className="rounded-2xl shadow-sm bg-white p-4">
               <p className="text-xs text-stone-500 mb-1">Comisiones 30d</p>
               <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(dashboard.stats.earned_30d || 0))}</p>
             </div>
@@ -558,7 +558,7 @@ export default function InfluencerDashboard() {
         )}
 
         {/* Product Performance */}
-        <div className="mb-6 bg-white border border-stone-200 rounded-2xl">
+        <div className="mb-6 bg-white shadow-sm rounded-2xl">
           <div className="px-6 pt-6 pb-4">
             <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
               <BarChart3 className="h-5 w-5 text-stone-500" />
@@ -567,7 +567,7 @@ export default function InfluencerDashboard() {
           </div>
           <div className="px-6 pb-6 space-y-3">
             {productPerformance.length > 0 ? productPerformance.map((item) => (
-              <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between px-4 py-3 rounded-2xl border border-stone-200 bg-stone-100">
+              <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between px-4 py-3 rounded-2xl shadow-sm bg-stone-100">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-stone-950">{item.title || item.content_id}</p>
                   <p className="mt-1 text-xs capitalize text-stone-500">{item.content_type}</p>
@@ -599,7 +599,7 @@ export default function InfluencerDashboard() {
 
         {/* === CODE HERO - pending === */}
         {dashboard.discount_code && dashboard.discount_code_approval_status === 'pending' && (
-          <div className="mb-6 p-6 text-center rounded-2xl border border-stone-200 bg-stone-100" data-testid="code-pending">
+          <div className="mb-6 p-6 text-center rounded-2xl shadow-sm bg-stone-100" data-testid="code-pending">
             <div className="flex items-center justify-center gap-2 mb-2">
               <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest bg-white text-stone-500">
                 <span className="h-2 w-2 rounded-full animate-pulse bg-stone-950" />
@@ -617,7 +617,7 @@ export default function InfluencerDashboard() {
 
         {/* === CODE HERO - active === */}
         {dashboard.discount_code && dashboard.discount_code_active && (
-          <div className="mb-6 p-6 text-center rounded-2xl border border-stone-200 bg-white" data-testid="code-hero">
+          <div className="mb-6 p-6 text-center rounded-2xl shadow-sm bg-white" data-testid="code-hero">
             <p className="mb-2 text-xs uppercase tracking-widest text-stone-500">Tu código</p>
             <p className="mb-4 text-4xl font-semibold tracking-tight md:text-5xl font-mono text-stone-950" data-testid="influencer-code">
               {dashboard.discount_code}
@@ -643,15 +643,15 @@ export default function InfluencerDashboard() {
 
         {/* === Stats grid 3 cols === */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="p-4 text-center bg-white border border-stone-200 rounded-2xl">
+          <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
             <p className="text-2xl font-bold text-stone-950">{convertAndFormatPrice(asNumber(dashboard.total_sales_generated))}</p>
             <p className="text-xs mt-1 text-stone-500">{t('influencer.totalSales')}</p>
           </div>
-          <div className="p-4 text-center bg-white border border-stone-200 rounded-2xl">
+          <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
             <p className="text-2xl font-bold text-stone-950">{convertAndFormatPrice(asNumber(dashboard.total_commission_earned))}</p>
             <p className="text-xs mt-1 text-stone-500">Comisión mes</p>
           </div>
-          <div className="p-4 text-center bg-white border border-stone-200 rounded-2xl">
+          <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
             <p className="text-2xl font-bold text-stone-950">{`${tierPercent}%`}</p>
             <p className="text-xs mt-1 text-stone-500">Conversión</p>
           </div>
@@ -660,7 +660,7 @@ export default function InfluencerDashboard() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Discount Code Card */}
-          <div className="lg:col-span-1 bg-white border border-stone-200 rounded-2xl">
+          <div className="lg:col-span-1 bg-white shadow-sm rounded-2xl">
             <div className="px-6 pt-6 pb-4">
               <h3 className="text-lg font-semibold text-stone-950">{t('influencer.discountCode')}</h3>
             </div>
@@ -710,7 +710,7 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Stripe Connect Card */}
-          <div className="lg:col-span-1 bg-white border border-stone-200 rounded-2xl">
+          <div className="lg:col-span-1 bg-white shadow-sm rounded-2xl">
             <div className="px-6 pt-6 pb-4">
               <h3 className="text-lg font-semibold text-stone-950">{t('influencer.paymentSetup')}</h3>
             </div>
@@ -758,14 +758,14 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Commission Summary */}
-          <div className="lg:col-span-1 bg-white border border-stone-200 rounded-2xl">
+          <div className="lg:col-span-1 bg-white shadow-sm rounded-2xl">
             <div className="px-6 pt-6 pb-4">
               <h3 className="text-lg font-semibold text-stone-950">{t('influencer.commissionSummary')}</h3>
             </div>
             <div className="px-6 pb-6">
               <div className="space-y-4">
                 {/* How commission works */}
-                <div className="p-3 mb-4 bg-stone-100 border border-stone-200 rounded-xl">
+                <div className="p-3 mb-4 bg-stone-100 shadow-sm rounded-xl">
                   <p className="text-xs font-medium mb-2 text-stone-500">Info · {t('influencer.howCommissionWorks')}</p>
                   <p className="text-xs text-stone-500">
                     {t('influencer.commissionExplanation', { percent: dashboard.commission_value })}
@@ -800,7 +800,7 @@ export default function InfluencerDashboard() {
 
         {/* Payment Schedule Card */}
         {dashboard.payment_schedule && (
-          <div className="mt-6 bg-white border border-stone-200 rounded-2xl">
+          <div className="mt-6 bg-white shadow-sm rounded-2xl">
             <div className="px-6 pt-6 pb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
                 <CreditCard className="w-5 h-5 text-stone-500" />
@@ -810,21 +810,21 @@ export default function InfluencerDashboard() {
             <div className="px-6 pb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Available to withdraw */}
-                <div className="text-center p-4 bg-white rounded-xl border border-stone-200">
+                <div className="text-center p-4 bg-white rounded-xl shadow-sm">
                   <p className="text-sm mb-1 text-stone-500">{t('influencer.availableToWithdraw')}</p>
                   <p className="text-2xl font-bold text-stone-950">{convertAndFormatPrice(Number(dashboard.payment_schedule.available_to_withdraw || 0))}</p>
                   <p className="text-xs mt-1 text-stone-500">{t('influencer.alreadyPassed15Days')}</p>
                 </div>
 
                 {/* Available soon */}
-                <div className="text-center p-4 bg-white rounded-xl border border-stone-200">
+                <div className="text-center p-4 bg-white rounded-xl shadow-sm">
                   <p className="text-sm mb-1 text-stone-500">{t('influencer.availableSoon')}</p>
                   <p className="text-2xl font-bold text-stone-500">{convertAndFormatPrice(Number(dashboard.payment_schedule.available_soon || 0))}</p>
                   <p className="text-xs mt-1 text-stone-500">{t('influencer.inNext7Days')}</p>
                 </div>
 
                 {/* Next payment date */}
-                <div className="text-center p-4 bg-white rounded-xl border border-stone-200">
+                <div className="text-center p-4 bg-white rounded-xl shadow-sm">
                   <p className="text-sm mb-1 text-stone-500">{t('influencer.nextPaymentDate')}</p>
                   {dashboard.payment_schedule.next_payment_date ? (
                     <>
@@ -844,7 +844,7 @@ export default function InfluencerDashboard() {
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-white rounded-xl border border-stone-200">
+              <div className="mt-4 p-3 bg-white rounded-xl shadow-sm">
                 <p className="text-sm text-stone-500">
                   <strong>Info · {t('influencer.paymentPolicy')}:</strong> {t('influencer.paymentPolicyDesc')}
                 </p>
@@ -868,7 +868,7 @@ export default function InfluencerDashboard() {
         {fiscalStatus?.certificate_verified && (
           <div className="mt-6 space-y-4">
             {/* Fiscal Summary Card */}
-            <div className="p-5 bg-stone-100 rounded-2xl border border-stone-200">
+            <div className="p-5 bg-stone-100 rounded-2xl shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold text-stone-950">
                   Resumen fiscal {withholdingSummary?.year || new Date().getFullYear()}
@@ -937,7 +937,7 @@ export default function InfluencerDashboard() {
             </div>
 
             {/* Payout method card */}
-            <div className="p-4 flex items-center justify-between bg-white rounded-2xl border border-stone-200">
+            <div className="p-4 flex items-center justify-between bg-white rounded-2xl shadow-sm">
               <div className="flex items-center gap-3">
                 {fiscalStatus?.payout_method === 'sepa' ? (
                   <Building2 className="w-5 h-5 text-stone-500" />
@@ -962,7 +962,7 @@ export default function InfluencerDashboard() {
 
             {/* Payout history */}
             {Array.isArray(payoutHistory) && payoutHistory.length > 0 && (
-              <div className="p-4 bg-white rounded-2xl border border-stone-200">
+              <div className="p-4 bg-white rounded-2xl shadow-sm">
                 <p className="text-[10px] uppercase tracking-wider font-bold mb-3 text-stone-500">Cobros realizados</p>
                 <div className="space-y-2">
                   {payoutHistory.slice(0, 5).map((p, i) => (
@@ -990,7 +990,7 @@ export default function InfluencerDashboard() {
               </div>
             )}
             {Array.isArray(payoutHistory) && payoutHistory.length === 0 && (
-              <div className="p-4 text-center bg-white rounded-2xl border border-stone-200">
+              <div className="p-4 text-center bg-white rounded-2xl shadow-sm">
                 <p className="text-[10px] uppercase tracking-wider font-bold mb-2 text-stone-500">Cobros realizados</p>
                 <p className="text-sm text-stone-500">Aún no has realizado ningún cobro</p>
               </div>
@@ -1028,7 +1028,7 @@ export default function InfluencerDashboard() {
         )}
 
         {/* Recent Commissions */}
-        <div className="mt-6 bg-white border border-stone-200 rounded-2xl">
+        <div className="mt-6 bg-white shadow-sm rounded-2xl">
           <div className="px-6 pt-6 pb-4">
             <h3 className="text-lg font-semibold text-stone-950">{t('influencer.recentCommissions')}</h3>
           </div>
@@ -1139,7 +1139,7 @@ export default function InfluencerDashboard() {
                   <Link
                     key={c.collab_id}
                     to={`/messages/${c.conversation_id}`}
-                    className="flex items-center gap-3 p-3 transition-colors bg-white border border-stone-200 rounded-2xl"
+                    className="flex items-center gap-3 p-3 transition-colors bg-white shadow-sm rounded-2xl"
                   >
                     {proposal.product_image_url && (
                       <img loading="lazy" src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
