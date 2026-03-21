@@ -1,12 +1,12 @@
 import React from 'react';
 
-interface SkeletonProps {
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-export function Skeleton({ className }: SkeletonProps) {
+export function Skeleton({ className, ...rest }: SkeletonProps) {
   return (
-    <div className={`skeleton-shimmer rounded ${className}`} />
+    <div className={`skeleton-shimmer rounded ${className}`} {...rest} />
   );
 }
 
