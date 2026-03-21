@@ -9,6 +9,7 @@ import { timeAgo } from '../../utils/time';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useDwellTime } from '../../hooks/useDwellTime';
 import { abbreviateCount } from '../../utils/helpers';
+import MilestoneToast, { checkMilestone } from './MilestoneToast';
 
 
 // ---------------------------------------------------------------------------
@@ -176,6 +177,9 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const [savePending, setSavePending] = useState(null); // null=use prop, true/false=optimistic override
   const effectiveSaved = savePending ?? saved;
 
+  // Milestone toast
+  const [activeMilestone, setActiveMilestone] = useState(null);
+
   // Reaction system
   const [showReactions, setShowReactions] = useState(false);
   const [selectedReaction, setSelectedReaction] = useState(null);
@@ -204,7 +208,13 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const handleLike = useCallback(() => {
     trigger('light');
     onLike?.(post.id);
-  }, [onLike, post.id, trigger]);
+    // Check milestone after like (optimistic: assume count increments)
+    if (!liked) {
+      const newCount = likesCount + 1;
+      const m = checkMilestone('first_10_likes', newCount) || checkMilestone('first_50_likes', newCount);
+      if (m) setActiveMilestone(m);
+    }
+  }, [onLike, post.id, trigger, liked, likesCount]);
 
   // Long press handlers for reaction picker
   const handleLongPressStart = useCallback(() => {
@@ -856,6 +866,15 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           ))}
         </div>
       )}
+      {/* ---- Milestone toast ---- */}
+      <AnimatePresence>
+        {activeMilestone && (
+          <MilestoneToast
+            milestone={activeMilestone}
+            onClose={() => setActiveMilestone(null)}
+          />
+        )}
+      </AnimatePresence>
     </motion.article>
   );
 }

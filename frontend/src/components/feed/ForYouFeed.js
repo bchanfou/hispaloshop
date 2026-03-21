@@ -10,9 +10,12 @@ import PostCard from './PostCard';
 import PostDetailModal from './PostDetailModal';
 import FeedSkeleton from './FeedSkeleton';
 import SuggestedUsersCard from './SuggestedUsersCard';
+import SponsoredProductCard from './SponsoredProductCard';
+import FeedRecipeCard from './FeedRecipeCard';
 import { useForYouFeed, useLikePost, feedKeys } from '../../features/feed/queries';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
+import { useSponsoredContent } from '../../hooks/useSponsoredContent';
 
 export default function ForYouFeed() {
   const { t } = useTranslation();
@@ -36,6 +39,10 @@ export default function ForYouFeed() {
 
   // Suggested users dismissal (session-only)
   const [dismissedSuggestions, setDismissedSuggestions] = useState(false);
+
+  // Sponsored / promoted content
+  const { sponsoredProducts, recipes } = useSponsoredContent();
+  const [dismissedSponsored, setDismissedSponsored] = useState(new Set());
 
   // Post detail modal state
   const [modalPost, setModalPost] = useState(null);
@@ -132,15 +139,15 @@ export default function ForYouFeed() {
         {showNewContentPill && (
           <motion.button
             key="new-content-pill"
-            initial={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.22, ease: [0, 0, 0.2, 1] }}
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             onClick={handleNewContentClick}
-            className="fixed top-16 left-1/2 -translate-x-1/2 z-30 bg-stone-950 text-white text-xs px-4 py-2 rounded-full shadow-lg cursor-pointer border-none"
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-30 bg-stone-950 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg cursor-pointer border-none"
             aria-live="polite"
           >
-            Nuevo contenido disponible
+            Nuevo contenido
           </motion.button>
         )}
       </AnimatePresence>
@@ -172,7 +179,7 @@ export default function ForYouFeed() {
       ) : (
         <Virtuoso
           data={allPosts}
-          estimatedItemSize={520}
+          estimatedItemSize={480}
           itemContent={(index, post) => {
             const isReel = post.video_url || post.type === 'reel';
             const shouldAnimate = index < 5;
@@ -181,6 +188,14 @@ export default function ForYouFeed() {
             // Inject suggested users after every 5th post (position 4, 14, 24...) unless dismissed
             const showSuggestions = !dismissedSuggestions && (index === 4 || (index > 4 && (index - 4) % 10 === 0));
 
+            // Promoted product card every ~8 posts (positions 7, 15, 23...)
+            const sponsoredSlot = (index >= 7 && (index - 7) % 8 === 0) ? sponsoredProducts[Math.floor((index - 7) / 8) % Math.max(sponsoredProducts.length, 1)] : null;
+            const showSponsored = sponsoredSlot && sponsoredProducts.length > 0 && !dismissedSponsored.has(sponsoredSlot.id);
+
+            // Recipe card every ~15 posts (positions 14, 29...)
+            const recipeSlot = (index >= 14 && (index - 14) % 15 === 0) ? recipes[Math.floor((index - 14) / 15) % Math.max(recipes.length, 1)] : null;
+            const showRecipe = recipeSlot && recipes.length > 0;
+
             const motionProps = shouldAnimate
               ? { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay } }
               : {};
@@ -188,6 +203,13 @@ export default function ForYouFeed() {
             if (isReel) {
               return (
                 <div className="px-4 py-3">
+                  {showSponsored && (
+                    <SponsoredProductCard
+                      product={sponsoredSlot}
+                      onDismiss={() => setDismissedSponsored(prev => new Set(prev).add(sponsoredSlot.id))}
+                    />
+                  )}
+                  {showRecipe && <FeedRecipeCard recipe={recipeSlot} />}
                   <motion.div {...motionProps}>
                     <ReelCard
                       reel={{
@@ -222,6 +244,13 @@ export default function ForYouFeed() {
             return (
               <div>
                 {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
+                {showSponsored && (
+                  <SponsoredProductCard
+                    product={sponsoredSlot}
+                    onDismiss={() => setDismissedSponsored(prev => new Set(prev).add(sponsoredSlot.id))}
+                  />
+                )}
+                {showRecipe && <FeedRecipeCard recipe={recipeSlot} />}
                 <motion.div {...motionProps}>
                   <PostCard
                     post={{
