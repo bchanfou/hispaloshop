@@ -38,9 +38,9 @@ const pillCls = (active) =>
 const TABS = [
   { key: 'all', label: 'Todo' },
   { key: 'products', label: 'Productos', icon: ShoppingBag },
-  { key: 'recipes', label: 'Recetas', icon: ChefHat },
   { key: 'stores', label: 'Tiendas', icon: Store },
   { key: 'creators', label: 'Personas', icon: Users },
+  { key: 'recipes', label: 'Recetas', icon: ChefHat },
 ];
 
 const SORT_OPTIONS = [
@@ -256,6 +256,12 @@ export default function SearchPage() {
     executeSearch(term);
   };
 
+  const handleRemoveHistoryItem = (term) => {
+    const updated = getHistory().filter((x) => x !== term);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+    setHistory(updated);
+  };
+
   const handleClearHistory = () => {
     clearHistoryStorage();
     setHistory([]);
@@ -301,7 +307,7 @@ export default function SearchPage() {
             <ArrowLeft size={20} className="text-stone-950" />
           </button>
 
-          <div className="flex flex-1 items-center gap-2 rounded-2xl bg-stone-100 border-none px-4 py-3">
+          <div className="flex h-12 flex-1 items-center gap-2 rounded-full bg-stone-100 px-5 focus-within:ring-2 focus-within:ring-stone-950">
             <Search size={16} className="shrink-0 text-stone-400" />
             <input
               ref={inputRef}
@@ -310,7 +316,7 @@ export default function SearchPage() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar"
               autoComplete="off"
-              className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+              className="flex-1 bg-transparent border-none text-sm text-stone-950 outline-none placeholder:text-stone-400"
             />
             <AnimatePresence>
               {query && (
@@ -455,22 +461,30 @@ export default function SearchPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pb-20">
             {history.length > 0 && (
               <section className="pt-4">
-                <div className="mb-2 flex items-center justify-between">
+                <div className="mb-1 flex items-center justify-between">
                   <span className="text-[13px] font-bold text-stone-950">Recientes</span>
                   <button onClick={handleClearHistory} className="px-2 text-xs text-stone-400">
-                    Borrar
+                    Borrar todo
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col">
                   {history.map(term => (
-                    <button
-                      key={term}
-                      onClick={() => handleHistoryClick(term)}
-                      className={pillCls(false) + ' gap-1.5'}
-                    >
-                      <Clock size={12} className="text-stone-400" />
-                      {term}
-                    </button>
+                    <div key={term} className="flex items-center border-b border-stone-100 last:border-b-0">
+                      <button
+                        onClick={() => handleHistoryClick(term)}
+                        className="flex flex-1 items-center gap-3 py-3 text-left"
+                      >
+                        <Clock size={16} className="shrink-0 text-stone-400" />
+                        <span className="text-sm text-stone-950">{term}</span>
+                      </button>
+                      <button
+                        onClick={() => handleRemoveHistoryItem(term)}
+                        aria-label={`Eliminar ${term} del historial`}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-stone-100"
+                      >
+                        <X size={14} className="text-stone-400" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               </section>

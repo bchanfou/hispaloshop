@@ -163,6 +163,19 @@ export default function DiscoverPage() {
     return () => { clearTimeout(eliteFadeTimer.current); };
   }, []);
 
+  /* ── elite auto-rotation (max 3s) ── */
+  useEffect(() => {
+    if (eliteStores.length <= 1) return;
+    const interval = setInterval(() => {
+      setEliteFading(true);
+      eliteFadeTimer.current = setTimeout(() => {
+        setEliteIdx((prev) => (prev + 1) % eliteStores.length);
+        setEliteFading(false);
+      }, ELITE_FADE_MS);
+    }, 3000);
+    return () => { clearInterval(interval); clearTimeout(eliteFadeTimer.current); };
+  }, [eliteStores.length]);
+
   /* ── build explore grid items (products + recipes mixed) ── */
   const exploreItems = useMemo(() => {
     const items = [];
@@ -271,7 +284,7 @@ export default function DiscoverPage() {
 
   /* ── loading skeleton grid ── */
   const SkeletonGrid = () => (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-0.5">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="aspect-square bg-stone-100 animate-pulse" />
       ))}
@@ -282,6 +295,7 @@ export default function DiscoverPage() {
   return (
     <div className="min-h-screen bg-white pb-20">
       <SEO title="Explorar — Hispaloshop" description="Descubre productos artesanales, tiendas verificadas y recetas de la comunidad." />
+      <div className="mx-auto max-w-[1200px]">
 
       {/* ─── SEARCH BAR (sticky) ─── */}
       <div className="sticky top-0 z-20 bg-white px-3 py-2">
@@ -354,7 +368,7 @@ export default function DiscoverPage() {
       ) : (loadingProducts && loadingTrending) ? (
         <SkeletonGrid />
       ) : exploreItems.length > 0 ? (
-        <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-0.5">
+        <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
           {exploreItems.map((item, idx) => (
             <ExploreGridItem
               key={item.product_id || item.recipe_id || item.id || idx}
@@ -370,6 +384,8 @@ export default function DiscoverPage() {
           <p className="text-sm text-stone-400">No hay contenido disponible</p>
         </div>
       )}
+
+      </div>{/* end max-w container */}
 
       {selectedPost && (
         <PostDetailModal post={selectedPost} onClose={() => setSelectedPost(null)} />

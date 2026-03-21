@@ -79,15 +79,15 @@ export default function CheckoutSuccessPage() {
               : 'Ha ocurrido un error al verificar tu pago. Si se ha realizado el cobro, contacta con soporte.'}
           </p>
           <div className="flex flex-col gap-2.5">
-            <Link to="/orders" className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors">
+            <Link to="/orders" className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors">
               Ver mis pedidos
             </Link>
             {status === 'error' && (
-              <Link to="/help" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
+              <Link to="/help" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
                 Contactar soporte
               </Link>
             )}
-            <Link to="/" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
+            <Link to="/" className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors">
               Seguir comprando
             </Link>
           </div>
@@ -209,14 +209,14 @@ export default function CheckoutSuccessPage() {
           {orderId && (
             <Link
               to={`/dashboard/orders/${orderId}`}
-              className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors"
+              className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors"
             >
               Ver mi pedido
             </Link>
           )}
           <Link
             to="/"
-            className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-2xl text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors"
+            className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors"
           >
             Seguir comprando
           </Link>

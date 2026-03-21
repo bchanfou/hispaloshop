@@ -138,10 +138,10 @@ const MiniCart = ({ isOpen, onClose }) => {
                               <img
                                 src={item.product_image || item.image || item.product?.image}
                                 alt={item.product_name || item.name || item.product?.name}
-                                className="w-20 h-20 object-cover rounded-2xl flex-shrink-0"
+                                className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
                               />
                             ) : (
-                              <div className="w-20 h-20 rounded-2xl bg-stone-100 flex-shrink-0 flex items-center justify-center">
+                              <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 flex items-center justify-center">
                                 <ShoppingBag className="w-6 h-6 text-stone-400" />
                               </div>
                             )}
@@ -152,31 +152,31 @@ const MiniCart = ({ isOpen, onClose }) => {
                                 </h4>
                                 <button
                                   onClick={() => handleRemove(item)}
-                                  className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-full transition-colors"
+                                  className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-50 rounded-full transition-colors"
                                   aria-label={`Eliminar ${item.product_name || item.name || item.product?.name}`}
                                 >
-                                  <Trash2 className="w-4 h-4 text-stone-500" />
+                                  <Trash2 className="w-4 h-4 text-stone-400 hover:text-stone-950 transition-colors" />
                                 </button>
                               </div>
 
                               <div className="flex items-center justify-between mt-2">
-                                <div className="flex items-center bg-white rounded-2xl">
+                                <div className="flex items-center gap-2">
                                   <button
                                     onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-l-2xl transition-colors"
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
                                     aria-label={`Disminuir cantidad de ${item.product_name || item.name || item.product?.name}`}
                                   >
-                                    <Minus className="w-4 h-4 text-stone-950" />
+                                    <Minus className="w-3.5 h-3.5 text-stone-950" />
                                   </button>
-                                  <span className="w-8 text-center text-sm font-medium" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
+                                  <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
                                     {item.quantity}
                                   </span>
                                   <button
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-r-2xl transition-colors"
+                                    className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
                                     aria-label={`Aumentar cantidad de ${item.product_name || item.name || item.product?.name}`}
                                   >
-                                    <Plus className="w-4 h-4 text-stone-950" />
+                                    <Plus className="w-3.5 h-3.5 text-stone-950" />
                                   </button>
                                 </div>
                                 <span className="font-semibold text-stone-950">

@@ -77,6 +77,7 @@ export default function ExploreCategoryPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-[1200px]">
       {/* Topbar */}
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button
@@ -122,7 +123,7 @@ export default function ExploreCategoryPage() {
       {/* Product grid */}
       <div className="px-4 pt-2 pb-20">
         {loading ? (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="animate-pulse rounded-2xl bg-stone-100" style={{ aspectRatio: '4/5' }} />
             ))}
@@ -152,7 +153,7 @@ export default function ExploreCategoryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4"
+            className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4"
           >
             {products.map((product) => (
               <ProductCard key={product.product_id || product.id} product={product} />
@@ -160,6 +161,7 @@ export default function ExploreCategoryPage() {
           </motion.div>
         )}
       </div>
+      </div>{/* end max-w container */}
     </div>
   );
 }

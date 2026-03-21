@@ -376,7 +376,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12 pb-32 md:pb-12">
+      <div className="max-w-[600px] lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12 pb-32 md:pb-12">
         <div className="hidden md:block">
           <Breadcrumbs className="mb-6" />
         </div>
@@ -400,7 +400,7 @@ export default function CartPage() {
                       placeholder={t('checkout.verificationCodePlaceholder')}
                       value={verificationToken}
                       onChange={(event) => setVerificationToken(event.target.value)}
-                      className="flex-1 max-w-xs h-10 rounded-2xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors"
+                      className="flex-1 max-w-xs h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors"
                       aria-label={t('checkout.verificationCodePlaceholder')}
                       data-testid="verification-input"
                     />
@@ -484,7 +484,7 @@ export default function CartPage() {
                           className={`flex items-start gap-3 rounded-2xl border bg-white p-3 md:items-center md:gap-6 md:p-6 ${hasStockIssue ? 'border-stone-950 bg-stone-100' : 'border-stone-200'}`}
                           data-testid={`cart-item-${itemKey}`}
                         >
-                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-stone-100 overflow-hidden flex-shrink-0">
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
                             {(item.product_image || item.image) && <img src={item.product_image || item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -503,7 +503,7 @@ export default function CartPage() {
                                     whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                    className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-colors"
+                                    className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
                                     aria-label={`Disminuir cantidad de ${item.product_name}`}
                                   >
                                     <Minus className="w-3.5 h-3.5 text-stone-950" />
@@ -513,7 +513,7 @@ export default function CartPage() {
                                     whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                    className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-colors"
+                                    className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
                                     aria-label={`Aumentar cantidad de ${item.product_name}`}
                                   >
                                     <Plus className="w-3.5 h-3.5 text-stone-950" />
@@ -525,7 +525,7 @@ export default function CartPage() {
                               </div>
                               <button
                                 onClick={() => handleRemoveItem(item)}
-                                className="rounded-2xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:hidden"
+                                className="rounded-full p-2 text-stone-400 transition-colors hover:text-stone-950 hover:bg-stone-50 md:hidden"
                                 aria-label={`Eliminar ${item.product_name}`}
                                 data-testid={`remove-item-${itemKey}-mobile`}
                               >
@@ -543,7 +543,7 @@ export default function CartPage() {
                           </div>
                           <button
                             onClick={() => handleRemoveItem(item)}
-                            className="hidden rounded-2xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:flex"
+                            className="hidden rounded-full p-2 text-stone-400 transition-colors hover:text-stone-950 hover:bg-stone-50 md:flex"
                             aria-label={`Eliminar ${item.product_name}`}
                             data-testid={`remove-item-${itemKey}`}
                           >
@@ -632,39 +632,39 @@ export default function CartPage() {
                   <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 border border-stone-200 rounded-2xl" data-testid="new-address-form">
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.addressName') || 'Nombre de direccion'}</label>
-                      <input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} className="w-full h-10 rounded-2xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" data-testid="new-address-name" />
+                      <input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} className="w-full h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors" data-testid="new-address-name" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.fullName')} <span className="text-stone-700">*</span></label>
-                        <input {...registerAddr('full_name')} placeholder={t('checkout.fullName')} className={`w-full h-10 rounded-2xl border bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors ${addrErrors.full_name ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-fullname" />
+                        <input {...registerAddr('full_name')} placeholder={t('checkout.fullName')} className={`w-full h-12 rounded-xl border bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors ${addrErrors.full_name ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-fullname" />
                         {addrErrors.full_name && <p className="mt-1 text-xs text-stone-700">{addrErrors.full_name.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('common.phone')}</label>
-                        <input {...registerAddr('phone')} type="tel" placeholder={t('common.phone')} className="w-full h-10 rounded-2xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" data-testid="new-address-phone" />
+                        <input {...registerAddr('phone')} type="tel" placeholder={t('common.phone')} className="w-full h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors" data-testid="new-address-phone" />
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.street')} <span className="text-stone-700">*</span></label>
-                      <input {...registerAddr('street')} placeholder={t('checkout.street')} className={`w-full h-10 rounded-2xl border bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors ${addrErrors.street ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-street" />
+                      <input {...registerAddr('street')} placeholder={t('checkout.street')} className={`w-full h-12 rounded-xl border bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors ${addrErrors.street ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-street" />
                       {addrErrors.street && <p className="mt-1 text-xs text-stone-700">{addrErrors.street.message}</p>}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.city')} <span className="text-stone-700">*</span></label>
-                        <input {...registerAddr('city')} placeholder={t('checkout.city')} className={`w-full h-10 rounded-2xl border bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors ${addrErrors.city ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-city" />
+                        <input {...registerAddr('city')} placeholder={t('checkout.city')} className={`w-full h-12 rounded-xl border bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors ${addrErrors.city ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-city" />
                         {addrErrors.city && <p className="mt-1 text-xs text-stone-700">{addrErrors.city.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.zip')} <span className="text-stone-700">*</span></label>
-                        <input {...registerAddr('postal_code')} placeholder={t('checkout.zip')} className={`w-full h-10 rounded-2xl border bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors ${addrErrors.postal_code ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-postal" />
+                        <input {...registerAddr('postal_code')} placeholder={t('checkout.zip')} className={`w-full h-12 rounded-xl border bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors ${addrErrors.postal_code ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-postal" />
                         {addrErrors.postal_code && <p className="mt-1 text-xs text-stone-700">{addrErrors.postal_code.message}</p>}
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.country')} <span className="text-stone-700">*</span></label>
-                      <select {...registerAddr('country')} className={`w-full rounded-2xl border bg-white px-4 py-2 text-sm ${addrErrors.country ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-country">
+                      <select {...registerAddr('country')} className={`w-full h-12 rounded-xl border bg-white px-4 text-sm ${addrErrors.country ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-country">
                         <option value="ES">Espana</option>
                         <option value="PT">Portugal</option>
                         <option value="FR">Francia</option>
@@ -710,7 +710,7 @@ export default function CartPage() {
               <div className="mb-4 md:mb-6">
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
-                    <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-10 rounded-2xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" aria-label={t('cart.discountCode')} data-testid="discount-code-input" />
+                    <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors" aria-label={t('cart.discountCode')} data-testid="discount-code-input" />
                     <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-2xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50" data-testid="apply-discount-btn">
                       {discountLoading ? t('common.loading') : t('cart.apply')}
                     </button>
@@ -793,7 +793,7 @@ export default function CartPage() {
                 type="button"
                 onClick={handleCheckout}
                 disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
-                className={`w-full rounded-full py-3 text-[14px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+                className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
                 data-testid="checkout-button"
               >
                 {checkoutLoading
@@ -829,7 +829,7 @@ export default function CartPage() {
             type="button"
             onClick={handleCheckout}
             disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
-            className={`w-full rounded-full py-3.5 text-[14px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+            className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
           >
             {checkoutLoading ? t('common.loading') : t('cart.checkout')}
           </motion.button>
