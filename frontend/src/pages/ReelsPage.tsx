@@ -15,6 +15,10 @@ const REEL_TABS = [
 ];
 const VALID_TABS = new Set(REEL_TABS.map((t) => t.key));
 
+const REEL_CATEGORIES = [
+  'Todos', 'Aceites', 'Quesos', 'Vinos', 'Embutidos', 'Miel', 'Conservas', 'Panadería', 'Especias',
+];
+
 export default function ReelsPage() {
   const navigate = useNavigate();
   const [reels, setReels] = useState([]);
@@ -26,6 +30,7 @@ export default function ReelsPage() {
     const stored = localStorage.getItem('reels_tab');
     return stored && VALID_TABS.has(stored) ? stored : 'foryou';
   });
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
   const containerRef = useRef(null);
   const fetchingRef = useRef(false);
 
@@ -37,7 +42,8 @@ export default function ReelsPage() {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
     try {
-      const data = await apiClient.get(`/reels?skip=${(p - 1) * 10}&limit=10&tab=${activeTab}`);
+      const catParam = selectedCategory && selectedCategory !== 'Todos' ? `&category=${encodeURIComponent(selectedCategory)}` : '';
+      const data = await apiClient.get(`/reels?skip=${(p - 1) * 10}&limit=10&tab=${activeTab}${catParam}`);
       const items = data?.reels || data?.items || data || [];
       if (items.length < 10) setHasMore(false);
       setReels((prev) => (p === 1 ? items : [...prev, ...items]));
@@ -48,7 +54,7 @@ export default function ReelsPage() {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [activeTab]);
+  }, [activeTab, selectedCategory]);
 
   // Re-fetch when tab changes
   useEffect(() => {
@@ -196,6 +202,30 @@ export default function ReelsPage() {
               className="flex-1"
             />
           </div>
+        </div>
+        {/* Category filter pills */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide px-4 pb-2 pt-1">
+          {REEL_CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => {
+                setSelectedCategory(cat);
+                setReels([]);
+                setPage(1);
+                setHasMore(true);
+                setLoading(true);
+                setActiveIndex(0);
+              }}
+              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium border-none cursor-pointer transition-colors ${
+                selectedCategory === cat
+                  ? 'bg-stone-950 text-white'
+                  : 'bg-white/10 text-stone-400 hover:text-white'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
 

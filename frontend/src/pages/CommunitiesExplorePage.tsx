@@ -56,9 +56,15 @@ export default function CommunitiesExplorePage() {
     queryClient.invalidateQueries({ queryKey: ['my-communities'] });
   }, [queryClient]);
 
+  const { data: featuredData } = useQuery({
+    queryKey: ['communities-featured'],
+    queryFn: () => apiClient.get('/communities?featured=true&limit=4'),
+  });
+
   const canCreate = (user?.follower_count >= 100) || user?.is_verified_seller;
   const communities = data?.communities || [];
   const myCommunities = myData?.communities || [];
+  const featuredCommunities = featuredData?.communities || [];
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -76,6 +82,18 @@ export default function CommunitiesExplorePage() {
         )}
       </div>
       </div>
+
+      {/* ── Featured Communities Carousel ── */}
+      {featuredCommunities.length > 0 && !searchInput && (
+        <section className="mx-auto max-w-[975px] px-4 pt-4">
+          <h2 className="mb-2.5 text-sm font-bold uppercase tracking-wide text-stone-950">Comunidades destacadas</h2>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            {featuredCommunities.map((c) => (
+              <FeaturedCard key={c.id || c._id} community={c} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Search ── */}
       <div role="search" aria-label="Buscar comunidades" className="mx-auto max-w-[975px] px-4 pt-3">
@@ -281,6 +299,74 @@ const MyCommunityPill = ({ community }) => (
   </Link>
 );
 
+/* ── Member Preview Avatars ── */
+const MemberAvatars = ({ community }) => {
+  const members = community.recent_members || community.top_members || [];
+  const total = community.member_count || 0;
+  const shown = members.slice(0, 3);
+  if (total === 0 && shown.length === 0) return null;
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="flex items-center">
+        {shown.map((m, i) => (
+          <img
+            key={m.id || m._id || i}
+            src={m.avatar_url || m.avatar || m.profile_image}
+            alt=""
+            className={`w-6 h-6 rounded-full border-2 border-white object-cover ${i > 0 ? '-ml-2' : ''}`}
+            loading="lazy"
+          />
+        ))}
+      </div>
+      {total > shown.length && (
+        <span className="text-[10px] text-stone-500">+ {(total - shown.length).toLocaleString()} miembros</span>
+      )}
+    </div>
+  );
+};
+
+/* ── Featured Community Card (dark, horizontal scroll) ── */
+const FeaturedCard = ({ community }) => {
+  const navigate = useNavigate();
+  const [joining, setJoining] = useState(false);
+
+  const handleJoin = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (joining) return;
+    setJoining(true);
+    try {
+      await apiClient.post(`/communities/${community.id || community._id}/join`);
+      toast.success(`Te uniste a ${community.name}`);
+    } catch {
+      toast.error('Error al unirse');
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  return (
+    <div
+      onClick={() => navigate(`/communities/${community.slug || community.id || community._id}`)}
+      className="w-[280px] shrink-0 cursor-pointer rounded-2xl bg-stone-950 p-4 text-white"
+    >
+      <div className="mb-3 text-[28px]">{community.emoji || '🌿'}</div>
+      <p className="mb-1 truncate text-[15px] font-bold">{community.name}</p>
+      <p className="mb-3 flex items-center gap-1 text-[12px] text-white/60">
+        <Users size={12} />
+        {(community.member_count || 0).toLocaleString()} miembros
+      </p>
+      <button
+        onClick={handleJoin}
+        disabled={joining}
+        className="rounded-full border border-white/30 bg-transparent px-4 py-1.5 text-[13px] font-semibold text-white cursor-pointer hover:bg-white/10 transition-colors disabled:opacity-50"
+      >
+        {joining ? '...' : 'Unirse'}
+      </button>
+    </div>
+  );
+};
+
 /* ── Card for 2-column grid ── */
 const CommunityCard = React.memo(({ community, onToggled }) => {
   const [joined, setJoined] = useState(!!community.is_member);
@@ -341,10 +427,13 @@ const CommunityCard = React.memo(({ community, onToggled }) => {
               {community.description}
             </p>
           )}
-          <p className="mb-2 flex items-center gap-1 text-[10px] text-stone-500">
+          <p className="mb-1 flex items-center gap-1 text-[10px] text-stone-500">
             <Users size={10} />
             {memberCount?.toLocaleString()} miembros
           </p>
+          <div className="mb-2">
+            <MemberAvatars community={community} />
+          </div>
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={toggle}

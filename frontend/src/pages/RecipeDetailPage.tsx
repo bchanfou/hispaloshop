@@ -12,6 +12,42 @@ import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
 import SEO from '../components/SEO';
 
+const ALLERGEN_MAP = [
+  { key: 'gluten', flag: 'is_gluten_free', label: '🌾 Gluten' },
+  { key: 'lactose', flag: 'is_lactose_free', label: '🥛 Lactosa' },
+  { key: 'nuts', flag: 'is_nut_free', label: '🥜 Frutos secos' },
+  { key: 'eggs', flag: 'is_egg_free', label: '🥚 Huevo' },
+  { key: 'soy', flag: 'is_soy_free', label: '🫘 Soja' },
+  { key: 'fish', flag: 'is_fish_free', label: '🐟 Pescado' },
+  { key: 'shellfish', flag: 'is_shellfish_free', label: '🦐 Mariscos' },
+  { key: 'celery', flag: 'is_celery_free', label: '🥬 Apio' },
+  { key: 'mustard', flag: 'is_mustard_free', label: '🟡 Mostaza' },
+  { key: 'sesame', flag: 'is_sesame_free', label: '🫘 Sésamo' },
+  { key: 'sulphites', flag: 'is_sulphite_free', label: '🍷 Sulfitos' },
+  { key: 'lupin', flag: 'is_lupin_free', label: '🌿 Altramuces' },
+  { key: 'molluscs', flag: 'is_mollusc_free', label: '🐚 Moluscos' },
+  { key: 'peanuts', flag: 'is_peanut_free', label: '🥜 Cacahuetes' },
+];
+
+function getIngredientAllergens(product) {
+  if (!product) return [];
+  const allergens = [];
+  // Check explicit allergens array
+  if (Array.isArray(product.allergens)) {
+    for (const a of product.allergens) {
+      const name = typeof a === 'string' ? a : a.name || a.label || '';
+      if (name) allergens.push(name);
+    }
+  }
+  // Check individual boolean flags (is_X_free === false means contains X)
+  for (const { flag, label } of ALLERGEN_MAP) {
+    if (product[flag] === false && !allergens.includes(label)) {
+      allergens.push(label);
+    }
+  }
+  return allergens;
+}
+
 const DIFFICULTY_CLASSES = {
   easy: { pill: 'bg-stone-100 text-stone-600', label: 'Fácil' },
   medium: { pill: 'bg-stone-100 text-stone-700', label: 'Media' },
@@ -94,7 +130,7 @@ export default function RecipeDetailPage() {
   );
 
   const handleAddAllToCart = async () => {
-    if (taggedIngredients.length >= 2) {
+    if (taggedIngredients.length >= 2) { // batch add for 2+ linked products
       setAddingAll(true);
       try {
         for (const ing of taggedIngredients) {
@@ -345,6 +381,21 @@ export default function RecipeDetailPage() {
                     <ListPlus size={14} className="shrink-0 text-stone-300 group-hover:text-stone-500 transition-colors" />
                   </button>
 
+                  {/* Allergen badges */}
+                  {ing.product && (() => {
+                    const badges = getIngredientAllergens(ing.product);
+                    if (badges.length === 0) return null;
+                    return (
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {badges.map((badge) => (
+                          <span key={badge} className="inline-flex items-center rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] text-stone-600">
+                            {badge}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
+
                   {ing.product && (
                     <div className="mt-2 flex items-center gap-2.5 rounded-2xl border border-stone-200 bg-white p-2">
                       <button
@@ -377,7 +428,23 @@ export default function RecipeDetailPage() {
             })}
           </div>
 
-          {taggedIngredients.length >= 2 && (
+          {taggedIngredients.length >= 3 ? (() => {
+            const total = taggedIngredients.reduce((sum, ing) => {
+              const price = Number(ing.product?.price || 0);
+              return sum + price;
+            }, 0);
+            return (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={handleAddAllToCart}
+                disabled={addingAll}
+                className={`mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-full border-none bg-stone-950 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}
+              >
+                <ShoppingCart size={18} />
+                {addingAll ? 'Añadiendo...' : `Comprar receta completa · ${total.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}`}
+              </motion.button>
+            );
+          })() : taggedIngredients.length >= 2 ? (
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleAddAllToCart}
@@ -387,7 +454,7 @@ export default function RecipeDetailPage() {
               <ShoppingCart size={18} />
               {addingAll ? 'Añadiendo...' : `Añadir todos al carrito (${taggedIngredients.length})`}
             </motion.button>
-          )}
+          ) : null}
         </section>
 
         {/* ── Steps ── */}

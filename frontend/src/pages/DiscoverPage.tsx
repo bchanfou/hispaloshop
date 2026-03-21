@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat, AlertTriangle, Hash } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat, AlertTriangle, Hash, ArrowRight } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -94,6 +94,8 @@ export default function DiscoverPage() {
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [newStores, setNewStores] = useState([]);
 
   const { products, isLoading: loadingProducts } = useProducts({
     limit: '24',
@@ -133,6 +135,28 @@ export default function DiscoverPage() {
           (item) => item.tag || item.name || item.hashtag
         );
         setTrendingHashtags(items.slice(0, 12));
+      })
+      .catch(() => {});
+
+    apiClient.get('/discovery/recommended', { params: { limit: 6 } })
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.products || data?.items || [];
+        setRecommendedProducts(list.slice(0, 6));
+      })
+      .catch(() => {
+        // Fallback to products?recommended=true
+        apiClient.get('/products', { params: { recommended: true, limit: 6 } })
+          .then(data => {
+            const list = Array.isArray(data) ? data : data?.products || [];
+            setRecommendedProducts(list.slice(0, 6));
+          })
+          .catch(() => {});
+      });
+
+    apiClient.get('/stores', { params: { sort: 'newest', limit: 6 } })
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.stores || [];
+        setNewStores(list.slice(0, 6));
       })
       .catch(() => {});
 
@@ -268,6 +292,14 @@ export default function DiscoverPage() {
           <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white/80 backdrop-blur-md">
             Destacado
           </span>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); navigate(`/store/${store.slug || store.store_slug}`); }}
+            className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-stone-950 backdrop-blur-sm transition-colors hover:bg-white"
+            style={fadeStyle}
+          >
+            Ver tienda <ArrowRight size={14} />
+          </button>
         </div>
 
         {eliteStores.length > 1 && (
@@ -377,6 +409,73 @@ export default function DiscoverPage() {
                 >
                   #{tagName}
                 </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ─── PARA TI — Personalized row ─── */}
+      {recommendedProducts.length > 0 && (
+        <div className="px-4 pb-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[13px] font-bold text-stone-950">Para ti</p>
+            <Link to="/products?recommended=true" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700">
+              Ver todo
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+            {recommendedProducts.map(p => {
+              const img = p.images?.[0] || p.image_url;
+              const id = p.product_id || p.id;
+              return (
+                <Link key={id} to={`/products/${id}`} className="w-[140px] shrink-0 no-underline">
+                  <div className="aspect-square overflow-hidden rounded-xl bg-stone-100">
+                    {img ? (
+                      <img src={img} alt={p.name || ''} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <ShoppingBag size={20} className="text-stone-300" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-1.5 truncate text-[13px] font-medium text-stone-950">{p.name}</p>
+                  {p.price != null && (
+                    <p className="text-[13px] font-bold text-stone-950">{typeof p.display_price === 'string' ? p.display_price : `${(p.price || 0).toFixed(2)} €`}</p>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ─── NUEVOS EN HISPALOSHOP — New producers ─── */}
+      {newStores.length > 0 && (
+        <div className="px-4 pb-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[13px] font-bold text-stone-950">Nuevos en HispaloShop</p>
+            <Link to="/stores" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700">
+              Ver todo
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+            {newStores.map(s => {
+              const id = s.store_id || s.id;
+              const slug = s.slug || s.store_slug || id;
+              const logo = s.logo || s.profile_image || s.cover_image;
+              return (
+                <Link key={id} to={`/store/${slug}`} className="flex w-[140px] shrink-0 flex-col items-center gap-2 rounded-2xl bg-stone-50 px-3 py-3 no-underline transition-colors hover:bg-stone-100">
+                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-stone-100">
+                    {logo ? (
+                      <img src={logo} alt={s.name || ''} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <Store size={18} className="text-stone-400" />
+                    )}
+                  </div>
+                  <p className="w-full truncate text-center text-[13px] font-semibold text-stone-950">{s.name}</p>
+                  <span className="text-[11px] font-medium text-stone-500">Ver tienda</span>
+                </Link>
               );
             })}
           </div>

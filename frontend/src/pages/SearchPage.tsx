@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, Hash } from 'lucide-react';
+import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, Hash, SlidersHorizontal, Check } from 'lucide-react';
 import apiClient from '../services/api/client';
 import { useLocale } from '../context/LocaleContext';
 import SEO from '../components/SEO';
@@ -49,6 +49,31 @@ const SORT_OPTIONS = [
   { value: 'price_desc', label: 'Mayor precio' },
   { value: 'newest', label: 'Más reciente' },
 ];
+
+const CERTIFICATION_OPTIONS = [
+  { value: 'ecologico', label: 'Ecológico' },
+  { value: 'dop', label: 'DOP' },
+  { value: 'sin_gluten', label: 'Sin gluten' },
+  { value: 'vegano', label: 'Vegano' },
+  { value: 'km0', label: 'Km0' },
+  { value: 'halal', label: 'Halal' },
+];
+
+/* ── Toggle Switch ── */
+function ToggleSwitch({ checked, onChange, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-stone-950' : 'bg-stone-200'}`}
+    >
+      <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+    </button>
+  );
+}
 
 /* ── Skeleton ── */
 function CardSkeleton() {
@@ -183,9 +208,39 @@ export default function SearchPage() {
   const [history, setHistory] = useState(getHistory);
   const [activeTab, setActiveTab] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterMinPrice, setFilterMinPrice] = useState('');
+  const [filterMaxPrice, setFilterMaxPrice] = useState('');
+  const [filterCerts, setFilterCerts] = useState([]);
+  const [filterInStock, setFilterInStock] = useState(false);
+  const [filterFreeShipping, setFilterFreeShipping] = useState(false);
+  // Applied filters (only set when user clicks "Aplicar")
+  const [appliedFilters, setAppliedFilters] = useState({ minPrice: '', maxPrice: '', certs: [], inStock: false, freeShipping: false });
   const [trending, setTrending] = useState(TRENDING_FALLBACK);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
   const searchIdRef = useRef(0);
+
+  const hasActiveFilters = useMemo(() => {
+    return appliedFilters.minPrice !== '' || appliedFilters.maxPrice !== '' || appliedFilters.certs.length > 0 || appliedFilters.inStock || appliedFilters.freeShipping;
+  }, [appliedFilters]);
+
+  const toggleFilterCert = useCallback((cert) => {
+    setFilterCerts(prev => prev.includes(cert) ? prev.filter(c => c !== cert) : [...prev, cert]);
+  }, []);
+
+  const handleApplyFilters = useCallback(() => {
+    setAppliedFilters({ minPrice: filterMinPrice, maxPrice: filterMaxPrice, certs: [...filterCerts], inStock: filterInStock, freeShipping: filterFreeShipping });
+    setShowFilters(false);
+  }, [filterMinPrice, filterMaxPrice, filterCerts, filterInStock, filterFreeShipping]);
+
+  const handleClearFilters = useCallback(() => {
+    setFilterMinPrice('');
+    setFilterMaxPrice('');
+    setFilterCerts([]);
+    setFilterInStock(false);
+    setFilterFreeShipping(false);
+    setAppliedFilters({ minPrice: '', maxPrice: '', certs: [], inStock: false, freeShipping: false });
+  }, []);
 
   const isEmpty = !query.trim();
 
@@ -218,7 +273,13 @@ export default function SearchPage() {
       setLoading(true);
       try {
         const sortParam = sortBy !== 'relevance' ? sortBy : undefined;
-        const data = await apiClient.get('/search', { params: { q: query.trim(), limit: 8, sort: sortParam } });
+        const params = { q: query.trim(), limit: 8, sort: sortParam };
+        if (appliedFilters.minPrice) params.min_price = appliedFilters.minPrice;
+        if (appliedFilters.maxPrice) params.max_price = appliedFilters.maxPrice;
+        if (appliedFilters.certs.length > 0) params.certifications = appliedFilters.certs.join(',');
+        if (appliedFilters.inStock) params.in_stock = true;
+        if (appliedFilters.freeShipping) params.free_shipping = true;
+        const data = await apiClient.get('/search', { params });
         if (reqId !== searchIdRef.current) return;
         setResults(data);
         setSearchParams({ q: query.trim() }, { replace: true });
@@ -231,14 +292,20 @@ export default function SearchPage() {
       }
     }, 320);
     return () => clearTimeout(timer);
-  }, [query, sortBy, setSearchParams]);
+  }, [query, sortBy, appliedFilters, setSearchParams]);
 
   const executeSearch = useCallback(async (q) => {
     const reqId = ++searchIdRef.current;
     setLoading(true);
     try {
       const sortParam = sortBy !== 'relevance' ? sortBy : undefined;
-      const data = await apiClient.get('/search', { params: { q, limit: 8, sort: sortParam } });
+      const params = { q, limit: 8, sort: sortParam };
+      if (appliedFilters.minPrice) params.min_price = appliedFilters.minPrice;
+      if (appliedFilters.maxPrice) params.max_price = appliedFilters.maxPrice;
+      if (appliedFilters.certs.length > 0) params.certifications = appliedFilters.certs.join(',');
+      if (appliedFilters.inStock) params.in_stock = true;
+      if (appliedFilters.freeShipping) params.free_shipping = true;
+      const data = await apiClient.get('/search', { params });
       if (reqId !== searchIdRef.current) return;
       setResults(data);
       setSearchParams({ q }, { replace: true });
@@ -249,7 +316,7 @@ export default function SearchPage() {
     } finally {
       if (reqId === searchIdRef.current) setLoading(false);
     }
-  }, [sortBy, setSearchParams]);
+  }, [sortBy, appliedFilters, setSearchParams]);
 
   const handleSubmit = useCallback((e) => {
     e?.preventDefault();
@@ -345,7 +412,112 @@ export default function SearchPage() {
               )}
             </AnimatePresence>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setShowFilters(prev => !prev)}
+            aria-label="Filtros"
+            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white transition-colors hover:bg-stone-50"
+          >
+            <SlidersHorizontal size={18} className="text-stone-950" />
+            {hasActiveFilters && (
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-stone-950 ring-2 ring-white" />
+            )}
+          </button>
         </form>
+
+        {/* ── Filter Panel ── */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-2 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                {/* Price range */}
+                <p className="mb-2 text-[13px] font-semibold text-stone-950">Rango de precio</p>
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="flex h-10 flex-1 items-center rounded-xl border border-stone-200 px-3">
+                    <span className="mr-1 text-sm text-stone-400">€</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={filterMinPrice}
+                      onChange={(e) => setFilterMinPrice(e.target.value)}
+                      placeholder="Min"
+                      className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+                    />
+                  </div>
+                  <span className="text-sm text-stone-400">—</span>
+                  <div className="flex h-10 flex-1 items-center rounded-xl border border-stone-200 px-3">
+                    <span className="mr-1 text-sm text-stone-400">€</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={filterMaxPrice}
+                      onChange={(e) => setFilterMaxPrice(e.target.value)}
+                      placeholder="Max"
+                      className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Certifications */}
+                <p className="mb-2 text-[13px] font-semibold text-stone-950">Certificaciones</p>
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {CERTIFICATION_OPTIONS.map(cert => {
+                    const isActive = filterCerts.includes(cert.value);
+                    return (
+                      <button
+                        key={cert.value}
+                        type="button"
+                        onClick={() => toggleFilterCert(cert.value)}
+                        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors ${
+                          isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'
+                        }`}
+                      >
+                        {isActive && <Check size={12} />}
+                        {cert.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Toggles */}
+                <div className="mb-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-stone-950">Solo en stock</span>
+                    <ToggleSwitch checked={filterInStock} onChange={setFilterInStock} label="Solo en stock" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-stone-950">Envío gratis</span>
+                    <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label="Envío gratis" />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleApplyFilters}
+                    className="flex-1 rounded-full bg-stone-950 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
+                  >
+                    Aplicar filtros
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClearFilters}
+                    className="text-sm text-stone-500 transition-colors hover:text-stone-700"
+                  >
+                    Limpiar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="mx-auto max-w-[975px] px-3">

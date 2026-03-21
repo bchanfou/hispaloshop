@@ -6,7 +6,7 @@ import {
   ChevronLeft, Share2, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
   CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle, Check,
-  ShoppingBag, Lock,
+  ShoppingBag, Lock, Clock3, ChefHat,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -108,6 +108,7 @@ export default function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [showB2BModal, setShowB2BModal] = useState(false);
   const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
+  const [productRecipes, setProductRecipes] = useState([]);
   const galleryRef = useRef(null);
   const addedTimerRef = useRef(null);
   const rafRef = useRef(null);
@@ -151,6 +152,20 @@ export default function ProductDetailPage() {
         setRelatedProducts(Array.isArray(items) ? items.slice(0, 6) : []);
       })
       .catch(() => { if (!cancelled) setRelatedProducts([]); });
+    return () => { cancelled = true; };
+  }, [productId]);
+
+  // Fetch recipes that use this product
+  useEffect(() => {
+    if (!productId) return;
+    let cancelled = false;
+    apiClient.get(`/recipes?product_id=${productId}&limit=3`)
+      .then((res) => {
+        if (cancelled) return;
+        const items = res?.recipes || res?.items || res || [];
+        setProductRecipes(Array.isArray(items) ? items.slice(0, 3) : []);
+      })
+      .catch(() => { if (!cancelled) setProductRecipes([]); });
     return () => { cancelled = true; };
   }, [productId]);
 
@@ -1061,6 +1076,39 @@ export default function ProductDetailPage() {
           </div>
         )}
       </div>
+
+      {/* ── Recipes with this product ── */}
+      {productRecipes.length > 0 && (
+        <div className="py-5">
+          <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">Recetas con este producto</h2>
+          <div className="flex gap-3 overflow-x-auto px-4 scrollbar-hide [scroll-snap-type:x_mandatory]">
+            {productRecipes.map((r) => {
+              const rid = r.recipe_id || r.id;
+              return (
+                <Link
+                  key={rid}
+                  to={`/recipes/${rid}`}
+                  className="w-[180px] shrink-0 [scroll-snap-align:start] no-underline"
+                >
+                  <div className="h-[120px] w-[180px] overflow-hidden rounded-2xl bg-stone-100">
+                    {r.image_url ? (
+                      <img src={r.image_url} alt={r.title} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <ChefHat size={24} className="text-stone-300" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-1.5 truncate text-xs font-medium text-stone-950">{r.title}</p>
+                  <p className="mt-0.5 flex items-center gap-1 text-[11px] text-stone-500">
+                    <Clock3 size={11} /> {r.time_minutes || 0} min
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── B2B Wholesale Card — only for product owner (producer/importer) ── */}
       {user && (user.role === 'producer' || user.role === 'importer') &&

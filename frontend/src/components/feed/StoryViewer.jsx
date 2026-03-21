@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX } from 'lucide-react';
+import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX, ExternalLink } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { timeAgo } from '../../utils/time';
@@ -10,6 +10,15 @@ const STORY_DURATION = 5000;
 
 // 4.4: Hoisted price formatter — avoids re-creating Intl instance every render
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+
+const QUICK_REACTIONS = ['❤️', '🔥', '😍', '👏', '😮', '😂'];
+
+const isInternalUrl = (url) => {
+  try {
+    const u = new URL(url, window.location.origin);
+    return u.hostname === window.location.hostname || u.hostname.endsWith('hispaloshop.com');
+  } catch { return false; }
+};
 
 // 4.1: Transition variants — crossfade within same user, slide between different users
 const storyVariants = {
@@ -304,6 +313,12 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     }
   }, [replyText, sendingReply, currentStory, currentItem, navigate, onClose]);
 
+  const handleQuickReaction = useCallback(async (emoji) => {
+    try {
+      await apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji });
+    } catch {}
+  }, [currentItem]);
+
   if (!currentStory || !items.length) return null;
 
   const user = currentStory.user;
@@ -448,7 +463,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               </div>
             )}
 
-            {/* Product pills */}
+            {/* Product stickers */}
             {currentItem?.products?.length > 0 && (
               <div className="absolute bottom-10 left-4 right-4 z-[2] flex flex-col gap-2">
                 {currentItem.products.map((product, idx) => (
@@ -457,18 +472,16 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     onClick={(e) => {
                       e.stopPropagation();
                       onClose();
-                      if (product?.slug || product?.id) {
-                        navigate(`/product/${product.slug || product.id}`);
-                      }
+                      const pid = product?.product_id || product?.id || product?.slug;
+                      if (pid) navigate(`/products/${pid}`);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         e.stopPropagation();
                         onClose();
-                        if (product?.slug || product?.id) {
-                          navigate(`/product/${product.slug || product.id}`);
-                        }
+                        const pid = product?.product_id || product?.id || product?.slug;
+                        if (pid) navigate(`/products/${pid}`);
                       }
                     }}
                     className="flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
@@ -492,6 +505,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                           {priceFormatter.format(product.price)}
                         </span>
                       )}
+                      <span className="text-[10px] text-white/50 font-sans">Ver producto</span>
                     </div>
                     <span className="text-[12px] text-white font-semibold font-sans shrink-0 bg-white/20 rounded-full px-2.5 py-1">
                       Ver →
@@ -500,9 +514,79 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 ))}
               </div>
             )}
+
+            {/* Link stickers */}
+            {currentItem?.links?.length > 0 && (
+              <div className={`absolute ${currentItem?.products?.length > 0 ? 'bottom-32' : 'bottom-10'} left-4 right-4 z-[2] flex flex-col gap-2`}>
+                {currentItem.links.map((link, idx) => (
+                  <div
+                    key={link.url || idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!link?.url) return;
+                      if (isInternalUrl(link.url)) {
+                        onClose();
+                        try {
+                          const u = new URL(link.url, window.location.origin);
+                          navigate(u.pathname + u.search);
+                        } catch {
+                          navigate(link.url);
+                        }
+                      } else {
+                        window.open(link.url, '_blank', 'noopener');
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!link?.url) return;
+                        if (isInternalUrl(link.url)) {
+                          onClose();
+                          try {
+                            const u = new URL(link.url, window.location.origin);
+                            navigate(u.pathname + u.search);
+                          } catch {
+                            navigate(link.url);
+                          }
+                        } else {
+                          window.open(link.url, '_blank', 'noopener');
+                        }
+                      }
+                    }}
+                    className="flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
+                    role="link"
+                    tabIndex={0}
+                    aria-label={link.label || link.url}
+                  >
+                    <ExternalLink size={16} className="text-white shrink-0" />
+                    <span className="text-[13px] text-white font-sans font-medium overflow-hidden text-ellipsis whitespace-nowrap flex-1 min-w-0">
+                      {link.label || link.title || link.url}
+                    </span>
+                    <span className="text-[12px] text-white font-semibold font-sans shrink-0 bg-white/20 rounded-full px-2.5 py-1">
+                      Abrir →
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
 
+      </div>
+
+      {/* Quick emoji reactions */}
+      <div className="flex items-center justify-center gap-1.5 px-3 py-1">
+        {QUICK_REACTIONS.map((emoji) => (
+          <button
+            key={emoji}
+            onClick={() => handleQuickReaction(emoji)}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-transparent border-none cursor-pointer hover:bg-white/10 transition-colors"
+            aria-label={`Reaccionar con ${emoji}`}
+          >
+            {emoji}
+          </button>
+        ))}
       </div>
 
       {/* Bottom bar: like + reply input + send */}
