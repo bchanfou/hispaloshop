@@ -53,8 +53,8 @@ export default function HashtagPage() {
           </div>
         </div>
         <div className="max-w-[975px] mx-auto px-4 py-4">
-          <div className="grid grid-cols-3 gap-1">
-            {Array.from({ length: 12 }).map((_, i) => (
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+            {Array.from({ length: 15 }).map((_, i) => (
               <div key={i} className="aspect-square rounded-sm bg-stone-100 animate-pulse" />
             ))}
           </div>
@@ -107,7 +107,7 @@ export default function HashtagPage() {
             <p className="text-sm text-stone-500">Aún no hay publicaciones con #{decodedTag}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-1">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
             {allPosts.map((post, idx) => {
               const img = post.images?.[0] || post.thumbnail || post.media_url;
               return (

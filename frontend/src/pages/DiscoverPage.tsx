@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat, AlertTriangle } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat, AlertTriangle, Hash } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -93,6 +93,7 @@ export default function DiscoverPage() {
   const [recipes, setRecipes] = useState([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   const [fetchError, setFetchError] = useState(false);
+  const [trendingHashtags, setTrendingHashtags] = useState([]);
 
   const { products, isLoading: loadingProducts } = useProducts({
     limit: '24',
@@ -123,6 +124,15 @@ export default function DiscoverPage() {
       .then(data => {
         const list = Array.isArray(data) ? data : data?.stores || [];
         setEliteStores(list);
+      })
+      .catch(() => {});
+
+    apiClient.get('/discovery/trending', { params: { type: 'hashtags', limit: 12 } })
+      .then(data => {
+        const items = (data?.items || data || []).filter(
+          (item) => item.tag || item.name || item.hashtag
+        );
+        setTrendingHashtags(items.slice(0, 12));
       })
       .catch(() => {});
 
@@ -351,6 +361,27 @@ export default function DiscoverPage() {
           </button>
         ))}
       </div>
+
+      {/* ─── TRENDING HASHTAGS ─── */}
+      {trendingHashtags.length > 0 && (
+        <div className="px-4 pb-3">
+          <p className="text-[13px] font-bold text-stone-950 mb-2">Tendencias</p>
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            {trendingHashtags.map((item, i) => {
+              const tagName = item.tag || item.hashtag || item.name || '';
+              return (
+                <button
+                  key={tagName + i}
+                  onClick={() => navigate(`/hashtag/${encodeURIComponent(tagName)}`)}
+                  className="shrink-0 rounded-full bg-stone-100 text-stone-950 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-stone-200"
+                >
+                  #{tagName}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ─── ELITE CAROUSEL ─── */}
       <EliteCarousel />

@@ -184,6 +184,7 @@ export default function SearchPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
   const [trending, setTrending] = useState(TRENDING_FALLBACK);
+  const [trendingHashtags, setTrendingHashtags] = useState([]);
   const searchIdRef = useRef(0);
 
   const isEmpty = !query.trim();
@@ -197,6 +198,15 @@ export default function SearchPage() {
           .map(item => item.name || item.title || item.query)
           .filter(Boolean);
         if (terms.length > 0) setTrending(terms);
+      })
+      .catch(() => {});
+
+    apiClient.get('/discovery/trending', { params: { type: 'hashtags', limit: 8 } })
+      .then((data) => {
+        const items = (data?.items || data || []).filter(
+          (item) => item.tag || item.name || item.hashtag
+        );
+        if (items.length > 0) setTrendingHashtags(items.slice(0, 8));
       })
       .catch(() => {});
   }, []);
@@ -338,7 +348,7 @@ export default function SearchPage() {
         </form>
       </div>
 
-      <div className="mx-auto max-w-[600px] px-3">
+      <div className="mx-auto max-w-[975px] px-3">
 
         {/* ── Tab pills (same style as Discover filter pills) ── */}
         {!loading && hasResults && (
@@ -389,7 +399,7 @@ export default function SearchPage() {
         {/* ── Loading ── */}
         {loading && (
           <div className="pt-2">
-            <div className="mb-4 grid grid-cols-2 gap-2">
+            <div className="mb-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
               {[0, 1, 2, 3].map(i => <CardSkeleton key={i} />)}
             </div>
             {[0, 1, 2].map(i => <RowSkeleton key={i} />)}
@@ -428,7 +438,7 @@ export default function SearchPage() {
             {showProducts && (
               <section>
                 <SectionHeader icon={ShoppingBag} label="Productos" count={counts.products} />
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                   {sortedProducts.map(p => <ProductCardLocal key={p.product_id || p.id} p={p} />)}
                 </div>
               </section>
@@ -436,7 +446,7 @@ export default function SearchPage() {
             {showRecipes && (
               <section>
                 <SectionHeader icon={ChefHat} label="Recetas" count={counts.recipes} />
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                   {results.recipes.map(r => <RecipeCard key={r.recipe_id || r.id} r={r} />)}
                 </div>
               </section>
@@ -450,7 +460,9 @@ export default function SearchPage() {
             {showStores && (
               <section>
                 <SectionHeader icon={Store} label="Tiendas" count={counts.stores} />
-                {results.stores.map(s => <PersonRow key={s.store_id || s.id} person={s} linkBase="/store/" />)}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {results.stores.map(s => <PersonRow key={s.store_id || s.id} person={s} linkBase="/store/" />)}
+                </div>
               </section>
             )}
           </motion.div>
@@ -490,8 +502,35 @@ export default function SearchPage() {
               </section>
             )}
 
+            {trendingHashtags.length > 0 && (
+              <section className="pt-6">
+                <span className="mb-3 block text-[13px] font-bold text-stone-950">Tendencias</span>
+                <div className="flex flex-col">
+                  {trendingHashtags.map((item, i) => {
+                    const tagName = item.tag || item.hashtag || item.name || '';
+                    const count = item.post_count || item.count || 0;
+                    return (
+                      <button
+                        key={tagName + i}
+                        onClick={() => navigate(`/hashtag/${encodeURIComponent(tagName)}`)}
+                        className="flex items-center gap-3 py-3 text-left border-b border-stone-100 last:border-b-0"
+                      >
+                        <Hash size={16} className="shrink-0 text-stone-400" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm font-semibold text-stone-950">#{tagName}</span>
+                          {count > 0 && (
+                            <span className="ml-2 text-xs text-stone-500">{count} publicaciones</span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
             <section className="pt-6">
-              <span className="mb-3 block text-[13px] font-bold text-stone-950">Tendencias</span>
+              <span className="mb-3 block text-[13px] font-bold text-stone-950">Búsquedas populares</span>
               <div className="flex flex-col">
                 {trending.map((term, i) => (
                   <button
@@ -499,7 +538,7 @@ export default function SearchPage() {
                     onClick={() => { setQuery(term); saveHistory(term); setHistory(getHistory()); executeSearch(term); }}
                     className="flex items-center gap-3 py-3 text-left border-b border-stone-100 last:border-b-0"
                   >
-                    <Hash size={16} className="shrink-0 text-stone-300" />
+                    <TrendingUp size={16} className="shrink-0 text-stone-300" />
                     <span className="text-sm text-stone-950 capitalize">{term}</span>
                   </button>
                 ))}
