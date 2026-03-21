@@ -301,15 +301,17 @@ export default function RecipesPage() {
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <ChefHat size={48} className="text-stone-300" strokeWidth={1.5} />
-            <p className="text-base font-semibold text-stone-950">Aún no hay recetas</p>
+            <p className="text-base font-semibold text-stone-950">
+              {hasFilters ? 'No hay recetas con estos filtros' : 'Aún no hay recetas'}
+            </p>
             <p className="text-sm text-stone-500">
-              {hasFilters ? 'Prueba con otros filtros o busca otra categoría' : 'Sé el primero en compartir una receta con la comunidad'}
+              {hasFilters ? 'Prueba con otros criterios' : 'Sé el primero en compartir una receta con la comunidad'}
             </p>
             {hasFilters ? (
               <button
                 type="button"
                 onClick={clearFilters}
-                className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
+                className="rounded-full border border-stone-200 px-5 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
               >
                 Limpiar filtros
               </button>

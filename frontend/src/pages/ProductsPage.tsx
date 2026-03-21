@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List, Globe, Check, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List, Globe, Check, AlertTriangle, Package } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CategoryNav from '../components/CategoryNav';
 import ProductCard from '../components/ProductCard';
@@ -506,26 +506,27 @@ export default function ProductsPage() {
             </button>
           </div>
         ) : catalogQuery.isLoading ? (
-          <div className="py-16 text-center" data-testid="loading-spinner" role="status" aria-label={t('common.loading', 'Cargando')}>
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
-            <p className="text-stone-500">{t('common.loading', 'Cargando...')}</p>
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4" data-testid="loading-spinner" role="status" aria-label={t('common.loading', 'Cargando')}>
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} className="aspect-[4/5] rounded-xl bg-stone-100 animate-pulse" />
+            ))}
           </div>
         ) : products.length === 0 ? (
           <div className="rounded-[28px] border border-stone-100 bg-white py-16 text-center shadow-sm" data-testid="no-products">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
-              <Search className="h-8 w-8 text-stone-300" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center">
+              <Package size={48} className="text-stone-300" strokeWidth={1.5} />
             </div>
-            <p className="mb-2 text-lg font-medium text-stone-950">{t('products.noProducts', 'No hay productos')}</p>
+            <p className="mb-2 text-base font-semibold text-stone-950">{t('products.noProducts', 'No hay productos con estos filtros')}</p>
             <p className="mb-4 text-sm text-stone-500">
-              {t('products.tryDifferentFilters', 'Prueba con otros filtros o busca otra categoría.')}
+              {t('products.tryDifferentFilters', 'Prueba con otros criterios')}
             </p>
             {hasActiveFilters ? (
               <button
                 type="button"
                 onClick={clearFilters}
-                className="rounded-full border border-stone-200 bg-white px-5 py-2.5 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                className="rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
               >
-                {t('products.clearFilters', 'Limpiar')}
+                {t('products.clearFilters', 'Limpiar filtros')}
               </button>
             ) : null}
           </div>

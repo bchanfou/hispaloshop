@@ -402,7 +402,11 @@ export default function StorePage() {
           recipesQuery.isError ? (
             <InlineError onRetry={() => recipesQuery.refetch()} />
           ) : recipesQuery.isLoading ? (
-            <LoadingSpinner />
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="aspect-[3/4] rounded-xl bg-stone-100 animate-pulse" />
+              ))}
+            </div>
           ) : recipes.length > 0 ? (
             <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
               {recipes.map((recipe) => (

@@ -403,10 +403,10 @@ export default function SearchPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center px-4 py-16 text-center"
           >
-            <Search size={48} className="text-stone-300" />
-            <p className="mt-4 text-lg font-semibold text-stone-950">Sin resultados para "{query}"</p>
+            <Search size={48} className="text-stone-300" strokeWidth={1.5} />
+            <p className="mt-4 text-base font-semibold text-stone-950">Sin resultados para &ldquo;{query}&rdquo;</p>
             <p className="mt-1 mb-6 text-sm text-stone-500">
-              Prueba con otro término
+              Prueba con otros términos o revisa la ortografía
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {['Aceite de oliva', 'Jamón ibérico', 'Vino tinto'].map(suggestion => (

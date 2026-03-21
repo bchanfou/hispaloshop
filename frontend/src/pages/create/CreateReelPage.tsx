@@ -601,7 +601,7 @@ export default function CreateReelPage() {
               {trimFrames.length > 0 ? trimFrames.map((frame, i) => (
                 <div key={i} className="flex-1 h-full overflow-hidden">
                   {frame ? (
-                    <img src={frame} alt="" className="w-full h-full object-cover opacity-60" draggable={false} />
+                    <img src={frame} alt={`Fotograma ${i + 1}`} className="w-full h-full object-cover opacity-60" draggable={false} />
                   ) : (
                     <div className="w-full h-full bg-stone-800" />
                   )}
@@ -905,7 +905,7 @@ export default function CreateReelPage() {
                       isActive ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-105' : 'opacity-70 hover:opacity-100'
                     }`}>
                       {filterThumb ? (
-                        <img src={filterThumb} alt="" className="w-full h-full object-cover" style={{ filter: f.value === 'none' ? 'none' : f.value }} draggable={false} />
+                        <img src={filterThumb} alt={f.name} className="w-full h-full object-cover" style={{ filter: f.value === 'none' ? 'none' : f.value }} draggable={false} />
                       ) : (
                         <div className="w-full h-full bg-stone-700" style={{ filter: f.value === 'none' ? 'none' : f.value }} />
                       )}
@@ -1066,7 +1066,7 @@ export default function CreateReelPage() {
               aria-label="Portada desde galería"
             >
               {coverFromGallery ? (
-                <img src={URL.createObjectURL(coverFromGallery)} alt="Cover" className="w-full h-full object-cover rounded-xl" />
+                <img src={URL.createObjectURL(coverFromGallery)} alt="Portada del reel" className="w-full h-full object-cover rounded-xl" />
               ) : (
                 <>
                   <span className="text-stone-400 text-lg">+</span>
@@ -1213,7 +1213,7 @@ export default function CreateReelPage() {
                   }}
                   className="flex items-center gap-2.5 w-full px-2 py-2.5 bg-transparent border-none border-b border-stone-100 cursor-pointer text-left text-[13px] hover:bg-stone-50 transition-colors"
                 >
-                  {(p.image || p.thumbnail) && <img src={p.image || p.thumbnail} alt="" className="w-9 h-9 rounded-xl object-cover" />}
+                  {(p.image || p.thumbnail) && <img src={p.image || p.thumbnail} alt={p.name || p.title || 'Producto'} className="w-9 h-9 rounded-xl object-cover" />}
                   <span>{p.name || p.title}</span>
                 </button>
               ))}

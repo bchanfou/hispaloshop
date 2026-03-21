@@ -461,7 +461,7 @@ export default function CreatePostPage() {
           <>
             {/* Preview image */}
             <div className="relative flex-1 flex items-center justify-center bg-[#111] overflow-hidden shrink-0 max-h-[52vh]">
-              <img src={previewUrls[previewIndex]} alt="" className="w-full h-full object-cover" />
+              <img src={previewUrls[previewIndex]} alt={`Imagen ${previewIndex + 1} de ${selectedFiles.length}`} className="w-full h-full object-cover" />
               {selectedFiles.length > 1 && (
                 <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
                   {previewIndex + 1} / {selectedFiles.length}
@@ -489,7 +489,7 @@ export default function CreatePostPage() {
                     className="relative shrink-0 cursor-grab overflow-hidden rounded-xl transition-transform w-11 h-11"
                     style={{ border: previewIndex === i ? '2px solid #fff' : '2px solid transparent' }}
                   >
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <img src={url} alt={`Imagen ${i + 1} de ${selectedFiles.length}`} className="w-full h-full object-cover" />
                     <span className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-stone-950 text-white text-[9px] font-bold flex items-center justify-center">{i + 1}</span>
                     <button
                       onClick={(e) => { e.stopPropagation(); setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i)); if (previewIndex >= selectedFiles.length - 1) setPreviewIndex(Math.max(0, selectedFiles.length - 2)); }}
@@ -618,7 +618,7 @@ export default function CreatePostPage() {
               >
                 <img
                   src={previewUrls[previewIndex]}
-                  alt=""
+                  alt={`Vista previa con filtro ${activeFilter.name}`}
                   className="w-full h-full object-cover"
                   style={{ filter: filterCSS }}
                 />
@@ -695,7 +695,7 @@ export default function CreatePostPage() {
                   opacity: previewIndex === i ? 1 : 0.55,
                 }}
               >
-                <img src={url} alt="" className="w-full h-full object-cover" />
+                <img src={url} alt={`Imagen ${i + 1} de ${selectedFiles.length}`} className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
@@ -739,7 +739,7 @@ export default function CreatePostPage() {
                       }}
                     >
                       {previewUrls[previewIndex] && (
-                        <img src={previewUrls[previewIndex]} alt="" className="w-full h-full object-cover" style={{ filter: f.css === 'none' ? 'none' : f.css }} loading="lazy" />
+                        <img src={previewUrls[previewIndex]} alt={f.name} className="w-full h-full object-cover" style={{ filter: f.css === 'none' ? 'none' : f.css }} loading="lazy" />
                       )}
                     </div>
                     <span className="text-[10px] text-white/70 mt-1 block">{f.emoji} {f.name}</span>
@@ -937,7 +937,7 @@ export default function CreatePostPage() {
                 className="w-[52px] h-[52px] rounded-xl overflow-hidden shrink-0 cursor-pointer"
                 style={{ border: previewIndex === i ? '2px solid #0c0a09' : '2px solid transparent' }}
               >
-                <img src={url} alt="" className="w-full h-full object-cover" />
+                <img src={url} alt={`Imagen ${i + 1} de ${selectedFiles.length}`} className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
@@ -1171,7 +1171,7 @@ export default function CreatePostPage() {
                   }}
                   className="flex items-center gap-2.5 w-full px-2 py-2.5 bg-transparent border-none border-b border-stone-200 cursor-pointer text-left text-[13px]"
                 >
-                  {p.image && <img src={p.image} alt="" className="w-9 h-9 rounded-xl object-cover" />}
+                  {p.image && <img src={p.image} alt={p.name || p.title || 'Producto'} className="w-9 h-9 rounded-xl object-cover" />}
                   <span>{p.name || p.title}</span>
                 </button>
               ))}

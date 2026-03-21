@@ -300,7 +300,7 @@ export default function ProductDetailPage() {
               type="button"
               onClick={handleShare}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
-              aria-label="Compartir"
+              aria-label="Compartir producto"
             >
               <Share2 size={18} strokeWidth={1.8} className="text-stone-950" />
             </button>
@@ -309,7 +309,7 @@ export default function ProductDetailPage() {
               onClick={toggleWishlist}
               disabled={wishlistLoading}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
-              aria-label={inWishlist ? 'En tu lista' : 'Guardar'}
+              aria-label={inWishlist ? 'Quitar de favoritos' : 'Añadir a favoritos'}
             >
               <Heart
                 size={18}
@@ -688,6 +688,7 @@ export default function ProductDetailPage() {
             type="button"
             onClick={handleAskProducer}
             className="inline-flex items-center gap-1.5 py-2 text-[13px] font-medium text-stone-950 hover:underline"
+            aria-label="Mensaje al vendedor"
           >
             <MessageCircle size={14} /> Preguntar al productor
           </button>
