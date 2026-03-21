@@ -461,8 +461,8 @@ function CreateHighlightSheet({ onClose, onCreate }) {
 
   return (
     <div className="fixed inset-0 z-[9998]" role="dialog" aria-modal="true" aria-label="Nuevo destacado">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white px-5 pb-8 pt-4" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white shadow-modal px-5 pb-8 pt-4" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
         <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-stone-200 shrink-0" />
 
         {step === 'select' && (
@@ -575,14 +575,14 @@ function CreateHighlightSheet({ onClose, onCreate }) {
             <div className="flex gap-2">
               <button
                 onClick={onClose}
-                className="flex-1 rounded-2xl bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950 active:scale-95 transition-all"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!title.trim()}
-                className="flex-1 rounded-2xl bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40"
+                className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40 active:scale-95 transition-all"
               >
                 Crear
               </button>

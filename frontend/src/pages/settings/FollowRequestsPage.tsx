@@ -68,7 +68,7 @@ export default function FollowRequestsPage() {
               const u = req.requester;
               const isProcessing = processing.has(req.request_id);
               return (
-                <div key={req.request_id} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3">
+                <div key={req.request_id} className="flex items-center gap-3 rounded-2xl shadow-sm bg-white px-4 py-3">
                   <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-stone-100">
                     {u.profile_image ? (
                       <img loading="lazy" src={u.profile_image} alt={u.name} className="h-full w-full object-cover" />

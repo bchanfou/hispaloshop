@@ -18,7 +18,7 @@ function KpiCard({ icon: Icon, label, value, prevValue }) {
     : null;
 
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-stone-200 bg-white p-5">
+    <div className="flex flex-col gap-1 rounded-2xl shadow-sm bg-white p-5">
       <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-2xl bg-stone-100">
         <Icon className="h-4 w-4 text-stone-700" />
       </div>
@@ -56,7 +56,7 @@ function RevenueChart({ dailyEarnings, days }) {
   }
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-5">
+    <div className="rounded-2xl shadow-sm bg-white p-5">
       <h3 className="text-sm font-semibold text-stone-950 mb-3">Ingresos diarios</h3>
       <div className="flex items-end gap-1 h-[120px]">
         {bars.map((bar, i) => {
@@ -202,7 +202,7 @@ export default function InfluencerInsights() {
           {loading ? (
             <div className="space-y-3">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-16 rounded-2xl border border-stone-200 bg-white animate-pulse" />
+                <div key={i} className="h-16 rounded-2xl shadow-sm bg-white animate-pulse" />
               ))}
             </div>
           ) : error ? (
@@ -231,7 +231,7 @@ export default function InfluencerInsights() {
                 <div
                   key={p.product_id}
                   onClick={() => navigate(`/influencer/affiliate-links?product=${p.product_id}`)}
-                  className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 cursor-pointer hover:border-stone-300 transition-colors"
+                  className="flex items-center gap-4 rounded-2xl shadow-sm bg-white p-4 cursor-pointer hover:shadow-md transition-shadow"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xs font-semibold text-stone-600">
                     {i + 1}
@@ -256,7 +256,7 @@ export default function InfluencerInsights() {
         </div>
 
         {/* Info note */}
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-500">
+        <div className="rounded-2xl shadow-sm bg-white p-5 text-sm text-stone-500">
           Los datos muestran interacciones atribuidas a tu perfil de creador: clics en productos desde tu contenido, añadidos al carrito y compras completadas. Se actualiza en tiempo real.
         </div>
       </div>

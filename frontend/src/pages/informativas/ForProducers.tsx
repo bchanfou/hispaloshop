@@ -80,7 +80,7 @@ export default function ForProducers() {
             ].map((card, i) => (
               <div
                 key={i}
-                className={`bg-white border border-stone-200 rounded-2xl p-8 transition-[transform,box-shadow] duration-200 reveal [transition-delay:${i * 100}ms]`}
+                className={`bg-white shadow-sm rounded-2xl p-8 transition-[transform,box-shadow] duration-200 reveal [transition-delay:${i * 100}ms]`}
               >
                 <span className="text-[32px] block mb-3">{card.emoji}</span>
                 <h4 className="info-h4 mb-2">{card.title}</h4>
@@ -145,7 +145,7 @@ export default function ForProducers() {
             ].map((plan, i) => (
               <div
                 key={i}
-                className={`bg-white border border-stone-200 rounded-2xl p-8 text-center reveal [transition-delay:${i * 100}ms]`}
+                className={`bg-white shadow-sm rounded-2xl p-8 text-center reveal [transition-delay:${i * 100}ms]`}
               >
                 <p className="text-sm font-bold text-stone-950 mb-2 uppercase tracking-wider">
                   {plan.name}
@@ -171,7 +171,7 @@ export default function ForProducers() {
           </Link>
 
           {/* ── Detailed comparison table ── */}
-          <div className="mt-12 rounded-2xl border border-stone-200 overflow-hidden">
+          <div className="mt-12 rounded-2xl shadow-sm overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-stone-950 text-white">

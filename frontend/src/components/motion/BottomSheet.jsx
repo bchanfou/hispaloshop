@@ -46,7 +46,7 @@ export default function BottomSheet({ isOpen, onClose, children, className = '',
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.15 } }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           />
 
           {/* Sheet */}
@@ -60,7 +60,7 @@ export default function BottomSheet({ isOpen, onClose, children, className = '',
             dragElastic={{ top: 0, bottom: 0.6 }}
             onDragEnd={handleDragEnd}
             style={{ maxHeight, touchAction: 'none' }}
-            className={`absolute bottom-0 left-0 right-0 z-[9999] flex flex-col rounded-t-2xl bg-white ${className}`}
+            className={`absolute bottom-0 left-0 right-0 z-[9999] flex flex-col rounded-t-2xl bg-white shadow-modal ${className}`}
           >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing">

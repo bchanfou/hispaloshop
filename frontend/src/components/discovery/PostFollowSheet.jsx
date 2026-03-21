@@ -61,7 +61,7 @@ export default function PostFollowSheet({ followedUserId, followedUserName, onCl
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/30"
+            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
             onClick={() => setVisible(false)}
           />
 
@@ -71,11 +71,11 @@ export default function PostFollowSheet({ followedUserId, followedUserName, onCl
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-[61] rounded-t-3xl bg-white pb-[max(16px,env(safe-area-inset-bottom))]"
+            className="fixed bottom-0 left-0 right-0 z-[61] rounded-t-2xl bg-white shadow-modal pb-[max(16px,env(safe-area-inset-bottom))]"
           >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="h-1 w-10 rounded-full bg-stone-300" />
+              <div className="h-1 w-10 rounded-full bg-stone-200" />
             </div>
 
             {/* Header */}
@@ -124,9 +124,9 @@ export default function PostFollowSheet({ followedUserId, followedUserName, onCl
                     <button
                       onClick={() => !isFollowed && handleFollow(user.user_id)}
                       disabled={isFollowed}
-                      className={`min-h-[36px] rounded-full px-4 text-[12px] font-semibold border-none cursor-pointer transition-colors ${
+                      className={`min-h-[36px] rounded-full px-4 text-[12px] font-semibold border-none cursor-pointer transition-all active:scale-95 ${
                         isFollowed
-                          ? 'bg-stone-200 text-stone-500'
+                          ? 'bg-stone-100 text-stone-950'
                           : 'bg-stone-950 text-white hover:bg-stone-800'
                       }`}
                     >

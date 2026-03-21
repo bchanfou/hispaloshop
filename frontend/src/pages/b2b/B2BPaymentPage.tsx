@@ -331,7 +331,7 @@ export default function B2BPaymentPage() {
 
         {/* Section 5: Payment received */}
         {(depositPaid || paymentSuccess) && (
-          <div className="bg-stone-100 border border-stone-300 rounded-xl p-5 flex flex-col items-center gap-3 text-center">
+          <div className="bg-stone-100 shadow-sm rounded-xl p-5 flex flex-col items-center gap-3 text-center">
             <div className="w-11 h-11 rounded-full bg-stone-950 flex items-center justify-center">
               <Check size={24} className="text-white" />
             </div>

@@ -78,7 +78,7 @@ export default function ForImporters() {
             ].map((card, i) => (
               <div
                 key={i}
-                className="bg-white border border-stone-200 rounded-2xl p-8 reveal"
+                className="bg-white shadow-sm rounded-2xl p-8 reveal"
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
                 <span className="text-[32px] block mb-3">{card.emoji}</span>
@@ -121,7 +121,7 @@ export default function ForImporters() {
       {/* SECTION 3.5 — PRICING (light) */}
       <Section dark={false}>
         <div className="reveal">
-          <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200">
+          <div className="bg-stone-50 rounded-2xl p-6 shadow-sm">
             <p className="uppercase-label mb-6">PRICING B2B</p>
             <div className="flex flex-col gap-4">
               {[

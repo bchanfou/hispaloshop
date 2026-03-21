@@ -184,7 +184,7 @@ export default function ProductDetailOverlay({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/65 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
         aria-label="Cerrar"
       />
@@ -194,7 +194,7 @@ export default function ProductDetailOverlay({
         initial={{ y: '100%' }}
         animate={{ y: 0, transition: { type: 'spring', damping: 28, stiffness: 300 } }}
         exit={{ y: '100%', transition: { duration: 0.22 } }}
-        className="relative z-10 flex max-h-[90vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl"
+        className="relative z-10 flex max-h-[90vh] w-full max-w-[680px] flex-col overflow-hidden rounded-2xl bg-white shadow-modal"
       >
 
         {/* Header */}

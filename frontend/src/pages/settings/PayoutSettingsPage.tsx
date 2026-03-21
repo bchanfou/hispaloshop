@@ -177,7 +177,7 @@ export default function PayoutSettingsPage() {
 
             {/* Stripe Connect Section */}
             {method === 'stripe' && (
-              <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-5">
+              <div className="bg-white shadow-sm rounded-2xl p-5 mb-5">
                 <p className="text-[15px] font-semibold text-stone-950 mb-2">
                   Stripe Connect
                 </p>
@@ -218,7 +218,7 @@ export default function PayoutSettingsPage() {
 
             {/* SEPA Section */}
             {method === 'sepa' && (
-              <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-5">
+              <div className="bg-white shadow-sm rounded-2xl p-5 mb-5">
                 <p className="text-[15px] font-semibold text-stone-950 mb-4">
                   Datos bancarios SEPA
                 </p>

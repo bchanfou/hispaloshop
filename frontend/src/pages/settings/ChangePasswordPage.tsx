@@ -89,7 +89,7 @@ export default function ChangePasswordPage() {
       <div className="max-w-[400px] mx-auto px-4 pt-6 pb-[100px]">
         {/* Google user card */}
         {isGoogleUser && (
-          <div className="bg-stone-100 border border-stone-200 rounded-2xl p-4 mb-6">
+          <div className="bg-stone-100 shadow-sm rounded-2xl p-4 mb-6">
             <p className="text-sm font-semibold text-stone-950 mb-1">
               Cuenta con Google
             </p>

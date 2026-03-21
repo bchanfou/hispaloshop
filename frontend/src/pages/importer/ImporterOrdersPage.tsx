@@ -96,7 +96,7 @@ function B2BOrderCard({ order, onRefresh }) {
   const products = Array.isArray(order.items) ? order.items : [];
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden mb-3">
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-3">
       {/* Header — clickable to expand */}
       <button
         type="button"
@@ -248,7 +248,7 @@ function B2BOrderCard({ order, onRefresh }) {
 
         {/* Confirmed by producer — approve & pay */}
         {order.status === 'confirmed_by_producer' && (
-          <div className="bg-stone-50 border border-stone-200 rounded-2xl p-3 mb-3">
+          <div className="bg-stone-50 shadow-sm rounded-2xl p-3 mb-3">
             <p className="text-sm font-bold text-stone-950 mb-1">
               ✓ El productor confirmó disponibilidad
             </p>

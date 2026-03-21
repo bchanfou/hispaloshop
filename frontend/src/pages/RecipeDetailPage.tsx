@@ -335,7 +335,7 @@ export default function RecipeDetailPage() {
         </div>
 
         {/* ── Portion Selector ── */}
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-stone-200 bg-white p-3.5">
+        <div className="mb-4 flex items-center justify-between rounded-2xl shadow-sm bg-white p-3.5">
           <span className="text-sm font-semibold text-stone-950">Porciones</span>
           <div className="flex items-center gap-3">
             <button
@@ -397,7 +397,7 @@ export default function RecipeDetailPage() {
                   })()}
 
                   {ing.product && (
-                    <div className="mt-2 flex items-center gap-2.5 rounded-2xl border border-stone-200 bg-white p-2">
+                    <div className="mt-2 flex items-center gap-2.5 rounded-2xl shadow-sm bg-white p-2">
                       <button
                         type="button"
                         onClick={() => setSelectedProduct(ing.product)}
@@ -467,7 +467,7 @@ export default function RecipeDetailPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="rounded-2xl border border-stone-200 bg-white p-3.5"
+                className="rounded-2xl shadow-sm bg-white p-3.5"
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-950 text-xs font-bold text-white">
@@ -502,7 +502,7 @@ export default function RecipeDetailPage() {
                 const val = recipe.nutrition?.[key];
                 if (val == null) return null;
                 return (
-                  <div key={key} className="rounded-2xl border border-stone-200 bg-white p-2.5 text-center">
+                  <div key={key} className="rounded-2xl shadow-sm bg-white p-2.5 text-center">
                     <p className="text-[15px] font-bold text-stone-950">{val}</p>
                     <p className="text-[10px] text-stone-400">{unit}</p>
                     <p className="mt-0.5 text-[10px] font-medium text-stone-500">{label}</p>
@@ -520,7 +520,7 @@ export default function RecipeDetailPage() {
                   const val = recipe.nutrition?.[key];
                   if (val == null) return null;
                   return (
-                    <div key={key} className="rounded-2xl border border-stone-200 bg-white p-2 text-center">
+                    <div key={key} className="rounded-2xl shadow-sm bg-white p-2 text-center">
                       <p className="text-[13px] font-semibold text-stone-950">{val}{unit}</p>
                       <p className="text-[10px] text-stone-400">{label}</p>
                     </div>
@@ -534,7 +534,7 @@ export default function RecipeDetailPage() {
         {/* ── Chef Tips ── */}
         {recipe.tips && (
           <section className="mb-5">
-            <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+            <div className="rounded-2xl shadow-sm bg-stone-50 p-4">
               <div className="mb-2 flex items-center gap-2">
                 <ChefHat size={18} className="text-stone-950" />
                 <span className="text-sm font-bold text-stone-950">Consejos del chef</span>
@@ -564,7 +564,7 @@ export default function RecipeDetailPage() {
                 <Link
                   key={sr.recipe_id}
                   to={`/recipes/${sr.recipe_id}`}
-                  className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-2.5 no-underline hover:shadow-sm transition-shadow"
+                  className="flex items-center gap-3 rounded-2xl shadow-sm bg-white p-2.5 no-underline hover:shadow-md transition-shadow"
                 >
                   <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-stone-100">
                     {sr.image_url ? (

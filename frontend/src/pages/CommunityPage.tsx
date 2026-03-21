@@ -503,7 +503,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      className="bg-white rounded-2xl border border-stone-200 p-3.5 mb-3.5">
+      className="bg-white rounded-2xl shadow-sm p-3.5 mb-3.5">
       <textarea
         value={text} onChange={e => setText(e.target.value)}
         placeholder="¿Qué quieres compartir? Puedes usar #hashtags"
@@ -597,7 +597,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
           </span>
         </div>
       )}
-    <div className="bg-white rounded-2xl border border-stone-200 mb-2.5 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm mb-2.5 overflow-hidden">
       {/* Author */}
       <div className="flex items-center justify-between px-3.5 py-3">
         <Link to={`/${post.author_username}`}
@@ -817,7 +817,7 @@ const CommunityAbout = ({ community }) => (
       <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">
         Normas de la comunidad
       </h3>
-      <div className="bg-white border border-stone-200 rounded-2xl px-3.5 py-3">
+      <div className="bg-white shadow-sm rounded-2xl px-3.5 py-3">
         {[
           'Contenido relacionado con alimentación y gastronomía',
           'Trato respetuoso entre miembros',

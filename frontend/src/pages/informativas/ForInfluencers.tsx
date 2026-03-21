@@ -210,7 +210,7 @@ export default function ForInfluencers() {
           </div>
 
           {/* IRPF card */}
-          <div className="mt-6 p-8 bg-stone-100 rounded-2xl border border-stone-200 max-w-[600px]">
+          <div className="mt-6 p-8 bg-stone-100 rounded-2xl shadow-sm max-w-[600px]">
             <div className="flex items-center gap-2.5 mb-3">
               <span className="text-2xl">📋</span>
               <h4 className="info-h4">Sobre el IRPF</h4>

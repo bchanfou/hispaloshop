@@ -98,7 +98,7 @@ export default function PlanPage() {
 
       <div className="max-w-[600px] mx-auto px-4 pt-6 pb-[100px]">
         {/* ── Current Plan Card ── */}
-        <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-6">
+        <div className="bg-white shadow-sm rounded-2xl p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <PlanBadge plan={currentPlan} />

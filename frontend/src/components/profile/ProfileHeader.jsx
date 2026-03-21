@@ -354,7 +354,7 @@ export default function ProfileHeader({
               animate="visible"
               exit="hidden"
               onClick={() => setShowAccountSwitcher(false)}
-              className="fixed inset-0 z-[9998] bg-black/40"
+              className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
             />
             <motion.div
               key="as-sheet"
@@ -365,7 +365,7 @@ export default function ProfileHeader({
               role="dialog"
               aria-modal="true"
               aria-label="Cambiar cuenta"
-              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white px-5 pb-8 pt-4"
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white shadow-modal px-5 pb-8 pt-4"
             >
               <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
               <div className="mb-4 text-base font-semibold">Cuentas</div>
@@ -430,7 +430,7 @@ export default function ProfileHeader({
                   setShowAccountSwitcher(false);
                   navigate('/login?add_account=true');
                 }}
-                className="w-full rounded-2xl bg-stone-100 py-3.5 text-center text-sm font-medium text-stone-950"
+                className="w-full rounded-full bg-stone-100 py-3.5 text-center text-sm font-semibold text-stone-950 active:scale-95 transition-all"
               >
                 + Agregar cuenta
               </button>
@@ -633,10 +633,10 @@ export default function ProfileHeader({
       <div className="flex gap-1.5 px-4 pb-3">
         {isOwn ? (
           <>
-            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-2xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-full bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Editar perfil
             </motion.button>
-            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={shareProfile} className="min-h-[34px] flex-1 rounded-2xl bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={shareProfile} className="min-h-[34px] flex-1 rounded-full bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Compartir perfil
             </motion.button>
             <motion.button
@@ -644,7 +644,7 @@ export default function ProfileHeader({
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
-              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-2xl bg-stone-100"
+              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
             </motion.button>
@@ -665,7 +665,7 @@ export default function ProfileHeader({
                   ? `Solicitar seguir a ${user?.name}`
                   : `Seguir a ${user?.name}`
               }
-              className={`min-h-[34px] flex-1 rounded-2xl px-3 py-1.5 text-[13px] font-semibold overflow-hidden ${
+              className={`min-h-[34px] flex-1 rounded-full px-3 py-1.5 text-[13px] font-semibold overflow-hidden ${
                 user?.is_following
                   ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
@@ -698,7 +698,7 @@ export default function ProfileHeader({
               onClick={onMessage}
               aria-label="Enviar mensaje"
               disabled={user?.is_private && !user?.is_following}
-              className={`flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-2xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
+              className={`flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
                 user?.is_private && !user?.is_following ? 'opacity-40 cursor-not-allowed' : ''
               }`}
             >
@@ -710,7 +710,7 @@ export default function ProfileHeader({
                 whileTap={{ scale: 0.96 }}
                 transition={{ type: 'spring', damping: 20, stiffness: 400 }}
                 onClick={() => navigate(`/store/${user?.store_slug || user?.username}`)}
-                className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-2xl bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
+                className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
               >
                 <Store size={15} />
                 Tienda
@@ -721,7 +721,7 @@ export default function ProfileHeader({
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
-              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-2xl bg-stone-100"
+              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
             </motion.button>
@@ -806,7 +806,7 @@ export default function ProfileHeader({
               animate="visible"
               exit="hidden"
               onClick={() => { setHighlightMenu(null); setHighlightEditMode(null); }}
-              className="fixed inset-0 z-[9998] bg-black/40"
+              className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
             />
             <motion.div
               key="hl-sheet"
@@ -817,7 +817,7 @@ export default function ProfileHeader({
               role="dialog"
               aria-modal="true"
               aria-label="Opciones de destacado"
-              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white pb-8 pt-4"
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white shadow-modal pb-8 pt-4"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-stone-200" />
@@ -968,7 +968,7 @@ export default function ProfileHeader({
               animate="visible"
               exit="hidden"
               onClick={() => setShowOptionsSheet(false)}
-              className="fixed inset-0 z-[9998] bg-black/40"
+              className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
             />
             <motion.div
               key="opt-sheet"
@@ -979,7 +979,7 @@ export default function ProfileHeader({
               role="dialog"
               aria-modal="true"
               aria-label="Opciones de perfil"
-              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white pb-8 pt-4"
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white shadow-modal pb-8 pt-4"
             >
               <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
 

@@ -547,7 +547,7 @@ export default function B2BContractPage() {
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-stone-100 border border-stone-300 rounded-xl p-5 mb-4"
+            className="bg-stone-100 shadow-sm rounded-xl p-5 mb-4"
           >
             <div className="flex flex-col items-center text-center">
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-stone-950 mb-3">

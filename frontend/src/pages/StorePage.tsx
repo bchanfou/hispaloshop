@@ -412,7 +412,7 @@ export default function StorePage() {
               {recipes.map((recipe) => (
                 <button key={recipe.post_id || recipe.id || recipe.recipe_id} type="button"
                   onClick={() => navigate(`/recipes/${recipe.recipe_id || recipe.post_id || recipe.id}`)}
-                  className="block w-full overflow-hidden bg-white border border-stone-200 rounded-[14px] cursor-pointer p-0 text-left"
+                  className="block w-full overflow-hidden bg-white shadow-sm rounded-[14px] cursor-pointer p-0 text-left"
                 >
                   {recipe.image_url && (
                     <img src={recipe.image_url} alt="" loading="lazy" className="w-full aspect-[4/3] object-cover" />
@@ -482,7 +482,7 @@ export default function StorePage() {
               {/* Review list */}
               <div className="flex flex-col gap-3">
                 {reviews.map((review, idx) => (
-                  <div key={review.review_id || idx} className="bg-white rounded-xl border border-stone-200 p-3.5">
+                  <div key={review.review_id || idx} className="bg-white rounded-xl shadow-sm p-3.5">
                     <div className="flex items-center gap-2">
                       <div className="w-9 h-9 rounded-full bg-stone-100 flex items-center justify-center">
                         <User size={16} className="text-stone-500" />
@@ -662,7 +662,7 @@ function InfoRow({ icon, text, extra }) {
 
 function EmptyState({ text }) {
   return (
-    <div className="text-center py-12 px-4 bg-white rounded-xl border border-stone-200">
+    <div className="text-center py-12 px-4 bg-white rounded-xl shadow-sm">
       <p className="text-sm text-stone-500">{text}</p>
     </div>
   );
@@ -670,7 +670,7 @@ function EmptyState({ text }) {
 
 function InlineError({ onRetry }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl border border-stone-200 gap-3">
+    <div className="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-sm gap-3">
       <AlertTriangle size={32} className="text-stone-300" strokeWidth={1.5} />
       <p className="text-sm font-semibold text-stone-950">Error al cargar</p>
       <button onClick={onRetry} className="bg-stone-950 text-white border-none rounded-full px-5 py-2.5 min-h-[44px] text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors">

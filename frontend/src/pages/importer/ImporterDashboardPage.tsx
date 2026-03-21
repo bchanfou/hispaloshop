@@ -19,7 +19,7 @@ import { OperationCard } from '../b2b/B2BOperationsDashboard';
 function KPICard({ label, value, icon: Icon, href, description }) {
   const Wrapper = href ? Link : 'div';
   return (
-    <Wrapper to={href} className="p-4 bg-white rounded-2xl border border-stone-200 transition-all hover:border-stone-300">
+    <Wrapper to={href} className="p-4 bg-white rounded-2xl shadow-sm transition-all hover:shadow-md">
       <div className="flex items-center gap-3 mb-2">
         <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-stone-100">
           <Icon className="w-4 h-4 text-stone-500" />
@@ -381,7 +381,7 @@ export default function ImporterDashboardPage() {
                 {pendingB2cOrders.slice(0, 4).map((order, i) => (
                   <div
                     key={order.order_id || i}
-                    className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200"
+                    className="flex items-center gap-3 p-3.5 bg-white rounded-2xl shadow-sm"
                   >
                     <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-amber-50">
                       <Clock className="w-4 h-4 text-amber-600" />
@@ -422,7 +422,7 @@ export default function ImporterDashboardPage() {
           </div>
 
           {/* Top products this week */}
-          <div className="p-4 mb-5 bg-white rounded-2xl border border-stone-200">
+          <div className="p-4 mb-5 bg-white rounded-2xl shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-stone-950">Top productos esta semana</h3>
               <Link to="/producer/products" className="text-xs font-semibold hover:underline text-stone-500">
@@ -466,7 +466,7 @@ export default function ImporterDashboardPage() {
 
           {/* B2C recent orders (completed) */}
           {b2cOrders.filter(o => o.status !== 'pending' && o.status !== 'processing').length > 0 && (
-            <div className="p-4 bg-white rounded-2xl border border-stone-200">
+            <div className="p-4 bg-white rounded-2xl shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-bold text-stone-950">Pedidos B2C recientes</h3>
                 <Link to="/producer/orders" className="text-xs font-semibold hover:underline text-stone-500">
@@ -588,7 +588,7 @@ export default function ImporterDashboardPage() {
           </div>
 
           {/* Últimos proveedores */}
-          <div className="p-4 mb-5 bg-white rounded-2xl border border-stone-200">
+          <div className="p-4 mb-5 bg-white rounded-2xl shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-stone-950">Últimos proveedores</h3>
               <Link to="/b2b/marketplace" className="text-xs font-semibold hover:underline text-stone-500">
@@ -648,7 +648,7 @@ export default function ImporterDashboardPage() {
 
           {/* Recent B2B orders */}
           {recentB2B.length > 0 && (
-            <div className="p-4 bg-white rounded-2xl border border-stone-200">
+            <div className="p-4 bg-white rounded-2xl shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-bold text-stone-950">Pedidos B2B recientes</h3>
                 <Link to="/importer/orders" className="text-xs font-semibold hover:underline text-stone-500">
@@ -697,7 +697,7 @@ export default function ImporterDashboardPage() {
           </Link>
 
           {/* Active certificates */}
-          <div className="mt-5 p-4 bg-white rounded-2xl border border-stone-200">
+          <div className="mt-5 p-4 bg-white rounded-2xl shadow-sm">
             <h3 className="text-sm font-bold mb-3 text-stone-950">Certificados activos</h3>
             <div className="flex flex-wrap gap-2">
               {(stats?.certificates || []).length > 0 ? (stats.certificates || []).map((cert, i) => (
@@ -713,7 +713,7 @@ export default function ImporterDashboardPage() {
       )}
 
       {/* Account & Configuration */}
-      <div className="mt-5 p-4 bg-white rounded-2xl border border-stone-200">
+      <div className="mt-5 p-4 bg-white rounded-2xl shadow-sm">
         <h3 className="text-sm font-bold mb-3 text-stone-950">Cuenta y configuración</h3>
         <div className="space-y-1">
           {[

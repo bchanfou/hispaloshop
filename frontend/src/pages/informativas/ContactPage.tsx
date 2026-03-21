@@ -64,7 +64,7 @@ export default function ContactPage() {
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm mb-10"
+          className="bg-white rounded-2xl p-6 md:p-8 shadow-sm mb-10"
         >
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
@@ -157,7 +157,7 @@ export default function ContactPage() {
             <p>@bchanfuah (fundador)</p>
           </div>
 
-          <div className="bg-stone-100 rounded-2xl border border-stone-200 p-6">
+          <div className="bg-stone-100 rounded-2xl shadow-sm p-6">
             <p className="text-sm font-semibold text-stone-950 mb-3">
               &iquest;Eres productor y quieres unirte?
             </p>

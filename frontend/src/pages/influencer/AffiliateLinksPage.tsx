@@ -152,7 +152,7 @@ export default function AffiliateLinksPage() {
       <div className="min-h-screen bg-stone-50">
         <div className="max-w-[975px] mx-auto px-4 py-6 pb-28">
           <h1 className="text-xl font-bold mb-1 text-stone-950">Mis links de afiliado</h1>
-          <div className="mt-6 p-5 bg-stone-100 rounded-2xl border border-stone-300">
+          <div className="mt-6 p-5 bg-stone-100 rounded-2xl shadow-sm">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>
@@ -244,7 +244,7 @@ export default function AffiliateLinksPage() {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-stone-50 border border-stone-200 rounded-2xl p-4 mb-6"
+            className="bg-stone-50 shadow-sm rounded-2xl p-4 mb-6"
           >
             <div className="flex gap-3 mb-3">
               {selectedProduct.images?.[0] && (

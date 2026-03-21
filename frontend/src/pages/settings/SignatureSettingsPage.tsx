@@ -472,7 +472,7 @@ export default function SignatureSettingsPage() {
         <div className="flex flex-col gap-3">
           <SectionLabel>Vista previa</SectionLabel>
 
-          <div className="bg-white border border-stone-200 rounded-xl p-4 relative min-h-[100px]">
+          <div className="bg-white shadow-sm rounded-xl p-4 relative min-h-[100px]">
             <span className="text-[9px] text-stone-500">
               Firma del representante:
             </span>

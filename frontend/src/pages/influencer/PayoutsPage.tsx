@@ -301,7 +301,7 @@ export default function PayoutsPage() {
 
         {/* Next payout */}
         {stats?.next_payout_date && (
-          <div className="bg-stone-100 border border-stone-200 rounded-2xl px-4 py-3 mb-5 text-sm text-stone-700 flex items-center gap-2">
+          <div className="bg-stone-100 shadow-sm rounded-2xl px-4 py-3 mb-5 text-sm text-stone-700 flex items-center gap-2">
             <CreditCard className="w-4 h-4 shrink-0" />
             Próximo pago automático el{' '}
             <strong>

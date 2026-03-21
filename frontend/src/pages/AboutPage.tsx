@@ -147,7 +147,7 @@ export default function AboutPage() {
           <p className="text-sm text-stone-500 text-center mb-8">Funcionalidad real de producto en esta versión.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {newFeatures.map((nf, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 text-center hover:shadow-md transition-all">
+              <div key={i} className="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-all">
                 <div className={`w-10 h-10 rounded-2xl ${nf.color} flex items-center justify-center mx-auto mb-2`}>
                   <nf.icon className="w-5 h-5" strokeWidth={1.5} />
                 </div>
@@ -162,7 +162,7 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold text-stone-950 text-center mb-8">Por qué la plataforma funciona</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((f, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 hover:shadow-md transition-all" data-testid={`about-feature-${i}`}>
+              <div key={i} className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-all" data-testid={`about-feature-${i}`}>
                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-3 ${f.color}`}>
                   <f.icon className="w-5 h-5" />
                 </div>

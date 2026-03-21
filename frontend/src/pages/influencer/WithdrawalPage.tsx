@@ -198,7 +198,7 @@ export default function WithdrawalPage() {
         </div>
 
         {/* Breakdown card */}
-        <div className="p-5 mb-5 bg-white rounded-2xl border border-stone-200">
+        <div className="p-5 mb-5 bg-white rounded-2xl shadow-sm">
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-stone-500">Comisión bruta</span>
@@ -232,7 +232,7 @@ export default function WithdrawalPage() {
 
         {/* Insufficient balance warning */}
         {!canWithdraw && (
-          <div className="p-4 mb-5 flex items-start gap-3 bg-stone-100 rounded-2xl border border-stone-300">
+          <div className="p-4 mb-5 flex items-start gap-3 bg-stone-100 rounded-2xl shadow-sm">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
             <div>
               <p className="text-sm font-semibold text-stone-950">Casi llegas</p>
@@ -244,7 +244,7 @@ export default function WithdrawalPage() {
         )}
 
         {/* Payout method */}
-        <div className="p-4 mb-5 flex items-center justify-between bg-white rounded-2xl border border-stone-200">
+        <div className="p-4 mb-5 flex items-center justify-between bg-white rounded-2xl shadow-sm">
           <div className="flex items-center gap-3">
             {isSEPA ? (
               <Building2 className="w-5 h-5 text-stone-500" />
@@ -297,7 +297,7 @@ export default function WithdrawalPage() {
 
         {/* Previous withdrawals history */}
         {recentPayouts.length > 0 && (
-          <div className="rounded-2xl border border-stone-200 p-3 mb-8">
+          <div className="rounded-2xl shadow-sm p-3 mb-8">
             <h3 className="text-sm font-semibold text-stone-950 mb-2">Últimos cobros</h3>
             <div className="divide-y divide-stone-100">
               {recentPayouts.slice(0, 5).map((p, i) => (

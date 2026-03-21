@@ -535,7 +535,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
         transition={{ duration: 0.15 }}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
         {/* Close — desktop */}
         <button
@@ -654,7 +654,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
         {/* ═══ DESKTOP LAYOUT (>=768px / md) — Instagram Web side-by-side ═══ */}
         {/* I1: split layout ~55% left / ~45% right, max-w-4xl, 85vh */}
         <motion.div
-          className="hidden md:flex relative z-[101] bg-white rounded-2xl overflow-hidden shadow-2xl w-full"
+          className="hidden md:flex relative z-[101] bg-white rounded-2xl overflow-hidden shadow-modal w-full"
           style={{ maxWidth: 'min(960px, 90vw)', maxHeight: '85vh', height: '85vh' }}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

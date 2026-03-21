@@ -571,7 +571,7 @@ export default function B2BTrackingPage() {
           </div>
 
           {/* === Section 4 -- Pedro AI === */}
-          <div className="bg-stone-100 border border-stone-300 rounded-xl p-4">
+          <div className="bg-stone-100 shadow-sm rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2.5">
               <Sparkles size={20} className="text-stone-950" />
               <span className="text-[13px] font-semibold text-stone-950">
@@ -585,7 +585,7 @@ export default function B2BTrackingPage() {
 
             <button
               onClick={() => toast.info('Próximamente')}
-              className="flex items-center justify-center w-full h-10 rounded-full bg-white border border-stone-300 text-[13px] font-medium text-stone-950 cursor-pointer"
+              className="flex items-center justify-center w-full h-10 rounded-full bg-white border border-stone-200 text-[13px] font-medium text-stone-950 cursor-pointer"
             >
               Consultar a la IA
             </button>

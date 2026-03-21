@@ -57,7 +57,7 @@ function B2BProductCard({ product, onClick, convertAndFormatPrice }) {
 
   return (
     <div
-      className="bg-white rounded-2xl border border-stone-200 overflow-hidden cursor-pointer hover:border-stone-300 transition-colors"
+      className="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => onClick(product)}
     >
       {/* Image */}
@@ -378,7 +378,7 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
           )}
 
           {/* Price summary */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-3.5 mb-4">
+          <div className="bg-white shadow-sm rounded-2xl p-3.5 mb-4">
             <div className="flex justify-between mb-1">
               <span className="text-sm text-stone-500">
                 {quantity} {product.unit || 'uds'} × {convertAndFormatPrice(unitPrice, 'EUR')}

@@ -15,7 +15,7 @@ const formatPrice = (v) =>
 
 function KpiCard({ icon: Icon, label, value, sub }) {
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-stone-200 bg-white p-5">
+    <div className="flex flex-col gap-1 rounded-2xl shadow-sm bg-white p-5">
       <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-2xl bg-stone-100">
         <Icon className="h-4 w-4 text-stone-700" />
       </div>
@@ -105,7 +105,7 @@ export default function ProducerInsights() {
           <h2 className="mb-4 text-base font-semibold text-stone-950">
             Rendimiento por producto
           </h2>
-          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+          <div className="overflow-hidden rounded-2xl shadow-sm bg-white">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-stone-100 bg-stone-50">

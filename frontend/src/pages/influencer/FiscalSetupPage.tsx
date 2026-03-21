@@ -265,7 +265,7 @@ export default function FiscalSetupPage() {
 
       {/* Blocked banner */}
       {isBlocked && (
-        <div className="p-4 mb-5 bg-stone-100 rounded-2xl border border-stone-300">
+        <div className="p-4 mb-5 bg-stone-100 rounded-2xl shadow-sm">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
             <p className="text-sm font-medium text-stone-950">
@@ -378,7 +378,7 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'verified' && (
-          <div className="p-4 bg-stone-100 rounded-2xl border border-stone-200">
+          <div className="p-4 bg-stone-100 rounded-2xl shadow-sm">
             <div className="flex items-start gap-3">
               <Check className="w-5 h-5 shrink-0 mt-0.5 text-stone-950" />
               <div>
@@ -405,7 +405,7 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'rejected' && (
-          <div className="p-4 bg-stone-100 rounded-2xl border border-stone-300">
+          <div className="p-4 bg-stone-100 rounded-2xl shadow-sm">
             <div className="flex items-start gap-3">
               <X className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>
@@ -426,7 +426,7 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'manual_review' && (
-          <div className="p-4 bg-stone-100 rounded-2xl border border-stone-300">
+          <div className="p-4 bg-stone-100 rounded-2xl shadow-sm">
             <div className="flex items-start gap-3">
               <Clock className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>

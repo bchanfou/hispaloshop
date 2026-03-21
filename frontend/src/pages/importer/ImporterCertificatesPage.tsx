@@ -141,7 +141,7 @@ export default function ImporterCertificatesPage() {
   if (!producerId) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] px-4">
-        <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center max-w-sm w-full">
+        <div className="bg-white shadow-sm rounded-2xl p-8 text-center max-w-sm w-full">
           <Award className="w-10 h-10 text-stone-300 mx-auto mb-3" />
           <p className="text-sm font-semibold text-stone-950 mb-1">Selecciona un proveedor para ver sus certificados</p>
           <Link
