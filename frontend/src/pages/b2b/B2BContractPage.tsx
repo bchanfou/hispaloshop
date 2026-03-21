@@ -9,6 +9,11 @@ import {
   Loader2,
   FileText,
   AlertCircle,
+  Clock,
+  Package,
+  CreditCard,
+  Truck,
+  FileCheck,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -288,7 +293,94 @@ export default function B2BContractPage() {
           </AnimatePresence>
         </motion.div>
 
-        {/* - Section 3: Signatures - */}
+        {/* - Section 2.5: Contract Terms Summary - */}
+        {contractReady && operation && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.09 }}
+            className="rounded-2xl border border-stone-200 p-4 mb-4"
+          >
+            <p className="text-sm font-semibold text-stone-950 mb-3">
+              Resumen de condiciones
+            </p>
+
+            <div className="flex flex-col gap-2.5">
+              {/* Products */}
+              {(operation.products || operation.items) && (
+                <div className="flex items-start gap-2.5">
+                  <Package size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[11px] text-stone-500 block">Productos</span>
+                    <span className="text-[13px] text-stone-950">
+                      {(operation.products || operation.items || []).map((p) =>
+                        `${p.name || p.product_name}${p.quantity ? ` (x${p.quantity})` : ''}`
+                      ).join(', ') || 'Ver contrato'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Pricing */}
+              {(operation.total_amount || operation.price) && (
+                <div className="flex items-start gap-2.5">
+                  <CreditCard size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[11px] text-stone-500 block">Precio total</span>
+                    <span className="text-[13px] text-stone-950 font-medium">
+                      {new Intl.NumberFormat('es-ES', { style: 'currency', currency: operation.currency || 'EUR' }).format(operation.total_amount || operation.price)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Delivery terms */}
+              {(operation.delivery_terms || operation.delivery_days) && (
+                <div className="flex items-start gap-2.5">
+                  <Truck size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[11px] text-stone-500 block">Entrega</span>
+                    <span className="text-[13px] text-stone-950">
+                      {operation.delivery_terms || `${operation.delivery_days} dias`}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Payment terms */}
+              {operation.payment_terms && (
+                <div className="flex items-start gap-2.5">
+                  <FileCheck size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[11px] text-stone-500 block">Condiciones de pago</span>
+                    <span className="text-[13px] text-stone-950">
+                      {operation.payment_terms === 'full_prepay' ? 'Pago completo por adelantado'
+                        : operation.payment_terms === 'letter_of_credit' ? 'Carta de credito (pago dividido)'
+                        : operation.payment_terms === 'net_30' ? 'Pago a 30 dias'
+                        : operation.payment_terms === 'net_60' ? 'Pago a 60 dias'
+                        : operation.payment_terms}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Incoterm */}
+              {operation.incoterm && (
+                <div className="flex items-start gap-2.5">
+                  <FileText size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-[11px] text-stone-500 block">Incoterm</span>
+                    <span className="text-[13px] text-stone-950 font-medium">
+                      {operation.incoterm}{operation.incoterm_city ? ` — ${operation.incoterm_city}` : ''}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* - Section 3: Signature Progress - */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -298,6 +390,30 @@ export default function B2BContractPage() {
           <p className="text-sm font-semibold text-stone-950 mb-3.5">
             Firmas digitales
           </p>
+
+          {/* Signature progress indicators */}
+          <div className="flex flex-col gap-2 mb-3.5 bg-stone-50 rounded-xl p-3">
+            <div className="flex items-center gap-2">
+              {buyerSigned ? (
+                <Check size={14} className="text-stone-950" strokeWidth={2.5} />
+              ) : (
+                <Clock size={14} className="text-stone-500" />
+              )}
+              <span className={`text-[12px] font-medium ${buyerSigned ? 'text-stone-950' : 'text-stone-500'}`}>
+                {buyerSigned ? 'Comprador firmo' : 'Esperando firma del comprador'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {sellerSigned ? (
+                <Check size={14} className="text-stone-950" strokeWidth={2.5} />
+              ) : (
+                <Clock size={14} className="text-stone-500" />
+              )}
+              <span className={`text-[12px] font-medium ${sellerSigned ? 'text-stone-950' : 'text-stone-500'}`}>
+                {sellerSigned ? 'Vendedor firmo' : 'Esperando firma del vendedor'}
+              </span>
+            </div>
+          </div>
 
           {/* Seller row */}
           <div className="flex items-center justify-between mb-3">
@@ -309,7 +425,7 @@ export default function B2BContractPage() {
             </div>
             {sellerSigned ? (
               <span className="text-[11px] text-stone-950 font-medium">
-                ✓ Firmado · {fmtDate(operation.contract?.seller_signature_at)}
+                Firmado · {fmtDate(operation.contract?.seller_signature_at)}
               </span>
             ) : (
               <span className="text-[11px] text-stone-500 font-medium">
@@ -331,7 +447,7 @@ export default function B2BContractPage() {
             </div>
             {buyerSigned ? (
               <span className="text-[11px] text-stone-950 font-medium">
-                ✓ Firmado · {fmtDate(operation.contract?.buyer_signature_at)}
+                Firmado · {fmtDate(operation.contract?.buyer_signature_at)}
               </span>
             ) : (
               <span className="text-[11px] text-stone-500 font-medium">

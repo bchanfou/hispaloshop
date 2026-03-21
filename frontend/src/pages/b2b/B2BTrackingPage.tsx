@@ -13,6 +13,11 @@ import {
   Eye,
   Download,
   Plus,
+  Clock,
+  Truck,
+  CreditCard,
+  Shield,
+  PackageCheck,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -57,6 +62,24 @@ const carrierTrackingUrl = (carrier, code) => {
 };
 
 /* -- Pulse keyframe style (injected once) -- */
+/* -- Stage icons for vertical timeline -- */
+const STAGE_ICONS = {
+  contract_signed:   FileText,
+  payment_confirmed: CreditCard,
+  in_transit:        Truck,
+  customs_clearance: Shield,
+  delivered:         PackageCheck,
+};
+
+/* -- Format timestamp helper -- */
+const fmtTimestamp = (iso) => {
+  if (!iso) return null;
+  const d = new Date(iso);
+  const date = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+  const time = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  return { date, time };
+};
+
 const PULSE_CSS = `
 @keyframes b2b-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(12,10,9,.45); }
@@ -288,6 +311,64 @@ export default function B2BTrackingPage() {
               })}
             </div>
           </div>
+
+          {/* === Estimated Delivery === */}
+          {shipment?.estimated_delivery && (
+            <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3">
+              <Clock size={16} className="text-stone-500 flex-shrink-0" />
+              <span className="text-[13px] text-stone-950 font-medium">
+                Entrega estimada: {new Date(shipment.estimated_delivery).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+          )}
+
+          {/* === Tracking History Timeline === */}
+          {operation?.status_history && operation.status_history.length > 0 && (
+            <div className="bg-white border border-stone-200 rounded-xl p-4">
+              <div className="text-sm font-semibold text-stone-950 mb-3.5">Historial de seguimiento</div>
+              <div className="relative pl-6">
+                {/* Connecting vertical line */}
+                <div className="absolute left-[9px] top-2 bottom-2 w-[2px] bg-stone-200" />
+
+                {operation.status_history.map((entry, idx) => {
+                  const stageKey = entry.status || entry.stage;
+                  const stageMatch = STAGES.find((s) => s.key === stageKey);
+                  const label = stageMatch?.label || entry.label || stageKey;
+                  const Icon = STAGE_ICONS[stageKey] || Clock;
+                  const ts = fmtTimestamp(entry.timestamp || entry.created_at || entry.date);
+                  const isLatest = idx === 0;
+
+                  return (
+                    <div key={idx} className="relative flex items-start gap-3 mb-4 last:mb-0">
+                      {/* Dot */}
+                      <div className={`absolute -left-6 top-0.5 flex items-center justify-center w-5 h-5 rounded-full z-10 ${
+                        isLatest ? 'bg-stone-950' : 'bg-stone-200'
+                      }`}>
+                        <Icon size={11} className={isLatest ? 'text-white' : 'text-stone-500'} strokeWidth={2} />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex flex-col">
+                        <span className={`text-[13px] font-medium ${isLatest ? 'text-stone-950' : 'text-stone-600'}`}>
+                          {label}
+                        </span>
+                        {ts && (
+                          <span className="text-[11px] text-stone-500 mt-0.5">
+                            {ts.date} · {ts.time}
+                          </span>
+                        )}
+                        {entry.description && (
+                          <span className="text-[11px] text-stone-500 mt-0.5">
+                            {entry.description}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* === Section 2 -- Shipping === */}
           <div className="bg-white border border-stone-200 rounded-xl p-4">

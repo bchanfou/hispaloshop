@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MessageSquare, Send, ArrowLeft, Loader2, RefreshCw } from 'lucide-react';
+import { MessageSquare, Send, ArrowLeft, Loader2, RefreshCw, Search, X, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import {
   useB2BConversations,
@@ -71,17 +71,24 @@ function Bubble({ msg, myId }) {
   );
 }
 
-function MessageThread({ convId, myId }) {
+function MessageThread({ convId, myId, operationId, searchFilter = '' }) {
   const messagesQuery = useB2BMessages(convId);
   const sendMutation = useSendB2BMessage(convId);
   const [text, setText] = useState('');
   const bottomRef = useRef(null);
 
-  const messages = messagesQuery.data?.data?.messages || [];
+  const allMessages = messagesQuery.data?.data?.messages || [];
+
+  const activeFilter = (searchFilter || '').trim().toLowerCase();
+  const messages = activeFilter
+    ? allMessages.filter((msg) =>
+        (msg.content || '').toLowerCase().includes(activeFilter)
+      )
+    : allMessages;
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
+    if (!activeFilter) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [allMessages.length, activeFilter]);
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -89,6 +96,14 @@ function MessageThread({ convId, myId }) {
     if (!trimmed || sendMutation.isPending) return;
     sendMutation.mutate(trimmed);
     setText('');
+  };
+
+  const handleAskPedro = () => {
+    window.dispatchEvent(
+      new CustomEvent('open-hispal-ai', {
+        detail: { type: 'b2b', operation_id: operationId || convId },
+      })
+    );
   };
 
   if (messagesQuery.isLoading) {
@@ -103,7 +118,9 @@ function MessageThread({ convId, myId }) {
     <>
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
-          <p className="text-center text-stone-400 text-sm mt-8">Inicia la conversacion enviando un mensaje</p>
+          <p className="text-center text-stone-400 text-sm mt-8">
+            {activeFilter ? 'Sin resultados' : 'Inicia la conversacion enviando un mensaje'}
+          </p>
         ) : (
           messages.map((msg) => (
             <Bubble key={msg.message_id || msg.id} msg={msg} myId={myId} />
@@ -111,22 +128,35 @@ function MessageThread({ convId, myId }) {
         )}
         <div ref={bottomRef} />
       </div>
-      <form onSubmit={handleSend} className="border-t border-stone-200 p-3 flex items-end gap-2">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(e); }}
-          rows={1}
-          placeholder="Escribe un mensaje..."
-          className="flex-1 resize-none border border-stone-200 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-stone-950 max-h-32"
-        />
-        <button
-          type="submit"
-          disabled={!text.trim() || sendMutation.isPending}
-          className="w-10 h-10 rounded-2xl bg-stone-950 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0"
-        >
-          {sendMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-        </button>
+      <form onSubmit={handleSend} className="border-t border-stone-200 p-3 flex flex-col gap-2">
+        {/* Pedro AI quick action */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleAskPedro}
+            className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600 border-none cursor-pointer flex items-center gap-1.5 hover:bg-stone-200 transition-colors"
+          >
+            <Sparkles size={12} />
+            Preguntar a Pedro
+          </button>
+        </div>
+        <div className="flex items-end gap-2">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(e); }}
+            rows={1}
+            placeholder="Escribe un mensaje..."
+            className="flex-1 resize-none border border-stone-200 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-stone-950 max-h-32"
+          />
+          <button
+            type="submit"
+            disabled={!text.trim() || sendMutation.isPending}
+            className="w-10 h-10 rounded-2xl bg-stone-950 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0"
+          >
+            {sendMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          </button>
+        </div>
       </form>
     </>
   );
@@ -173,9 +203,12 @@ export default function B2BChatPage() {
 
   const activeConv = conversations.find((c) => c.conversation_id === activeConvId);
   const otherName = activeConv?.other_participant?.company || activeConv?.other_participant?.name || '';
+  const currentOpId = activeConv?.operation_id || activeConv?.b2b_operation_id || null;
 
   // Mobile: show list or thread
   const [mobileView, setMobileView] = useState('list');
+  const [showSearch, setShowSearch] = useState(false);
+  const [threadSearchQuery, setThreadSearchQuery] = useState('');
 
   const handleSelectConv = (conv) => {
     setActiveConvId(conv.conversation_id);
@@ -236,14 +269,43 @@ export default function B2BChatPage() {
           <p className="font-semibold text-stone-800 text-sm">{otherName || 'Conversacion'}</p>
           <p className="text-xs text-stone-400">B2B</p>
         </div>
-        <button
-          className="ml-auto p-1.5 rounded-2xl hover:bg-stone-100"
-          onClick={() => convsQuery.refetch()}
-        >
-          <RefreshCw className="w-4 h-4 text-stone-400" />
-        </button>
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            className="p-1.5 rounded-2xl hover:bg-stone-100"
+            onClick={() => {
+              setShowSearch((prev) => !prev);
+              if (showSearch) setThreadSearchQuery('');
+            }}
+          >
+            {showSearch ? <X className="w-4 h-4 text-stone-400" /> : <Search className="w-4 h-4 text-stone-400" />}
+          </button>
+          <button
+            className="p-1.5 rounded-2xl hover:bg-stone-100"
+            onClick={() => convsQuery.refetch()}
+          >
+            <RefreshCw className="w-4 h-4 text-stone-400" />
+          </button>
+        </div>
       </div>
-      <MessageThread convId={activeConvId} myId={user?.user_id || user?.id} />
+      {showSearch && (
+        <div className="px-4 py-2 border-b border-stone-100 flex items-center gap-2">
+          <Search size={14} className="text-stone-400 flex-shrink-0" />
+          <input
+            type="text"
+            value={threadSearchQuery}
+            onChange={(e) => setThreadSearchQuery(e.target.value)}
+            placeholder="Buscar mensajes..."
+            autoFocus
+            className="flex-1 text-sm bg-transparent border-none outline-none text-stone-950 placeholder:text-stone-400"
+          />
+          {threadSearchQuery && (
+            <button onClick={() => setThreadSearchQuery('')} className="p-1 bg-transparent border-none cursor-pointer">
+              <X size={14} className="text-stone-400" />
+            </button>
+          )}
+        </div>
+      )}
+      <MessageThread convId={activeConvId} myId={user?.user_id || user?.id} operationId={currentOpId} searchFilter={threadSearchQuery} />
     </>
   ) : (
     <div className="flex-1 flex flex-col items-center justify-center text-stone-400">
