@@ -121,14 +121,14 @@ export default function AppLayout({ children }) {
       <SideNav />
 
       {/* Mobile: AppHeader */}
-      <div className="lg:hidden">
+      <div className="xl:hidden">
         <AppHeader />
       </div>
 
       {/* Content area — shifts right on desktop to clear SideNav */}
       <main
         {...swipeBind()}
-        className="min-h-screen lg:ml-[220px] pb-[calc(50px+env(safe-area-inset-bottom,0px))] lg:pb-0 relative"
+        className="min-h-screen xl:ml-[220px] pb-[calc(50px+env(safe-area-inset-bottom,0px))] xl:pb-0 relative"
         style={{ touchAction: 'pan-y' }}
       >
         {/* Swipe-back edge shadow indicator */}

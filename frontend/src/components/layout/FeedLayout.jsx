@@ -15,7 +15,7 @@ export default function FeedLayout({ children }) {
           gap: 40px;
           max-width: calc(600px + 320px + 40px);
           margin: 0 auto;
-          padding: 0 16px;
+          padding: 0;
           align-items: flex-start;
         }
         .feed-column {

@@ -267,7 +267,7 @@ export default function BottomNavBar() {
 
       {/* ── Instagram-style flat bottom nav — mobile only ── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl lg:hidden"
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl xl:hidden"
         data-testid="bottom-nav-bar"
       >
         <LayoutGroup>
@@ -390,7 +390,7 @@ export default function BottomNavBar() {
       </nav>
 
       {/* Spacer para que el contenido no quede tapado por la nav — mobile only */}
-      <div className="h-[calc(64px+env(safe-area-inset-bottom,0px))] lg:hidden" />
+      <div className="h-[calc(64px+env(safe-area-inset-bottom,0px))] xl:hidden" />
     </>
   );
 }

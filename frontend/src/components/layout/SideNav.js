@@ -317,7 +317,7 @@ export default function SideNav() {
 
   return (
     <>
-      <aside className="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-[220px] flex-col border-r bg-white"
+      <aside className="fixed left-0 top-0 bottom-0 z-40 hidden xl:flex w-[220px] flex-col border-r bg-white"
         style={{ borderColor: '#e7e5e4' }}
       >
         {/* Logo */}
