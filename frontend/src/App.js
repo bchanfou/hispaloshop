@@ -49,6 +49,7 @@ const RecipesPage = lazy(() => import('./pages/RecipesPage'));
 const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
 const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
 const CreatePostPage = lazy(() => import('./pages/create/CreatePostPage'));
+const DraftsPage = lazy(() => import('./pages/DraftsPage'));
 const CreateReelPage = lazy(() => import('./pages/create/CreateReelPage'));
 const CreateStoryPage = lazy(() => import('./pages/create/CreateStoryPage'));
 const ProductsPage = lazy(() => import('./pages/ProductsPage'));
@@ -361,6 +362,7 @@ function AppRouter() {
               <Route path="/create/story" element={<CreateStoryPage />} />
               <Route path="/create/text" element={<CreatePostPage />} />
               <Route path="/create/recipe" element={<CreateRecipePage />} />
+              <Route path="/drafts" element={<DraftsPage />} />
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/productos" element={<Navigate to="/products" replace />} />

@@ -185,6 +185,39 @@ export function AuthProvider({ children }) {
     }
   }, [setUser]);
 
+  const switchAccount = useCallback(async (account) => {
+    try {
+      // Save current account to hsp_accounts before switching
+      const currentToken = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token');
+      if (currentToken && user) {
+        let accounts = [];
+        try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
+        const idx = accounts.findIndex(a => String(a.user_id) === String(user.user_id || user.id));
+        const currentObj = {
+          token: currentToken,
+          user_id: user.user_id || user.id,
+          username: user.username,
+          name: user.name || user.full_name,
+          avatar_url: user.profile_image || user.avatar_url,
+          email: user.email,
+          role: user.role,
+        };
+        if (idx >= 0) accounts[idx] = currentObj;
+        else accounts.push(currentObj);
+        localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
+      }
+
+      // Set new account token
+      localStorage.setItem('hispalo_access_token', account.token);
+      localStorage.setItem('hsp_token', account.token);
+
+      // Re-authenticate with new token
+      await checkAuth();
+    } catch (err) {
+      console.error('Switch account failed', err);
+    }
+  }, [user, checkAuth]);
+
   const refreshUser = useCallback(async () => checkAuth(), [checkAuth]);
 
   const hasRole = useCallback((role) => user?.role === role, [user]);
@@ -205,6 +238,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    switchAccount,
     role,
     onboarding_completed,
     hasRole,
@@ -222,6 +256,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    switchAccount,
     role,
     onboarding_completed,
     hasRole,

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Image, Clapperboard, CirclePlus, ChefHat } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Image, Clapperboard, CirclePlus, ChefHat, FileText } from 'lucide-react';
 import BottomSheet from '../motion/BottomSheet';
 
 const CONTENT_TYPES = [
@@ -10,7 +11,27 @@ const CONTENT_TYPES = [
   { type: 'recipe', label: 'Receta', Icon: ChefHat },
 ];
 
+const DRAFT_KEYS = ['post_draft', 'reel_draft', 'story_draft'];
+const MAX_AGE = 24 * 60 * 60 * 1000;
+
 export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
+  const navigate = useNavigate();
+  const [draftCount, setDraftCount] = useState(0);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let count = 0;
+    for (const key of DRAFT_KEYS) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        const draft = JSON.parse(raw);
+        if (Date.now() - (draft.savedAt || 0) < MAX_AGE) count++;
+      } catch { /* ignore */ }
+    }
+    setDraftCount(count);
+  }, [isOpen]);
+
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} maxHeight="auto">
       <div
@@ -48,6 +69,24 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
             </motion.button>
           ))}
         </div>
+
+        {/* Borradores link */}
+        {draftCount > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              navigate('/drafts');
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 text-sm text-stone-500 hover:text-stone-950 bg-transparent border-none cursor-pointer transition-colors"
+          >
+            <FileText size={16} />
+            <span>Borradores</span>
+            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-stone-200 text-stone-700 text-[11px] font-semibold px-1">
+              {draftCount}
+            </span>
+          </button>
+        )}
       </div>
     </BottomSheet>
   );

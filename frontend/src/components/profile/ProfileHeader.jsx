@@ -26,8 +26,10 @@ import {
   Globe,
   Youtube,
 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import AnimatedNumber from '../motion/AnimatedNumber';
 import apiClient from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -150,6 +152,8 @@ export default function ProfileHeader({
   onCreateStory,
 }) {
   const navigate = useNavigate();
+  const { switchAccount } = useAuth();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
 
   const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
@@ -371,30 +375,11 @@ export default function ProfileHeader({
                 return (
                   <button
                     key={acc.user_id || acc.username}
-                    onClick={() => {
+                    onClick={async () => {
                       if (!isActive && acc.token) {
-                        // Save current account before switching
-                        const currentToken = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
-                        if (currentToken && user) {
-                          let existingAccounts = [];
-                          try { existingAccounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { existingAccounts = []; }
-                          const idx = existingAccounts.findIndex(a => a.user_id === user.user_id);
-                          const currentAccObj = {
-                            token: currentToken,
-                            user_id: user.user_id,
-                            username: user.username,
-                            name: user.name,
-                            avatar_url: user.profile_image || user.avatar_url,
-                            role: user.role,
-                          };
-                          if (idx >= 0) existingAccounts[idx] = currentAccObj;
-                          else existingAccounts.push(currentAccObj);
-                          localStorage.setItem('hsp_accounts', JSON.stringify(existingAccounts));
-                        }
-                        // Switch to selected account
-                        localStorage.setItem('hispalo_access_token', acc.token);
-                        localStorage.setItem('hsp_token', acc.token);
-                        window.location.href = `/profile/${acc.user_id}`;
+                        await switchAccount(acc);
+                        queryClient.clear();
+                        navigate('/');
                       }
                       setShowAccountSwitcher(false);
                     }}

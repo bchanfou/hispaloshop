@@ -88,6 +88,10 @@ export default function CreateStoryPage() {
   const [drawPaths, setDrawPaths] = useState([]);
   const [currentPath, setCurrentPath] = useState(null);
 
+  /* --- auto-save draft --- */
+  const [draftBanner, setDraftBanner] = useState(false);
+  const draftDebounceRef = useRef(null);
+
   // ── Undo/Redo ──
   const historyRef = useRef([{ t: [], s: [], d: [] }]);
   const historyIdxRef = useRef(0);
@@ -315,6 +319,40 @@ export default function CreateStoryPage() {
     };
   }, [handleOverlayDragDOM]);
 
+  /* ── draft: check on mount ── */
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('story_draft');
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      const age = Date.now() - (draft.savedAt || 0);
+      if (age < 24 * 60 * 60 * 1000 && (draft.textOverlays?.length || draft.stickerOverlays?.length)) {
+        setDraftBanner(true);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  /* ── draft: auto-save on overlay / background changes ── */
+  useEffect(() => {
+    if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current);
+    draftDebounceRef.current = setTimeout(() => {
+      try {
+        if (textOverlays.length || stickerOverlays.length) {
+          localStorage.setItem('story_draft', JSON.stringify({
+            textOverlays,
+            selectedBg: background,
+            stickerOverlays,
+            privacy: 'public',
+            savedAt: Date.now(),
+          }));
+        }
+      } catch { /* quota exceeded or private mode */ }
+    }, 500);
+    return () => {
+      if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current);
+    };
+  }, [textOverlays, stickerOverlays, background]);
+
   const [publishSuccess, setPublishSuccess] = useState(false);
 
   const handlePublish = useCallback(async () => {
@@ -514,6 +552,7 @@ export default function CreateStoryPage() {
       fd.append('caption', '');
       await apiClient.post('/stories', fd);
       if (navigator.vibrate) navigator.vibrate(50);
+      try { localStorage.removeItem('story_draft'); } catch { /* ignore */ }
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success('Historia publicada');
@@ -593,6 +632,45 @@ export default function CreateStoryPage() {
           {publishing ? 'Publicando...' : 'Publicar'}
         </button>
       </div>
+
+      {/* draft banner */}
+      {draftBanner && (
+        <div className="absolute top-16 left-4 right-4 z-20 flex items-center justify-between gap-2 bg-stone-100 rounded-2xl p-3">
+          <span className="text-[13px] text-stone-950 font-medium">
+            Tienes un borrador de story
+          </span>
+          <div className="flex gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  const raw = localStorage.getItem('story_draft');
+                  if (raw) {
+                    const draft = JSON.parse(raw);
+                    if (draft.textOverlays?.length) setTextOverlays(draft.textOverlays);
+                    if (draft.stickerOverlays?.length) setStickerOverlays(draft.stickerOverlays);
+                    if (draft.selectedBg) setBackground(draft.selectedBg);
+                  }
+                } catch { /* ignore */ }
+                setDraftBanner(false);
+              }}
+              className="text-[13px] font-semibold text-stone-950 bg-transparent border-none cursor-pointer p-0"
+            >
+              Restaurar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                try { localStorage.removeItem('story_draft'); } catch { /* ignore */ }
+                setDraftBanner(false);
+              }}
+              className="text-[13px] text-stone-500 bg-transparent border-none cursor-pointer p-0"
+            >
+              Descartar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Background selector */}
       <div className="absolute top-[52px] left-0 right-0 z-10 flex gap-2 overflow-x-auto px-4 py-2 bg-black/60 backdrop-blur-lg">

@@ -70,6 +70,10 @@ export default function CreateReelPage() {
   const [trimFrames, setTrimFrames] = useState([]); // array of base64 frames for trim timeline
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  /* --- auto-save draft --- */
+  const [draftBanner, setDraftBanner] = useState(false);
+  const draftDebounceRef = useRef(null);
+
   const videoRef = useRef(null);
   const videoPreviewRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -288,6 +292,41 @@ export default function CreateReelPage() {
     return () => clearTimeout(timer);
   }, [productQuery, showProductSearch]);
 
+  /* ── draft: check on mount ── */
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('reel_draft');
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      const age = Date.now() - (draft.savedAt || 0);
+      if (age < 24 * 60 * 60 * 1000 && (draft.caption || draft.textOverlays?.length)) {
+        setDraftBanner(true);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  /* ── draft: auto-save on caption / filter / overlay changes ── */
+  useEffect(() => {
+    if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current);
+    draftDebounceRef.current = setTimeout(() => {
+      try {
+        if (caption || activeFilter !== 'none' || textOverlays.length) {
+          localStorage.setItem('reel_draft', JSON.stringify({
+            caption,
+            activeFilter,
+            speed,
+            textOverlays,
+            privacy: audience,
+            savedAt: Date.now(),
+          }));
+        }
+      } catch { /* quota exceeded or private mode */ }
+    }, 500);
+    return () => {
+      if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current);
+    };
+  }, [caption, activeFilter, textOverlays, speed, audience]);
+
   const handlePublish = useCallback(async () => {
     if (!videoFile) {
       toast.error('No hay vídeo seleccionado');
@@ -326,6 +365,7 @@ export default function CreateReelPage() {
       setUploadProgress(100);
       const postId = res?.id || res?.post?.id || res?.data?.id;
       if (navigator.vibrate) navigator.vibrate(50);
+      try { localStorage.removeItem('reel_draft'); } catch { /* ignore */ }
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success('Reel publicado', {
@@ -902,6 +942,47 @@ export default function CreateReelPage() {
       </div>
 
       <div className="flex-1 overflow-auto p-4 flex flex-col gap-5">
+        {/* draft banner */}
+        {draftBanner && (
+          <div className="flex items-center justify-between gap-2 bg-stone-100 rounded-2xl p-3 mx-0">
+            <span className="text-[13px] text-stone-950 font-medium">
+              Tienes un borrador de reel
+            </span>
+            <div className="flex gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    const raw = localStorage.getItem('reel_draft');
+                    if (raw) {
+                      const draft = JSON.parse(raw);
+                      if (draft.caption) setCaption(draft.caption);
+                      if (draft.activeFilter) setActiveFilter(draft.activeFilter);
+                      if (draft.speed) setSpeed(draft.speed);
+                      if (draft.textOverlays?.length) setTextOverlays(draft.textOverlays);
+                      if (draft.privacy) setAudience(draft.privacy);
+                    }
+                  } catch { /* ignore */ }
+                  setDraftBanner(false);
+                }}
+                className="text-[13px] font-semibold text-stone-950 bg-transparent border-none cursor-pointer p-0"
+              >
+                Restaurar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  try { localStorage.removeItem('reel_draft'); } catch { /* ignore */ }
+                  setDraftBanner(false);
+                }}
+                className="text-[13px] text-stone-500 bg-transparent border-none cursor-pointer p-0"
+              >
+                Descartar
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Caption with hashtag/mention highlighting */}
         <div className="relative">
           {/* Highlight backdrop */}

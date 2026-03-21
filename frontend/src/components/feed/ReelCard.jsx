@@ -26,6 +26,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import BottomSheet from '../motion/BottomSheet';
 import { useDwellTime } from '../../hooks/useDwellTime';
+import { useAutocomplete } from '../../hooks/useAutocomplete';
+import MentionDropdown from './MentionDropdown';
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
@@ -48,6 +50,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const [isFollowing, setIsFollowing] = useState(reel.is_following ?? false);
   const videoRef = useRef(null);
   const containerRef = useRef(null);
+  const commentInputRef = useRef(null);
   const playIconTimer = useRef(null);
   const lastTapRef = useRef(0);
   const singleTapTimer = useRef(null);
@@ -57,6 +60,8 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const [likesCount, setLikesCount] = useState(reel.likes ?? reel.likes_count ?? 0);
   const [saved, setSaved] = useState(reel.saved ?? reel.is_saved ?? false);
   const [playing, setPlaying] = useState(false);
+
+  const reelAutocomplete = useAutocomplete(newComment, (v) => setNewComment(v.slice(0, 500)), commentInputRef);
 
   // Sync local state when props change (e.g. from React Query cache update)
   useEffect(() => {
@@ -863,14 +868,31 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             {currentUser?.avatar_url && (
               <img src={currentUser.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
             )}
-            <input
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
-              onKeyDown={(e) => { if (e.key === 'Enter') submitComment(); }}
-              placeholder="Únete a la conversación..."
-              className="flex-1 bg-white/10 text-white border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
-              aria-label="Escribir comentario"
-            />
+            <div className="relative flex-1">
+              {reelAutocomplete.isOpen && reelAutocomplete.trigger?.trigger === '@' && (
+                <MentionDropdown
+                  suggestions={reelAutocomplete.suggestions}
+                  activeIndex={reelAutocomplete.activeIndex}
+                  onSelect={(u) => reelAutocomplete.selectSuggestion(u)}
+                />
+              )}
+              <input
+                ref={commentInputRef}
+                value={newComment}
+                onChange={(e) => reelAutocomplete.handleChange(e)}
+                onSelect={(e) => reelAutocomplete.handleSelect(e)}
+                onKeyDown={(e) => {
+                  if (reelAutocomplete.isOpen) {
+                    reelAutocomplete.handleKeyDown(e);
+                    if (e.defaultPrevented) return;
+                  }
+                  if (e.key === 'Enter') submitComment();
+                }}
+                placeholder="Únete a la conversación..."
+                className="w-full bg-white/10 text-white border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+                aria-label="Escribir comentario"
+              />
+            </div>
             <button
               onClick={submitComment}
               disabled={!newComment.trim() || sendingComment}

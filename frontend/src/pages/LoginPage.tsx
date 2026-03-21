@@ -72,7 +72,7 @@ export default function LoginPage() {
           try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
           const userId = data.user.user_id || data.user.id;
           const newToken = data.session_token || data.access_token || localStorage.getItem('hispalo_access_token') || '';
-          const idx = accounts.findIndex(a => a.user_id === userId);
+          const idx = accounts.findIndex(a => String(a.user_id) === String(userId));
           const accObj = {
             token: newToken,
             user_id: userId,
@@ -85,6 +85,9 @@ export default function LoginPage() {
           if (idx >= 0) accounts[idx] = accObj;
           else accounts.push(accObj);
           localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
+          // Skip onboarding — this is an existing user adding their account
+          navigate('/', { replace: true });
+          return;
         }
 
         if (intendedRoute) {

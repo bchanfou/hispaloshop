@@ -6,6 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { timeAgo } from '../../utils/time';
+import { useAutocomplete } from '../../hooks/useAutocomplete';
+import MentionDropdown from './MentionDropdown';
 
 /* ── Single comment row (memoized) ── */
 const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike, liked, onReply }) {
@@ -245,6 +247,8 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
 
 /* ── Comment input bar ── */
 function CommentInput({ isAuthenticated, user, replyTo, setReplyTo, newComment, setNewComment, sending, onSend, inputRef }) {
+  const autocomplete = useAutocomplete(newComment, (v) => setNewComment(v.slice(0, 500)), inputRef);
+
   if (!isAuthenticated) return null;
   return (
     <div className="border-t border-stone-100 bg-white">
@@ -264,15 +268,31 @@ function CommentInput({ isAuthenticated, user, replyTo, setReplyTo, newComment, 
             {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
           </div>
         )}
-        <input
-          ref={inputRef}
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend(); } }}
-          placeholder="Añade un comentario..."
-          className="flex-1 bg-transparent border-none outline-none text-[13px] text-stone-950 placeholder:text-stone-400 font-sans min-h-[36px]"
-          disabled={sending}
-        />
+        <div className="relative flex-1">
+          {autocomplete.isOpen && autocomplete.trigger?.trigger === '@' && (
+            <MentionDropdown
+              suggestions={autocomplete.suggestions}
+              activeIndex={autocomplete.activeIndex}
+              onSelect={(u) => autocomplete.selectSuggestion(u)}
+            />
+          )}
+          <input
+            ref={inputRef}
+            value={newComment}
+            onChange={(e) => autocomplete.handleChange(e)}
+            onSelect={(e) => autocomplete.handleSelect(e)}
+            onKeyDown={(e) => {
+              if (autocomplete.isOpen) {
+                autocomplete.handleKeyDown(e);
+                if (e.defaultPrevented) return;
+              }
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend(); }
+            }}
+            placeholder="Añade un comentario..."
+            className="w-full bg-transparent border-none outline-none text-[13px] text-stone-950 placeholder:text-stone-400 font-sans min-h-[36px]"
+            disabled={sending}
+          />
+        </div>
         <button
           onClick={onSend}
           disabled={!newComment.trim() || sending}

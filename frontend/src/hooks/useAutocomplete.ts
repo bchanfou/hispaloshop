@@ -2,6 +2,8 @@ import { useState, useCallback, useRef, useEffect, RefObject, KeyboardEvent, Cha
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../services/api/client';
 
+type InputEl = HTMLTextAreaElement | HTMLInputElement;
+
 interface TriggerResult {
   trigger: '#' | '@';
   query: string;
@@ -25,9 +27,9 @@ interface UseAutocompleteReturn {
   trigger: TriggerResult | null;
   suggestions: Suggestion[];
   activeIndex: number;
-  handleKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
-  handleSelect: (e: SyntheticEvent<HTMLTextAreaElement>) => void;
-  handleChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  handleKeyDown: (e: KeyboardEvent<InputEl>) => void;
+  handleSelect: (e: SyntheticEvent<InputEl>) => void;
+  handleChange: (e: ChangeEvent<InputEl>) => void;
   selectSuggestion: (item: Suggestion) => void;
 }
 
@@ -48,7 +50,7 @@ function parseTrigger(text: string, cursorPos: number): TriggerResult | null {
 export function useAutocomplete(
   value: string,
   onChange: (value: string) => void,
-  textareaRef: RefObject<HTMLTextAreaElement | null>,
+  textareaRef: RefObject<InputEl | null>,
 ): UseAutocompleteReturn {
   const [cursorPos, setCursorPos] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -106,7 +108,7 @@ export function useAutocomplete(
   );
 
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    (e: KeyboardEvent<InputEl>) => {
       if (!isOpen) return;
 
       if (e.key === 'ArrowDown') {
@@ -126,13 +128,13 @@ export function useAutocomplete(
     [isOpen, suggestions, activeIndex, selectSuggestion],
   );
 
-  const handleSelect = useCallback((e: SyntheticEvent<HTMLTextAreaElement>) => {
-    const target = e.target as HTMLTextAreaElement;
+  const handleSelect = useCallback((e: SyntheticEvent<InputEl>) => {
+    const target = e.target as InputEl;
     setCursorPos(target.selectionStart ?? 0);
   }, []);
 
   const handleChange = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
+    (e: ChangeEvent<InputEl>) => {
       setCursorPos(e.target.selectionStart ?? 0);
       onChange(e.target.value);
     },
