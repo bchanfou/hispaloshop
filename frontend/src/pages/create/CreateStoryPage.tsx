@@ -526,7 +526,7 @@ export default function CreateStoryPage() {
   }, [imageFile, videoFile, background, textOverlays, stickerOverlays, drawPaths, imagePreviewUrl, selectedBg, navigate]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black font-sans flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black font-sans flex flex-col lg:max-w-[480px] lg:mx-auto">
       {/* Publish success overlay */}
       {publishSuccess && (
         <div className="fixed inset-0 z-[70] bg-black flex flex-col items-center justify-center gap-4" style={{ animation: 'fadeIn 0.3s ease' }}>

@@ -153,7 +153,7 @@ export default function SuperAdminOverview() {
             <Link
               key={item.label}
               to={item.to}
-              className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition-colors"
+              className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] transition-colors"
             >
               <span className="text-sm text-stone-400">{item.label}</span>
               <div className="flex items-center gap-2">

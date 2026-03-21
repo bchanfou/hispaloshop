@@ -6,8 +6,6 @@ import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 
-const font = { fontFamily: 'inherit' };
-
 export default function PayoutSettingsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -64,7 +62,7 @@ export default function PayoutSettingsPage() {
       return;
     }
     if (!/^[A-Z]{2}\d{2}[A-Z0-9]{4,}$/i.test(iban.replace(/\s/g, ''))) {
-      toast.error('El formato del IBAN no es válido');
+      toast.error('El formato del IBAN no es valido');
       return;
     }
     setSaving(true);
@@ -93,81 +91,60 @@ export default function PayoutSettingsPage() {
   const sepaConfigured = payoutData?.sepa_iban_last4;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
+    <div className="min-h-screen bg-stone-50">
       {/* Topbar */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: '#ffffff',
-        borderBottom: '1px solid #e7e5e4',
-        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-      }}>
-        <button onClick={() => navigate('/settings')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
-          <ArrowLeft size={22} color="#0c0a09" />
+      <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
+        <button
+          onClick={() => navigate('/settings')}
+          className="bg-transparent border-none cursor-pointer p-1 flex"
+        >
+          <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Método de cobro</span>
+        <span className="text-[17px] font-bold text-stone-950">Metodo de cobro</span>
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 100px' }}>
+      <div className="max-w-[600px] mx-auto px-4 pt-6 pb-[100px]">
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
-            <Loader2 size={28} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
+          <div className="flex justify-center py-[60px]">
+            <Loader2 size={28} className="text-stone-500 animate-spin" />
           </div>
         ) : (
           <>
             {/* Info banner */}
-            <div style={{
-              display: 'flex', gap: 12, padding: 16,
-              background: '#f5f5f4', borderRadius: '16px',
-              marginBottom: 24, alignItems: 'flex-start',
-            }}>
-              <AlertCircle size={18} color="#78716c" style={{ flexShrink: 0, marginTop: 2 }} />
-              <p style={{ fontSize: 13, color: '#78716c', margin: 0, lineHeight: 1.5 }}>
-                Configura cómo quieres recibir tus pagos. Puedes elegir entre Stripe Connect (instantáneo) o transferencia SEPA.
+            <div className="flex gap-3 p-4 bg-stone-100 rounded-2xl mb-6 items-start">
+              <AlertCircle size={18} className="text-stone-500 shrink-0 mt-0.5" />
+              <p className="text-[13px] text-stone-500 leading-relaxed">
+                Configura como quieres recibir tus pagos. Puedes elegir entre Stripe Connect (instantaneo) o transferencia SEPA.
               </p>
             </div>
 
-            {/* ── Method Selection ── */}
-            <p style={{
-              fontSize: 11, fontWeight: 700, color: '#78716c',
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-              margin: '0 0 12px',
-            }}>
-              Elige tu método
+            {/* Method Selection */}
+            <p className="text-[11px] font-bold text-stone-500 tracking-wider uppercase mb-3">
+              Elige tu metodo
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
+            <div className="flex flex-col gap-3 mb-7">
               {/* Stripe Connect */}
               <button
                 onClick={() => setMethod('stripe')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 14, padding: 16,
-                  background: '#ffffff',
-                  border: method === 'stripe' ? '2px solid #0c0a09' : '1px solid #e7e5e4',
-                  borderRadius: '16px',
-                  cursor: 'pointer', textAlign: 'left', ...font,
-                }}
+                className={`flex items-center gap-3.5 p-4 bg-white rounded-2xl cursor-pointer text-left ${
+                  method === 'stripe' ? 'border-2 border-stone-950' : 'border border-stone-200'
+                }`}
               >
-                <div style={{
-                  width: 44, height: 44, borderRadius: '14px',
-                  background: method === 'stripe' ? '#0c0a09' : '#f5f5f4',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}>
-                  <CreditCard size={20} color={method === 'stripe' ? '#ffffff' : '#78716c'} />
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                  method === 'stripe' ? 'bg-stone-950' : 'bg-stone-100'
+                }`}>
+                  <CreditCard size={20} className={method === 'stripe' ? 'text-white' : 'text-stone-500'} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: 0 }}>Stripe Connect</p>
-                  <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>
-                    Cobros instantáneos · Comisión 0,25€/pago
+                <div className="flex-1">
+                  <p className="text-[15px] font-semibold text-stone-950">Stripe Connect</p>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Cobros instantaneos - Comision 0,25eur/pago
                   </p>
                 </div>
                 {stripeConnected && method === 'stripe' && (
-                  <div style={{
-                    width: 24, height: 24, borderRadius: '50%',
-                    background: '#0c0a09',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <Check size={14} color="#ffffff" />
+                  <div className="w-6 h-6 rounded-full bg-stone-950 flex items-center justify-center shrink-0">
+                    <Check size={14} className="text-white" />
                   </div>
                 )}
               </button>
@@ -175,84 +152,58 @@ export default function PayoutSettingsPage() {
               {/* SEPA */}
               <button
                 onClick={() => setMethod('sepa')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 14, padding: 16,
-                  background: '#ffffff',
-                  border: method === 'sepa' ? '2px solid #0c0a09' : '1px solid #e7e5e4',
-                  borderRadius: '16px',
-                  cursor: 'pointer', textAlign: 'left', ...font,
-                }}
+                className={`flex items-center gap-3.5 p-4 bg-white rounded-2xl cursor-pointer text-left ${
+                  method === 'sepa' ? 'border-2 border-stone-950' : 'border border-stone-200'
+                }`}
               >
-                <div style={{
-                  width: 44, height: 44, borderRadius: '14px',
-                  background: method === 'sepa' ? '#0c0a09' : '#f5f5f4',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}>
-                  <Building2 size={20} color={method === 'sepa' ? '#ffffff' : '#78716c'} />
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                  method === 'sepa' ? 'bg-stone-950' : 'bg-stone-100'
+                }`}>
+                  <Building2 size={20} className={method === 'sepa' ? 'text-white' : 'text-stone-500'} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: 0 }}>Transferencia SEPA</p>
-                  <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>
-                    Sin comisión · 2-3 días laborables
+                <div className="flex-1">
+                  <p className="text-[15px] font-semibold text-stone-950">Transferencia SEPA</p>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Sin comision - 2-3 dias laborables
                   </p>
                 </div>
                 {sepaConfigured && method === 'sepa' && (
-                  <div style={{
-                    width: 24, height: 24, borderRadius: '50%',
-                    background: '#0c0a09',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <Check size={14} color="#ffffff" />
+                  <div className="w-6 h-6 rounded-full bg-stone-950 flex items-center justify-center shrink-0">
+                    <Check size={14} className="text-white" />
                   </div>
                 )}
               </button>
             </div>
 
-            {/* ── Stripe Connect Section ── */}
+            {/* Stripe Connect Section */}
             {method === 'stripe' && (
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid #e7e5e4',
-                borderRadius: '16px',
-                padding: 20, marginBottom: 20,
-              }}>
-                <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: '0 0 8px' }}>
+              <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-5">
+                <p className="text-[15px] font-semibold text-stone-950 mb-2">
                   Stripe Connect
                 </p>
 
                 {stripeConnected ? (
                   <>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      padding: '8px 14px', borderRadius: '9999px',
-                      background: '#f5f5f4', marginBottom: 12, width: 'fit-content',
-                    }}>
-                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#0c0a09' }} />
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09' }}>Conectado</span>
+                    <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-stone-100 mb-3 w-fit">
+                      <div className="w-2 h-2 rounded-full bg-stone-950" />
+                      <span className="text-[13px] font-semibold text-stone-950">Conectado</span>
                     </div>
-                    <p style={{ fontSize: 13, color: '#78716c', margin: 0, lineHeight: 1.5 }}>
-                      Tu cuenta de Stripe Connect está activa. Los pagos se procesan automáticamente.
+                    <p className="text-[13px] text-stone-500 leading-relaxed">
+                      Tu cuenta de Stripe Connect esta activa. Los pagos se procesan automaticamente.
                     </p>
                   </>
                 ) : (
                   <>
-                    <p style={{ fontSize: 13, color: '#78716c', margin: '0 0 16px', lineHeight: 1.5 }}>
-                      Conecta tu cuenta de Stripe para recibir pagos directamente. Serás redirigido al proceso de verificación de Stripe.
+                    <p className="text-[13px] text-stone-500 mb-4 leading-relaxed">
+                      Conecta tu cuenta de Stripe para recibir pagos directamente. Seras redirigido al proceso de verificacion de Stripe.
                     </p>
                     <button
                       onClick={handleStripeConnect}
                       disabled={saving}
-                      style={{
-                        width: '100%', padding: 14,
-                        background: '#0c0a09', color: '#ffffff',
-                        border: 'none', borderRadius: '14px',
-                        fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        ...font,
-                      }}
+                      className="w-full py-3.5 bg-stone-950 text-white rounded-full text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-60"
                     >
                       {saving ? (
-                        <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                        <Loader2 size={16} className="animate-spin" />
                       ) : (
                         <>
                           <ExternalLink size={16} />
@@ -265,94 +216,66 @@ export default function PayoutSettingsPage() {
               </div>
             )}
 
-            {/* ── SEPA Section ── */}
+            {/* SEPA Section */}
             {method === 'sepa' && (
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid #e7e5e4',
-                borderRadius: '16px',
-                padding: 20, marginBottom: 20,
-              }}>
-                <p style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09', margin: '0 0 16px' }}>
+              <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-5">
+                <p className="text-[15px] font-semibold text-stone-950 mb-4">
                   Datos bancarios SEPA
                 </p>
 
                 {sepaConfigured && !iban.trim() && (
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    padding: '10px 14px', borderRadius: '14px',
-                    background: '#f5f5f4', marginBottom: 16,
-                  }}>
-                    <Building2 size={16} color="#78716c" />
+                  <div className="flex items-center gap-2 p-2.5 px-3.5 rounded-xl bg-stone-100 mb-4">
+                    <Building2 size={16} className="text-stone-500" />
                     <div>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: 0 }}>
+                      <p className="text-[13px] font-semibold text-stone-950">
                         {payoutData?.sepa_account_name || 'Titular'}
                       </p>
-                      <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>
-                        ···· ···· ···· {payoutData?.sepa_iban_last4}
+                      <p className="text-xs text-stone-500 mt-0.5">
+                        .... .... .... {payoutData?.sepa_iban_last4}
                       </p>
                     </div>
                   </div>
                 )}
 
                 {/* IBAN */}
-                <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#0c0a09', marginBottom: 6 }}>
+                <div className="mb-3.5">
+                  <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">
                     IBAN
                   </label>
                   <input
                     type="text"
                     value={iban}
                     onChange={(e) => setIban(e.target.value.toUpperCase())}
-                    placeholder={sepaConfigured ? `···· ···· ···· ${payoutData?.sepa_iban_last4}` : 'ES00 0000 0000 0000 0000 0000'}
-                    style={{
-                      width: '100%', padding: '10px 14px',
-                      border: '1px solid #e7e5e4',
-                      borderRadius: '14px',
-                      fontSize: 14, color: '#0c0a09',
-                      background: '#ffffff',
-                      outline: 'none', boxSizing: 'border-box',
-                      letterSpacing: '0.05em', ...font,
-                    }}
+                    placeholder={sepaConfigured ? `.... .... .... ${payoutData?.sepa_iban_last4}` : 'ES00 0000 0000 0000 0000 0000'}
+                    className="w-full h-12 px-3.5 border border-stone-200 rounded-xl text-sm text-stone-950 bg-white outline-none focus:border-stone-400 transition-colors box-border tracking-wider font-mono"
                   />
                 </div>
 
                 {/* Account holder name */}
-                <div style={{ marginBottom: 20 }}>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#0c0a09', marginBottom: 6 }}>
+                <div className="mb-5">
+                  <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">
                     Nombre del titular
                   </label>
                   <input
                     type="text"
                     value={accountName}
                     onChange={(e) => setAccountName(e.target.value)}
-                    placeholder={payoutData?.sepa_account_name || 'Nombre completo o razón social'}
-                    style={{
-                      width: '100%', padding: '10px 14px',
-                      border: '1px solid #e7e5e4',
-                      borderRadius: '14px',
-                      fontSize: 14, color: '#0c0a09',
-                      background: '#ffffff',
-                      outline: 'none', boxSizing: 'border-box', ...font,
-                    }}
+                    placeholder={payoutData?.sepa_account_name || 'Nombre completo o razon social'}
+                    className="w-full h-12 px-3.5 border border-stone-200 rounded-xl text-sm text-stone-950 bg-white outline-none focus:border-stone-400 transition-colors box-border"
                   />
                 </div>
 
                 <button
                   onClick={handleSaveSEPA}
                   disabled={saving || (!iban.trim() && !accountName.trim())}
-                  style={{
-                    width: '100%', padding: 14,
-                    background: (iban.trim() && accountName.trim()) ? '#0c0a09' : '#f5f5f4',
-                    color: (iban.trim() && accountName.trim()) ? '#ffffff' : '#78716c',
-                    border: 'none', borderRadius: '14px',
-                    fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    ...font,
-                  }}
+                  className={`w-full py-3.5 rounded-full text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
+                    iban.trim() && accountName.trim()
+                      ? 'bg-stone-950 text-white cursor-pointer hover:bg-stone-800'
+                      : 'bg-stone-100 text-stone-500 cursor-default'
+                  }`}
                 >
                   {saving ? (
-                    <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                    <Loader2 size={16} className="animate-spin" />
                   ) : (
                     'Guardar datos bancarios'
                   )}
@@ -362,16 +285,12 @@ export default function PayoutSettingsPage() {
 
             {/* Producer note */}
             {isProducer && (
-              <div style={{
-                padding: 16, background: '#f5f5f4',
-                borderRadius: '16px',
-                marginTop: 12,
-              }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#0c0a09', margin: '0 0 4px' }}>
+              <div className="p-4 bg-stone-100 rounded-2xl mt-3">
+                <p className="text-[13px] font-semibold text-stone-950 mb-1">
                   Vendedores y productores
                 </p>
-                <p style={{ fontSize: 12, color: '#78716c', margin: 0, lineHeight: 1.5 }}>
-                  Los pagos por ventas de productos se procesan automáticamente vía Stripe Connect.
+                <p className="text-xs text-stone-500 leading-relaxed">
+                  Los pagos por ventas de productos se procesan automaticamente via Stripe Connect.
                   Configura tu cuenta de Stripe para empezar a recibir pagos.
                 </p>
               </div>
@@ -379,8 +298,6 @@ export default function PayoutSettingsPage() {
           </>
         )}
       </div>
-
-      <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
     </div>
   );
 }

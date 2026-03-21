@@ -1429,6 +1429,7 @@ export default function CreatePostPage() {
         exit="exit"
         transition={stepTransition}
         style={{ position: 'fixed', inset: 0, zIndex: 50 }}
+        className="lg:max-w-[480px] lg:mx-auto"
       >
         {steps[step]()}
       </motion.div>

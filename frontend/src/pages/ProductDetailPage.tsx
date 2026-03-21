@@ -240,14 +240,14 @@ export default function ProductDetailPage() {
       <div role="status" aria-label="Cargando producto" className="min-h-screen bg-stone-50">
         <div className="aspect-square w-full animate-pulse bg-stone-100" />
         <div className="px-4 pt-4">
-          <div className="mb-2 h-6 w-3/4 animate-pulse rounded-lg bg-stone-100" />
-          <div className="mb-3 h-4 w-1/3 animate-pulse rounded-lg bg-stone-100" />
-          <div className="mb-3 h-8 w-1/4 animate-pulse rounded-lg bg-stone-100" />
+          <div className="mb-2 h-6 w-3/4 animate-pulse rounded-xl bg-stone-100" />
+          <div className="mb-3 h-4 w-1/3 animate-pulse rounded-xl bg-stone-100" />
+          <div className="mb-3 h-8 w-1/4 animate-pulse rounded-xl bg-stone-100" />
           <div className="mt-4 flex items-center gap-3">
             <div className="h-12 w-12 animate-pulse rounded-full bg-stone-100" />
             <div className="flex-1">
-              <div className="mb-1 h-4 w-1/2 animate-pulse rounded-lg bg-stone-100" />
-              <div className="h-3 w-1/3 animate-pulse rounded-lg bg-stone-100" />
+              <div className="mb-1 h-4 w-1/2 animate-pulse rounded-xl bg-stone-100" />
+              <div className="h-3 w-1/3 animate-pulse rounded-xl bg-stone-100" />
             </div>
           </div>
         </div>

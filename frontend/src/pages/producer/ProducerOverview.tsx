@@ -25,8 +25,7 @@ function TrendBadge({ trend }) {
   const isUp = trend > 0;
   return (
     <span
-      className="inline-flex items-center gap-0.5 text-[10px] font-semibold"
-      style={{ color: isUp ? '#0c0a09' : '#78716c' }}
+      className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${isUp ? 'text-stone-950' : 'text-stone-500'}`}
     >
       {isUp ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
       {Math.abs(trend).toFixed(1)}%
@@ -37,12 +36,12 @@ function TrendBadge({ trend }) {
 // Plan badge styling
 function PlanBadge({ plan }) {
   const p = (plan || 'FREE').toUpperCase();
-  let bg, color;
-  if (p === 'ELITE') { bg = '#0c0a09'; color = '#ffffff'; }
-  else if (p === 'PRO') { bg = '#f5f5f4'; color = '#0c0a09'; }
-  else { bg = '#f5f5f4'; color = '#78716c'; }
+  let tw;
+  if (p === 'ELITE') { tw = 'bg-stone-950 text-white'; }
+  else if (p === 'PRO') { tw = 'bg-stone-100 text-stone-950'; }
+  else { tw = 'bg-stone-100 text-stone-500'; }
   return (
-    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ background: bg, color }}>{p}</span>
+    <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${tw}`}>{p}</span>
   );
 }
 
@@ -119,10 +118,10 @@ function StripeConnectSection() {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+      <div className="p-4 md:p-6 bg-white border border-stone-200 rounded-2xl">
         <div className="animate-pulse space-y-3">
-          <div style={{ width: '50%', height: 14, borderRadius: 6, background: '#f5f5f4' }} />
-          <div style={{ width: '70%', height: 12, borderRadius: 6, background: '#f5f5f4' }} />
+          <div className="w-1/2 h-3.5 rounded-md bg-stone-100" />
+          <div className="w-[70%] h-3 rounded-md bg-stone-100" />
         </div>
       </div>
     );
@@ -133,18 +132,17 @@ function StripeConnectSection() {
 
   return (
     <div
-      className="p-4 md:p-6"
-      style={{ background: '#f5f5f4', border: '1px solid #e7e5e4', borderRadius: '16px' }}
+      className="p-4 md:p-6 bg-stone-100 border border-stone-200 rounded-2xl"
       data-testid="stripe-connect-section"
     >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="p-2.5" style={{ borderRadius: '12px', background: '#ffffff' }}>
-            <CreditCard className="w-5 h-5" style={{ color: '#78716c' }} />
+          <div className="p-2.5 rounded-xl bg-white">
+            <CreditCard className="w-5 h-5 text-stone-500" />
           </div>
           <div>
-            <h3 className="font-medium" style={{ color: '#0c0a09' }}>Stripe Payouts</h3>
-            <p className="text-sm flex items-center gap-1" style={{ color: '#78716c' }}>
+            <h3 className="font-medium text-stone-950">Stripe Payouts</h3>
+            <p className="text-sm flex items-center gap-1 text-stone-500">
               {isConnected ? (
                 <>
                   <CheckCircle className="w-4 h-4" />
@@ -157,13 +155,13 @@ function StripeConnectSection() {
                 </>
               )}
             </p>
-            <p className="text-xs mt-1" style={{ color: '#78716c' }}>
+            <p className="text-xs mt-1 text-stone-500">
               {isConnected
                 ? 'Recibirás tu porcentaje de cada venta automáticamente según tu plan.'
                 : 'Conecta Stripe para recibir pagos.'}
             </p>
             {!isConnected && pendingRequirements.length > 0 && (
-              <p className="text-xs mt-1" style={{ color: '#78716c' }}>
+              <p className="text-xs mt-1 text-stone-500">
                 Pendientes: {pendingRequirements.length} requisito(s) en Stripe.
               </p>
             )}
@@ -175,8 +173,7 @@ function StripeConnectSection() {
             <button
               type="button"
               onClick={handleViewStripeDashboard}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors"
-              style={{ border: '1px solid #e7e5e4', borderRadius: '12px', color: '#78716c', background: '#ffffff' }}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors border border-stone-200 rounded-xl text-stone-500 bg-white"
               data-testid="view-stripe-dashboard"
             >
               <ExternalLink className="w-4 h-4" />
@@ -187,8 +184,7 @@ function StripeConnectSection() {
               type="button"
               onClick={handleConnectStripe}
               disabled={connecting}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors disabled:opacity-50"
-              style={{ background: '#0c0a09', color: '#fff', borderRadius: '12px' }}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors disabled:opacity-50 bg-stone-950 text-white rounded-xl"
               data-testid="connect-stripe-button"
             >
               {connecting ? (
@@ -229,7 +225,7 @@ function HealthScoreCard() {
     return (
       <div className="health-score-hero health-score-good">
         <div className="flex items-center justify-center h-32">
-          <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#fff' }} />
+          <Loader2 className="w-6 h-6 animate-spin text-white" />
         </div>
       </div>
     );
@@ -249,20 +245,20 @@ function HealthScoreCard() {
 
         {/* Metrics Summary - Mobile */}
         <div className="grid grid-cols-3 gap-3 mt-4">
-          <div className="p-3 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
-            <div className="text-xl font-bold" style={{ color: '#0c0a09' }}>{healthData.metrics.orders_30d}</div>
-            <div className="text-[10px] uppercase tracking-wider" style={{ color: '#78716c' }}>{t('customerDashboard.orders', 'Pedidos')}</div>
+          <div className="p-3 text-center bg-white border border-stone-200 rounded-2xl">
+            <div className="text-xl font-bold text-stone-950">{healthData.metrics.orders_30d}</div>
+            <div className="text-[10px] uppercase tracking-wider text-stone-500">{t('customerDashboard.orders', 'Pedidos')}</div>
           </div>
-          <div className="p-3 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
-            <div className="text-xl font-bold" style={{ color: '#0c0a09' }}>€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
-            <div className="text-[10px] uppercase tracking-wider" style={{ color: '#78716c' }}>Ventas</div>
+          <div className="p-3 text-center bg-white border border-stone-200 rounded-2xl">
+            <div className="text-xl font-bold text-stone-950">€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
+            <div className="text-[10px] uppercase tracking-wider text-stone-500">Ventas</div>
           </div>
-          <div className="p-3 text-center" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+          <div className="p-3 text-center bg-white border border-stone-200 rounded-2xl">
             <div className="flex items-center justify-center gap-1">
-              <Star className="w-4 h-4" style={{ color: '#78716c' }} />
-              <span className="text-xl font-bold" style={{ color: '#0c0a09' }}>{healthData.metrics.avg_rating || '-'}</span>
+              <Star className="w-4 h-4 text-stone-500" />
+              <span className="text-xl font-bold text-stone-950">{healthData.metrics.avg_rating || '-'}</span>
             </div>
-            <div className="text-[10px] uppercase tracking-wider" style={{ color: '#78716c' }}>{healthData.metrics.review_count} Reviews</div>
+            <div className="text-[10px] uppercase tracking-wider text-stone-500">{healthData.metrics.review_count} Reviews</div>
           </div>
         </div>
       </div>
@@ -278,18 +274,18 @@ function HealthScoreCard() {
 // Desktop health score
 function DesktopHealthScore({ healthData, t }) {
   return (
-    <div className="p-6" style={{ background: '#f5f5f4', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+    <div className="p-6 bg-stone-100 border border-stone-200 rounded-2xl">
       <div className="flex items-start justify-between mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Heart className="w-5 h-5" style={{ color: '#78716c' }} />
-            <h2 className="font-semibold" style={{ color: '#0c0a09' }}>{t('producer.healthScore.title')}</h2>
+            <Heart className="w-5 h-5 text-stone-500" />
+            <h2 className="font-semibold text-stone-950">{t('producer.healthScore.title')}</h2>
           </div>
-          <p className="text-sm" style={{ color: '#78716c' }}>{t('producer.healthScore.subtitle')}</p>
+          <p className="text-sm text-stone-500">{t('producer.healthScore.subtitle')}</p>
         </div>
         <div className="text-right">
-          <div className="text-4xl font-bold" style={{ color: '#0c0a09' }}>{healthData.total_score}</div>
-          <div className="text-sm font-medium" style={{ color: '#78716c' }}>
+          <div className="text-4xl font-bold text-stone-950">{healthData.total_score}</div>
+          <div className="text-sm font-medium text-stone-500">
             {healthData.status_label}
           </div>
         </div>
@@ -297,10 +293,10 @@ function DesktopHealthScore({ healthData, t }) {
 
       {/* Progress Bar */}
       <div className="mb-6">
-        <div className="h-3 rounded-full overflow-hidden" style={{ background: '#ffffff' }}>
+        <div className="h-3 rounded-full overflow-hidden bg-white">
           <div
-            className="h-full transition-all duration-500"
-            style={{ width: `${healthData.total_score}%`, background: '#0c0a09', borderRadius: '9999px' }}
+            className="h-full transition-all duration-500 bg-stone-950 rounded-full"
+            style={{ width: `${healthData.total_score}%` }}
           />
         </div>
       </div>
@@ -308,37 +304,37 @@ function DesktopHealthScore({ healthData, t }) {
       {/* Breakdown */}
       <div className="grid grid-cols-5 gap-3 mb-6">
         {Object.entries(healthData.breakdown).map(([key, item]) => (
-          <div key={key} className="p-3 text-center" style={{ background: '#ffffff', borderRadius: '12px' }}>
-            <div className="text-lg font-bold" style={{ color: '#0c0a09' }}>{item.score}</div>
-            <div className="text-xs" style={{ color: '#78716c' }}>/{item.max}</div>
-            <div className="text-xs font-medium mt-1" style={{ color: '#78716c' }}>{item.label}</div>
+          <div key={key} className="p-3 text-center bg-white rounded-xl">
+            <div className="text-lg font-bold text-stone-950">{item.score}</div>
+            <div className="text-xs text-stone-500">/{item.max}</div>
+            <div className="text-xs font-medium mt-1 text-stone-500">{item.label}</div>
           </div>
         ))}
       </div>
 
       {/* Metrics Summary */}
-      <div className="grid grid-cols-3 gap-4 py-4" style={{ borderTop: '1px solid #e7e5e4', borderBottom: '1px solid #e7e5e4' }}>
+      <div className="grid grid-cols-3 gap-4 py-4 border-t border-b border-stone-200">
         <div className="text-center">
-          <div className="text-xl font-bold" style={{ color: '#0c0a09' }}>{healthData.metrics.orders_30d}</div>
-          <div className="text-xs" style={{ color: '#78716c' }}>{t('producer.healthScore.orders30d')}</div>
+          <div className="text-xl font-bold text-stone-950">{healthData.metrics.orders_30d}</div>
+          <div className="text-xs text-stone-500">{t('producer.healthScore.orders30d')}</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold" style={{ color: '#0c0a09' }}>€{(healthData.metrics.revenue_30d ?? 0).toFixed(0)}</div>
-          <div className="text-xs" style={{ color: '#78716c' }}>{t('producer.healthScore.revenue30d')}</div>
+          <div className="text-xl font-bold text-stone-950">€{(healthData.metrics.revenue_30d ?? 0).toFixed(0)}</div>
+          <div className="text-xs text-stone-500">{t('producer.healthScore.revenue30d')}</div>
         </div>
         <div className="text-center">
           <div className="flex items-center justify-center gap-1">
-            <Star className="w-4 h-4" style={{ color: '#78716c' }} />
-            <span className="text-xl font-bold" style={{ color: '#0c0a09' }}>{healthData.metrics.avg_rating || '-'}</span>
+            <Star className="w-4 h-4 text-stone-500" />
+            <span className="text-xl font-bold text-stone-950">{healthData.metrics.avg_rating || '-'}</span>
           </div>
-          <div className="text-xs" style={{ color: '#78716c' }}>{healthData.metrics.review_count} {t('producer.healthScore.reviews')}</div>
+          <div className="text-xs text-stone-500">{healthData.metrics.review_count} {t('producer.healthScore.reviews')}</div>
         </div>
       </div>
 
       {/* Recommendations */}
       {healthData.recommendations?.length > 0 && (
         <div className="mt-4">
-          <h3 className="font-medium mb-3 flex items-center gap-2" style={{ color: '#0c0a09' }}>
+          <h3 className="font-medium mb-3 flex items-center gap-2 text-stone-950">
             <Target className="w-4 h-4" />
             {t('producer.healthScore.recommendations')}
           </h3>
@@ -346,11 +342,10 @@ function DesktopHealthScore({ healthData, t }) {
             {healthData.recommendations.map((rec, idx) => (
               <div
                 key={idx}
-                className="flex items-start gap-3 p-3"
-                style={{ background: '#ffffff', borderRadius: '12px', borderLeft: '4px solid #e7e5e4' }}
+                className="flex items-start gap-3 p-3 bg-white rounded-xl border-l-4 border-stone-200"
               >
-                <Zap className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#78716c' }} />
-                <p className="text-sm" style={{ color: '#78716c' }}>{rec.message}</p>
+                <Zap className="w-4 h-4 mt-0.5 flex-shrink-0 text-stone-500" />
+                <p className="text-sm text-stone-500">{rec.message}</p>
               </div>
             ))}
           </div>
@@ -385,28 +380,27 @@ function FollowerGrowthChart() {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-6" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+      <div className="p-4 md:p-6 bg-white border border-stone-200 rounded-2xl">
         <div className="flex items-center justify-center h-48">
-          <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#0c0a09' }} />
+          <Loader2 className="w-6 h-6 animate-spin text-stone-950" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-6" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
+    <div className="p-4 md:p-6 bg-white border border-stone-200 rounded-2xl">
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5" style={{ color: '#0c0a09' }} />
-          <h2 className="font-medium text-sm md:text-base" style={{ color: '#0c0a09' }}>
+          <TrendingUp className="w-5 h-5 text-stone-950" />
+          <h2 className="font-medium text-sm md:text-base text-stone-950">
             {t('producer.followerGrowth.title')}
           </h2>
         </div>
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          className="text-xs md:text-sm px-2 md:px-3 py-1.5"
-          style={{ border: '1px solid #e7e5e4', borderRadius: '12px', background: '#ffffff', color: '#0c0a09' }}
+          className="text-xs md:text-sm px-2 md:px-3 py-1.5 border border-stone-200 rounded-xl bg-white text-stone-950"
         >
           <option value={7}>{t('producer.followerGrowth.last7Days')}</option>
           <option value={30}>{t('producer.followerGrowth.last30Days')}</option>
@@ -452,7 +446,7 @@ function FollowerGrowthChart() {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center h-48" style={{ color: '#78716c' }}>
+        <div className="flex flex-col items-center justify-center h-48 text-stone-500">
           <Users className="w-12 h-12 mb-2 opacity-30" />
           <p className="text-sm">{t('producer.followerGrowth.noFollowers')}</p>
           <p className="text-xs">{t('producer.followerGrowth.shareStore')}</p>
@@ -483,22 +477,22 @@ function B2BOperationsSection() {
   if (ops.length === 0) return null;
 
   return (
-    <div style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px', padding: 16, marginBottom: 4 }}>
+    <div className="bg-white border border-stone-200 rounded-2xl p-4 mb-1">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold" style={{ color: '#0c0a09' }}>Operaciones B2B</h3>
-        <Link to="/b2b/operations" className="text-xs font-semibold" style={{ color: '#78716c' }}>
+        <h3 className="text-sm font-bold text-stone-950">Operaciones B2B</h3>
+        <Link to="/b2b/operations" className="text-xs font-semibold text-stone-500">
           Ver todas <ChevronRight className="w-3 h-3 inline" />
         </Link>
       </div>
       <div className="flex gap-3 mb-3">
-        <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: '#f5f5f4', borderRadius: '9999px', fontSize: 12 }}>
-          <span style={{ fontWeight: 600, color: '#0c0a09' }}>{active.length}</span>
-          <span style={{ color: '#78716c' }}>activas</span>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 rounded-full text-xs">
+          <span className="font-semibold text-stone-950">{active.length}</span>
+          <span className="text-stone-500">activas</span>
         </div>
         {urgent.length > 0 && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: '#f5f5f4', borderRadius: '9999px', fontSize: 12 }}>
-            <span style={{ fontWeight: 600, color: '#0c0a09' }}>{urgent.length}</span>
-            <span style={{ color: '#78716c' }}>pendientes</span>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 rounded-full text-xs">
+            <span className="font-semibold text-stone-950">{urgent.length}</span>
+            <span className="text-stone-500">pendientes</span>
           </div>
         )}
       </div>
@@ -508,14 +502,13 @@ function B2BOperationsSection() {
           <Link
             key={op.id}
             to={`/b2b/tracking/${op.id}`}
-            className="flex items-center justify-between py-2.5"
-            style={{ borderBottom: '1px solid #e7e5e4', textDecoration: 'none' }}
+            className="flex items-center justify-between py-2.5 border-b border-stone-200 no-underline"
           >
             <div className="min-w-0">
-              <p className="text-sm font-semibold truncate" style={{ color: '#0c0a09' }}>{offer.product_name || 'Operación B2B'}</p>
-              <p className="text-xs" style={{ color: '#78716c' }}>{offer.quantity} {offer.unit}</p>
+              <p className="text-sm font-semibold truncate text-stone-950">{offer.product_name || 'Operación B2B'}</p>
+              <p className="text-xs text-stone-500">{offer.quantity} {offer.unit}</p>
             </div>
-            <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#78716c' }} />
+            <ChevronRight className="w-4 h-4 shrink-0 text-stone-500" />
           </Link>
         );
       })}
@@ -618,7 +611,7 @@ export default function ProducerOverview() {
   // Loading skeleton — mirrors the real dashboard layout for zero-layout-shift
   if (loading) {
     const Bone = ({ w = '100%', h = 14, r = 8, mb = 0 }) => (
-      <div className="animate-pulse" style={{ width: w, height: h, borderRadius: r, background: '#f5f5f4', marginBottom: mb }} />
+      <div className="animate-pulse bg-stone-100" style={{ width: w, height: h, borderRadius: r, marginBottom: mb }} />
     );
     return (
       <div className="max-w-[975px] mx-auto space-y-4 px-4 py-4 md:px-6 md:py-6">
@@ -626,14 +619,14 @@ export default function ProducerOverview() {
         <Bone w="55%" h={28} mb={4} />
         <Bone w="30%" h={14} mb={16} />
         {/* Stripe Connect card skeleton */}
-        <div style={{ borderRadius: '16px', border: '1px solid #e7e5e4', padding: 20 }}>
+        <div className="rounded-2xl border border-stone-200 p-5">
           <Bone w="40%" h={16} mb={12} />
           <Bone w="70%" h={12} />
         </div>
         {/* Stats grid skeleton */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1,2,3,4].map(i => (
-            <div key={i} style={{ borderRadius: '16px', border: '1px solid #e7e5e4', padding: 16 }}>
+            <div key={i} className="rounded-2xl border border-stone-200 p-4">
               <Bone w="60%" h={12} mb={8} />
               <Bone w="40%" h={24} />
             </div>
@@ -652,13 +645,12 @@ export default function ProducerOverview() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4">
-        <AlertCircle className="w-12 h-12 mb-4" style={{ color: '#78716c' }} />
-        <p className="mb-4 text-center" style={{ color: '#78716c' }}>{error}</p>
+        <AlertCircle className="w-12 h-12 mb-4 text-stone-500" />
+        <p className="mb-4 text-center text-stone-500">{error}</p>
         <button
           type="button"
           onClick={fetchData}
-          className="px-4 py-2 transition-colors"
-          style={{ background: '#0c0a09', color: '#fff', borderRadius: '12px' }}
+          className="px-4 py-2 transition-colors bg-stone-950 text-white rounded-xl"
         >
           Reintentar
         </button>
@@ -675,32 +667,32 @@ export default function ProducerOverview() {
       label: t('producer.createNewProduct'),
       description: 'Añadir nuevo producto',
       to: '/producer/products',
-      bgColor: '#0c0a09',
-      iconColor: '#fff'
+      bgColor: 'bg-stone-950',
+      iconColor: 'text-white'
     },
     {
       icon: FileCheck,
       label: t('producer.manageCertificates'),
       description: 'Certificaciones de calidad',
       to: '/producer/certificates',
-      bgColor: '#f5f5f4',
-      iconColor: '#78716c'
+      bgColor: 'bg-stone-100',
+      iconColor: 'text-stone-500'
     },
     {
       icon: ShoppingBag,
       label: t('producer.viewOrders'),
       description: 'Gestionar pedidos',
       to: '/producer/orders',
-      bgColor: '#f5f5f4',
-      iconColor: '#78716c'
+      bgColor: 'bg-stone-100',
+      iconColor: 'text-stone-500'
     },
     {
       icon: TrendingUp,
       label: 'Ver analíticas',
       description: 'Métricas y pagos',
       to: '/producer/payments',
-      bgColor: '#f5f5f4',
-      iconColor: '#78716c'
+      bgColor: 'bg-stone-100',
+      iconColor: 'text-stone-500'
     },
   ];
 
@@ -709,14 +701,14 @@ export default function ProducerOverview() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-semibold tracking-tight" style={{ color: '#0c0a09' }} data-testid="producer-title">
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-950" data-testid="producer-title">
             {user?.company_name || user?.name}
           </h1>
           <PlanBadge plan={user?.plan} />
         </div>
         <div className="flex items-center gap-2">
           {/* Period selector */}
-          <div className="flex p-0.5" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
+          <div className="flex p-0.5 rounded-2xl border border-stone-200 bg-white">
             {[
               { key: 'today', label: 'Hoy' },
               { key: 'week', label: 'Semana' },
@@ -725,12 +717,7 @@ export default function ProducerOverview() {
               <button
                 key={p.key}
                 onClick={() => setPeriod(p.key)}
-                className="px-3 py-1.5 text-xs font-medium transition-colors"
-                style={{
-                  borderRadius: '12px',
-                  background: period === p.key ? '#0c0a09' : 'transparent',
-                  color: period === p.key ? '#fff' : '#78716c',
-                }}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors rounded-xl ${period === p.key ? 'bg-stone-950 text-white' : 'bg-transparent text-stone-500'}`}
               >
                 {p.label}
               </button>
@@ -739,8 +726,7 @@ export default function ProducerOverview() {
           {publicProfileUrl && (
             <Link
               to={publicProfileUrl}
-              className="shrink-0 hidden md:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors"
-              style={{ border: '1px solid #e7e5e4', background: '#ffffff', color: '#78716c' }}
+              className="shrink-0 hidden md:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors border border-stone-200 bg-white text-stone-500"
               data-testid="view-public-profile"
             >
               <Users className="h-4 w-4" />
@@ -769,15 +755,14 @@ export default function ProducerOverview() {
       {verificationStatus && !verificationStatus.is_verified && (
         <Link
           to="/producer/verification"
-          className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: '16px', background: '#f5f5f4', border: '1px solid #78716c' }}
+          className="flex items-start gap-3 p-4 transition-colors rounded-2xl bg-stone-100 border border-stone-500"
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#78716c' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-stone-500" />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: '#78716c' }}>Cuenta no verificada</p>
-            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>No puedes publicar productos hasta completar la verificación.</p>
+            <p className="text-sm font-semibold text-stone-500">Cuenta no verificada</p>
+            <p className="text-xs mt-0.5 text-stone-500">No puedes publicar productos hasta completar la verificación.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: '#78716c' }} />
+          <ChevronRight className="w-5 h-5 shrink-0 text-stone-500" />
         </Link>
       )}
       {verificationStatus?.is_verified && verificationStatus?.documents?.certificates?.some(c => {
@@ -786,37 +771,35 @@ export default function ProducerOverview() {
       }) && (
         <Link
           to="/producer/verification"
-          className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: '16px', background: '#f5f5f4', border: '1px solid #78716c' }}
+          className="flex items-start gap-3 p-4 transition-colors rounded-2xl bg-stone-100 border border-stone-500"
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#78716c' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-stone-500" />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: '#78716c' }}>Certificado próximo a caducar</p>
-            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>Renuévalo para no interrumpir tus ventas.</p>
+            <p className="text-sm font-semibold text-stone-500">Certificado próximo a caducar</p>
+            <p className="text-xs mt-0.5 text-stone-500">Renuévalo para no interrumpir tus ventas.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: '#78716c' }} />
+          <ChevronRight className="w-5 h-5 shrink-0 text-stone-500" />
         </Link>
       )}
       {verificationStatus?.documents?.certificates?.some(c => c.status === 'expired') && (
         <Link
           to="/producer/verification"
-          className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: '16px', background: '#f5f5f4', border: '1px solid #78716c' }}
+          className="flex items-start gap-3 p-4 transition-colors rounded-2xl bg-stone-100 border border-stone-500"
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#78716c' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-stone-500" />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: '#78716c' }}>Certificado caducado</p>
-            <p className="text-xs mt-0.5" style={{ color: '#78716c' }}>Tus ventas pueden estar pausadas. Renueva ahora.</p>
+            <p className="text-sm font-semibold text-stone-500">Certificado caducado</p>
+            <p className="text-xs mt-0.5 text-stone-500">Tus ventas pueden estar pausadas. Renueva ahora.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: '#78716c' }} />
+          <ChevronRight className="w-5 h-5 shrink-0 text-stone-500" />
         </Link>
       )}
 
       {dataWarnings.length > 0 && !error && (
-        <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }}>
+        <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100">
           <div className="flex items-start gap-2">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#78716c' }} />
-            <div className="space-y-1 text-sm" style={{ color: '#78716c' }}>
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-stone-500" />
+            <div className="space-y-1 text-sm text-stone-500">
               {dataWarnings.map((warning) => (
                 <p key={warning}>{warning}</p>
               ))}
@@ -828,18 +811,14 @@ export default function ProducerOverview() {
       {alerts.length > 0 && (
         <div className="space-y-2" data-testid="producer-alerts">
           {alerts.map((alert, i) => (
-            <div key={i} className="flex items-start gap-3 p-3" style={{
-              borderRadius: '16px',
-              background: alert.type === 'danger' ? '#f5f5f4' : '#f5f5f4',
-              border: `1px solid ${alert.type === 'danger' ? '#78716c' : '#e7e5e4'}`,
-            }}>
+            <div key={i} className={`flex items-start gap-3 p-3 rounded-2xl bg-stone-100 ${alert.type === 'danger' ? 'border border-stone-500' : 'border border-stone-200'}`}>
               <span className="text-lg shrink-0">{alert.type === 'danger' ? '\uD83D\uDEA8' : '\u26A0\uFE0F'}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{alert.title}</p>
-                <p className="text-xs" style={{ color: '#78716c' }}>{alert.message}</p>
+                <p className="text-sm font-semibold text-stone-950">{alert.title}</p>
+                <p className="text-xs text-stone-500">{alert.message}</p>
               </div>
               {alert.action_href && (
-                <Link to={alert.action_href} className="shrink-0 text-xs font-bold hover:underline" style={{ color: '#0c0a09' }}>
+                <Link to={alert.action_href} className="shrink-0 text-xs font-bold hover:underline text-stone-950">
                   {alert.action_label || 'Ver'} →
                 </Link>
               )}
@@ -851,61 +830,61 @@ export default function ProducerOverview() {
       {/* Quick Actions — 2 Big Buttons */}
       <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
         {/* "Publicar nuevo producto" — THE ONLY GREEN BUTTON */}
-        <Link to="/producer/products" className="flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: '#0c0a09', color: '#fff', borderRadius: '16px' }} data-testid="quick-add-product">
+        <Link to="/producer/products" className="flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] active:scale-[0.98] bg-stone-950 text-white rounded-2xl" data-testid="quick-add-product">
           <Package className="w-8 h-8" />
           <span className="text-sm font-semibold">{t('sellerDashboard.newProduct', 'Publicar nuevo producto')}</span>
         </Link>
-        <Link to="/producer/orders" className="relative flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02]" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }} data-testid="quick-orders">
-          <ShoppingBag className="w-8 h-8" style={{ color: '#0c0a09' }} />
-          <span className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{t('customerDashboard.orders', 'Pedidos')}</span>
-          {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full" style={{ background: '#0c0a09', color: '#fff' }}>{stats.pending_orders}</span>}
+        <Link to="/producer/orders" className="relative flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] bg-white border border-stone-200 rounded-2xl" data-testid="quick-orders">
+          <ShoppingBag className="w-8 h-8 text-stone-950" />
+          <span className="text-sm font-semibold text-stone-950">{t('customerDashboard.orders', 'Pedidos')}</span>
+          {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full bg-stone-950 text-white">{stats.pending_orders}</span>}
         </Link>
       </div>
 
       {/* Demand Signals Section */}
-      <section className="p-5" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
+      <section className="p-5 rounded-2xl border border-stone-200 bg-white">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-medium" style={{ color: '#0c0a09' }}>Señales de demanda</h2>
-            <p className="mt-1 text-sm" style={{ color: '#78716c' }}>Ingredientes, productos y piezas de contenido con más intención de compra.</p>
+            <h2 className="text-xl font-medium text-stone-950">Señales de demanda</h2>
+            <p className="mt-1 text-sm text-stone-500">Ingredientes, productos y piezas de contenido con más intención de compra.</p>
           </div>
-          <Target className="h-5 w-5" style={{ color: '#78716c' }} />
+          <Target className="h-5 w-5 text-stone-500" />
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
-          <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }}>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: '#78716c' }}>Trending ingredients</p>
+          <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Trending ingredients</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.trending_ingredients || []).slice(0, 4).map((item) => (
-                <div key={item.name} className="flex items-center justify-between text-sm" style={{ color: '#0c0a09' }}>
+                <div key={item.name} className="flex items-center justify-between text-sm text-stone-950">
                   <span>{item.name}</span>
-                  <span style={{ color: '#78716c' }}>{item.count}</span>
+                  <span className="text-stone-500">{item.count}</span>
                 </div>
               ))}
-              {!(demandSignals.trending_ingredients || []).length ? <p className="text-sm" style={{ color: '#78716c' }}>Sin datos todavía.</p> : null}
+              {!(demandSignals.trending_ingredients || []).length ? <p className="text-sm text-stone-500">Sin datos todavía.</p> : null}
             </div>
           </div>
-          <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }}>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: '#78716c' }}>Most tagged products</p>
+          <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Most tagged products</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.most_tagged_products || []).slice(0, 4).map((item) => (
-                <div key={item.product_id} className="flex items-center justify-between gap-3 text-sm" style={{ color: '#0c0a09' }}>
+                <div key={item.product_id} className="flex items-center justify-between gap-3 text-sm text-stone-950">
                   <span className="truncate">{item.name}</span>
-                  <span style={{ color: '#78716c' }}>{item.count}</span>
+                  <span className="text-stone-500">{item.count}</span>
                 </div>
               ))}
-              {!(demandSignals.most_tagged_products || []).length ? <p className="text-sm" style={{ color: '#78716c' }}>Sin etiquetas suficientes.</p> : null}
+              {!(demandSignals.most_tagged_products || []).length ? <p className="text-sm text-stone-500">Sin etiquetas suficientes.</p> : null}
             </div>
           </div>
-          <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }}>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ color: '#78716c' }}>Content driving sales</p>
+          <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Content driving sales</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.content_driving_sales || []).slice(0, 4).map((item) => (
-                <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between text-sm" style={{ color: '#0c0a09' }}>
+                <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between text-sm text-stone-950">
                   <span className="capitalize">{item.content_type}</span>
-                  <span style={{ color: '#78716c' }}>{item.score}</span>
+                  <span className="text-stone-500">{item.score}</span>
                 </div>
               ))}
-              {!(demandSignals.content_driving_sales || []).length ? <p className="text-sm" style={{ color: '#78716c' }}>Aún no hay conversiones atribuidas.</p> : null}
+              {!(demandSignals.content_driving_sales || []).length ? <p className="text-sm text-stone-500">Aún no hay conversiones atribuidas.</p> : null}
             </div>
           </div>
         </div>
@@ -972,8 +951,8 @@ export default function ProducerOverview() {
 
       {/* Sales Chart — 30 days */}
       {salesChart.length > 0 && (
-        <div className="p-4" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }} data-testid="sales-chart">
-          <p className="text-sm font-bold mb-4" style={{ color: '#0c0a09' }}>Ventas — últimos 30 días</p>
+        <div className="p-4 bg-white border border-stone-200 rounded-2xl" data-testid="sales-chart">
+          <p className="text-sm font-bold mb-4 text-stone-950">Ventas — últimos 30 días</p>
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={salesChart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <CartesianGrid stroke="#E5E2DA" vertical={false} />
@@ -1005,16 +984,16 @@ export default function ProducerOverview() {
 
       {/* Low Stock Alert */}
       {stats?.low_stock_products?.length > 0 && (
-        <div className="p-4" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#f5f5f4' }} data-testid="low-stock-alert">
+        <div className="p-4 rounded-2xl border border-stone-200 bg-stone-100" data-testid="low-stock-alert">
           <div className="flex items-center gap-2 mb-2">
-            <AlertCircle className="w-4 h-4" style={{ color: '#78716c' }} />
-            <span className="text-sm font-semibold" style={{ color: '#0c0a09' }}>{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
+            <AlertCircle className="w-4 h-4 text-stone-500" />
+            <span className="text-sm font-semibold text-stone-950">{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
           </div>
           <div className="space-y-1">
             {stats.low_stock_products.slice(0, 3).map(p => (
-              <Link key={p.product_id} to={`/producer/products`} className="flex items-center justify-between text-xs py-1.5 first:border-0" style={{ borderTop: '1px solid #e7e5e4' }}>
-                <span className="truncate flex-1" style={{ color: '#78716c' }}>{p.name}</span>
-                <span className="font-bold ml-2" style={{ color: '#0c0a09' }}>{p.stock} uds</span>
+              <Link key={p.product_id} to={`/producer/products`} className="flex items-center justify-between text-xs py-1.5 first:border-0 border-t border-stone-200">
+                <span className="truncate flex-1 text-stone-500">{p.name}</span>
+                <span className="font-bold ml-2 text-stone-950">{p.stock} uds</span>
               </Link>
             ))}
           </div>
@@ -1023,15 +1002,15 @@ export default function ProducerOverview() {
 
       {/* Recent Reviews */}
       {stats?.recent_reviews?.length > 0 && (
-        <div className="p-4" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }} data-testid="recent-reviews">
-          <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#78716c' }}>{t('sellerDashboard.latestReviews')}</h3>
+        <div className="p-4 bg-white border border-stone-200 rounded-2xl" data-testid="recent-reviews">
+          <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 text-stone-500">{t('sellerDashboard.latestReviews')}</h3>
           <div className="space-y-2">
             {stats.recent_reviews.slice(0, 3).map((r, i) => (
               <div key={i} className="flex items-start gap-2 text-xs">
-                <div className="flex items-center gap-0.5 px-1.5 py-0.5 shrink-0" style={{ background: '#f5f5f4', borderRadius: '12px', color: '#78716c' }}>
-                  <Star className="w-3 h-3" style={{ color: '#78716c' }} /> {r.rating}
+                <div className="flex items-center gap-0.5 px-1.5 py-0.5 shrink-0 bg-stone-100 rounded-xl text-stone-500">
+                  <Star className="w-3 h-3 text-stone-500" /> {r.rating}
                 </div>
-                <p className="line-clamp-2" style={{ color: '#78716c' }}>{r.comment || t('sellerDashboard.noComment')}</p>
+                <p className="line-clamp-2 text-stone-500">{r.comment || t('sellerDashboard.noComment')}</p>
               </div>
             ))}
           </div>
@@ -1040,12 +1019,12 @@ export default function ProducerOverview() {
 
       {/* Pending Warning */}
       {isPending && (
-        <div className="p-4" style={{ border: '1px solid #e7e5e4', background: '#f5f5f4', borderRadius: '16px' }}>
+        <div className="p-4 border border-stone-200 bg-stone-100 rounded-2xl">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 mt-0.5" style={{ color: '#78716c' }} />
+            <AlertCircle className="w-5 h-5 mt-0.5 text-stone-500" />
             <div>
-              <h3 className="font-medium" style={{ color: '#0c0a09' }}>{t('producer.accountPending')}</h3>
-              <p className="text-sm" style={{ color: '#78716c' }}>{t('producer.accountPendingDesc')}</p>
+              <h3 className="font-medium text-stone-950">{t('producer.accountPending')}</h3>
+              <p className="text-sm text-stone-500">{t('producer.accountPendingDesc')}</p>
             </div>
           </div>
         </div>
@@ -1053,13 +1032,13 @@ export default function ProducerOverview() {
 
       {/* Active Collaborations */}
       {collabs.length > 0 && (
-        <section className="p-5" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
+        <section className="p-5 rounded-2xl border border-stone-200 bg-white">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Handshake className="w-5 h-5" style={{ color: '#78716c' }} />
-              <h2 className="text-lg font-medium" style={{ color: '#0c0a09' }}>Colaboraciones</h2>
+              <Handshake className="w-5 h-5 text-stone-500" />
+              <h2 className="text-lg font-medium text-stone-950">Colaboraciones</h2>
             </div>
-            <Link to="/messages" className="text-xs font-medium flex items-center gap-1" style={{ color: '#78716c' }}>
+            <Link to="/messages" className="text-xs font-medium flex items-center gap-1 text-stone-500">
               Ver todas <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -1067,28 +1046,27 @@ export default function ProducerOverview() {
             {collabs.slice(0, 5).map(c => {
               const proposal = c.proposal || {};
               const statusStyles = {
-                proposed: { label: 'Pendiente', bg: '#f5f5f4', color: '#78716c' },
-                active: { label: 'Activa', bg: '#f5f5f4', color: '#0c0a09' },
-                declined: { label: 'Rechazada', bg: '#f5f5f4', color: '#78716c' },
-                sample_sent: { label: 'Muestra enviada', bg: '#f5f5f4', color: '#78716c' },
-                sample_received: { label: 'Muestra recibida', bg: '#f5f5f4', color: '#0c0a09' },
+                proposed: { label: 'Pendiente', tw: 'bg-stone-100 text-stone-500' },
+                active: { label: 'Activa', tw: 'bg-stone-100 text-stone-950' },
+                declined: { label: 'Rechazada', tw: 'bg-stone-100 text-stone-500' },
+                sample_sent: { label: 'Muestra enviada', tw: 'bg-stone-100 text-stone-500' },
+                sample_received: { label: 'Muestra recibida', tw: 'bg-stone-100 text-stone-950' },
               };
               const badge = statusStyles[c.status] || statusStyles.proposed;
               return (
                 <Link
                   key={c.collab_id}
                   to={`/messages/${c.conversation_id}`}
-                  className="flex items-center gap-3 p-3 transition-colors"
-                  style={{ borderRadius: '12px', border: '1px solid #e7e5e4' }}
+                  className="flex items-center gap-3 p-3 transition-colors rounded-xl border border-stone-200"
                 >
                   {proposal.product_image_url && (
                     <img loading="lazy" src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate" style={{ color: '#0c0a09' }}>{proposal.product_name}</p>
-                    <p className="text-xs" style={{ color: '#78716c' }}>{proposal.commission_pct}% · {proposal.duration_days} días</p>
+                    <p className="text-sm font-medium truncate text-stone-950">{proposal.product_name}</p>
+                    <p className="text-xs text-stone-500">{proposal.commission_pct}% · {proposal.duration_days} días</p>
                   </div>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: badge.bg, color: badge.color }}>
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 ${badge.tw}`}>
                     {badge.label}
                   </span>
                 </Link>
@@ -1168,8 +1146,8 @@ export default function ProducerOverview() {
       </div>
 
       {/* Desktop Quick Actions */}
-      <div className="hidden md:block p-6" style={{ background: '#ffffff', border: '1px solid #e7e5e4', borderRadius: '16px' }}>
-        <h2 className="text-lg font-semibold mb-4" style={{ color: '#0c0a09' }}>
+      <div className="hidden md:block p-6 bg-white border border-stone-200 rounded-2xl">
+        <h2 className="text-lg font-semibold mb-4 text-stone-950">
           {t('producer.quickActions')}
         </h2>
         <div className="grid grid-cols-2 gap-4">
@@ -1177,32 +1155,30 @@ export default function ProducerOverview() {
             <Link
               key={idx}
               to={action.to}
-              className="flex items-center gap-3 p-4 transition-colors"
-              style={{ borderRadius: '12px', border: '1px solid #e7e5e4', background: '#ffffff' }}
+              className="flex items-center gap-3 p-4 transition-colors rounded-xl border border-stone-200 bg-white"
               data-testid={`desktop-quick-action-${idx}`}
             >
               <div
-                className="p-2.5"
-                style={{ backgroundColor: action.bgColor, borderRadius: '12px' }}
+                className={`p-2.5 rounded-xl ${action.bgColor}`}
               >
-                <action.icon className="w-5 h-5" style={{ color: action.iconColor }} />
+                <action.icon className={`w-5 h-5 ${action.iconColor}`} />
               </div>
-              <span className="font-medium" style={{ color: '#0c0a09' }}>{action.label}</span>
+              <span className="font-medium text-stone-950">{action.label}</span>
             </Link>
           ))}
         </div>
       </div>
 
       {/* Account & Configuration */}
-      <section className="p-5" style={{ borderRadius: '16px', border: '1px solid #e7e5e4', background: '#ffffff' }}>
-        <h2 className="text-sm font-bold mb-3" style={{ color: '#0c0a09' }}>Cuenta y configuración</h2>
+      <section className="p-5 rounded-2xl border border-stone-200 bg-white">
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Cuenta y configuración</h2>
         <div className="space-y-1">
           {[
             {
               icon: PenTool,
               label: 'Firma digital',
               sublabel: user?.signature_url ? 'Configurada' : 'Pendiente',
-              sublabelColor: user?.signature_url ? '#0c0a09' : '#78716c',
+              sublabelColor: user?.signature_url ? 'text-stone-950' : 'text-stone-500',
               to: '/settings/signature',
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },
@@ -1212,19 +1188,18 @@ export default function ProducerOverview() {
             <Link
               key={i}
               to={item.to}
-              className="flex items-center gap-3 p-3 transition-colors"
-              style={{ borderRadius: '12px' }}
+              className="flex items-center gap-3 p-3 transition-colors rounded-xl"
             >
-              <div className="w-8 h-8 flex items-center justify-center shrink-0" style={{ borderRadius: '12px', background: '#f5f5f4' }}>
-                <item.icon className="w-4 h-4" style={{ color: '#78716c' }} />
+              <div className="w-8 h-8 flex items-center justify-center shrink-0 rounded-xl bg-stone-100">
+                <item.icon className="w-4 h-4 text-stone-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: '#0c0a09' }}>{item.label}</p>
+                <p className="text-sm font-medium text-stone-950">{item.label}</p>
                 {item.sublabel && (
-                  <p className="text-[11px]" style={{ color: item.sublabelColor || '#78716c' }}>{item.sublabel}</p>
+                  <p className={`text-[11px] ${item.sublabelColor || 'text-stone-500'}`}>{item.sublabel}</p>
                 )}
               </div>
-              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#78716c' }} />
+              <ChevronRight className="w-4 h-4 shrink-0 text-stone-500" />
             </Link>
           ))}
         </div>

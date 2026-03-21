@@ -346,7 +346,7 @@ export default function CreateReelPage() {
   // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
   if (screen === 'upload') {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:max-w-[480px] lg:mx-auto">
         {/* TopBar */}
         <div className="flex items-center justify-between px-4 py-3">
           <button
@@ -886,7 +886,7 @@ export default function CreateReelPage() {
 
   // ─── SCREEN 3: DETAILS ────────────────────────────────────────
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    <div className="fixed inset-0 z-50 bg-white flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:max-w-[480px] lg:mx-auto">
       {/* TopBar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-stone-200">
         <button
@@ -987,7 +987,7 @@ export default function CreateReelPage() {
               aria-label="Portada desde galería"
             >
               {coverFromGallery ? (
-                <img src={URL.createObjectURL(coverFromGallery)} alt="Cover" className="w-full h-full object-cover rounded-lg" />
+                <img src={URL.createObjectURL(coverFromGallery)} alt="Cover" className="w-full h-full object-cover rounded-xl" />
               ) : (
                 <>
                   <span className="text-stone-400 text-lg">+</span>
@@ -1134,7 +1134,7 @@ export default function CreateReelPage() {
                   }}
                   className="flex items-center gap-2.5 w-full px-2 py-2.5 bg-transparent border-none border-b border-stone-100 cursor-pointer text-left text-[13px] hover:bg-stone-50 transition-colors"
                 >
-                  {(p.image || p.thumbnail) && <img src={p.image || p.thumbnail} alt="" className="w-9 h-9 rounded-lg object-cover" />}
+                  {(p.image || p.thumbnail) && <img src={p.image || p.thumbnail} alt="" className="w-9 h-9 rounded-xl object-cover" />}
                   <span>{p.name || p.title}</span>
                 </button>
               ))}

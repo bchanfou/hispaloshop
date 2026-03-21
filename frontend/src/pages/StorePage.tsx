@@ -177,7 +177,7 @@ export default function StorePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 80 }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 80 }} className="max-w-[975px] mx-auto">
       <SEO
         title={`${store?.name || 'Tienda'} — Hispaloshop`}
         description={store?.tagline || store?.story?.slice(0, 160) || `Tienda de productos artesanales en Hispaloshop`}

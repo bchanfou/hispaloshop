@@ -489,7 +489,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
       >
         {/* Reply reference */}
         {replyPreview && (
-          <div className={`mb-1.5 rounded-lg px-2.5 py-1.5 text-[12px] leading-[16px] ${
+          <div className={`mb-1.5 rounded-xl px-2.5 py-1.5 text-[12px] leading-[16px] ${
           isOwn ? 'bg-white/15 text-white/80' : 'bg-stone-200/60 text-stone-600'
           }`}>
             <span className="block truncate font-semibold text-[11px]">{replyPreview.sender_name || ''}</span>

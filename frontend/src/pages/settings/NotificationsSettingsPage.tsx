@@ -11,45 +11,33 @@ function ToggleSwitch({ value, onChange, disabled }) {
     <button
       onClick={() => !disabled && onChange(!value)}
       disabled={disabled}
-      style={{
-        width: 44, height: 24, borderRadius: 12,
-        background: value ? '#0c0a09' : '#e7e5e4',
-        border: 'none', cursor: disabled ? 'default' : 'pointer',
-        position: 'relative', transition: 'background 200ms',
-        opacity: disabled ? 0.6 : 1, flexShrink: 0, padding: 0,
-      }}
+      className={`w-11 h-6 rounded-full border-none relative transition-colors duration-200 shrink-0 p-0 ${
+        disabled ? 'opacity-60 cursor-default' : 'cursor-pointer'
+      } ${value ? 'bg-stone-950' : 'bg-stone-200'}`}
     >
-      <div style={{
-        width: 20, height: 20, borderRadius: '50%',
-        background: '#ffffff',
-        position: 'absolute', top: 2,
-        left: value ? 22 : 2,
-        transition: 'left 200ms',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-      }} />
+      <div
+        className="w-5 h-5 rounded-full bg-white absolute top-0.5 shadow-sm transition-[left] duration-200"
+        style={{ left: value ? 22 : 2 }}
+      />
     </button>
   );
 }
 
 function ToggleRow({ label, sublabel, value, onChange, disabled, locked }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 12,
-      padding: '14px 16px',
-      borderBottom: '1px solid #e7e5e4',
-    }}>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 14, fontWeight: 500, color: '#0c0a09', margin: 0, fontFamily: 'inherit' }}>
+    <div className="flex items-center gap-3 px-4 py-3.5 border-b border-stone-200">
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-stone-950">
           {label}
         </p>
         {sublabel && (
-          <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0', fontFamily: 'inherit' }}>
+          <p className="text-xs text-stone-500 mt-0.5">
             {sublabel}
           </p>
         )}
       </div>
       {locked ? (
-        <Lock size={16} color="#78716c" />
+        <Lock size={16} className="text-stone-500" />
       ) : (
         <ToggleSwitch value={value} onChange={onChange} disabled={disabled} />
       )}
@@ -59,12 +47,7 @@ function ToggleRow({ label, sublabel, value, onChange, disabled, locked }) {
 
 function SectionLabel({ children }) {
   return (
-    <p style={{
-      fontSize: 11, fontWeight: 700, color: '#78716c',
-      letterSpacing: '0.08em', textTransform: 'uppercase',
-      padding: '20px 16px 8px', margin: 0,
-      fontFamily: 'inherit',
-    }}>
+    <p className="text-[11px] font-bold text-stone-500 tracking-wider uppercase px-4 pt-5 pb-2">
       {children}
     </p>
   );
@@ -93,7 +76,6 @@ export default function NotificationsSettingsPage() {
   const [loading, setLoading] = useState(true);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
-  const font = { fontFamily: 'inherit' };
 
   useEffect(() => {
     (async () => {
@@ -116,30 +98,27 @@ export default function NotificationsSettingsPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', ...font }}>
+    <div className="min-h-screen bg-stone-50">
       {/* Topbar */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: '#ffffff',
-        borderBottom: '1px solid #e7e5e4',
-        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-      }}>
-        <button onClick={() => navigate('/settings')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
-          <ArrowLeft size={22} color="#0c0a09" />
+      <div className="sticky top-0 z-40 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
+        <button
+          onClick={() => navigate('/settings')}
+          className="bg-transparent border-none cursor-pointer p-1 flex"
+        >
+          <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: '#0c0a09' }}>Notificaciones</span>
+        <span className="text-[17px] font-bold text-stone-950">Notificaciones</span>
       </div>
 
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-          <Loader2 size={28} color="#78716c" style={{ animation: 'spin 1s linear infinite' }} />
+        <div className="flex justify-center py-12">
+          <Loader2 size={28} className="text-stone-500 animate-spin" />
         </div>
       ) : (
-        <div style={{ maxWidth: 600, margin: '0 auto', paddingBottom: 100 }}>
+        <div className="max-w-[600px] mx-auto pb-[100px]">
           {/* ACTIVIDAD SOCIAL */}
           <SectionLabel>Actividad social</SectionLabel>
-          <div style={{ background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
+          <div className="bg-white border-t border-stone-200">
             <ToggleRow label="Nuevos seguidores" sublabel="Cuando alguien te sigue"
               value={prefs.new_followers} onChange={v => handleToggle('new_followers', v)} />
             <ToggleRow label="Me gusta en posts" sublabel="Cuando alguien da like a tu contenido"
@@ -152,13 +131,13 @@ export default function NotificationsSettingsPage() {
 
           {/* PEDIDOS */}
           <SectionLabel>Pedidos</SectionLabel>
-          <div style={{ background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
-            <ToggleRow label="Confirmación de pedido" value={true} locked disabled />
-            <ToggleRow label="Actualizaciones de envío" sublabel="Cuando tu pedido esté en camino"
+          <div className="bg-white border-t border-stone-200">
+            <ToggleRow label="Confirmacion de pedido" value={true} locked disabled />
+            <ToggleRow label="Actualizaciones de envio" sublabel="Cuando tu pedido este en camino"
               value={prefs.shipping_updates} onChange={v => handleToggle('shipping_updates', v)} />
             <ToggleRow label="Pedido entregado"
               value={prefs.order_delivered} onChange={v => handleToggle('order_delivered', v)} />
-            <ToggleRow label="Solicitudes de reseña"
+            <ToggleRow label="Solicitudes de resena"
               value={prefs.review_requests} onChange={v => handleToggle('review_requests', v)} />
           </div>
 
@@ -166,7 +145,7 @@ export default function NotificationsSettingsPage() {
           {isProducer && (
             <>
               <SectionLabel>B2B</SectionLabel>
-              <div style={{ background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
+              <div className="bg-white border-t border-stone-200">
                 <ToggleRow label="Nuevas ofertas B2B"
                   value={prefs.b2b_offers} onChange={v => handleToggle('b2b_offers', v)} />
                 <ToggleRow label="Actualizaciones de contratos"
@@ -179,7 +158,7 @@ export default function NotificationsSettingsPage() {
 
           {/* PLATAFORMA */}
           <SectionLabel>Plataforma</SectionLabel>
-          <div style={{ background: '#ffffff', borderTop: '1px solid #e7e5e4' }}>
+          <div className="bg-white border-t border-stone-200">
             <ToggleRow label="Novedades de Hispaloshop" sublabel="Nuevas funcionalidades y anuncios"
               value={prefs.platform_news} onChange={v => handleToggle('platform_news', v)} />
             <ToggleRow label="Emails de marketing" sublabel="Ofertas y descuentos especiales"
@@ -187,8 +166,6 @@ export default function NotificationsSettingsPage() {
           </div>
         </div>
       )}
-
-      <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
     </div>
   );
 }

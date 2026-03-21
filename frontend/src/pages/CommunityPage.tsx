@@ -207,7 +207,7 @@ export default function CommunityPage() {
   const isAdmin = community.is_admin || user?.id === community.creator_id;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 100, ...font }}>
+    <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 100, ...font }} className="max-w-[975px] mx-auto">
       {/* ── Topbar ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 40,
