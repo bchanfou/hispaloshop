@@ -184,7 +184,7 @@ export default function ForYouFeed() {
 
             if (isReel) {
               return (
-                <div>
+                <div className="px-4 py-3">
                   <motion.div {...motionProps}>
                     <ReelCard
                       reel={{

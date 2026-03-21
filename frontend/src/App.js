@@ -129,6 +129,7 @@ const SignedDocumentsPage = lazy(() => import('./pages/documents/SignedDocuments
 const CommunitiesExplorePage = lazy(() => import('./pages/CommunitiesExplorePage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
+const HashtagPage = lazy(() => import('./pages/HashtagPage'));
 
 const ProducerLayout = lazy(() => import('./components/dashboard/ProducerLayoutResponsive'));
 const ProducerOverview = lazy(() => import('./pages/producer/ProducerOverview'));
@@ -396,6 +397,7 @@ function AppRouter() {
               <Route path="/discover" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/explore" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/explore/category/:slug" element={<ExploreCategoryPage />} />
+              <Route path="/hashtag/:tag" element={<HashtagPage />} />
               <Route path="/certifications" element={<CertificationsPage />} />
               <Route path="/communities" element={<FeedLayout><CommunitiesExplorePage /></FeedLayout>} />
               <Route path="/communities/new" element={<CreateCommunityPage />} />

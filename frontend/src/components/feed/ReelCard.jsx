@@ -376,7 +376,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     <div
       ref={(node) => { containerRef.current = node; dwellRef.current = node; }}
       className={`relative w-full bg-black overflow-hidden snap-start ${
-        embedded ? 'h-[400px]' : 'h-dvh'
+        embedded ? 'h-[400px] rounded-2xl' : 'h-dvh'
       }`}
     >
       {/* Video */}

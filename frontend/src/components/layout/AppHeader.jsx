@@ -5,6 +5,7 @@ import HamburgerMenu from './HamburgerMenu';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useUnreadNotifications } from '../../hooks/api/useNotifications';
+import { useChatContext } from '../../context/chat/ChatProvider';
 import Logo from '../brand/Logo';
 
 export default function AppHeader() {
@@ -14,13 +15,17 @@ export default function AppHeader() {
   const { getTotalItems } = useCart();
   // Only fetch notifications when authenticated — prevents 401 spam
   const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
+  const { notifUnreadCount: wsCount } = useChatContext();
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const isAuthenticated = !!user;
 
-  const unreadCount = isAuthenticated ? (unreadData?.count ?? 0) : 0;
+  // WS count is real-time; polled count is fallback
+  const unreadCount = isAuthenticated
+    ? (wsCount > 0 ? wsCount : (unreadData?.count ?? 0))
+    : 0;
   const totalCartItems = isAuthenticated ? getTotalItems() : 0;
 
   // Scroll-aware border + shadow

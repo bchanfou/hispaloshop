@@ -26,7 +26,7 @@ function renderCaption(text, navigate) {
           key={i}
           className="text-stone-500 font-medium cursor-pointer hover:underline"
           role="link"
-          onClick={(e) => { e.stopPropagation(); navigate?.(`/explore?tag=${encodeURIComponent(part.slice(1))}`); }}
+          onClick={(e) => { e.stopPropagation(); navigate?.(`/hashtag/${encodeURIComponent(part.slice(1))}`); }}
         >
           {part}
         </span>

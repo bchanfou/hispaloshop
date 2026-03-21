@@ -15,6 +15,7 @@ import {
   useUnreadNotifications,
 } from '../hooks/api/useNotifications';
 import apiClient from '../services/api/client';
+import { useChatContext } from '../context/chat/ChatProvider';
 
 // ── Icon map by notification type ────────────────────────────────
 const TYPE_META = {
@@ -442,6 +443,10 @@ function EmptyState() {
 export default function NotificationsPage() {
   const navigate  = useNavigate();
   const loaderRef = useRef(null);
+  const { clearNotifUnreadCount } = useChatContext();
+
+  // Clear notification badge when page opens
+  useEffect(() => { clearNotifUnreadCount?.(); }, []);
 
   // Tab state
   const [activeTab, setActiveTab] = useState('all');

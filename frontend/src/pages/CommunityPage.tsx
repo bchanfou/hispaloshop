@@ -25,7 +25,7 @@ const renderTextWithHashtags = (text) => {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} className="text-stone-950 font-semibold">{part}</span>
+      <Link key={i} to={`/hashtag/${encodeURIComponent(part.slice(1))}`} className="text-stone-950 font-semibold hover:underline">{part}</Link>
     ) : part
   );
 };
