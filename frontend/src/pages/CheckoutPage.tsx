@@ -32,7 +32,7 @@ function Stepper({ current, onStepClick }) {
               disabled={isFuture}
               aria-current={isActive ? 'step' : undefined}
             >
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
                 isCompleted ? 'bg-stone-950 text-white'
                 : isActive   ? 'bg-stone-950 text-white'
                 :               'bg-stone-100 text-stone-400'
@@ -497,23 +497,25 @@ export default function CheckoutPage() {
               <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} formatPrice={formatPrice} />
             </div>
 
-            {/* Pay button */}
-            <button
-              onClick={handlePay}
-              disabled={checkoutLoading}
-              className="w-full h-12 mt-4 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-live="polite"
-            >
-              {checkoutLoading ? (
-                <Loader2 className="w-[22px] h-[22px] animate-spin" />
-              ) : (
-                `Pagar ${total}`
-              )}
-            </button>
-            {/* Security badge */}
-            <p className="flex items-center justify-center gap-1.5 text-xs text-stone-400 mt-2">
-              <Lock className="w-3 h-3" /> Pago seguro con Stripe
-            </p>
+            {/* Pay button — sticky on mobile */}
+            <div className="sticky bottom-0 z-30 mt-4 bg-white/80 backdrop-blur-xl pt-3 pb-[max(12px,env(safe-area-inset-bottom))] lg:static lg:bg-transparent lg:backdrop-blur-none lg:pb-0">
+              <button
+                onClick={handlePay}
+                disabled={checkoutLoading}
+                className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-live="polite"
+              >
+                {checkoutLoading ? (
+                  <Loader2 className="w-[22px] h-[22px] animate-spin" />
+                ) : (
+                  `Pagar ${total}`
+                )}
+              </button>
+              {/* Security badge */}
+              <p className="flex items-center justify-center gap-1.5 text-xs text-stone-400 mt-2">
+                <Lock className="w-3 h-3" /> Pago seguro con Stripe
+              </p>
+            </div>
           </motion.div>
         )}
         </div>

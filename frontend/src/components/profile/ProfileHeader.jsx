@@ -497,7 +497,7 @@ export default function ProfileHeader({
               className={stat.link ? 'cursor-pointer' : ''}
             >
               <AnimatedNumber value={stat.value} className="text-[17px] font-bold text-stone-950 leading-tight" />
-              <div className="text-[13px] text-stone-500 mt-0.5">{stat.label}</div>
+              <div className="text-[11px] text-stone-500 mt-0.5 xs:text-[13px]">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -523,7 +523,7 @@ export default function ProfileHeader({
             {user.bio.length > 150 && !bioExpanded && (
               <button
                 onClick={() => setBioExpanded(true)}
-                className="ml-0.5 text-[14px] font-medium text-stone-500"
+                className="ml-0.5 inline-flex items-center min-h-[44px] text-[14px] font-semibold text-stone-600"
               >
                 más
               </button>
@@ -531,7 +531,7 @@ export default function ProfileHeader({
             {user.bio.length > 150 && bioExpanded && (
               <button
                 onClick={() => setBioExpanded(false)}
-                className="ml-0.5 text-[14px] font-medium text-stone-500"
+                className="ml-0.5 inline-flex items-center min-h-[44px] text-[14px] font-semibold text-stone-600"
               >
                 menos
               </button>
@@ -633,10 +633,10 @@ export default function ProfileHeader({
       <div className="flex gap-1.5 px-4 pb-3">
         {isOwn ? (
           <>
-            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={onEditProfile} className="min-h-[34px] flex-1 rounded-full bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={onEditProfile} className="min-h-[44px] flex-1 rounded-full bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Editar perfil
             </motion.button>
-            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={shareProfile} className="min-h-[34px] flex-1 rounded-full bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
+            <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={shareProfile} className="min-h-[44px] flex-1 rounded-full bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">
               Compartir perfil
             </motion.button>
             <motion.button
@@ -644,7 +644,7 @@ export default function ProfileHeader({
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
-              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-stone-100"
+              className="flex min-h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
             </motion.button>
@@ -665,7 +665,7 @@ export default function ProfileHeader({
                   ? `Solicitar seguir a ${user?.name}`
                   : `Seguir a ${user?.name}`
               }
-              className={`min-h-[34px] flex-1 rounded-full px-3 py-1.5 text-[13px] font-semibold overflow-hidden ${
+              className={`min-h-[44px] flex-1 rounded-full px-3 py-1.5 text-[13px] font-semibold overflow-hidden ${
                 user?.is_following
                   ? 'bg-stone-100 text-stone-950'
                   : user?.follow_request_pending
@@ -698,7 +698,7 @@ export default function ProfileHeader({
               onClick={onMessage}
               aria-label="Enviar mensaje"
               disabled={user?.is_private && !user?.is_following}
-              className={`flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
+              className={`flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950 ${
                 user?.is_private && !user?.is_following ? 'opacity-40 cursor-not-allowed' : ''
               }`}
             >
@@ -710,7 +710,7 @@ export default function ProfileHeader({
                 whileTap={{ scale: 0.96 }}
                 transition={{ type: 'spring', damping: 20, stiffness: 400 }}
                 onClick={() => navigate(`/store/${user?.store_slug || user?.username}`)}
-                className="flex min-h-[34px] flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
+                className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-[13px] font-semibold text-stone-950"
               >
                 <Store size={15} />
                 Tienda
@@ -721,7 +721,7 @@ export default function ProfileHeader({
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
               onClick={() => navigate('/explore/people')}
               aria-label="Descubrir personas"
-              className="flex min-h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-stone-100"
+              className="flex min-h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-100"
             >
               <UserPlus size={16} className="text-stone-950" />
             </motion.button>

@@ -524,20 +524,20 @@ export default function CartPage() {
                                     whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                    className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
+                                    className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
                                     aria-label={`Disminuir cantidad de ${item.product_name}`}
                                   >
-                                    <Minus className="w-3.5 h-3.5 text-stone-950" />
+                                    <Minus className="w-4 h-4 text-stone-950" />
                                   </motion.button>
                                   <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
                                   <motion.button
                                     whileTap={{ scale: 0.9 }}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                    className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
+                                    className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
                                     aria-label={`Aumentar cantidad de ${item.product_name}`}
                                   >
-                                    <Plus className="w-3.5 h-3.5 text-stone-950" />
+                                    <Plus className="w-4 h-4 text-stone-950" />
                                   </motion.button>
                                 </div>
                                 <p className="text-sm font-bold text-stone-950 md:text-base">
@@ -546,7 +546,7 @@ export default function CartPage() {
                               </div>
                               <button
                                 onClick={() => handleRemoveItem(item)}
-                                className="rounded-full p-2 text-stone-400 transition-colors hover:text-stone-950 hover:bg-stone-50 md:hidden"
+                                className="rounded-full p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 transition-colors hover:text-stone-950 hover:bg-stone-50 md:hidden"
                                 aria-label={`Eliminar ${item.product_name}`}
                                 data-testid={`remove-item-${itemKey}-mobile`}
                               >
@@ -851,7 +851,7 @@ export default function CartPage() {
 
       {/* Sticky mobile total bar */}
       {!cartLoading && cartItems.length > 0 && (
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-stone-200 px-4 py-4 lg:hidden z-30">
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-stone-200 px-4 pt-4 lg:hidden z-30" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-stone-500">{t('cart.total')}</span>
             <span className="text-lg font-bold text-stone-950">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>

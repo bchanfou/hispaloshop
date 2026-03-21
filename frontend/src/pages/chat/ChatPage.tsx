@@ -421,7 +421,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
       <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
         <div className="max-w-[240px]">
           <div
-            className="overflow-hidden bg-stone-100"
+            className="overflow-hidden rounded-2xl bg-stone-100"
             style={{ borderRadius: bubbleRadius, cursor: message.image_url ? 'pointer' : 'default' }}
             onClick={() => message.image_url && onImageTap?.(message.image_url)}
           >
@@ -457,7 +457,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
   if (message.message_type === 'audio' && message.audio_url) {
     return (
       <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
-        <div className="min-w-0 max-w-[85%]">
+        <div className="min-w-0 max-w-[80%]">
           <div
             className={`min-w-[200px] break-words px-3.5 py-2.5 font-apple ${
               isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
@@ -480,7 +480,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
 
   /* Default text bubble — with swipe-to-reply */
   const bubbleContent = (
-    <div className="min-w-0 max-w-[85%]">
+    <div className="min-w-0 max-w-[80%]">
       <div
         className={`whitespace-pre-wrap break-words px-3.5 py-2.5 text-[15px] leading-[21px] font-apple ${
           isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
@@ -1294,7 +1294,7 @@ export default function ChatPage() {
       />
       <ContextBanner orderId={conversation?.order_id} navigate={navigate} />
 
-      <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-white" role="log" aria-live="polite" aria-label="Mensajes">
+      <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-white scroll-smooth" role="log" aria-live="polite" aria-label="Mensajes">
         <div className="pb-4 pt-2">
           {/* Pagination spinner (Q10) */}
           {loadingMore && (

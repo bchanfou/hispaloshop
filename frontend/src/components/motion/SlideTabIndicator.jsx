@@ -21,7 +21,7 @@ export default function SlideTabIndicator({
   variant = 'underline',
 }) {
   return (
-    <div role="tablist" className={`flex ${className}`}>
+    <div role="tablist" className={`flex overflow-x-auto scrollbar-hide ${className}`}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const TabIcon = tab.icon;
@@ -32,7 +32,7 @@ export default function SlideTabIndicator({
             aria-selected={isActive}
             aria-label={tab.label}
             onClick={() => onTabChange(tab.id)}
-            className={`relative flex flex-1 items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors duration-150 bg-transparent border-none cursor-pointer ${
+            className={`relative flex min-w-[44px] flex-1 items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors duration-150 bg-transparent border-none cursor-pointer ${
               isActive ? 'text-stone-950' : 'text-stone-400'
             }`}
           >
