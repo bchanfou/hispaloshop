@@ -152,9 +152,35 @@ export default function HispaloPredictions() {
   }
 
   const actionable = predictions.filter(p => ['overdue', 'due', 'soon'].includes(p.status));
+  const overdueCount = predictions.filter(p => p.status === 'overdue').length;
+  const totalCount = predictions.length;
+  const avgConfidence = totalCount > 0
+    ? Math.round(
+        predictions.reduce((sum, p) => {
+          const val = p.confidence === 'high' ? 90 : p.confidence === 'medium' ? 60 : 30;
+          return sum + val;
+        }, 0) / totalCount
+      )
+    : 0;
 
   return (
     <div className="space-y-4" data-testid="hispalo-predictions">
+      {/* KPI row */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-2xl border border-stone-200 p-3 text-center">
+          <p className="text-xl font-bold text-stone-950">{overdueCount}</p>
+          <p className="text-xs text-stone-500">Pendientes</p>
+        </div>
+        <div className="rounded-2xl border border-stone-200 p-3 text-center">
+          <p className="text-xl font-bold text-stone-950">{totalCount}</p>
+          <p className="text-xs text-stone-500">Total predicciones</p>
+        </div>
+        <div className="rounded-2xl border border-stone-200 p-3 text-center">
+          <p className="text-xl font-bold text-stone-950">{avgConfidence}%</p>
+          <p className="text-xs text-stone-500">Confianza media</p>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

@@ -7,7 +7,7 @@ import {
   Package, FileCheck, ShoppingBag, CreditCard,
   AlertCircle, Users, TrendingUp, Heart, Star,
   Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle, Handshake,
-  PenTool, FileText, Lock, KeyRound, ArrowUp, ArrowDown
+  PenTool, FileText, Lock, KeyRound, ArrowUp, ArrowDown, AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -668,7 +668,8 @@ export default function ProducerOverview() {
       description: 'Añadir nuevo producto',
       to: '/producer/products',
       bgColor: 'bg-stone-950',
-      iconColor: 'text-white'
+      iconColor: 'text-white',
+      badge: stats?.pending_products > 0 ? stats.pending_products : 0,
     },
     {
       icon: FileCheck,
@@ -676,7 +677,8 @@ export default function ProducerOverview() {
       description: 'Certificaciones de calidad',
       to: '/producer/certificates',
       bgColor: 'bg-stone-100',
-      iconColor: 'text-stone-500'
+      iconColor: 'text-stone-500',
+      badge: stats?.expiring_certs > 0 ? stats.expiring_certs : 0,
     },
     {
       icon: ShoppingBag,
@@ -684,7 +686,8 @@ export default function ProducerOverview() {
       description: 'Gestionar pedidos',
       to: '/producer/orders',
       bgColor: 'bg-stone-100',
-      iconColor: 'text-stone-500'
+      iconColor: 'text-stone-500',
+      badge: stats?.pending_orders > 0 ? stats.pending_orders : 0,
     },
     {
       icon: TrendingUp,
@@ -692,7 +695,8 @@ export default function ProducerOverview() {
       description: 'Métricas y pagos',
       to: '/producer/payments',
       bgColor: 'bg-stone-100',
-      iconColor: 'text-stone-500'
+      iconColor: 'text-stone-500',
+      badge: 0,
     },
   ];
 
@@ -824,6 +828,39 @@ export default function ProducerOverview() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Certificate expiry alert */}
+      {stats?.expiring_certs > 0 && (
+        <Link
+          to="/producer/certificates"
+          className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-amber-700"
+          data-testid="cert-expiry-alert"
+        >
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span className="flex-1">{stats.expiring_certs} certificado{stats.expiring_certs > 1 ? 's' : ''} expira{stats.expiring_certs > 1 ? 'n' : ''} pronto</span>
+          <span className="text-xs font-semibold shrink-0">Revisar →</span>
+        </Link>
+      )}
+
+      {/* Top 3 products this week */}
+      {stats?.top_products?.length > 0 && (
+        <div data-testid="top-products-week">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">Top productos esta semana</p>
+          <div className="flex gap-3 overflow-x-auto">
+            {stats.top_products.slice(0, 3).map((tp, i) => (
+              <div key={tp.product_id || i} className="flex items-center gap-2 rounded-xl border border-stone-200 p-2 min-w-0 shrink-0">
+                {tp.image && (
+                  <img src={tp.image} alt={tp.name} className="w-10 h-10 rounded-lg object-cover shrink-0" loading="lazy" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-stone-950 truncate">{tp.name}</p>
+                  <p className="text-xs text-stone-500">{tp.sales_count} venta{tp.sales_count !== 1 ? 's' : ''}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -1155,7 +1192,7 @@ export default function ProducerOverview() {
             <Link
               key={idx}
               to={action.to}
-              className="flex items-center gap-3 p-4 transition-colors rounded-xl border border-stone-200 bg-white"
+              className="relative flex items-center gap-3 p-4 transition-colors rounded-xl border border-stone-200 bg-white"
               data-testid={`desktop-quick-action-${idx}`}
             >
               <div
@@ -1164,6 +1201,11 @@ export default function ProducerOverview() {
                 <action.icon className={`w-5 h-5 ${action.iconColor}`} />
               </div>
               <span className="font-medium text-stone-950">{action.label}</span>
+              {action.badge > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-stone-950 text-white text-[10px] flex items-center justify-center">
+                  {action.badge}
+                </span>
+              )}
             </Link>
           ))}
         </div>

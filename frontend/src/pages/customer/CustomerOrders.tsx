@@ -16,6 +16,7 @@ const STATUS_FLOW = ['pending', 'paid', 'confirmed', 'preparing', 'shipped', 'de
 
 const TIMELINE_STEPS = [
   { key: 'ordered', label: 'Pedido' },
+  { key: 'confirmed', label: 'Confirmado' },
   { key: 'preparing', label: 'Preparando' },
   { key: 'shipped', label: 'Enviado' },
   { key: 'delivered', label: 'Entregado' },
@@ -24,12 +25,19 @@ const TIMELINE_STEPS = [
 const CANCELLED_STATUSES = ['cancelled', 'refunded'];
 
 function getTimelineStep(status: string): number {
-  if (status === 'pending' || status === 'confirmed' || status === 'paid') return 0;
-  if (status === 'processing' || status === 'packing' || status === 'preparing') return 1;
-  if (status === 'shipped' || status === 'in_transit') return 2;
-  if (status === 'delivered' || status === 'completed') return 3;
+  if (status === 'pending') return 0;
+  if (status === 'confirmed' || status === 'paid') return 1;
+  if (status === 'processing' || status === 'packing' || status === 'preparing') return 2;
+  if (status === 'shipped' || status === 'in_transit') return 3;
+  if (status === 'delivered' || status === 'completed') return 4;
   return -1; // cancelled/refunded
 }
+
+const SORT_OPTIONS = [
+  { key: 'recent', label: 'Más recientes' },
+  { key: 'oldest', label: 'Más antiguos' },
+  { key: 'highest', label: 'Mayor importe' },
+];
 
 function OrderTimeline({ status }: { status: string }) {
   const activeStep = getTimelineStep(status);
@@ -54,12 +62,12 @@ function OrderTimeline({ status }: { status: string }) {
                   isCompleted
                     ? 'bg-stone-950'
                     : isActive
-                    ? 'bg-stone-950'
+                    ? (i === 0 ? 'border-2 border-stone-950 bg-white' : 'bg-stone-950')
                     : 'bg-stone-200'
                 }`}
               >
                 {isCompleted && <Check size={10} className="text-white" strokeWidth={3} />}
-                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                {isActive && i > 0 && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
               </div>
               <span className={`text-[9px] leading-tight ${isFuture ? 'text-stone-400' : 'text-stone-700 font-medium'}`}>
                 {step.label}
@@ -83,6 +91,7 @@ export default function CustomerOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('recent');
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { convertAndFormatPrice, currency } = useLocale();
@@ -106,11 +115,17 @@ export default function CustomerOrders() {
   const { refreshing, progress, handlers } = usePullToRefresh(fetchOrders);
 
   const filteredOrders = useMemo(() => {
-    if (activeFilter === 'all') return orders;
-    const tab = FILTER_TABS.find(f => f.key === activeFilter);
-    if (!tab?.statuses) return orders;
-    return orders.filter(o => tab.statuses.includes(o.status));
-  }, [orders, activeFilter]);
+    let result = orders;
+    if (activeFilter !== 'all') {
+      const tab = FILTER_TABS.find(f => f.key === activeFilter);
+      if (tab?.statuses) result = orders.filter(o => tab.statuses.includes(o.status));
+    }
+    const sorted = [...result];
+    if (sortBy === 'recent') sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    else if (sortBy === 'oldest') sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    else if (sortBy === 'highest') sorted.sort((a, b) => asNumber(b.total_amount) - asNumber(a.total_amount));
+    return sorted;
+  }, [orders, activeFilter, sortBy]);
 
   // List View
   return (
@@ -125,24 +140,35 @@ export default function CustomerOrders() {
       </h1>
       <p className="text-stone-500 mb-4">{t('orders.description', 'View and track your orders.')}</p>
 
-      {/* Filter tabs */}
-      <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
-        {FILTER_TABS.map(tab => {
-          const count = tab.key === 'all' ? orders.length : orders.filter(o => tab.statuses?.includes(o.status)).length;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveFilter(tab.key)}
-              className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeFilter === tab.key
-                  ? 'bg-stone-950 text-white'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-            >
-              {tab.label} {count > 0 && <span className="ml-1 text-xs opacity-70">({count})</span>}
-            </button>
-          );
-        })}
+      {/* Filter tabs + sort */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="flex gap-2 flex-1 overflow-x-auto scrollbar-hide pb-1">
+          {FILTER_TABS.map(tab => {
+            const count = tab.key === 'all' ? orders.length : orders.filter(o => tab.statuses?.includes(o.status)).length;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveFilter(tab.key)}
+                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  activeFilter === tab.key
+                    ? 'bg-stone-950 text-white'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                {tab.label} {count > 0 && <span className="ml-1 text-xs opacity-70">({count})</span>}
+              </button>
+            );
+          })}
+        </div>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-700 outline-none focus:border-stone-400"
+        >
+          {SORT_OPTIONS.map(opt => (
+            <option key={opt.key} value={opt.key}>{opt.label}</option>
+          ))}
+        </select>
       </div>
 
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">

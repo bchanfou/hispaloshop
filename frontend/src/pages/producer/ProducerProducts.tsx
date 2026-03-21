@@ -1,9 +1,10 @@
 // @ts-nocheck
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Plus, Edit, ArrowLeft, ArrowRight, Eye, CheckCircle, Check, Clock, XCircle, Upload, X, Image as ImageIcon, Loader2, Package, AlertTriangle, Layers, Globe, Trash2, List, Apple, Award, Send } from 'lucide-react';
+import { Plus, Edit, ArrowLeft, ArrowRight, Eye, CheckCircle, Check, Clock, XCircle, Upload, X, Image as ImageIcon, Loader2, Package, AlertTriangle, Layers, Globe, Trash2, List, Apple, Award, Send, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import VariantPackManager from './VariantPackManager';
+import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import { useCategories } from '../../features/products/queries';
 import {
@@ -306,6 +307,67 @@ export default function ProducerProducts() {
   const [editingProduct, setEditingProduct] = useState(null);
   const [variantManagerProduct, setVariantManagerProduct] = useState(null);
   const [wizardStep, setWizardStep] = useState(0);
+
+  // Search, filter, bulk selection
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // all | approved | pending | rejected
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  // Filtered products
+  const filteredProducts = useMemo(() => {
+    let result = products || [];
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(p => (p.name || '').toLowerCase().includes(q));
+    }
+    // Status filter
+    if (statusFilter === 'approved') {
+      result = result.filter(p => p.approved === true);
+    } else if (statusFilter === 'pending') {
+      result = result.filter(p => !p.approved && p.status !== 'rejected');
+    } else if (statusFilter === 'rejected') {
+      result = result.filter(p => p.status === 'rejected');
+    }
+    return result;
+  }, [products, searchQuery, statusFilter]);
+
+  const allFilteredSelected = filteredProducts.length > 0 && filteredProducts.every(p => selectedIds.has(p.product_id));
+
+  const toggleSelectAll = useCallback(() => {
+    if (allFilteredSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredProducts.map(p => p.product_id)));
+    }
+  }, [allFilteredSelected, filteredProducts]);
+
+  const toggleSelect = useCallback((id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkDeleting(true);
+    try {
+      const ids = Array.from(selectedIds);
+      await Promise.all(ids.map(id => apiClient.delete(`/producer/products/${id}`)));
+      toast.success(`${ids.length} producto${ids.length > 1 ? 's' : ''} eliminado${ids.length > 1 ? 's' : ''}`);
+      setSelectedIds(new Set());
+      setShowDeleteModal(false);
+      await refetchProducts();
+    } catch (err) {
+      toast.error(err?.message || 'Error al eliminar productos');
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
   
   // Enhanced form data with new fields
   const [formData, setFormData] = useState({
@@ -1229,7 +1291,7 @@ export default function ProducerProducts() {
   // List View
   return (
     <div className="max-w-[975px] mx-auto">
-      <div className="flex items-center justify-between mb-6 gap-3">
+      <div className="flex items-center justify-between mb-4 gap-3">
         <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-950 mb-1">
             {t('producerProducts.title')}
@@ -1240,6 +1302,105 @@ export default function ProducerProducts() {
           <Plus className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">{t('producerProducts.createProduct')}</span><span className="sm:hidden">Crear</span>
         </button>
       </div>
+
+      {/* Search bar */}
+      <div className="relative mb-3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Buscar productos..."
+          className="w-full h-10 rounded-xl bg-stone-100 border-none pl-9 pr-4 text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+          data-testid="product-search"
+        />
+      </div>
+
+      {/* Status filter pills */}
+      <div className="flex items-center gap-2 mb-3 flex-wrap">
+        {[
+          { key: 'all', label: 'Todos' },
+          { key: 'approved', label: 'Aprobados' },
+          { key: 'pending', label: 'Pendientes' },
+          { key: 'rejected', label: 'Rechazados' },
+        ].map(pill => (
+          <button
+            key={pill.key}
+            type="button"
+            onClick={() => { setStatusFilter(pill.key); setSelectedIds(new Set()); }}
+            className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+              statusFilter === pill.key
+                ? 'bg-stone-950 text-white'
+                : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+            }`}
+            data-testid={`filter-${pill.key}`}
+          >
+            {pill.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Bulk actions bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-sm text-stone-500">{selectedIds.size} seleccionado{selectedIds.size > 1 ? 's' : ''}</span>
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className="bg-red-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-red-700 transition-colors"
+            data-testid="bulk-delete-btn"
+          >
+            <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+            Eliminar seleccionados ({selectedIds.size})
+          </button>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+            onClick={() => !bulkDeleting && setShowDeleteModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl"
+            >
+              <h3 className="text-lg font-semibold text-stone-950 mb-2">Eliminar productos</h3>
+              <p className="text-sm text-stone-500 mb-5">
+                Se eliminar&aacute;n {selectedIds.size} producto{selectedIds.size > 1 ? 's' : ''} de forma permanente. Esta acci&oacute;n no se puede deshacer.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={bulkDeleting}
+                  className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-full hover:bg-stone-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  disabled={bulkDeleting}
+                  className="bg-red-600 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+                  data-testid="confirm-bulk-delete"
+                >
+                  {bulkDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Eliminar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Products */}
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
@@ -1256,18 +1417,30 @@ export default function ProducerProducts() {
               </div>
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-stone-500 mb-4">{t('producerProducts.noProductsYet')}</p>
-            <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors">
-              <Plus className="w-4 h-4 mr-2" /> {t('producerProducts.createFirstProduct')}
-            </button>
+            <p className="text-stone-500 mb-4">{products.length === 0 ? t('producerProducts.noProductsYet') : 'No hay productos que coincidan con tu búsqueda.'}</p>
+            {products.length === 0 && (
+              <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-2xl transition-colors">
+                <Plus className="w-4 h-4 mr-2" /> {t('producerProducts.createFirstProduct')}
+              </button>
+            )}
           </div>
         ) : (
           <>
             {/* Mobile Card Layout */}
             <div className="md:hidden divide-y divide-stone-200">
-              {products.map((product) => {
+              {/* Select all - mobile */}
+              <div className="p-3 flex items-center gap-2 border-b border-stone-200 bg-stone-50">
+                <input
+                  type="checkbox"
+                  checked={allFilteredSelected}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded accent-stone-950"
+                />
+                <span className="text-xs text-stone-500">Seleccionar todo</span>
+              </div>
+              {filteredProducts.map((product) => {
                 const stock = product.stock ?? 100;
                 const lowThreshold = product.low_stock_threshold ?? 5;
                 const trackStock = product.track_stock !== false;
@@ -1278,6 +1451,12 @@ export default function ProducerProducts() {
                 return (
                   <div key={product.product_id} className="p-4 space-y-3" data-testid={`product-card-${product.product_id}`}>
                     <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(product.product_id)}
+                        onChange={() => toggleSelect(product.product_id)}
+                        className="w-4 h-4 rounded accent-stone-950 shrink-0"
+                      />
                       <div className="w-14 h-14 rounded-2xl bg-stone-100 overflow-hidden shrink-0">
                         {product.images?.[0] && (
                           <img src={product.images[0]} alt={product.name || 'Producto'} className="w-full h-full object-cover" loading="lazy" />
@@ -1321,6 +1500,14 @@ export default function ProducerProducts() {
             <table className="w-full hidden md:table" data-testid="products-table">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
+                  <th className="text-left px-3 py-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={allFilteredSelected}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded accent-stone-950"
+                    />
+                  </th>
                   <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.product')}</th>
                   <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.price')}</th>
                   <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.stock')}</th>
@@ -1330,7 +1517,7 @@ export default function ProducerProducts() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200">
-                {products.map((product) => {
+                {filteredProducts.map((product) => {
                   const stock = product.stock ?? 100;
                   const lowThreshold = product.low_stock_threshold ?? 5;
                   const trackStock = product.track_stock !== false;
@@ -1341,6 +1528,14 @@ export default function ProducerProducts() {
                   
                   return (
                   <tr key={product.product_id} className="hover:bg-stone-50">
+                    <td className="px-3 py-4 w-10">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(product.product_id)}
+                        onChange={() => toggleSelect(product.product_id)}
+                        className="w-4 h-4 rounded accent-stone-950"
+                      />
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-2xl bg-stone-100 overflow-hidden">

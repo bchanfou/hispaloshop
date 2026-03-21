@@ -43,7 +43,7 @@ function CaseDetail({ caseData, onBack, onMessageSent }) {
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
-  const isClosed = ['resuelto', 'cerrado'].includes(caseData.status);
+  const isClosed = ['resuelto', 'cerrado', 'resolved', 'closed'].includes(caseData.status);
   const messages = caseData.messages || [];
 
   useEffect(() => {
@@ -136,28 +136,29 @@ function CaseDetail({ caseData, onBack, onMessageSent }) {
           </div>
         )}
 
-        {!isClosed ? (
-          <form onSubmit={handleSend} className="mt-5 flex items-end gap-3">
-            <textarea
-              value={reply}
-              onChange={(e) => setReply(e.target.value)}
-              placeholder="Escribe un mensaje..."
-              rows={2}
-              className="flex-1 resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-stone-400"
-            />
-            <button
-              type="submit"
-              disabled={!reply.trim() || sending}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition-colors hover:bg-stone-800 disabled:opacity-40"
-            >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </button>
-          </form>
-        ) : (
-          <p className="mt-5 text-center text-xs text-stone-400">
-            Este caso está {caseData.status}. No se pueden añadir más mensajes.
+        {isClosed && (
+          <p className="text-sm text-stone-500 text-center py-4">
+            Este caso está cerrado
           </p>
         )}
+
+        <form onSubmit={handleSend} className="mt-5 flex items-end gap-3">
+          <textarea
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            placeholder="Escribe un mensaje..."
+            rows={2}
+            disabled={isClosed}
+            className={`flex-1 resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-stone-400 ${isClosed ? 'opacity-50 cursor-not-allowed' : ''}`}
+          />
+          <button
+            type="submit"
+            disabled={!reply.trim() || sending || isClosed}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition-colors hover:bg-stone-800 disabled:opacity-40 ${isClosed ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </button>
+        </form>
       </div>
     </div>
   );
