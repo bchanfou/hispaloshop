@@ -55,7 +55,7 @@ const ProductsPage = lazy(() => import('./pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const StorePage = lazy(() => import('./pages/StorePage'));
 const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
-const CertificatePage = lazy(() => import('./pages/CertificatePage.jsx'));
+const CertificatePage = lazy(() => import('./pages/CertificatePage'));
 const CertificatesListPage = lazy(() => import('./pages/CertificatesListPage'));
 const LocaleSettingsPage = lazy(() => import('./pages/LocaleSettingsPage'));
 const StoresListPage = lazy(() => import('./pages/StoresListPage'));
