@@ -3,15 +3,74 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
-import { ShoppingBag, ChevronRight, Clock } from 'lucide-react';
+import { ShoppingBag, ChevronRight, Clock, Check, ExternalLink, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { asNumber } from '../../utils/safe';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
 import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
 import { useLocale } from '../../context/LocaleContext';
+import { useCart } from '../../context/CartContext';
 
 const STATUS_FLOW = ['pending', 'paid', 'confirmed', 'preparing', 'shipped', 'delivered'];
+
+const TIMELINE_STEPS = [
+  { key: 'ordered', label: 'Pedido' },
+  { key: 'preparing', label: 'Preparando' },
+  { key: 'shipped', label: 'Enviado' },
+  { key: 'delivered', label: 'Entregado' },
+];
+
+const CANCELLED_STATUSES = ['cancelled', 'refunded'];
+
+function getTimelineStep(status: string): number {
+  if (status === 'pending' || status === 'confirmed' || status === 'paid') return 0;
+  if (status === 'processing' || status === 'packing' || status === 'preparing') return 1;
+  if (status === 'shipped' || status === 'in_transit') return 2;
+  if (status === 'delivered' || status === 'completed') return 3;
+  return -1; // cancelled/refunded
+}
+
+function OrderTimeline({ status }: { status: string }) {
+  const activeStep = getTimelineStep(status);
+  if (activeStep < 0) return null;
+
+  return (
+    <div className="flex items-center w-full px-1 mt-2 mb-1">
+      {TIMELINE_STEPS.map((step, i) => {
+        const isCompleted = i < activeStep;
+        const isActive = i === activeStep;
+        const isFuture = i > activeStep;
+        return (
+          <React.Fragment key={step.key}>
+            {/* Connecting line before (except first) */}
+            {i > 0 && (
+              <div className={`flex-1 h-[2px] ${isCompleted || isActive ? 'bg-stone-950' : 'bg-stone-200'}`} />
+            )}
+            {/* Step circle + label */}
+            <div className="flex flex-col items-center gap-0.5 shrink-0">
+              <div
+                className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                  isCompleted
+                    ? 'bg-stone-950'
+                    : isActive
+                    ? 'bg-stone-950'
+                    : 'bg-stone-200'
+                }`}
+              >
+                {isCompleted && <Check size={10} className="text-white" strokeWidth={3} />}
+                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+              </div>
+              <span className={`text-[9px] leading-tight ${isFuture ? 'text-stone-400' : 'text-stone-700 font-medium'}`}>
+                {step.label}
+              </span>
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
 
 const FILTER_TABS = [
   { key: 'all', label: 'Todos' },
@@ -27,6 +86,7 @@ export default function CustomerOrders() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { convertAndFormatPrice, currency } = useLocale();
+  const { addToCart } = useCart();
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -118,55 +178,95 @@ export default function CustomerOrders() {
             {filteredOrders.map((order) => {
               const StatusIcon = getStatusIcon(order.status);
               const statusColor = getStatusColor(order.status);
+              const isCancelled = CANCELLED_STATUSES.includes(order.status);
+              const isDelivered = ['delivered', 'completed'].includes(order.status);
               return (
-                <button
+                <div
                   key={order.order_id}
-                  onClick={() => navigate(`/dashboard/orders/${order.order_id}`)}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-stone-50 transition-colors text-left"
+                  className="p-4 hover:bg-stone-50 transition-colors"
                   data-testid={`order-row-${order.order_id}`}
                 >
-                  {/* Status icon */}
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${statusColor}`}>
-                    <StatusIcon className="w-5 h-5" />
-                  </div>
-
-                  {/* Order info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-stone-950">{convertAndFormatPrice(asNumber(order.total_amount), currency)}</span>
-                      <span className="text-xs text-stone-500">·</span>
-                      <span className="text-xs text-stone-500">{order.line_items?.length || 0} items</span>
+                  {/* Top row — clickable to detail */}
+                  <button
+                    onClick={() => navigate(`/dashboard/orders/${order.order_id}`)}
+                    className="w-full flex items-center gap-4 text-left"
+                  >
+                    {/* Status icon */}
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${statusColor}`}>
+                      <StatusIcon className="w-5 h-5" />
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs font-medium capitalize text-stone-600">
-                        {t(`orders.status.${order.status}`, order.status)}
-                      </span>
-                      <span className="text-[10px] text-stone-500">
-                        {new Date(order.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+
+                    {/* Order info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-stone-950">{convertAndFormatPrice(asNumber(order.total_amount), currency)}</span>
+                        <span className="text-xs text-stone-500">·</span>
+                        <span className="text-xs text-stone-500">{order.line_items?.length || 0} items</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs font-medium capitalize text-stone-600">
+                          {t(`orders.status.${order.status}`, order.status)}
+                        </span>
+                        <span className="text-[10px] text-stone-500">
+                          {new Date(order.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Arrow */}
+                    <ChevronRight className="w-4 h-4 text-stone-500 shrink-0" />
+                  </button>
+
+                  {/* Status timeline */}
+                  {!isCancelled && <OrderTimeline status={order.status} />}
+
+                  {/* Cancelled badge */}
+                  {isCancelled && (
+                    <div className="mt-2 ml-14">
+                      <span className="inline-block rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
+                        {order.status === 'cancelled' ? 'Cancelado' : 'Reembolsado'}
                       </span>
                     </div>
-                  </div>
-
-                  {/* Reorder button for completed orders */}
-                  {['delivered', 'completed'].includes(order.status) && (
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        try {
-                          await apiClient.post(`/customer/orders/${order.order_id}/reorder`, {});
-                          toast.success('Productos agregados al carrito');
-                        } catch (err) { toast.error(err?.message || 'Error al reordenar'); }
-                      }}
-                      className="shrink-0 bg-stone-950 text-white text-xs font-medium px-3 py-1.5 rounded-full hover:bg-stone-800 transition-colors"
-                      data-testid={`reorder-${order.order_id}`}
-                    >
-                      Repetir
-                    </button>
                   )}
 
-                  {/* Arrow */}
-                  <ChevronRight className="w-4 h-4 text-stone-500 shrink-0" />
-                </button>
+                  {/* Action row: tracking link + reorder */}
+                  {(order.tracking_url || isDelivered) && (
+                    <div className="mt-2 ml-14 flex items-center gap-3 flex-wrap">
+                      {order.tracking_url && (
+                        <a
+                          href={order.tracking_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-700 hover:text-stone-950 transition-colors"
+                        >
+                          <ShoppingBag size={14} /> Rastrear envío <ExternalLink size={12} />
+                        </a>
+                      )}
+                      {isDelivered && (
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              const items = order.line_items || [];
+                              for (const item of items) {
+                                const pid = item.product_id || item.id;
+                                if (pid) await addToCart(pid, item.quantity || 1);
+                              }
+                              toast.success('Productos agregados al carrito');
+                            } catch (err: any) {
+                              toast.error(err?.message || 'Error al reordenar');
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 border border-stone-200 rounded-full px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
+                          data-testid={`reorder-${order.order_id}`}
+                        >
+                          <RotateCcw size={14} /> Volver a pedir
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

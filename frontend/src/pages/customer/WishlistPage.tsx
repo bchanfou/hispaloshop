@@ -1,9 +1,10 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Trash2, ShoppingBag } from 'lucide-react';
+import { Heart, Trash2, ShoppingBag, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
+import { useCart } from '../../context/CartContext';
 import { toast } from 'sonner';
 import { sanitizeImageUrl } from '../../utils/helpers';
 
@@ -11,6 +12,9 @@ export default function WishlistPage() {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [batchAdding, setBatchAdding] = useState(false);
+  const [addingItemId, setAddingItemId] = useState(null);
+  const { addToCart } = useCart();
 
   const [loadError, setLoadError] = useState(false);
   useEffect(() => {
@@ -26,6 +30,28 @@ export default function WishlistPage() {
       setItems(prev => prev.filter(i => i.product_id !== productId));
       toast.success(t('wishlist.removed', 'Eliminado'));
     } catch { toast.error('Error'); }
+  };
+
+  const handleAddAllToCart = async () => {
+    setBatchAdding(true);
+    try {
+      for (const item of items) {
+        await addToCart(item.product_id, 1);
+      }
+      toast.success(`${items.length} productos añadidos al carrito`);
+    } catch { toast.error('Error al añadir productos'); }
+    finally { setBatchAdding(false); }
+  };
+
+  const handleMoveToCart = async (item) => {
+    setAddingItemId(item.product_id);
+    try {
+      await addToCart(item.product_id, 1);
+      await apiClient.delete(`/wishlist/${item.product_id}`);
+      setItems(prev => prev.filter(i => i.product_id !== item.product_id));
+      toast.success(t('wishlist.movedToCart', 'Añadido al carrito'));
+    } catch { toast.error('Error'); }
+    finally { setAddingItemId(null); }
   };
 
   function getImgUrl(url) {
@@ -75,6 +101,21 @@ export default function WishlistPage() {
           <span className="text-sm text-stone-400 font-normal">({items.length})</span>
         </h2>
       </div>
+
+      {/* Batch add to cart */}
+      <button
+        onClick={handleAddAllToCart}
+        disabled={batchAdding}
+        className="w-full bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-full px-6 py-2.5 text-sm font-semibold flex items-center justify-center gap-2 mb-4 transition-colors"
+      >
+        {batchAdding ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <ShoppingBag className="w-4 h-4" />
+        )}
+        {batchAdding ? 'Añadiendo...' : t('wishlist.addAllToCart', 'Añadir todo al carrito')}
+      </button>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {items.map(item => {
           const img = getImgUrl(item.image || item.product_image);
@@ -89,9 +130,23 @@ export default function WishlistPage() {
                 <p className="text-sm font-semibold text-stone-700 mt-0.5">{item.price ? `${Number(item.price).toFixed(2)} EUR` : ''}</p>
                 <p className="text-[10px] text-stone-400">{item.added_at ? new Date(item.added_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : ''}</p>
               </div>
-              <button onClick={() => remove(item.product_id)} className="p-2 text-stone-400 hover:text-stone-950 hover:bg-stone-100 rounded-2xl transition-colors" data-testid={`remove-wishlist-${item.product_id}`}>
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  onClick={() => handleMoveToCart(item)}
+                  disabled={addingItemId === item.product_id}
+                  className="bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1 transition-colors"
+                >
+                  {addingItemId === item.product_id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <ShoppingBag className="w-4 h-4" />
+                  )}
+                  {t('wishlist.addItem', 'Añadir')}
+                </button>
+                <button onClick={() => remove(item.product_id)} className="p-2 text-stone-400 hover:text-stone-950 hover:bg-stone-100 rounded-2xl transition-colors" data-testid={`remove-wishlist-${item.product_id}`}>
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           );
         })}

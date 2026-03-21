@@ -1,12 +1,32 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Plus, Star } from 'lucide-react';
+import { Bookmark, Plus, Star, Leaf, Shield, Award } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from './ui/ProductImage.tsx';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
 import { useHaptics } from '../hooks/useHaptics';
+
+const CERT_LABELS = {
+  organic: 'Ecológico',
+  dop: 'DOP',
+  igp: 'IGP',
+  gluten_free: 'Sin Gluten',
+  vegan: 'Vegano',
+  halal: 'Halal',
+  km0: 'Km 0',
+};
+
+function getPrimaryCert(product) {
+  if (product.is_organic) return 'organic';
+  if (product.is_km0) return 'km0';
+  if (product.is_vegan) return 'vegan';
+  if (product.is_gluten_free) return 'gluten_free';
+  if (product.is_halal) return 'halal';
+  if (product.certifications?.length > 0) return product.certifications[0];
+  return null;
+}
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
@@ -92,6 +112,8 @@ function ProductCard({ product, variant = 'default' }) {
     if (!success) toast.error(t('errors.generic', 'Error'));
   };
 
+  const primaryCert = getPrimaryCert(product);
+
   // ── Compact variant ─────────────────────────────
   if (variant === 'compact') {
     return (
@@ -115,10 +137,30 @@ function ProductCard({ product, variant = 'default' }) {
               Agotado
             </span>
           )}
-          {isLowStock && (
+          {product.free_shipping && !isOutOfStock && (
+            <span className="absolute top-1.5 left-1.5 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-950">
+              Envío gratis
+            </span>
+          )}
+          {primaryCert && (
+            <span className="absolute bottom-1.5 left-1.5 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-950 flex items-center gap-0.5">
+              <Leaf size={10} /> {CERT_LABELS[primaryCert] || primaryCert}
+            </span>
+          )}
+          {!isBlocked && !primaryCert && isLowStock && (
             <span className="absolute bottom-1.5 left-1.5 rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
               Últimas uds.
             </span>
+          )}
+          {/* Quick-add button — always visible on mobile, hover on desktop */}
+          {!isBlocked && (
+            <div className="absolute bottom-1.5 right-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+              <AddButton
+                onAdd={handleAddToCart}
+                isDisabled={isBlocked}
+                testId={`add-to-cart-${productId}`}
+              />
+            </div>
           )}
         </div>
         <div className="px-2 pb-2 pt-1.5">
@@ -159,7 +201,19 @@ function ProductCard({ product, variant = 'default' }) {
           </span>
         )}
 
-        {isLowStock && (
+        {product.free_shipping && !isOutOfStock && (
+          <span className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-950">
+            Envío gratis
+          </span>
+        )}
+
+        {primaryCert && (
+          <span className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-950 flex items-center gap-0.5">
+            <Leaf size={10} /> {CERT_LABELS[primaryCert] || primaryCert}
+          </span>
+        )}
+
+        {!isBlocked && !primaryCert && isLowStock && (
           <span className="absolute bottom-2 left-2 rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
             Últimas uds.
           </span>
@@ -169,6 +223,17 @@ function ProductCard({ product, variant = 'default' }) {
           <span className="absolute right-2 top-2 rounded-full bg-stone-950 px-1.5 py-0.5 text-[9px] font-bold text-white">
             -{discountPct}%
           </span>
+        )}
+
+        {/* Quick-add button overlay — always visible on mobile, hover on desktop */}
+        {!isBlocked && (
+          <div className="absolute bottom-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+            <AddButton
+              onAdd={handleAddToCart}
+              isDisabled={isBlocked}
+              testId={`add-to-cart-overlay-${productId}`}
+            />
+          </div>
         )}
       </div>
 
@@ -236,6 +301,12 @@ const areProductPropsEqual = (prev, next) => {
     p?.images?.[0] === n?.images?.[0] &&
     p?.certifications?.length === n?.certifications?.length &&
     p?.original_price === n?.original_price &&
+    p?.free_shipping === n?.free_shipping &&
+    p?.is_organic === n?.is_organic &&
+    p?.is_km0 === n?.is_km0 &&
+    p?.is_vegan === n?.is_vegan &&
+    p?.is_gluten_free === n?.is_gluten_free &&
+    p?.is_halal === n?.is_halal &&
     prev.variant === next.variant
   );
 };

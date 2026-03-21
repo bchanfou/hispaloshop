@@ -12,6 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
 import { getDefaultRoute } from '../../lib/navigation';
 import Logo from '../brand/Logo';
+import apiClient from '../../services/api/client';
 
 /* ── Data ── */
 
@@ -47,6 +48,15 @@ export default function HamburgerMenu({ isOpen, onClose }) {
   const { user, logout } = useAuth();
   const locale = useLocale();
   const [openAccordion, setOpenAccordion] = useState(null);
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  // Fetch wishlist count when menu opens
+  useEffect(() => {
+    if (!isOpen || !user) return;
+    apiClient.get('/wishlist')
+      .then(data => setWishlistCount(Array.isArray(data) ? data.length : 0))
+      .catch(() => {});
+  }, [isOpen, user]);
 
   // Close on route change
   useEffect(() => { onClose(); }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -203,7 +213,13 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
               {/* ── CONTENIDO ── */}
               <SectionLabel>CONTENIDO</SectionLabel>
-              <MenuItem to="/saved" icon={<Bookmark size={20} />} label="Guardados" onClose={onClose} />
+              <MenuItem to="/saved" icon={<Bookmark size={20} />} label="Guardados" onClose={onClose}>
+                {wishlistCount > 0 && (
+                  <span className="rounded-full bg-stone-950 text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center px-1 font-semibold ml-auto">
+                    {wishlistCount}
+                  </span>
+                )}
+              </MenuItem>
               <MenuItem to="/orders" icon={<Package size={20} />} label="Mis pedidos" onClose={onClose} />
               <MenuItem to="/activity" icon={<Activity size={20} />} label="Tu actividad" onClose={onClose} />
 

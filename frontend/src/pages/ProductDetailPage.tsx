@@ -101,6 +101,7 @@ export default function ProductDetailPage() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
+  const [reviewSort, setReviewSort] = useState('recent');
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
@@ -123,6 +124,7 @@ export default function ProductDetailPage() {
     setShowReviewForm(false);
     setReviewComment('');
     setReviewRating(5);
+    setReviewSort('recent');
     window.scrollTo(0, 0);
   }, [productId, setQuantity]);
 
@@ -881,6 +883,47 @@ export default function ProductDetailPage() {
 
       {/* ── Reviews Preview ── */}
       <div className="px-4 py-5">
+        {/* Review summary line */}
+        <div className="mb-3 flex items-center gap-2">
+          <Star size={18} className="fill-stone-950 text-stone-950" />
+          <span className="text-lg font-bold text-stone-950">
+            {Number.isFinite(normalizedAverageRating) ? normalizedAverageRating.toFixed(1) : '0.0'}
+          </span>
+          <span className="text-lg text-stone-400 font-normal">·</span>
+          <span className="text-lg text-stone-500">{totalReviews} {t('productDetail.reviews', 'reseñas')}</span>
+        </div>
+
+        {/* Rating breakdown bars */}
+        {reviews.length > 0 && (() => {
+          const maxRating = 10;
+          const counts = Array.from({ length: maxRating }, (_, i) => {
+            const star = maxRating - i;
+            return { star, count: reviews.filter(r => Math.round(Number(r.rating)) === star).length };
+          });
+          const maxCount = Math.max(...counts.map(c => c.count), 1);
+          return (
+            <div className="mb-4 space-y-1.5">
+              {counts.map(({ star, count }) => {
+                const pct = totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
+                return (
+                  <div key={star} className="flex items-center gap-2 text-xs">
+                    <span className="w-5 text-right font-medium text-stone-500">{star}</span>
+                    <Star size={10} className="fill-stone-950 text-stone-950 shrink-0" />
+                    <div className="flex-1 h-2 rounded-full bg-stone-200 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-stone-950 transition-all"
+                        style={{ width: `${maxCount > 0 ? (count / maxCount) * 100 : 0}%` }}
+                      />
+                    </div>
+                    <span className="w-8 text-right text-stone-400">{pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+        {/* Header row: title + write review button */}
         <div className="mb-3.5 flex items-center justify-between">
           <h2 className="text-base font-semibold text-stone-950">
             {t('productDetail.customerReviews', 'Reseñas')} ({totalReviews})
@@ -895,6 +938,22 @@ export default function ProductDetailPage() {
             </button>
           )}
         </div>
+
+        {/* Sort selector */}
+        {reviews.length > 1 && (
+          <div className="mb-3">
+            <select
+              value={reviewSort}
+              onChange={(e) => setReviewSort(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-950 outline-none"
+            >
+              <option value="recent">{t('productDetail.sortRecent', 'Más recientes')}</option>
+              <option value="helpful">{t('productDetail.sortHelpful', 'Más útiles')}</option>
+              <option value="highest">{t('productDetail.sortHighest', 'Mayor puntuación')}</option>
+              <option value="lowest">{t('productDetail.sortLowest', 'Menor puntuación')}</option>
+            </select>
+          </div>
+        )}
 
         {/* Review Form */}
         {showReviewForm && (
@@ -952,7 +1011,15 @@ export default function ProductDetailPage() {
         {/* Reviews List */}
         {reviews.length > 0 ? (
           <div className="flex flex-col gap-2.5">
-            {reviews.slice(0, 3).map((review) => (
+            {[...reviews]
+              .sort((a, b) => {
+                if (reviewSort === 'highest') return Number(b.rating) - Number(a.rating);
+                if (reviewSort === 'lowest') return Number(a.rating) - Number(b.rating);
+                if (reviewSort === 'helpful') return (b.helpful_count || 0) - (a.helpful_count || 0);
+                // 'recent' default
+                return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+              })
+              .slice(0, 3).map((review) => (
               <div key={review.review_id || `${review.user_id}-${review.created_at}`} className="rounded-2xl border border-stone-200 bg-white p-3.5">
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -960,14 +1027,16 @@ export default function ProductDetailPage() {
                       <User size={16} className="text-stone-500" />
                     </div>
                     <div>
-                      <p className="text-[13px] font-semibold text-stone-950">
-                        {review.user_name || 'Cliente'}
-                      </p>
-                      {review.verified_purchase && (
-                        <p className="flex items-center gap-1 text-[11px] text-stone-500">
-                          <CheckCircle size={10} /> Compra verificada
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="text-[13px] font-semibold text-stone-950">
+                          {review.user_name || 'Cliente'}
                         </p>
-                      )}
+                        {review.verified_purchase && (
+                          <span className="text-[11px] text-stone-500 font-medium flex items-center gap-0.5">
+                            <Check size={10} strokeWidth={2.5} /> Compra verificada
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5">
