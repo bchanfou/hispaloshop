@@ -37,7 +37,7 @@ export default function AppHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b transition-all duration-200 ${
+      className={`sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b transition-all duration-200 pt-[env(safe-area-inset-top)] ${
         scrolled ? 'border-stone-200 shadow-sm' : 'border-transparent'
       }`}
     >
@@ -62,7 +62,7 @@ export default function AppHeader() {
           <button
             onClick={() => navigate('/search')}
             aria-label="Buscar"
-            className="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-transparent border-none cursor-pointer p-2 text-stone-950"
+            className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-transparent border-none cursor-pointer p-2 text-stone-950"
           >
             <Search size={20} strokeWidth={1.8} />
           </button>
@@ -71,7 +71,7 @@ export default function AppHeader() {
           <Link
             to="/messages"
             aria-label="Mensajes"
-            className="relative flex items-center justify-center w-[38px] h-[38px] rounded-full no-underline"
+            className="relative flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full no-underline"
           >
             <MessageCircle size={20} className="text-stone-950" strokeWidth={1.8} />
           </Link>
@@ -80,7 +80,7 @@ export default function AppHeader() {
           <Link
             to="/notifications"
             aria-label="Notificaciones"
-            className="relative flex items-center justify-center w-[38px] h-[38px] rounded-full no-underline"
+            className="relative flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full no-underline"
           >
             <Bell size={20} className="text-stone-950" strokeWidth={1.8} />
             {unreadCount > 0 && (
@@ -94,7 +94,7 @@ export default function AppHeader() {
           <Link
             to="/cart"
             aria-label="Carrito"
-            className="relative flex items-center justify-center w-[38px] h-[38px] rounded-full no-underline"
+            className="relative flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full no-underline"
           >
             <ShoppingCart size={20} className="text-stone-950" strokeWidth={1.8} />
             {totalCartItems > 0 && (
@@ -108,7 +108,7 @@ export default function AppHeader() {
           <button
             onClick={() => setMenuOpen(true)}
             aria-label="Abrir menu"
-            className="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-transparent border-none cursor-pointer"
+            className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-transparent border-none cursor-pointer"
           >
             <Menu size={22} className="text-stone-950" strokeWidth={1.8} />
           </button>

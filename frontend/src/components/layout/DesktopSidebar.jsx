@@ -170,7 +170,7 @@ function StoreItem({ store }) {
   const name = store.name || store.store_name || 'Tienda';
   const image = store.logo || store.image || store.profile_image || null;
   return (
-    <Link to={`/store/${slug}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100">
+    <Link to={`/store/${slug}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100 active:bg-stone-200">
       {image ? (
         <img src={image} alt="" className="w-9 h-9 rounded-xl object-cover border border-stone-200" />
       ) : (
@@ -193,7 +193,7 @@ function InfluencerItem({ influencer }) {
   const image = influencer.profile_image || influencer.avatar_url || null;
   const followers = influencer.follower_count;
   return (
-    <Link to={`/user/${userId}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100">
+    <Link to={`/user/${userId}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100 active:bg-stone-200">
       {image ? (
         <img src={image} alt="" className="w-9 h-9 rounded-full object-cover" />
       ) : (
@@ -216,7 +216,7 @@ function CommunityItem({ community }) {
   const bgColors = ['bg-stone-300', 'bg-stone-400', 'bg-stone-500', 'bg-stone-600', 'bg-stone-700'];
   const bgColor = bgColors[name.charCodeAt(0) % 5];
   return (
-    <Link to={`/communities/${slug}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100">
+    <Link to={`/communities/${slug}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100 active:bg-stone-200">
       <div className={`w-9 h-9 rounded-xl ${bgColor} flex items-center justify-center text-lg overflow-hidden`}>
         {community.cover_image ? (
           <img src={community.cover_image} alt="" className="w-full h-full object-cover" />

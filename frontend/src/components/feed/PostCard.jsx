@@ -386,13 +386,13 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             {isOwner && (
               <>
                 <button
-                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
                   onClick={() => { setEditCaption(captionText); setShowEditCaption(true); setShowMenu(false); }}
                 >
                   <Pencil size={16} /> Editar
                 </button>
                 <button
-                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
                   onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
                 >
                   <Trash2 size={16} /> Eliminar
@@ -400,7 +400,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
               </>
             )}
             <button
-              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
               onClick={() => {
                 navigator.clipboard?.writeText(`${window.location.origin}/posts/${post.id}`);
                 toast.success('Enlace copiado');
@@ -412,7 +412,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             {!isOwner && (
               <>
                 <button
-                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
                   onClick={async () => {
                     try {
                       await apiClient.post(`/users/${user.id || user.user_id}/unfollow`);
@@ -424,7 +424,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                   <UserMinus size={16} /> Dejar de seguir
                 </button>
                 <button
-                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
                   onClick={async () => {
                     try {
                       await apiClient.post(`/posts/${post.id}/report`, { reason: 'inappropriate' });
@@ -458,7 +458,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             <p className="text-[11px] text-stone-400">La imagen no se puede cambiar tras publicar.</p>
             <button
               onClick={handleEditSave}
-              className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
+              className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 active:bg-stone-700 transition-colors"
             >
               Guardar cambios
             </button>
@@ -521,7 +521,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         <div className="flex flex-1 flex-wrap items-center gap-1 min-w-0">
           <span
             onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
-            className="text-sm font-semibold text-stone-950 whitespace-nowrap cursor-pointer"
+            className="text-sm font-semibold text-stone-950 truncate max-w-[140px] cursor-pointer"
             role="link"
           >
             {user.name}
@@ -797,7 +797,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
       {/* ---- Caption ---- */}
       {captionText && (
-        <div className="px-3 pb-3 text-sm leading-[1.45] text-stone-950">
+        <div className="px-3 pb-3 text-sm leading-[1.45] text-stone-950 break-words">
           <div className={shouldClamp ? 'line-clamp-3' : ''}>
             <span className="mr-1 font-semibold">{user.name}</span>
             {renderCaption(captionText, navigate)}

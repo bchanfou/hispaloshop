@@ -16,7 +16,7 @@ export default function SponsoredProductCard({ product, onDismiss }) {
   const producer = product.producer_name || product.store_name || '';
 
   return (
-    <div className="mx-4 my-2 rounded-2xl shadow-sm bg-white overflow-hidden relative">
+    <div className="mx-3 my-3 rounded-2xl shadow-sm bg-white overflow-hidden relative">
       {/* Patrocinado badge */}
       <span className="absolute top-3 right-3 z-10 bg-stone-100 text-stone-500 text-[10px] rounded-full px-2 py-0.5 font-medium">
         Patrocinado

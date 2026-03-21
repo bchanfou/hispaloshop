@@ -14,7 +14,7 @@ export default function FeedRecipeCard({ recipe }) {
   const prepTime = recipe.prep_time || recipe.cooking_time;
 
   return (
-    <div className="mx-4 my-2 rounded-2xl shadow-sm bg-white overflow-hidden">
+    <div className="mx-3 my-3 rounded-2xl shadow-sm bg-white overflow-hidden">
       <Link to={`/recipes/${recipe.id}`} className="block">
         {/* Recipe image */}
         {image ? (

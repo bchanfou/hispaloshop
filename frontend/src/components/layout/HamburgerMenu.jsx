@@ -360,7 +360,7 @@ function MenuItem({ to, icon, label, onClose, children }) {
     <Link
       to={to}
       onClick={onClose}
-      className="flex items-center gap-3 px-5 py-3.5 no-underline text-[15px] font-medium text-stone-950 transition-colors hover:bg-stone-100"
+      className="flex items-center gap-3 px-5 py-3.5 no-underline text-[15px] font-medium text-stone-950 transition-colors hover:bg-stone-100 active:bg-stone-200"
     >
       {icon && <span className="text-stone-500">{icon}</span>}
       {label}

@@ -474,7 +474,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     <div
       ref={(node) => { containerRef.current = node; dwellRef.current = node; }}
       className={`relative w-full bg-black overflow-hidden snap-start ${
-        embedded ? 'h-[400px] rounded-2xl' : 'h-dvh'
+        embedded ? 'h-[340px] sm:h-[400px] md:h-[440px] rounded-2xl' : 'h-dvh'
       }`}
     >
       {/* Video */}
@@ -531,13 +531,13 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           <div className="fixed inset-0 z-[6]" onClick={() => setShowOwnerMenu(false)} />
           <div className="absolute top-14 left-4 z-[7] bg-white rounded-2xl shadow-lg border border-stone-200 py-1 min-w-[170px]">
             <button
-              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
               onClick={() => { setEditCaption(localCaption ?? reel.caption ?? ''); setShowEditCaption(true); setShowOwnerMenu(false); }}
             >
               <Pencil size={16} /> Editar
             </button>
             <button
-              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
               onClick={() => { setShowDeleteConfirm(true); setShowOwnerMenu(false); }}
             >
               <Trash2 size={16} /> Eliminar
@@ -564,7 +564,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           <p className="text-[11px] text-stone-400">El vídeo no se puede cambiar tras publicar.</p>
           <button
             onClick={handleEditSave}
-            className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
+            className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 active:bg-stone-700 transition-colors"
           >
             Guardar cambios
           </button>
@@ -837,7 +837,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       {/* "Comprar" pill — shown when there are tagged products */}
       {(allProducts.length > 0 || reel.tagged_product || reel.productTag) && (
         <button
-          className="absolute bottom-16 left-4 z-[3] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-stone-950 text-xs font-semibold px-3.5 py-2 rounded-full border-none cursor-pointer shadow-lg hover:bg-white transition-colors"
+          className="absolute bottom-16 left-4 z-[3] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm text-stone-950 text-xs font-semibold px-3.5 py-2 rounded-full border-none cursor-pointer shadow-lg hover:bg-white active:bg-stone-100 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             if (hasMultipleProducts) {

@@ -179,7 +179,7 @@ export default function ForYouFeed() {
       ) : (
         <Virtuoso
           data={allPosts}
-          estimatedItemSize={480}
+          estimatedItemSize={460}
           itemContent={(index, post) => {
             const isReel = post.video_url || post.type === 'reel';
             const shouldAnimate = index < 5;
