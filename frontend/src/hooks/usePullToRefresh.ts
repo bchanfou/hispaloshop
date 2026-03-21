@@ -1,10 +1,24 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, TouchEvent } from 'react';
 import { useHaptics } from './useHaptics';
 
 const THRESHOLD = 80;
 const MAX_PULL = 120;
 
-export const usePullToRefresh = (onRefresh) => {
+interface PullToRefreshHandlers {
+  onTouchStart: (e: TouchEvent<HTMLElement>) => void;
+  onTouchMove: (e: TouchEvent<HTMLElement>) => void;
+  onTouchEnd: () => Promise<void>;
+}
+
+interface PullToRefreshReturn {
+  pulling: boolean;
+  refreshing: boolean;
+  pullDistance: number;
+  progress: number;
+  handlers: PullToRefreshHandlers;
+}
+
+export const usePullToRefresh = (onRefresh: () => Promise<void>): PullToRefreshReturn => {
   const [pulling, setPulling] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -16,7 +30,7 @@ export const usePullToRefresh = (onRefresh) => {
 
   const progress = Math.min(pullDistance / THRESHOLD, 1);
 
-  const onTouchStart = useCallback((e) => {
+  const onTouchStart = useCallback((e: TouchEvent<HTMLElement>) => {
     const el = e.currentTarget;
     if (el.scrollTop > 0) return;
     startY.current = e.touches[0].clientY;
@@ -24,7 +38,7 @@ export const usePullToRefresh = (onRefresh) => {
     hapticFired.current = false;
   }, []);
 
-  const onTouchMove = useCallback((e) => {
+  const onTouchMove = useCallback((e: TouchEvent<HTMLElement>) => {
     if (!isDragging.current || refreshing) return;
     const el = e.currentTarget;
     if (el.scrollTop > 0) {

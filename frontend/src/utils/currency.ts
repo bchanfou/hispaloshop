@@ -1,25 +1,36 @@
 /**
  * Currency Conversion Utilities
- * 
+ *
  * Handles display-only price conversion based on exchange rates
  */
+
+interface CurrencyConfig {
+  symbol?: string;
+  [key: string]: any;
+}
+
+interface ExchangeRates {
+  rates: Record<string, number>;
+  base?: string;
+}
 
 // Currencies that don't use decimal places
 const ZERO_DECIMAL_CURRENCIES = ['JPY', 'KRW', 'VND', 'CLP'];
 
 /**
  * Format currency amount with proper decimals and symbol
- * @param {number} amount - The amount to format
- * @param {string} currencyCode - ISO 4217 currency code (EUR, USD, JPY, etc.)
- * @param {object} currencies - Currency configuration from backend
- * @returns {string} Formatted currency string (e.g., "$12.40", "¥1,610")
  */
-export function formatCurrency(amount, currencyCode, currencies = {}) {
+export function formatCurrency(
+  amount: number | string,
+  currencyCode: string,
+  currencies: Record<string, CurrencyConfig> = {},
+): string {
   const currency = currencies[currencyCode] || {};
   const symbol = currency.symbol || currencyCode;
 
   // Guard against non-numeric amounts
-  const safeAmount = Number.isFinite(amount) ? amount : (Number.isFinite(Number(amount)) ? Number(amount) : 0);
+  const numAmount = typeof amount === 'number' ? amount : Number(amount);
+  const safeAmount = Number.isFinite(numAmount) ? numAmount : 0;
 
   // Determine decimal places
   const decimals = ZERO_DECIMAL_CURRENCIES.includes(currencyCode) ? 0 : 2;
@@ -27,7 +38,7 @@ export function formatCurrency(amount, currencyCode, currencies = {}) {
   // Use Intl.NumberFormat for locale-aware formatting when available
   try {
     // Map currency codes to likely locales for proper formatting
-    const localeMap = { EUR: 'es-ES', USD: 'en-US', GBP: 'en-GB', JPY: 'ja-JP', KRW: 'ko-KR', CNY: 'zh-CN', INR: 'hi-IN' };
+    const localeMap: Record<string, string> = { EUR: 'es-ES', USD: 'en-US', GBP: 'en-GB', JPY: 'ja-JP', KRW: 'ko-KR', CNY: 'zh-CN', INR: 'hi-IN' };
     const locale = localeMap[currencyCode] || 'es-ES';
     const formatted = new Intl.NumberFormat(locale, {
       minimumFractionDigits: decimals,
@@ -46,20 +57,21 @@ export function formatCurrency(amount, currencyCode, currencies = {}) {
 
 /**
  * Convert price from one currency to another
- * @param {number} amount - Amount in source currency
- * @param {string} fromCurrency - Source currency code
- * @param {string} toCurrency - Target currency code
- * @param {object} exchangeRates - Exchange rates with EUR as base
- * @returns {number} Converted amount
  */
-export function convertPrice(amount, fromCurrency, toCurrency, exchangeRates) {
+export function convertPrice(
+  amount: number | string,
+  fromCurrency: string,
+  toCurrency: string,
+  exchangeRates: ExchangeRates | null | undefined,
+): number {
   // Guard against non-numeric amounts
-  const safeAmount = Number.isFinite(amount) ? amount : (Number.isFinite(Number(amount)) ? Number(amount) : 0);
+  const numAmount = typeof amount === 'number' ? amount : Number(amount);
+  const safeAmount = Number.isFinite(numAmount) ? numAmount : 0;
 
   if (!exchangeRates || !exchangeRates.rates) {
     return safeAmount; // Fallback: no conversion
   }
-  
+
   // If same currency, no conversion needed
   if (fromCurrency === toCurrency) {
     return safeAmount;
@@ -95,23 +107,23 @@ export function convertPrice(amount, fromCurrency, toCurrency, exchangeRates) {
 
 /**
  * Get exchange rate between two currencies
- * @param {string} fromCurrency
- * @param {string} toCurrency
- * @param {object} exchangeRates
- * @returns {number|null} Exchange rate or null if not available
  */
-export function getExchangeRate(fromCurrency, toCurrency, exchangeRates) {
+export function getExchangeRate(
+  fromCurrency: string,
+  toCurrency: string,
+  exchangeRates: ExchangeRates | null | undefined,
+): number | null {
   if (!exchangeRates || !exchangeRates.rates) {
     return null;
   }
-  
+
   if (fromCurrency === toCurrency) {
     return 1;
   }
-  
+
   const rates = exchangeRates.rates;
   const baseCurrency = exchangeRates.base || 'EUR';
-  
+
   // Calculate rate
   if (fromCurrency === baseCurrency) {
     return rates[toCurrency] || null;

@@ -88,6 +88,7 @@ from routes.collaborations import router as collaborations_router
 from routes.documents import router as documents_router
 from routes.experiments import router as experiments_router
 from routes.gamification import router as gamification_router
+from routes.invoices import router as invoices_router
 
 logger = logging.getLogger(__name__)
 
@@ -243,6 +244,9 @@ app.include_router(experiments_router, prefix="/api", tags=["experiments"])
 
 # Gamification Routes (Ciclo 8)
 app.include_router(gamification_router, prefix="/api", tags=["gamification"])
+
+# Invoice Routes (Ciclo 10)
+app.include_router(invoices_router, prefix="/api", tags=["invoices"])
 
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])

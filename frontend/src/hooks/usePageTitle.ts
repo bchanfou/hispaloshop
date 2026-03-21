@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 const BASE_TITLE = 'Hispaloshop';
 
-const PAGE_TITLES = {
+const PAGE_TITLES: Record<string, string> = {
   '/':           'Hispaloshop — La alimentación artesanal española',
   '/about':      '¿Qué es Hispaloshop? — Nuestra historia',
   '/productor':  'Para Productores — Hispaloshop',
@@ -15,7 +15,7 @@ const PAGE_TITLES = {
   '/register':   'Crear cuenta — Hispaloshop',
 };
 
-export const usePageTitle = (customTitle) => {
+export const usePageTitle = (customTitle?: string): void => {
   useEffect(() => {
     const path = window.location.pathname;
     document.title = customTitle

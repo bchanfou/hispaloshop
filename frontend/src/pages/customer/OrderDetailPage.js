@@ -4,7 +4,7 @@ import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Truck, Check, Clock, Package, ExternalLink, Star, MessageCircle, Loader2,
+  ArrowLeft, Truck, Check, Clock, Package, ExternalLink, Star, MessageCircle, Loader2, FileText,
 } from 'lucide-react';
 
 const STATUS_FLOW = ['confirmed', 'preparing', 'shipped', 'delivered'];
@@ -45,6 +45,7 @@ export default function OrderDetailPage() {
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -85,6 +86,45 @@ export default function OrderDetailPage() {
       toast.error('Error al publicar la reseña');
     } finally {
       setReviewSubmitting(false);
+    }
+  };
+
+  const downloadInvoice = async () => {
+    setInvoiceLoading(true);
+    try {
+      const data = await apiClient.get(`/invoices/order/${orderId}`);
+      const lines = [
+        `FACTURA ${data.invoice_number}`,
+        `Fecha: ${new Date(data.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+        '',
+        `Cliente: ${data.customer?.name || ''}`,
+        `Email: ${data.customer?.email || ''}`,
+        '',
+        'PRODUCTOS',
+        '─'.repeat(40),
+        ...data.items.map(it => `${it.name}  x${it.quantity}  ${Number(it.unit_price).toFixed(2)}€  →  ${Number(it.total).toFixed(2)}€`),
+        '─'.repeat(40),
+        `Subtotal: ${Number(data.subtotal).toFixed(2)}€`,
+        `Envío: ${Number(data.shipping).toFixed(2)}€`,
+        `IVA: ${Number(data.tax).toFixed(2)}€`,
+        `TOTAL: ${Number(data.total).toFixed(2)}€`,
+        '',
+        `Estado: ${data.status}`,
+        `Método de pago: ${data.payment_method}`,
+      ];
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `factura-${data.invoice_number}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error('No se pudo descargar la factura');
+    } finally {
+      setInvoiceLoading(false);
     }
   };
 
@@ -430,6 +470,29 @@ export default function OrderDetailPage() {
         {/* ── Actions ── */}
         {!isCancelled && (
           <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              onClick={downloadInvoice}
+              disabled={invoiceLoading}
+              style={{
+                width: '100%', height: 48,
+                background: '#f5f5f4',
+                border: 'none',
+                borderRadius: '16px',
+                fontSize: 14, fontWeight: 600,
+                color: '#0c0a09',
+                cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                opacity: invoiceLoading ? 0.5 : 1,
+              }}
+            >
+              {invoiceLoading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <FileText size={16} />
+              )}
+              Descargar factura
+            </button>
+
             <button
               onClick={() => navigate('/help')}
               style={{

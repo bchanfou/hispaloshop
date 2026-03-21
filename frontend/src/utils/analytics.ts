@@ -3,18 +3,27 @@
  * Sends page visits to backend for real-time analytics
  */
 
-import { API } from './api'; // Centralized API URL
+import { API } from './api';
+import { useEffect } from 'react';
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+    fbq?: (...args: any[]) => void;
+    __posthogInit?: () => void;
+  }
+}
 
 let analyticsTrackingEnabled = true;
 
-export const trackPageVisit = async (page, country = null) => {
+export const trackPageVisit = async (page: string, country: string | null = null): Promise<void> => {
   try {
     // Don't track if API is not available or the endpoint is known missing
     if (!API || !analyticsTrackingEnabled) return;
-    
+
     // Get referrer
     const referrer = document.referrer || null;
-    
+
     const response = await fetch(`${API}/track/visit`, {
       method: 'POST',
       headers: {
@@ -33,11 +42,10 @@ export const trackPageVisit = async (page, country = null) => {
     }
   } catch (error) {
     // Silently fail - don't break the app for analytics
-    // Silently fail
   }
 };
 
-export const trackMarketingEvent = (eventName, params = {}) => {
+export const trackMarketingEvent = (eventName: string, params: Record<string, any> = {}): void => {
   try {
     if (typeof window === 'undefined') return;
 
@@ -54,15 +62,13 @@ export const trackMarketingEvent = (eventName, params = {}) => {
 };
 
 // Hook for tracking on component mount
-export const usePageTracking = (page) => {
-  const { useEffect } = require('react');
-  
+export const usePageTracking = (page: string): void => {
   useEffect(() => {
     trackPageVisit(page);
   }, [page]);
 };
 
-export const initAnalyticsOnConsent = () => {
+export const initAnalyticsOnConsent = (): void => {
   if (typeof window !== 'undefined' && typeof window.__posthogInit === 'function') {
     window.__posthogInit();
   }

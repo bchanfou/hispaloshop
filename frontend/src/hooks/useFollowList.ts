@@ -1,27 +1,35 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import apiClient from '../services/api/client';
 
-export function useFollowers(userId, search) {
+interface FollowListPage {
+  users: any[];
+  page: number;
+  [key: string]: any;
+}
+
+export function useFollowers(userId: string, search?: string) {
   return useInfiniteQuery({
     queryKey: ['followers', userId, search],
-    queryFn: ({ pageParam = 1 }) =>
+    queryFn: ({ pageParam }: { pageParam: any }) =>
       apiClient.get(
         `/users/${userId}/followers?page=${pageParam}&limit=20${search ? `&search=${encodeURIComponent(search)}` : ''}`,
-      ),
-    getNextPageParam: (last) =>
+      ) as Promise<FollowListPage>,
+    initialPageParam: 1 as any,
+    getNextPageParam: (last: FollowListPage) =>
       last.users.length === 20 ? last.page + 1 : undefined,
     enabled: Boolean(userId),
   });
 }
 
-export function useFollowing(userId, search) {
+export function useFollowing(userId: string, search?: string) {
   return useInfiniteQuery({
     queryKey: ['following', userId, search],
-    queryFn: ({ pageParam = 1 }) =>
+    queryFn: ({ pageParam }: { pageParam: any }) =>
       apiClient.get(
         `/users/${userId}/following?page=${pageParam}&limit=20${search ? `&search=${encodeURIComponent(search)}` : ''}`,
-      ),
-    getNextPageParam: (last) =>
+      ) as Promise<FollowListPage>,
+    initialPageParam: 1 as any,
+    getNextPageParam: (last: FollowListPage) =>
       last.users.length === 20 ? last.page + 1 : undefined,
     enabled: Boolean(userId),
   });

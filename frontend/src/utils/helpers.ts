@@ -5,7 +5,7 @@
 /**
  * Sanitize image URLs and normalize known asset patterns.
  */
-export const sanitizeImageUrl = (url) => {
+export const sanitizeImageUrl = (url: any): string | null => {
   if (!url || typeof url !== 'string') return null;
 
   let normalized = url.trim();
@@ -42,8 +42,8 @@ export const sanitizeImageUrl = (url) => {
 };
 
 // Country code to flag emoji mapping
-export const getCountryFlag = (countryCode) => {
-  const countryFlags = {
+export const getCountryFlag = (countryCode: string): string => {
+  const countryFlags: Record<string, string> = {
     ES: '\u{1F1EA}\u{1F1F8}',
     FR: '\u{1F1EB}\u{1F1F7}',
     DE: '\u{1F1E9}\u{1F1EA}',
@@ -72,10 +72,10 @@ export const getCountryFlag = (countryCode) => {
 };
 
 // Ingredient to emoji mapping
-export const getIngredientEmoji = (ingredient) => {
+export const getIngredientEmoji = (ingredient: string): string => {
   const normalizedIngredient = ingredient.toLowerCase().trim();
 
-  const emojiMap = {
+  const emojiMap: Record<string, string> = {
     'olive oil': '\u{1FAD2}',
     oil: '\u{1FAD2}',
     'sunflower oil': '\u{1F33B}',

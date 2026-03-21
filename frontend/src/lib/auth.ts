@@ -1,6 +1,13 @@
 /**
- * Gestión de tokens JWT y sesión
+ * Gesti\u00f3n de tokens JWT y sesi\u00f3n
  */
+
+interface JWTPayload {
+  exp?: number;
+  sub?: string;
+  role?: string;
+  [key: string]: any;
+}
 
 const TOKEN_KEY = 'hispalo_access_token';
 const REFRESH_TOKEN_KEY = 'hispalo_refresh_token';
@@ -9,21 +16,21 @@ const USER_KEY = 'hispalo_user';
 /**
  * Obtener token de acceso
  */
-export function getToken() {
+export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY) || localStorage.getItem('hsp_token');
 }
 
 /**
  * Obtener refresh token
  */
-export function getRefreshToken() {
+export function getRefreshToken(): string | null {
   return localStorage.getItem(REFRESH_TOKEN_KEY);
 }
 
 /**
  * Guardar tokens
  */
-export function setToken(accessToken, refreshToken) {
+export function setToken(accessToken?: string | null, refreshToken?: string | null): void {
   if (accessToken && typeof accessToken === 'string') {
     localStorage.setItem(TOKEN_KEY, accessToken);
   }
@@ -35,7 +42,7 @@ export function setToken(accessToken, refreshToken) {
 /**
  * Eliminar tokens (logout)
  */
-export function removeToken() {
+export function removeToken(): void {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
@@ -46,30 +53,30 @@ export function removeToken() {
 /**
  * Guardar datos de usuario
  */
-export function setUser(user) {
+export function setUser(user: any): void {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 /**
  * Obtener datos de usuario
  */
-export function getUser() {
+export function getUser(): any | null {
   const user = localStorage.getItem(USER_KEY);
   if (!user) return null;
   try { return JSON.parse(user); } catch { return null; }
 }
 
 /**
- * Verificar si hay sesión activa
+ * Verificar si hay sesion activa
  */
-export function isAuthenticated() {
+export function isAuthenticated(): boolean {
   return !!getToken();
 }
 
 /**
  * Decodificar JWT (sin verificar firma)
  */
-export function decodeToken(token) {
+export function decodeToken(token: string | null | undefined): JWTPayload | null {
   try {
     if (!token || typeof token !== 'string') return null;
     const parts = token.split('.');
@@ -84,16 +91,16 @@ export function decodeToken(token) {
     );
     const payload = JSON.parse(jsonPayload);
     if (!payload || typeof payload !== 'object') return null;
-    return payload;
+    return payload as JWTPayload;
   } catch (error) {
     return null;
   }
 }
 
 /**
- * Verificar si token está expirado
+ * Verificar si token esta expirado
  */
-export function isTokenExpired(token) {
+export function isTokenExpired(token: string | null | undefined): boolean {
   if (!token) return true;
   const decoded = decodeToken(token);
   if (!decoded || !decoded.exp) return true;

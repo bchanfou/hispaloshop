@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, RefObject } from 'react';
 
-export function useScrollDirection(threshold = 10) {
-  const [direction, setDirection] = useState('idle');
+type ScrollDirection = 'idle' | 'up' | 'down';
+
+export function useScrollDirection(threshold: number = 10): ScrollDirection {
+  const [direction, setDirection] = useState<ScrollDirection>('idle');
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
 
@@ -29,8 +31,11 @@ export function useScrollDirection(threshold = 10) {
   return direction;
 }
 
-export function useContainerScrollDirection(containerRef, threshold = 10) {
-  const [direction, setDirection] = useState('idle');
+export function useContainerScrollDirection(
+  containerRef: RefObject<HTMLElement | null>,
+  threshold: number = 10,
+): ScrollDirection {
+  const [direction, setDirection] = useState<ScrollDirection>('idle');
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
 

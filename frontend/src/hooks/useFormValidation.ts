@@ -1,6 +1,52 @@
 import { useState, useCallback } from 'react';
 
-const validations = {
+interface ValidationRule {
+  pattern?: RegExp;
+  message: string;
+  minLength?: number;
+  test?: (value: any) => boolean;
+}
+
+interface CustomRule {
+  test: (value: any) => boolean;
+  message: string;
+}
+
+type RuleEntry = string | CustomRule;
+
+interface ValidationConfig {
+  [field: string]: RuleEntry[];
+}
+
+interface FormValues {
+  [field: string]: any;
+}
+
+interface FormErrors {
+  [field: string]: string | null;
+}
+
+interface FormTouched {
+  [field: string]: boolean;
+}
+
+interface FormValid {
+  [field: string]: boolean;
+}
+
+interface UseFormValidationReturn {
+  values: FormValues;
+  errors: FormErrors;
+  touched: FormTouched;
+  valid: FormValid;
+  handleChange: (name: string) => (e: any) => void;
+  handleBlur: (name: string) => () => void;
+  validateAll: () => boolean;
+  setValue: (name: string, value: any) => void;
+  setMultipleValues: (newValues: FormValues) => void;
+}
+
+const validations: Record<string, ValidationRule> = {
   email: {
     pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     message: 'Introduce un email válido'
@@ -23,26 +69,35 @@ const validations = {
     message: 'CIF no válido'
   },
   required: {
-    test: (value) => value && value.toString().trim().length > 0,
+    test: (value: any) => value && value.toString().trim().length > 0,
     message: 'Campo obligatorio'
   },
-  minLength: (min) => ({
-    test: (value) => !value || value.length >= min,
-    message: `Mínimo ${min} caracteres`
-  }),
-  maxLength: (max) => ({
-    test: (value) => !value || value.length <= max,
-    message: `Máximo ${max} caracteres`
-  })
 };
 
-export const useFormValidation = (initialValues = {}, validationRules = {}) => {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [valid, setValid] = useState({});
+function minLengthRule(min: number): ValidationRule {
+  return {
+    test: (value: any) => !value || value.length >= min,
+    message: `Mínimo ${min} caracteres`
+  };
+}
 
-  const validateField = useCallback((name, value) => {
+function maxLengthRule(max: number): ValidationRule {
+  return {
+    test: (value: any) => !value || value.length <= max,
+    message: `Máximo ${max} caracteres`
+  };
+}
+
+export const useFormValidation = (
+  initialValues: FormValues = {},
+  validationRules: ValidationConfig = {},
+): UseFormValidationReturn => {
+  const [values, setValues] = useState<FormValues>(initialValues);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<FormTouched>({});
+  const [valid, setValid] = useState<FormValid>({});
+
+  const validateField = useCallback((name: string, value: any): string | null => {
     const rules = validationRules[name];
     if (!rules) return null;
 
@@ -51,31 +106,33 @@ export const useFormValidation = (initialValues = {}, validationRules = {}) => {
       let errorMessage = '';
 
       if (rule === 'required') {
-        isValid = validations.required.test(value);
+        isValid = validations.required.test!(value);
         errorMessage = validations.required.message;
       } else if (rule === 'email') {
-        isValid = validations.email.pattern.test(value);
+        isValid = validations.email.pattern!.test(value);
         errorMessage = validations.email.message;
       } else if (rule === 'password') {
-        isValid = validations.password.pattern.test(value);
+        isValid = validations.password.pattern!.test(value);
         errorMessage = validations.password.message;
       } else if (rule === 'phone') {
-        isValid = validations.phone.pattern.test(value);
+        isValid = validations.phone.pattern!.test(value);
         errorMessage = validations.phone.message;
       } else if (rule === 'nif') {
-        isValid = validations.nif.pattern.test(value);
+        isValid = validations.nif.pattern!.test(value);
         errorMessage = validations.nif.message;
       } else if (rule === 'cif') {
-        isValid = validations.cif.pattern.test(value);
+        isValid = validations.cif.pattern!.test(value);
         errorMessage = validations.cif.message;
-      } else if (rule.startsWith('minLength:')) {
+      } else if (typeof rule === 'string' && rule.startsWith('minLength:')) {
         const min = parseInt(rule.split(':')[1]);
-        isValid = validations.minLength(min).test(value);
-        errorMessage = validations.minLength(min).message;
-      } else if (rule.startsWith('maxLength:')) {
+        const r = minLengthRule(min);
+        isValid = r.test!(value);
+        errorMessage = r.message;
+      } else if (typeof rule === 'string' && rule.startsWith('maxLength:')) {
         const max = parseInt(rule.split(':')[1]);
-        isValid = validations.maxLength(max).test(value);
-        errorMessage = validations.maxLength(max).message;
+        const r = maxLengthRule(max);
+        isValid = r.test!(value);
+        errorMessage = r.message;
       } else if (typeof rule === 'object') {
         isValid = rule.test(value);
         errorMessage = rule.message;
@@ -89,10 +146,10 @@ export const useFormValidation = (initialValues = {}, validationRules = {}) => {
     return null;
   }, [validationRules]);
 
-  const handleChange = useCallback((name) => (e) => {
+  const handleChange = useCallback((name: string) => (e: any) => {
     const value = e.target ? e.target.value : e;
     setValues(prev => ({ ...prev, [name]: value }));
-    
+
     if (touched[name]) {
       const error = validateField(name, value);
       setErrors(prev => ({ ...prev, [name]: error }));
@@ -100,17 +157,17 @@ export const useFormValidation = (initialValues = {}, validationRules = {}) => {
     }
   }, [touched, validateField]);
 
-  const handleBlur = useCallback((name) => () => {
+  const handleBlur = useCallback((name: string) => () => {
     setTouched(prev => ({ ...prev, [name]: true }));
     const error = validateField(name, values[name]);
     setErrors(prev => ({ ...prev, [name]: error }));
     setValid(prev => ({ ...prev, [name]: !error && values[name] }));
   }, [values, validateField]);
 
-  const validateAll = useCallback(() => {
-    const newErrors = {};
-    const newTouched = {};
-    const newValid = {};
+  const validateAll = useCallback((): boolean => {
+    const newErrors: FormErrors = {};
+    const newTouched: FormTouched = {};
+    const newValid: FormValid = {};
 
     Object.keys(validationRules).forEach(field => {
       const error = validateField(field, values[field]);
@@ -126,11 +183,11 @@ export const useFormValidation = (initialValues = {}, validationRules = {}) => {
     return !Object.values(newErrors).some(Boolean);
   }, [values, validationRules, validateField]);
 
-  const setValue = useCallback((name, value) => {
+  const setValue = useCallback((name: string, value: any) => {
     setValues(prev => ({ ...prev, [name]: value }));
   }, []);
 
-  const setMultipleValues = useCallback((newValues) => {
+  const setMultipleValues = useCallback((newValues: FormValues) => {
     setValues(prev => ({ ...prev, ...newValues }));
   }, []);
 

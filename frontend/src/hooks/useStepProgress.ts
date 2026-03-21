@@ -2,10 +2,33 @@ import { useState, useCallback, useEffect } from 'react';
 
 const STORAGE_KEY = 'registration_progress';
 
-export const useStepProgress = (flow, totalSteps, expiresInDays = 7) => {
+interface StepData {
+  [key: string]: any;
+}
+
+interface UseStepProgressReturn {
+  currentStep: number;
+  completedSteps: number[];
+  data: StepData;
+  progress: number;
+  nextStep: () => void;
+  prevStep: () => void;
+  goToStep: (step: number) => void;
+  updateData: (stepData: StepData) => void;
+  saveProgress: () => void;
+  clearProgress: () => void;
+  getStepData: (step: number) => any;
+  setStepData: (step: number, stepData: any) => void;
+}
+
+export const useStepProgress = (
+  flow: string,
+  totalSteps: number,
+  expiresInDays: number = 7,
+): UseStepProgressReturn => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState([]);
-  const [data, setData] = useState({});
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [data, setData] = useState<StepData>({});
 
   // Load saved progress
   useEffect(() => {
@@ -14,7 +37,7 @@ export const useStepProgress = (flow, totalSteps, expiresInDays = 7) => {
       if (saved) {
         const parsed = JSON.parse(saved);
         const expiresAt = new Date(parsed.expiresAt);
-        
+
         if (expiresAt > new Date()) {
           setCurrentStep(parsed.currentStep || 1);
           setCompletedSteps(parsed.completedSteps || []);
@@ -27,17 +50,6 @@ export const useStepProgress = (flow, totalSteps, expiresInDays = 7) => {
       console.error('Error loading progress:', e);
     }
   }, [flow]);
-
-  // Auto-save every 10 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (currentStep > 1 || Object.keys(data).length > 0) {
-        saveProgress();
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [currentStep, completedSteps, data]);
 
   const saveProgress = useCallback(() => {
     const expiresAt = new Date();
@@ -54,9 +66,20 @@ export const useStepProgress = (flow, totalSteps, expiresInDays = 7) => {
     localStorage.setItem(`${STORAGE_KEY}_${flow}`, JSON.stringify(progress));
   }, [flow, currentStep, completedSteps, data, expiresInDays]);
 
+  // Auto-save every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (currentStep > 1 || Object.keys(data).length > 0) {
+        saveProgress();
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [currentStep, completedSteps, data, saveProgress]);
+
   const nextStep = useCallback(() => {
     if (currentStep < totalSteps) {
-      setCompletedSteps(prev => [...new Set([...prev, currentStep])]);
+      setCompletedSteps(prev => Array.from(new Set([...prev, currentStep])));
       setCurrentStep(prev => prev + 1);
     }
   }, [currentStep, totalSteps]);
@@ -67,13 +90,13 @@ export const useStepProgress = (flow, totalSteps, expiresInDays = 7) => {
     }
   }, [currentStep]);
 
-  const goToStep = useCallback((step) => {
+  const goToStep = useCallback((step: number) => {
     if (step >= 1 && step <= totalSteps && completedSteps.includes(step - 1)) {
       setCurrentStep(step);
     }
   }, [totalSteps, completedSteps]);
 
-  const updateData = useCallback((stepData) => {
+  const updateData = useCallback((stepData: StepData) => {
     setData(prev => ({ ...prev, ...stepData }));
   }, []);
 
@@ -84,11 +107,11 @@ export const useStepProgress = (flow, totalSteps, expiresInDays = 7) => {
     setData({});
   }, [flow]);
 
-  const getStepData = useCallback((step) => {
+  const getStepData = useCallback((step: number): any => {
     return data[`step${step}`] || {};
   }, [data]);
 
-  const setStepData = useCallback((step, stepData) => {
+  const setStepData = useCallback((step: number, stepData: any) => {
     setData(prev => ({ ...prev, [`step${step}`]: stepData }));
   }, []);
 

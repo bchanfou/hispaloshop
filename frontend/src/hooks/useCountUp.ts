@@ -1,9 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, RefObject } from 'react';
 
-export const useCountUp = (end, duration = 1500, start = 0) => {
+interface UseCountUpReturn {
+  count: number;
+  ref: RefObject<HTMLElement | null>;
+}
+
+export const useCountUp = (
+  end: number,
+  duration: number = 1500,
+  start: number = 0,
+): UseCountUpReturn => {
   const [count, setCount] = useState(start);
   const hasAnimated = useRef(false);
-  const elementRef = useRef(null);
+  const elementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const el = elementRef.current;
@@ -13,8 +22,8 @@ export const useCountUp = (end, duration = 1500, start = 0) => {
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true;
-          let startTime = null;
-          const animate = (timestamp) => {
+          let startTime: number | null = null;
+          const animate = (timestamp: number) => {
             if (!startTime) startTime = timestamp;
             const progress = Math.min((timestamp - startTime) / duration, 1);
             const eased = 1 - Math.pow(1 - progress, 3);

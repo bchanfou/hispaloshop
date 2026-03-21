@@ -1,8 +1,16 @@
 import { useEffect } from 'react';
 
-export const useScrollReveal = (selector = '.reveal, .reveal-left, .reveal-right, .reveal-scale', options = {}) => {
+interface ScrollRevealOptions {
+  threshold?: number;
+  rootMargin?: string;
+}
+
+export const useScrollReveal = (
+  selector: string = '.reveal, .reveal-left, .reveal-right, .reveal-scale',
+  options: ScrollRevealOptions = {},
+): void => {
   useEffect(() => {
-    const defaultOptions = {
+    const defaultOptions: IntersectionObserverInit = {
       threshold: 0.12,
       rootMargin: '0px 0px -40px 0px',
       ...options,

@@ -1,8 +1,8 @@
 /**
- * timeAgo — returns a human-readable Spanish relative time string.
+ * timeAgo -- returns a human-readable Spanish relative time string.
  * Shared across PostCard, PostDetailModal, StoryViewer, PostViewer, PostDetailPage.
  */
-export function timeAgo(dateString) {
+export function timeAgo(dateString: string | null | undefined): string {
   if (!dateString) return '';
   const now = Date.now();
   const then = new Date(dateString).getTime();
