@@ -529,8 +529,8 @@ export default function CreateStoryPage() {
     <div className="fixed inset-0 z-50 bg-black font-sans flex flex-col lg:max-w-[480px] lg:mx-auto">
       {/* Publish success overlay */}
       {publishSuccess && (
-        <div className="fixed inset-0 z-[70] bg-black flex flex-col items-center justify-center gap-4" style={{ animation: 'fadeIn 0.3s ease' }}>
-          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+        <div className="fixed inset-0 z-[70] bg-black flex flex-col items-center justify-center gap-4 animate-[fadeIn_0.3s_ease]">
+          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
             <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
           <span className="text-base font-semibold text-white">¡Historia publicada!</span>
@@ -795,8 +795,7 @@ export default function CreateStoryPage() {
           {drawMode && (
             <canvas
               ref={drawCanvasRef}
-              className="absolute inset-0 z-[8] cursor-crosshair"
-              style={{ touchAction: 'none' }}
+              className="absolute inset-0 z-[8] cursor-crosshair touch-none"
               onPointerDown={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = e.clientX - rect.left;

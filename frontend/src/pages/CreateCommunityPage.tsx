@@ -322,7 +322,7 @@ export default function CreateCommunityPage() {
                   onClick={() => update('emoji', em)}
                   aria-label={`Seleccionar icono ${em}`}
                   aria-pressed={form.emoji === em}
-                  className={`w-10 h-10 rounded-lg cursor-pointer text-xl ${
+                  className={`w-10 h-10 rounded-xl cursor-pointer text-xl ${
                     form.emoji === em
                       ? 'bg-stone-100 border-2 border-stone-950'
                       : 'bg-white border border-stone-200'

@@ -75,134 +75,52 @@ export default function CertificationsPage() {
   const navigate = useNavigate();
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#f5f5f4',
-        fontFamily: 'inherit',
-      }}
-    >
+    <div className="min-h-screen bg-stone-100">
       {/* Sticky topbar */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid #e7e5e4',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '12px 16px',
-        }}
-      >
+      <div className="sticky top-0 z-10 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
         <button
           onClick={() => navigate(-1)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 4,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#0c0a09',
-          }}
+          className="bg-transparent border-none cursor-pointer p-1 flex items-center justify-center text-stone-950"
           aria-label="Volver"
         >
           <ChevronLeft size={24} />
         </button>
-        <h1
-          style={{
-            fontSize: 18,
-            fontWeight: 700,
-            margin: 0,
-            color: '#0c0a09',
-          }}
-        >
+        <h1 className="text-lg font-bold m-0 text-stone-950">
           Certificaciones
         </h1>
       </div>
 
       {/* Content */}
-      <div style={{ padding: '24px 16px', maxWidth: 720, margin: '0 auto' }}>
-        <p
-          style={{
-            fontSize: 14,
-            color: '#78716c',
-            margin: '0 0 24px 0',
-          }}
-        >
+      <div className="px-4 py-6 max-w-[720px] mx-auto">
+        <p className="text-sm text-stone-500 mb-6">
           Certificaciones reconocidas en Hispaloshop
         </p>
 
         {/* Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: 16,
-          }}
-        >
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
           {certifications.map((cert) => (
             <div
               key={cert.name}
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid #e7e5e4',
-                borderRadius: '16px',
-                padding: 20,
-              }}
+              className="bg-white border border-stone-200 rounded-2xl p-5"
             >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 12,
-                  marginBottom: 8,
-                }}
-              >
-                <span style={{ fontSize: 32, lineHeight: 1 }}>
+              <div className="flex items-start gap-3 mb-2">
+                <span className="text-[32px] leading-none">
                   {cert.icon}
                 </span>
-                <span
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 16,
-                    color: '#0c0a09',
-                    paddingTop: 4,
-                  }}
-                >
+                <span className="font-bold text-base text-stone-950 pt-1">
                   {cert.name}
                 </span>
               </div>
 
-              <p
-                style={{
-                  fontSize: 13,
-                  color: '#78716c',
-                  margin: '0 0 12px 0',
-                  lineHeight: 1.5,
-                }}
-              >
+              <p className="text-[13px] text-stone-500 mb-3 leading-relaxed">
                 {cert.description}
               </p>
 
-              <ul
-                style={{
-                  margin: 0,
-                  paddingLeft: 18,
-                  listStyleType: 'disc',
-                }}
-              >
+              <ul className="m-0 pl-[18px] list-disc">
                 {cert.criteria.map((item) => (
                   <li
                     key={item}
-                    style={{
-                      fontSize: 13,
-                      color: '#78716c',
-                      lineHeight: 1.7,
-                    }}
+                    className="text-[13px] text-stone-500 leading-[1.7]"
                   >
                     {item}
                   </li>

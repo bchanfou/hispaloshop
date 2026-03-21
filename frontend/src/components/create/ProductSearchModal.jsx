@@ -71,7 +71,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
     <AnimatePresence>
       {isOpen && (
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true, initialFocus: false }}>
-          <div style={{ position: 'fixed', inset: 0, zIndex: 60 }}>
+          <div className="fixed inset-0 z-[60]">
             {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -79,11 +79,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={onClose}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'rgba(10,10,10,0.5)',
-              }}
+              className="absolute inset-0 bg-stone-950/50"
             />
 
             {/* Sheet */}
@@ -92,44 +88,22 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 340 }}
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                background: '#ffffff',
-                borderRadius: '20px 20px 0 0',
-                maxHeight: '70vh',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-              }}
+              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[70vh] flex flex-col overflow-hidden"
             >
               {/* Handle */}
-              <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, paddingBottom: 4 }}>
-                <div style={{ width: 36, height: 4, borderRadius: 2, background: '#e7e5e4' }} />
+              <div className="flex justify-center pt-2.5 pb-1">
+                <div className="w-9 h-1 rounded-sm bg-stone-200" />
               </div>
 
               {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px 12px' }}>
-                <span style={{ fontSize: 15, fontWeight: 600, color: '#0c0a09' }}>
+              <div className="flex items-center justify-between px-4 pt-2 pb-3">
+                <span className="text-[15px] font-semibold text-stone-950">
                   Etiquetar producto
                 </span>
                 <button
                   type="button"
                   onClick={onClose}
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: '50%',
-                    border: 'none',
-                    background: '#f5f5f4',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    color: '#0c0a09',
-                  }}
+                  className="w-7 h-7 rounded-full border-none bg-stone-100 flex items-center justify-center cursor-pointer text-stone-950"
                   aria-label="Cerrar"
                 >
                   <X size={14} />
@@ -137,46 +111,29 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
               </div>
 
               {/* Search */}
-              <div style={{ padding: '0 16px 12px', position: 'relative' }}>
+              <div className="px-4 pb-3 relative">
                 <Search
                   size={15}
-                  style={{
-                    position: 'absolute',
-                    left: 28,
-                    top: 11,
-                    color: '#78716c',
-                    pointerEvents: 'none',
-                  }}
+                  className="absolute left-7 top-[11px] text-stone-500 pointer-events-none"
                 />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar productos..."
-                  style={{
-                    width: '100%',
-                    background: '#f5f5f4',
-                    border: '1px solid #e7e5e4',
-                    borderRadius: '12px',
-                    padding: '10px 12px 10px 36px',
-                    fontSize: 13,
-                    color: '#0c0a09',
-                    outline: 'none',
-                    fontFamily: 'inherit',
-                    boxSizing: 'border-box',
-                  }}
+                  className="w-full bg-stone-100 border border-stone-200 rounded-xl py-2.5 pr-3 pl-9 text-[13px] text-stone-950 outline-none box-border"
                 />
               </div>
 
               {/* Results */}
-              <div style={{ overflowY: 'auto', flex: 1 }}>
+              <div className="overflow-y-auto flex-1">
                 {loading && (
-                  <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
-                    <Loader2 size={20} className="animate-spin" style={{ color: '#78716c' }} />
+                  <div className="flex justify-center py-8">
+                    <Loader2 size={20} className="animate-spin text-stone-500" />
                   </div>
                 )}
 
                 {!loading && debouncedQuery.trim() && results.length === 0 && (
-                  <p style={{ textAlign: 'center', padding: '32px 16px', fontSize: 13, color: '#78716c' }}>
+                  <p className="text-center py-8 px-4 text-[13px] text-stone-500">
                     No se encontraron productos
                   </p>
                 )}
@@ -190,72 +147,36 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                       key={product.product_id}
                       type="button"
                       onClick={() => handleSelect(product)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        width: '100%',
-                        padding: '12px 16px',
-                        background: 'none',
-                        border: 'none',
-                        borderBottom: idx < results.length - 1 ? '1px solid #e7e5e4' : 'none',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                      }}
+                      className={`flex items-center gap-3 w-full px-4 py-3 bg-transparent border-none cursor-pointer text-left ${
+                        idx < results.length - 1 ? 'border-b border-stone-200' : ''
+                      }`}
+                      style={idx < results.length - 1 ? { borderBottom: '1px solid #e7e5e4' } : {}}
                     >
-                      <div
-                        style={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: 8,
-                          overflow: 'hidden',
-                          background: '#f5f5f4',
-                          flexShrink: 0,
-                        }}
-                      >
+                      <div className="w-11 h-11 rounded-xl overflow-hidden bg-stone-100 shrink-0">
                         {thumb ? (
                           <img
                             src={resolveUserImage(thumb)}
                             alt={product.name}
                             loading="lazy"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            className="w-full h-full object-cover"
                           />
                         ) : null}
                       </div>
 
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{
-                          fontSize: 13,
-                          fontWeight: 500,
-                          color: '#0c0a09',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          margin: 0,
-                        }}>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-stone-950 overflow-hidden text-ellipsis whitespace-nowrap m-0">
                           {product.name}
                         </p>
                         {product.price != null && (
-                          <p style={{ fontSize: 12, color: '#78716c', margin: '2px 0 0' }}>
+                          <p className="text-xs text-stone-500 mt-0.5 mb-0">
                             {Number(product.price).toFixed(2)} &euro;
                           </p>
                         )}
                       </div>
 
                       {isSelected && (
-                        <div
-                          style={{
-                            width: 22,
-                            height: 22,
-                            borderRadius: '50%',
-                            background: '#0c0a09',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Check size={13} style={{ color: '#fff' }} />
+                        <div className="w-[22px] h-[22px] rounded-full bg-stone-950 flex items-center justify-center shrink-0">
+                          <Check size={13} className="text-white" />
                         </div>
                       )}
                     </button>

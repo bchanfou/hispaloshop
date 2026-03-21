@@ -84,7 +84,7 @@ function VerifyModal({ operationId, onClose }) {
             <p className="text-xs text-stone-500">
               El contrato no ha sido modificado desde su firma.
             </p>
-            <div className="mt-1 w-full rounded-lg bg-stone-100 p-3">
+            <div className="mt-1 w-full rounded-xl bg-stone-100 p-3">
               <p className="text-[10px] text-stone-500">Hash SHA-256</p>
               <p className="mt-1 break-all font-mono text-[10px] text-stone-950">
                 {showFullHash ? result.stored_hash : shortHash(result.stored_hash)}
@@ -119,7 +119,7 @@ function VerifyModal({ operationId, onClose }) {
             <p className="text-xs text-stone-500">
               El hash del documento no coincide con el registrado en el momento de la firma. Contacta con soporte.
             </p>
-            <div className="mt-1 w-full rounded-lg bg-red-50 p-3">
+            <div className="mt-1 w-full rounded-xl bg-red-50 p-3">
               <div className="mb-2">
                 <p className="text-[10px] text-stone-500">Hash guardado</p>
                 <p className="mt-0.5 break-all font-mono text-[9px] text-stone-950">
@@ -204,7 +204,7 @@ function ContractCard({ contract, onVerify }) {
       </div>
 
       {contract.contract_hash && (
-        <div className="mb-3 rounded-lg bg-stone-100 px-3 py-2">
+        <div className="mb-3 rounded-xl bg-stone-100 px-3 py-2">
           <p className="text-[9px] text-stone-500">Hash de integridad</p>
           <p className="mt-0.5 font-mono text-[10px] text-stone-950">
             {shortHash(contract.contract_hash)}

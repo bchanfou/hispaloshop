@@ -7,7 +7,7 @@ export default function TopBar({
   title,
   backButton = false,
   rightContent,
-  style,
+  className = '',
 }) {
   const navigate = useNavigate();
   const { getTotalItems } = useCart();
@@ -22,35 +22,17 @@ export default function TopBar({
 
   return (
     <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        height: 52,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 16px',
-        background: '#fafaf9',
-        boxShadow: scrolled ? '0 1px 2px 0 rgba(0,0,0,0.05)' : 'none',
-        transition: 'box-shadow all 0.2s ease',
-        ...style,
-      }}
+      className={`sticky top-0 z-50 h-[52px] flex items-center justify-between px-4 bg-stone-50 transition-all duration-200 ${
+        scrolled ? 'shadow-sm' : ''
+      } ${className}`}
     >
       {/* Left */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 40 }}>
+      <div className="flex items-center gap-3 min-w-[40px]">
         {backButton && (
           <button
             onClick={() => navigate(-1)}
             aria-label="Volver"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 4,
-              display: 'flex',
-              color: '#0c0a09',
-            }}
+            className="bg-transparent border-none cursor-pointer p-1 flex text-stone-950"
           >
             <ArrowLeft size={22} />
           </button>
@@ -59,61 +41,22 @@ export default function TopBar({
 
       {/* Center — title */}
       {title && (
-        <span
-          style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            fontFamily: 'inherit',
-            fontSize: 15,
-            fontWeight: 600,
-            color: '#0c0a09',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: '60%',
-          }}
-        >
+        <span className="absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-stone-950 whitespace-nowrap overflow-hidden text-ellipsis max-w-[60%]">
           {title}
         </span>
       )}
 
       {/* Right */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 40, justifyContent: 'flex-end' }}>
+      <div className="flex items-center gap-3 min-w-[40px] justify-end">
         {rightContent}
         {cartCount > 0 && (
           <button
             onClick={() => navigate('/cart')}
             aria-label={`Carrito (${cartCount})`}
-            style={{
-              position: 'relative',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 4,
-              display: 'flex',
-              color: '#0c0a09',
-            }}
+            className="relative bg-transparent border-none cursor-pointer p-1 flex text-stone-950"
           >
             <ShoppingBag size={22} />
-            <span
-              style={{
-                position: 'absolute',
-                top: -2,
-                right: -4,
-                background: '#0c0a09',
-                color: '#fff',
-                fontSize: 8,
-                fontWeight: 600,
-                width: 14,
-                height: 14,
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: 'inherit',
-              }}
-            >
+            <span className="absolute -top-0.5 -right-1 bg-stone-950 text-white text-[8px] font-semibold w-3.5 h-3.5 rounded-full flex items-center justify-center">
               {cartCount > 9 ? '9+' : cartCount}
             </span>
           </button>

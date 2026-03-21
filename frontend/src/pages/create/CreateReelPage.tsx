@@ -548,8 +548,7 @@ export default function CreateReelPage() {
         {/* Trim bar with real frame thumbnails */}
         <div className="px-4 py-2">
           <div
-            className="h-14 rounded-2xl relative flex items-center overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.06)' }}
+            className="h-14 rounded-2xl relative flex items-center overflow-hidden bg-white/[0.06]"
             onMouseDown={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const ratio = (e.clientX - rect.left) / rect.width;
@@ -594,7 +593,7 @@ export default function CreateReelPage() {
             />
             {/* Left handle */}
             <div
-              className="absolute top-0 bottom-0 w-4 bg-white rounded-l-lg cursor-ew-resize z-[3] flex items-center justify-center"
+              className="absolute top-0 bottom-0 w-4 bg-white rounded-l-xl cursor-ew-resize z-[3] flex items-center justify-center"
               style={{ left: duration > 0 ? `calc(${(trimStart / duration) * 100}% - 8px)` : '0px' }}
               onMouseDown={(e) => {
                 e.stopPropagation();
@@ -624,7 +623,7 @@ export default function CreateReelPage() {
             </div>
             {/* Right handle */}
             <div
-              className="absolute top-0 bottom-0 w-4 bg-white rounded-r-lg cursor-ew-resize z-[3] flex items-center justify-center"
+              className="absolute top-0 bottom-0 w-4 bg-white rounded-r-xl cursor-ew-resize z-[3] flex items-center justify-center"
               style={{ left: duration > 0 ? `calc(${((trimEnd || duration) / duration) * 100}% - 8px)` : 'calc(100% - 8px)' }}
               onMouseDown={(e) => {
                 e.stopPropagation();
@@ -926,8 +925,7 @@ export default function CreateReelPage() {
             placeholder="Describe tu reel..."
             rows={4}
             maxLength={2200}
-            className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-2xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border"
-            style={{ background: 'transparent', position: 'relative', caretColor: '#0a0a0a' }}
+            className="w-full bg-transparent text-stone-950 border border-stone-200 rounded-2xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border relative caret-stone-950"
             aria-label="Descripción del reel"
           />
           <div className={`text-right text-xs mt-1 ${caption.length > 2000 ? 'text-stone-950' : 'text-stone-400'}`}>

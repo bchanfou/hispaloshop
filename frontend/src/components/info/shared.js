@@ -16,58 +16,33 @@ export const FadeUp = ({ children, delay = 0 }) => (
 
 // -- Seccion hero --
 export const Hero = ({ eyebrow, headline, sub, cta, ctaHref, ctaColor = '#0A0A0A', visual }) => (
-  <section style={{
-    background: '#FFFFFF',
-    padding: 'clamp(72px, 10vw, 120px) 24px clamp(56px, 8vw, 96px)',
-    textAlign: 'center',
-    overflow: 'hidden',
-  }}>
+  <section className="bg-white text-center overflow-hidden py-[clamp(72px,10vw,120px)] px-6 pb-[clamp(56px,8vw,96px)]">
     <FadeUp>
       {eyebrow && (
-        <p style={{
-          fontSize: 13, fontWeight: 600, letterSpacing: '0.08em',
-          textTransform: 'uppercase', color: '#78716c',
-          marginBottom: 16,
-        }}>
+        <p className="text-[13px] font-semibold tracking-widest uppercase text-stone-500 mb-4">
           {eyebrow}
         </p>
       )}
-      <h1 style={{
-        fontSize: 'clamp(34px, 6vw, 64px)',
-        fontWeight: 700, lineHeight: 1.05,
-        letterSpacing: '-0.02em',
-        color: '#0c0a09',
-        maxWidth: 720, margin: '0 auto 20px',
-      }}>
+      <h1 className="text-[clamp(34px,6vw,64px)] font-bold leading-[1.05] tracking-tight text-stone-950 max-w-[720px] mx-auto mb-5">
         {headline}
       </h1>
-      <p style={{
-        fontSize: 'clamp(16px, 2vw, 20px)',
-        color: '#78716c', lineHeight: 1.6,
-        maxWidth: 520, margin: '0 auto 40px',
-      }}>
+      <p className="text-[clamp(16px,2vw,20px)] text-stone-500 leading-relaxed max-w-[520px] mx-auto mb-10">
         {sub}
       </p>
-      <a href={ctaHref || '/registro'} style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8,
-        padding: '15px 32px',
-        borderRadius: 9999,
-        background: ctaColor,
-        color: ctaColor === '#FFFFFF' ? '#0A0A0A' : '#FFFFFF',
-        fontSize: 16, fontWeight: 600,
-        textDecoration: 'none',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-        transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
-      }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.18)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)'; }}
+      <a
+        href={ctaHref || '/registro'}
+        className="inline-flex items-center gap-2 py-[15px] px-8 rounded-full text-base font-semibold no-underline shadow-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[1.03] hover:shadow-xl"
+        style={{
+          background: ctaColor,
+          color: ctaColor === '#FFFFFF' ? '#0A0A0A' : '#FFFFFF',
+        }}
       >
         {cta} →
       </a>
     </FadeUp>
     {visual && (
       <FadeUp delay={0.15}>
-        <div style={{ marginTop: 56 }}>{visual}</div>
+        <div className="mt-14">{visual}</div>
       </FadeUp>
     )}
   </section>
@@ -75,32 +50,16 @@ export const Hero = ({ eyebrow, headline, sub, cta, ctaHref, ctaColor = '#0A0A0A
 
 // -- Grid de features --
 export const FeatureGrid = ({ features }) => (
-  <section style={{
-    background: '#fafaf9',
-    padding: 'clamp(56px, 8vw, 96px) 24px',
-  }}>
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-      gap: 16, maxWidth: 1080, margin: '0 auto',
-    }}>
+  <section className="bg-stone-50 py-[clamp(56px,8vw,96px)] px-6">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4 max-w-[1080px] mx-auto">
       {features.map((f, i) => (
         <FadeUp key={f.title} delay={i * 0.07}>
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: 18,
-            border: '0.5px solid rgba(0,0,0,0.07)',
-            padding: '28px 24px',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-            height: '100%',
-          }}>
-            <div style={{ fontSize: 36, marginBottom: 14 }}>{f.icon}</div>
-            <p style={{ fontSize: 17, fontWeight: 600,
-                         color: '#0c0a09', marginBottom: 8 }}>
+          <div className="bg-white rounded-2xl border border-black/[0.07] p-7 shadow-sm h-full">
+            <div className="text-4xl mb-3.5">{f.icon}</div>
+            <p className="text-[17px] font-semibold text-stone-950 mb-2">
               {f.title}
             </p>
-            <p style={{ fontSize: 14, color: '#78716c',
-                         lineHeight: 1.6, margin: 0 }}>
+            <p className="text-sm text-stone-500 leading-relaxed m-0">
               {f.desc}
             </p>
           </div>
@@ -116,105 +75,71 @@ export const PricingCard = ({
   cta, ctaHref, accentColor, isPopular, isDark,
 }) => (
   <FadeUp>
-    <div style={{
-      background:    isDark ? '#0A0A0A' : '#FFFFFF',
-      borderRadius:  22,
-      border:        isPopular
-        ? `2px solid ${accentColor}`
-        : `0.5px solid rgba(0,0,0,${isDark ? 0.0 : 0.08})`,
-      padding:       '32px 28px',
-      position:      'relative',
-      boxShadow:     isPopular
-        ? `0 8px 40px ${accentColor}28`
-        : '0 2px 16px rgba(0,0,0,0.07)',
-      transform:     isPopular ? 'scale(1.03)' : 'scale(1)',
-      transition:    'transform 0.3s ease, box-shadow 0.3s ease',
-      height:        '100%',
-      display:       'flex',
-      flexDirection: 'column',
-    }}>
+    <div
+      className={`rounded-[22px] p-8 relative h-full flex flex-col transition-all duration-300 ${
+        isDark ? 'bg-stone-950' : 'bg-white'
+      } ${isPopular ? 'scale-[1.03]' : 'scale-100'}`}
+      style={{
+        border: isPopular
+          ? `2px solid ${accentColor}`
+          : `0.5px solid rgba(0,0,0,${isDark ? 0.0 : 0.08})`,
+        boxShadow: isPopular
+          ? `0 8px 40px ${accentColor}28`
+          : '0 2px 16px rgba(0,0,0,0.07)',
+      }}
+    >
       {isPopular && (
-        <div style={{
-          position: 'absolute', top: -14, left: '50%',
-          transform: 'translateX(-50%)',
-          background: accentColor, color: '#FFFFFF',
-          fontSize: 11, fontWeight: 700,
-          padding: '5px 16px', borderRadius: 9999,
-          letterSpacing: '0.06em', textTransform: 'uppercase',
-          whiteSpace: 'nowrap',
-        }}>
+        <div
+          className="absolute -top-3.5 left-1/2 -translate-x-1/2 text-white text-[11px] font-bold py-[5px] px-4 rounded-full tracking-wide uppercase whitespace-nowrap"
+          style={{ background: accentColor }}
+        >
           Más popular
         </div>
       )}
 
       {/* Plan name */}
-      <p style={{
-        fontSize: 12, fontWeight: 700, letterSpacing: '0.1em',
-        textTransform: 'uppercase',
-        color: isDark ? 'rgba(255,255,255,0.5)' : '#AEAEB2',
-        marginBottom: 6,
-      }}>
+      <p className={`text-xs font-bold tracking-[0.1em] uppercase mb-1.5 ${isDark ? 'text-white/50' : 'text-stone-400'}`}>
         {name}
       </p>
-      <p style={{
-        fontSize: 15, color: isDark ? 'rgba(255,255,255,0.8)' : '#78716c',
-        marginBottom: 20, lineHeight: 1.4,
-      }}>
+      <p className={`text-[15px] mb-5 leading-snug ${isDark ? 'text-white/80' : 'text-stone-500'}`}>
         {tagline}
       </p>
 
       {/* Precio */}
-      <div style={{ marginBottom: 24 }}>
-        <span style={{
-          fontSize: 48, fontWeight: 700, lineHeight: 1,
-          color: isDark ? '#FFFFFF' : '#0c0a09',
-          letterSpacing: '-0.03em',
-        }}>
+      <div className="mb-6">
+        <span className={`text-5xl font-bold leading-none tracking-tight ${isDark ? 'text-white' : 'text-stone-950'}`}>
           {price === 0 ? 'Gratis' : `${price}€`}
         </span>
         {price > 0 && (
-          <span style={{
-            fontSize: 14, color: isDark ? 'rgba(255,255,255,0.5)' : '#AEAEB2',
-            marginLeft: 4,
-          }}>
+          <span className={`text-sm ml-1 ${isDark ? 'text-white/50' : 'text-stone-400'}`}>
             + IVA{period}
           </span>
         )}
       </div>
 
       {/* Features */}
-      <ul style={{ listStyle: 'none', padding: 0,
-                   flex: 1, marginBottom: 24 }}>
+      <ul className="list-none p-0 flex-1 mb-6">
         {features.map((f) => (
-          <li key={f} style={{
-            display: 'flex', alignItems: 'flex-start', gap: 10,
-            padding: '7px 0',
-            borderBottom: `0.5px solid ${isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'}`,
-            fontSize: 14,
-            color: isDark ? 'rgba(255,255,255,0.85)' : '#0c0a09',
-            lineHeight: 1.45,
-          }}>
-            <Check size={15}
-              color={accentColor}
-              style={{ flexShrink: 0, marginTop: 2 }} />
+          <li
+            key={f}
+            className={`flex items-start gap-2.5 py-[7px] text-sm leading-snug ${
+              isDark ? 'border-b border-white/[0.07] text-white/85' : 'border-b border-black/[0.06] text-stone-950'
+            }`}
+          >
+            <Check size={15} color={accentColor} className="shrink-0 mt-0.5" />
             {f}
           </li>
         ))}
       </ul>
 
       {/* CTA */}
-      <a href={ctaHref || '/registro'}
+      <a
+        href={ctaHref || '/registro'}
+        className="block text-center py-3.5 px-6 rounded-full text-[15px] font-semibold no-underline transition-opacity duration-200 hover:opacity-90"
         style={{
-          display: 'block', textAlign: 'center',
-          padding: '14px 24px', borderRadius: 9999,
           background: isDark ? '#FFFFFF' : accentColor,
           color: isDark ? '#0A0A0A' : '#FFFFFF',
-          fontSize: 15, fontWeight: 600,
-          textDecoration: 'none',
-          transition: 'all 0.2s ease',
         }}
-        onMouseEnter={e => { e.currentTarget.style.opacity = '0.9'; }}
-        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
       >
         {cta}
       </a>
@@ -224,33 +149,18 @@ export const PricingCard = ({
 
 // -- Seccion de pricing (3 cards) --
 export const PricingSection = ({ title, sub, plans }) => (
-  <section style={{
-    background: '#FFFFFF',
-    padding: 'clamp(56px, 8vw, 96px) 24px',
-  }}>
+  <section className="bg-white py-[clamp(56px,8vw,96px)] px-6">
     <FadeUp>
-      <h2 style={{
-        fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 700,
-        textAlign: 'center', color: '#0c0a09',
-        letterSpacing: '-0.02em', marginBottom: 12,
-      }}>
+      <h2 className="text-[clamp(28px,4vw,42px)] font-bold text-center text-stone-950 tracking-tight mb-3">
         {title}
       </h2>
       {sub && (
-        <p style={{
-          fontSize: 17, color: '#78716c', textAlign: 'center',
-          maxWidth: 480, margin: '0 auto 56px',
-        }}>
+        <p className="text-[17px] text-stone-500 text-center max-w-[480px] mx-auto mb-14">
           {sub}
         </p>
       )}
     </FadeUp>
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-      gap: 20, maxWidth: 960, margin: '0 auto',
-      alignItems: 'center',
-    }}>
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5 max-w-[960px] mx-auto items-center">
       {plans.map((p) => <PricingCard key={p.name} {...p} />)}
     </div>
   </section>
@@ -258,27 +168,15 @@ export const PricingSection = ({ title, sub, plans }) => (
 
 // -- Footer CTA --
 export const FooterCTA = ({ headline, cta, ctaHref, ctaColor = '#0A0A0A' }) => (
-  <section style={{
-    background: '#0A0A0A',
-    padding: 'clamp(56px, 8vw, 96px) 24px',
-    textAlign: 'center',
-  }}>
+  <section className="bg-stone-950 py-[clamp(56px,8vw,96px)] px-6 text-center">
     <FadeUp>
-      <h2 style={{
-        fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700,
-        color: '#FFFFFF', letterSpacing: '-0.02em',
-        maxWidth: 580, margin: '0 auto 36px', lineHeight: 1.1,
-      }}>
+      <h2 className="text-[clamp(28px,4vw,44px)] font-bold text-white tracking-tight max-w-[580px] mx-auto mb-9 leading-[1.1]">
         {headline}
       </h2>
-      <a href={ctaHref || '/registro'} style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8,
-        padding: '15px 36px', borderRadius: 9999,
-        background: '#FFFFFF', color: '#0A0A0A',
-        fontSize: 16, fontWeight: 700,
-        textDecoration: 'none',
-        transition: 'all 0.25s ease',
-      }}>
+      <a
+        href={ctaHref || '/registro'}
+        className="inline-flex items-center gap-2 py-[15px] px-9 rounded-full bg-white text-stone-950 text-base font-bold no-underline transition-all duration-300"
+      >
         {cta} →
       </a>
     </FadeUp>
@@ -287,50 +185,33 @@ export const FooterCTA = ({ headline, cta, ctaHref, ctaColor = '#0A0A0A' }) => (
 
 // -- Navbar de paginas informativas --
 export const InfoNav = ({ activePage }) => (
-  <nav style={{
-    position: 'sticky', top: 0, zIndex: 200,
-    background: 'rgba(255,255,255,0.85)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
-    borderBottom: '0.5px solid rgba(0,0,0,0.08)',
-    padding: '0 24px',
-    display: 'flex', alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 52,
-  }}>
-    <a href="/" style={{ textDecoration: 'none' }}>
-      <span style={{ fontSize: 18, fontWeight: 700,
-                      color: '#0c0a09', letterSpacing: '-0.01em' }}>
+  <nav className="sticky top-0 z-[200] bg-white/85 backdrop-blur-[20px] border-b border-black/[0.08] px-6 flex items-center justify-between h-[52px]">
+    <a href="/" className="no-underline">
+      <span className="text-lg font-bold text-stone-950 tracking-tight">
         Hispaloshop
       </span>
     </a>
-    <div style={{ display: 'flex', gap: 4 }}>
+    <div className="flex gap-1">
       {[
         { href: '/que-es-hispaloshop', label: 'Qué es' },
         { href: '/productor',  label: 'Productor'  },
         { href: '/importador', label: 'Importador' },
         { href: '/influencer', label: 'Influencer' },
       ].map(({ href, label }) => (
-        <a key={href} href={href} style={{
-          padding: '6px 12px', borderRadius: 9999,
-          background: activePage === href
-            ? '#0A0A0A' : 'transparent',
-          color: activePage === href ? '#FFFFFF' : '#78716c',
-          fontSize: 13, fontWeight: 500,
-          textDecoration: 'none',
-          transition: 'all 0.2s ease',
-          whiteSpace: 'nowrap',
-        }}>
+        <a
+          key={href}
+          href={href}
+          className={`py-1.5 px-3 rounded-full text-[13px] font-medium no-underline transition-all duration-200 whitespace-nowrap ${
+            activePage === href
+              ? 'bg-stone-950 text-white'
+              : 'bg-transparent text-stone-500'
+          }`}
+        >
           {label}
         </a>
       ))}
     </div>
-    <a href="/login" style={{
-      padding: '8px 18px', borderRadius: 9999,
-      background: '#0A0A0A', color: '#FFFFFF',
-      fontSize: 13, fontWeight: 600,
-      textDecoration: 'none',
-    }}>
+    <a href="/login" className="py-2 px-[18px] rounded-full bg-stone-950 text-white text-[13px] font-semibold no-underline">
       Entrar
     </a>
   </nav>

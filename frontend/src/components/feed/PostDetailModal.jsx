@@ -111,7 +111,7 @@ const ModalCarousel = memo(function ModalCarousel({ images, userName, className,
     onIndexChange?.(next);
   }, [onIndexChange]);
 
-  if (!images.length) return <div className={`bg-stone-100 ${className || ''}`} style={style} />;
+  if (!images.length) return <div className={`bg-stone-100 ${className || ''}`} />;
 
   return (
     <div

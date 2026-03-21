@@ -54,7 +54,7 @@ const SORT_OPTIONS = [
 function CardSkeleton() {
   return (
     <div className="overflow-hidden rounded-2xl bg-stone-100">
-      <div className="animate-pulse bg-stone-200" style={{ aspectRatio: '4/5' }} />
+      <div className="animate-pulse bg-stone-200 aspect-[4/5]" />
       <div className="px-2 py-2">
         <div className="mb-1.5 h-3 w-3/4 animate-pulse rounded bg-stone-200" />
         <div className="h-3 w-1/3 animate-pulse rounded bg-stone-100" />
@@ -80,8 +80,8 @@ function ProductCardLocal({ p }) {
   const { convertAndFormatPrice } = useLocale();
   const img = p.images?.[0] || p.image_url;
   return (
-    <Link to={`/products/${p.product_id || p.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline" style={{ border: '0.5px solid #e7e5e4' }}>
-      <div className="overflow-hidden bg-stone-100" style={{ aspectRatio: '4/5' }}>
+    <Link to={`/products/${p.product_id || p.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline border border-stone-200">
+      <div className="overflow-hidden bg-stone-100 aspect-[4/5]">
         {img ? (
           <img src={img} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />
         ) : (
@@ -108,8 +108,8 @@ function ProductCardLocal({ p }) {
 function RecipeCard({ r }) {
   const img = r.cover_image || r.image_url;
   return (
-    <Link to={`/recipes/${r.recipe_id || r.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline" style={{ border: '0.5px solid #e7e5e4' }}>
-      <div className="overflow-hidden bg-stone-100" style={{ aspectRatio: '4/5' }}>
+    <Link to={`/recipes/${r.recipe_id || r.id}`} className="group block overflow-hidden rounded-2xl bg-white no-underline border border-stone-200">
+      <div className="overflow-hidden bg-stone-100 aspect-[4/5]">
         {img ? (
           <img src={img} alt={r.title} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-[1.03]" />
         ) : (

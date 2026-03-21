@@ -5,41 +5,20 @@ import { Briefcase, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 
-/* ── V2 Design Tokens ── */
-const T = {
-  black: '#0A0A0A',
-  cream: '#ffffff',
-  stone: '#8A8881',
-  white: '#FFFFFF',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  green: '#0c0a09',
-  greenLight: '#f5f5f4',
-  blue: '#57534e',
-  blueLight: '#f5f5f4',
-  amber: '#78716c',
-  amberLight: '#fafaf9',
-  red: '#dc2626',
-  redLight: '#fef2f2',
-  fontSans: 'Inter, sans-serif',
-  radiusMd: 12,
-  radiusFull: 9999,
-};
-
 /* ── Status config ── */
 const STATUS_MAP = {
-  offer_sent:         { bg: T.blueLight,  color: T.blue,  label: 'Oferta enviada' },
-  offer_accepted:     { bg: T.greenLight, color: T.green, label: 'Aceptada' },
-  offer_rejected:     { bg: T.redLight,   color: T.red,   label: 'Rechazada' },
-  contract_generated: { bg: T.amberLight, color: T.amber, label: 'Por firmar' },
-  contract_pending:   { bg: T.amberLight, color: T.amber, label: 'Firmando' },
-  contract_signed:    { bg: T.greenLight, color: T.green, label: 'Firmado' },
-  payment_pending:    { bg: T.amberLight, color: T.amber, label: 'Pago pendiente' },
-  payment_confirmed:  { bg: T.greenLight, color: T.green, label: 'Pagado' },
-  in_transit:         { bg: T.blueLight,  color: T.blue,  label: 'En tránsito' },
-  delivered:          { bg: T.greenLight, color: T.green, label: 'Entregado' },
-  completed:          { bg: T.greenLight, color: T.green, label: 'Completado' },
-  disputed:           { bg: T.redLight,   color: T.red,   label: 'En disputa' },
+  offer_sent:         { bg: 'bg-stone-100',  text: 'text-stone-600',     label: 'Oferta enviada' },
+  offer_accepted:     { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Aceptada' },
+  offer_rejected:     { bg: 'bg-red-50',     text: 'text-red-600',       label: 'Rechazada' },
+  contract_generated: { bg: 'bg-stone-50',   text: 'text-stone-500',     label: 'Por firmar' },
+  contract_pending:   { bg: 'bg-stone-50',   text: 'text-stone-500',     label: 'Firmando' },
+  contract_signed:    { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Firmado' },
+  payment_pending:    { bg: 'bg-stone-50',   text: 'text-stone-500',     label: 'Pago pendiente' },
+  payment_confirmed:  { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Pagado' },
+  in_transit:         { bg: 'bg-stone-100',  text: 'text-stone-600',     label: 'En tránsito' },
+  delivered:          { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Entregado' },
+  completed:          { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Completado' },
+  disputed:           { bg: 'bg-red-50',     text: 'text-red-600',       label: 'En disputa' },
 };
 
 /* ── Helpers ── */
@@ -78,23 +57,9 @@ const getCounterpart = (op, userId) => {
 
 /* ── StatusBadge ── */
 const StatusBadge = ({ status }) => {
-  const cfg = STATUS_MAP[status] || { bg: T.surface, color: T.stone, label: status };
+  const cfg = STATUS_MAP[status] || { bg: 'bg-stone-100', text: 'text-stone-500', label: status };
   return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '2px 8px',
-        borderRadius: T.radiusFull,
-        backgroundColor: cfg.bg,
-        color: cfg.color,
-        fontSize: 11,
-        fontWeight: 600,
-        fontFamily: T.fontSans,
-        lineHeight: '16px',
-        whiteSpace: 'nowrap',
-      }}
-    >
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold leading-4 whitespace-nowrap ${cfg.bg} ${cfg.text}`}>
       {cfg.label}
     </span>
   );
@@ -128,39 +93,15 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
     <div>
       <button
         onClick={() => onNavigate && action?.path && onNavigate(action.path)}
-        style={{
-          width: '100%',
-          padding: '14px 16px',
-          background: 'transparent',
-          border: 'none',
-          textAlign: 'left',
-          cursor: 'pointer',
-          fontFamily: T.fontSans,
-        }}
+        className="w-full px-4 py-3.5 bg-transparent border-none text-left cursor-pointer"
       >
         <div className="flex items-start gap-3">
           {/* Thumbnail */}
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: T.radiusMd,
-              backgroundColor: T.surface,
-              overflow: 'hidden',
-              flexShrink: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+          <div className="w-11 h-11 rounded-xl bg-stone-100 overflow-hidden shrink-0 flex items-center justify-center">
             {img ? (
-              <img
-                src={img}
-                alt=""
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+              <img src={img} alt="" className="w-full h-full object-cover" />
             ) : (
-              <span style={{ fontSize: 18, fontWeight: 700, color: T.stone }}>
+              <span className="text-lg font-bold text-stone-500">
                 {(operation.product_name || operation.product?.name || 'P')[0].toUpperCase()}
               </span>
             )}
@@ -170,59 +111,25 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
           <div className="flex-1 min-w-0">
             {/* Top row */}
             <div className="flex items-center justify-between gap-2">
-              <span
-                style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: T.black,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-                className="truncate"
-              >
+              <span className="text-sm font-semibold text-stone-950 truncate">
                 {operation.product_name || operation.product?.name || 'Producto'}
               </span>
-              <span
-                style={{
-                  flexShrink: 0,
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: T.black,
-                }}
-              >
+              <span className="shrink-0 text-xs font-medium text-stone-950">
                 {formatPrice(operation.total_price)}
               </span>
             </div>
 
             {/* Quantity */}
-            <div style={{ fontSize: 12, color: T.stone }}>
+            <div className="text-xs text-stone-500">
               {operation.quantity} {operation.unit || 'uds'}
             </div>
 
             {/* Counterpart */}
             <div className="flex items-center gap-2 mt-1">
-              <div
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: T.radiusFull,
-                  backgroundColor: T.black,
-                  color: T.white,
-                  fontSize: 10,
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
-              >
+              <div className="w-[22px] h-[22px] rounded-full bg-stone-950 text-white text-[10px] font-semibold flex items-center justify-center shrink-0">
                 {cp.initial}
               </div>
-              <span
-                style={{ fontSize: 12, color: T.stone }}
-                className="truncate"
-              >
+              <span className="text-xs text-stone-500 truncate">
                 {cp.name}
               </span>
             </div>
@@ -230,7 +137,7 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
             {/* Bottom row */}
             <div className="flex items-center justify-between gap-2 mt-1">
               <StatusBadge status={operation.status} />
-              <span style={{ fontSize: 10, color: T.stone }}>
+              <span className="text-[10px] text-stone-500">
                 {formatRelativeDate(operation.updated_at)}
               </span>
             </div>
@@ -240,20 +147,10 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
 
       {/* Action button */}
       {action && showAction && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px 10px' }}>
+        <div className="flex justify-end px-4 pb-2.5">
           <button
             onClick={() => onNavigate(action.path)}
-            style={{
-              padding: '6px 14px',
-              fontSize: 12,
-              fontWeight: 600,
-              fontFamily: T.fontSans,
-              backgroundColor: T.black,
-              color: T.white,
-              border: 'none',
-              borderRadius: T.radiusFull,
-              cursor: 'pointer',
-            }}
+            className="px-3.5 py-1.5 text-xs font-semibold bg-stone-950 text-white border-none rounded-full cursor-pointer"
           >
             {action.label}
           </button>
@@ -268,18 +165,9 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
 
 /* ── Empty state ── */
 const EmptyState = ({ icon: Icon, message }) => (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '64px 24px',
-      gap: 12,
-    }}
-  >
-    <Icon size={40} color={T.stone} strokeWidth={1.5} />
-    <span style={{ fontSize: 14, color: T.stone, fontFamily: T.fontSans }}>
+  <div className="flex flex-col items-center justify-center py-16 px-6 gap-3">
+    <Icon size={40} className="text-stone-500" strokeWidth={1.5} />
+    <span className="text-sm text-stone-500">
       {message}
     </span>
   </div>
@@ -291,6 +179,13 @@ const TABS = [
   { key: 'completed', label: 'Completadas' },
   { key: 'disputes', label: 'Disputas' },
 ];
+
+/* ── KPI config ── */
+const KPI_STYLES = {
+  negotiating: { bg: 'bg-stone-50',  text: 'text-stone-500' },
+  inProgress:  { bg: 'bg-stone-100', text: 'text-stone-950' },
+  pending:     { bg: 'bg-red-50',    text: 'text-red-600' },
+};
 
 /* ── Main component ── */
 const B2BOperationsDashboard = () => {
@@ -350,9 +245,9 @@ const B2BOperationsDashboard = () => {
       ['payment_pending'].includes(o.status),
     ).length;
     return [
-      { label: 'En negociación', count: negotiating, bg: T.amberLight, color: T.amber },
-      { label: 'En curso', count: inProgress, bg: T.greenLight, color: T.green },
-      { label: 'Pendientes', count: pending, bg: T.redLight, color: T.red },
+      { label: 'En negociación', count: negotiating, ...KPI_STYLES.negotiating },
+      { label: 'En curso', count: inProgress, ...KPI_STYLES.inProgress },
+      { label: 'Pendientes', count: pending, ...KPI_STYLES.pending },
     ];
   }, [activeOps]);
 
@@ -360,86 +255,32 @@ const B2BOperationsDashboard = () => {
 
   /* ── Render ── */
   return (
-    <div
-      className="fixed inset-0"
-      style={{
-        backgroundColor: T.cream,
-        fontFamily: T.fontSans,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div className="fixed inset-0 bg-white flex flex-col">
       {/* TopBar */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 20,
-          backgroundColor: 'rgba(247,246,242,0.85)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          padding: '14px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <span style={{ fontSize: 18, fontWeight: 700, color: T.black }}>
+      <div className="sticky top-0 z-20 bg-stone-50/85 backdrop-blur-md px-4 py-3.5 flex items-center justify-between">
+        <span className="text-lg font-bold text-stone-950">
           Operaciones B2B
         </span>
         {activeCount > 0 && (
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minWidth: 20,
-              height: 20,
-              padding: '0 6px',
-              borderRadius: T.radiusFull,
-              backgroundColor: T.green,
-              color: T.white,
-              fontSize: 11,
-              fontWeight: 700,
-              lineHeight: 1,
-            }}
-          >
+          <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-stone-950 text-white text-[11px] font-bold leading-none">
             {activeCount}
           </span>
         )}
       </div>
 
       {/* Tabs bar */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 50,
-          zIndex: 19,
-          backgroundColor: T.cream,
-          display: 'flex',
-          borderBottom: `1px solid ${T.border}`,
-          padding: '0 16px',
-        }}
-      >
+      <div className="sticky top-[50px] z-[19] bg-white flex border-b border-stone-200 px-4">
         {TABS.map((t) => {
           const isActive = tab === t.key;
           return (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              style={{
-                flex: 1,
-                padding: '10px 0',
-                fontSize: 13,
-                fontWeight: isActive ? 600 : 400,
-                color: isActive ? T.black : T.stone,
-                background: 'none',
-                border: 'none',
-                borderBottom: isActive ? `2px solid ${T.black}` : '2px solid transparent',
-                cursor: 'pointer',
-                fontFamily: T.fontSans,
-                transition: 'color .15s, border-color .15s',
-              }}
+              className={`flex-1 py-2.5 text-[13px] bg-transparent border-none border-b-2 cursor-pointer transition-colors duration-150 ${
+                isActive
+                  ? 'font-semibold text-stone-950 border-stone-950'
+                  : 'font-normal text-stone-500 border-transparent'
+              }`}
             >
               {t.label}
             </button>
@@ -448,7 +289,7 @@ const B2BOperationsDashboard = () => {
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflowY: 'auto' }} className="max-w-[975px] mx-auto w-full">
+      <div className="flex-1 overflow-y-auto max-w-[975px] mx-auto w-full">
         {loading ? (
           <div className="p-4 space-y-3">
             {[0, 1, 2].map((i) => (
@@ -456,32 +297,13 @@ const B2BOperationsDashboard = () => {
             ))}
           </div>
         ) : error ? (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '64px 24px',
-              gap: 12,
-            }}
-          >
-            <span style={{ fontSize: 14, color: T.stone, fontFamily: T.fontSans }}>
+          <div className="flex flex-col items-center justify-center py-16 px-6 gap-3">
+            <span className="text-sm text-stone-500">
               Error al cargar las operaciones
             </span>
             <button
               onClick={loadOperations}
-              style={{
-                padding: '8px 20px',
-                fontSize: 13,
-                fontWeight: 600,
-                fontFamily: T.fontSans,
-                backgroundColor: T.black,
-                color: T.white,
-                border: 'none',
-                borderRadius: T.radiusFull,
-                cursor: 'pointer',
-              }}
+              className="px-5 py-2 text-[13px] font-semibold bg-stone-950 text-white border-none rounded-full cursor-pointer"
             >
               Reintentar
             </button>
@@ -492,44 +314,16 @@ const B2BOperationsDashboard = () => {
             {tab === 'active' && (
               <>
                 {/* KPI row */}
-                <div
-                  className="flex gap-3"
-                  style={{
-                    overflowX: 'auto',
-                    padding: '14px 16px',
-                    WebkitOverflowScrolling: 'touch',
-                  }}
-                >
+                <div className="flex gap-3 overflow-x-auto px-4 py-3.5 webkit-overflow-scrolling-touch">
                   {kpis.map((k) => (
                     <div
                       key={k.label}
-                      style={{
-                        minWidth: 120,
-                        backgroundColor: T.white,
-                        border: `1px solid ${T.border}`,
-                        borderRadius: T.radiusMd,
-                        padding: 12,
-                        flexShrink: 0,
-                      }}
+                      className="min-w-[120px] bg-white border border-stone-200 rounded-xl p-3 shrink-0"
                     >
-                      <div style={{ fontSize: 11, color: T.stone, marginBottom: 6 }}>
+                      <div className="text-[11px] text-stone-500 mb-1.5">
                         {k.label}
                       </div>
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          minWidth: 22,
-                          height: 22,
-                          padding: '0 7px',
-                          borderRadius: T.radiusFull,
-                          backgroundColor: k.bg,
-                          color: k.color,
-                          fontSize: 12,
-                          fontWeight: 700,
-                        }}
-                      >
+                      <span className={`inline-flex items-center justify-center min-w-[22px] h-[22px] px-[7px] rounded-full text-xs font-bold ${k.bg} ${k.text}`}>
                         {k.count}
                       </span>
                     </div>
@@ -550,13 +344,7 @@ const B2BOperationsDashboard = () => {
                         onNavigate={handleNavigate}
                       />
                       {i < activeOps.length - 1 && (
-                        <div
-                          style={{
-                            height: 1,
-                            backgroundColor: T.border,
-                            marginLeft: 72,
-                          }}
-                        />
+                        <div className="h-px bg-stone-200 ml-[72px]" />
                       )}
                     </React.Fragment>
                   ))
@@ -581,25 +369,10 @@ const B2BOperationsDashboard = () => {
                         onNavigate={handleNavigate}
                         showAction={false}
                         extra={
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'flex-end',
-                              padding: '0 16px 10px',
-                            }}
-                          >
+                          <div className="flex justify-end px-4 pb-2.5">
                             <button
                               onClick={() => navigate(`/b2b/contract/${op._id}`)}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                fontSize: 12,
-                                color: T.stone,
-                                fontFamily: T.fontSans,
-                                cursor: 'pointer',
-                                textDecoration: 'underline',
-                                textUnderlineOffset: 2,
-                              }}
+                              className="bg-transparent border-none text-xs text-stone-500 cursor-pointer underline underline-offset-2"
                             >
                               Ver contrato
                             </button>
@@ -607,13 +380,7 @@ const B2BOperationsDashboard = () => {
                         }
                       />
                       {i < completedOps.length - 1 && (
-                        <div
-                          style={{
-                            height: 1,
-                            backgroundColor: T.border,
-                            marginLeft: 72,
-                          }}
-                        />
+                        <div className="h-px bg-stone-200 ml-[72px]" />
                       )}
                     </React.Fragment>
                   ))
@@ -638,41 +405,16 @@ const B2BOperationsDashboard = () => {
                         onNavigate={handleNavigate}
                         showAction={false}
                         extra={
-                          <div style={{ padding: '0 16px 10px' }}>
+                          <div className="px-4 pb-2.5">
                             {op.dispute?.reason && (
-                              <p
-                                style={{
-                                  fontSize: 12,
-                                  color: T.stone,
-                                  marginBottom: 8,
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                  paddingLeft: 56,
-                                }}
-                              >
+                              <p className="text-xs text-stone-500 mb-2 truncate pl-14">
                                 {op.dispute.reason}
                               </p>
                             )}
-                            <div
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                              }}
-                            >
+                            <div className="flex justify-end">
                               <button
                                 onClick={() => navigate(`/b2b/dispute/${op._id}`)}
-                                style={{
-                                  padding: '6px 14px',
-                                  fontSize: 12,
-                                  fontWeight: 600,
-                                  fontFamily: T.fontSans,
-                                  backgroundColor: T.black,
-                                  color: T.white,
-                                  border: 'none',
-                                  borderRadius: T.radiusFull,
-                                  cursor: 'pointer',
-                                }}
+                                className="px-3.5 py-1.5 text-xs font-semibold bg-stone-950 text-white border-none rounded-full cursor-pointer"
                               >
                                 Ver disputa
                               </button>
@@ -681,13 +423,7 @@ const B2BOperationsDashboard = () => {
                         }
                       />
                       {i < disputedOps.length - 1 && (
-                        <div
-                          style={{
-                            height: 1,
-                            backgroundColor: T.border,
-                            marginLeft: 72,
-                          }}
-                        />
+                        <div className="h-px bg-stone-200 ml-[72px]" />
                       )}
                     </React.Fragment>
                   ))

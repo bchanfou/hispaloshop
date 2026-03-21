@@ -31,15 +31,14 @@ function AddButton({ onAdd, isDisabled, testId }) {
       disabled={isDisabled}
       data-testid={testId}
       aria-label="Añadir al carrito"
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-none transition-all"
-      style={{
-        cursor: isDisabled ? 'not-allowed' : 'pointer',
-        background: confirmed ? '#f5f5f4' : isDisabled ? '#f5f5f4' : '#0c0a09',
-        color: confirmed ? '#78716c' : isDisabled ? '#78716c' : '#fff',
-      }}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-none transition-all ${
+        isDisabled ? 'cursor-not-allowed bg-stone-100 text-stone-500'
+        : confirmed ? 'cursor-pointer bg-stone-100 text-stone-500'
+        : 'cursor-pointer bg-stone-950 text-white'
+      }`}
     >
       {confirmed ? (
-        <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 10, height: 10 }}>
+        <svg viewBox="0 0 20 20" fill="currentColor" className="w-2.5 h-2.5">
           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
         </svg>
       ) : (
@@ -102,9 +101,8 @@ function ProductCard({ product, variant = 'default' }) {
         style={{ border: '0.5px solid #e7e5e4' }}
         data-testid={`product-card-${productId}`}
       >
-        <div className={`relative overflow-hidden ${isBlocked ? 'opacity-60' : ''}`}
-          style={{ aspectRatio: '4/5', background: '#f5f5f4' }}
-        >
+        <div className={`relative overflow-hidden bg-stone-100 aspect-[4/5] ${isBlocked ? 'opacity-60' : ''}`}>
+
           <ProductImage
             src={primaryImage}
             productName={product.name || 'Producto'}
@@ -145,7 +143,7 @@ function ProductCard({ product, variant = 'default' }) {
     >
       {/* Image — 4:5 aspect ratio */}
       <div className={`relative overflow-hidden ${isBlocked ? 'opacity-60' : ''}`}
-        style={{ aspectRatio: '4/5', background: '#f5f5f4' }}
+        style={{ aspectRatio: '4/5' }}
       >
         <ProductImage
           src={primaryImage}

@@ -220,7 +220,7 @@ function ContextBanner({ orderId, navigate }) {
 function DateSeparator({ date }) {
   return (
     <div className="flex justify-center py-3">
-      <span className="rounded-full bg-stone-100/80 px-3 py-1 text-[12px] font-medium text-stone-500">
+      <span className="rounded-full bg-stone-100/80 px-3 py-1 text-xs font-medium text-stone-500">
         {formatDateSeparator(date)}
       </span>
     </div>

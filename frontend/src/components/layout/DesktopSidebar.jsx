@@ -57,17 +57,7 @@ export default function DesktopSidebar() {
   const isProfile = path.startsWith('/profile') || (path.match(/^\/[a-zA-Z0-9_]+$/) && path !== '/');
 
   return (
-    <aside style={{
-      width: '320px',
-      position: 'sticky',
-      top: 16,
-      height: 'fit-content',
-      maxHeight: 'calc(100vh - 32px)',
-      overflowY: 'auto',
-      padding: '0',
-      fontFamily: 'inherit',
-      scrollbarWidth: 'none',
-    }}>
+    <aside className="w-[320px] sticky top-4 h-fit max-h-[calc(100vh-32px)] overflow-y-auto scrollbar-none">
       {/* Contextual: On store pages, prioritize communities. On communities, show stores. Default: mix */}
       {!isCommunities && (loadingStores ? (
         <SidebarSection title="Tiendas sugeridas" viewAllTo="/stores">
@@ -104,58 +94,39 @@ export default function DesktopSidebar() {
       ) : null)}
 
       {/* David AI Card — ALWAYS visible */}
-      <div style={{
-        margin: '0 0 16px',
-        padding: 16,
-        background: '#f5f5f4',
-        borderRadius: '16px',
-        border: '1px solid #e7e5e4',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: '12px',
-            background: '#0c0a09',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Sparkles size={14} color="#ffffff" />
+      <div className="mb-4 p-4 bg-stone-100 rounded-2xl border border-stone-200">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-7 h-7 rounded-xl bg-stone-950 flex items-center justify-center">
+            <Sparkles size={14} className="text-white" />
           </div>
-          <span style={{ fontSize: '14px', fontWeight: 700, color: '#0c0a09' }}>
+          <span className="text-sm font-bold text-stone-950">
             ✨ David
           </span>
         </div>
-        <p style={{ fontSize: '11px', color: '#78716c', margin: '0 0 10px', lineHeight: 1.5 }}>
+        <p className="text-[11px] text-stone-500 mb-2.5 leading-relaxed">
           Pregúntame sobre cualquier producto o productor
         </p>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent('open-hispal-ai'))}
-          style={{
-            width: '100%', height: 34,
-            border: 'none',
-            borderRadius: '9999px',
-            background: '#0c0a09',
-            fontSize: '11px', fontWeight: 600,
-            color: '#fff', cursor: 'pointer',
-            fontFamily: 'inherit',
-            transition: 'background all 0.15s ease',
-          }}
+          className="w-full h-[34px] border-none rounded-full bg-stone-950 text-[11px] font-semibold text-white cursor-pointer transition-all duration-150"
         >
           Preguntar →
         </button>
       </div>
 
       {/* Legal links */}
-      <div style={{ padding: '12px 0', display: 'flex', flexWrap: 'wrap', gap: '4px 10px' }}>
+      <div className="py-3 flex flex-wrap gap-x-2.5 gap-y-1">
         {[
           { label: 'Acerca de', to: '/que-es' },
           { label: 'Privacidad', to: '/privacy' },
           { label: 'Términos', to: '/terms' },
           { label: 'Contacto', to: '/contacto' },
         ].map(link => (
-          <Link key={link.to} to={link.to} style={{ fontSize: 10, color: '#78716c', textDecoration: 'none', lineHeight: 2 }}>
+          <Link key={link.to} to={link.to} className="text-[10px] text-stone-500 no-underline leading-8">
             {link.label}
           </Link>
         ))}
-        <span style={{ fontSize: 11, color: '#78716c', lineHeight: 2, width: '100%' }}>
+        <span className="text-[11px] text-stone-500 leading-8 w-full">
           © {new Date().getFullYear()} Hispaloshop
         </span>
       </div>
@@ -166,11 +137,11 @@ export default function DesktopSidebar() {
 /* ── Skeleton items ── */
 function SkeletonItems({ count = 3 }) {
   return Array(count).fill(0).map((_, i) => (
-    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px' }}>
-      <div className="hs-skeleton" style={{ width: 36, height: 36, borderRadius: '12px', flexShrink: 0 }} />
-      <div style={{ flex: 1 }}>
-        <div className="hs-skeleton" style={{ height: 12, width: '70%', marginBottom: 4 }} />
-        <div className="hs-skeleton" style={{ height: 10, width: '40%' }} />
+    <div key={i} className="flex items-center gap-2.5 px-2.5 py-2">
+      <div className="hs-skeleton w-9 h-9 rounded-xl shrink-0" />
+      <div className="flex-1">
+        <div className="hs-skeleton h-3 w-[70%] mb-1" />
+        <div className="hs-skeleton h-2.5 w-[40%]" />
       </div>
     </div>
   ));
@@ -179,47 +150,39 @@ function SkeletonItems({ count = 3 }) {
 /* ── Section wrapper ── */
 function SidebarSection({ title, viewAllTo, children }) {
   return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <span style={{ fontSize: '14px', fontWeight: 700, color: '#0c0a09' }}>{title}</span>
+    <div className="mb-5">
+      <div className="flex items-center justify-between mb-2.5">
+        <span className="text-sm font-bold text-stone-950">{title}</span>
         {viewAllTo && (
-          <Link to={viewAllTo} style={{ fontSize: '11px', fontWeight: 600, color: '#78716c', textDecoration: 'none' }}>
+          <Link to={viewAllTo} className="text-[11px] font-semibold text-stone-500 no-underline">
             Ver todo
           </Link>
         )}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{children}</div>
+      <div className="flex flex-col gap-1">{children}</div>
     </div>
   );
 }
 
 /* ── Row items ── */
-const itemStyle = {
-  display: 'flex', alignItems: 'center', gap: 10,
-  padding: '8px 10px', borderRadius: '12px',
-  textDecoration: 'none', transition: 'background 0.1s ease',
-};
-
 function StoreItem({ store }) {
   const slug = store.slug || store.id || store._id;
   const name = store.name || store.store_name || 'Tienda';
   const image = store.logo || store.image || store.profile_image || null;
   return (
-    <Link to={`/store/${slug}`} style={itemStyle}
-      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f4'}
-      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+    <Link to={`/store/${slug}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100">
       {image ? (
-        <img src={image} alt="" style={{ width: 36, height: 36, borderRadius: '12px', objectFit: 'cover', border: '1px solid #e7e5e4' }} />
+        <img src={image} alt="" className="w-9 h-9 rounded-xl object-cover border border-stone-200" />
       ) : (
-        <div style={{ width: 36, height: 36, borderRadius: '12px', background: '#f5f5f4', border: '1px solid #e7e5e4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Store size={16} color="#78716c" />
+        <div className="w-9 h-9 rounded-xl bg-stone-100 border border-stone-200 flex items-center justify-center">
+          <Store size={16} className="text-stone-500" />
         </div>
       )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '14px', fontWeight: 600, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-        {store.category && <p style={{ fontSize: 11, color: '#78716c', margin: '1px 0 0' }}>{store.category}</p>}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap">{name}</p>
+        {store.category && <p className="text-[11px] text-stone-500 mt-px mb-0">{store.category}</p>}
       </div>
-      <ChevronRight size={14} color="#78716c" style={{ flexShrink: 0 }} />
+      <ChevronRight size={14} className="text-stone-500 shrink-0" />
     </Link>
   );
 }
@@ -230,21 +193,19 @@ function InfluencerItem({ influencer }) {
   const image = influencer.profile_image || influencer.avatar_url || null;
   const followers = influencer.follower_count;
   return (
-    <Link to={`/user/${userId}`} style={itemStyle}
-      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f4'}
-      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+    <Link to={`/user/${userId}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100">
       {image ? (
-        <img src={image} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} />
+        <img src={image} alt="" className="w-9 h-9 rounded-full object-cover" />
       ) : (
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f5f5f4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#78716c', fontWeight: 600 }}>
+        <div className="w-9 h-9 rounded-full bg-stone-100 flex items-center justify-center text-sm text-stone-500 font-semibold">
           {name.charAt(0).toUpperCase()}
         </div>
       )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '14px', fontWeight: 600, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-        {followers != null && <p style={{ fontSize: 11, color: '#78716c', margin: '1px 0 0' }}>{followers.toLocaleString()} seguidores</p>}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap">{name}</p>
+        {followers != null && <p className="text-[11px] text-stone-500 mt-px mb-0">{followers.toLocaleString()} seguidores</p>}
       </div>
-      <ChevronRight size={14} color="#78716c" style={{ flexShrink: 0 }} />
+      <ChevronRight size={14} className="text-stone-500 shrink-0" />
     </Link>
   );
 }
@@ -252,20 +213,20 @@ function InfluencerItem({ influencer }) {
 function CommunityItem({ community }) {
   const slug = community.slug || community.id || community._id;
   const name = community.name || 'Comunidad';
+  const bgColors = ['bg-stone-300', 'bg-stone-400', 'bg-stone-500', 'bg-stone-600', 'bg-stone-700'];
+  const bgColor = bgColors[name.charCodeAt(0) % 5];
   return (
-    <Link to={`/communities/${slug}`} style={itemStyle}
-      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f4'}
-      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-      <div style={{ width: 36, height: 36, borderRadius: '12px', background: ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][name.charCodeAt(0) % 5], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, overflow: 'hidden' }}>
+    <Link to={`/communities/${slug}`} className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl no-underline transition-colors hover:bg-stone-100">
+      <div className={`w-9 h-9 rounded-xl ${bgColor} flex items-center justify-center text-lg overflow-hidden`}>
         {community.cover_image ? (
-          <img src={community.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={community.cover_image} alt="" className="w-full h-full object-cover" />
         ) : (community.emoji || '🌿')}
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '14px', fontWeight: 600, color: '#0c0a09', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-        <p style={{ fontSize: 11, color: '#78716c', margin: '1px 0 0' }}>{community.member_count?.toLocaleString() || 0} miembros</p>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap">{name}</p>
+        <p className="text-[11px] text-stone-500 mt-px mb-0">{community.member_count?.toLocaleString() || 0} miembros</p>
       </div>
-      <ChevronRight size={14} color="#78716c" style={{ flexShrink: 0 }} />
+      <ChevronRight size={14} className="text-stone-500 shrink-0" />
     </Link>
   );
 }

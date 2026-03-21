@@ -48,7 +48,7 @@ export default function CollabProposalCard({
             <img
               src={product_image}
               alt={product_name}
-              className="object-cover w-10 h-10 rounded-lg shrink-0"
+              className="object-cover w-10 h-10 rounded-xl shrink-0"
             />
           )}
           <span className="text-[13px] font-medium text-stone-950">

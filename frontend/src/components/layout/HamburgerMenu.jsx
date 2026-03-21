@@ -101,12 +101,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            style={{
-              position: 'fixed', inset: 0, zIndex: 9998,
-              background: 'rgba(10,10,10,0.5)',
-              backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)',
-            }}
+            className="fixed inset-0 z-[9998] bg-stone-950/50 backdrop-blur-sm"
           />
 
           {/* Drawer — enters from RIGHT */}
@@ -120,42 +115,23 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               ease: [0.32, 0.72, 0, 1],
               duration: 0.3,
             }}
-            style={{
-              position: 'fixed', top: 0, right: 0, bottom: 0,
-              width: 'min(300px, 85vw)',
-              zIndex: 9999,
-              background: '#ffffff',
-              display: 'flex', flexDirection: 'column',
-              overflowY: 'auto',
-              scrollbarWidth: 'none',
-              fontFamily: 'inherit',
-              boxShadow: '-8px 0 24px rgba(0,0,0,0.15)',
-            }}
+            className="fixed top-0 right-0 bottom-0 w-[min(300px,85vw)] z-[9999] bg-white flex flex-col overflow-y-auto scrollbar-none shadow-[-8px_0_24px_rgba(0,0,0,0.15)]"
           >
             {/* ── HEADER ── */}
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '16px 20px',
-              borderBottom: '1px solid #e7e5e4',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-stone-200">
+              <div className="flex items-center gap-2">
                 <Logo variant="icon" theme="light" size={24} />
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#0c0a09' }}>
+                <span className="text-[15px] font-bold text-stone-950">
                   hispaloshop
                 </span>
               </div>
-              <button onClick={onClose} style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: 32, height: 32, borderRadius: '50%',
-                border: 'none', background: '#f5f5f4',
-                cursor: 'pointer',
-              }}>
-                <X size={18} color="#0c0a09" strokeWidth={2} />
+              <button onClick={onClose} className="flex items-center justify-center w-8 h-8 rounded-full border-none bg-stone-100 cursor-pointer">
+                <X size={18} className="text-stone-950" strokeWidth={2} />
               </button>
             </div>
 
             {/* ── SECTIONS ── */}
-            <div style={{ flex: 1, padding: '8px 0' }}>
+            <div className="flex-1 py-2">
 
               {/* ── CUENTA ── */}
               <SectionLabel>CUENTA</SectionLabel>
@@ -163,46 +139,28 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               {user ? (
                 <>
                   {/* User info row */}
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '12px 20px',
-                  }}>
+                  <div className="flex items-center gap-3 px-5 py-3">
                     {profileImage ? (
-                      <img src={profileImage} alt="" style={{
-                        width: 40, height: 40, borderRadius: '50%', objectFit: 'cover',
-                        border: '1px solid #e7e5e4',
-                      }} />
+                      <img src={profileImage} alt="" className="w-10 h-10 rounded-full object-cover border border-stone-200" />
                     ) : (
-                      <div style={{
-                        width: 40, height: 40, borderRadius: '50%',
-                        background: '#0c0a09', color: '#fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 16, fontWeight: 700,
-                      }}>
+                      <div className="w-10 h-10 rounded-full bg-stone-950 text-white flex items-center justify-center text-base font-bold">
                         {displayName.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        fontSize: 14, fontWeight: 600, color: '#0c0a09',
-                        margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-stone-950 m-0 overflow-hidden text-ellipsis whitespace-nowrap">
                         {displayName}
                       </p>
                       {username && (
-                        <p style={{ fontSize: 12, color: '#78716c', margin: '1px 0 0' }}>
+                        <p className="text-xs text-stone-500 mt-px mb-0">
                           @{username}
                         </p>
                       )}
                     </div>
                     {user.plan && (
-                      <span style={{
-                        fontSize: 9, fontWeight: 700, color: '#fff',
-                        background: user.plan === 'elite' ? '#0c0a09' : user.plan === 'pro' ? '#78716c' : '#e7e5e4',
-                        borderRadius: '9999px',
-                        padding: '2px 8px',
-                        textTransform: 'uppercase',
-                      }}>
+                      <span className={`text-[9px] font-bold text-white rounded-full py-0.5 px-2 uppercase ${
+                        user.plan === 'elite' ? 'bg-stone-950' : user.plan === 'pro' ? 'bg-stone-500' : 'bg-stone-200'
+                      }`}>
                         {user.plan}
                       </span>
                     )}
@@ -214,30 +172,18 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   <MenuItem to="/messages" icon={<MessageCircle size={20} />} label="Mensajes" onClose={onClose} />
                 </>
               ) : (
-                <div style={{ padding: '8px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div className="px-5 py-2 flex flex-col gap-2">
                   <Link
                     to="/login"
                     onClick={onClose}
-                    style={{
-                      display: 'block', textAlign: 'center',
-                      padding: '12px 0', borderRadius: '9999px',
-                      border: '1px solid #e7e5e4',
-                      fontSize: 14, fontWeight: 600, color: '#0c0a09',
-                      textDecoration: 'none', fontFamily: 'inherit',
-                    }}
+                    className="block text-center py-3 rounded-full border border-stone-200 text-sm font-semibold text-stone-950 no-underline"
                   >
                     Entrar
                   </Link>
                   <Link
                     to="/register"
                     onClick={onClose}
-                    style={{
-                      display: 'block', textAlign: 'center',
-                      padding: '12px 0', borderRadius: '9999px',
-                      background: '#0c0a09', color: '#fff',
-                      fontSize: 14, fontWeight: 600,
-                      textDecoration: 'none', fontFamily: 'inherit',
-                    }}
+                    className="block text-center py-3 rounded-full bg-stone-950 text-white text-sm font-semibold no-underline"
                   >
                     Crear cuenta
                   </Link>
@@ -298,7 +244,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
               {/* Idioma */}
               <AccordionRow
-                icon={<span style={{ fontSize: 18, width: 20, textAlign: 'center' }}>🗣️</span>}
+                icon={<span className="text-lg w-5 text-center">🗣️</span>}
                 label="Idioma"
                 value={currentLang.name}
                 isOpen={openAccordion === 'language'}
@@ -323,7 +269,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
               {/* Divisa */}
               <AccordionRow
-                icon={<span style={{ fontSize: 18, width: 20, textAlign: 'center' }}>💱</span>}
+                icon={<span className="text-lg w-5 text-center">💱</span>}
                 label="Divisa"
                 value={currentCurrency.code}
                 isOpen={openAccordion === 'currency'}
@@ -367,14 +313,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   <Divider />
                   <button
                     onClick={handleLogout}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      width: '100%', padding: '14px 20px',
-                      border: 'none', background: 'transparent',
-                      fontSize: 15, fontWeight: 500, color: '#dc2626',
-                      cursor: 'pointer', fontFamily: 'inherit',
-                      textAlign: 'left',
-                    }}
+                    className="flex items-center gap-3 w-full px-5 py-3.5 border-none bg-transparent text-[15px] font-medium text-red-600 cursor-pointer text-left"
                   >
                     <LogOut size={20} />
                     Cerrar sesión
@@ -394,14 +333,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
 function SectionLabel({ children }) {
   return (
-    <p style={{
-      padding: '12px 20px 4px',
-      fontSize: 11, fontWeight: 600,
-      color: '#78716c',
-      textTransform: 'uppercase',
-      letterSpacing: '0.06em',
-      margin: 0,
-    }}>
+    <p className="px-5 pt-3 pb-1 text-[11px] font-semibold text-stone-500 uppercase tracking-wide m-0">
       {children}
     </p>
   );
@@ -412,19 +344,9 @@ function MenuItem({ to, icon, label, onClose, children }) {
     <Link
       to={to}
       onClick={onClose}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '14px 20px',
-        textDecoration: 'none',
-        fontSize: 15, fontWeight: 500,
-        color: '#0c0a09',
-        fontFamily: 'inherit',
-        transition: 'background 0.1s ease',
-      }}
-      onMouseEnter={e => e.currentTarget.style.background = '#f5f5f4'}
-      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+      className="flex items-center gap-3 px-5 py-3.5 no-underline text-[15px] font-medium text-stone-950 transition-colors hover:bg-stone-100"
     >
-      {icon && <span style={{ color: '#78716c' }}>{icon}</span>}
+      {icon && <span className="text-stone-500">{icon}</span>}
       {label}
       {children}
     </Link>
@@ -437,29 +359,18 @@ function AccordionRow({ icon, label, value, isOpen, onToggle, children }) {
       <button
         type="button"
         onClick={onToggle}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          width: '100%', padding: '14px 20px',
-          border: 'none', background: 'transparent',
-          cursor: 'pointer', fontFamily: 'inherit',
-          textAlign: 'left',
-        }}
+        className="flex items-center gap-3 w-full px-5 py-3.5 border-none bg-transparent cursor-pointer text-left"
       >
-        <span style={{ color: '#78716c', display: 'flex', flexShrink: 0 }}>{icon}</span>
-        <span style={{ flex: 1, fontSize: 15, fontWeight: 500, color: '#0c0a09' }}>
+        <span className="text-stone-500 flex shrink-0">{icon}</span>
+        <span className="flex-1 text-[15px] font-medium text-stone-950">
           {label}
         </span>
-        <span style={{ fontSize: 13, color: '#78716c', marginRight: 4 }}>
+        <span className="text-[13px] text-stone-500 mr-1">
           {value}
         </span>
         <ChevronDown
           size={16}
-          color="#78716c"
-          style={{
-            transition: 'transform 0.2s ease',
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0)',
-            flexShrink: 0,
-          }}
+          className={`text-stone-500 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
         />
       </button>
 
@@ -470,14 +381,9 @@ function AccordionRow({ icon, label, value, isOpen, onToggle, children }) {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
-            style={{ overflow: 'hidden' }}
+            className="overflow-hidden"
           >
-            <div style={{
-              background: '#f5f5f4',
-              borderRadius: '12px',
-              margin: '0 12px 8px 12px',
-              padding: '4px 0',
-            }}>
+            <div className="bg-stone-100 rounded-xl mx-3 mb-2 py-1">
               {children}
             </div>
           </motion.div>
@@ -493,36 +399,23 @@ function AccordionOption({ label, isActive, disabled, badge, badgeVariant, onCli
       type="button"
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        width: '100%', padding: '10px 16px',
-        border: 'none', background: 'transparent',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.4 : 1,
-        fontFamily: 'inherit',
-        textAlign: 'left',
-        fontSize: 14,
-        color: isActive ? '#0c0a09' : '#78716c',
-        fontWeight: isActive ? 600 : 400,
-      }}
+      className={`flex items-center gap-2 w-full px-4 py-2.5 border-none bg-transparent text-left text-sm ${
+        disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer opacity-100'
+      } ${isActive ? 'text-stone-950 font-semibold' : 'text-stone-500 font-normal'}`}
     >
-      <span style={{ flex: 1 }}>{label}</span>
+      <span className="flex-1">{label}</span>
       {badge && (
-        <span style={{
-          fontSize: 9, fontWeight: 600,
-          padding: '1px 6px',
-          borderRadius: '9999px',
-          background: badgeVariant === 'dark' ? '#0c0a09' : '#e7e5e4',
-          color: badgeVariant === 'dark' ? '#fff' : '#78716c',
-        }}>
+        <span className={`text-[9px] font-semibold py-px px-1.5 rounded-full ${
+          badgeVariant === 'dark' ? 'bg-stone-950 text-white' : 'bg-stone-200 text-stone-500'
+        }`}>
           {badge}
         </span>
       )}
-      {isActive && <Check size={16} color="#0c0a09" strokeWidth={2.5} />}
+      {isActive && <Check size={16} className="text-stone-950" strokeWidth={2.5} />}
     </button>
   );
 }
 
 function Divider() {
-  return <div style={{ height: 1, background: '#e7e5e4', margin: '8px 0' }} />;
+  return <div className="h-px bg-stone-200 my-2" />;
 }

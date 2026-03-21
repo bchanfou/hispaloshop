@@ -42,73 +42,33 @@ export default function InfoHeader() {
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
-  const headerBg = scrolled
-    ? 'rgba(10,10,10,0.85)'
-    : 'transparent';
-  const headerBorder = scrolled
-    ? '1px solid rgba(255,255,255,0.08)'
-    : '1px solid transparent';
-  const textColor = '#FFFFFF';
-
   return (
     <>
-      <header style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: '40',
-        background: headerBg,
-        borderBottom: headerBorder,
-        backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
-        transition: 'background 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease',
-        fontFamily: 'inherit',
-      }}>
+      <header
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          scrolled
+            ? 'bg-stone-950/85 backdrop-blur-[20px] border-b border-white/[0.08]'
+            : 'bg-transparent border-b border-transparent'
+        }`}
+      >
         {/* ── Mobile ── */}
-        <div className="lg:hidden" style={{
-          height: 52,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 16px',
-        }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+        <div className="lg:hidden h-[52px] flex items-center justify-between px-4">
+          <Link to="/" className="flex items-center gap-2 no-underline">
             <Logo variant="icon" theme="dark" size={26} />
-            <span style={{ fontSize: '16px', fontWeight: 700, color: textColor }}>
+            <span className="text-base font-bold text-white">
               Hispaloshop
             </span>
           </Link>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Link to="/login" style={{
-              padding: '7px 14px',
-              fontSize: '11px',
-              fontWeight: 600,
-              color: textColor,
-              textDecoration: 'none',
-              border: '1px solid rgba(255,255,255,0.25)',
-              borderRadius: '9999px',
-              background: 'transparent',
-              transition: 'background 0.15s ease',
-            }}>
+          <div className="flex items-center gap-2">
+            <Link to="/login" className="py-[7px] px-3.5 text-[11px] font-semibold text-white no-underline border border-white/25 rounded-full bg-transparent transition-colors">
               Entrar
             </Link>
 
             {/* Hamburger */}
             <button
               onClick={() => setDrawerOpen(v => !v)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 38,
-                height: 38,
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                color: textColor,
-              }}
+              className="flex items-center justify-center w-[38px] h-[38px] border-none bg-transparent cursor-pointer text-white"
               aria-label={drawerOpen ? 'Cerrar menú' : 'Abrir menú'}
             >
               {drawerOpen ? <X size={22} /> : <Menu size={22} />}
@@ -117,45 +77,22 @@ export default function InfoHeader() {
         </div>
 
         {/* ── Desktop ── */}
-        <div className="hidden lg:grid" style={{
-          height: 60,
-          gridTemplateColumns: '200px 1fr 200px',
-          alignItems: 'center',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 16px',
-        }}>
+        <div className="hidden lg:grid h-[60px] grid-cols-[200px_1fr_200px] items-center max-w-[1200px] mx-auto px-4">
           {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <Link to="/" className="flex items-center gap-2.5 no-underline">
             <Logo variant="icon" theme="dark" size={28} />
-            <span style={{ fontSize: '18px', fontWeight: 700, color: textColor }}>
+            <span className="text-lg font-bold text-white">
               Hispaloshop
             </span>
           </Link>
 
           {/* Nav links */}
-          <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+          <nav className="flex items-center justify-center gap-1">
             {NAV_LINKS.map(link => (
               <Link
                 key={link.to}
                 to={link.to}
-                style={{
-                  padding: '8px 16px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: 'rgba(255,255,255,0.8)',
-                  textDecoration: 'none',
-                  borderRadius: '9999px',
-                  transition: 'color 0.15s ease, background 0.15s ease',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.color = '#fff';
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.8)';
-                  e.currentTarget.style.background = 'transparent';
-                }}
+                className="py-2 px-4 text-sm font-medium text-white/80 no-underline rounded-full transition-all duration-150 hover:text-white hover:bg-white/10"
               >
                 {link.label}
               </Link>
@@ -163,43 +100,11 @@ export default function InfoHeader() {
           </nav>
 
           {/* CTA buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
-            <Link to="/login" style={{
-              padding: '8px 18px',
-              fontSize: '14px',
-              fontWeight: 600,
-              color: textColor,
-              textDecoration: 'none',
-              border: '1px solid rgba(255,255,255,0.25)',
-              borderRadius: '9999px',
-              background: 'transparent',
-              transition: 'background 0.15s ease, border-color 0.15s ease',
-            }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)';
-              }}
-            >
+          <div className="flex items-center justify-end gap-2.5">
+            <Link to="/login" className="py-2 px-[18px] text-sm font-semibold text-white no-underline border border-white/25 rounded-full bg-transparent transition-all duration-150 hover:bg-white/10 hover:border-white/40">
               Entrar
             </Link>
-            <Link to="/register" style={{
-              padding: '8px 18px',
-              fontSize: '14px',
-              fontWeight: 600,
-              color: '#fff',
-              textDecoration: 'none',
-              borderRadius: '9999px',
-              background: '#0c0a09',
-              border: '1px solid #0c0a09',
-              transition: 'background 0.15s ease',
-            }}
-              onMouseEnter={e => e.currentTarget.style.background = '#0c0a09'}
-              onMouseLeave={e => e.currentTarget.style.background = '#0c0a09'}
-            >
+            <Link to="/register" className="py-2 px-[18px] text-sm font-semibold text-white no-underline rounded-full bg-stone-950 border border-stone-950 transition-colors">
               Empieza gratis
             </Link>
           </div>
@@ -217,12 +122,7 @@ export default function InfoHeader() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setDrawerOpen(false)}
-              style={{
-                position: 'fixed',
-                inset: 0,
-                background: 'rgba(0,0,0,0.5)',
-                zIndex: '50',
-              }}
+              className="fixed inset-0 bg-black/50 z-50"
             />
 
             {/* Drawer panel */}
@@ -232,106 +132,49 @@ export default function InfoHeader() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              style={{
-                position: 'fixed',
-                top: 0,
-                right: 0,
-                bottom: 0,
-                width: 280,
-                background: '#ffffff',
-                zIndex: '51',
-                display: 'flex',
-                flexDirection: 'column',
-                boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
-              }}
+              className="fixed top-0 right-0 bottom-0 w-[280px] bg-white z-[51] flex flex-col shadow-xl"
             >
               {/* Drawer header */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '14px 16px',
-                borderBottom: '1px solid #e7e5e4',
-              }}>
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#0c0a09' }}>
+              <div className="flex items-center justify-between px-4 py-3.5 border-b border-stone-200">
+                <span className="text-sm font-bold text-stone-950">
                   Menú
                 </span>
                 <button
                   onClick={() => setDrawerOpen(false)}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    width: 32, height: 32, border: 'none', background: '#f5f5f4',
-                    borderRadius: '9999px', cursor: 'pointer',
-                  }}
+                  className="flex items-center justify-center w-8 h-8 border-none bg-stone-100 rounded-full cursor-pointer"
                 >
-                  <X size={16} color="#0c0a09" />
+                  <X size={16} className="text-stone-950" />
                 </button>
               </div>
 
               {/* Links */}
-              <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
+              <nav className="flex-1 p-3 px-2 overflow-y-auto">
                 {NAV_LINKS.map(link => (
                   <Link
                     key={link.to}
                     to={link.to}
                     onClick={() => setDrawerOpen(false)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '14px 12px',
-                      borderRadius: '12px',
-                      textDecoration: 'none',
-                      fontSize: '16px',
-                      fontWeight: 500,
-                      color: '#0c0a09',
-                      fontFamily: 'inherit',
-                    }}
+                    className="flex items-center justify-between px-3 py-3.5 rounded-xl no-underline text-base font-medium text-stone-950"
                   >
                     {link.label}
-                    <ChevronRight size={16} color="#78716c" />
+                    <ChevronRight size={16} className="text-stone-500" />
                   </Link>
                 ))}
               </nav>
 
               {/* CTA */}
-              <div style={{ padding: 16, borderTop: '1px solid #e7e5e4', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="p-4 border-t border-stone-200 flex flex-col gap-2">
                 <Link
                   to="/register"
                   onClick={() => setDrawerOpen(false)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: 44,
-                    borderRadius: '9999px',
-                    background: '#0c0a09',
-                    color: '#fff',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    fontFamily: 'inherit',
-                  }}
+                  className="flex items-center justify-center h-11 rounded-full bg-stone-950 text-white text-sm font-semibold no-underline"
                 >
                   Empieza gratis
                 </Link>
                 <Link
                   to="/login"
                   onClick={() => setDrawerOpen(false)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: 44,
-                    borderRadius: '9999px',
-                    background: 'transparent',
-                    color: '#0c0a09',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    border: '1px solid #e7e5e4',
-                    fontFamily: 'inherit',
-                  }}
+                  className="flex items-center justify-center h-11 rounded-full bg-transparent text-stone-950 text-sm font-semibold no-underline border border-stone-200"
                 >
                   Iniciar sesión
                 </Link>

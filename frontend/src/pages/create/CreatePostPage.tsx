@@ -477,7 +477,7 @@ export default function CreatePostPage() {
                       setPreviewIndex(i);
                     }}
                     onClick={() => setPreviewIndex(i)}
-                    className="relative shrink-0 cursor-grab overflow-hidden rounded-lg transition-transform w-11 h-11"
+                    className="relative shrink-0 cursor-grab overflow-hidden rounded-xl transition-transform w-11 h-11"
                     style={{ border: previewIndex === i ? '2px solid #fff' : '2px solid transparent' }}
                   >
                     <img src={url} alt="" className="w-full h-full object-cover" />

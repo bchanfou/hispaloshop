@@ -176,7 +176,7 @@ export default function B2BDisputePage() {
               {files.map((file, idx) => (
                 <div
                   key={idx}
-                  className="relative w-[60px] h-[60px] rounded-lg overflow-hidden border border-stone-200 bg-stone-100"
+                  className="relative w-[60px] h-[60px] rounded-xl overflow-hidden border border-stone-200 bg-stone-100"
                 >
                   {file.type.startsWith('image/') ? (
                     <img

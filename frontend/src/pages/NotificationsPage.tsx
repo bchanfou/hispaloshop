@@ -61,10 +61,10 @@ const TYPE_META = {
 
 // Icon circle styles by category
 const CATEGORY_ICON_STYLE = {
-  pedidos: { bg: '#f5f5f4', color: '#0c0a09', Icon: ShoppingBag },
-  social:  { bg: '#f5f5f4', color: '#0c0a09', Icon: User },
-  ofertas: { bg: '#f5f5f4', color: '#0c0a09', Icon: Tag },
-  sistema: { bg: '#f5f5f4', color: '#78716c', Icon: Info },
+  pedidos: { bg: 'bg-stone-100', color: 'text-stone-950', Icon: ShoppingBag },
+  social:  { bg: 'bg-stone-100', color: 'text-stone-950', Icon: User },
+  ofertas: { bg: 'bg-stone-100', color: 'text-stone-950', Icon: Tag },
+  sistema: { bg: 'bg-stone-100', color: 'text-stone-500', Icon: Info },
 };
 
 // ── Tab definitions ──────────────────────────────────────────────
@@ -205,34 +205,25 @@ function GroupedNotifRow({ group, onRead }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -40 }}
-      className="flex items-center gap-3 cursor-pointer"
-      style={{
-        padding: '12px 16px',
-        borderLeft: !allRead ? '3px solid #0c0a09' : '3px solid transparent',
-        background: !allRead ? '#f5f5f4' : '#ffffff',
-        transition: 'background 0.15s',
-      }}
+      className={`flex items-center gap-3 cursor-pointer px-4 py-3 transition-colors duration-150 ${
+        !allRead ? 'border-l-[3px] border-stone-950 bg-stone-100' : 'border-l-[3px] border-transparent bg-white'
+      }`}
       onClick={handleClick}
     >
       {/* Single avatar (first actor only) */}
-      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0" style={{ background: '#f5f5f4' }}>
+      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-stone-100">
         {avatar
           ? <img loading="lazy" src={avatar} alt={avatarName} className="w-full h-full object-cover" />
-          : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: '#78716c' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
+          : <div className="w-full h-full flex items-center justify-center text-sm font-semibold text-stone-500">{avatarName[0]?.toUpperCase() || '?'}</div>
         }
       </div>
 
       {/* Text */}
       <div className="flex-1 min-w-0">
-        <p style={{
-          fontSize: 12, lineHeight: 1.4,
-          color: '#0c0a09',
-          fontWeight: allRead ? 400 : 500,
-          fontFamily: 'inherit',
-        }}>
+        <p className={`text-xs leading-[1.4] text-stone-950 ${allRead ? 'font-normal' : 'font-medium'}`}>
           {text}
         </p>
-        <p style={{ fontSize: 10, color: '#78716c', marginTop: 2 }}>
+        <p className="text-[10px] text-stone-500 mt-0.5">
           {relativeTime(first.created_at)}
         </p>
       </div>
@@ -242,11 +233,11 @@ function GroupedNotifRow({ group, onRead }) {
         <img
           src={thumb}
           alt=""
-          className="w-11 h-11 rounded-2xl object-cover flex-shrink-0"
+          className="w-11 h-11 rounded-2xl object-cover shrink-0"
         />
       ) : (
         ['post', 'product', 'reel'].includes(first.entity_type) && (
-          <div className="w-11 h-11 rounded-2xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
+          <div className="w-11 h-11 rounded-2xl shrink-0 bg-stone-100" />
         )
       )}
     </motion.div>
@@ -257,24 +248,12 @@ function GroupedNotifRow({ group, onRead }) {
 function NotifSkeleton() {
   return (
     <div className="flex items-center gap-3 px-4 py-2.5 animate-pulse">
-      <div
-        className="w-10 h-10 rounded-full flex-shrink-0"
-        style={{ background: '#f5f5f4' }}
-      />
+      <div className="w-10 h-10 rounded-full shrink-0 bg-stone-100" />
       <div className="flex-1 space-y-2">
-        <div
-          className="h-3 rounded-full w-3/4"
-          style={{ background: '#f5f5f4' }}
-        />
-        <div
-          className="h-2.5 rounded-full w-1/2"
-          style={{ background: '#e7e5e4' }}
-        />
+        <div className="h-3 rounded-full w-3/4 bg-stone-100" />
+        <div className="h-2.5 rounded-full w-1/2 bg-stone-200" />
       </div>
-      <div
-        className="h-2.5 rounded-full w-8 flex-shrink-0"
-        style={{ background: '#e7e5e4' }}
-      />
+      <div className="h-2.5 rounded-full w-8 shrink-0 bg-stone-200" />
     </div>
   );
 }
@@ -342,18 +321,14 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   return (
     <div className="relative overflow-hidden">
       {/* Delete zone (revealed on swipe) */}
-      <div
-        className="absolute inset-y-0 right-0 flex items-center justify-center"
-        style={{ width: 72, background: '#dc2626' }}
-      >
+      <div className="absolute inset-y-0 right-0 flex items-center justify-center w-[72px] bg-red-600">
         <button
           onClick={(e) => { e.stopPropagation(); onDelete(notifKey); }}
-          className="flex flex-col items-center justify-center gap-0.5"
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          className="flex flex-col items-center justify-center gap-0.5 bg-transparent border-none cursor-pointer"
           aria-label="Eliminar notificación"
         >
-          <Trash2 style={{ width: 18, height: 18, color: '#ffffff' }} strokeWidth={1.8} />
-          <span style={{ fontSize: 10, color: '#ffffff', fontWeight: 500 }}>Eliminar</span>
+          <Trash2 className="w-[18px] h-[18px] text-white" strokeWidth={1.8} />
+          <span className="text-[10px] text-white font-medium">Eliminar</span>
         </button>
       </div>
 
@@ -377,54 +352,37 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className="flex items-center gap-3 cursor-pointer relative"
-        style={{
-          padding: '10px 16px',
-          borderLeft: !isRead ? '3px solid #0c0a09' : '3px solid transparent',
-          background: !isRead ? '#f5f5f4' : '#ffffff',
-          transition: showDelete ? 'none' : 'background 0.15s',
-          zIndex: 1,
-        }}
+        className={`flex items-center gap-3 cursor-pointer relative z-[1] px-4 py-2.5 ${
+          !isRead ? 'border-l-[3px] border-stone-950 bg-stone-100' : 'border-l-[3px] border-transparent bg-white'
+        }`}
+        style={{ transition: showDelete ? 'none' : 'background 0.15s' }}
         onClick={handleClick}
       >
         {/* Avatar (40px) with icon badge */}
-        <div className="relative w-10 h-10 flex-shrink-0">
-          <div className="w-10 h-10 rounded-full overflow-hidden" style={{ background: '#f5f5f4' }}>
+        <div className="relative w-10 h-10 shrink-0">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-stone-100">
             {avatar
               ? <img loading="lazy" src={avatar} alt={avatarName} className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 14, fontWeight: 600, color: '#78716c' }}>{avatarName[0]?.toUpperCase() || '?'}</div>
+              : <div className="w-full h-full flex items-center justify-center text-sm font-semibold text-stone-500">{avatarName[0]?.toUpperCase() || '?'}</div>
             }
           </div>
           {/* Category icon badge */}
-          <div
-            className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
-            style={{ background: catStyle.bg }}
-          >
-            <Icon style={{ width: 10, height: 10, color: catStyle.color }} strokeWidth={2} />
+          <div className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white ${catStyle.bg}`}>
+            <Icon className={`w-[10px] h-[10px] ${catStyle.color}`} strokeWidth={2} />
           </div>
         </div>
 
         {/* Content + timestamp */}
         <div className="flex-1 min-w-0">
-          <p style={{
-            fontSize: 13,
-            lineHeight: 1.4,
-            color: '#0c0a09',
-            fontWeight: isRead ? 400 : 500,
-            fontFamily: 'inherit',
-          }}>
+          <p className={`text-[13px] leading-[1.4] text-stone-950 ${isRead ? 'font-normal' : 'font-medium'}`}>
             {notif.title}
           </p>
           {notif.body && (
-            <p className="mt-0.5 line-clamp-2" style={{
-              fontSize: 12,
-              color: '#78716c',
-              lineHeight: 1.4,
-            }}>
+            <p className="mt-0.5 line-clamp-2 text-xs text-stone-500 leading-[1.4]">
               {notif.body}
             </p>
           )}
-          <span style={{ fontSize: 11, color: '#a8a29e', marginTop: 2, display: 'inline-block' }}>
+          <span className="text-[11px] text-stone-400 mt-0.5 inline-block">
             {relativeTime(notif.created_at)}
           </span>
         </div>
@@ -434,16 +392,12 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
           <button
             onClick={handleFollowBack}
             disabled={followLoading}
-            className="rounded-full text-[11px] font-semibold cursor-pointer flex-shrink-0"
-            style={{
-              padding: '6px 16px',
-              border: isFollowing ? '1px solid #e7e5e4' : 'none',
-              background: isFollowing ? '#ffffff' : '#0c0a09',
-              color: isFollowing ? '#78716c' : '#ffffff',
-              fontFamily: 'inherit',
-              opacity: followLoading ? 0.6 : 1,
-              transition: 'all 0.15s',
-            }}
+            className={`rounded-full text-[11px] font-semibold cursor-pointer shrink-0 px-4 py-1.5 transition-all duration-150 ${
+              isFollowing
+                ? 'border border-stone-200 bg-white text-stone-500'
+                : 'border-none bg-stone-950 text-white'
+            }`}
+            style={{ opacity: followLoading ? 0.6 : 1 }}
             aria-label={isFollowing ? 'Ya sigues a este usuario' : 'Seguir a este usuario'}
           >
             {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
@@ -455,10 +409,10 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
           <img
             src={thumb}
             alt=""
-            className="w-11 h-11 rounded-2xl object-cover flex-shrink-0"
+            className="w-11 h-11 rounded-2xl object-cover shrink-0"
           />
         ) : showThumbPlaceholder ? (
-          <div className="w-11 h-11 rounded-2xl flex-shrink-0" style={{ background: '#f5f5f4' }} />
+          <div className="w-11 h-11 rounded-2xl shrink-0 bg-stone-100" />
         ) : null}
       </motion.div>
     </div>
@@ -477,7 +431,7 @@ function EmptyState() {
       <h3 className="mt-4 text-lg font-semibold text-stone-950">
         Todo al día
       </h3>
-      <p className="mt-1 text-sm text-stone-500" style={{ maxWidth: 280 }}>
+      <p className="mt-1 text-sm text-stone-500 max-w-[280px]">
         Aquí verás likes, comentarios, actualizaciones de pedidos y más.
       </p>
     </motion.div>
@@ -559,34 +513,22 @@ export default function NotificationsPage() {
   const GROUP_ORDER = ['Hoy', 'Ayer', 'Esta semana', 'Este mes', 'Anterior'];
 
   return (
-    <div className="min-h-screen max-w-[600px] mx-auto pb-20" style={{ background: '#fafaf9' }}>
+    <div className="min-h-screen max-w-[600px] mx-auto pb-20 bg-stone-50">
 
       {/* ── Header ────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10"
-        style={{
-          background: '#ffffff',
-          borderBottom: '1px solid #e7e5e4',
-        }}
-      >
+      <div className="sticky top-0 z-10 bg-white border-b border-stone-200">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left: back arrow */}
           <button
             onClick={() => navigate(-1)}
             aria-label="Volver"
-            className="p-2 -ml-2 rounded-full transition-opacity"
-            style={{ color: '#0c0a09' }}
+            className="p-2 -ml-2 rounded-full transition-opacity text-stone-950"
           >
-            <ArrowLeft style={{ width: 20, height: 20 }} />
+            <ArrowLeft className="w-5 h-5" />
           </button>
 
           {/* Center: title */}
-          <h1 style={{
-            fontWeight: 600,
-            color: '#0c0a09',
-            fontFamily: 'inherit',
-            fontSize: 16,
-          }}>
+          <h1 className="font-semibold text-stone-950 text-base">
             Notificaciones
           </h1>
 
@@ -594,29 +536,15 @@ export default function NotificationsPage() {
           <div className="flex items-center gap-1">
             <button
               onClick={handleClearAll}
-              className="text-xs px-2 py-1 transition-colors"
-              style={{
-                color: '#78716c',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className="text-xs px-2 py-1 transition-colors text-stone-500 bg-transparent border-none cursor-pointer"
               aria-label="Limpiar todas las notificaciones"
             >
               Limpiar
             </button>
-            <span style={{ color: '#e7e5e4', fontSize: 12 }}>|</span>
+            <span className="text-stone-200 text-xs">|</span>
             <button
               onClick={() => markAll()}
-              className="text-xs px-2 py-1 transition-colors"
-              style={{
-                color: '#78716c',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className="text-xs px-2 py-1 transition-colors text-stone-500 bg-transparent border-none cursor-pointer"
               aria-label="Marcar todo como leído"
             >
               Leído
@@ -625,30 +553,18 @@ export default function NotificationsPage() {
         </div>
 
         {/* Horizontal tabs */}
-        <div
-          className="flex border-b"
-          style={{ borderColor: '#e7e5e4' }}
-        >
+        <div className="flex border-b border-stone-200">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.key;
             return (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="flex-1 py-2.5 transition-colors"
-                style={{
-                  fontFamily: 'inherit',
-                  fontSize: 13,
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#0c0a09' : '#78716c',
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: isActive ? '2px solid #0c0a09' : '2px solid transparent',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  paddingLeft: 12,
-                  paddingRight: 12,
-                }}
+                className={`flex-1 py-2.5 transition-colors text-[13px] bg-transparent border-none border-b-2 cursor-pointer whitespace-nowrap px-3 ${
+                  isActive
+                    ? 'font-semibold text-stone-950 border-stone-950'
+                    : 'font-normal text-stone-500 border-transparent'
+                }`}
               >
                 {tab.label}
               </button>
@@ -674,13 +590,8 @@ export default function NotificationsPage() {
               return (
                 <div key={label}>
                   {/* Group header */}
-                  <div style={{ padding: '10px 16px 6px' }}>
-                    <span style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#0c0a09',
-                      fontFamily: 'inherit',
-                    }}>
+                  <div className="px-4 pt-2.5 pb-1.5">
+                    <span className="text-[13px] font-semibold text-stone-950">
                       {label}
                     </span>
                   </div>
@@ -703,7 +614,7 @@ export default function NotificationsPage() {
                         />
                       )}
                       {i < items.length - 1 && (
-                        <div className="ml-[68px] mr-4" style={{ borderBottom: '1px solid #f5f5f4' }} />
+                        <div className="ml-[68px] mr-4 border-b border-stone-100" />
                       )}
                     </React.Fragment>
                   ))}
@@ -719,11 +630,8 @@ export default function NotificationsPage() {
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full animate-bounce"
-                    style={{
-                      background: '#78716c',
-                      animationDelay: `${i * 0.15}s`,
-                    }}
+                    className="w-1.5 h-1.5 rounded-full animate-bounce bg-stone-500"
+                    style={{ animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
               </div>

@@ -94,7 +94,7 @@ function ToolCallCard({ toolCall }) {
         className="w-full flex items-center gap-2.5 px-3.5 py-2.5 bg-transparent border-none cursor-pointer text-[13px] text-stone-950"
       >
         <div
-          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+          className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
           style={{ background: `${meta.color}14` }}
         >
           <Icon size={14} color={meta.color} />

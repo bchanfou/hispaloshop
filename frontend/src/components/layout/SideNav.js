@@ -54,7 +54,7 @@ function LocaleDropdowns() {
   };
 
   const selectClass =
-    'w-full text-xs text-stone-600 bg-transparent border border-stone-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-stone-400 cursor-pointer';
+    'w-full text-xs text-stone-600 bg-transparent border border-stone-200 rounded-xl px-2 py-1.5 focus:outline-none focus:border-stone-400 cursor-pointer';
 
   return (
     <div className="px-3 pb-3 space-y-1.5 border-t border-stone-100 pt-3">
