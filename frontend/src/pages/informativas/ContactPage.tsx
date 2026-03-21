@@ -1,10 +1,12 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import SEO from '../../components/SEO';
 
 const ROLES = ['Consumidor', 'Productor', 'Influencer', 'Importador', 'Prensa'];
 
@@ -17,6 +19,7 @@ export default function ContactPage() {
   const [role, setRole] = useState('Consumidor');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +41,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 pt-16" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      <SEO title="Contacto \u2014 HispaloShop" description="Cont\u00e1ctanos para dudas, colaboraciones o prensa. Respondemos en menos de 24 horas. Hispaloshop SL, Reus, Tarragona." />
       <div className="max-w-[600px] mx-auto px-4 py-16 md:py-20">
         {/* Header */}
         <motion.div
@@ -163,6 +167,56 @@ export default function ContactPage() {
             >
               Crear cuenta gratuita &rarr;
             </button>
+          </div>
+        </motion.div>
+
+        {/* ── FAQ Section ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="mt-12"
+        >
+          <h3 className="text-lg font-bold text-stone-950 mb-6">Preguntas frecuentes</h3>
+          <div>
+            {[
+              { q: '¿Cuánto cuesta usar HispaloShop?', a: 'Para compradores es gratis. Productores tienen planes desde 0€. Influencers ganan comisiones.' },
+              { q: '¿Cómo recibo mis pedidos?', a: 'Los productores envían directamente. Entrega en 24-72h en España peninsular.' },
+              { q: '¿Puedo vender internacionalmente?', a: 'Sí. HispaloShop opera en 65+ países con soporte multi-idioma y multi-divisa.' },
+              { q: '¿Cómo se verifican los productores?', a: 'Verificamos identidad, certificaciones y calidad antes de aprobar cada productor.' },
+              { q: '¿Cómo funciona el programa de influencers?', a: 'Genera enlaces de afiliado, comparte, y cobra comisiones del 3-7%.' },
+            ].map((faq, i) => (
+              <div key={i} className="border-b border-stone-200">
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between py-4 text-left bg-transparent border-none cursor-pointer"
+                >
+                  <span className="text-sm font-semibold text-stone-950 pr-4">{faq.q}</span>
+                  <motion.span
+                    animate={{ rotate: openFaq === i ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="shrink-0"
+                  >
+                    <ChevronDown size={16} className="text-stone-400" />
+                  </motion.span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className="overflow-hidden"
+                    >
+                      <p className="text-sm text-stone-600 pb-4 m-0 leading-relaxed">{faq.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
           </div>
         </motion.div>
       </div>

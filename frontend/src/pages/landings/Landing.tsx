@@ -8,7 +8,11 @@ import {
   Zap,
   Heart,
   Globe,
+  Package,
+  Sparkles,
+  ShoppingBag,
 } from 'lucide-react';
+import SEO from '../../components/SEO';
 import AnimatedNumber from '../../components/motion/AnimatedNumber';
 import { InfoNav } from '../../components/info/shared';
 
@@ -22,6 +26,7 @@ const ROLES = [
     body: 'El 73% de los productos del supermercado contienen ingredientes que no puedes pronunciar. En Hispaloshop, cada producto tiene cara y apellidos. Sabes qui\u00e9n lo cultiva, d\u00f3nde y c\u00f3mo. Porque tu salud no es negociable.',
     cta: 'Descubre productos reales',
     to: '/explore',
+    icon: ShoppingBag,
   },
   {
     eyebrow: 'PARA PRODUCTORES',
@@ -29,6 +34,7 @@ const ROLES = [
     body: 'Trabajas 14 horas al d\u00eda para que otro ponga el precio a tu producto. Tu aceite vale lo que t\u00fa dices que vale. Abre tu tienda propia, vende directo y qu\u00e9date con el 100%.',
     cta: 'Abre tu tienda gratis',
     to: '/register?role=producer',
+    icon: Package,
   },
   {
     eyebrow: 'PARA CREADORES',
@@ -36,6 +42,7 @@ const ROLES = [
     body: 'Cada vez que recomiendas un producto, alguien compra. Pero t\u00fa no ves ni un c\u00e9ntimo. Con Hispaloshop ganas comisi\u00f3n por cada venta. Tu c\u00f3digo, tus reglas, tu dinero.',
     cta: 'Activa tu c\u00f3digo de afiliado',
     to: '/register?role=influencer',
+    icon: Sparkles,
   },
   {
     eyebrow: 'PARA IMPORTADORES',
@@ -43,6 +50,7 @@ const ROLES = [
     body: 'Deja de volar a ferias para encontrar proveedores que luego no cumplen. Directorio verificado con certificaciones reales, contratos digitales y trazabilidad de cada operaci\u00f3n.',
     cta: 'Explora el directorio B2B',
     to: '/register?role=importer',
+    icon: Globe,
   },
 ];
 
@@ -86,6 +94,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      <SEO title="HispaloShop \u2014 Marketplace de alimentaci\u00f3n artesanal" description="Conecta con productores reales. Compra directo del campo a tu mesa sin intermediarios. Productos artesanales verificados de toda Espa\u00f1a." />
       <InfoNav activePage="/" />
 
       {/* ════════════════════════════════════════
@@ -198,7 +207,9 @@ export default function Landing() {
 
               {/* Visual placeholder column */}
               <div className="flex-1 w-full">
-                <div className="aspect-[4/3] rounded-2xl bg-stone-100 border border-stone-200" />
+                <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-stone-100 to-stone-200 border border-stone-200 flex items-center justify-center">
+                  {(() => { const RoleIcon = role.icon; return <RoleIcon size={48} className="text-stone-300" />; })()}
+                </div>
               </div>
             </div>
           </motion.section>

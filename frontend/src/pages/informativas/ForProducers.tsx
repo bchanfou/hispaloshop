@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import SEO from '../../components/SEO';
 
 const Section = ({ dark, children, className = '' }: { dark: boolean; children: React.ReactNode; className?: string }) => (
   <section className={`${dark ? 'bg-[#0A0A0A]' : 'bg-stone-50'} py-20 px-4 ${className}`}>
@@ -18,6 +19,7 @@ export default function ForProducers() {
 
   return (
     <div>
+      <SEO title="Soy Productor \u2014 HispaloShop" description="Vende tus productos artesanales directamente al consumidor. Planes desde 0\u20ac. Sin comisiones abusivas. M\u00e1s de 65 pa\u00edses destino." />
       {/* ══════ SECCIÓN 1 — HERO ══════ */}
       <section className="min-h-screen bg-[#0A0A0A] flex items-start pt-[120px] pb-20 px-4">
         <div className="max-w-[1200px] mx-auto w-full">
@@ -167,6 +169,43 @@ export default function ForProducers() {
           <Link to="/productor" className="text-sm font-semibold text-stone-950 no-underline">
             Ver comparativa completa →
           </Link>
+
+          {/* ── Detailed comparison table ── */}
+          <div className="mt-12 rounded-2xl border border-stone-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-stone-950 text-white">
+                  <th className="text-left py-3 px-4 font-semibold">Característica</th>
+                  <th className="text-center py-3 px-4 font-semibold">FREE</th>
+                  <th className="text-center py-3 px-4 font-semibold">PRO</th>
+                  <th className="text-center py-3 px-4 font-semibold">ELITE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { feature: 'Comisión', free: '20%', pro: '18%', elite: '15%' },
+                  { feature: 'Precio mensual', free: '0€', pro: '79€', elite: '249€' },
+                  { feature: 'Productos', free: '10', pro: '50', elite: 'Ilimitados' },
+                  { feature: 'Analytics', free: 'Básico', pro: 'Avanzado', elite: 'Completo' },
+                  { feature: 'Certificados', free: '1', pro: '5', elite: 'Ilimitados' },
+                  { feature: 'Envío gratis desde', free: '—', pro: '30€', elite: '20€' },
+                  { feature: 'Soporte', free: 'Email', pro: 'Prioritario', elite: 'Dedicado' },
+                  { feature: 'B2B', free: '—', pro: '✓', elite: '✓ + IA' },
+                ].map((row, i) => (
+                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-stone-50'}>
+                    <td className="py-3 px-4 font-medium text-stone-950">{row.feature}</td>
+                    <td className="py-3 px-4 text-center text-stone-600">{row.free}</td>
+                    <td className="py-3 px-4 text-center text-stone-600">{row.pro}</td>
+                    <td className="py-3 px-4 text-center text-stone-950 font-semibold">{row.elite}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="text-center text-sm text-stone-500 mt-6">
+            Sin tarjeta de crédito para empezar
+          </p>
         </div>
       </Section>
 

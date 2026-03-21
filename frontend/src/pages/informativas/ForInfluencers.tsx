@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import SEO from '../../components/SEO';
 
 const Section = ({ dark, children, className = '' }: { dark: boolean; children: React.ReactNode; className?: string }) => (
   <section className={`${dark ? 'bg-[#0A0A0A]' : 'bg-stone-50'} py-20 px-4 font-inherit ${className}`}>
@@ -18,6 +19,7 @@ export default function ForInfluencers() {
 
   return (
     <div>
+      <SEO title="Soy Influencer \u2014 HispaloShop" description="Gana comisiones reales recomendando productos artesanales. C\u00f3digo de afiliado, cobros mensuales y tiers de comisi\u00f3n del 3% al 7%." />
       {/* ══════ SECCIÓN 1 — HERO (negro) ══════ */}
       <section className="min-h-screen bg-[#0A0A0A] flex items-start pt-[120px] pb-20 px-4">
         <div className="max-w-[1200px] mx-auto w-full">
@@ -141,6 +143,36 @@ export default function ForInfluencers() {
             Los tiers son automáticos. La plataforma sube tu porcentaje
             sin que tengas que pedir nada.
           </p>
+
+          {/* ── Income calculator ── */}
+          <div className="mt-16 reveal">
+            <h3 className="info-h3 text-white text-center mb-3">¿Cuánto puedes ganar?</h3>
+            <p className="text-center text-[15px] text-white/65 mb-8 max-w-[500px] mx-auto">
+              Si recomiendas un aceite de €25 y generas 5 ventas al día...
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { tier: 'Hércules', pct: 3, daily: 3.75, monthly: 112, badge: 'bg-white/[0.08] text-white/50' },
+                { tier: 'Atenea', pct: 5, daily: 6.25, monthly: 187, badge: 'bg-stone-100 text-stone-950' },
+                { tier: 'Zeus', pct: 7, daily: 8.75, monthly: 262, badge: 'bg-stone-100 text-stone-950' },
+              ].map((t, i) => (
+                <div
+                  key={i}
+                  className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 text-center reveal"
+                  style={{ transitionDelay: `${i * 100}ms` }}
+                >
+                  <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-semibold mb-3 ${t.badge}`}>
+                    {t.tier} ({t.pct}%)
+                  </span>
+                  <p className="text-sm text-white/65 mb-1">
+                    €25 × {t.pct}% × 5 = €{t.daily.toFixed(2)}/día
+                  </p>
+                  <p className="text-2xl font-bold text-white">€{t.monthly}/mes</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </Section>
 
@@ -240,7 +272,7 @@ export default function ForInfluencers() {
             Solicitar unirme como influencer →
           </button>
           <p className="text-sm text-white/35 mt-3">
-            Sin cuota mensual · Cobras cuando vendes
+            Sin tarjeta de crédito. Sin compromiso.
           </p>
         </div>
       </Section>

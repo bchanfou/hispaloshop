@@ -482,9 +482,9 @@ function AppRouter() {
               <Route path="/profile" element={<LegacyProfileRedirect />} />
               <Route path="/perfil" element={<LegacyProfileRedirect />} />
               <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />
-              <Route path="/terms" element={<InfoLayout><TermsPage /></InfoLayout>} />
-              <Route path="/legal" element={<Navigate to="/terms" replace />} />
-              <Route path="/privacy" element={<InfoLayout><PrivacyPage /></InfoLayout>} />
+              <Route path="/terms" element={<Navigate to="/informativas/legal" replace />} />
+              <Route path="/legal" element={<Navigate to="/informativas/legal" replace />} />
+              <Route path="/privacy" element={<Navigate to="/informativas/legal" replace />} />
               <Route path="/help" element={<Navigate to="/contacto" replace />} />
               <Route path="/blog" element={<Navigate to="/" replace />} />
               <Route path="/press" element={<Navigate to="/" replace />} />

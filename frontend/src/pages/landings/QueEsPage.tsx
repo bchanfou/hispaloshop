@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -10,8 +10,92 @@ import {
   Package,
   Star,
   Globe,
+  Quote,
 } from 'lucide-react';
 import { InfoNav } from '../../components/info/shared';
+import SEO from '../../components/SEO';
+
+/* ─────────────────────────────────────────────
+   Social proof stats
+   ───────────────────────────────────────────── */
+const STATS = [
+  { target: 1200, suffix: '+', label: 'productores' },
+  { target: 65, suffix: '+', label: 'países' },
+  { target: 100, suffix: '%', label: 'verificados' },
+];
+
+/* ─────────────────────────────────────────────
+   Testimonials
+   ───────────────────────────────────────────── */
+const TESTIMONIALS = [
+  {
+    quote: 'Este marketplace cambió mi negocio',
+    name: 'María',
+    role: 'Productora de aceite',
+  },
+  {
+    quote: 'Descubrí productos que no encontraba en ningún lado',
+    name: 'Carlos',
+    role: 'Consumidor',
+  },
+  {
+    quote: 'Gano comisiones recomendando lo que me gusta',
+    name: 'Ana',
+    role: 'Influencer',
+  },
+];
+
+/* ─────────────────────────────────────────────
+   Animated counter hook
+   ───────────────────────────────────────────── */
+function useCountUp(target, duration = 1500) {
+  const [count, setCount] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasStarted) {
+          setHasStarted(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasStarted]);
+
+  useEffect(() => {
+    if (!hasStarted) return;
+    const start = performance.now();
+    const step = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [hasStarted, target, duration]);
+
+  return { count, ref };
+}
+
+function AnimatedStat({ target, suffix, label }) {
+  const { count, ref } = useCountUp(target);
+  return (
+    <div ref={ref} className="text-center">
+      <p className="text-3xl font-bold text-stone-950">
+        {count.toLocaleString('es-ES')}{suffix}
+      </p>
+      <p className="text-sm text-stone-500 mt-1">{label}</p>
+    </div>
+  );
+}
 
 /* ─────────────────────────────────────────────
    Timeline steps
@@ -75,6 +159,7 @@ export default function QueEsPage() {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      <SEO title="HispaloShop \u2014 \u00bfQu\u00e9 es?" description="Hispaloshop es el marketplace donde la comida tiene historia. Del campo a tu mesa, sin intermediarios. Productores verificados de toda Espa\u00f1a." />
       <InfoNav activePage="/que-es-hispaloshop" />
 
       {/* ════════════════════════════════════════
@@ -275,7 +360,105 @@ export default function QueEsPage() {
       </motion.section>
 
       {/* ════════════════════════════════════════
-          6. CTA
+          6. SOCIAL PROOF STATS
+         ════════════════════════════════════════ */}
+      <section className="px-6 py-16 md:py-20 bg-white">
+        <div className="max-w-3xl mx-auto grid grid-cols-3 gap-6">
+          {STATS.map((s) => (
+            <AnimatedStat key={s.label} target={s.target} suffix={s.suffix} label={s.label} />
+          ))}
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          7. FOUNDER STORY
+         ════════════════════════════════════════ */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="px-6 py-20 md:py-28 bg-stone-950"
+      >
+        <div className="max-w-3xl mx-auto">
+          <p className="text-xs font-semibold tracking-[0.2em] text-stone-500 uppercase mb-3">
+            QUI&Eacute;N EST&Aacute; DETR&Aacute;S
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-10">
+            La historia real detr&aacute;s del proyecto
+          </h2>
+
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-16 h-16 shrink-0 rounded-full bg-white flex items-center justify-center">
+              <span className="text-lg font-bold text-stone-950">BC</span>
+            </div>
+            <div>
+              <p className="font-semibold text-white text-base">Bil Chanfou</p>
+              <p className="text-sm text-stone-400">Fundador de Hispaloshop</p>
+            </div>
+          </div>
+
+          <div className="space-y-5 text-base leading-8 text-white/80">
+            <p>
+              Ten&iacute;a 22 a&ntilde;os cuando estaba en Se&uacute;l haciendo de extra en videoclips de K-pop. Conoc&iacute; a <strong className="text-white">Alberto</strong> &mdash;300.000 seguidores en Instagram&mdash; destruido: vendiendo productos que no usaba solo para pagar el piso. Y a <strong className="text-white">Rebeca</strong>, con apenas 2.000 seguidores y una dedicaci&oacute;n brutal, so&ntilde;ando con vivir de crear contenido dignamente. El sistema no estaba hecho para ninguno de los dos.
+            </p>
+            <p>
+              A los 24 a&ntilde;os recorr&iacute; Espa&ntilde;a de f&aacute;brica en f&aacute;brica: la Cooperativa La Carrera en &Uacute;beda, Anaconda Foods en Madrid, Carolina Honest en Reus. Vol&eacute; a Se&uacute;l con 20 kg de muestras. Luego a Jap&oacute;n. Un a&ntilde;o de rechazo sistem&aacute;tico: nadie valor&oacute; el alma que hab&iacute;a en esos productos.
+            </p>
+            <p>
+              A los 25 perd&iacute; 15.000&euro; en un container de palomitas que se pudri&oacute; en Incheon. Llor&eacute; en un parque de Se&uacute;l. A los 26, volv&iacute; a la habitaci&oacute;n de mis padres en Reus. Son las 6 de la ma&ntilde;ana y llevo dos meses sin dormir m&aacute;s de 5 horas construyendo esto.
+            </p>
+            <p className="text-white font-medium">
+              Lo hice para que ning&uacute;n productor honesto vuelva a sentirse invisible. Para que ning&uacute;n influencer tenga que elegir entre su integridad y su pan.
+            </p>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ════════════════════════════════════════
+          8. TESTIMONIALS
+         ════════════════════════════════════════ */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="px-6 py-20 md:py-28 bg-stone-50"
+      >
+        <div className="max-w-5xl mx-auto">
+          <p className="text-xs font-semibold tracking-[0.2em] text-stone-400 uppercase mb-3 text-center">
+            TESTIMONIOS
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-stone-950 leading-tight mb-14 text-center">
+            Lo que dicen quienes ya est&aacute;n dentro
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {TESTIMONIALS.map((t, index) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="rounded-2xl bg-stone-50 border border-stone-200 p-6"
+              >
+                <Quote size={20} className="text-stone-300 mb-3" />
+                <p className="text-sm italic text-stone-700 leading-relaxed mb-4">
+                  &laquo;{t.quote}&raquo;
+                </p>
+                <div>
+                  <p className="text-xs font-semibold text-stone-950">{t.name}</p>
+                  <p className="text-xs text-stone-500">{t.role}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ════════════════════════════════════════
+          9. CTA
          ════════════════════════════════════════ */}
       <motion.section
         initial={{ opacity: 0, y: 40 }}

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import SEO from '../../components/SEO';
 
 const Section = ({ dark, children, className = '' }) => (
   <section className={`py-20 px-4 ${dark ? 'bg-stone-950' : 'bg-stone-50'} ${className}`}>
@@ -18,6 +19,7 @@ export default function ForImporters() {
 
   return (
     <div>
+      <SEO title="Soy Importador \u2014 HispaloShop" description="Directorio verificado de productores artesanales espa\u00f1oles. Contratos digitales, certificaciones y trazabilidad B2B completa." />
       {/* SECTION 1 — HERO (dark) */}
       <section className="min-h-screen bg-stone-950 flex items-start pt-[120px] pb-20 px-4">
         <div className="max-w-[1200px] mx-auto w-full">
@@ -112,6 +114,27 @@ export default function ForImporters() {
                 <p className="text-sm text-white/65 m-0 leading-relaxed">{step.body}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* SECTION 3.5 — PRICING (light) */}
+      <Section dark={false}>
+        <div className="reveal">
+          <div className="bg-stone-50 rounded-2xl p-6 border border-stone-200">
+            <p className="uppercase-label mb-6">PRICING B2B</p>
+            <div className="flex flex-col gap-4">
+              {[
+                { text: 'Comisión B2B: 3% por operación cerrada' },
+                { text: 'Sin cuota mensual para importadores' },
+                { text: 'Pago seguro: fondos retenidos hasta confirmación de recepción' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <Check size={18} className="text-stone-950 shrink-0 mt-0.5" strokeWidth={2.5} />
+                  <span className="text-[15px] text-stone-950 leading-relaxed">{item.text}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </Section>

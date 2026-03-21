@@ -2,11 +2,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import SEO from '../../components/SEO';
 
 const TABS = [
   { id: 'privacidad', label: 'Privacidad' },
   { id: 'terminos', label: 'T\u00e9rminos' },
   { id: 'cookies', label: 'Cookies' },
+];
+
+const COOKIE_TABLE = [
+  { cookie: 'hsp_token', tipo: 'Esencial', duracion: 'Sesi\u00f3n', proposito: 'Autenticaci\u00f3n' },
+  { cookie: 'hsp_accounts', tipo: 'Esencial', duracion: 'Permanente', proposito: 'Multi-cuenta' },
+  { cookie: 'locale', tipo: 'Esencial', duracion: '1 a\u00f1o', proposito: 'Idioma/pa\u00eds' },
+  { cookie: 'cart_id', tipo: 'Esencial', duracion: '30 d\u00edas', proposito: 'Carrito' },
+  { cookie: '_ph_*', tipo: 'Anal\u00edtica', duracion: '1 a\u00f1o', proposito: 'PostHog analytics' },
 ];
 
 const CONTENT: Record<string, { title: string; updated: string; sections: { heading: string; body: string }[] }> = {
@@ -64,6 +73,14 @@ const CONTENT: Record<string, { title: string; updated: string; sections: { head
         heading: '6. Limitaci\u00f3n de responsabilidad',
         body: 'Hispaloshop no es responsable de la calidad de los productos vendidos por terceros, aunque trabajamos activamente para verificar a todos los productores de la plataforma.',
       },
+      {
+        heading: '7. Resoluci\u00f3n de disputas',
+        body: 'Ante cualquier disputa, el usuario puede contactar a soporte@hispaloshop.com. Para operaciones B2B, la plataforma ofrece un sistema de mediaci\u00f3n integrado. En caso de no resoluci\u00f3n, aplica la legislaci\u00f3n espa\u00f1ola y los juzgados de Tarragona.',
+      },
+      {
+        heading: '8. T\u00e9rminos B2B',
+        body: 'Las operaciones B2B est\u00e1n sujetas a los Incoterms seleccionados por las partes. El comprador acepta los MOQ (cantidad m\u00ednima) indicados por el productor. Los contratos digitales tienen validez legal conforme al Reglamento eIDAS. La cancelaci\u00f3n de un contrato B2B conlleva una penalizaci\u00f3n del 5% del valor total.',
+      },
     ],
   },
   cookies: {
@@ -94,6 +111,7 @@ export default function LegalPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 pt-24" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      <SEO title="Legal \u2014 HispaloShop" description="Pol\u00edtica de privacidad, t\u00e9rminos y condiciones, y pol\u00edtica de cookies de Hispaloshop. RGPD compliant." />
       <div className="max-w-[720px] mx-auto px-4 pb-20">
         {/* Tabs */}
         <motion.div
@@ -151,6 +169,42 @@ export default function LegalPage() {
                 </p>
               </motion.div>
             ))}
+
+            {activeTab === 'cookies' && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+                className="mb-8"
+              >
+                <h2 className="text-lg font-semibold text-stone-950 mb-3">
+                  4. Detalle de cookies
+                </h2>
+                <div className="overflow-x-auto rounded-xl border border-stone-200">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-stone-100">
+                        <th className="text-left py-3 px-4 font-semibold text-stone-950">Cookie</th>
+                        <th className="text-left py-3 px-4 font-semibold text-stone-950">Tipo</th>
+                        <th className="text-left py-3 px-4 font-semibold text-stone-950">Duraci&oacute;n</th>
+                        <th className="text-left py-3 px-4 font-semibold text-stone-950">Prop&oacute;sito</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {COOKIE_TABLE.map((row, i) => (
+                        <tr key={row.cookie} className={i % 2 === 0 ? 'bg-white' : 'bg-stone-50'}>
+                          <td className="py-3 px-4 font-mono text-stone-700">{row.cookie}</td>
+                          <td className="py-3 px-4 text-stone-600">{row.tipo}</td>
+                          <td className="py-3 px-4 text-stone-600">{row.duracion}</td>
+                          <td className="py-3 px-4 text-stone-600">{row.proposito}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
