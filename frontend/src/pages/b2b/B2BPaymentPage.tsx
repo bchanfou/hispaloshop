@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Loader2, Shield, Check, AlertCircle } from 'lucide-react';
 import apiClient from '../../services/api/client';
@@ -51,8 +51,16 @@ export default function B2BPaymentPage() {
   const stripeRef = useRef(null);
   const elementsRef = useRef(null);
 
-  const isBuyer = user?._id === operation?.buyer_id;
-  const isSeller = user?._id === operation?.seller_id;
+  const isBuyer = useMemo(() => {
+    if (!operation) return false;
+    return user?._id === operation.buyer_id;
+  }, [user?._id, operation]);
+
+  const isSeller = useMemo(() => {
+    if (!operation) return false;
+    return user?._id === operation.seller_id;
+  }, [user?._id, operation]);
+
   const last8 = operationId ? String(operationId).slice(-8) : '';
 
   const fetchData = useCallback(async () => {
@@ -167,6 +175,14 @@ export default function B2BPaymentPage() {
         >
           Reintentar
         </button>
+      </div>
+    );
+  }
+
+  if (!operation) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white font-sans">
+        <Loader2 size={32} className="animate-spin text-stone-500" />
       </div>
     );
   }

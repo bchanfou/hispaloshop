@@ -1,10 +1,13 @@
 // @ts-nocheck
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, AlertTriangle, Upload, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const REASONS = [
   'Producto no recibido',
@@ -23,11 +26,21 @@ export default function B2BDisputePage() {
   const [reason, setReason] = useState('');
   const [description, setDescription] = useState('');
   const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const last8 = operationId ? operationId.slice(-8) : '';
   const isValid = reason && description.length >= 50;
+
+  // Generate preview URLs from File objects, revoke on cleanup
+  useEffect(() => {
+    const urls = files.map((f) =>
+      f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
+    );
+    setPreviews(urls);
+    return () => urls.forEach((u) => u && URL.revokeObjectURL(u));
+  }, [files]);
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files || []);
@@ -36,11 +49,23 @@ export default function B2BDisputePage() {
       toast.error('Máximo 5 archivos');
       return;
     }
-    const toAdd = selected.slice(0, remaining).filter((f) => f.size <= 10 * 1024 * 1024);
-    if (toAdd.length < selected.length) {
-      toast.error('Algunos archivos superan 10MB o el límite de 5');
+
+    const validated = [];
+    for (const f of selected.slice(0, remaining)) {
+      if (!ACCEPTED_TYPES.includes(f.type)) {
+        toast.error(`"${f.name}" no es un formato válido (solo JPG, PNG, PDF)`);
+        continue;
+      }
+      if (f.size > MAX_FILE_SIZE) {
+        toast.error(`"${f.name}" supera el límite de 10 MB`);
+        continue;
+      }
+      validated.push(f);
     }
-    setFiles((prev) => [...prev, ...toAdd]);
+
+    if (validated.length > 0) {
+      setFiles((prev) => [...prev, ...validated]);
+    }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -57,15 +82,11 @@ export default function B2BDisputePage() {
     setShowConfirm(false);
     setLoading(true);
     try {
-      // In a real app, files would be uploaded first to get URLs
-      const evidenceUrls = files.map((f) => URL.createObjectURL(f));
-      // Revoke blob URLs after request (they're only needed for the POST body)
-      setTimeout(() => evidenceUrls.forEach((u) => URL.revokeObjectURL(u)), 5000);
-      await apiClient.post(`/b2b/operations/${operationId}/dispute`, {
-        reason,
-        description,
-        evidence_urls: evidenceUrls,
-      });
+      const formData = new FormData();
+      formData.append('reason', reason);
+      formData.append('description', description);
+      files.forEach((f) => formData.append('evidence', f));
+      await apiClient.post(`/b2b/operations/${operationId}/dispute`, formData);
       toast.success('Disputa abierta');
       navigate(-1);
     } catch (err) {
@@ -165,7 +186,7 @@ export default function B2BDisputePage() {
             ref={fileInputRef}
             type="file"
             multiple
-            accept="image/*,.pdf"
+            accept=".jpg,.jpeg,.png,.pdf"
             onChange={handleFileChange}
             className="hidden"
           />
@@ -178,9 +199,9 @@ export default function B2BDisputePage() {
                   key={idx}
                   className="relative w-[60px] h-[60px] rounded-xl overflow-hidden border border-stone-200 bg-stone-100"
                 >
-                  {file.type.startsWith('image/') ? (
+                  {previews[idx] ? (
                     <img
-                      src={URL.createObjectURL(file)}
+                      src={previews[idx]}
                       alt=""
                       className="w-full h-full object-cover"
                     />

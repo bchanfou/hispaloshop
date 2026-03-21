@@ -8,6 +8,10 @@ import {
   Search,
   Sparkles,
   Loader2,
+  Package,
+  Truck,
+  CreditCard,
+  Percent,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
@@ -125,25 +129,142 @@ function PillSelector({ options, value, onChange, getLabel, getValue }) {
   );
 }
 
+/* ── Product Autocomplete ─────────────────────────────────── */
+function ProductAutocomplete({ value, onSelect, onChange }) {
+  const [query, setQuery] = useState(value || '');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const debounceRef = useRef(null);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    setQuery(value || '');
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const doSearch = useCallback(async (q) => {
+    if (!q || q.length < 2) {
+      setResults([]);
+      setOpen(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await apiClient.get(`/products?q=${encodeURIComponent(q)}&b2b=true&limit=5`);
+      const products = res.data?.products || res.products || res.data || [];
+      setResults(Array.isArray(products) ? products : []);
+      setOpen(true);
+    } catch {
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    setQuery(val);
+    onChange(val);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => doSearch(val), 300);
+  };
+
+  const handleSelect = (product) => {
+    setQuery(product.name || '');
+    setOpen(false);
+    setResults([]);
+    onSelect(product);
+  };
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <Search
+        size={16}
+        className="absolute left-3.5 top-3.5 text-stone-500 pointer-events-none"
+      />
+      <input
+        type="text"
+        placeholder="Buscar producto..."
+        value={query}
+        onChange={handleChange}
+        onFocus={() => { if (results.length > 0) setOpen(true); }}
+        className="w-full h-11 rounded-xl border border-stone-200 pl-[38px] pr-3.5 text-sm text-stone-950 bg-white outline-none box-border"
+      />
+      {loading && (
+        <Loader2 size={14} className="absolute right-3.5 top-3.5 text-stone-400 animate-spin" />
+      )}
+
+      {/* Dropdown */}
+      {open && results.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-xl shadow-lg z-20 overflow-hidden max-h-[240px] overflow-y-auto">
+          {results.map((product) => (
+            <button
+              key={product.id || product.product_id || product.name}
+              type="button"
+              onClick={() => handleSelect(product)}
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-stone-50 transition-colors text-left"
+            >
+              {product.image_url ? (
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center flex-shrink-0">
+                  <Package size={16} className="text-stone-300" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-stone-950 truncate">{product.name}</p>
+                {(product.b2b_prices?.[0] || product.price) && (
+                  <p className="text-xs text-stone-500">
+                    {product.b2b_prices?.[0]
+                      ? `desde ${fmt((Number(product.b2b_prices[0].unit_price_cents) || 0) / 100)}/ud`
+                      : `${fmt(product.price)}/ud`}
+                  </p>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Step 1: Producto ──────────────────────────────────────── */
 function StepProducto({ form, set }) {
+  const handleProductSelect = (product) => {
+    set('product_name', product.name || '');
+    set('product_id', product.id || product.product_id || '');
+    if (product.moq) set('moq', String(product.moq));
+    if (product.b2b_prices?.[0]?.unit_price_cents) {
+      set('price_per_unit', String((Number(product.b2b_prices[0].unit_price_cents) || 0) / 100));
+    } else if (product.price) {
+      set('price_per_unit', String(product.price));
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div>
         <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Producto *</label>
-        <div className="relative">
-          <Search
-            size={16}
-            className="absolute left-3.5 top-3.5 text-stone-500 pointer-events-none"
-          />
-          <input
-            type="text"
-            placeholder="Buscar producto..."
-            value={form.product_name}
-            onChange={(e) => set('product_name', e.target.value)}
-            className="w-full h-11 rounded-xl border border-stone-200 pl-[38px] pr-3.5 text-sm text-stone-950 bg-white outline-none box-border"
-          />
-        </div>
+        <ProductAutocomplete
+          value={form.product_name}
+          onChange={(val) => set('product_name', val)}
+          onSelect={handleProductSelect}
+        />
       </div>
 
       <div>
@@ -258,7 +379,11 @@ function StepPrecio({ form, set }) {
 }
 
 /* ── Step 3: Logística ─────────────────────────────────────── */
-function StepLogistica({ form, set }) {
+function StepLogistica({ form, set, submitted }) {
+  const cityRequired = form.incoterm && form.incoterm !== 'EXW';
+  const cityEmpty = !(form.incoterm_city || '').trim();
+  const showCityError = cityRequired && cityEmpty && submitted;
+
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -301,17 +426,21 @@ function StepLogistica({ form, set }) {
 
       <div>
         <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">
-          Ciudad de entrega {form.incoterm !== 'EXW' ? '*' : '(opcional)'}
+          Ciudad de entrega {cityRequired ? '*' : '(opcional)'}
         </label>
         <input
           type="text"
           placeholder="Ej: Barcelona"
           value={form.incoterm_city}
           onChange={(e) => set('incoterm_city', e.target.value)}
-          className="w-full h-11 rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 bg-white outline-none box-border"
+          className={`w-full h-11 rounded-xl border px-3.5 text-sm text-stone-950 bg-white outline-none box-border transition-colors ${
+            showCityError ? 'border-red-400' : 'border-stone-200'
+          }`}
         />
-        {form.incoterm && form.incoterm !== 'EXW' && !(form.incoterm_city || '').trim() && (
-          <p className="text-xs text-stone-500 mt-1">La ciudad de entrega es obligatoria para {form.incoterm}</p>
+        {cityRequired && cityEmpty && (
+          <p className={`text-xs mt-1 ${showCityError ? 'text-red-500 font-medium' : 'text-stone-500'}`}>
+            La ciudad de entrega es obligatoria para {form.incoterm}
+          </p>
         )}
       </div>
 
@@ -359,44 +488,106 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
   const termLabel = PAYMENT_TERMS.find((t) => t.value === form.payment_terms)?.label ?? form.payment_terms;
   const incotermObj = INCOTERMS.find((i) => i.code === form.incoterm);
 
-  const rows = [
-    ['Producto', form.product_name, 'product_name'],
-    ['ID de producto', form.product_id || '—', 'product_id'],
-    ['Cantidad', `${form.quantity} ${form.unit}`, 'quantity'],
-    ['Precio unitario', `${fmt(form.price_per_unit, form.currency)}`, 'price_per_unit'],
-    ['Condiciones de pago', termLabel, 'payment_terms'],
-    ['Incoterm', incotermObj ? `${incotermObj.code} — ${incotermObj.name}` : '—', 'incoterm'],
-    ['Ciudad de entrega', form.incoterm_city || '—', 'incoterm_city'],
-    ['Plazo de entrega', form.delivery_days ? `${form.delivery_days} días` : '—', 'delivery_days'],
-    ['Validez', `${form.validity_days} días`, 'validity_days'],
-  ];
+  const qty = Number(form.quantity) || 0;
+  const price = Number(form.price_per_unit) || 0;
+  const subtotal = qty * price;
+  const commission = subtotal * 0.03;
+  const stripe = subtotal * 0.014;
+  const net = subtotal - commission - stripe;
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-        {rows.map(([label, value, key], i) => {
-          const modified = modifiedFields.includes(key);
-          return (
-            <div
-              key={key}
-              className={`flex justify-between items-start px-3.5 py-3 ${
-                i < rows.length - 1 ? 'border-b border-stone-200' : ''
-              } ${modified ? 'bg-stone-50' : ''}`}
-            >
-              <span className="text-[13px] text-stone-500 shrink-0 mr-3">
-                {label}
-              </span>
-              <div className="flex items-center gap-2 text-right">
-                <span className="text-[13px] font-medium text-stone-950">{value}</span>
-                {modified && (
-                  <span className="text-[11px] font-semibold text-stone-500 bg-stone-50 border border-stone-500 rounded-md px-1.5 py-px whitespace-nowrap">
-                    Modificado
-                  </span>
-                )}
-              </div>
+      {/* Product summary card */}
+      <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Package size={16} className="text-stone-950" />
+          <span className="text-[13px] font-semibold text-stone-950">Producto</span>
+          {modifiedFields.includes('product_name') && (
+            <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 border border-stone-300 rounded-md px-1.5 py-px">Modificado</span>
+          )}
+        </div>
+        <p className="text-sm font-medium text-stone-950">{form.product_name}</p>
+        {form.product_id && (
+          <p className="text-xs text-stone-500 mt-0.5">Ref: {form.product_id}</p>
+        )}
+        <div className="flex items-baseline gap-4 mt-3">
+          <div>
+            <p className="text-xs text-stone-500">Cantidad</p>
+            <p className="text-sm font-semibold text-stone-950">{form.quantity} {form.unit}</p>
+          </div>
+          <div>
+            <p className="text-xs text-stone-500">Precio unitario</p>
+            <p className="text-sm font-semibold text-stone-950">{fmt(price, form.currency)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-stone-500">Total</p>
+            <p className="text-sm font-bold text-stone-950">{fmt(subtotal, form.currency)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Delivery terms card */}
+      <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Truck size={16} className="text-stone-950" />
+          <span className="text-[13px] font-semibold text-stone-950">Entrega</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="text-xs text-stone-500">Incoterm</p>
+            <p className="text-sm font-medium text-stone-950">
+              {incotermObj ? `${incotermObj.code} — ${incotermObj.name}` : '—'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-stone-500">Ciudad</p>
+            <p className="text-sm font-medium text-stone-950">{form.incoterm_city || '—'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-stone-500">Plazo</p>
+            <p className="text-sm font-medium text-stone-950">
+              {form.delivery_days ? `${form.delivery_days} días` : '—'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-stone-500">Validez</p>
+            <p className="text-sm font-medium text-stone-950">{form.validity_days} días</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Payment & commission card */}
+      <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <CreditCard size={16} className="text-stone-950" />
+          <span className="text-[13px] font-semibold text-stone-950">Pago y comisiones</span>
+        </div>
+        <div className="mb-3">
+          <p className="text-xs text-stone-500">Condiciones</p>
+          <p className="text-sm font-medium text-stone-950">{termLabel}</p>
+        </div>
+        {subtotal > 0 && (
+          <div className="bg-stone-50 rounded-lg p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Percent size={12} className="text-stone-500" />
+              <span className="text-xs font-medium text-stone-500">Desglose</span>
             </div>
-          );
-        })}
+            {[
+              ['Subtotal', fmt(subtotal, form.currency)],
+              ['Comisión (3%)', `−${fmt(commission, form.currency)}`],
+              ['Stripe (1,4%)', `−${fmt(stripe, form.currency)}`],
+            ].map(([l, v]) => (
+              <div key={l} className="flex justify-between text-xs text-stone-500 mb-1">
+                <span>{l}</span>
+                <span>{v}</span>
+              </div>
+            ))}
+            <div className="flex justify-between text-sm font-semibold text-stone-950 border-t border-stone-200 pt-1.5 mt-1">
+              <span>Neto productor</span>
+              <span>{fmt(net, form.currency)}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <label className="flex items-start gap-3 cursor-pointer">
@@ -438,6 +629,7 @@ export default function B2BOfferPage() {
   const [form, setForm] = useState(() => ({ ...EMPTY_FORM, ...(prefillData ?? {}) }));
   const [confirmed, setConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [attemptedAdvance, setAttemptedAdvance] = useState(false);
   const scrollRef = useRef(null);
 
   const set = useCallback((key, value) => {
@@ -447,6 +639,7 @@ export default function B2BOfferPage() {
   /* scroll to top on step change */
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    setAttemptedAdvance(false);
   }, [step]);
 
   /* ── Validation ─────────────────────────────────────────── */
@@ -470,6 +663,7 @@ export default function B2BOfferPage() {
   };
 
   const goNext = () => {
+    setAttemptedAdvance(true);
     if (!canAdvance) return;
     if (step < 3) setStep((s) => s + 1);
     else handleSubmit();
@@ -526,7 +720,7 @@ export default function B2BOfferPage() {
   const stepContent = [
     <StepProducto key="step-0" form={form} set={set} />,
     <StepPrecio key="step-1" form={form} set={set} />,
-    <StepLogistica key="step-2" form={form} set={set} />,
+    <StepLogistica key="step-2" form={form} set={set} submitted={attemptedAdvance} />,
     <StepRevisar
       key="step-3"
       form={form}

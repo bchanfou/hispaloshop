@@ -1,7 +1,7 @@
 // @ts-nocheck
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2, MessageSquare, Check } from 'lucide-react';
+import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2, MessageSquare, Check, ChevronDown } from 'lucide-react';
 import { useB2BCatalog, useB2BProducers } from '../../features/b2b/queries';
 import QuoteBuilder from '../../components/b2b/QuoteBuilder';
 import { useLocale } from '../../context/LocaleContext';
@@ -11,6 +11,19 @@ const TABS = [
   { id: 'producers', label: 'Productores', icon: Users },
   { id: 'rfq', label: 'Solicitar oferta', icon: FileText },
 ];
+
+const CATEGORIES = [
+  'Todos', 'Aceites', 'Quesos', 'Vinos', 'Embutidos', 'Conservas', 'Miel', 'Especias',
+];
+
+const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Relevancia' },
+  { value: 'price_asc', label: 'Precio más bajo' },
+  { value: 'most_products', label: 'Más productos' },
+  { value: 'newest', label: 'Más reciente' },
+];
+
+const PAGE_SIZE = 20;
 
 function ProductCard({ product, convertAndFormatPrice }) {
   const navigate = useNavigate();
@@ -107,12 +120,42 @@ function ProducerCard({ producer, onContact, onChat }) {
   );
 }
 
+function getLowestPrice(product) {
+  const p = product.b2b_prices?.[0];
+  return p ? (Number(p.unit_price_cents) || 0) : Infinity;
+}
+
+function sortItems(items, sortBy, tab) {
+  if (sortBy === 'relevance') return items;
+  const sorted = [...items];
+  if (tab === 'catalog') {
+    if (sortBy === 'price_asc') sorted.sort((a, b) => getLowestPrice(a) - getLowestPrice(b));
+    if (sortBy === 'newest') sorted.sort((a, b) => {
+      const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return db - da;
+    });
+  }
+  if (tab === 'producers') {
+    if (sortBy === 'most_products') sorted.sort((a, b) => (b.product_count || 0) - (a.product_count || 0));
+    if (sortBy === 'newest') sorted.sort((a, b) => {
+      const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return db - da;
+    });
+  }
+  return sorted;
+}
+
 export default function B2BMarketplacePage() {
   const navigate = useNavigate();
   const { convertAndFormatPrice } = useLocale();
   const [activeTab, setActiveTab] = useState('catalog');
   const [search, setSearch] = useState('');
   const [rfqProducerId, setRfqProducerId] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [sortBy, setSortBy] = useState('relevance');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const catalogQuery = useB2BCatalog();
   const producersQuery = useB2BProducers();
@@ -120,17 +163,52 @@ export default function B2BMarketplacePage() {
   const catalogProducts = catalogQuery.data?.data?.products || catalogQuery.data?.products || [];
   const producers = producersQuery.data?.data?.producers || producersQuery.data?.producers || [];
 
-  const filteredProducts = search
-    ? catalogProducts.filter((p) => (p.name || '').toLowerCase().includes(search.toLowerCase()))
-    : catalogProducts;
+  /* Reset visible count when filters change */
+  const resetPagination = () => setVisibleCount(PAGE_SIZE);
 
-  const filteredProducers = search
-    ? producers.filter(
+  const filteredProducts = useMemo(() => {
+    let items = catalogProducts;
+    if (search) {
+      const q = search.toLowerCase();
+      items = items.filter((p) => (p.name || '').toLowerCase().includes(q));
+    }
+    if (selectedCategory !== 'Todos') {
+      const cat = selectedCategory.toLowerCase();
+      items = items.filter((p) =>
+        (p.category || '').toLowerCase().includes(cat) ||
+        (p.categories || []).some((c) => (c || '').toLowerCase().includes(cat)) ||
+        (p.name || '').toLowerCase().includes(cat)
+      );
+    }
+    return sortItems(items, sortBy, 'catalog');
+  }, [catalogProducts, search, selectedCategory, sortBy]);
+
+  const filteredProducers = useMemo(() => {
+    let items = producers;
+    if (search) {
+      const q = search.toLowerCase();
+      items = items.filter(
         (p) =>
-          (p.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
-          (p.company_name || '').toLowerCase().includes(search.toLowerCase())
-      )
-    : producers;
+          (p.full_name || '').toLowerCase().includes(q) ||
+          (p.company_name || '').toLowerCase().includes(q)
+      );
+    }
+    if (selectedCategory !== 'Todos') {
+      const cat = selectedCategory.toLowerCase();
+      items = items.filter((p) =>
+        (p.main_categories || []).some((c) => (c || '').toLowerCase().includes(cat))
+      );
+    }
+    return sortItems(items, sortBy, 'producers');
+  }, [producers, search, selectedCategory, sortBy]);
+
+  const currentItems = activeTab === 'catalog' ? filteredProducts : filteredProducers;
+  const totalItems = currentItems.length;
+  const paginatedProducts = filteredProducts.slice(0, visibleCount);
+  const paginatedProducers = filteredProducers.slice(0, visibleCount);
+  const hasMore = activeTab === 'catalog'
+    ? visibleCount < filteredProducts.length
+    : visibleCount < filteredProducers.length;
 
   const handleContactProducer = (producerId) => {
     setRfqProducerId(producerId);
@@ -139,6 +217,16 @@ export default function B2BMarketplacePage() {
 
   const handleChat = (producerId) => {
     navigate(`/b2b/chat?producer=${producerId}`);
+  };
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    resetPagination();
+  };
+
+  const handleCategoryChange = (cat) => {
+    setSelectedCategory(cat);
+    resetPagination();
   };
 
   return (
@@ -152,7 +240,7 @@ export default function B2BMarketplacePage() {
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); resetPagination(); }}
               placeholder={activeTab === 'catalog' ? 'Buscar productos...' : 'Buscar productores...'}
               className="w-full pl-9 pr-4 py-2.5 bg-stone-100 rounded-2xl text-sm focus:outline-none focus:border-stone-950"
             />
@@ -165,7 +253,7 @@ export default function B2BMarketplacePage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
                     ? 'border-stone-950 text-stone-950'
@@ -179,6 +267,47 @@ export default function B2BMarketplacePage() {
           })}
         </div>
       </div>
+
+      {/* Category pills + Sort selector */}
+      {activeTab !== 'rfq' && (
+        <div className="max-w-[1100px] mx-auto px-4 pt-3 pb-1 flex flex-col gap-2.5">
+          {/* Category pills */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => handleCategoryChange(cat)}
+                className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === cat
+                    ? 'bg-stone-950 text-white'
+                    : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort selector */}
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-stone-500">
+              {totalItems} resultado{totalItems !== 1 ? 's' : ''}
+            </p>
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => { setSortBy(e.target.value); resetPagination(); }}
+                className="appearance-none rounded-xl border border-stone-200 bg-white text-sm text-stone-950 pl-3 pr-8 py-1.5 outline-none cursor-pointer"
+              >
+                {SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="p-4 max-w-[1100px] mx-auto">
         {activeTab === 'catalog' && (
@@ -199,17 +328,29 @@ export default function B2BMarketplacePage() {
                   Reintentar
                 </button>
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : paginatedProducts.length === 0 ? (
               <div className="text-center py-16 text-stone-500">
                 <Package className="w-12 h-12 mx-auto mb-3 text-stone-300" />
                 <p>No hay productos disponibles</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id || product.product_id} product={product} convertAndFormatPrice={convertAndFormatPrice} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {paginatedProducts.map((product) => (
+                    <ProductCard key={product.id || product.product_id} product={product} convertAndFormatPrice={convertAndFormatPrice} />
+                  ))}
+                </div>
+                {hasMore && (
+                  <div className="flex justify-center mt-6">
+                    <button
+                      onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                      className="px-6 py-2.5 bg-white border border-stone-200 rounded-2xl text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors"
+                    >
+                      Cargar más ({filteredProducts.length - visibleCount} restantes)
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -231,22 +372,34 @@ export default function B2BMarketplacePage() {
                   Reintentar
                 </button>
               </div>
-            ) : filteredProducers.length === 0 ? (
+            ) : paginatedProducers.length === 0 ? (
               <div className="text-center py-16 text-stone-500">
                 <Users className="w-12 h-12 mx-auto mb-3 text-stone-300" />
                 <p>No hay productores disponibles</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {filteredProducers.map((producer) => (
-                  <ProducerCard
-                    key={producer.user_id || producer.id}
-                    producer={producer}
-                    onContact={handleContactProducer}
-                    onChat={handleChat}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {paginatedProducers.map((producer) => (
+                    <ProducerCard
+                      key={producer.user_id || producer.id}
+                      producer={producer}
+                      onContact={handleContactProducer}
+                      onChat={handleChat}
+                    />
+                  ))}
+                </div>
+                {hasMore && (
+                  <div className="flex justify-center mt-6">
+                    <button
+                      onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                      className="px-6 py-2.5 bg-white border border-stone-200 rounded-2xl text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors"
+                    >
+                      Cargar más ({filteredProducers.length - visibleCount} restantes)
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}

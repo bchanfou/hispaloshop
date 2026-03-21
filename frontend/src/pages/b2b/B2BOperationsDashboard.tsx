@@ -1,9 +1,11 @@
 // @ts-nocheck
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
+
+const POLL_INTERVAL = 20000; // 20 seconds
 
 /* ── Status config ── */
 const STATUS_MAP = {
@@ -66,7 +68,7 @@ const StatusBadge = ({ status }) => {
 };
 
 /* ── OperationCard (named export) ── */
-export const OperationCard = ({ operation, userId, onNavigate, showAction = true, extra }) => {
+export const OperationCard = ({ operation, userId, onNavigate, showAction = true, extra, highlight = false }) => {
   const cp = getCounterpart(operation, userId);
   const img = operation.product_image || operation.product?.image;
 
@@ -90,7 +92,7 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
   const action = showAction ? getAction() : null;
 
   return (
-    <div>
+    <div className={`transition-colors duration-700 ${highlight ? 'bg-stone-100' : 'bg-transparent'}`}>
       <button
         onClick={() => onNavigate && action?.path && onNavigate(action.path)}
         className="w-full px-4 py-3.5 bg-transparent border-none text-left cursor-pointer"
@@ -197,19 +199,46 @@ const B2BOperationsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [tab, setTab] = useState('active');
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [changedIds, setChangedIds] = useState(new Set());
+  const [secondsAgo, setSecondsAgo] = useState(0);
+  const prevOpsRef = useRef(null);
 
-  const loadOperations = useCallback(async () => {
+  const loadOperations = useCallback(async (silent = false) => {
     let cancelled = false;
-    setError(false);
-    setLoading(true);
+    if (!silent) {
+      setError(false);
+      setLoading(true);
+    }
     try {
       const res = await apiClient.get('/b2b/operations');
       const raw = res?.data?.operations || res?.data || res || [];
-      if (!cancelled) setOperations(Array.isArray(raw) ? raw : []);
+      const incoming = Array.isArray(raw) ? raw : [];
+      if (!cancelled) {
+        // Detect changed/new operations
+        if (prevOpsRef.current) {
+          const prevMap = new Map(prevOpsRef.current.map((o) => [String(o._id), o.status]));
+          const changed = new Set();
+          for (const op of incoming) {
+            const id = String(op._id);
+            const prevStatus = prevMap.get(id);
+            if (prevStatus === undefined || prevStatus !== op.status) {
+              changed.add(id);
+            }
+          }
+          if (changed.size > 0) {
+            setChangedIds(changed);
+            setTimeout(() => setChangedIds(new Set()), 2500);
+          }
+        }
+        prevOpsRef.current = incoming;
+        setOperations(incoming);
+        setLastUpdated(Date.now());
+      }
     } catch (err) {
-      if (!cancelled) setError(true);
+      if (!cancelled && !silent) setError(true);
     } finally {
-      if (!cancelled) setLoading(false);
+      if (!cancelled && !silent) setLoading(false);
     }
     return () => { cancelled = true; };
   }, []);
@@ -217,6 +246,22 @@ const B2BOperationsDashboard = () => {
   useEffect(() => {
     loadOperations();
   }, [loadOperations]);
+
+  // Polling every 20s (silent — no loading spinner)
+  useEffect(() => {
+    const id = setInterval(() => loadOperations(true), POLL_INTERVAL);
+    return () => clearInterval(id);
+  }, [loadOperations]);
+
+  // Tick "seconds ago" counter
+  useEffect(() => {
+    if (!lastUpdated) return;
+    setSecondsAgo(0);
+    const id = setInterval(() => {
+      setSecondsAgo(Math.floor((Date.now() - lastUpdated) / 1000));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [lastUpdated]);
 
   const activeOps = useMemo(
     () => operations.filter((o) => o.status !== 'completed' && o.status !== 'disputed'),
@@ -257,13 +302,20 @@ const B2BOperationsDashboard = () => {
   return (
     <div className="fixed inset-0 bg-white flex flex-col">
       {/* TopBar */}
-      <div className="sticky top-0 z-20 bg-stone-50/85 backdrop-blur-md px-4 py-3.5 flex items-center justify-between">
-        <span className="text-lg font-bold text-stone-950">
-          Operaciones B2B
-        </span>
-        {activeCount > 0 && (
-          <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-stone-950 text-white text-[11px] font-bold leading-none">
-            {activeCount}
+      <div className="sticky top-0 z-20 bg-stone-50/85 backdrop-blur-md px-4 py-3.5 flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold text-stone-950">
+            Operaciones B2B
+          </span>
+          {activeCount > 0 && (
+            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-stone-950 text-white text-[11px] font-bold leading-none">
+              {activeCount}
+            </span>
+          )}
+        </div>
+        {lastUpdated && (
+          <span className="text-[10px] text-stone-500">
+            Actualizado hace {secondsAgo < 5 ? 'un momento' : `${secondsAgo}s`}
           </span>
         )}
       </div>
@@ -342,6 +394,7 @@ const B2BOperationsDashboard = () => {
                         operation={op}
                         userId={userId}
                         onNavigate={handleNavigate}
+                        highlight={changedIds.has(String(op._id))}
                       />
                       {i < activeOps.length - 1 && (
                         <div className="h-px bg-stone-200 ml-[72px]" />
@@ -368,6 +421,7 @@ const B2BOperationsDashboard = () => {
                         userId={userId}
                         onNavigate={handleNavigate}
                         showAction={false}
+                        highlight={changedIds.has(String(op._id))}
                         extra={
                           <div className="flex justify-end px-4 pb-2.5">
                             <button
@@ -404,6 +458,7 @@ const B2BOperationsDashboard = () => {
                         userId={userId}
                         onNavigate={handleNavigate}
                         showAction={false}
+                        highlight={changedIds.has(String(op._id))}
                         extra={
                           <div className="px-4 pb-2.5">
                             {op.dispute?.reason && (
