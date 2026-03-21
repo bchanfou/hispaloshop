@@ -148,3 +148,13 @@ export const getIngredientEmoji = (ingredient: string): string => {
 
   return '\u{1F958}';
 };
+
+/**
+ * Abbreviate large numbers: 1000→1K, 1200→1.2K, 1000000→1M
+ */
+export const abbreviateCount = (n: number | null | undefined): string => {
+  if (n == null) return '0';
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return String(n);
+};

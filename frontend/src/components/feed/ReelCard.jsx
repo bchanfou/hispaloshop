@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { abbreviateCount } from '../../utils/helpers';
 import {
+  Eye,
   Heart,
   MessageCircle,
   Share2,
@@ -32,6 +34,57 @@ import MentionDropdown from './MentionDropdown';
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
 
+// ---------------------------------------------------------------------------
+// Reaction picker
+// ---------------------------------------------------------------------------
+
+const REACTIONS = ['❤️', '🔥', '👏', '😍', '😮', '😢'];
+
+function ReelReactionPicker({ show, onSelect, onClose }) {
+  const pickerRef = useRef(null);
+  const [bouncingIdx, setBouncingIdx] = useState(null);
+
+  useEffect(() => {
+    if (!show) return;
+    const handler = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) onClose();
+    };
+    document.addEventListener('pointerdown', handler);
+    return () => document.removeEventListener('pointerdown', handler);
+  }, [show, onClose]);
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          ref={pickerRef}
+          className="absolute right-full top-1/2 -translate-y-1/2 mr-2 z-50 bg-white rounded-full shadow-lg border border-stone-100 px-2 py-1.5 flex gap-1"
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.5, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        >
+          {REACTIONS.map((emoji, i) => (
+            <motion.button
+              key={emoji}
+              className="w-10 h-10 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-xl"
+              whileHover={{ scale: 1.3 }}
+              animate={bouncingIdx === i ? { scale: [1, 1.5, 1], transition: { duration: 0.35 } } : {}}
+              onClick={(e) => {
+                e.stopPropagation();
+                setBouncingIdx(i);
+                setTimeout(() => onSelect(emoji), 300);
+              }}
+              aria-label={`Reaccionar con ${emoji}`}
+            >
+              {emoji}
+            </motion.button>
+          ))}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
 
 function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false }) {
   const navigate = useNavigate();
@@ -85,6 +138,11 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const undoTimerRef = useRef(null);
   const doubleTapHeartTimer = useRef(null);
 
+  // Reaction system
+  const [showReactions, setShowReactions] = useState(false);
+  const [selectedReaction, setSelectedReaction] = useState(null);
+  const reactionLongPressRef = useRef(null);
+
   const isOwner = currentUser && (
     (currentUser.user_id || currentUser.id) === (reel.user?.id || reel.user?.user_id)
   );
@@ -96,6 +154,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       clearTimeout(singleTapTimer.current);
       clearTimeout(doubleTapHeartTimer.current);
       clearTimeout(undoTimerRef.current);
+      clearTimeout(reactionLongPressRef.current);
     };
   }, []);
 
@@ -316,6 +375,28 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     }
     onLike?.(reelId, next);
   }, [liked, reel.id, reel.reel_id, reel.post_id, onLike]);
+
+  // Long press handlers for reaction picker
+  const handleReactionLongPressStart = useCallback(() => {
+    reactionLongPressRef.current = setTimeout(() => {
+      setShowReactions(true);
+    }, 500);
+  }, []);
+
+  const handleReactionLongPressEnd = useCallback(() => {
+    clearTimeout(reactionLongPressRef.current);
+  }, []);
+
+  const handleReaction = useCallback(async (emoji) => {
+    setSelectedReaction(emoji);
+    setShowReactions(false);
+    const reelId = reel.id || reel.reel_id || reel.post_id;
+    try {
+      await apiClient.post(`/reels/${reelId}/react`, { reaction: emoji });
+    } catch {
+      toast.error('Error al reaccionar');
+    }
+  }, [reel.id, reel.reel_id, reel.post_id]);
 
   // Single tap = play/pause (immediate), double-tap = like (reverses play toggle)
   const handleVideoTap = useCallback(() => {
@@ -613,18 +694,40 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         </div>
 
         {/* Like */}
-        <button
-          className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
-          onClick={handleLike}
-          aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
-          aria-pressed={liked}
-        >
-          <Heart
-            size={28}
-            className={liked ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white'}
+        <div className="relative">
+          <ReelReactionPicker
+            show={showReactions}
+            onSelect={handleReaction}
+            onClose={() => setShowReactions(false)}
           />
-          <span className="text-xs text-white font-sans leading-none">{likesCount}</span>
-        </button>
+          <button
+            className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
+            onClick={handleLike}
+            onPointerDown={handleReactionLongPressStart}
+            onPointerUp={handleReactionLongPressEnd}
+            onPointerLeave={handleReactionLongPressEnd}
+            aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
+            aria-pressed={liked}
+          >
+            {selectedReaction && selectedReaction !== '❤️' ? (
+              <span className="text-[26px] leading-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">{selectedReaction}</span>
+            ) : (
+              <Heart
+                size={28}
+                className={liked || selectedReaction === '❤️' ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white'}
+              />
+            )}
+            <motion.span
+            key={likesCount}
+            initial={{ scale: 1.15 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 15, duration: 0.3 }}
+            className="text-xs text-white font-sans leading-none"
+          >
+            {likesCount}
+          </motion.span>
+          </button>
+        </div>
 
         {/* Comment */}
         <button
@@ -660,8 +763,9 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         </button>
 
         {/* Bookmark */}
-        <button
-          className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-transform"
           aria-label={saved ? 'Quitar guardado' : 'Guardar'}
           aria-pressed={saved}
           onClick={async () => {
@@ -676,8 +780,13 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             }
           }}
         >
-          <Bookmark size={28} fill={saved ? 'currentColor' : 'none'} className="text-white" />
-        </button>
+          <motion.div
+            animate={saved ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 15, duration: 0.4 }}
+          >
+            <Bookmark size={28} fill={saved ? 'currentColor' : 'none'} className="text-white" />
+          </motion.div>
+        </motion.button>
       </div>
 
       {/* Info bottom-left */}
@@ -705,6 +814,12 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             🎵 {reel.music_name}
           </div>
         )}
+        {(reel.views || reel.view_count || reel.views_count) ? (
+          <div className="flex items-center gap-1 text-xs text-white/70 font-sans mt-0.5">
+            <Eye size={12} className="shrink-0" />
+            <span>{abbreviateCount(reel.views || reel.view_count || reel.views_count || 0)}</span>
+          </div>
+        ) : null}
       </div>
 
       {/* Product tag pill — shown when there are tagged products */}

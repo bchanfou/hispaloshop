@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X, Flag, UserMinus } from 'lucide-react';
@@ -8,6 +8,50 @@ import { toast } from 'sonner';
 import { timeAgo } from '../../utils/time';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useDwellTime } from '../../hooks/useDwellTime';
+import { abbreviateCount } from '../../utils/helpers';
+
+
+// ---------------------------------------------------------------------------
+// Like-particle burst (double-tap)
+// ---------------------------------------------------------------------------
+const PARTICLE_COUNT_MIN = 8;
+const PARTICLE_COUNT_MAX = 12;
+
+function generateParticles() {
+  const count = PARTICLE_COUNT_MIN + Math.floor(Math.random() * (PARTICLE_COUNT_MAX - PARTICLE_COUNT_MIN + 1));
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: (Math.random() - 0.5) * 60,
+    y: -(80 + Math.random() * 70),
+    delay: Math.random() * 0.05 + 0.05 * i,
+  }));
+}
+
+function LikeParticles({ show }) {
+  const [particles, setParticles] = useState([]);
+
+  useEffect(() => {
+    if (show) setParticles(generateParticles());
+  }, [show]);
+
+  return (
+    <AnimatePresence>
+      {show && particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute pointer-events-none z-[3]"
+          style={{ left: '50%', top: '50%', marginLeft: -6, marginTop: -6 }}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+          animate={{ x: p.x, y: p.y, opacity: 0, scale: 0.6 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, delay: p.delay, ease: 'easeOut' }}
+        >
+          <Heart size={12} className="fill-white text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.6)]" />
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -49,6 +93,62 @@ function renderCaption(text, navigate) {
 }
 
 // ---------------------------------------------------------------------------
+// Reaction picker
+// ---------------------------------------------------------------------------
+
+const REACTIONS = ['❤️', '🔥', '👏', '😍', '😮', '😢'];
+
+function ReactionPicker({ show, onSelect, onClose, position = 'above' }) {
+  const pickerRef = useRef(null);
+  const [bouncingIdx, setBouncingIdx] = useState(null);
+
+  useEffect(() => {
+    if (!show) return;
+    const handler = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) onClose();
+    };
+    document.addEventListener('pointerdown', handler);
+    return () => document.removeEventListener('pointerdown', handler);
+  }, [show, onClose]);
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          ref={pickerRef}
+          className={`absolute z-50 bg-white rounded-full shadow-lg border border-stone-100 px-2 py-1.5 flex gap-1 ${
+            position === 'left'
+              ? 'right-full top-1/2 -translate-y-1/2 mr-2'
+              : 'bottom-full left-0 mb-2'
+          }`}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.5, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        >
+          {REACTIONS.map((emoji, i) => (
+            <motion.button
+              key={emoji}
+              className="w-10 h-10 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-xl"
+              whileHover={{ scale: 1.3 }}
+              animate={bouncingIdx === i ? { scale: [1, 1.5, 1], transition: { duration: 0.35 } } : {}}
+              onClick={(e) => {
+                e.stopPropagation();
+                setBouncingIdx(i);
+                setTimeout(() => onSelect(emoji), 300);
+              }}
+              aria-label={`Reaccionar con ${emoji}`}
+            >
+              {emoji}
+            </motion.button>
+          ))}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // PostCard
 // ---------------------------------------------------------------------------
 
@@ -76,6 +176,11 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const [savePending, setSavePending] = useState(null); // null=use prop, true/false=optimistic override
   const effectiveSaved = savePending ?? saved;
 
+  // Reaction system
+  const [showReactions, setShowReactions] = useState(false);
+  const [selectedReaction, setSelectedReaction] = useState(null);
+  const longPressRef = useRef(null);
+
   const lastTapRef = useRef(0);
   const heartTimerRef = useRef(null);
   const scrollRef = useRef(null);
@@ -89,6 +194,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
     return () => {
       clearTimeout(heartTimerRef.current);
       clearTimeout(undoTimerRef.current);
+      clearTimeout(longPressRef.current);
     };
   }, []);
 
@@ -100,6 +206,28 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
     onLike?.(post.id);
   }, [onLike, post.id, trigger]);
 
+  // Long press handlers for reaction picker
+  const handleLongPressStart = useCallback(() => {
+    longPressRef.current = setTimeout(() => {
+      setShowReactions(true);
+    }, 500);
+  }, []);
+
+  const handleLongPressEnd = useCallback(() => {
+    clearTimeout(longPressRef.current);
+  }, []);
+
+  const handleReaction = useCallback(async (emoji) => {
+    setSelectedReaction(emoji);
+    setShowReactions(false);
+    trigger('medium');
+    try {
+      await apiClient.post(`/posts/${post.id}/react`, { reaction: emoji });
+    } catch {
+      toast.error('Error al reaccionar');
+    }
+  }, [post.id, trigger]);
+
   const handleDoubleTap = useCallback(() => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
@@ -108,7 +236,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       }
       setShowHeartAnim(true);
       clearTimeout(heartTimerRef.current);
-      heartTimerRef.current = setTimeout(() => setShowHeartAnim(false), 900);
+      heartTimerRef.current = setTimeout(() => setShowHeartAnim(false), 1000);
     }
     lastTapRef.current = now;
   }, [liked, onLike, post.id]);
@@ -388,6 +516,12 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           {user.username && (
             <span className="text-xs text-stone-500 whitespace-nowrap">@{user.username}</span>
           )}
+          {post.author_followers > 1000 && (
+            <>
+              <span className="text-[11px] text-stone-400">&middot;</span>
+              <span className="text-xs text-stone-400 whitespace-nowrap">{abbreviateCount(post.author_followers)}</span>
+            </>
+          )}
           {createdAt && (
             <>
               <span className="text-[11px] text-stone-500">&middot;</span>
@@ -446,6 +580,13 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             </div>
           )}
 
+          {/* Trending badge */}
+          {(post.is_trending || (post.trending_score != null && post.trending_score > 5)) && (
+            <div className={`absolute ${hasMultiple ? 'top-10' : 'top-3'} right-3 z-[1] bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1`}>
+              <span className="text-[11px] font-semibold text-stone-950">🔥 Tendencia</span>
+            </div>
+          )}
+
           {/* Price pill overlay */}
           {normalizedProducts.length > 0 && normalizedProducts[0].price != null && (
             <button
@@ -457,7 +598,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             </button>
           )}
 
-          {/* Heart animation overlay */}
+          {/* Heart animation overlay + particles */}
           <AnimatePresence>
             {showHeartAnim && (
               <motion.div
@@ -466,15 +607,16 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                 initial={{ scale: 0, opacity: 1 }}
                 animate={{ scale: [0, 1.2, 0.9, 1], opacity: [1, 1, 1, 0] }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
+                transition={{ duration: 1.0, ease: 'easeOut' }}
               >
                 <Heart
-                  size={80}
-                  className="fill-white text-white drop-shadow-lg"
+                  size={96}
+                  className="fill-white text-white drop-shadow-[0_4px_20px_rgba(255,255,255,0.5)]"
                 />
               </motion.div>
             )}
           </AnimatePresence>
+          <LikeParticles show={showHeartAnim} />
 
           {/* Dots — overlaid on image bottom */}
           {hasMultiple && (
@@ -523,24 +665,47 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
       {/* ---- Actions ---- */}
       <div className="flex items-center gap-4 px-3 py-2">
-        <motion.button
-          whileTap={{ scale: 0.85 }}
-          transition={{ type: 'spring', damping: 20, stiffness: 400 }}
-          className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer ${
-            liked ? 'text-[#FF3040]' : 'text-stone-950'
-          }`}
-          onClick={handleLike}
-          aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
-        >
-          <Heart
-            size={24}
-            fill={liked ? 'currentColor' : 'none'}
-            color="currentColor"
+        <div className="relative">
+          <ReactionPicker
+            show={showReactions}
+            onSelect={handleReaction}
+            onClose={() => setShowReactions(false)}
+            position="above"
           />
-          {likesCount > 0 && (
-            <span className="text-[13px] font-semibold text-stone-950">{likesCount}</span>
-          )}
-        </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+            className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer ${
+              liked || selectedReaction ? 'text-[#FF3040]' : 'text-stone-950'
+            }`}
+            onClick={handleLike}
+            onPointerDown={handleLongPressStart}
+            onPointerUp={handleLongPressEnd}
+            onPointerLeave={handleLongPressEnd}
+            aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
+          >
+            {selectedReaction && selectedReaction !== '❤️' ? (
+              <span className="text-[22px] leading-none">{selectedReaction}</span>
+            ) : (
+              <Heart
+                size={24}
+                fill={liked || selectedReaction === '❤️' ? 'currentColor' : 'none'}
+                color="currentColor"
+              />
+            )}
+            {likesCount > 0 && (
+              <motion.span
+                key={likesCount}
+                initial={{ scale: 1.15 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15, duration: 0.3 }}
+                className="text-[13px] font-semibold text-stone-950"
+              >
+                {likesCount}
+              </motion.span>
+            )}
+          </motion.button>
+        </div>
 
         <motion.button
           whileTap={{ scale: 0.85 }}
@@ -567,7 +732,8 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
         <motion.button
           whileTap={{ scale: 0.85 }}
-          transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+          animate={effectiveSaved ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 15, duration: 0.4 }}
           className="ml-auto flex min-h-[44px] items-center bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
           onClick={handleSave}
           aria-label={effectiveSaved ? 'Quitar guardado' : 'Guardar'}
@@ -581,13 +747,30 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       </div>
 
       {/* ---- Liked by context ---- */}
-      {likesCount > 0 && (post.liked_by_sample?.length > 0 || post.liked_by?.length > 0) && (
-        <div className="px-3 pb-1 text-[12px] text-stone-950 leading-tight">
-          <span>Le gusta a </span>
-          <span className="font-semibold">{(post.liked_by_sample || post.liked_by)[0]?.name || 'alguien'}</span>
-          {likesCount > 1 && <span> y <span className="font-semibold">{likesCount - 1} más</span></span>}
-        </div>
-      )}
+      {likesCount > 0 && (() => {
+        const likedByArr = post.liked_by_sample || post.liked_by;
+        const firstUser = likedByArr?.[0];
+        if (firstUser) {
+          return (
+            <div className="px-3 pb-1 text-xs text-stone-500 leading-tight">
+              <span>Le gusta a </span>
+              <span
+                className="font-semibold text-stone-950 cursor-pointer"
+                role="link"
+                onClick={() => navigate(`/${firstUser.username || firstUser.id || firstUser.user_id}`)}
+              >
+                @{firstUser.username || firstUser.name}
+              </span>
+              {likesCount > 1 && <span> y <span className="font-semibold text-stone-950">{likesCount - 1} más</span></span>}
+            </div>
+          );
+        }
+        return (
+          <div className="px-3 pb-1 text-xs text-stone-500 leading-tight">
+            <span className="font-semibold text-stone-950">{likesCount}</span> me gusta
+          </div>
+        );
+      })()}
 
       {/* ---- "Ver los X comentarios" link (Q6) ---- */}
       {commentsCount > 0 && (
