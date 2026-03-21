@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Loader2, Shield, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, Shield, Check, AlertCircle, ShieldAlert } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
+import { captureException } from '../../lib/sentry';
 
 const fmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
@@ -74,6 +75,7 @@ export default function B2BPaymentPage() {
       setOperation(opRes.data);
       setPaymentInfo(piRes.data);
     } catch (err) {
+      captureException(err);
       setError(err.response?.data?.message || 'Error al cargar los datos de pago');
     } finally {
       setLoading(false);
@@ -125,6 +127,7 @@ export default function B2BPaymentPage() {
 
         setSuccessAmount(data.amount);
       } catch (err) {
+        captureException(err);
         if (!cancelled) {
           toast.error('No se pudo inicializar el pago');
         }
@@ -148,11 +151,29 @@ export default function B2BPaymentPage() {
         toast.error(stripeError.message);
       }
     } catch (err) {
+      captureException(err);
       toast.error('Error al procesar el pago');
     } finally {
       setPaying(false);
     }
   };
+
+  /* -- Role guard -- */
+  if (user && user.role !== 'producer' && user.role !== 'importer') {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6 text-center">
+        <ShieldAlert size={36} className="text-stone-400" />
+        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
+        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a los pagos B2B.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"
+        >
+          Volver al inicio
+        </button>
+      </div>
+    );
+  }
 
   /* -- Render helpers -- */
 

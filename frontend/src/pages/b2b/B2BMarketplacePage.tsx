@@ -323,7 +323,7 @@ export default function B2BMarketplacePage() {
                 <p className="text-sm mt-1">Completa tu perfil de importador para acceder</p>
                 <button
                   onClick={() => catalogQuery.refetch()}
-                  className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
+                  className="mt-3 bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
                 >
                   Reintentar
                 </button>
@@ -367,7 +367,7 @@ export default function B2BMarketplacePage() {
                 <p className="font-medium">Sin acceso al directorio de productores</p>
                 <button
                   onClick={() => producersQuery.refetch()}
-                  className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
+                  className="mt-3 bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
                 >
                   Reintentar
                 </button>

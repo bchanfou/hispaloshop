@@ -49,6 +49,13 @@ function CertificateRow({ cert }) {
         </p>
       </div>
 
+      {/* Verified badge */}
+      {cert.is_verified && (
+        <span className="text-[10px] bg-stone-100 text-stone-600 rounded-full px-2 py-0.5 font-medium shrink-0">
+          ✓ Verificado
+        </span>
+      )}
+
       {/* Actions */}
       <div className="flex gap-1.5 shrink-0">
         {cert.certificate_id && (
@@ -117,7 +124,7 @@ export default function ImporterCertificatesPage() {
     loadCerts();
   }, [loadCerts]);
 
-  const expiring = certs.filter(c => c.days_until_expiry != null && c.days_until_expiry > 0 && c.days_until_expiry <= 60);
+  const expiring = certs.filter(c => c.days_until_expiry != null && c.days_until_expiry > 0 && c.days_until_expiry <= 30);
   const expired = certs.filter(c => c.days_until_expiry != null && c.days_until_expiry <= 0);
 
   const filteredCerts = (

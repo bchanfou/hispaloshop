@@ -586,7 +586,7 @@ export default function ImporterCatalogPage() {
           <p className="text-sm font-semibold text-stone-950 mb-1">Error al cargar el catálogo</p>
           <button
             onClick={() => fetchProducts(1, false)}
-            className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
+            className="mt-3 bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
           >
             Reintentar
           </button>

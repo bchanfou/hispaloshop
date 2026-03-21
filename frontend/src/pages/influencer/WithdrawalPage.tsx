@@ -2,11 +2,46 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  ArrowLeft, CreditCard, Building2, Loader2, Check, AlertTriangle, Info,
+  ArrowLeft, CreditCard, Building2, Loader2, Check, AlertTriangle, Info, Clock, Settings2,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useLocale } from '../../context/LocaleContext';
+
+function WithdrawalHistoryItem({ item, convertAndFormatPrice }) {
+  const statusStyles = {
+    completed: 'bg-stone-950 text-white',
+    pending: 'bg-stone-100 text-stone-700',
+    processing: 'bg-stone-100 text-stone-700',
+    failed: 'border border-stone-200 text-stone-400 bg-white',
+  };
+  const statusLabels = {
+    completed: 'Completado',
+    pending: 'Pendiente',
+    processing: 'Procesando',
+    failed: 'Fallido',
+  };
+  const st = item.status || 'pending';
+  return (
+    <div className="flex items-center justify-between py-2.5">
+      <div className="flex items-center gap-3 min-w-0">
+        <Clock className="w-4 h-4 text-stone-400 shrink-0" />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-stone-950">
+            {convertAndFormatPrice(Number(item.net_amount || item.amount || 0))}
+          </p>
+          <p className="text-[11px] text-stone-500">
+            {item.created_at ? new Date(item.created_at).toLocaleDateString('es-ES') : '—'}
+            {item.method && ` · ${item.method === 'bank_transfer' || item.method === 'sepa' ? 'SEPA' : 'Stripe'}`}
+          </p>
+        </div>
+      </div>
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusStyles[st] || statusStyles.pending}`}>
+        {statusLabels[st] || st}
+      </span>
+    </div>
+  );
+}
 
 export default function WithdrawalPage() {
   const navigate = useNavigate();
@@ -16,14 +51,17 @@ export default function WithdrawalPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(null); // null | { net_amount, method, ... }
+  const [recentPayouts, setRecentPayouts] = useState([]);
 
   useEffect(() => {
     Promise.all([
       apiClient.get('/influencer/fiscal/status').catch(() => null),
       apiClient.get('/influencer/dashboard').catch(() => null),
-    ]).then(([f, d]) => {
+      apiClient.get('/influencer/payouts?limit=5').catch(() => null),
+    ]).then(([f, d, payouts]) => {
       setFiscal(f);
       setBalance(d?.payment_schedule?.available_to_withdraw || d?.available_balance || 0);
+      setRecentPayouts(Array.isArray(payouts?.payouts) ? payouts.payouts : Array.isArray(payouts) ? payouts : []);
     }).finally(() => setLoading(false));
   }, []);
 
@@ -31,6 +69,27 @@ export default function WithdrawalPage() {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
+      </div>
+    );
+  }
+
+  // Fiscal setup guard
+  if (!loading && fiscal?.fiscal_setup_status !== 'completed') {
+    return (
+      <div className="bg-stone-50 min-h-screen flex flex-col items-center justify-center px-4">
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5 bg-stone-100">
+          <Settings2 className="w-6 h-6 text-stone-500" />
+        </div>
+        <h2 className="text-lg font-bold text-stone-950 mb-2 text-center">Configuración fiscal pendiente</h2>
+        <p className="text-sm text-stone-500 text-center mb-6 max-w-xs">
+          Completa tu configuración fiscal antes de retirar fondos
+        </p>
+        <Link
+          to="/influencer/fiscal-setup"
+          className="px-6 py-3 bg-stone-950 text-white text-sm font-semibold rounded-full hover:bg-stone-800 transition-colors"
+        >
+          Configurar
+        </Link>
       </div>
     );
   }
@@ -223,7 +282,7 @@ export default function WithdrawalPage() {
         <button
           onClick={handleSubmit}
           disabled={!canWithdraw || submitting}
-          className={`w-full h-12 text-sm font-semibold transition-colors mb-8 flex items-center justify-center gap-2 rounded-full border-none ${
+          className={`w-full h-12 text-sm font-semibold transition-colors mb-5 flex items-center justify-center gap-2 rounded-full border-none ${
             canWithdraw
               ? 'bg-stone-950 text-white cursor-pointer'
               : 'bg-stone-100 text-stone-500 cursor-not-allowed'
@@ -235,6 +294,18 @@ export default function WithdrawalPage() {
             `Recibir ${convertAndFormatPrice(Number(net || 0))}`
           )}
         </button>
+
+        {/* Previous withdrawals history */}
+        {recentPayouts.length > 0 && (
+          <div className="rounded-2xl border border-stone-200 p-3 mb-8">
+            <h3 className="text-sm font-semibold text-stone-950 mb-2">Últimos cobros</h3>
+            <div className="divide-y divide-stone-100">
+              {recentPayouts.slice(0, 5).map((p, i) => (
+                <WithdrawalHistoryItem key={p.id || i} item={p} convertAndFormatPrice={convertAndFormatPrice} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -216,8 +216,15 @@ export default function B2BTrackingPage() {
 
   if (!operation) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6">
         <div className="text-stone-950 text-[15px] font-semibold">Operación no encontrada</div>
+        <p className="text-stone-500 text-[13px] text-center">No se pudo cargar la operación solicitada.</p>
+        <button
+          onClick={() => { setLoading(true); fetchOperation(); }}
+          className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
+        >
+          Reintentar
+        </button>
         <button
           onClick={() => navigate(-1)}
           className="text-stone-500 text-[13px] bg-transparent border-none cursor-pointer"
@@ -236,7 +243,7 @@ export default function B2BTrackingPage() {
 
       {/* -- TopBar -- */}
       <div className="sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-white/80 backdrop-blur-xl border-b border-stone-200">
-        <button onClick={() => navigate(-1)} className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer">
+        <button onClick={() => navigate(-1)} aria-label="Volver" className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer">
           <ArrowLeft size={20} className="text-stone-950" />
         </button>
         <div className="text-sm font-semibold text-stone-950 tracking-tight">
@@ -244,6 +251,7 @@ export default function B2BTrackingPage() {
         </div>
         <button
           onClick={() => navigate(`/b2b/chat/${operationId}`)}
+          aria-label="Abrir chat de la operación"
           className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer"
         >
           <MessageCircle size={20} className="text-stone-950" />
@@ -451,6 +459,7 @@ export default function B2BTrackingPage() {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`Rastrear envío en ${shipment.carrier}`}
                       className="flex items-center justify-center w-full h-11 rounded-full bg-white border border-stone-200 text-[13px] font-medium text-stone-950 no-underline gap-1.5 mt-1"
                     >
                       Rastrear en {shipment.carrier} <ExternalLink size={14} />

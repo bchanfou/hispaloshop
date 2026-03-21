@@ -1,5 +1,6 @@
 // @ts-nocheck
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart3, MousePointerClick, RefreshCw, ShoppingCart, TrendingUp, TrendingDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
@@ -35,7 +36,59 @@ function KpiCard({ icon: Icon, label, value, prevValue }) {
   );
 }
 
+function RevenueChart({ dailyEarnings, days }) {
+  const bars = useMemo(() => {
+    if (!Array.isArray(dailyEarnings) || dailyEarnings.length === 0) return [];
+    // Take last N entries matching period
+    const count = days <= 7 ? 7 : 30;
+    const slice = dailyEarnings.slice(-count);
+    return slice;
+  }, [dailyEarnings, days]);
+
+  const maxVal = useMemo(() => Math.max(...bars.map(b => b.amount || 0), 1), [bars]);
+
+  if (bars.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-8 text-center">
+        <p className="text-sm text-stone-500">Sin datos suficientes para mostrar gráfico</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-5">
+      <h3 className="text-sm font-semibold text-stone-950 mb-3">Ingresos diarios</h3>
+      <div className="flex items-end gap-1 h-[120px]">
+        {bars.map((bar, i) => {
+          const h = maxVal > 0 ? ((bar.amount || 0) / maxVal) * 100 : 0;
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+              <div
+                className="w-full bg-stone-950 rounded-t min-h-[2px]"
+                style={{ height: `${Math.max(h, 2)}%` }}
+                title={`${(bar.amount || 0).toFixed(2)}€`}
+              />
+              {bars.length <= 7 && (
+                <span className="text-[9px] text-stone-400 mt-1 truncate w-full text-center">
+                  {bar.label || bar.date || ''}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {bars.length > 7 && (
+        <div className="flex justify-between mt-1">
+          <span className="text-[9px] text-stone-400">{bars[0]?.label || bars[0]?.date || ''}</span>
+          <span className="text-[9px] text-stone-400">{bars[bars.length - 1]?.label || bars[bars.length - 1]?.date || ''}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function InfluencerInsights() {
+  const navigate = useNavigate();
   const { convertAndFormatPrice } = useLocale();
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
@@ -65,6 +118,7 @@ export default function InfluencerInsights() {
   const overview = data?.overview || {};
   const prevOverview = prevData?.overview || {};
   const topProducts = Array.isArray(data?.top_products_driven) ? data.top_products_driven : [];
+  const dailyEarnings = Array.isArray(data?.daily_earnings) ? data.daily_earnings : [];
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
@@ -134,6 +188,11 @@ export default function InfluencerInsights() {
           />
         </div>
 
+        {/* Revenue mini-chart */}
+        {!loading && !error && (
+          <RevenueChart dailyEarnings={dailyEarnings} days={days} />
+        )}
+
         {/* Top products driven */}
         <div>
           <h2 className="mb-4 text-base font-semibold text-stone-950">
@@ -171,7 +230,8 @@ export default function InfluencerInsights() {
               {topProducts.map((p, i) => (
                 <div
                   key={p.product_id}
-                  className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4"
+                  onClick={() => navigate(`/influencer/affiliate-links?product=${p.product_id}`)}
+                  className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 cursor-pointer hover:border-stone-300 transition-colors"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xs font-semibold text-stone-600">
                     {i + 1}

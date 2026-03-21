@@ -1,7 +1,8 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Loader2, Truck, ExternalLink, Search } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Loader2, Truck, ExternalLink, Search, ChevronDown, MessageCircle, PackageCheck } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 
@@ -46,7 +47,23 @@ function formatRelativeTime(dateStr) {
 }
 
 function B2BOrderCard({ order, onRefresh }) {
+  const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+
+  const handleConfirmDelivery = async () => {
+    setConfirming(true);
+    try {
+      await apiClient.patch(`/b2b/operations/${order.operation_id || order.id}`, { status: 'delivered' });
+      toast.success('Recepción confirmada');
+      onRefresh();
+    } catch {
+      toast.error('Error al confirmar recepción');
+    } finally {
+      setConfirming(false);
+    }
+  };
 
   const handleApproveAndPay = async () => {
     setProcessing(true);
@@ -76,21 +93,30 @@ function B2BOrderCard({ order, onRefresh }) {
     }
   };
 
+  const products = Array.isArray(order.items) ? order.items : [];
+
   return (
     <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden mb-3">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-stone-50 border-b border-stone-100">
+      {/* Header — clickable to expand */}
+      <button
+        type="button"
+        onClick={() => setExpanded(prev => !prev)}
+        className="w-full flex items-center justify-between px-4 py-2.5 bg-stone-50 border-b border-stone-100 cursor-pointer"
+      >
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-stone-950">{order.producer_name}</span>
           <span className="text-[11px] text-stone-400">
             #{(order.id || '').slice(-8).toUpperCase()}
           </span>
         </div>
-        <B2BOrderStatusBadge status={order.status} />
-      </div>
+        <div className="flex items-center gap-2">
+          <B2BOrderStatusBadge status={order.status} />
+          <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
 
       <div className="p-4">
-        {/* Product */}
+        {/* Product summary */}
         <div className="flex gap-3 mb-3">
           {order.product_image ? (
             <img loading="lazy" src={order.product_image} alt="" className="w-13 h-13 rounded-2xl object-cover shrink-0" style={{ width: 52, height: 52 }} />
@@ -110,6 +136,115 @@ function B2BOrderCard({ order, onRefresh }) {
             <p className="text-[11px] text-stone-400">{formatRelativeTime(order.created_at)}</p>
           </div>
         </div>
+
+        {/* Expanded detail drilldown */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              {/* Products list */}
+              {products.length > 0 && (
+                <div className="mb-3 space-y-2">
+                  {products.map((item, idx) => (
+                    <div key={item.product_id || idx} className="flex items-center gap-2.5 bg-stone-50 rounded-2xl p-2.5">
+                      {item.image ? (
+                        <img src={item.image} alt="" className="w-9 h-9 rounded-xl object-cover shrink-0" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-xl bg-stone-200 shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-stone-950 truncate">{item.name || 'Producto'}</p>
+                        <p className="text-[11px] text-stone-500">
+                          {item.quantity || 1} × {(item.unit_price || 0).toFixed(2)}€
+                        </p>
+                      </div>
+                      <span className="text-xs font-bold text-stone-950">
+                        {((item.quantity || 1) * (item.unit_price || 0)).toFixed(2)}€
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Producer info */}
+              <div className="flex items-center gap-2.5 mb-3 bg-stone-50 rounded-2xl p-2.5">
+                {order.producer_avatar ? (
+                  <img src={order.producer_avatar} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-stone-200 shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-stone-950 truncate">{order.producer_name}</p>
+                  <p className="text-[11px] text-stone-500">Productor</p>
+                </div>
+              </div>
+
+              {/* Total + payment status */}
+              <div className="flex items-center justify-between mb-3 px-1">
+                <span className="text-xs text-stone-500">Total</span>
+                <span className="text-sm font-bold text-stone-950">{(order.total || 0).toFixed(2)}€</span>
+              </div>
+              {order.payment_status && (
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <span className="text-xs text-stone-500">Estado de pago</span>
+                  <span className="text-xs font-semibold text-stone-700 capitalize">{order.payment_status}</span>
+                </div>
+              )}
+
+              {/* Action links */}
+              <div className="flex gap-2 mb-3">
+                <Link
+                  to={`/b2b/tracking?op=${order.operation_id || order.id}`}
+                  aria-label={`Ver tracking del pedido #${(order.id || '').slice(-8)}`}
+                  className="flex-1 py-2 text-center text-xs font-medium border border-stone-200 rounded-2xl text-stone-700 hover:bg-stone-50 transition-colors"
+                >
+                  Ver tracking
+                </Link>
+                <button
+                  onClick={() => navigate(`/chat?to=${order.producer_id || ''}`)}
+                  aria-label={`Enviar mensaje a ${order.producer_name || 'productor'}`}
+                  className="flex-1 py-2 text-xs font-medium border border-stone-200 rounded-2xl text-stone-700 hover:bg-stone-50 transition-colors flex items-center justify-center gap-1"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  Mensaje al productor
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Shortcut: Shipped → track */}
+        {order.status === 'shipped' && (
+          <Link
+            to={`/b2b/tracking?op=${order.operation_id || order.id}`}
+            aria-label={`Rastrear envío del pedido #${(order.id || '').slice(-8)}`}
+            className="flex items-center justify-center gap-1.5 w-full py-2 mb-3 bg-stone-100 hover:bg-stone-200 text-stone-950 text-xs font-semibold rounded-2xl transition-colors"
+          >
+            <Truck className="w-3.5 h-3.5" />
+            Rastrear envío
+          </Link>
+        )}
+
+        {/* Shortcut: Delivered → confirm reception */}
+        {order.status === 'delivered' && (
+          <button
+            onClick={handleConfirmDelivery}
+            disabled={confirming}
+            className="flex items-center justify-center gap-1.5 w-full py-2 mb-3 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-semibold rounded-2xl transition-colors"
+          >
+            {confirming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (
+              <>
+                <PackageCheck className="w-3.5 h-3.5" />
+                Confirmar recepción
+              </>
+            )}
+          </button>
+        )}
 
         {/* Confirmed by producer — approve & pay */}
         {order.status === 'confirmed_by_producer' && (
@@ -141,7 +276,7 @@ function B2BOrderCard({ order, onRefresh }) {
           </div>
         )}
 
-        {/* Tracking */}
+        {/* Tracking info */}
         {order.status === 'shipped' && order.tracking_number && (
           <div className="bg-stone-50 rounded-2xl p-3 text-xs text-stone-700 flex items-center gap-2">
             <Truck className="w-4 h-4 shrink-0" />

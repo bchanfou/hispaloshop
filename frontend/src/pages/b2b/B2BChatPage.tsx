@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MessageSquare, Send, ArrowLeft, Loader2, RefreshCw, Search, X, Sparkles } from 'lucide-react';
+import { MessageSquare, Send, ArrowLeft, Loader2, RefreshCw, Search, X, Sparkles, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import {
   useB2BConversations,
@@ -134,6 +134,7 @@ function MessageThread({ convId, myId, operationId, searchFilter = '' }) {
           <button
             type="button"
             onClick={handleAskPedro}
+            aria-label="Preguntar a Pedro AI"
             className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600 border-none cursor-pointer flex items-center gap-1.5 hover:bg-stone-200 transition-colors"
           >
             <Sparkles size={12} />
@@ -152,6 +153,7 @@ function MessageThread({ convId, myId, operationId, searchFilter = '' }) {
           <button
             type="submit"
             disabled={!text.trim() || sendMutation.isPending}
+            aria-label="Enviar mensaje"
             className="w-10 h-10 rounded-2xl bg-stone-950 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0"
           >
             {sendMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -260,6 +262,7 @@ export default function B2BChatPage() {
       <div className="px-4 py-3 border-b border-stone-200 flex items-center gap-3">
         <button
           className="md:hidden p-1.5 rounded-2xl hover:bg-stone-100"
+          aria-label="Volver a lista de conversaciones"
           onClick={() => setMobileView('list')}
         >
           <ArrowLeft className="w-5 h-5 text-stone-600" />
@@ -272,6 +275,7 @@ export default function B2BChatPage() {
         <div className="ml-auto flex items-center gap-1">
           <button
             className="p-1.5 rounded-2xl hover:bg-stone-100"
+            aria-label={showSearch ? 'Cerrar búsqueda' : 'Buscar en mensajes'}
             onClick={() => {
               setShowSearch((prev) => !prev);
               if (showSearch) setThreadSearchQuery('');
@@ -281,6 +285,7 @@ export default function B2BChatPage() {
           </button>
           <button
             className="p-1.5 rounded-2xl hover:bg-stone-100"
+            aria-label="Actualizar conversaciones"
             onClick={() => convsQuery.refetch()}
           >
             <RefreshCw className="w-4 h-4 text-stone-400" />
@@ -313,6 +318,23 @@ export default function B2BChatPage() {
       <p className="text-sm">Selecciona una conversacion</p>
     </div>
   );
+
+  /* Role guard */
+  if (user && user.role !== 'producer' && user.role !== 'importer') {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6 text-center">
+        <ShieldAlert size={36} className="text-stone-400" />
+        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
+        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder al chat B2B.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"
+        >
+          Volver al inicio
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 p-0 md:p-4">

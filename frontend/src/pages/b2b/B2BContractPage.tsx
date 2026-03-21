@@ -14,10 +14,12 @@ import {
   CreditCard,
   Truck,
   FileCheck,
+  ShieldAlert,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
+import { captureException } from '../../lib/sentry';
 
 /* -- Helpers -- */
 const fmtDate = (iso) => {
@@ -57,6 +59,7 @@ export default function B2BContractPage() {
       setError(null);
       return data;
     } catch (err) {
+      captureException(err);
       setError(err.response?.data?.message || 'No se pudo cargar la operación');
       return null;
     } finally {
@@ -120,11 +123,29 @@ export default function B2BContractPage() {
       toast.success('Contrato firmado correctamente');
       await fetchOperation();
     } catch (err) {
+      captureException(err);
       toast.error(err.response?.data?.message || 'Error al firmar');
     } finally {
       setSigning(false);
     }
   };
+
+  /* -- Role guard -- */
+  if (user && user.role !== 'producer' && user.role !== 'importer') {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6 text-center">
+        <ShieldAlert size={36} className="text-stone-400" />
+        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
+        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a los contratos B2B.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"
+        >
+          Volver al inicio
+        </button>
+      </div>
+    );
+  }
 
   /* -- Loading / Error screens -- */
   if (loading) {

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Plus, Pause, Play, Edit3, Package } from 'lucide-react';
+import { ChevronLeft, Plus, Pause, Play, Edit3, Package, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
@@ -14,13 +14,6 @@ export default function B2BCatalogPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [togglingId, setTogglingId] = useState(null);
-
-  /* Role guard */
-  useEffect(() => {
-    if (user && user.role !== 'producer' && user.role !== 'importer') {
-      navigate('/', { replace: true });
-    }
-  }, [user, navigate]);
 
   /* Fetch catalog */
   const fetchCatalog = useCallback(async () => {
@@ -59,7 +52,21 @@ export default function B2BCatalogPage() {
   }, []);
 
   /* Guard render */
-  if (!user || (user.role !== 'producer' && user.role !== 'importer')) return null;
+  if (!user || (user.role !== 'producer' && user.role !== 'importer')) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6 text-center">
+        <ShieldAlert size={36} className="text-stone-400" />
+        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
+        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder al catálogo B2B.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"
+        >
+          Volver al inicio
+        </button>
+      </div>
+    );
+  }
 
   /* ── Render ──────────────────────────────────────────────── */
   return (

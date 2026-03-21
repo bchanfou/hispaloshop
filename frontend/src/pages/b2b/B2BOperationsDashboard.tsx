@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Briefcase, CheckCircle, AlertTriangle, Loader2, ShieldAlert } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 
@@ -95,6 +95,7 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
     <div className={`transition-colors duration-700 ${highlight ? 'bg-stone-100' : 'bg-transparent'}`}>
       <button
         onClick={() => onNavigate && action?.path && onNavigate(action.path)}
+        aria-label={`Ver operación ${operation.product_name || 'sin nombre'}`}
         className="w-full px-4 py-3.5 bg-transparent border-none text-left cursor-pointer"
       >
         <div className="flex items-start gap-3">
@@ -298,6 +299,23 @@ const B2BOperationsDashboard = () => {
 
   const handleNavigate = useCallback((path) => navigate(path), [navigate]);
 
+  /* ── Role guard ── */
+  if (user && user.role !== 'producer' && user.role !== 'importer') {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6 text-center">
+        <ShieldAlert size={36} className="text-stone-400" />
+        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
+        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a las operaciones B2B.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"
+        >
+          Volver al inicio
+        </button>
+      </div>
+    );
+  }
+
   /* ── Render ── */
   return (
     <div className="fixed inset-0 bg-white flex flex-col">
@@ -354,8 +372,8 @@ const B2BOperationsDashboard = () => {
               Error al cargar las operaciones
             </span>
             <button
-              onClick={loadOperations}
-              className="px-5 py-2 text-[13px] font-semibold bg-stone-950 text-white border-none rounded-full cursor-pointer"
+              onClick={() => loadOperations()}
+              className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
             >
               Reintentar
             </button>
