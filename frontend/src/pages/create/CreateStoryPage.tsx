@@ -622,7 +622,7 @@ export default function CreateStoryPage() {
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className={`bg-stone-950 text-white border-none text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 ${
+          className={`bg-stone-950 text-white border-none text-[13px] font-semibold px-5 py-2.5 rounded-full transition-colors flex items-center gap-2 min-h-[48px] ${
             publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-stone-800'
           }`}
         >
@@ -720,7 +720,7 @@ export default function CreateStoryPage() {
           {textOverlays.map((t) => (
             <div
               key={t.id}
-              className="absolute -translate-x-1/2 -translate-y-1/2 font-bold cursor-grab select-none whitespace-nowrap z-[5] group"
+              className="absolute -translate-x-1/2 -translate-y-1/2 font-bold cursor-grab select-none whitespace-nowrap z-[5] group touch-none"
               style={{
                 left: `${t.x}%`,
                 top: `${t.y}%`,
@@ -769,7 +769,7 @@ export default function CreateStoryPage() {
           {stickerOverlays.map((s) => (
             <div
               key={s.id}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none whitespace-nowrap z-[5] font-medium group ${
+              className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none whitespace-nowrap z-[5] font-medium group touch-none ${
                 s.type === 'product'
                   ? ''
                   : s.type === 'emoji'
@@ -960,7 +960,7 @@ export default function CreateStoryPage() {
 
       {/* Text panel */}
       {activePanel === 'text' && (
-        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 rounded-t-hs-xl z-20 flex flex-col gap-3">
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] rounded-t-hs-xl z-20 flex flex-col gap-3">
           <textarea
             value={textDraft}
             onChange={(e) => setTextDraft(e.target.value)}
@@ -1057,7 +1057,7 @@ export default function CreateStoryPage() {
 
       {/* Sticker panel */}
       {activePanel === 'sticker' && (
-        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 rounded-t-hs-xl z-20 flex flex-col gap-3 max-h-[50vh] overflow-auto">
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] rounded-t-hs-xl z-20 flex flex-col gap-3 max-h-[50vh] overflow-auto">
           {/* Tabs */}
           <div className="flex border-b border-white/15 overflow-x-auto" role="tablist" aria-label="Tipo de sticker">
             {[

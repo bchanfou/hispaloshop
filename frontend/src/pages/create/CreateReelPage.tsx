@@ -528,7 +528,7 @@ export default function CreateReelPage() {
           {textOverlays.map((t) => (
             <div
               key={t.id}
-              className="absolute font-bold select-none cursor-grab whitespace-nowrap group"
+              className="absolute font-bold select-none cursor-grab whitespace-nowrap group touch-none"
               style={{
                 left: `${t.x}%`,
                 top: `${t.y}%`,
@@ -633,7 +633,7 @@ export default function CreateReelPage() {
             />
             {/* Left handle */}
             <div
-              className="absolute top-0 bottom-0 w-4 bg-white rounded-l-xl cursor-ew-resize z-[3] flex items-center justify-center"
+              className="absolute top-0 bottom-0 w-4 bg-white rounded-l-xl cursor-ew-resize z-[3] flex items-center justify-center touch-none"
               style={{ left: duration > 0 ? `calc(${(trimStart / duration) * 100}% - 8px)` : '0px' }}
               onMouseDown={(e) => {
                 e.stopPropagation();
@@ -663,7 +663,7 @@ export default function CreateReelPage() {
             </div>
             {/* Right handle */}
             <div
-              className="absolute top-0 bottom-0 w-4 bg-white rounded-r-xl cursor-ew-resize z-[3] flex items-center justify-center"
+              className="absolute top-0 bottom-0 w-4 bg-white rounded-r-xl cursor-ew-resize z-[3] flex items-center justify-center touch-none"
               style={{ left: duration > 0 ? `calc(${((trimEnd || duration) / duration) * 100}% - 8px)` : 'calc(100% - 8px)' }}
               onMouseDown={(e) => {
                 e.stopPropagation();
@@ -725,7 +725,7 @@ export default function CreateReelPage() {
                 <button
                   key={s}
                   onClick={() => { setSpeed(s); if (navigator.vibrate) navigator.vibrate(10); }}
-                  className={`rounded-full px-5 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors ${
+                  className={`rounded-full px-5 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors min-h-[44px] ${
                     speed === s
                       ? 'bg-white text-black border border-white'
                       : 'bg-stone-900 text-white border border-stone-700'
@@ -1155,7 +1155,7 @@ export default function CreateReelPage() {
       `}</style>
 
       {/* Publish button */}
-      <div className="px-4 pt-3 pb-6 border-t border-stone-200">
+      <div className="px-4 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] border-t border-stone-200">
         {/* Upload progress bar */}
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
           <div className="w-full h-[3px] bg-stone-200 rounded-full mb-3 overflow-hidden">
@@ -1168,7 +1168,7 @@ export default function CreateReelPage() {
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 flex items-center justify-center gap-2 ${
+          className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 flex items-center justify-center gap-2 min-h-[48px] ${
             publishing ? 'opacity-60 cursor-not-allowed' : ''
           }`}
         >

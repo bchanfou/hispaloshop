@@ -630,7 +630,7 @@ export default function ProfileHeader({
       </div>
 
       {/* ── 5. ACTION BUTTONS (Instagram layout) ────────────────── */}
-      <div className="flex gap-1.5 px-4 pb-3">
+      <div className="flex flex-wrap gap-1.5 px-4 pb-3">
         {isOwn ? (
           <>
             <motion.button whileTap={{ scale: 0.96 }} transition={{ type: 'spring', damping: 20, stiffness: 400 }} onClick={onEditProfile} className="min-h-[44px] flex-1 rounded-full bg-stone-100 px-2 py-1.5 text-[13px] font-semibold text-stone-950">

@@ -23,9 +23,13 @@ export default function HomeHeader({ activeTab = 'foryou', onTabChange }) {
       className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-100/80 flex items-center justify-between px-4 pb-1 pt-2"
       data-testid="home-header"
     >
-      {/* hispaloshop text logo — left */}
-      <span className="text-[22px] font-black tracking-tight text-stone-950 font-apple lowercase">
+      {/* hispaloshop text logo — left (hidden on very narrow screens) */}
+      <span className="hidden min-[360px]:inline text-[22px] font-black tracking-tight text-stone-950 font-apple lowercase">
         hispaloshop
+      </span>
+      {/* Compact logo for < 360px */}
+      <span className="min-[360px]:hidden text-[18px] font-black tracking-tight text-stone-950 font-apple lowercase">
+        hispalo
       </span>
 
       {/* Feed tab toggle — center */}

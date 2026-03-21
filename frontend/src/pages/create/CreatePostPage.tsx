@@ -422,7 +422,7 @@ export default function CreatePostPage() {
     };
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
-    window.addEventListener('touchmove', move, { passive: true });
+    window.addEventListener('touchmove', move, { passive: false });
     window.addEventListener('touchend', up);
   };
 
@@ -647,7 +647,7 @@ export default function CreatePostPage() {
                 key={o.id}
                 onMouseDown={(e) => handleDragStart(e, o)}
                 onTouchStart={(e) => handleDragStart(e, o)}
-                className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none font-semibold"
+                className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none font-semibold touch-none"
                 style={{
                   left: `${o.x}%`,
                   top: `${o.y}%`,
@@ -1194,7 +1194,7 @@ export default function CreatePostPage() {
       )}
 
       {/* fixed publish button */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-200">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-200 pb-[max(1rem,env(safe-area-inset-bottom))]">
         {/* Upload progress bar */}
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
           <div className="w-full h-[3px] bg-stone-200 rounded-sm mb-2.5 overflow-hidden">
@@ -1207,7 +1207,7 @@ export default function CreatePostPage() {
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className="w-full bg-stone-950 text-white text-[15px] font-semibold py-3.5 rounded-full border-none flex items-center justify-center gap-2 transition-all duration-150 hover:bg-stone-800"
+          className="w-full bg-stone-950 text-white text-[15px] font-semibold py-3.5 rounded-full border-none flex items-center justify-center gap-2 transition-all duration-150 hover:bg-stone-800 min-h-[48px]"
           style={{
             cursor: publishing ? 'default' : 'pointer',
             opacity: publishing ? 0.8 : 1,

@@ -38,30 +38,32 @@ function FeedContainer() {
       {/* Stories */}
       <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleStoryClick} />
 
-      {/* Tabbed Feed */}
-      <AnimatePresence mode="wait">
-        {feedTab === 'foryou' ? (
-          <motion.div
-            key="foryou"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
-          >
-            <ForYouFeed />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="following"
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 10 }}
-            transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
-          >
-            <FollowingFeed />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Tabbed Feed — centered on tablet to prevent full-width stretch */}
+      <div className="md:max-w-[500px] md:mx-auto">
+        <AnimatePresence mode="wait">
+          {feedTab === 'foryou' ? (
+            <motion.div
+              key="foryou"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+            >
+              <ForYouFeed />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="following"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+            >
+              <FollowingFeed />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Story Viewer (fullscreen modal) */}
       {storyViewer && (

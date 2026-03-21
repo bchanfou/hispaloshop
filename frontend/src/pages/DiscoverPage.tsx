@@ -326,7 +326,7 @@ export default function DiscoverPage() {
 
   /* ── loading skeleton grid ── */
   const SkeletonGrid = () => (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
+    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-1">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="aspect-square bg-stone-100 animate-pulse" />
       ))}
@@ -505,7 +505,7 @@ export default function DiscoverPage() {
       ) : (loadingProducts && loadingTrending) ? (
         <SkeletonGrid />
       ) : exploreItems.length > 0 ? (
-        <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-1">
           {exploreItems.map((item, idx) => (
             <ExploreGridItem
               key={item.product_id || item.recipe_id || item.id || idx}

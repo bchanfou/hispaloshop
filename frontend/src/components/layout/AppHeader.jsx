@@ -50,7 +50,7 @@ export default function AppHeader() {
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-1.5 no-underline">
             <Logo variant="icon" theme="light" size={28} />
-            <span className="text-xl font-extrabold text-stone-950 tracking-tight lowercase">
+            <span className="hidden min-[360px]:inline text-xl font-extrabold text-stone-950 tracking-tight lowercase">
               hispaloshop
             </span>
           </Link>

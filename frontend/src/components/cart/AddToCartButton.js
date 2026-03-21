@@ -4,6 +4,7 @@ import { ShoppingBag, Check, Loader2, Plus, Minus, Zap } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useHaptics } from '../../hooks/useHaptics';
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
@@ -16,6 +17,7 @@ const AddToCartButton = ({
 }) => {
   const navigate = useNavigate();
   const { addToCart, cartItems } = useCart();
+  const { trigger } = useHaptics();
   const [state, setState] = useState('idle'); // idle, loading, success
   const [quantity, setQuantity] = useState(1);
   const mountedRef = useRef(true);
@@ -42,6 +44,7 @@ const AddToCartButton = ({
 
     try {
       await addToCart(productId, quantity, variantId, packId);
+      trigger('success');
       setState('success');
       if (onAdd) onAdd(product);
       const totalInCart = inCartQuantity + quantity;
