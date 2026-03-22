@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X, Flag, UserMinus } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X, Flag, UserMinus, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { timeAgo } from '../../utils/time';
@@ -157,6 +158,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { trigger } = useHaptics();
+  const { addToCart } = useCart();
   const dwellRef = useDwellTime(post.id, 'post');
 
   // Controlled state — single source of truth is React Query cache (via props)
@@ -339,6 +341,18 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       }
     }, 5500);
   }, [post.id, onDelete]);
+
+  const handleQuickAddToCart = useCallback(async (e, product) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      await addToCart(product.id || product.product_id, 1);
+      trigger('medium');
+      toast.success('Añadido al carrito');
+    } catch {
+      toast.error('Error al añadir al carrito');
+    }
+  }, [addToCart, trigger]);
 
   // ---- derived (accept both prop schemas) --------------------------------
 
@@ -568,13 +582,13 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           <div
             ref={scrollRef}
             className={`scrollbar-hide flex ${
-              hasMultiple ? 'snap-x snap-mandatory overflow-x-auto' : 'overflow-hidden'
+              hasMultiple ? 'snap-x snap-mandatory overflow-x-auto scroll-smooth' : 'overflow-hidden'
             }`}
             onScroll={handleScroll}
             onClick={handleDoubleTap}
           >
             {images.map((src, i) => (
-              <div key={typeof src === 'string' ? src : i} className="min-w-full snap-start">
+              <div key={typeof src === 'string' ? src : i} className="min-w-full snap-center">
                 <img
                   src={src}
                   alt={`Post ${post.id} imagen ${i + 1}`}
@@ -759,28 +773,28 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         </motion.button>
       </div>
 
-      {/* ---- Liked by context ---- */}
+      {/* ---- Liked by social proof ---- */}
       {likesCount > 0 && (() => {
-        const likedByArr = post.liked_by_sample || post.liked_by;
+        const likedByArr = post.liked_by_sample || post.liked_by || post.liked_by_users;
         const firstUser = likedByArr?.[0];
         if (firstUser) {
           return (
-            <div className="px-3 pb-1 text-xs text-stone-500 leading-tight">
+            <div className="px-3 pb-1 text-[13px] text-stone-950 leading-tight">
               <span>Le gusta a </span>
               <span
-                className="font-semibold text-stone-950 cursor-pointer"
+                className="font-semibold cursor-pointer"
                 role="link"
                 onClick={() => navigate(`/${firstUser.username || firstUser.id || firstUser.user_id}`)}
               >
                 @{firstUser.username || firstUser.name}
               </span>
-              {likesCount > 1 && <span> y <span className="font-semibold text-stone-950">{likesCount - 1} más</span></span>}
+              {likesCount > 1 && <span> y <span className="font-semibold">{likesCount - 1} más</span></span>}
             </div>
           );
         }
         return (
-          <div className="px-3 pb-1 text-xs text-stone-500 leading-tight">
-            <span className="font-semibold text-stone-950">{likesCount}</span> me gusta
+          <div className="px-3 pb-1 text-[13px] text-stone-950 leading-tight">
+            <span className="font-semibold">{likesCount}</span> me gusta
           </div>
         );
       })()}
@@ -815,39 +829,52 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
       {/* ---- Tagged product pills ---- */}
       {normalizedProducts.length > 0 && (
-        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-3 py-1 pb-3">
-          {normalizedProducts.slice(0, 3).map((product) => {
-            const img = product.image || product.thumbnail || product.images?.[0];
-            return (
-              <button
-                key={product.id || product.product_id}
-                className="flex shrink-0 items-center gap-1.5 rounded-full bg-stone-100 py-1 pl-1 pr-2.5 border-none cursor-pointer font-[inherit]"
-                onClick={() => navigate(`/products/${product.id || product.product_id}`)}
-              >
-                {img && (
-                  <img
-                    src={img}
-                    alt={product.name || product.title}
-                    loading="lazy"
-                    className="h-6 w-6 rounded-lg object-cover"
-                  />
-                )}
-                <span className="max-w-[80px] truncate text-[11px] font-medium text-stone-950">
-                  {product.name || product.title}
-                </span>
-                {product.price != null && (
-                  <span className="whitespace-nowrap text-[11px] font-bold text-stone-950">
-                    {formatPrice(product.price)}
+        <div className="bg-stone-50 rounded-xl p-2 mx-3 mb-3">
+          <div className="scrollbar-hide flex gap-2 overflow-x-auto">
+            {normalizedProducts.slice(0, 3).map((product, idx) => {
+              const img = product.image || product.thumbnail || product.images?.[0];
+              const isLast = idx === Math.min(normalizedProducts.length, 3) - 1;
+              return (
+                <button
+                  key={product.id || product.product_id}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full bg-white py-1 pl-1 pr-2.5 border border-stone-200 cursor-pointer font-[inherit] shadow-sm"
+                  onClick={() => navigate(`/products/${product.id || product.product_id}`)}
+                >
+                  {img && (
+                    <img
+                      src={img}
+                      alt={product.name || product.title}
+                      loading="lazy"
+                      className="h-7 w-7 rounded-lg object-cover"
+                    />
+                  )}
+                  <span className="max-w-[80px] truncate text-[11px] font-medium text-stone-950">
+                    {product.name || product.title}
                   </span>
-                )}
-              </button>
-            );
-          })}
-          {normalizedProducts.length > 3 && (
-            <span className="flex shrink-0 items-center text-[11px] font-medium text-stone-500">
-              +{normalizedProducts.length - 3} más
-            </span>
-          )}
+                  {product.price != null && (
+                    <span className="whitespace-nowrap text-[11px] font-semibold text-stone-950">
+                      {formatPrice(product.price)}
+                    </span>
+                  )}
+                  {isLast && normalizedProducts.length > 1 && (
+                    <span className="text-[10px] font-semibold text-stone-500 whitespace-nowrap">Comprar</span>
+                  )}
+                  <button
+                    onClick={(e) => handleQuickAddToCart(e, product)}
+                    className="flex items-center justify-center w-5 h-5 rounded-full bg-stone-950 border-none cursor-pointer shrink-0 ml-0.5"
+                    aria-label={`Añadir ${product.name || product.title} al carrito`}
+                  >
+                    <ShoppingBag size={12} className="text-white" />
+                  </button>
+                </button>
+              );
+            })}
+            {normalizedProducts.length > 3 && (
+              <span className="flex shrink-0 items-center text-[11px] font-medium text-stone-500">
+                +{normalizedProducts.length - 3} más
+              </span>
+            )}
+          </div>
         </div>
       )}
       {/* ---- Milestone toast ---- */}

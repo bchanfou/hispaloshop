@@ -123,11 +123,11 @@ const ModalCarousel = memo(function ModalCarousel({ images, userName, className,
     >
       <div
         ref={scrollRef}
-        className={`w-full h-full scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto' : 'overflow-hidden'}`}
+        className={`w-full h-full scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto scroll-smooth' : 'overflow-hidden'}`}
         onScroll={handleScroll}
       >
         {images.map((src, i) => (
-          <div key={typeof src === 'string' ? src : i} className="min-w-full snap-start flex items-center justify-center h-full">
+          <div key={typeof src === 'string' ? src : i} className="min-w-full snap-center flex items-center justify-center h-full">
             <img
               src={src}
               alt={`${userName} imagen ${i + 1}`}
@@ -186,6 +186,19 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
   const avatarUrl = userObj.avatar_url || userObj.avatar || userObj.profile_image || post?.user_profile_image;
   const userName = userObj.name || post?.user_name || 'Usuario';
 
+  const [commentSort, setCommentSort] = useState('recent');
+
+  const sortedComments = React.useMemo(() => {
+    if (!comments || comments.length === 0) return comments;
+    const copy = [...comments];
+    if (commentSort === 'popular') {
+      copy.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+    } else {
+      copy.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    }
+    return copy;
+  }, [comments, commentSort]);
+
   return (
     <>
       {/* Caption as first "comment" */}
@@ -210,6 +223,25 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
         </div>
       )}
 
+      {/* Comment sort selector */}
+      {!commentsLoading && comments.length > 1 && (
+        <div className="flex items-center gap-2 pb-2">
+          <button
+            onClick={() => setCommentSort('recent')}
+            className={`bg-transparent border-none cursor-pointer p-0 text-xs ${commentSort === 'recent' ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}
+          >
+            Más recientes
+          </button>
+          <span className="text-stone-300 text-xs">|</span>
+          <button
+            onClick={() => setCommentSort('popular')}
+            className={`bg-transparent border-none cursor-pointer p-0 text-xs ${commentSort === 'popular' ? 'text-stone-950 font-semibold' : 'text-stone-500'}`}
+          >
+            Más populares
+          </button>
+        </div>
+      )}
+
       {/* Comments */}
       {commentsLoading ? (
         <div className="space-y-3 py-2">
@@ -223,13 +255,13 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
             </div>
           ))}
         </div>
-      ) : comments.length === 0 ? (
+      ) : sortedComments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <p className="text-[14px] font-semibold text-stone-950">Sin comentarios aún</p>
           <p className="text-[12px] text-stone-400 mt-1">Sé el primero en comentar</p>
         </div>
       ) : (
-        comments.map(comment => (
+        sortedComments.map(comment => (
           <CommentRow
             key={comment.comment_id || comment.id || comment._id}
             comment={comment}
@@ -253,9 +285,9 @@ function CommentInput({ isAuthenticated, user, replyTo, setReplyTo, newComment, 
   return (
     <div className="border-t border-stone-100 bg-white">
       {replyTo && (
-        <div className="flex items-center justify-between px-4 py-1.5 bg-stone-50 text-[12px] text-stone-500">
+        <div className="flex items-center justify-between bg-stone-100 rounded-xl mx-3 mt-2 px-3 py-2 text-xs text-stone-600">
           <span>Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username}</span></span>
-          <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0">
+          <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0 ml-2">
             <X size={14} className="text-stone-400" />
           </button>
         </div>
@@ -335,7 +367,7 @@ function DoubleTapHeart({ visible }) {
 }
 
 /* ── Main Modal ── */
-export default function PostDetailModal({ postId, post: initialPost, onClose }) {
+export default function PostDetailModal({ postId, post: initialPost, onClose, nextPostImageUrl }) {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [post, setPost] = useState(initialPost || null);
@@ -400,6 +432,17 @@ export default function PostDetailModal({ postId, post: initialPost, onClose }) 
   useEffect(() => {
     return () => { if (heartTimerRef.current) clearTimeout(heartTimerRef.current); };
   }, []);
+
+  // Preload next post's first image for faster navigation
+  useEffect(() => {
+    if (!nextPostImageUrl) return;
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = nextPostImageUrl;
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, [nextPostImageUrl]);
 
   const handleSend = async () => {
     const text = newComment.trim();

@@ -172,6 +172,8 @@ export default function CreatePostPage() {
   const [caption, setCaption] = useState('');
   const [taggedProducts, setTaggedProducts] = useState([]);
   const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState(false);
+  const abortControllerRef = useRef(null);
   const [showProductSearch, setShowProductSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -294,6 +296,16 @@ export default function CreatePostPage() {
   /* ── publish ── */
   const [publishSuccess, setPublishSuccess] = useState(false);
 
+  const handleCancelUpload = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setPublishing(false);
+    setUploadProgress(0);
+    toast('Subida cancelada');
+  }, []);
+
   const handlePublish = async () => {
     if (publishing) return;
     if (!selectedFiles.length && !caption.trim()) {
@@ -306,7 +318,12 @@ export default function CreatePostPage() {
     }
     if (!selectedFiles.length) return;
     setPublishing(true);
+    setPublishError(false);
     setUploadProgress(0);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       const fd = new FormData();
       selectedFiles.forEach((f) => fd.append('files', f));
@@ -318,13 +335,15 @@ export default function CreatePostPage() {
       if (hideLikes) fd.append('hide_likes', 'true');
       if (disableComments) fd.append('disable_comments', 'true');
 
-      // Upload with progress tracking
+      // Upload with progress tracking + abort signal
       const res = await apiClient.post('/posts', fd, {
+        signal: controller.signal,
         onUploadProgress: (e) => {
           if (e.total) setUploadProgress(Math.round((e.loaded / e.total) * 100));
         },
       });
       setUploadProgress(100);
+      abortControllerRef.current = null;
       const postId = res?.id || res?.post?.id || res?.data?.id;
 
       // Haptic feedback
@@ -343,10 +362,14 @@ export default function CreatePostPage() {
         navigate(postId ? `/posts/${postId}` : '/');
       }, 800);
     } catch (err) {
+      abortControllerRef.current = null;
+      // If user cancelled, don't show error
+      if (err?.name === 'AbortError' || err?.name === 'CanceledError') return;
       const detail = err?.response?.data?.detail;
       const msg = typeof detail === 'string' ? detail : 'Error al publicar. Comprueba tu conexión e inténtalo de nuevo.';
       toast.error(msg, { duration: 5000 });
       setPublishing(false);
+      setPublishError(true);
       setUploadProgress(0);
     }
   };
@@ -376,6 +399,10 @@ export default function CreatePostPage() {
     return () => {
       cancelAnimationFrame(rafRef.current);
       dragRef.current = null;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
     };
   }, []);
 
@@ -1193,35 +1220,55 @@ export default function CreatePostPage() {
         </div>
       )}
 
+      {/* Top progress bar — visible during upload */}
+      {publishing && uploadProgress > 0 && uploadProgress < 100 && (
+        <div className="absolute top-0 left-0 right-0 z-[80] h-1 bg-stone-200 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-stone-950 rounded-full transition-[width] duration-300 ease-in-out"
+            style={{ width: `${uploadProgress}%` }}
+          />
+        </div>
+      )}
+
       {/* fixed publish button */}
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-stone-200 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        {/* Upload progress bar */}
-        {publishing && uploadProgress > 0 && uploadProgress < 100 && (
-          <div className="w-full h-[3px] bg-stone-200 rounded-sm mb-2.5 overflow-hidden">
-            <div
-              className="h-full bg-stone-950 rounded-sm transition-[width] duration-300 ease-in-out"
-              style={{ width: `${uploadProgress}%` }}
-            />
+        {/* Error + Retry */}
+        {publishError && !publishing && (
+          <div className="flex items-center justify-between mb-2.5 px-1">
+            <span className="text-[13px] text-stone-950 font-medium">Error al publicar</span>
+            <button
+              onClick={handlePublish}
+              className="text-[13px] font-semibold text-stone-950 bg-transparent border-none cursor-pointer underline"
+            >
+              Reintentar
+            </button>
           </div>
         )}
-        <button
-          onClick={handlePublish}
-          disabled={publishing}
-          className="w-full bg-stone-950 text-white text-[15px] font-semibold py-3.5 rounded-full border-none flex items-center justify-center gap-2 transition-all duration-150 hover:bg-stone-800 min-h-[48px]"
-          style={{
-            cursor: publishing ? 'default' : 'pointer',
-            opacity: publishing ? 0.8 : 1,
-          }}
-        >
-          {publishing && (
-            <span className="w-[18px] h-[18px] border-2 border-white/30 border-t-white rounded-full inline-block animate-spin" />
-          )}
-          {publishing
-            ? uploadProgress < 100
-              ? `Subiendo... ${uploadProgress}%`
-              : 'Procesando...'
-            : 'Publicar ahora'}
-        </button>
+        {publishing ? (
+          <div className="flex gap-2">
+            <button
+              onClick={handlePublish}
+              disabled
+              className="flex-1 bg-stone-950 text-white text-[15px] font-semibold py-3.5 rounded-full border-none flex items-center justify-center gap-2 min-h-[48px] opacity-80"
+            >
+              <span className="w-[18px] h-[18px] border-2 border-white/30 border-t-white rounded-full inline-block animate-spin" />
+              {uploadProgress < 100 ? `Subiendo... ${uploadProgress}%` : 'Procesando...'}
+            </button>
+            <button
+              onClick={handleCancelUpload}
+              className="bg-stone-100 text-stone-950 text-[13px] font-semibold py-3.5 px-5 rounded-full border-none cursor-pointer hover:bg-stone-200 transition-colors min-h-[48px]"
+            >
+              Cancelar
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handlePublish}
+            className="w-full bg-stone-950 text-white text-[15px] font-semibold py-3.5 rounded-full border-none flex items-center justify-center gap-2 transition-all duration-150 hover:bg-stone-800 cursor-pointer min-h-[48px]"
+          >
+            {publishError ? 'Reintentar publicación' : 'Publicar ahora'}
+          </button>
+        )}
       </div>
 
       {/* keyframes */}
