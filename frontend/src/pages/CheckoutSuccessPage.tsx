@@ -47,7 +47,8 @@ export default function CheckoutSuccessPage() {
     const getDelay = (n) => Math.min(1000 + n * 500, 5000);
 
     const poll = async () => {
-      if (cancelled || attempt >= MAX) return;
+      if (cancelled) return;
+      if (attempt >= MAX) { if (!cancelled) setStatus('timeout'); return; }
       attempt++;
       try {
         const data = await apiClient.get(`/payments/checkout-status/${sessionId}`);

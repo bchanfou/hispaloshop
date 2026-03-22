@@ -1326,6 +1326,9 @@ async def get_post_likes(post_id: str, skip: int = 0, limit: int = 50):
 
 @router.post("/posts/{post_id}/like")
 async def like_post(post_id: str, user: User = Depends(get_current_user)):
+    post = await db.user_posts.find_one({"post_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
     # Atomic toggle: delete returns count=1 if existed, 0 if not
     result = await db.post_likes.delete_one({"post_id": post_id, "user_id": user.user_id})
     if result.deleted_count > 0:
@@ -1527,6 +1530,9 @@ async def delete_own_account(request: Request, user: User = Depends(get_current_
 
 @router.post("/posts/{post_id}/bookmark")
 async def toggle_bookmark(post_id: str, user: User = Depends(get_current_user)):
+    post = await db.user_posts.find_one({"post_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
     existing = await db.post_bookmarks.find_one({"post_id": post_id, "user_id": user.user_id})
     if existing:
         await db.post_bookmarks.delete_one({"post_id": post_id, "user_id": user.user_id})

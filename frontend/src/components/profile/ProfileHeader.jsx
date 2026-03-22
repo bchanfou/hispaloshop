@@ -396,7 +396,7 @@ export default function ProfileHeader({
               aria-haspopup="dialog"
               className="flex items-center gap-1 text-[15px] font-semibold text-stone-950"
             >
-              @{user?.username}
+              @{user?.username || ''}
               <ChevronDown size={14} />
             </button>
             <div className="w-10" />
@@ -411,7 +411,7 @@ export default function ProfileHeader({
               <ChevronLeft size={22} className="text-stone-950" />
             </button>
             <span className="text-[15px] font-semibold text-stone-950">
-              @{user?.username}
+              @{user?.username || ''}
             </span>
             <button
               onClick={() => setShowOptionsSheet(true)}

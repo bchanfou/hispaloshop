@@ -1489,3 +1489,11 @@ async def enable_affiliate_capability(user: User = Depends(get_current_user)):
     return {"code": code, "tier": "hercules", "discount_pct": 10}
 
 
+@router.get("/influencer/discount-codes")
+async def get_discount_codes(user: User = Depends(get_current_user)):
+    """Get all discount codes created by this influencer."""
+    user_id = getattr(user, "user_id", None)
+    codes = await db.discount_codes.find({"creator_id": user_id}).sort("created_at", -1).to_list(50)
+    for c in codes:
+        c["_id"] = str(c["_id"])
+    return codes

@@ -310,7 +310,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     }
   }, [isActive]);
 
+  const likingCommentRef = useRef(false);
   const handleLikeComment = useCallback(async (commentId) => {
+    if (likingCommentRef.current) return;
+    likingCommentRef.current = true;
     const wasLiked = likedComments.has(commentId);
     setLikedComments(prev => {
       const next = new Set(prev);
@@ -325,6 +328,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     }));
     const reelId = reel.id || reel.reel_id || reel.post_id;
     try { await apiClient.post(`/reels/${reelId}/comments/${commentId}/like`); } catch {}
+    likingCommentRef.current = false;
   }, [likedComments, reel.id, reel.reel_id, reel.post_id]);
 
   const handleDeleteComment = useCallback(async (commentId) => {
@@ -386,7 +390,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     }, 5500);
   }, [reel.id, reel.reel_id, reel.post_id]);
 
+  const likingRef = useRef(false);
   const handleLike = useCallback(async () => {
+    if (likingRef.current) return;
+    likingRef.current = true;
     const prev = liked;
     const next = !liked;
     setLiked(next);
@@ -400,6 +407,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       setLikesCount((c) => (prev ? c + 1 : c - 1));
       toast.error('Error al dar me gusta');
     }
+    likingRef.current = false;
     onLike?.(reelId, next);
   }, [liked, reel.id, reel.reel_id, reel.post_id, onLike]);
 
@@ -421,6 +429,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     try {
       await apiClient.post(`/reels/${reelId}/react`, { reaction: emoji });
     } catch {
+      setSelectedReaction(null);
       toast.error('Error al reaccionar');
     }
   }, [reel.id, reel.reel_id, reel.post_id]);

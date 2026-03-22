@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Check, Loader2, Plus, Tag, Lock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -194,15 +194,18 @@ export default function CheckoutPage() {
     }
   };
 
+  const payingRef = useRef(false);
   const handlePay = async () => {
-    if (checkoutLoading) return;
+    if (payingRef.current || checkoutLoading) return;
+    payingRef.current = true;
     if (!cartItems || cartItems.length === 0) {
       toast.error('Tu carrito está vacío');
       navigate('/cart');
+      payingRef.current = false;
       return;
     }
     const addr = selectedAddress;
-    if (!addr) { toast.error('Selecciona una dirección'); return; }
+    if (!addr) { toast.error('Selecciona una dirección'); payingRef.current = false; return; }
     try {
       const response = await createCheckout({
         shippingAddress: {
@@ -222,6 +225,8 @@ export default function CheckoutPage() {
       } else {
         toast.error(error?.message || 'Error al procesar el pago');
       }
+    } finally {
+      payingRef.current = false;
     }
   };
 

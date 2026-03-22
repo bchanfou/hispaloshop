@@ -603,7 +603,7 @@ export default function CartPage() {
                             {hasStockIssue && (
                               <div className="mt-1 flex items-center gap-1 text-xs text-stone-700">
                                 <AlertCircle className="w-3 h-3" />
-                                <span>{stockIssues.find((issue) => issue.product_id === item.product_id)?.message}</span>
+                                <span>{stockIssues?.find((issue) => issue.product_id === item.product_id)?.message}</span>
                               </div>
                             )}
                           </div>
