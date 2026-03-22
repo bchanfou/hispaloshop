@@ -12,23 +12,24 @@ export default function FeedLayout({ children }) {
       <style>{`
         .feed-layout {
           display: flex;
-          gap: 40px;
-          max-width: calc(600px + 320px + 40px);
+          gap: 32px;
+          max-width: calc(470px + 320px + 32px);
           margin: 0 auto;
           padding: 0;
           align-items: flex-start;
+          justify-content: center;
         }
         .feed-column {
           flex: 1;
           min-width: 0;
-          max-width: 600px;
+          max-width: 470px;
         }
         .feed-sidebar-slot {
           display: none;
           width: 320px;
           flex-shrink: 0;
         }
-        @media (min-width: 1280px) {
+        @media (min-width: 1024px) {
           .feed-layout {
             padding: 0;
           }
@@ -38,7 +39,8 @@ export default function FeedLayout({ children }) {
         }
         @media (min-width: 1440px) {
           .feed-layout {
-            gap: 56px;
+            gap: 40px;
+            max-width: calc(470px + 320px + 40px);
             padding: 0;
           }
         }

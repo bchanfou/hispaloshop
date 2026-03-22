@@ -13,6 +13,11 @@ import {
   Users,
   Store,
   X,
+  MoreHorizontal,
+  Settings,
+  Bookmark,
+  Activity,
+  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -290,10 +295,69 @@ function SearchPanel({ open, onClose }) {
   );
 }
 
+/* ── "Más" Dropdown ── */
+function MoreDropdown({ open, onClose, onLogout }) {
+  const navigate = useNavigate();
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const items = [
+    { icon: Settings, label: 'Configuración', action: () => navigate('/settings') },
+    { icon: Bookmark, label: 'Guardados', action: () => navigate('/saved') },
+    { icon: Activity, label: 'Tu actividad', action: () => navigate('/activity') },
+    { divider: true },
+    { icon: LogOut, label: 'Cerrar sesión', action: onLogout, danger: true },
+  ];
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-2xl border border-stone-200 shadow-lg overflow-hidden z-50"
+    >
+      {items.map((item, i) => {
+        if (item.divider) {
+          return <div key={`d-${i}`} className="border-t border-stone-100 my-1" />;
+        }
+        const Icon = item.icon;
+        return (
+          <button
+            key={item.label}
+            onClick={() => { item.action(); onClose(); }}
+            className={`flex items-center gap-3 w-full px-4 py-3 text-left text-sm bg-transparent border-none cursor-pointer font-sans transition-colors hover:bg-stone-50 ${
+              item.danger ? 'text-stone-950' : 'text-stone-700'
+            }`}
+          >
+            <Icon size={18} strokeWidth={1.6} className={item.danger ? 'text-stone-950' : 'text-stone-500'} />
+            <span>{item.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ── SideNav ── */
 export default function SideNav() {
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const { t } = useTranslation();
   const { getTotalItems } = useCart();
   const { data: unreadData } = useUnreadNotifications();
@@ -301,6 +365,7 @@ export default function SideNav() {
   const totalCartItems = getTotalItems();
 
   const [searchOpen, setSearchOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const profileUsername = user?.username || null;
   const profileUrl = profileUsername ? `/${profileUsername}` : (user?.user_id ? `/profile/${user.user_id}` : '/login');
@@ -312,12 +377,21 @@ export default function SideNav() {
     return location.pathname.startsWith(path);
   };
 
-  // Close search on route change
-  useEffect(() => { setSearchOpen(false); }, [location.pathname]);
+  const handleLogout = useCallback(async () => {
+    try {
+      if (logout) await logout();
+      navigate('/login');
+    } catch {
+      navigate('/login');
+    }
+  }, [logout, navigate]);
+
+  // Close search and more on route change
+  useEffect(() => { setSearchOpen(false); setMoreOpen(false); }, [location.pathname]);
 
   return (
     <>
-      <aside className="fixed left-0 top-0 bottom-0 z-40 hidden xl:flex w-[220px] flex-col border-r bg-white"
+      <aside className="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-[220px] flex-col border-r bg-white"
         style={{ borderColor: '#e7e5e4' }}
       >
         {/* Logo */}
@@ -329,7 +403,7 @@ export default function SideNav() {
         </Link>
 
         {/* Main nav */}
-        <nav className="flex-1 overflow-y-auto px-3 py-1 space-y-px">
+        <nav className="flex-1 overflow-y-auto px-3 py-1 space-y-0.5">
           {NAV_ITEMS.map((item) => {
             const isSearch = item.key === 'search';
             const active = isSearch ? searchOpen : isActive(item.to);
@@ -341,14 +415,14 @@ export default function SideNav() {
                   key={item.key}
                   type="button"
                   onClick={() => setSearchOpen(v => !v)}
-                  className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-[13px] transition-colors bg-transparent border-none cursor-pointer font-sans ${
+                  className={`group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-[14px] transition-colors bg-transparent border-none cursor-pointer font-sans ${
                     active
-                      ? 'bg-stone-100 font-semibold text-stone-950'
-                      : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'
+                      ? 'font-semibold text-stone-950'
+                      : 'text-stone-700 hover:bg-stone-50'
                   }`}
                 >
-                  <Icon className={`h-[18px] w-[18px] ${active ? 'text-stone-950' : 'text-stone-500 group-hover:text-stone-700'}`}
-                    strokeWidth={active ? 2.2 : 1.8}
+                  <Icon className="h-5 w-5 flex-shrink-0"
+                    strokeWidth={active ? 2.2 : 1.6}
                   />
                   <span>{t(item.labelKey, item.fallback)}</span>
                 </button>
@@ -359,15 +433,15 @@ export default function SideNav() {
               <Link
                 key={item.key}
                 to={item.to}
-                className={`group flex items-center gap-3 rounded-2xl px-3 py-2 text-[13px] transition-colors ${
+                className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] transition-colors ${
                   active
-                    ? 'bg-stone-100 font-semibold text-stone-950'
-                    : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'
+                    ? 'font-semibold text-stone-950'
+                    : 'text-stone-700 hover:bg-stone-50'
                 }`}
               >
-                <div className="relative">
-                  <Icon className={`h-[18px] w-[18px] ${active ? 'text-stone-950' : 'text-stone-500 group-hover:text-stone-700'}`}
-                    strokeWidth={active ? 2.2 : 1.8}
+                <div className="relative flex-shrink-0">
+                  <Icon className="h-5 w-5"
+                    strokeWidth={active ? 2.2 : 1.6}
                   />
                   {item.key === 'notifications' && unreadCount > 0 && (
                     <span className="absolute -right-1 -top-1 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-stone-950 px-0.5 text-[8px] font-bold text-white">
@@ -380,29 +454,17 @@ export default function SideNav() {
             );
           })}
 
-          {/* Create button */}
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('open-creator'))}
-            className="flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-[13px] text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-950 bg-transparent border-none cursor-pointer font-sans"
-          >
-            <div className="flex h-[18px] w-[18px] items-center justify-center rounded-md border border-stone-200">
-              <Plus className="h-3 w-3 text-stone-700" strokeWidth={2.2} />
-            </div>
-            <span>{t('nav.create', 'Crear')}</span>
-          </button>
-
           {/* Cart */}
           <Link
             to="/cart"
-            className={`flex items-center gap-3 rounded-2xl px-3 py-2 text-[13px] transition-colors ${
+            className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] transition-colors ${
               isActive('/cart')
-                ? 'bg-stone-100 font-semibold text-stone-950'
-                : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'
+                ? 'font-semibold text-stone-950'
+                : 'text-stone-700 hover:bg-stone-50'
             }`}
           >
-            <div className="relative">
-              <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={isActive('/cart') ? 2.2 : 1.8} />
+            <div className="relative flex-shrink-0">
+              <ShoppingCart className="h-5 w-5" strokeWidth={isActive('/cart') ? 2.2 : 1.6} />
               {totalCartItems > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-stone-950 px-0.5 text-[8px] font-bold text-white">
                   {totalCartItems > 9 ? '9+' : totalCartItems}
@@ -411,36 +473,63 @@ export default function SideNav() {
             </div>
             <span>{t('nav.cart', 'Cesta')}</span>
           </Link>
+
+          {/* Create button — pill CTA */}
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-creator'))}
+            className="flex w-full items-center justify-center gap-2 mt-3 bg-stone-950 text-white rounded-full py-2.5 px-4 text-[14px] font-semibold border-none cursor-pointer transition-colors hover:bg-stone-800 font-sans"
+          >
+            <Plus className="h-5 w-5" strokeWidth={2.2} />
+            <span>{t('nav.create', 'Crear')}</span>
+          </button>
         </nav>
 
         {/* Locale: language / country / currency */}
         <LocaleDropdowns />
 
-        {/* Profile footer */}
-        <div className="border-t px-3 py-2.5" style={{ borderColor: '#e7e5e4' }}>
+        {/* Profile link — avatar (28px) + username */}
+        <div className="px-3 pb-1">
           <Link
             to={profileUrl}
-            className={`flex items-center gap-3 rounded-2xl px-3 py-2 text-[13px] transition-colors ${
+            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] transition-colors ${
               isActive(profileUrl)
-                ? 'bg-stone-100 font-semibold text-stone-950'
-                : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'
+                ? 'font-semibold text-stone-950'
+                : 'text-stone-700 hover:bg-stone-50'
             }`}
           >
             {profileImage ? (
-              <img src={profileImage} alt="" className="h-5 w-5 rounded-full object-cover ring-1 ring-stone-200" />
+              <img src={profileImage} alt="" className="h-7 w-7 rounded-full object-cover ring-1 ring-stone-200 flex-shrink-0" />
             ) : (
-              <User className="h-[18px] w-[18px] text-stone-500" strokeWidth={1.8} />
+              <div className="h-7 w-7 rounded-full bg-stone-200 flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-stone-500" strokeWidth={1.6} />
+              </div>
             )}
             <span className="truncate">
-              {user?.name || user?.full_name || user?.username || t('nav.profile', 'Perfil')}
+              {user?.username || user?.name || user?.full_name || t('nav.profile', 'Perfil')}
             </span>
           </Link>
+        </div>
+
+        {/* "Más" menu trigger */}
+        <div className="relative px-3 pb-3">
+          <button
+            type="button"
+            onClick={() => setMoreOpen(v => !v)}
+            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[14px] transition-colors bg-transparent border-none cursor-pointer font-sans ${
+              moreOpen ? 'bg-stone-100 text-stone-950' : 'text-stone-700 hover:bg-stone-50'
+            }`}
+          >
+            <MoreHorizontal className="h-5 w-5 flex-shrink-0" strokeWidth={1.6} />
+            <span>Más</span>
+          </button>
+          <MoreDropdown open={moreOpen} onClose={() => setMoreOpen(false)} onLogout={handleLogout} />
         </div>
       </aside>
 
       {/* Search panel overlay */}
-      {/* SearchPanel — only on xl+ (desktop) where SideNav is visible */}
-      <div className="hidden xl:block">
+      {/* SearchPanel — only on lg+ (desktop) where SideNav is visible */}
+      <div className="hidden lg:block">
         <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
       </div>
     </>

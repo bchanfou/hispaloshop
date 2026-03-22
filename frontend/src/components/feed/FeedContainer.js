@@ -39,7 +39,7 @@ function FeedContainer() {
       <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleStoryClick} />
 
       {/* Tabbed Feed — centered on tablet to prevent full-width stretch */}
-      <div className="md:max-w-[500px] md:mx-auto">
+      <div className="md:max-w-[500px] md:mx-auto lg:max-w-[470px]">
         <AnimatePresence mode="wait">
           {feedTab === 'foryou' ? (
             <motion.div
