@@ -86,7 +86,7 @@ export default function UserProfilePage() {
     if (!title?.trim()) return;
     try {
       await apiClient.post('/users/me/highlights', {
-        title: title.trim(),
+        name: title.trim(),
         story_ids: storyIds || [],
         cover_url: coverUrl || null,
       });
@@ -196,6 +196,7 @@ export default function UserProfilePage() {
       const data = await apiClient.post('/chat/conversations', { other_user_id: user.user_id });
       const convId = data?.conversation_id || data?.id;
       if (convId) navigate(`/messages/${convId}`);
+      else toast.error('No se pudo abrir la conversación');
     } catch {
       toast.error('Error al crear conversación');
     }

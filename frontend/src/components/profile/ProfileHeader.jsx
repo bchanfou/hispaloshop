@@ -220,6 +220,19 @@ export default function ProfileHeader({
 
   const currentUserId = user?.user_id;
 
+  /* ── sync account switcher cache when profile data changes ────── */
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]');
+      const idx = accounts.findIndex(a => String(a.user_id) === String(user.user_id || user.id));
+      if (idx >= 0) {
+        accounts[idx] = { ...accounts[idx], name: user.name || user.full_name, username: user.username, avatar_url: user.profile_image || user.avatar_url };
+        localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
+      }
+    } catch { /* ignore */ }
+  }, [user?.name, user?.username, user?.profile_image, user?.avatar_url]);
+
   /* ── avatar file pick ──────────────────────────────────────────── */
 
   const handleAvatarFile = useCallback(

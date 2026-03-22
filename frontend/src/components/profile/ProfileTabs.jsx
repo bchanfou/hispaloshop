@@ -23,6 +23,7 @@ import {
   VolumeX,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import SlideTabIndicator from '../motion/SlideTabIndicator';
 import apiClient from '../../services/api/client';
 
@@ -520,6 +521,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
 
 function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNext, onDelete }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const videoRef = useRef(null);
   const [liked, setLiked] = useState(reel.is_liked ?? false);
   const [likesCount, setLikesCount] = useState(reel.likes_count ?? reel.likes ?? 0);
@@ -581,13 +583,14 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
       await apiClient.delete(`/reels/${reelId}`);
       toast.success('Reel eliminado');
       onDelete?.(reelId);
+      queryClient.invalidateQueries({ queryKey: ['userProfile'] });
     } catch {
       toast.error('Error al eliminar');
     } finally {
       setDeleting(false);
       setShowMenu(false);
     }
-  }, [reelId, onDelete]);
+  }, [reelId, onDelete, queryClient]);
 
   return (
     <div className="fixed inset-0 z-[9999] bg-stone-950 flex flex-col">
@@ -623,7 +626,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-100 disabled:opacity-50"
                 >
                   <Trash2 size={16} /> {deleting ? 'Eliminando...' : 'Eliminar'}
                 </button>
@@ -648,7 +651,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
       {/* Right sidebar — like/comment/share/save */}
       <div className="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-5">
         <button onClick={handleLike} className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer">
-          <Heart size={26} fill={liked ? '#FF3040' : 'none'} className={liked ? 'text-[#FF3040]' : 'text-white'} />
+          <Heart size={26} fill={liked ? '#0c0a09' : 'none'} className={liked ? 'text-stone-950' : 'text-white'} />
           <span className="text-[11px] text-white font-medium">{likesCount}</span>
         </button>
         <button
