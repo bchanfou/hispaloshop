@@ -98,7 +98,7 @@ const NAV_ITEMS = [
   { key: 'search',        to: null,             icon: Search,        labelKey: 'nav.search',        fallback: 'Buscar' },
   { key: 'explore',       to: '/discover',      icon: Compass,       labelKey: 'nav.explore',       fallback: 'Explorar' },
   { key: 'stores',        to: '/stores',        icon: Store,         labelKey: 'nav.stores',        fallback: 'Tiendas' },
-  { key: 'messages',      to: '/chat',          icon: MessageCircle, labelKey: 'nav.messages',      fallback: 'Mensajes' },
+  { key: 'messages',      to: '/messages',      icon: MessageCircle, labelKey: 'nav.messages',      fallback: 'Mensajes' },
   { key: 'communities',   to: '/communities',   icon: Users,         labelKey: 'nav.communities',   fallback: 'Comunidades' },
   { key: 'notifications', to: '/notifications', icon: Bell,          labelKey: 'nav.notifications', fallback: 'Notificaciones' },
 ];

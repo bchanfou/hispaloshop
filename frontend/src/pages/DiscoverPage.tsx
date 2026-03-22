@@ -1,9 +1,8 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, ChevronRight, Star, Clock, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, Users, ShoppingBag, Store, ChefHat, AlertTriangle, Hash, ArrowRight, Bookmark } from 'lucide-react';
+import { Search, MapPin, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, ShoppingBag, AlertTriangle, ArrowRight, Bookmark } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
-import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
@@ -29,13 +28,6 @@ const pillCls = (active) =>
   }`;
 
 /* ── icon map for category groups ── */
-const SECTION_SHORTCUTS = [
-  { label: 'Productos', to: '/products', icon: Package },
-  { label: 'Tiendas', to: '/stores', icon: Store },
-  { label: 'Comunidad', to: '/community', icon: Users },
-  { label: 'Recetas', to: '/recipes', icon: ChefHat },
-];
-
 const CATEGORY_ICON_MAP = { Leaf, Package, Cookie, CupSoda, Baby, PawPrint, Crown };
 const getCategoryIcon = (iconName) => CATEGORY_ICON_MAP[iconName] || Package;
 
@@ -95,14 +87,11 @@ export default function DiscoverPage() {
   const [fetchError, setFetchError] = useState(false);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
-  const [newStores, setNewStores] = useState([]);
 
   const { products, isLoading: loadingProducts } = useProducts({
     limit: '24',
     ...(activeCategory ? { category: activeCategory } : {}),
   });
-  const { stores, isLoading: loadingStores } = useStores({ limit: 8 });
-
   /* ── elite carousel state ── */
   const [eliteIdx, setEliteIdx] = useState(0);
   const [eliteFading, setEliteFading] = useState(false);
@@ -152,13 +141,6 @@ export default function DiscoverPage() {
           })
           .catch(() => {});
       });
-
-    apiClient.get('/stores', { params: { sort: 'newest', limit: 6 } })
-      .then(data => {
-        const list = Array.isArray(data) ? data : data?.stores || [];
-        setNewStores(list.slice(0, 6));
-      })
-      .catch(() => {});
 
     apiClient.get('/recipes', { params: { sort: 'popular', limit: 6 } })
       .then(data => {
@@ -389,20 +371,6 @@ export default function DiscoverPage() {
         })}
       </div>
 
-      {/* ─── SECTION SHORTCUTS ─── */}
-      <div className="flex gap-3 overflow-x-auto px-4 py-3 scrollbar-hide">
-        {SECTION_SHORTCUTS.map(({ label, to, icon: Icon }) => (
-          <button
-            key={to}
-            onClick={() => navigate(to)}
-            className="flex w-20 shrink-0 flex-col items-center gap-1.5 rounded-2xl bg-stone-50 py-3 transition-colors hover:bg-stone-100"
-          >
-            <Icon size={22} className="text-stone-500" strokeWidth={1.6} />
-            <span className="text-[11px] font-medium text-stone-700">{label}</span>
-          </button>
-        ))}
-      </div>
-
       {/* ─── TRENDING HASHTAGS ─── */}
       {trendingHashtags.length > 0 && (
         <div className="px-4 pb-3">
@@ -452,38 +420,6 @@ export default function DiscoverPage() {
                   {p.price != null && (
                     <p className="text-[13px] font-bold text-stone-950">{typeof p.display_price === 'string' ? p.display_price : `${(p.price || 0).toFixed(2)} €`}</p>
                   )}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ─── NUEVOS EN HISPALOSHOP — New producers ─── */}
-      {newStores.length > 0 && (
-        <div className="px-4 pb-4">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-[13px] font-bold text-stone-950">Nuevos en HispaloShop</p>
-            <Link to="/stores" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700 hover:underline">
-              Ver todo
-            </Link>
-          </div>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
-            {newStores.map(s => {
-              const id = s.store_id || s.id;
-              const slug = s.slug || s.store_slug || id;
-              const logo = s.logo || s.profile_image || s.cover_image;
-              return (
-                <Link key={id} to={`/store/${slug}`} className="flex w-[140px] shrink-0 flex-col items-center gap-2 rounded-2xl bg-stone-50 px-3 py-3 no-underline transition-colors hover:bg-stone-100">
-                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-stone-100">
-                    {logo ? (
-                      <img src={logo} alt={s.name || ''} loading="lazy" className="h-full w-full object-cover" />
-                    ) : (
-                      <Store size={18} className="text-stone-400" />
-                    )}
-                  </div>
-                  <p className="w-full truncate text-center text-[13px] font-semibold text-stone-950">{s.name}</p>
-                  <span className="text-[11px] font-medium text-stone-500">Ver tienda</span>
                 </Link>
               );
             })}
