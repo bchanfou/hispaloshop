@@ -1152,6 +1152,51 @@ async def get_user_highlights(user_id: str):
     return highlights
 
 
+@router.get("/users/{user_id}/highlights/{highlight_id}")
+async def get_highlight_detail(user_id: str, highlight_id: str):
+    """Get a single highlight with its story items (for StoryViewer)."""
+    # Resolve user_id or username
+    user_doc = await db.users.find_one(
+        {"$or": [{"user_id": user_id}, {"username": user_id}]},
+        {"_id": 0, "user_id": 1}
+    )
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    actual_user_id = user_doc["user_id"]
+
+    highlight = await db.story_highlights.find_one(
+        {"highlight_id": highlight_id, "user_id": actual_user_id},
+        {"_id": 0}
+    )
+    if not highlight:
+        raise HTTPException(status_code=404, detail="Highlight not found")
+
+    # Fetch story items from archive (include expired stories for highlights)
+    story_ids = highlight.get("story_ids", [])
+    stories = []
+    if story_ids:
+        raw_stories = await db.hispalostories.find(
+            {"story_id": {"$in": story_ids}, "user_id": actual_user_id},
+            {"_id": 0, "story_id": 1, "image_url": 1, "video_url": 1, "caption": 1, "created_at": 1, "likes_count": 1}
+        ).to_list(len(story_ids))
+        # Preserve the order defined in story_ids
+        story_map = {s["story_id"]: s for s in raw_stories}
+        for sid in story_ids:
+            s = story_map.get(sid)
+            if s:
+                stories.append({
+                    "id": s["story_id"],
+                    "story_id": s["story_id"],
+                    "image_url": s.get("image_url"),
+                    "video_url": s.get("video_url"),
+                    "caption": s.get("caption", ""),
+                    "created_at": s.get("created_at"),
+                    "likes_count": s.get("likes_count", 0),
+                })
+
+    return {**highlight, "stories": stories, "items": stories}
+
+
 @router.post("/users/me/highlights")
 async def create_highlight(request: Request, user: User = Depends(get_current_user)):
     """Create a new story highlight group."""
@@ -2120,6 +2165,40 @@ async def get_my_stories(user: User = Depends(get_current_user)):
         s["view_count"] = len(s.get("views", []))
         s.pop("views", None)
     return stories
+
+
+@router.get("/stories/{user_id}")
+async def get_user_stories(user_id: str, request: Request):
+    """Get active stories for a specific user (used by StoryViewer)."""
+    now = datetime.now(timezone.utc).isoformat()
+    # Resolve username → user_id if needed
+    if not user_id.startswith("user_"):
+        user_doc = await db.users.find_one(
+            {"$or": [{"user_id": user_id}, {"username": user_id}]},
+            {"_id": 0, "user_id": 1}
+        )
+        if user_doc:
+            user_id = user_doc["user_id"]
+
+    stories = await db.hispalostories.find(
+        {"user_id": user_id, "expires_at": {"$gt": now}},
+        {"_id": 0},
+    ).sort("created_at", -1).to_list(50)
+
+    # Mark which items the current viewer has already seen
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+
+    result = []
+    for s in stories:
+        views = s.pop("views", []) or []
+        s["view_count"] = len(views)
+        s["is_seen"] = (current_user.user_id in views) if current_user else False
+        result.append(s)
+
+    return result
 
 
 @router.post("/stories/{story_id}/view")

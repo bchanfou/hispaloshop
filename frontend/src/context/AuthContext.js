@@ -125,6 +125,26 @@ export function AuthProvider({ children }) {
 
       if (normalizedUser) {
         setSentryUser({ id: normalizedUser.user_id, username: normalizedUser.username, email: normalizedUser.email });
+
+        // Save account to hsp_accounts so the account switcher works
+        try {
+          const token = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || data?.access_token || '';
+          let accounts = [];
+          try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
+          const idx = accounts.findIndex(a => String(a.user_id) === String(normalizedUser.user_id || normalizedUser.id));
+          const accObj = {
+            token,
+            user_id: normalizedUser.user_id || normalizedUser.id,
+            username: normalizedUser.username,
+            name: normalizedUser.name || normalizedUser.full_name,
+            avatar_url: normalizedUser.profile_image || normalizedUser.avatar_url,
+            email: normalizedUser.email,
+            role: normalizedUser.role,
+          };
+          if (idx >= 0) accounts[idx] = accObj;
+          else accounts.push(accObj);
+          localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
+        } catch { /* ignore */ }
       }
 
       return { ...data, user: normalizedUser };
@@ -154,6 +174,28 @@ export function AuthProvider({ children }) {
       if (mountedRef.current) {
         setUser(normalizedUser);
         setInitialized(true);
+      }
+
+      if (normalizedUser) {
+        // Save account to hsp_accounts so the account switcher works
+        try {
+          const token = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || data?.access_token || '';
+          let accounts = [];
+          try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
+          const idx = accounts.findIndex(a => String(a.user_id) === String(normalizedUser.user_id || normalizedUser.id));
+          const accObj = {
+            token,
+            user_id: normalizedUser.user_id || normalizedUser.id,
+            username: normalizedUser.username,
+            name: normalizedUser.name || normalizedUser.full_name,
+            avatar_url: normalizedUser.profile_image || normalizedUser.avatar_url,
+            email: normalizedUser.email,
+            role: normalizedUser.role,
+          };
+          if (idx >= 0) accounts[idx] = accObj;
+          else accounts.push(accObj);
+          localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
+        } catch { /* ignore */ }
       }
 
       return { ...data, user: normalizedUser };

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional, List
 
 from services.notifications.dispatcher_service import notification_dispatcher
-from routes.auth import get_current_user
+from core.auth import get_current_user
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 

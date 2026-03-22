@@ -82,8 +82,38 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
           <StoryRing
             user={currentUser}
             isSelf
-            hasUnseenStory={false}
-            onClick={onCreateStory}
+            hasUnseenStory={hasActiveStory}
+            onClick={hasActiveStory
+              ? async () => {
+                  if (!onStoryClick || loadingUserId) return;
+                  setLoadingUserId(currentUser.id || currentUser.user_id || 'self');
+                  try {
+                    const uid = currentUser.id || currentUser.user_id;
+                    const res = await apiClient.get(`/stories/${uid}`);
+                    const fullItems = Array.isArray(res) ? res : res?.items || res?.stories || [];
+                    if (fullItems.length > 0) {
+                      onStoryClick([{
+                        ...selfStory,
+                        items: fullItems.map(item => ({
+                          id: item.id || item.story_id,
+                          story_id: item.id || item.story_id,
+                          image_url: item.image_url || item.media_url,
+                          video_url: item.video_url,
+                          caption: item.caption || item.text,
+                          created_at: item.created_at,
+                          products: item.products,
+                        })),
+                      }], 0);
+                    }
+                  } catch {
+                    /* fallback: open story creator */
+                    onCreateStory?.();
+                  } finally {
+                    setLoadingUserId(null);
+                  }
+                }
+              : onCreateStory
+            }
           />
           {/* + overlay when user has no active story */}
           {!hasActiveStory && (

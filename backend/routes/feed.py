@@ -88,84 +88,140 @@ async def track_social_event(request: Request):
 
 @router.get("/feed/stories")
 async def get_stories(request: Request):
-    """Get seller stories — latest product/post from followed sellers + featured sellers."""
+    """Get active stories for the home bar — real 24h stories first, then seller profile stories."""
     current_user = await get_optional_user(request)
-    stories = []
-    
-    # Get followed sellers
-    followed_ids = []
-    if current_user:
-        follows = await db.user_follows.find({"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}).to_list(100)
-        followed_ids = [f["following_id"] for f in follows]
-    
-    # Get active sellers (followed + featured)
-    query = {"role": {"$in": ["producer", "importer"]}, "status": {"$ne": "banned"}}
-    if followed_ids:
-        query["user_id"] = {"$in": followed_ids}
-    sellers = await db.users.find(query, {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1}).limit(15).to_list(15)
-    
-    # If not enough from follows, add featured sellers
-    if len(sellers) < 8:
-        extra = await db.users.find(
-            {"role": {"$in": ["producer", "importer"]}, "user_id": {"$nin": [s["user_id"] for s in sellers]}},
-            {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1}
-        ).limit(8 - len(sellers)).to_list(8)
-        sellers.extend(extra)
-    
+
+    now = datetime.now(timezone.utc).isoformat()
     twenty_four_hours_ago = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
-    
-    # Batch fetch latest posts + products for all sellers (2 queries instead of 30)
-    seller_ids = [s["user_id"] for s in sellers]
 
-    posts_pipeline = [
-        {"$match": {"user_id": {"$in": seller_ids}, "image_url": {"$ne": None}}},
-        {"$sort": {"created_at": -1}},
-        {"$group": {"_id": "$user_id", "doc": {"$first": "$$ROOT"}}},
-        {"$project": {"_id": 0, "user_id": "$_id", "post_id": "$doc.post_id",
-                       "image_url": "$doc.image_url", "caption": "$doc.caption",
-                       "created_at": "$doc.created_at"}},
-    ]
-    products_pipeline = [
-        {"$match": {"producer_id": {"$in": seller_ids}, "status": "active"}},
-        {"$sort": {"created_at": -1}},
-        {"$group": {"_id": "$producer_id", "doc": {"$first": "$$ROOT"}}},
-        {"$project": {"_id": 0, "producer_id": "$_id", "product_id": "$doc.product_id",
-                       "name": "$doc.name", "images": "$doc.images",
-                       "price": "$doc.price", "created_at": "$doc.created_at"}},
-    ]
+    # ── Followed IDs ─────────────────────────────────────────────────────────
+    followed_ids: set = set()
+    if current_user:
+        follows = await db.user_follows.find(
+            {"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}
+        ).to_list(1000)
+        followed_ids = {f["following_id"] for f in follows}
 
-    latest_posts_list, latest_products_list = await asyncio.gather(
-        db.user_posts.aggregate(posts_pipeline).to_list(len(seller_ids)),
-        db.products.aggregate(products_pipeline).to_list(len(seller_ids)),
-    )
+    # ── 1. Collect users who have real active hispalostories ─────────────────
+    try:
+        active_ephemeral = await db.hispalostories.find(
+            {"expires_at": {"$gt": now}, "image_url": {"$ne": None}},
+            {"_id": 0, "user_id": 1, "image_url": 1, "caption": 1, "created_at": 1},
+        ).sort("created_at", -1).to_list(300)
+    except Exception as exc:
+        logger.warning(f"[FEED/STORIES] hispalostories unavailable: {exc}")
+        active_ephemeral = []
 
-    posts_by_user = {p["user_id"]: p for p in latest_posts_list}
-    products_by_user = {p["producer_id"]: p for p in latest_products_list}
+    # Keep only the most-recent story per user (preview image)
+    story_by_user: dict = {}
+    for s in active_ephemeral:
+        uid = s["user_id"]
+        if uid not in story_by_user:
+            story_by_user[uid] = s
 
-    for seller in sellers:
-        sid = seller["user_id"]
-        latest_post = posts_by_user.get(sid)
-        latest_product = products_by_user.get(sid)
+    # Batch-fetch user profiles for story owners
+    story_user_ids = list(story_by_user.keys())
+    story_user_docs: dict = {}
+    if story_user_ids:
+        udocs = await db.users.find(
+            {"user_id": {"$in": story_user_ids}},
+            {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1},
+        ).to_list(len(story_user_ids))
+        story_user_docs = {u["user_id"]: u for u in udocs}
 
-        is_recent = False
-        preview = None
-        if latest_post and latest_post.get("created_at", "") >= twenty_four_hours_ago:
-            preview = {"type": "post", "image": latest_post.get("image_url"), "text": (latest_post.get("caption") or "")[:60]}
-            is_recent = True
-        elif latest_product:
-            preview = {"type": "product", "image": extract_product_image(latest_product), "text": latest_product.get("name", ""), "price": latest_product.get("price")}
+    result = []
+    seen_user_ids: set = set()
 
-        if preview:
-            stories.append({
-                "user_id": sid,
-                "name": seller.get("company_name") or seller.get("name", ""),
-                "avatar": seller.get("profile_image"),
-                "preview": preview,
-                "is_recent": is_recent,
-                "is_followed": sid in followed_ids,
-            })
-    
-    return stories
+    for uid, story in story_by_user.items():
+        u = story_user_docs.get(uid)
+        if not u:
+            continue
+        seen_user_ids.add(uid)
+        result.append({
+            "user_id": uid,
+            "name": u.get("company_name") or u.get("name", ""),
+            "avatar": u.get("profile_image"),
+            "preview": {
+                "type": "story",
+                "image": story.get("image_url"),
+                "text": (story.get("caption") or "")[:60],
+            },
+            "is_recent": True,
+            "is_followed": uid in followed_ids,
+        })
+
+    # Sort: followed users first, then others
+    result.sort(key=lambda x: (not x["is_followed"], x["user_id"]))
+
+    # ── 2. Fill remaining slots with seller profile stories ──────────────────
+    slots_remaining = max(0, 15 - len(result))
+    if slots_remaining > 0:
+        seller_query = {
+            "role": {"$in": ["producer", "importer"]},
+            "status": {"$ne": "banned"},
+            "user_id": {"$nin": list(seen_user_ids)},
+        }
+        # Prefer followed sellers, then any seller
+        followed_seller_list = await db.users.find(
+            {**seller_query, "user_id": {"$in": list(followed_ids) or ["__none__"]}},
+            {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1},
+        ).limit(slots_remaining).to_list(slots_remaining)
+
+        extra_needed = slots_remaining - len(followed_seller_list)
+        followed_seller_ids = {s["user_id"] for s in followed_seller_list}
+        extra_sellers = []
+        if extra_needed > 0:
+            extra_sellers = await db.users.find(
+                {**seller_query, "user_id": {"$nin": list(seen_user_ids | followed_seller_ids)}},
+                {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1},
+            ).limit(extra_needed).to_list(extra_needed)
+
+        sellers = followed_seller_list + extra_sellers
+
+        if sellers:
+            seller_ids = [s["user_id"] for s in sellers]
+
+            posts_pipeline = [
+                {"$match": {"user_id": {"$in": seller_ids}, "image_url": {"$ne": None}, "created_at": {"$gte": twenty_four_hours_ago}}},
+                {"$sort": {"created_at": -1}},
+                {"$group": {"_id": "$user_id", "doc": {"$first": "$$ROOT"}}},
+                {"$project": {"_id": 0, "user_id": "$_id", "image_url": "$doc.image_url", "caption": "$doc.caption"}},
+            ]
+            products_pipeline = [
+                {"$match": {"producer_id": {"$in": seller_ids}, "status": "active"}},
+                {"$sort": {"created_at": -1}},
+                {"$group": {"_id": "$producer_id", "doc": {"$first": "$$ROOT"}}},
+                {"$project": {"_id": 0, "producer_id": "$_id", "name": "$doc.name", "images": "$doc.images", "price": "$doc.price"}},
+            ]
+            latest_posts_list, latest_products_list = await asyncio.gather(
+                db.user_posts.aggregate(posts_pipeline).to_list(len(seller_ids)),
+                db.products.aggregate(products_pipeline).to_list(len(seller_ids)),
+            )
+            posts_by_user = {p["user_id"]: p for p in latest_posts_list}
+            products_by_user = {p["producer_id"]: p for p in latest_products_list}
+
+            for seller in sellers:
+                sid = seller["user_id"]
+                latest_post = posts_by_user.get(sid)
+                latest_product = products_by_user.get(sid)
+                preview = None
+                if latest_post and latest_post.get("image_url"):
+                    preview = {"type": "post", "image": latest_post["image_url"], "text": (latest_post.get("caption") or "")[:60]}
+                elif latest_product:
+                    img = extract_product_image(latest_product)
+                    if img:
+                        preview = {"type": "product", "image": img, "text": latest_product.get("name", ""), "price": latest_product.get("price")}
+                if preview and preview.get("image"):
+                    result.append({
+                        "user_id": sid,
+                        "name": seller.get("company_name") or seller.get("name", ""),
+                        "avatar": seller.get("profile_image"),
+                        "preview": preview,
+                        "is_recent": False,
+                        "is_followed": sid in followed_ids,
+                    })
+
+    return result
 
 
 
