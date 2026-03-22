@@ -168,6 +168,16 @@ export default function ProfileHeader({
   const [highlightSavingName, setHighlightSavingName] = useState(false);
   const longPressTimerRef = useRef(null);
 
+  /* 8.1: Create highlight flow state */
+  const [createHighlightOpen, setCreateHighlightOpen] = useState(false);
+  const [createHighlightStep, setCreateHighlightStep] = useState(1); // 1=select stories, 2=name
+  const [createHighlightName, setCreateHighlightName] = useState('');
+  const [createHighlightSelectedIds, setCreateHighlightSelectedIds] = useState([]);
+  const [createHighlightSaving, setCreateHighlightSaving] = useState(false);
+  const [archivedStories, setArchivedStories] = useState([]);
+  const [archivedStoriesLoading, setArchivedStoriesLoading] = useState(false);
+  const [deleteConfirmHighlight, setDeleteConfirmHighlight] = useState(null);
+
   /* close bottom sheets on Escape */
   useEffect(() => {
     if (!showAccountSwitcher && !showOptionsSheet) return;
@@ -282,6 +292,77 @@ export default function ProfileHeader({
       setHighlightDeleting(false);
     }
   }, [highlightMenu, onHighlightDeleted]);
+
+  /* 8.1: Open create highlight — fetch archived stories */
+  const handleOpenCreateHighlight = useCallback(async () => {
+    setCreateHighlightOpen(true);
+    setCreateHighlightStep(1);
+    setCreateHighlightName('');
+    setCreateHighlightSelectedIds([]);
+    setArchivedStoriesLoading(true);
+    try {
+      const res = await apiClient.get('/stories/archive');
+      const stories = Array.isArray(res) ? res : res?.stories || res?.data || res?.items || [];
+      setArchivedStories(stories);
+    } catch {
+      setArchivedStories([]);
+      toast.error('No se pudieron cargar las historias');
+    } finally {
+      setArchivedStoriesLoading(false);
+    }
+  }, []);
+
+  /* 8.1: Toggle story selection */
+  const toggleStorySelection = useCallback((storyId) => {
+    setCreateHighlightSelectedIds((prev) =>
+      prev.includes(storyId) ? prev.filter((id) => id !== storyId) : [...prev, storyId]
+    );
+  }, []);
+
+  /* 8.1: Save new highlight */
+  const handleSaveHighlight = useCallback(async () => {
+    if (!createHighlightName.trim() || createHighlightSelectedIds.length === 0) return;
+    setCreateHighlightSaving(true);
+    try {
+      const firstStory = archivedStories.find(
+        (s) => (s.story_id || s.id || s._id) === createHighlightSelectedIds[0]
+      );
+      await apiClient.post('/users/me/highlights', {
+        name: createHighlightName.trim(),
+        story_ids: createHighlightSelectedIds,
+        cover_url: firstStory?.image_url || firstStory?.media_url || firstStory?.thumbnail || null,
+      });
+      toast.success('Destacado creado');
+      setCreateHighlightOpen(false);
+      onHighlightDeleted?.(); // refresh highlights list
+    } catch {
+      toast.error('Error al crear el destacado');
+    } finally {
+      setCreateHighlightSaving(false);
+    }
+  }, [createHighlightName, createHighlightSelectedIds, archivedStories, onHighlightDeleted]);
+
+  /* 8.2: Delete confirmation from highlight menu redirects to mini modal */
+  const handleDeleteWithConfirm = useCallback((hl) => {
+    setDeleteConfirmHighlight(hl);
+    setHighlightEditMode(null);
+  }, []);
+
+  const confirmDeleteHighlight = useCallback(async () => {
+    if (!deleteConfirmHighlight) return;
+    setHighlightDeleting(true);
+    try {
+      await apiClient.delete(`/stories/highlights/${deleteConfirmHighlight.highlight_id || deleteConfirmHighlight.id}`);
+      toast.success('Destacado eliminado');
+      setDeleteConfirmHighlight(null);
+      setHighlightMenu(null);
+      onHighlightDeleted?.();
+    } catch {
+      toast.error('Error al eliminar');
+    } finally {
+      setHighlightDeleting(false);
+    }
+  }, [deleteConfirmHighlight, onHighlightDeleted]);
 
   /* cleanup long-press timer */
   useEffect(() => {
@@ -754,11 +835,11 @@ export default function ProfileHeader({
 
       {/* ── 6. HIGHLIGHTS (Instagram style circles) ──────────────── */}
       {(isOwn || highlights.length > 0) && (
-        <div className="flex gap-4 overflow-x-auto px-4 pb-3 pt-1 scrollbar-none">
+        <div className="flex gap-4 overflow-x-auto px-4 pb-3 pt-1 scrollbar-none scrollbar-hide snap-x">
           {isOwn && (
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex flex-col items-center gap-1.5 snap-start">
               <button
-                onClick={onCreateHighlight || (() => toast('Próximamente'))}
+                onClick={onCreateHighlight || handleOpenCreateHighlight}
                 aria-label="Crear historia destacada"
                 className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-full border border-stone-200"
               >
@@ -771,7 +852,7 @@ export default function ProfileHeader({
           {highlights.map((hl, i) => (
             <div
               key={hl.highlight_id || hl.id || i}
-              className="relative flex shrink-0 flex-col items-center gap-1.5 cursor-pointer"
+              className="relative flex shrink-0 flex-col items-center gap-1.5 cursor-pointer snap-start"
               onClick={() => onViewHighlight?.(hl)}
               onPointerDown={isOwn ? () => handleHighlightLongPressStart(hl) : undefined}
               onPointerUp={isOwn ? handleHighlightLongPressEnd : undefined}
@@ -952,6 +1033,178 @@ export default function ProfileHeader({
                   </div>
                 </div>
               )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── 6c. CREATE HIGHLIGHT BOTTOM SHEET ─────────────────────── */}
+      <AnimatePresence>
+        {createHighlightOpen && isOwn && (
+          <>
+            <motion.div
+              key="ch-overlay"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              onClick={() => setCreateHighlightOpen(false)}
+              className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div
+              key="ch-sheet"
+              variants={sheetVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Crear historia destacada"
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-2xl bg-white shadow-modal pb-8 pt-4 max-h-[80vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-stone-200" />
+
+              {/* Step 1: Select stories from archive */}
+              {createHighlightStep === 1 && (
+                <div className="flex flex-col flex-1 min-h-0 px-5">
+                  <p className="mb-3 text-center text-[15px] font-semibold text-stone-950">
+                    Seleccionar historias
+                  </p>
+                  {archivedStoriesLoading ? (
+                    <div className="flex items-center justify-center py-10">
+                      <div className="w-6 h-6 border-2 border-stone-300 border-t-stone-950 rounded-full animate-spin" />
+                    </div>
+                  ) : archivedStories.length === 0 ? (
+                    <p className="py-10 text-center text-sm text-stone-500">No hay historias en tu archivo</p>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-2 overflow-y-auto flex-1 min-h-0 pb-3">
+                      {archivedStories.map((story, si) => {
+                        const storyId = story.story_id || story.id || story._id;
+                        const storyImg = story.image_url || story.media_url || story.thumbnail;
+                        const selected = createHighlightSelectedIds.includes(storyId);
+                        return (
+                          <button
+                            key={storyId || si}
+                            onClick={() => toggleStorySelection(storyId)}
+                            className={`relative aspect-square overflow-hidden rounded-2xl border-2 ${
+                              selected ? 'border-stone-950' : 'border-stone-200'
+                            }`}
+                          >
+                            {storyImg ? (
+                              <img src={storyImg} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-stone-100 text-stone-400 text-xs">
+                                Sin imagen
+                              </div>
+                            )}
+                            {selected && (
+                              <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-stone-950 flex items-center justify-center">
+                                <Check size={12} className="text-white" />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="mt-3 flex gap-3">
+                    <button
+                      onClick={() => setCreateHighlightOpen(false)}
+                      className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => setCreateHighlightStep(2)}
+                      disabled={createHighlightSelectedIds.length === 0}
+                      className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      Siguiente ({createHighlightSelectedIds.length})
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Name the highlight */}
+              {createHighlightStep === 2 && (
+                <div className="px-5">
+                  <p className="mb-3 text-center text-[15px] font-semibold text-stone-950">
+                    Nombre del destacado
+                  </p>
+                  <input
+                    type="text"
+                    value={createHighlightName}
+                    onChange={(e) => setCreateHighlightName(e.target.value.slice(0, 30))}
+                    maxLength={30}
+                    autoFocus
+                    placeholder="Ej: Viajes, Recetas, Favoritos..."
+                    className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-950 outline-none focus:border-stone-950"
+                  />
+                  <div className="mt-4 flex gap-3">
+                    <button
+                      onClick={() => setCreateHighlightStep(1)}
+                      className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                    >
+                      Atras
+                    </button>
+                    <button
+                      onClick={handleSaveHighlight}
+                      disabled={createHighlightSaving || !createHighlightName.trim()}
+                      className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {createHighlightSaving ? 'Creando...' : 'Crear'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── 6d. DELETE HIGHLIGHT CONFIRMATION MINI MODAL ──────────── */}
+      <AnimatePresence>
+        {deleteConfirmHighlight && (
+          <>
+            <motion.div
+              key="dc-overlay"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              onClick={() => setDeleteConfirmHighlight(null)}
+              className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div
+              key="dc-modal"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="fixed left-4 right-4 top-1/2 -translate-y-1/2 z-[9999] bg-white rounded-2xl p-4 shadow-modal mx-auto max-w-[340px]"
+            >
+              <p className="mb-1 text-center text-[15px] font-semibold text-stone-950">
+                ¿Eliminar este destacado?
+              </p>
+              <p className="mb-4 text-center text-sm text-stone-500">
+                Las historias no se perderan, solo la coleccion.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirmHighlight(null)}
+                  className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteHighlight}
+                  disabled={highlightDeleting}
+                  className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {highlightDeleting ? 'Eliminando...' : 'Eliminar'}
+                </button>
+              </div>
             </motion.div>
           </>
         )}

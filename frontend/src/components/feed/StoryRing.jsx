@@ -67,4 +67,12 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
   );
 }
 
-export default React.memo(StoryRing);
+// B-1: Custom comparator — skip re-render if visual props are unchanged
+// onClick is always a new closure from StoriesBar, so we exclude it
+export default React.memo(StoryRing, (prev, next) => (
+  prev.isSelf === next.isSelf &&
+  prev.hasUnseenStory === next.hasUnseenStory &&
+  prev.itemsCount === next.itemsCount &&
+  prev.isLoading === next.isLoading &&
+  (prev.user?.id || prev.user?.avatar_url) === (next.user?.id || next.user?.avatar_url)
+));

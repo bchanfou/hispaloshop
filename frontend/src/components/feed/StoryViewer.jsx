@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX, ExternalLink } from 'lucide-react';
+import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX, ExternalLink, ChevronLeft, ChevronRight, Check, Search } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { timeAgo } from '../../utils/time';
@@ -12,6 +12,20 @@ const STORY_DURATION = 5000;
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
 const QUICK_REACTIONS = ['❤️', '🔥', '😍', '👏', '😮', '😂'];
+
+// A-1: Emoji burst animation component for quick reactions
+const EmojiBurst = ({ emoji, id, onComplete }) => (
+  <motion.span
+    key={id}
+    initial={{ y: 0, scale: 1, opacity: 1 }}
+    animate={{ y: -60, scale: [1, 1.5, 0], opacity: [1, 1, 0] }}
+    transition={{ duration: 0.6, ease: 'easeOut' }}
+    onAnimationComplete={onComplete}
+    className="absolute bottom-0 left-1/2 -translate-x-1/2 text-2xl pointer-events-none"
+  >
+    {emoji}
+  </motion.span>
+);
 
 const isInternalUrl = (url) => {
   try {
@@ -42,7 +56,22 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [replyText, setReplyText] = useState('');
   const [videoDuration, setVideoDuration] = useState(null);
   const [sendingReply, setSendingReply] = useState(false);
+  const [replySent, setReplySent] = useState(false);
   const [muted, setMuted] = useState(true);
+  const [emojiBursts, setEmojiBursts] = useState([]);
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
+  const [shareSearch, setShareSearch] = useState('');
+  const [shareConversations, setShareConversations] = useState([]);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareSending, setShareSending] = useState(null);
+  const [showSeenBy, setShowSeenBy] = useState(false);
+  const [viewers, setViewers] = useState([]);
+  const [viewersLoading, setViewersLoading] = useState(false);
+  const [tapHintShown, setTapHintShown] = useState(() => {
+    try { return localStorage.getItem('hsp_story_tap_hint') === '1'; } catch { return false; }
+  });
+  const [tapHintSide, setTapHintSide] = useState(null); // 'left' | 'right' | null
+  const tapHintTimerRef = useRef(null);
   const longPressRef = useRef(null);
   const rafRef = useRef(null);
   const isPaused = useRef(false);
@@ -165,7 +194,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     setProgress(0);
   }, [currentUserIndex, currentItemIndex]);
 
-  // Lock body scroll while viewer is open + cleanup timers on unmount
+  // Lock body scroll while viewer is open + cleanup timers + pause/unload video on unmount
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -173,6 +202,13 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       document.body.style.overflow = prev;
       clearTimeout(longPressRef.current);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      // B-3: Explicitly pause and unload video on close to free resources
+      const video = videoRef.current;
+      if (video) {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+      }
     };
   }, []);
 
@@ -274,8 +310,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       const x = e.clientX - rect.left;
       const threshold = rect.width * 0.4;
       if (x < threshold) {
+        showTapHint('left');
         goPrev();
       } else {
+        showTapHint('right');
         goNext();
       }
     }
@@ -296,10 +334,15 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       });
       setReplyText('');
       replyInputRef.current?.blur();
+      // A-2: Brief checkmark animation before navigating
+      setReplySent(true);
+      setTimeout(() => setReplySent(false), 200);
       const conversationId = res?.conversation_id || res?.id || res?._id;
       if (conversationId) {
-        onClose();
-        navigate(`/chat/${conversationId}`);
+        setTimeout(() => {
+          onClose();
+          navigate(`/chat/${conversationId}`);
+        }, 250);
       }
     } catch {
       // fallback: legacy story reply endpoint
@@ -307,17 +350,122 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         await apiClient.post(`/stories/${currentItem?.story_id}/reply`, { text });
         setReplyText('');
         replyInputRef.current?.blur();
+        setReplySent(true);
+        setTimeout(() => setReplySent(false), 200);
       } catch {}
     } finally {
       setSendingReply(false);
     }
   }, [replyText, sendingReply, currentStory, currentItem, navigate, onClose]);
 
+  // A-1: Quick reaction with burst animation + API call simultaneously
   const handleQuickReaction = useCallback(async (emoji) => {
+    const burstId = Date.now() + Math.random();
+    setEmojiBursts((prev) => [...prev, { id: burstId, emoji }]);
     try {
       await apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji });
     } catch {}
   }, [currentItem]);
+
+  const removeEmojiBurst = useCallback((id) => {
+    setEmojiBursts((prev) => prev.filter((b) => b.id !== id));
+  }, []);
+
+  // A-3: Share story to DM — open user picker sheet
+  const handleShareOpen = useCallback(async () => {
+    // Try navigator.share first on mobile
+    if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+      try {
+        const storyUrl = `${window.location.origin}/stories/${currentItem?.story_id || ''}`;
+        await navigator.share({
+          title: `Historia de ${user?.name || user?.username || ''}`,
+          url: storyUrl,
+        });
+        return;
+      } catch {
+        // User cancelled or unsupported — fall through to DM picker
+      }
+    }
+    setShareSheetOpen(true);
+    setShareLoading(true);
+    isPaused.current = true;
+    setPaused(true);
+    try {
+      const res = await apiClient.get('/chat/conversations');
+      const convs = Array.isArray(res) ? res : res?.conversations || res?.data || [];
+      setShareConversations(convs);
+    } catch {
+      setShareConversations([]);
+    } finally {
+      setShareLoading(false);
+    }
+  }, [currentItem, user]);
+
+  const handleShareToUser = useCallback(async (conversation) => {
+    const convId = conversation.id || conversation._id || conversation.conversation_id;
+    if (!convId || shareSending) return;
+    setShareSending(convId);
+    try {
+      const storyUrl = `${window.location.origin}/stories/${currentItem?.story_id || ''}`;
+      await apiClient.post(`/chat/conversations/${convId}/messages`, {
+        text: `Mira esta historia: ${storyUrl}`,
+        type: 'story_share',
+        story_id: currentItem?.story_id,
+      });
+      setShareSheetOpen(false);
+      isPaused.current = false;
+      setPaused(false);
+      setShareSearch('');
+    } catch {}
+    setShareSending(null);
+  }, [currentItem, shareSending]);
+
+  const handleShareClose = useCallback(() => {
+    setShareSheetOpen(false);
+    setShareSearch('');
+    isPaused.current = false;
+    setPaused(false);
+  }, []);
+
+  const filteredShareConversations = shareConversations.filter((c) => {
+    if (!shareSearch.trim()) return true;
+    const q = shareSearch.toLowerCase();
+    const name = (c.other_user?.name || c.other_user?.username || c.name || '').toLowerCase();
+    return name.includes(q);
+  });
+
+  // Show tap zone hint arrow briefly on first tap (once per session)
+  const showTapHint = useCallback((side) => {
+    if (tapHintShown) return;
+    setTapHintSide(side);
+    clearTimeout(tapHintTimerRef.current);
+    tapHintTimerRef.current = setTimeout(() => {
+      setTapHintSide(null);
+      setTapHintShown(true);
+      try { localStorage.setItem('hsp_story_tap_hint', '1'); } catch {}
+    }, 600);
+  }, [tapHintShown]);
+
+  // Fetch viewers list for seen-by expansion
+  const fetchViewers = useCallback(async () => {
+    const storyId = currentItem?.story_id || currentItem?.id || currentItem?._id;
+    if (!storyId || viewersLoading) return;
+    setViewersLoading(true);
+    try {
+      const res = await apiClient.get(`/stories/${storyId}/viewers`);
+      setViewers(Array.isArray(res) ? res : res?.viewers || res?.data || []);
+    } catch {
+      setViewers([]);
+    } finally {
+      setViewersLoading(false);
+    }
+  }, [currentItem, viewersLoading]);
+
+  // Reset seen-by panel when story changes
+  useEffect(() => {
+    setShowSeenBy(false);
+    setViewers([]);
+  }, [currentUserIndex, currentItemIndex]);
 
   if (!currentStory || !items.length) return null;
 
@@ -453,20 +601,95 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               />
             )}
 
-            {/* J5: Viewer count — own stories only */}
+            {/* 7.1: Viewer count — own stories only (tappable to expand seen-by) */}
             {isOwnStory && (
-              <div className="absolute bottom-4 left-4 z-[2] flex items-center gap-1 pointer-events-none">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!showSeenBy) {
+                    setShowSeenBy(true);
+                    fetchViewers();
+                    isPaused.current = true;
+                    setPaused(true);
+                  } else {
+                    setShowSeenBy(false);
+                    isPaused.current = false;
+                    setPaused(false);
+                  }
+                }}
+                className="absolute bottom-4 left-4 z-[2] flex items-center gap-1 bg-transparent border-none cursor-pointer"
+                aria-label="Ver quien ha visto esta historia"
+              >
                 <Eye size={14} className="text-white/60" />
                 <span className="text-xs text-white/60 font-sans">
                   {currentItem?.view_count ?? currentStory?.view_count ?? 0} vistas
                 </span>
-              </div>
+              </button>
             )}
 
-            {/* Product stickers */}
-            {currentItem?.products?.length > 0 && (
-              <div className="absolute bottom-10 left-4 right-4 z-[2] flex flex-col gap-2">
-                {currentItem.products.map((product, idx) => (
+            {/* 7.3: Seen-by expandable list */}
+            <AnimatePresence>
+              {showSeenBy && isOwnStory && (
+                <motion.div
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                  className="absolute bottom-0 left-0 right-0 z-[3] bg-black/80 rounded-t-2xl max-h-[50%] flex flex-col"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                    <span className="text-sm font-semibold text-white font-sans">
+                      {currentItem?.view_count ?? currentStory?.view_count ?? 0} vistas
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowSeenBy(false);
+                        isPaused.current = false;
+                        setPaused(false);
+                      }}
+                      className="text-white/60 bg-transparent border-none cursor-pointer p-1"
+                      aria-label="Cerrar lista de vistas"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto px-4 py-2">
+                    {viewersLoading ? (
+                      <div className="flex items-center justify-center py-6">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      </div>
+                    ) : viewers.length > 0 ? (
+                      viewers.map((v, vi) => (
+                        <div key={v.user_id || v.id || vi} className="flex items-center gap-3 py-2">
+                          <img
+                            src={v.avatar_url || v.profile_image || v.avatar || '/default-avatar.png'}
+                            alt=""
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm text-white font-sans font-medium truncate">
+                              {v.username || v.name || 'Usuario'}
+                            </span>
+                            {v.name && v.username && (
+                              <span className="text-xs text-white/50 font-sans truncate">{v.name}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center text-sm text-white/40 font-sans py-6">Sin datos de vistas disponibles</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* 7.1: Product stickers + Link stickers — unified stack above reply bar */}
+            {(currentItem?.products?.length > 0 || currentItem?.links?.length > 0) && (
+              <div className="absolute bottom-16 left-4 right-4 z-[2] flex flex-col gap-2">
+                {currentItem?.products?.map((product, idx) => (
                   <div
                     key={product.id || product.product_id || idx}
                     onClick={(e) => {
@@ -508,17 +731,11 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                       <span className="text-[10px] text-white/50 font-sans">Ver producto</span>
                     </div>
                     <span className="text-[12px] text-white font-semibold font-sans shrink-0 bg-white/20 rounded-full px-2.5 py-1">
-                      Ver →
+                      Ver &rarr;
                     </span>
                   </div>
                 ))}
-              </div>
-            )}
-
-            {/* Link stickers */}
-            {currentItem?.links?.length > 0 && (
-              <div className={`absolute ${currentItem?.products?.length > 0 ? 'bottom-32' : 'bottom-10'} left-4 right-4 z-[2] flex flex-col gap-2`}>
-                {currentItem.links.map((link, idx) => (
+                {currentItem?.links?.map((link, idx) => (
                   <div
                     key={link.url || idx}
                     onClick={(e) => {
@@ -564,7 +781,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                       {link.label || link.title || link.url}
                     </span>
                     <span className="text-[12px] text-white font-semibold font-sans shrink-0 bg-white/20 rounded-full px-2.5 py-1">
-                      Abrir →
+                      Abrir &rarr;
                     </span>
                   </div>
                 ))}
@@ -573,23 +790,63 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           </motion.div>
         </AnimatePresence>
 
+        {/* 7.2: Tap zone hint indicators */}
+        <AnimatePresence>
+          {tapHintSide === 'left' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-[4] pointer-events-none"
+            >
+              <ChevronLeft className="w-6 h-6 text-white/40" />
+            </motion.div>
+          )}
+          {tapHintSide === 'right' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-[4] pointer-events-none"
+            >
+              <ChevronRight className="w-6 h-6 text-white/40" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
 
-      {/* Quick emoji reactions */}
+      {/* Quick emoji reactions with burst animations */}
       <div className="flex items-center justify-center gap-1.5 px-3 py-1">
         {QUICK_REACTIONS.map((emoji) => (
-          <button
-            key={emoji}
-            onClick={() => handleQuickReaction(emoji)}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-transparent border-none cursor-pointer hover:bg-white/10 transition-colors"
-            aria-label={`Reaccionar con ${emoji}`}
-          >
-            {emoji}
-          </button>
+          <div key={emoji} className="relative">
+            <button
+              onClick={() => handleQuickReaction(emoji)}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-transparent border-none cursor-pointer hover:bg-white/10 transition-colors"
+              aria-label={`Reaccionar con ${emoji}`}
+            >
+              {emoji}
+            </button>
+            {/* A-1: Burst animations above the emoji button */}
+            <AnimatePresence>
+              {emojiBursts
+                .filter((b) => b.emoji === emoji)
+                .map((b) => (
+                  <EmojiBurst
+                    key={b.id}
+                    id={b.id}
+                    emoji={b.emoji}
+                    onComplete={() => removeEmojiBurst(b.id)}
+                  />
+                ))}
+            </AnimatePresence>
+          </div>
         ))}
       </div>
 
-      {/* Bottom bar: like + reply input + send */}
+      {/* Bottom bar: like + reply input + send + share */}
       <div className="flex items-center gap-2 px-3 py-2 pb-[calc(env(safe-area-inset-bottom,8px)+8px)]">
         <button
           onClick={() => {
@@ -610,6 +867,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             strokeWidth={liked ? 0 : 1.5}
           />
         </button>
+        {/* A-2: Taller reply input with @username placeholder */}
         <input
           ref={replyInputRef}
           type="text"
@@ -623,10 +881,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               handleSendReply();
             }
           }}
-          placeholder={`Responder a ${user?.name || user?.username || 'usuario'}...`}
-          className="flex-1 h-10 rounded-full bg-white/10 border border-white/20 px-4 text-sm text-white placeholder-white/40 outline-none focus:border-white/40 font-sans"
+          placeholder={`Responder a @${user?.username || user?.name || 'usuario'}...`}
+          className="flex-1 min-h-[44px] rounded-full bg-white/10 border border-white/20 px-4 text-sm text-white placeholder-white/40 outline-none focus:border-white/40 font-sans"
         />
-        {/* J3: ArrowRight send button — visible when input has text */}
+        {/* J3: Send button — checkmark briefly on success, arrow when text present */}
         {replyText.trim() ? (
           <button
             onClick={handleSendReply}
@@ -634,19 +892,102 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             className="shrink-0 w-10 h-10 flex items-center justify-center bg-white rounded-full border-none cursor-pointer disabled:opacity-50"
             aria-label="Enviar respuesta como mensaje directo"
           >
-            <ArrowRight size={18} className="text-stone-950" />
+            {replySent ? (
+              <Check size={18} className="text-stone-950" />
+            ) : (
+              <ArrowRight size={18} className="text-stone-950" />
+            )}
           </button>
         ) : (
+          /* A-3: Share button (when no reply text) */
           <button
-            onClick={() => {}}
-            disabled
-            className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer opacity-30"
-            aria-label="Enviar mensaje"
+            onClick={handleShareOpen}
+            className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"
+            aria-label="Compartir historia"
           >
             <Send size={20} className="text-white" />
           </button>
         )}
       </div>
+
+      {/* A-3: Share to DM sheet */}
+      <AnimatePresence>
+        {shareSheetOpen && (
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="absolute bottom-0 left-0 right-0 z-[100] bg-stone-950 rounded-t-3xl max-h-[60vh] flex flex-col"
+          >
+            {/* Sheet header */}
+            <div className="flex items-center justify-between px-4 pt-4 pb-2">
+              <span className="text-base font-semibold text-white">Compartir historia</span>
+              <button
+                onClick={handleShareClose}
+                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border-none cursor-pointer"
+                aria-label="Cerrar panel de compartir"
+              >
+                <X size={16} className="text-white" />
+              </button>
+            </div>
+            {/* Search */}
+            <div className="px-4 pb-2">
+              <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-2">
+                <Search size={16} className="text-white/40 shrink-0" />
+                <input
+                  value={shareSearch}
+                  onChange={(e) => setShareSearch(e.target.value)}
+                  placeholder="Buscar conversacion..."
+                  className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
+                  autoFocus
+                />
+              </div>
+            </div>
+            {/* Conversations list */}
+            <div className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom,8px)+8px)]">
+              {shareLoading ? (
+                <div className="flex justify-center py-6">
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                </div>
+              ) : filteredShareConversations.length === 0 ? (
+                <p className="text-center text-white/40 text-sm py-6">
+                  {shareSearch ? 'Sin resultados' : 'No hay conversaciones recientes'}
+                </p>
+              ) : (
+                filteredShareConversations.slice(0, 20).map((conv) => {
+                  const convId = conv.id || conv._id || conv.conversation_id;
+                  const otherUser = conv.other_user || conv.participants?.[0] || {};
+                  const name = otherUser.name || otherUser.username || conv.name || 'Usuario';
+                  const avatar = otherUser.avatar_url || otherUser.avatar || otherUser.profile_image;
+                  return (
+                    <button
+                      key={convId}
+                      onClick={() => handleShareToUser(conv)}
+                      disabled={shareSending === convId}
+                      className="flex items-center gap-3 w-full px-2 py-3 bg-transparent border-none cursor-pointer rounded-2xl hover:bg-white/10 transition-colors text-left disabled:opacity-50"
+                    >
+                      {avatar ? (
+                        <img src={avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-semibold shrink-0">
+                          {name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span className="flex-1 text-sm text-white font-medium truncate">{name}</span>
+                      {shareSending === convId ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+                      ) : (
+                        <Send size={16} className="text-white/40 shrink-0" />
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

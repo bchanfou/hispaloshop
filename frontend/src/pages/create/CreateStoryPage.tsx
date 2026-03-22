@@ -87,10 +87,13 @@ export default function CreateStoryPage() {
   const [drawWidth, setDrawWidth] = useState(4);
   const [drawPaths, setDrawPaths] = useState([]);
   const [currentPath, setCurrentPath] = useState(null);
+  const drawPointsRef = useRef([]); // B: RAF-based draw accumulator
 
   /* --- auto-save draft --- */
   const [draftBanner, setDraftBanner] = useState(false);
   const draftDebounceRef = useRef(null);
+  const textDraftDebounceRef = useRef(null);
+  const drawRafRef = useRef(null); // B: RAF for draw canvas moves
 
   // ── Undo/Redo ──
   const historyRef = useRef([{ t: [], s: [], d: [] }]);
@@ -878,6 +881,7 @@ export default function CreateStoryPage() {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
+                drawPointsRef.current = [{ x, y }];
                 setCurrentPath({ points: [{ x, y }], color: drawColor, width: drawWidth });
               }}
               onPointerMove={(e) => {
@@ -885,12 +889,19 @@ export default function CreateStoryPage() {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                setCurrentPath(prev => ({ ...prev, points: [...prev.points, { x, y }] }));
+                // B: Accumulate points in ref, sync to state via RAF
+                drawPointsRef.current.push({ x, y });
+                if (drawRafRef.current) cancelAnimationFrame(drawRafRef.current);
+                drawRafRef.current = requestAnimationFrame(() => {
+                  setCurrentPath(prev => prev ? { ...prev, points: [...drawPointsRef.current] } : prev);
+                });
               }}
               onPointerUp={() => {
-                if (currentPath && currentPath.points.length > 1) {
-                  setDrawPaths(prev => [...prev, currentPath]);
+                if (drawRafRef.current) cancelAnimationFrame(drawRafRef.current);
+                if (currentPath && drawPointsRef.current.length > 1) {
+                  setDrawPaths(prev => [...prev, { ...currentPath, points: [...drawPointsRef.current] }]);
                 }
+                drawPointsRef.current = [];
                 setCurrentPath(null);
               }}
             />
@@ -962,8 +973,18 @@ export default function CreateStoryPage() {
       {activePanel === 'text' && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] rounded-t-hs-xl z-20 flex flex-col gap-3">
           <textarea
-            value={textDraft}
-            onChange={(e) => setTextDraft(e.target.value)}
+            defaultValue={textDraft}
+            onChange={(e) => {
+              // B: Debounce text overlay edits — not on every keystroke
+              const val = e.target.value;
+              clearTimeout(textDraftDebounceRef.current);
+              textDraftDebounceRef.current = setTimeout(() => setTextDraft(val), 150);
+            }}
+            onBlur={(e) => {
+              // Ensure final value is captured
+              clearTimeout(textDraftDebounceRef.current);
+              setTextDraft(e.target.value);
+            }}
             placeholder="Escribe aquí..."
             rows={2}
             aria-label="Texto para la historia"
