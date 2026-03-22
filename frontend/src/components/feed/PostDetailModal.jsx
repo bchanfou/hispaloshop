@@ -10,13 +10,13 @@ import { useAutocomplete } from '../../hooks/useAutocomplete';
 import MentionDropdown from './MentionDropdown';
 
 /* ── Single comment row (memoized) ── */
-const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike, liked, onReply }) {
+const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike, liked, onReply, isReply, parentUsername }) {
   const avatar = comment.user_profile_image || comment.avatar || comment.avatar_url;
   const name = comment.user_name || comment.username || 'Usuario';
   const text = comment.text || comment.content || '';
 
   return (
-    <div className="flex gap-3 py-2.5 group">
+    <div className={`flex gap-3 py-2.5 group ${isReply ? 'ml-8' : ''}`}>
       <Link to={`/${comment.username || comment.user_id}`} className="shrink-0">
         {avatar ? (
           <img loading="lazy" src={avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
@@ -27,6 +27,9 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
         )}
       </Link>
       <div className="flex-1 min-w-0">
+        {isReply && parentUsername && (
+          <p className="text-[11px] text-stone-400 mb-0.5">↳ respondiendo a @{parentUsername}</p>
+        )}
         <p className="text-[13px] leading-relaxed text-stone-950">
           <Link to={`/${comment.username || comment.user_id}`} className="font-semibold no-underline text-stone-950 hover:underline mr-1.5">
             {name}
@@ -40,7 +43,7 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
             className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[32px]"
           >
             <Heart
-              size={12}
+              size={14}
               className={liked ? 'text-[#FF3040] fill-[#FF3040]' : 'text-stone-400'}
               strokeWidth={1.8}
             />
@@ -57,9 +60,9 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
           {isOwner && (
             <button
               onClick={() => onDelete(comment.comment_id || comment.id)}
-              className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+              className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center text-red-600 text-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
             >
-              <Trash2 size={12} className="text-stone-400 hover:text-stone-700" />
+              <Trash2 size={12} className="text-red-600 hover:text-red-700" />
             </button>
           )}
         </div>
@@ -181,7 +184,7 @@ const ModalCarousel = memo(function ModalCarousel({ images, userName, className,
 });
 
 /* ── Comments panel (shared between desktop and mobile) ── */
-function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike, likedComments, onReply, onClose, navigate }) {
+function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike, likedComments, onReply, onClose, navigate, hasMoreComments, loadingMore, onLoadMore }) {
   const userObj = post?.user || {};
   const avatarUrl = userObj.avatar_url || userObj.avatar || userObj.profile_image || post?.user_profile_image;
   const userName = userObj.name || post?.user_name || 'Usuario';
@@ -261,17 +264,71 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
           <p className="text-[12px] text-stone-400 mt-1">Sé el primero en comentar</p>
         </div>
       ) : (
-        sortedComments.map(comment => (
-          <CommentRow
-            key={comment.comment_id || comment.id || comment._id}
-            comment={comment}
-            isOwner={user?.user_id === comment.user_id}
-            onDelete={onDelete}
-            onLike={onLike}
-            liked={likedComments.has(comment.comment_id || comment.id)}
-            onReply={onReply}
-          />
-        ))
+        (() => {
+          // Build parent lookup for nesting (1 level max)
+          const parentMap = {};
+          for (const c of sortedComments) {
+            const cId = c.comment_id || c.id;
+            parentMap[cId] = c;
+          }
+          // Separate top-level and replies
+          const topLevel = sortedComments.filter(c => !c.reply_to && !c.parent_id);
+          const replies = sortedComments.filter(c => c.reply_to || c.parent_id);
+          // Group replies by parent
+          const replyMap = {};
+          for (const r of replies) {
+            const pid = r.reply_to || r.parent_id;
+            if (!replyMap[pid]) replyMap[pid] = [];
+            replyMap[pid].push(r);
+          }
+          return topLevel.map(comment => {
+            const cId = comment.comment_id || comment.id;
+            const childReplies = replyMap[cId] || [];
+            return (
+              <React.Fragment key={cId || comment._id}>
+                <CommentRow
+                  comment={comment}
+                  isOwner={user?.user_id === comment.user_id}
+                  onDelete={onDelete}
+                  onLike={onLike}
+                  liked={likedComments.has(cId)}
+                  onReply={onReply}
+                />
+                {childReplies.map(reply => {
+                  const rId = reply.comment_id || reply.id;
+                  const parent = parentMap[reply.reply_to || reply.parent_id];
+                  return (
+                    <CommentRow
+                      key={rId || reply._id}
+                      comment={reply}
+                      isOwner={user?.user_id === reply.user_id}
+                      onDelete={onDelete}
+                      onLike={onLike}
+                      liked={likedComments.has(rId)}
+                      onReply={onReply}
+                      isReply
+                      parentUsername={parent?.username || parent?.user_name}
+                    />
+                  );
+                })}
+              </React.Fragment>
+            );
+          });
+        })()
+      )}
+      {/* Load more comments */}
+      {hasMoreComments && !commentsLoading && (
+        <button
+          onClick={onLoadMore}
+          disabled={loadingMore}
+          className="w-full bg-transparent border-none cursor-pointer py-3 text-[12px] font-semibold text-stone-500 hover:text-stone-700 transition-colors disabled:opacity-50"
+        >
+          {loadingMore ? (
+            <Loader2 size={14} className="animate-spin mx-auto text-stone-400" />
+          ) : (
+            'Cargar más comentarios'
+          )}
+        </button>
       )}
     </>
   );
@@ -405,16 +462,37 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     setSaved(post.saved ?? post.is_saved ?? false);
   }, [post]);
 
-  const fetchComments = useCallback(() => {
+  const COMMENTS_PAGE_SIZE = 20;
+  const [commentsPage, setCommentsPage] = useState(0);
+  const [hasMoreComments, setHasMoreComments] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const fetchComments = useCallback((page = 0, append = false) => {
     if (!postId) return;
-    setCommentsLoading(true);
-    apiClient.get(`/posts/${postId}/comments?limit=50`)
-      .then((data) => setComments(Array.isArray(data) ? data : data?.comments || []))
-      .catch(() => setComments([]))
-      .finally(() => setCommentsLoading(false));
+    if (page === 0) setCommentsLoading(true);
+    else setLoadingMore(true);
+    const skip = page * COMMENTS_PAGE_SIZE;
+    apiClient.get(`/posts/${postId}/comments?limit=${COMMENTS_PAGE_SIZE}&skip=${skip}`)
+      .then((data) => {
+        const items = Array.isArray(data) ? data : data?.comments || [];
+        if (append) {
+          setComments(prev => [...prev, ...items]);
+        } else {
+          setComments(items);
+        }
+        setHasMoreComments(items.length >= COMMENTS_PAGE_SIZE);
+        setCommentsPage(page);
+      })
+      .catch(() => { if (!append) setComments([]); })
+      .finally(() => { setCommentsLoading(false); setLoadingMore(false); });
   }, [postId]);
 
-  useEffect(() => { if (post) fetchComments(); }, [post, fetchComments]);
+  const loadMoreComments = useCallback(() => {
+    if (loadingMore || !hasMoreComments) return;
+    fetchComments(commentsPage + 1, true);
+  }, [fetchComments, commentsPage, loadingMore, hasMoreComments]);
+
+  useEffect(() => { if (post) fetchComments(0); }, [post, fetchComments]);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -463,15 +541,49 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     }
   };
 
-  const handleDelete = async (commentId) => {
-    try {
-      await apiClient.delete(`/comments/${commentId}`);
-      setComments(prev => prev.filter(c => (c.comment_id || c.id) !== commentId));
-      setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
-    } catch {
-      toast.error('Error al eliminar');
-    }
-  };
+  const deleteTimerRef = useRef(null);
+
+  // Cleanup delete timer on unmount
+  useEffect(() => {
+    return () => { if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current); };
+  }, []);
+
+  const handleDelete = useCallback((commentId) => {
+    // Optimistically hide the comment
+    const deletedComment = comments.find(c => (c.comment_id || c.id) === commentId);
+    setComments(prev => prev.filter(c => (c.comment_id || c.id) !== commentId));
+    setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
+
+    // Undo toast — 3s before actual API call
+    let undone = false;
+    toast('Comentario eliminado', {
+      action: {
+        label: 'Deshacer',
+        onClick: () => {
+          undone = true;
+          clearTimeout(deleteTimerRef.current);
+          if (deletedComment) {
+            setComments(prev => [deletedComment, ...prev]);
+            setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
+          }
+        },
+      },
+      duration: 3000,
+    });
+    deleteTimerRef.current = setTimeout(async () => {
+      if (undone) return;
+      try {
+        await apiClient.delete(`/posts/${postId}/comments/${commentId}`);
+      } catch {
+        // Restore on error
+        if (deletedComment) {
+          setComments(prev => [deletedComment, ...prev]);
+          setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
+        }
+        toast.error('Error al eliminar');
+      }
+    }, 3500);
+  }, [comments, postId]);
 
   const handleLikeComment = async (commentId) => {
     setLikedComments(prev => {
@@ -479,7 +591,14 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
       next.has(commentId) ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    try { await apiClient.post(`/comments/${commentId}/like`); } catch {}
+    // Optimistic update likes_count locally
+    setComments(prev => prev.map(c => {
+      const cId = c.comment_id || c.id;
+      if (cId !== commentId) return c;
+      const wasLiked = likedComments.has(commentId);
+      return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
+    }));
+    try { await apiClient.post(`/posts/${postId}/comments/${commentId}/like`); } catch {}
   };
 
   const handleReply = useCallback((commentId, username) => {
@@ -684,6 +803,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 user={user} onDelete={handleDelete} onLike={handleLikeComment}
                 likedComments={likedComments} onReply={handleReply}
                 onClose={onClose} navigate={navigate}
+                hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments}
               />
             </div>
           </div>
@@ -743,6 +863,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 user={user} onDelete={handleDelete} onLike={handleLikeComment}
                 likedComments={likedComments} onReply={handleReply}
                 onClose={onClose} navigate={navigate}
+                hasMoreComments={hasMoreComments} loadingMore={loadingMore} onLoadMore={loadMoreComments}
               />
             </div>
 

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ChevronLeft, Image, Check, Type, Crop, Sliders, Search, MapPin, Globe, Lock, Camera, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -453,8 +453,8 @@ export default function CreatePostPage() {
     window.addEventListener('touchend', up);
   };
 
-  /* ── computed filter string ── */
-  const filterCSS = buildFilterCSS(activeFilter, filterIntensity, adjustments);
+  /* ── computed filter string (memoized) ── */
+  const filterCSS = useMemo(() => buildFilterCSS(activeFilter, filterIntensity, adjustments), [activeFilter, filterIntensity, adjustments]);
 
   /* ══════════════════════ RENDER ══════════════════════ */
   const hasFiles = selectedFiles.length > 0;
