@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { authApi } from '../lib/authApi';
 import { getToken, removeToken } from '../lib/auth';
 import { setUser as setSentryUser } from '../lib/sentry';
@@ -215,6 +216,13 @@ export function AuthProvider({ children }) {
       await checkAuth();
     } catch (err) {
       console.error('Switch account failed', err);
+      toast.error('Error al cambiar de cuenta. Inicia sesión de nuevo.');
+      // Remove invalid account from localStorage
+      try {
+        const accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]');
+        const filtered = accounts.filter(a => String(a.user_id) !== String(account.user_id));
+        localStorage.setItem('hsp_accounts', JSON.stringify(filtered));
+      } catch {}
     }
   }, [user, checkAuth]);
 

@@ -276,12 +276,14 @@ export default function ProfileHeader({
     if (!highlightMenu || !highlightEditName.trim()) return;
     setHighlightSavingName(true);
     try {
-      await apiClient.patch(`/stories/highlights/${highlightMenu.highlight_id || highlightMenu.id}`, {
+      const hlId = highlightMenu.highlight_id || highlightMenu.id;
+      await apiClient.put(`/users/me/highlights/${hlId}`, {
         title: highlightEditName.trim(),
       });
       toast.success('Nombre actualizado');
       setHighlightMenu(null);
       setHighlightEditMode(null);
+      queryClient.invalidateQueries({ queryKey: ['highlights'] });
       onHighlightDeleted?.(); // reuse callback to refresh highlights list
     } catch {
       toast.error('Error al actualizar');
@@ -294,10 +296,12 @@ export default function ProfileHeader({
     if (!highlightMenu) return;
     setHighlightDeleting(true);
     try {
-      await apiClient.delete(`/stories/highlights/${highlightMenu.highlight_id || highlightMenu.id}`);
+      const hlId = highlightMenu.highlight_id || highlightMenu.id;
+      await apiClient.delete(`/users/me/highlights/${hlId}`);
       toast.success('Destacado eliminado');
       setHighlightMenu(null);
       setHighlightEditMode(null);
+      queryClient.invalidateQueries({ queryKey: ['highlights'] });
       onHighlightDeleted?.();
     } catch {
       toast.error('Error al eliminar');
@@ -347,6 +351,7 @@ export default function ProfileHeader({
       });
       toast.success('Destacado creado');
       setCreateHighlightOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['highlights'] });
       onHighlightDeleted?.(); // refresh highlights list
     } catch {
       toast.error('Error al crear el destacado');
@@ -365,10 +370,12 @@ export default function ProfileHeader({
     if (!deleteConfirmHighlight) return;
     setHighlightDeleting(true);
     try {
-      await apiClient.delete(`/stories/highlights/${deleteConfirmHighlight.highlight_id || deleteConfirmHighlight.id}`);
+      const hlId = deleteConfirmHighlight.highlight_id || deleteConfirmHighlight.id;
+      await apiClient.delete(`/users/me/highlights/${hlId}`);
       toast.success('Destacado eliminado');
       setDeleteConfirmHighlight(null);
       setHighlightMenu(null);
+      queryClient.invalidateQueries({ queryKey: ['highlights'] });
       onHighlightDeleted?.();
     } catch {
       toast.error('Error al eliminar');
@@ -989,12 +996,14 @@ export default function ProfileHeader({
                             key={story.id || story.story_id || si}
                             onClick={async () => {
                               try {
-                                await apiClient.patch(`/stories/highlights/${highlightMenu.highlight_id || highlightMenu.id}`, {
+                                const hlId = highlightMenu.highlight_id || highlightMenu.id;
+                                await apiClient.put(`/users/me/highlights/${hlId}`, {
                                   cover_url: storyImg,
                                 });
                                 toast.success('Portada actualizada');
                                 setHighlightMenu(null);
                                 setHighlightEditMode(null);
+                                queryClient.invalidateQueries({ queryKey: ['highlights'] });
                               } catch {
                                 toast.error('Error al actualizar portada');
                               }
