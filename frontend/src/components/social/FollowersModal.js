@@ -212,7 +212,7 @@ export default function FollowersModal({
             ) : (
               <Virtuoso
                 data={users}
-                estimatedItemSize={64}
+                defaultItemHeight={64}
                 style={{ flex: 1 }}
                 itemContent={(_, user) => (
                   <UserRow

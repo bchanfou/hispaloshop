@@ -841,10 +841,14 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
               const img = product.image || product.thumbnail || product.images?.[0];
               const isLast = idx === Math.min(normalizedProducts.length, 3) - 1;
               return (
-                <button
+                <div
                   key={product.id || product.product_id}
+                  role="button"
+                  tabIndex={0}
                   className="flex shrink-0 items-center gap-1.5 rounded-full bg-white py-1 pl-1 pr-2.5 border border-stone-200 cursor-pointer font-[inherit] shadow-sm"
                   onClick={() => navigate(`/products/${product.id || product.product_id}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/products/${product.id || product.product_id}`); }}
+                  aria-label={`Ver producto ${product.name || product.title}`}
                 >
                   {img && (
                     <img
@@ -872,7 +876,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                   >
                     <ShoppingBag size={12} className="text-white" />
                   </button>
-                </button>
+                </div>
               );
             })}
             {normalizedProducts.length > 3 && (

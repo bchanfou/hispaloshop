@@ -47,6 +47,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; "
             "media-src 'self' blob: https://res.cloudinary.com; "
             "connect-src 'self' wss: ws: https://api.anthropic.com https://api.stripe.com https://*.hispaloshop.com "
+            "http://localhost:8000 http://127.0.0.1:8000 ws://localhost:8000 ws://127.0.0.1:8000 "
             "https://*.i.posthog.com https://us.i.posthog.com https://api.giphy.com https://upload.cloudinary.com https://*.sentry.io "
             "https://accounts.google.com https://oauth2.googleapis.com; "
             "worker-src 'self' blob:; "
@@ -99,6 +100,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return request.client.host if request.client else "unknown"
 
     async def dispatch(self, request: Request, call_next):
+        env = os.getenv("ENV", "development").lower()
+        if env != "production":
+            origin = request.headers.get("origin", "")
+            if request.method == "OPTIONS" or origin.startswith("http://localhost") or origin.startswith("http://127.0.0.1"):
+                return await call_next(request)
+
         client_id = self._get_client_id(request)
         now = time.time()
 

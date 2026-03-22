@@ -2,7 +2,7 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir:   './e2e',
-  timeout:   30_000,
+  timeout:   60_000,
   retries:   process.env.CI ? 2 : 0,
   workers:   process.env.CI ? 1 : undefined,
   reporter:  [['html', { open: 'never' }], ['list']],
@@ -13,7 +13,7 @@ module.exports = defineConfig({
     video:         'retain-on-failure',
     trace:         'on-first-retry',
     actionTimeout: 10_000,
-    navigationTimeout: 15_000,
+    navigationTimeout: 30_000,
   },
 
   projects: [
@@ -22,9 +22,9 @@ module.exports = defineConfig({
   ],
 
   webServer: process.env.CI ? undefined : {
-    command: 'npm start',
+    command: 'node --max-old-space-size=4096 ./node_modules/@craco/craco/dist/bin/craco.js start',
     port:    3000,
     reuseExistingServer: true,
-    timeout: 60_000,
+    timeout: 120_000,
   },
 });

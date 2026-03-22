@@ -33,6 +33,8 @@ CSRF_EXEMPT_PREFIXES = (
     "/api/auth/forgot-password",
     "/api/auth/reset-password",
     "/api/auth/google",
+    "/api/auth/refresh",
+    "/api/track/visit",
 )
 
 

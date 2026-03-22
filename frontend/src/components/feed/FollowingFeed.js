@@ -191,7 +191,7 @@ function FollowingFeed() {
       ) : (
         <Virtuoso
           data={allPosts}
-          estimatedItemSize={460}
+          defaultItemHeight={460}
           itemContent={(index, post) => {
             const isReel = post.video_url || post.type === 'reel';
             const shouldAnimate = index < 5;

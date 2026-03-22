@@ -1624,7 +1624,7 @@ export default function InternalChat({
                 <Virtuoso
                   ref={virtuosoRef}
                   data={visibleTimeline}
-                  estimatedItemSize={60}
+                  defaultItemHeight={60}
                   itemContent={(index, item) => (
                     <div style={{ padding: '2px 16px' }}>
                       {item.type === 'separator' ? (
