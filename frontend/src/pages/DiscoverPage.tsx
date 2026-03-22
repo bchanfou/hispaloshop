@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, ShoppingBag, AlertTriangle, ArrowRight, Bookmark } from 'lucide-react';
+import { Search, MapPin, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, ShoppingBag, AlertTriangle, ArrowRight, Bookmark, Store, Users, ChefHat } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
@@ -87,6 +87,9 @@ export default function DiscoverPage() {
   const [fetchError, setFetchError] = useState(false);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [recommendedStores, setRecommendedStores] = useState([]);
+  const [recommendedRecipes, setRecommendedRecipes] = useState([]);
+  const [recommendedCommunities, setRecommendedCommunities] = useState([]);
 
   const { products, isLoading: loadingProducts } = useProducts({
     limit: '24',
@@ -149,6 +152,30 @@ export default function DiscoverPage() {
       })
       .catch(() => {})
       .finally(() => { setLoadingRecipes(false); });
+
+    // Recommended stores
+    apiClient.get('/stores', { params: { sort: 'popular', limit: 6 } })
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.stores || [];
+        setRecommendedStores(list.slice(0, 6));
+      })
+      .catch(() => {});
+
+    // Recommended recipes
+    apiClient.get('/recipes', { params: { sort: 'newest', limit: 6 } })
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.recipes || [];
+        setRecommendedRecipes(list.slice(0, 6));
+      })
+      .catch(() => {});
+
+    // Recommended communities
+    apiClient.get('/communities', { params: { sort: 'popular', limit: 6 } })
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.communities || [];
+        setRecommendedCommunities(list.slice(0, 6));
+      })
+      .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userCountry]);
 
@@ -226,13 +253,9 @@ export default function DiscoverPage() {
     // else: silently ignore (no navigate to /undefined)
   }, [navigate]);
 
-  /* ── category navigate ── */
+  /* ── category navigate — navigates to category page ── */
   const handleCategoryClick = useCallback((slug) => {
-    if (activeCategory === slug) {
-      setActiveCategory(null);
-    } else {
-      setActiveCategory(slug);
-    }
+    navigate(`/explore/category/${slug}`);
   }, [activeCategory]);
 
   /* ── elite carousel card ── */
@@ -420,6 +443,101 @@ export default function DiscoverPage() {
                   {p.price != null && (
                     <p className="text-[13px] font-bold text-stone-950">{typeof p.display_price === 'string' ? p.display_price : `${(p.price || 0).toFixed(2)} €`}</p>
                   )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ─── TIENDAS PARA TI ─── */}
+      {recommendedStores.length > 0 && (
+        <div className="px-4 pb-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[13px] font-bold text-stone-950">Tiendas para ti</p>
+            <Link to="/stores" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700 hover:underline">
+              Ver todo
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+            {recommendedStores.map(s => {
+              const id = s.store_slug || s.slug || s.store_id || s.id;
+              const img = s.logo_url || s.avatar_url || s.image_url;
+              return (
+                <Link key={id} to={`/store/${id}`} className="w-[140px] shrink-0 no-underline">
+                  <div className="aspect-square overflow-hidden rounded-xl bg-stone-100 flex items-center justify-center">
+                    {img ? (
+                      <img src={img} alt={s.name || ''} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <Store size={24} className="text-stone-300" />
+                    )}
+                  </div>
+                  <p className="mt-1.5 truncate text-[13px] font-semibold text-stone-950">{s.name || s.store_name}</p>
+                  <p className="text-[11px] text-stone-500">{s.product_count || 0} productos</p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ─── RECETAS PARA TI ─── */}
+      {recommendedRecipes.length > 0 && (
+        <div className="px-4 pb-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[13px] font-bold text-stone-950">Recetas para ti</p>
+            <Link to="/recipes" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700 hover:underline">
+              Ver todo
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+            {recommendedRecipes.map(r => {
+              const id = r.recipe_id || r.id;
+              const img = r.image_url || r.cover_image || r.images?.[0];
+              return (
+                <Link key={id} to={`/recipes/${id}`} className="w-[140px] shrink-0 no-underline">
+                  <div className="aspect-[3/4] overflow-hidden rounded-xl bg-stone-100">
+                    {img ? (
+                      <img src={img} alt={r.title || r.name || ''} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <ChefHat size={24} className="text-stone-300" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-1.5 truncate text-[13px] font-semibold text-stone-950">{r.title || r.name}</p>
+                  {r.prep_time && <p className="text-[11px] text-stone-500">{r.prep_time} min</p>}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ─── COMUNIDADES PARA TI ─── */}
+      {recommendedCommunities.length > 0 && (
+        <div className="px-4 pb-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[13px] font-bold text-stone-950">Comunidades para ti</p>
+            <Link to="/communities" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700 hover:underline">
+              Ver todo
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+            {recommendedCommunities.map(c => {
+              const id = c.community_id || c.id || c.slug;
+              const img = c.cover_url || c.image_url || c.avatar_url;
+              return (
+                <Link key={id} to={`/communities/${id}`} className="w-[140px] shrink-0 no-underline">
+                  <div className="aspect-square overflow-hidden rounded-xl bg-stone-100 flex items-center justify-center">
+                    {img ? (
+                      <img src={img} alt={c.name || ''} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-2xl">{c.emoji || '🍽️'}</div>
+                    )}
+                  </div>
+                  <p className="mt-1.5 truncate text-[13px] font-semibold text-stone-950">{c.name}</p>
+                  <p className="text-[11px] text-stone-500">{c.member_count || 0} miembros</p>
                 </Link>
               );
             })}
