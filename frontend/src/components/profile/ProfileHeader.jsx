@@ -493,8 +493,8 @@ export default function ProfileHeader({
                       onError={e => { e.target.src = '/default-avatar.png'; }}
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-stone-950">{acc.name}</div>
-                      <div className="text-xs text-stone-500">@{acc.username}</div>
+                      <div className="truncate text-sm font-medium text-stone-950">{acc.name || acc.full_name || acc.username || 'Sin nombre'}</div>
+                      <div className="text-xs text-stone-500">@{acc.username || acc.email || 'usuario'}</div>
                     </div>
                     {acc.role && (
                       <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium uppercase text-stone-500">
@@ -1098,7 +1098,19 @@ export default function ProfileHeader({
                       <div className="w-6 h-6 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
                     </div>
                   ) : archivedStories.length === 0 ? (
-                    <p className="py-10 text-center text-sm text-stone-500">No hay historias en tu archivo</p>
+                    <div className="py-10 flex flex-col items-center gap-3">
+                      <p className="text-sm text-stone-500 text-center">No hay historias en tu archivo</p>
+                      <p className="text-xs text-stone-400 text-center">Publica una historia primero para poder crear un destacado</p>
+                      <button
+                        onClick={() => {
+                          setCreateHighlightOpen(false);
+                          window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
+                        }}
+                        className="bg-stone-950 text-white rounded-full px-5 py-2 text-sm font-semibold"
+                      >
+                        Crear historia
+                      </button>
+                    </div>
                   ) : (
                     <div className="grid grid-cols-4 gap-2 overflow-y-auto flex-1 min-h-0 pb-3">
                       {archivedStories.map((story, si) => {

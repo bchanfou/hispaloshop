@@ -213,7 +213,27 @@ export function AuthProvider({ children }) {
       localStorage.setItem('hsp_token', account.token);
 
       // Re-authenticate with new token
-      await checkAuth();
+      const newUser = await checkAuth();
+
+      // Update the switched account in localStorage with fresh data from server
+      if (newUser) {
+        try {
+          let accs = JSON.parse(localStorage.getItem('hsp_accounts') || '[]');
+          const accIdx = accs.findIndex(a => String(a.user_id) === String(newUser.user_id || newUser.id));
+          const freshObj = {
+            token: account.token,
+            user_id: newUser.user_id || newUser.id,
+            username: newUser.username,
+            name: newUser.name || newUser.full_name,
+            avatar_url: newUser.profile_image || newUser.avatar_url,
+            email: newUser.email,
+            role: newUser.role,
+          };
+          if (accIdx >= 0) accs[accIdx] = freshObj;
+          else accs.push(freshObj);
+          localStorage.setItem('hsp_accounts', JSON.stringify(accs));
+        } catch {}
+      }
     } catch (err) {
       console.error('Switch account failed', err);
       toast.error('Error al cambiar de cuenta. Inicia sesión de nuevo.');
