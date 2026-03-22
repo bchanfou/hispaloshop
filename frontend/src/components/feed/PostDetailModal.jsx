@@ -586,6 +586,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
   }, [comments, postId]);
 
   const handleLikeComment = async (commentId) => {
+    const wasLiked = likedComments.has(commentId);
     setLikedComments(prev => {
       const next = new Set(prev);
       next.has(commentId) ? next.delete(commentId) : next.add(commentId);
@@ -598,7 +599,21 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
       const wasLiked = likedComments.has(commentId);
       return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
     }));
-    try { await apiClient.post(`/posts/${postId}/comments/${commentId}/like`); } catch {}
+    try {
+      await apiClient.post(`/posts/${postId}/comments/${commentId}/like`);
+    } catch {
+      // Rollback optimistic update
+      setLikedComments(prev => {
+        const next = new Set(prev);
+        wasLiked ? next.add(commentId) : next.delete(commentId);
+        return next;
+      });
+      setComments(prev => prev.map(c => {
+        if ((c.comment_id || c.id) !== commentId) return c;
+        return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1)) };
+      }));
+      toast.error('Error al dar me gusta');
+    }
   };
 
   const handleReply = useCallback((commentId, username) => {

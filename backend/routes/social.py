@@ -618,6 +618,31 @@ async def like_reel_comment(reel_id: str, comment_id: str, user: User = Depends(
     return {"liked": liked, "likes_count": (updated or {}).get("likes_count", 0)}
 
 
+@router.post("/posts/{post_id}/comments/{comment_id}/like")
+async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(get_current_user)):
+    """Toggle like on a post comment"""
+    user_id = getattr(user, "user_id", None)
+
+    # Check comment exists
+    comment = await db.post_comments.find_one({"comment_id": comment_id, "post_id": post_id})
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    # Toggle like (delete if exists, create if not)
+    result = await db.comment_likes.delete_one({"comment_id": comment_id, "user_id": user_id})
+    if result.deleted_count > 0:
+        await db.comment_likes.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
+        return {"liked": False}
+
+    await db.comment_likes.update_one(
+        {"comment_id": comment_id, "user_id": user_id},
+        {"$setOnInsert": {"comment_id": comment_id, "user_id": user_id, "post_id": post_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    await db.post_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
+    return {"liked": True}
+
+
 @router.patch("/reels/{reel_id}")
 async def edit_reel(reel_id: str, body: dict = Body(...), user: User = Depends(get_current_user)):
     """Edit reel caption. Only the owner can edit."""

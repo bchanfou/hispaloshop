@@ -207,9 +207,14 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   // ---- handlers -----------------------------------------------------------
 
   // Like — delegate entirely to parent (React Query optimistic update)
+  const likingRef = useRef(false);
   const handleLike = useCallback(() => {
+    if (likingRef.current) return;
+    likingRef.current = true;
     trigger('light');
     onLike?.(post.id);
+    // Reset after a short delay to allow the mutation to complete
+    setTimeout(() => { likingRef.current = false; }, 500);
     // Check milestone after like (optimistic: assume count increments)
     if (!liked) {
       const newCount = likesCount + 1;
