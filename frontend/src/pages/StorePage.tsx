@@ -190,7 +190,7 @@ export default function StorePage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-20 max-w-[975px] mx-auto">
+    <div className="min-h-screen bg-stone-50 pb-20 max-w-[935px] mx-auto">
       <SEO
         title={`${store?.name || 'Tienda'} — Hispaloshop`}
         description={store?.tagline || store?.story?.slice(0, 160) || `Tienda de productos artesanales en Hispaloshop`}

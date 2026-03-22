@@ -326,7 +326,7 @@ export default function DiscoverPage() {
 
   /* ── loading skeleton grid ── */
   const SkeletonGrid = () => (
-    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-1">
+    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="aspect-square bg-stone-100 animate-pulse" />
       ))}
@@ -337,7 +337,7 @@ export default function DiscoverPage() {
   return (
     <div className="min-h-screen bg-white pb-20">
       <SEO title="Explorar — Hispaloshop" description="Descubre productos artesanales, tiendas verificadas y recetas de la comunidad." />
-      <div className="mx-auto max-w-[1200px]">
+      <div className="mx-auto max-w-[1100px]">
 
       {/* ─── SEARCH BAR (sticky) ─── */}
       <div className="sticky top-0 z-20 bg-white px-3 py-2 flex items-center gap-2">
@@ -362,7 +362,7 @@ export default function DiscoverPage() {
       </div>
 
       {/* ─── FILTER PILLS ─── */}
-      <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-3 py-2 scrollbar-hide">
+      <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-3 py-2 scrollbar-hide lg:flex-wrap lg:overflow-x-visible">
         {CATEGORY_GROUPS.map(grp => {
           const Icon = getCategoryIcon(grp.icon);
           const isActive = activeCategory === grp.slug;
@@ -505,7 +505,7 @@ export default function DiscoverPage() {
       ) : (loadingProducts && loadingTrending) ? (
         <SkeletonGrid />
       ) : exploreItems.length > 0 ? (
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-1">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
           {exploreItems.map((item, idx) => (
             <ExploreGridItem
               key={item.product_id || item.recipe_id || item.id || idx}

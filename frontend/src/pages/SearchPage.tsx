@@ -417,7 +417,7 @@ export default function SearchPage() {
             type="button"
             onClick={() => setShowFilters(prev => !prev)}
             aria-label="Filtros"
-            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white transition-colors hover:bg-stone-50"
+            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white transition-colors hover:bg-stone-50 lg:hidden"
           >
             <SlidersHorizontal size={18} className="text-stone-950" />
             {hasActiveFilters && (
@@ -426,14 +426,14 @@ export default function SearchPage() {
           </button>
         </form>
 
-        {/* ── Filter Panel ── */}
+        {/* ── Filter Panel (mobile only — desktop uses sidebar) ── */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
+              className="overflow-hidden lg:hidden"
             >
               <div className="mt-2 rounded-2xl bg-white p-4 shadow-sm">
                 {/* Price range */}
@@ -520,7 +520,96 @@ export default function SearchPage() {
         </AnimatePresence>
       </div>
 
-      <div className="mx-auto max-w-[975px] px-3">
+      <div className="mx-auto max-w-[975px] px-3 lg:flex lg:gap-6">
+
+        {/* ── Filter Sidebar (desktop: always visible left column) ── */}
+        <aside className="hidden lg:block lg:w-[240px] lg:shrink-0">
+          <div className="sticky top-[72px] rounded-2xl bg-white p-4 shadow-sm">
+            {/* Price range */}
+            <p className="mb-2 text-[13px] font-semibold text-stone-950">Rango de precio</p>
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex h-10 flex-1 items-center rounded-xl border border-stone-200 px-3">
+                <span className="mr-1 text-sm text-stone-400">&euro;</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={filterMinPrice}
+                  onChange={(e) => setFilterMinPrice(e.target.value)}
+                  placeholder="Min"
+                  className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+                />
+              </div>
+              <span className="text-sm text-stone-400">&mdash;</span>
+              <div className="flex h-10 flex-1 items-center rounded-xl border border-stone-200 px-3">
+                <span className="mr-1 text-sm text-stone-400">&euro;</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={filterMaxPrice}
+                  onChange={(e) => setFilterMaxPrice(e.target.value)}
+                  placeholder="Max"
+                  className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+                />
+              </div>
+            </div>
+
+            {/* Certifications */}
+            <p className="mb-2 text-[13px] font-semibold text-stone-950">Certificaciones</p>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {CERTIFICATION_OPTIONS.map(cert => {
+                const isActive = filterCerts.includes(cert.value);
+                return (
+                  <button
+                    key={cert.value}
+                    type="button"
+                    onClick={() => toggleFilterCert(cert.value)}
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors ${
+                      isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'
+                    }`}
+                  >
+                    {isActive && <Check size={12} />}
+                    {cert.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Toggles */}
+            <div className="mb-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-stone-950">Solo en stock</span>
+                <ToggleSwitch checked={filterInStock} onChange={setFilterInStock} label="Solo en stock" />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-stone-950">Envio gratis</span>
+                <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label="Envio gratis" />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleApplyFilters}
+                className="w-full rounded-full bg-stone-950 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
+              >
+                Aplicar filtros
+              </button>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="text-sm text-stone-500 transition-colors hover:text-stone-700"
+                >
+                  Limpiar filtros
+                </button>
+              )}
+            </div>
+          </div>
+        </aside>
+
+        {/* ── Results column ── */}
+        <div className="lg:flex-1 min-w-0">
 
         {/* ── Tab pills (same style as Discover filter pills) ── */}
         {!loading && hasResults && (
@@ -718,6 +807,7 @@ export default function SearchPage() {
             </section>
           </motion.div>
         )}
+        </div>{/* end results column */}
       </div>
     </div>
   );

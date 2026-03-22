@@ -896,8 +896,11 @@ export default function ProductDetailPage() {
         )}
       </div>
 
-      {/* ── Reviews Preview ── */}
-      <div className="px-4 py-5">
+      </div>{/* close right column */}
+      </div>{/* close 2-col wrapper */}
+
+      {/* ── Reviews Preview (full width below both columns) ── */}
+      <div className="mx-auto max-w-[1200px] px-4 py-5">
         {/* Review summary line */}
         <div className="mb-3 flex items-center gap-2">
           <Star size={18} className="fill-stone-950 text-stone-950" />
@@ -1079,7 +1082,7 @@ export default function ProductDetailPage() {
 
       {/* ── Recipes with this product ── */}
       {productRecipes.length > 0 && (
-        <div className="py-5">
+        <div className="mx-auto max-w-[1200px] py-5">
           <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">Recetas con este producto</h2>
           <div className="flex gap-3 overflow-x-auto px-4 scrollbar-hide [scroll-snap-type:x_mandatory]">
             {productRecipes.map((r) => {
@@ -1174,7 +1177,7 @@ export default function ProductDetailPage() {
 
       {/* ── Related Products ── */}
       {relatedProducts.length > 0 && (
-        <div className="py-5">
+        <div className="mx-auto max-w-[1200px] py-5">
           <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">
             {t('productDetail.relatedProducts', 'Productos relacionados')}
           </h2>
@@ -1209,9 +1212,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
       )}
-
-      </div>{/* close right column */}
-      </div>{/* close 2-col wrapper */}
 
       {/* ── Sticky Bottom Bar ── */}
       <div className="fixed bottom-[calc(50px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white px-4 py-3">

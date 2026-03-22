@@ -306,7 +306,7 @@ export default function RecipeDetailPage() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/40 to-transparent" />
       </div>
 
-      <div className="mx-auto max-w-[600px] px-4 pb-24">
+      <div className="mx-auto max-w-[700px] px-4 pb-24 lg:max-w-[960px]">
         {/* ── Title + Meta ── */}
         <div className="py-4">
           <h1 className="mb-3 text-2xl font-bold leading-tight text-stone-950">{recipe.title}</h1>
@@ -358,6 +358,9 @@ export default function RecipeDetailPage() {
             </button>
           </div>
         </div>
+
+        {/* ── Ingredients + Steps: 2-col on desktop ── */}
+        <div className="lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-8 lg:items-start">
 
         {/* ── Ingredients ── */}
         <section className="mb-5">
@@ -486,6 +489,8 @@ export default function RecipeDetailPage() {
             ))}
           </div>
         </section>
+
+        </div>{/* close 2-col ingredients+steps wrapper */}
 
         {/* ── Nutritional Info ── */}
         {recipe.nutrition && (

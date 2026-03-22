@@ -71,8 +71,8 @@ function SkeletonGrid({ count = 9, columns = 3 }) {
   return (
     <div
       className={columns === 3
-        ? 'grid grid-cols-3 gap-0.5'
-        : 'grid grid-cols-2 gap-2 p-2'
+        ? 'grid grid-cols-3 gap-1'
+        : 'grid grid-cols-2 gap-4 p-2 lg:grid-cols-3'
       }
     >
       {Array.from({ length: count }).map((_, i) => (
@@ -230,7 +230,8 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       activeTab={activeTab}
       onTabChange={setActiveTab}
       layoutId="profile-tab"
-      className="sticky top-[52px] z-30 border-t border-stone-200 bg-white"
+      className="sticky top-[52px] z-30 border-t border-stone-200 bg-white lg:justify-center"
+      showLabels
     />
   );
 
@@ -247,7 +248,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       );
     }
     return (
-      <div className="grid grid-cols-3 gap-0.5">
+      <div className="grid grid-cols-3 gap-1">
         {items.map((post, i) => {
           const src = (post.images?.length > 0 && post.images[0]) || post.image_url;
           const hasMultiple = post.images?.length > 1;
@@ -285,7 +286,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       );
     }
     return (
-      <div className="grid grid-cols-3 gap-0.5">
+      <div className="grid grid-cols-3 gap-1">
         {items.map((reel, i) => {
           const src = reel.thumbnail_url || reel.cover_url || reel.image_url || '';
           return (
@@ -327,7 +328,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       );
     }
     return (
-      <div className="grid grid-cols-2 gap-2 p-2">
+      <div className="grid grid-cols-2 gap-4 p-2 lg:grid-cols-3">
         {items.map((product, i) => {
           const src = product.image_url || product.images?.[0] || '';
           const handleProductClick = () =>
@@ -373,7 +374,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       );
     }
     return (
-      <div className="grid grid-cols-2 gap-2 p-2">
+      <div className="grid grid-cols-2 gap-4 p-2 lg:grid-cols-3">
         {items.map((recipe, i) => {
           const src = recipe.image_url || recipe.images?.[0] || '';
           const recipeUrl = `/recipes/${recipe.id || recipe.recipe_id}`;
@@ -416,7 +417,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       return <EmptyState icon={Bookmark} title="Nada guardado todavía" />;
     }
     return (
-      <div className="grid grid-cols-3 gap-0.5">
+      <div className="grid grid-cols-3 gap-1">
         {items.map((item, i) => {
           const src = (item.images?.length > 0 && item.images[0]) || item.image_url;
           return (

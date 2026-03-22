@@ -19,6 +19,7 @@ export default function SlideTabIndicator({
   layoutId = 'tab-indicator',
   className = '',
   variant = 'underline',
+  showLabels = false,
 }) {
   return (
     <div role="tablist" className={`flex overflow-x-auto scrollbar-hide ${className}`}>
@@ -38,6 +39,9 @@ export default function SlideTabIndicator({
           >
             {TabIcon && <TabIcon size={variant === 'pill' ? 16 : 24} />}
             {variant === 'pill' && <span>{tab.label}</span>}
+            {showLabels && variant !== 'pill' && (
+              <span className="hidden lg:inline text-xs uppercase tracking-wider">{tab.label}</span>
+            )}
 
             {isActive && variant === 'underline' && (
               <motion.div
