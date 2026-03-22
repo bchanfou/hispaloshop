@@ -75,6 +75,7 @@ module.exports = {
         'fade-scale-in':   'fadeScaleIn 0.2s cubic-bezier(0, 0, 0.2, 1) both',
         'overlay-in':      'overlayIn 0.2s cubic-bezier(0, 0, 0.2, 1) both',
         'enter-page':      'enterPage 0.35s cubic-bezier(0, 0, 0.2, 1) both',
+        'story-pulse':     'storyPulse 2s ease-in-out infinite',
       },
       keyframes: {
         slideUp: {
@@ -112,6 +113,10 @@ module.exports = {
         enterPage: {
           '0%':   { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        storyPulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%':      { opacity: '0.6' },
         },
       },
     },

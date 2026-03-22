@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 
 const ringClasses = {
   placeholder: 'border-2 border-dashed border-stone-200 bg-stone-50',
-  unseen: 'ring-2 ring-stone-950 p-[2px] bg-white',
+  unseen: 'ring-2 ring-stone-950 p-[2px] bg-white animate-story-pulse',
   seen: 'ring-2 ring-stone-300 p-[2px] bg-white',
 };
 
@@ -50,8 +50,8 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
           </div>
         )}
       </div>
-      {itemsCount > 1 && hasUnseenStory && (
-        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-stone-950 text-white text-[8px] font-bold flex items-center justify-center border border-white">
+      {itemsCount > 1 && (
+        <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 min-w-[16px] h-[16px] rounded-full bg-stone-950 text-white text-[9px] font-bold flex items-center justify-center">
           {itemsCount}
         </span>
       )}

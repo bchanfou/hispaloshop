@@ -56,6 +56,15 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
     fetchStories();
   }, [fetchStories]);
 
+  // Preload full story data for the first 3 users to warm the cache
+  useEffect(() => {
+    if (stories?.length > 0) {
+      stories.slice(0, 3).forEach(s => {
+        apiClient.get(`/stories/${s.user_id}`).catch(() => {});
+      });
+    }
+  }, [stories]);
+
   // Hide the bar entirely when loading is done, there are no stories, and no
   // authenticated user (no self-ring to show either).
   if (!loading && !error && stories.length === 0 && !currentUser) {
