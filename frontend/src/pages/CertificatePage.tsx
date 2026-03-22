@@ -460,7 +460,7 @@ export default function CertificatePage() {
 
         {/* ── QR Verification + Share ── */}
         {(() => {
-          const certUrl = `${window.location.origin}/certificado/${product.slug || product.product_id}`;
+          const certUrl = `${window.location.origin}/certificado/${productId}`;
           const qrSrc = certificate?.qr_code
             ? `data:image/png;base64,${certificate.qr_code}`
             : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(certUrl)}&bgcolor=ffffff&color=0c0a09`;

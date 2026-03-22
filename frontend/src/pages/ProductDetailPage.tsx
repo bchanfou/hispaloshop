@@ -6,7 +6,7 @@ import {
   ChevronLeft, Share2, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
   CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle, Check,
-  ShoppingBag, Lock, Clock3, ChefHat,
+  ShoppingBag, Lock, Clock3, ChefHat, Wheat,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -837,7 +837,7 @@ export default function ProductDetailPage() {
         </CollapsibleSection>
 
         {/* Nutritional Info */}
-        <CollapsibleSection title={t('productDetail.nutritionalInfo', 'Valor Nutricional')}>
+        <CollapsibleSection title={t('productDetail.nutritionalInfo', 'Información Nutricional')} icon={<Wheat size={16} className="text-stone-500" />}>
           {(() => {
             const nutri = currentNutritionalInfo || product.nutrition || product.nutritional_info;
             if (nutri && Object.keys(nutri).length > 0) {
