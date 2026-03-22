@@ -196,7 +196,7 @@ export default function ProfileHeader({
   const accounts = useMemo(() => {
     const currentAccObj = {
       token: localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '',
-      user_id: user?.user_id,
+      user_id: user?.user_id || user?.id,
       username: user?.username,
       name: user?.name,
       avatar_url: user?.avatar_url || user?.profile_image,
@@ -208,7 +208,8 @@ export default function ProfileHeader({
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
           // Dedup: filter out current user, then prepend them
-          const others = parsed.filter(a => String(a.user_id) !== String(user?.user_id));
+          const currentId = String(user?.user_id || user?.id || '');
+          const others = parsed.filter(a => String(a.user_id || a.id || '') !== currentId);
           return [currentAccObj, ...others];
         }
       }
@@ -218,7 +219,7 @@ export default function ProfileHeader({
     return [currentAccObj];
   }, [user]);
 
-  const currentUserId = user?.user_id;
+  const currentUserId = String(user?.user_id || user?.id || '');
 
   /* ── sync account switcher cache when profile data changes ────── */
   useEffect(() => {
@@ -283,32 +284,22 @@ export default function ProfileHeader({
       toast.success('Nombre actualizado');
       setHighlightMenu(null);
       setHighlightEditMode(null);
-      queryClient.invalidateQueries({ queryKey: ['highlights'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'highlights', user?.user_id || user?.id] });
       onHighlightDeleted?.(); // reuse callback to refresh highlights list
     } catch {
       toast.error('Error al actualizar');
     } finally {
       setHighlightSavingName(false);
     }
-  }, [highlightMenu, highlightEditName, onHighlightDeleted]);
+  }, [highlightMenu, highlightEditName, onHighlightDeleted, user]);
 
-  const handleHighlightDelete = useCallback(async () => {
+  const handleHighlightDelete = useCallback(() => {
     if (!highlightMenu) return;
-    setHighlightDeleting(true);
-    try {
-      const hlId = highlightMenu.highlight_id || highlightMenu.id;
-      await apiClient.delete(`/users/me/highlights/${hlId}`);
-      toast.success('Destacado eliminado');
-      setHighlightMenu(null);
-      setHighlightEditMode(null);
-      queryClient.invalidateQueries({ queryKey: ['highlights'] });
-      onHighlightDeleted?.();
-    } catch {
-      toast.error('Error al eliminar');
-    } finally {
-      setHighlightDeleting(false);
-    }
-  }, [highlightMenu, onHighlightDeleted]);
+    // Route through confirmation modal instead of deleting directly
+    setDeleteConfirmHighlight(highlightMenu);
+    setHighlightMenu(null);
+    setHighlightEditMode(null);
+  }, [highlightMenu]);
 
   /* 8.1: Open create highlight — fetch archived stories */
   const handleOpenCreateHighlight = useCallback(async () => {
@@ -351,14 +342,14 @@ export default function ProfileHeader({
       });
       toast.success('Destacado creado');
       setCreateHighlightOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['highlights'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'highlights', user?.user_id || user?.id] });
       onHighlightDeleted?.(); // refresh highlights list
     } catch {
       toast.error('Error al crear el destacado');
     } finally {
       setCreateHighlightSaving(false);
     }
-  }, [createHighlightName, createHighlightSelectedIds, archivedStories, onHighlightDeleted]);
+  }, [createHighlightName, createHighlightSelectedIds, archivedStories, onHighlightDeleted, user]);
 
   /* 8.2: Delete confirmation from highlight menu redirects to mini modal */
   const handleDeleteWithConfirm = useCallback((hl) => {
@@ -375,14 +366,14 @@ export default function ProfileHeader({
       toast.success('Destacado eliminado');
       setDeleteConfirmHighlight(null);
       setHighlightMenu(null);
-      queryClient.invalidateQueries({ queryKey: ['highlights'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'highlights', user?.user_id || user?.id] });
       onHighlightDeleted?.();
     } catch {
       toast.error('Error al eliminar');
     } finally {
       setHighlightDeleting(false);
     }
-  }, [deleteConfirmHighlight, onHighlightDeleted]);
+  }, [deleteConfirmHighlight, onHighlightDeleted, user]);
 
   /* cleanup long-press timer */
   useEffect(() => {
@@ -472,7 +463,7 @@ export default function ProfileHeader({
               <div className="mb-4 text-base font-semibold">Cuentas</div>
 
               {accounts.map((acc) => {
-                const isActive = acc.user_id === currentUserId;
+                const isActive = String(acc.user_id || acc.id || '') === currentUserId;
                 return (
                   <button
                     key={acc.user_id || acc.username}
@@ -480,7 +471,8 @@ export default function ProfileHeader({
                       if (!isActive && acc.token) {
                         await switchAccount(acc);
                         queryClient.clear();
-                        navigate('/');
+                        toast.success('Cuenta cambiada');
+                        navigate(acc.username ? `/${acc.username}` : '/');
                       }
                       setShowAccountSwitcher(false);
                     }}
@@ -493,11 +485,11 @@ export default function ProfileHeader({
                       onError={e => { e.target.src = '/default-avatar.png'; }}
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-stone-950">{acc.name || acc.full_name || acc.username || 'Sin nombre'}</div>
-                      <div className="text-xs text-stone-500">@{acc.username || acc.email || 'usuario'}</div>
+                      <div className="truncate text-sm font-medium text-stone-950">{acc.name || acc.full_name || acc.email?.split('@')[0] || 'Cuenta ' + (accounts.indexOf(acc) + 1)}</div>
+                      <div className="text-xs text-stone-500">@{acc.username || acc.email?.split('@')[0] || 'usuario'}</div>
                     </div>
                     {acc.role && (
-                      <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium uppercase text-stone-500">
+                      <span className="rounded-full bg-stone-100 text-stone-700 border border-stone-200 text-[10px] font-medium uppercase px-2 py-0.5">
                         {ROLE_LABELS[acc.role] || acc.role}
                       </span>
                     )}
@@ -515,7 +507,7 @@ export default function ProfileHeader({
                   if (currentToken && user) {
                     let existingAccounts = [];
                     try { existingAccounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { existingAccounts = []; }
-                    const idx = existingAccounts.findIndex(a => a.user_id === user.user_id);
+                    const idx = existingAccounts.findIndex(a => String(a.user_id || a.id || '') === String(user.user_id || user.id || ''));
                     const currentAccObj = {
                       token: currentToken,
                       user_id: user.user_id,
@@ -611,7 +603,7 @@ export default function ProfileHeader({
           <span className="text-[14px] font-semibold text-stone-950">{user?.name}</span>
           {user?.is_verified && <VerifiedBadge size={16} />}
           {roleLabel && (
-            <span className="ml-1.5 rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium uppercase text-stone-700 border border-stone-200">
+            <span className="ml-1.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200 text-[10px] font-medium uppercase px-2 py-0.5">
               {roleLabel}
             </span>
           )}
@@ -1003,7 +995,7 @@ export default function ProfileHeader({
                                 toast.success('Portada actualizada');
                                 setHighlightMenu(null);
                                 setHighlightEditMode(null);
-                                queryClient.invalidateQueries({ queryKey: ['highlights'] });
+                                queryClient.invalidateQueries({ queryKey: ['user', 'highlights', user?.user_id || user?.id] });
                               } catch {
                                 toast.error('Error al actualizar portada');
                               }

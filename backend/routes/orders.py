@@ -80,7 +80,8 @@ async def _get_order_commission_data(order: dict) -> dict:
         from services.subscriptions import calculate_order_commissions
         return await calculate_order_commissions(db, order)
     except Exception as e:
-        logger.warning(f"[ORDERS] Commission calculation failed for order: {e}")
+        logger.exception(f"[COMMISSION] Failed to calculate commission: {e}")
+        # Continue with default commission instead of silently failing
         return {"splits": [], "totals": {}}
 
 

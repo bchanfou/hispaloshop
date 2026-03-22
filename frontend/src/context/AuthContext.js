@@ -128,7 +128,7 @@ export function AuthProvider({ children }) {
 
         // Save account to hsp_accounts so the account switcher works
         try {
-          const token = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || data?.access_token || '';
+          const token = data?.session_token || data?.access_token || localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
           let accounts = [];
           try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
           const idx = accounts.findIndex(a => String(a.user_id) === String(normalizedUser.user_id || normalizedUser.id));
@@ -179,7 +179,7 @@ export function AuthProvider({ children }) {
       if (normalizedUser) {
         // Save account to hsp_accounts so the account switcher works
         try {
-          const token = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || data?.access_token || '';
+          const token = data?.session_token || data?.access_token || localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
           let accounts = [];
           try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
           const idx = accounts.findIndex(a => String(a.user_id) === String(normalizedUser.user_id || normalizedUser.id));

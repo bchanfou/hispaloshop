@@ -788,22 +788,27 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         const firstUser = likedByArr?.[0];
         if (firstUser) {
           return (
-            <div className="px-3 pb-1 text-[13px] text-stone-950 leading-tight">
-              <span>Le gusta a </span>
-              <span
-                className="font-semibold cursor-pointer"
-                role="link"
-                onClick={() => navigate(`/${firstUser.username || firstUser.id || firstUser.user_id}`)}
-              >
-                @{firstUser.username || firstUser.name}
-              </span>
-              {likesCount > 1 && <span> y <span className="font-semibold">{likesCount - 1} más</span></span>}
+            <div className="px-3 pb-1">
+              <p className="text-xs text-stone-500">
+                Le gusta a{' '}
+                <button
+                  onClick={() => navigate(`/${firstUser.username || firstUser.id || firstUser.user_id}`)}
+                  className="font-semibold text-stone-950 bg-transparent border-none cursor-pointer p-0"
+                >
+                  {firstUser.username || firstUser.name}
+                </button>
+                {likesCount > 1 && (
+                  <> y <span className="font-semibold text-stone-950">{abbreviateCount(likesCount - 1)} más</span></>
+                )}
+              </p>
             </div>
           );
         }
         return (
-          <div className="px-3 pb-1 text-[13px] text-stone-950 leading-tight">
-            <span className="font-semibold">{likesCount}</span> me gusta
+          <div className="px-3 pb-1">
+            <p className="text-xs text-stone-500">
+              <span className="font-semibold text-stone-950">{abbreviateCount(likesCount)} me gusta</span>
+            </p>
           </div>
         );
       })()}

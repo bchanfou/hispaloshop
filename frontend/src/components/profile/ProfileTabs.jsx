@@ -10,6 +10,7 @@ import {
   Film,
   Lock,
   Play,
+  Star,
   X,
   Heart,
   MessageCircle,
@@ -401,6 +402,12 @@ const ProfileTabs = forwardRef(function ProfileTabs({
                 {recipe.prep_time != null && (
                   <p className="mt-1 text-[11px] text-stone-500">
                     ⏱ {recipe.prep_time}min
+                  </p>
+                )}
+                {recipe.avg_rating > 0 && (
+                  <p className="text-[11px] text-stone-500 flex items-center gap-1">
+                    <Star size={10} className="fill-stone-950 text-stone-950" />
+                    {recipe.avg_rating.toFixed(1)} · {recipe.review_count || 0}
                   </p>
                 )}
               </div>

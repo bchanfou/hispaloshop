@@ -98,6 +98,7 @@ export default function RecipeDetailPage() {
   const [reviewText, setReviewText] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [showAllReviews, setShowAllReviews] = useState(false);
   const pageRef = useRef(null);
 
   useEffect(() => {
@@ -359,6 +360,13 @@ export default function RecipeDetailPage() {
         {/* ── Title + Meta ── */}
         <div className="py-4">
           <h1 className="mb-3 text-2xl font-bold leading-tight text-stone-950">{recipe.title}</h1>
+          {totalReviews > 0 && (
+            <div className="mb-3 flex items-center gap-1.5">
+              <Star size={16} className="text-stone-950" fill="currentColor" />
+              <span className="text-sm font-semibold text-stone-950">{avgRating}</span>
+              <span className="text-sm text-stone-400">· {totalReviews} reseña{totalReviews !== 1 ? 's' : ''}</span>
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-2">
             <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${diff.pill}`}>{diff.label}</span>
             <span className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600"><Clock3 size={13} /> {recipe.time_minutes || 0} min</span>
@@ -644,7 +652,7 @@ export default function RecipeDetailPage() {
         {/* ── Valoraciones ── */}
         <section className="mb-5">
           <div className="mb-3 flex items-center gap-2">
-            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">Valoraciones</h2>
+            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">Reseñas</h2>
             {totalReviews > 0 && (
               <div className="flex items-center gap-1.5">
                 <div className="flex items-center gap-0.5">
@@ -661,15 +669,19 @@ export default function RecipeDetailPage() {
           {/* Review list */}
           {reviews.length > 0 ? (
             <div className="flex flex-col">
-              {reviews.map((review: any) => (
-                <div key={review.review_id} className="border-b border-stone-100 py-4">
+              {(showAllReviews ? reviews : reviews.slice(0, 10)).map((review: any) => (
+                <div key={review.review_id || review._id} className="border-b border-stone-100 py-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100">
-                      <User size={14} className="text-stone-400" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100">
+                      {review.user_avatar ? (
+                        <img src={review.user_avatar} alt="" className="h-full w-full object-cover" loading="lazy" />
+                      ) : (
+                        <User size={14} className="text-stone-400" />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-semibold text-stone-950">{review.user_name || 'Usuario'}</p>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5">
                         {[1, 2, 3, 4, 5].map(s => (
                           <Star key={s} size={12} className={s <= review.rating ? 'text-stone-950' : 'text-stone-200'} fill={s <= review.rating ? 'currentColor' : 'none'} />
                         ))}
@@ -684,15 +696,24 @@ export default function RecipeDetailPage() {
                   )}
                 </div>
               ))}
+              {!showAllReviews && reviews.length > 10 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllReviews(true)}
+                  className="mt-3 self-start rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 cursor-pointer hover:bg-stone-50 transition-colors"
+                >
+                  Ver más ({reviews.length - 10})
+                </button>
+              )}
             </div>
           ) : (
-            <p className="text-sm text-stone-400">Aún no hay valoraciones. Sé el primero.</p>
+            <p className="text-sm text-stone-400">Aún no hay reseñas. ¡Sé el primero!</p>
           )}
 
           {/* Review form */}
           {user && !hasReviewed && (
             <div className="mt-4 rounded-2xl border border-stone-200 p-4">
-              <p className="mb-2 text-sm font-semibold text-stone-950">Tu valoración</p>
+              <p className="mb-2 text-sm font-semibold text-stone-950">Tu reseña</p>
               <div className="mb-3 flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map(s => (
                   <button
@@ -720,7 +741,7 @@ export default function RecipeDetailPage() {
                 disabled={submittingReview || !reviewRating}
                 className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-default"
               >
-                {submittingReview ? 'Publicando...' : 'Publicar valoración'}
+                {submittingReview ? 'Enviando...' : 'Enviar reseña'}
               </button>
             </div>
           )}

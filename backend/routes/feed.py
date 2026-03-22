@@ -46,8 +46,8 @@ async def track_page_visit(visit: PageVisitRequest, request: Request):
         await db.page_visits.insert_one(visit_doc)
         return {"status": "ok"}
     except Exception as e:
-        logger.error(f"Error tracking visit: {e}")
-        return {"status": "ok"}  # Don't fail silently but don't break the app
+        logger.warning(f"[TRACK] Failed to track page visit: {e}")
+        return {"status": "error", "detail": "tracking failed"}
 
 
 @router.post("/track/social-event")

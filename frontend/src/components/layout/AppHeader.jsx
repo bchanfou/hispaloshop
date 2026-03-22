@@ -84,7 +84,7 @@ export default function AppHeader() {
           >
             <Bell size={20} className="text-stone-950" strokeWidth={1.8} />
             {unreadCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-[#FF3040] text-white text-[9px] font-extrabold px-1 leading-none">
+              <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-stone-950 text-white text-[9px] font-extrabold px-1 leading-none">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
