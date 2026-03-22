@@ -108,6 +108,15 @@ async def apply_as_influencer(input: InfluencerApplication):
         "tracking_months": 18,
     }
 
+async def _get_in_transit_amount(influencer_id: str) -> float:
+    """Sum of payouts currently processing for this influencer."""
+    in_transit = await db.influencer_payouts.aggregate([
+        {"$match": {"influencer_id": influencer_id, "status": "processing"}},
+        {"$group": {"_id": None, "total": {"$sum": "$amount_cents"}}}
+    ]).to_list(1)
+    return (in_transit[0]["total"] / 100) if in_transit else 0
+
+
 @router.get("/influencer/dashboard")
 async def get_influencer_dashboard(user: User = Depends(get_current_user)):
     """Get influencer's own dashboard data"""
@@ -199,6 +208,7 @@ async def get_influencer_dashboard(user: User = Depends(get_current_user)):
         "payment_schedule": {
             "available_to_withdraw": round(available_now, 2),
             "available_soon": round(available_soon, 2),
+            "in_transit": await _get_in_transit_amount(influencer["influencer_id"]),
             "next_payment_date": next_payment_date.isoformat() if next_payment_date else None,
             "payment_terms_days": 15  # Commissions are available 15 days after sale
         }

@@ -591,6 +591,18 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
         },
     })
 
+    # Expiring certificates (within 30 days)
+    thirty_days = now + timedelta(days=30)
+    expiring_cert_query: Dict[str, Any] = {
+        "expiry_date": {"$lte": thirty_days, "$gt": now},
+        "status": {"$ne": "expired"}
+    }
+    if scoped_seller_ids:
+        expiring_cert_query["producer_id"] = {"$in": scoped_seller_ids}
+    elif user.role != "super_admin":
+        expiring_cert_query["producer_id"] = "__none__"
+    expiring_certificates = await db.certificates.count_documents(expiring_cert_query)
+
     return {
         "pending_producers": pending_producers,
         "total_producers": total_producers,
@@ -607,6 +619,7 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
         "fiscal_pending_review": fiscal_pending_review,
         "pending_verifications": pending_verifications,
         "blocked_by_expired_cert": blocked_by_expired_cert,
+        "expiring_certificates": expiring_certificates,
     }
 
 
@@ -740,6 +753,23 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
             "users": user_count,
         })
 
+    # MRR history (last 6 months)
+    mrr_history = []
+    for i in range(5, -1, -1):
+        month_start = now.replace(day=1) - timedelta(days=30 * i)
+        month_end = month_start + timedelta(days=30)
+        revenue_m = await db.orders.aggregate([
+            {"$match": {
+                "created_at": {"$gte": month_start.isoformat(), "$lt": month_end.isoformat()},
+                "status": {"$nin": ["cancelled", "refunded"]},
+            }},
+            {"$group": {"_id": None, "total": {"$sum": "$total_amount"}}}
+        ]).to_list(1)
+        mrr_history.append({
+            "month": month_start.strftime("%b"),
+            "revenue": revenue_m[0]["total"] if revenue_m else 0,
+        })
+
     return {
         "users": {"total": total_users, "by_role": users_by_role, "new_7d": new_users_7d},
         "revenue": {"total": round(total_revenue, 2), "last_30d": round(revenue_30d, 2), "platform_commission": round(platform_commission, 2)},
@@ -750,6 +780,7 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
         "top_sellers": top_sellers,
         "recent_orders": recent_orders,
         "recent_users": recent_users,
+        "mrr_history": mrr_history,
     }
 
 

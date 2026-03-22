@@ -352,7 +352,23 @@ async def get_producer_stats(user: User = Depends(get_current_user)):
             {"product_id": {"$in": product_ids}, "visible": True},
             {"_id": 0, "rating": 1, "comment": 1, "user_name": 1, "created_at": 1}
         ).sort("created_at", -1).limit(3).to_list(3)
-    
+
+    # Expiring certificates (within 30 days)
+    thirty_days = datetime.now(timezone.utc) + timedelta(days=30)
+    now_utc = datetime.now(timezone.utc)
+    expiring_certs = await db.certificates.count_documents({
+        "producer_id": user.user_id,
+        "expiry_date": {"$lte": thirty_days, "$gt": now_utc},
+        "status": {"$ne": "expired"}
+    })
+
+    # Top products by sales (last 30 days)
+    top_products = await db.products.find(
+        {"seller_id": user.user_id, "approved": True}
+    ).sort("sales_count", -1).limit(3).to_list(3)
+    for p in top_products:
+        p["_id"] = str(p["_id"])
+
     return {
         "total_products": total_products,
         "approved_products": approved_products,
@@ -362,6 +378,8 @@ async def get_producer_stats(user: User = Depends(get_current_user)):
         "account_status": "approved" if user.approved else "pending",
         "low_stock_products": low_stock,
         "recent_reviews": recent_reviews,
+        "expiring_certs": expiring_certs,
+        "top_products": top_products,
     }
 
 @router.get("/producer/health-score")

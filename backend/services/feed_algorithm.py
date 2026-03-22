@@ -104,7 +104,7 @@ class FeedAlgorithm:
         # --- Batch fetch to eliminate N+1 queries ---
         # Batch fetch all unique author docs
         author_ids = list({str(c.get("author_id", "")) for c in candidates if c.get("author_id")})
-        author_docs = await db.users.find({"user_id": {"$in": author_ids}}, {"_id": 0, "user_id": 1, "country": 1}).to_list(200)
+        author_docs = await db.users.find({"user_id": {"$in": author_ids}}, {"_id": 0, "user_id": 1, "country": 1, "followers_count": 1}).to_list(200)
         author_cache = {a.get("user_id", ""): a for a in author_docs}
 
         # Batch fetch all unique product categories from tagged_products
@@ -132,6 +132,11 @@ class FeedAlgorithm:
 
         # --- Batch: content type preference — posts vs reels likes in last 14d (signal 3) ---
         content_type_pref = await self._get_content_type_preference(user_id, db)
+
+        # Enrich posts with author_followers
+        for post in candidates:
+            author_doc = author_cache.get(str(post.get("author_id", "")))
+            post["author_followers"] = (author_doc.get("followers_count", 0) if author_doc else 0)
 
         # Scorear cada post
         scored_posts = []
