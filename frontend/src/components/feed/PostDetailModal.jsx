@@ -658,7 +658,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     try {
       if (navigator.share) await navigator.share({ title: 'HispaloShop', url });
       else { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); }
-    } catch {}
+    } catch { /* share cancelled or clipboard unavailable */ }
   };
 
   const images = (() => {

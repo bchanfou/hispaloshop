@@ -245,6 +245,7 @@ export default function DiscoverPage() {
   /* ── handle explore item tap ── */
   const handleItemTap = useCallback((item) => {
     if (!item) return;
+    if (!item?.recipe_id && !item?.product_id && !item?.post_id) return;
     if (item._type === 'recipe' && item.recipe_id) {
       navigate(`/recipes/${item.recipe_id}`);
     } else if (item.product_id) {

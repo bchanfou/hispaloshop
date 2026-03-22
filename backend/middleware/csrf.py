@@ -35,6 +35,9 @@ CSRF_EXEMPT_PREFIXES = (
     "/api/auth/google",
     "/api/auth/refresh",
     "/api/track/visit",
+        "/api/seed-data",
+        "/api/chat/message",
+        "/api/payments/create-checkout",
 )
 
 
@@ -66,6 +69,15 @@ class CSRFMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # Mutating methods: verify double-submit token
+        # CSRF attacks require an existing authenticated session.
+        # If the request carries no credentials at all, skip CSRF and let
+        # the auth dependency return 401 — that is the correct HTTP status for
+        # "unauthenticated". A 403 here would be misleading.
+        has_bearer = request.headers.get("Authorization", "").strip().startswith("Bearer ")
+        has_session = bool(request.cookies.get("session_token"))
+        if not has_bearer and not has_session:
+            return await call_next(request)
+
         cookie_token = request.cookies.get(CSRF_COOKIE)
         header_token = request.headers.get(CSRF_HEADER)
 

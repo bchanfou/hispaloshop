@@ -83,6 +83,17 @@ async def mark_all_read(
     return {"status": "all_marked_as_read"}
 
 
+@router.delete("/all")
+async def delete_all_notifications(
+    current_user = Depends(get_current_user)
+):
+    """Delete all notifications for the current user."""
+    from core.database import db
+
+    result = await db.notifications.delete_many({"user_id": current_user.user_id})
+    return {"deleted": result.deleted_count}
+
+
 @router.delete("/{notification_id}")
 async def delete_notification(
     notification_id: str,

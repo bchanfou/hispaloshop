@@ -118,6 +118,7 @@ export default function CheckoutPage() {
   const [discountCode, setDiscountCode] = useState('');
   const [discountLoading, setDiscountLoading] = useState(false);
   const [discountError, setDiscountError] = useState('');
+  const [paying, setPaying] = useState(false);
 
   // Auto-fill phone from user profile
   useEffect(() => {
@@ -198,14 +199,16 @@ export default function CheckoutPage() {
   const handlePay = async () => {
     if (payingRef.current || checkoutLoading) return;
     payingRef.current = true;
+    setPaying(true);
     if (!cartItems || cartItems.length === 0) {
       toast.error('Tu carrito está vacío');
       navigate('/cart');
       payingRef.current = false;
+      setPaying(false);
       return;
     }
     const addr = selectedAddress;
-    if (!addr) { toast.error('Selecciona una dirección'); payingRef.current = false; return; }
+    if (!addr) { toast.error('Selecciona una dirección'); payingRef.current = false; setPaying(false); return; }
     try {
       const response = await createCheckout({
         shippingAddress: {
@@ -227,6 +230,7 @@ export default function CheckoutPage() {
       }
     } finally {
       payingRef.current = false;
+      setPaying(false);
     }
   };
 
@@ -506,11 +510,11 @@ export default function CheckoutPage() {
             <div className="sticky bottom-0 z-30 mt-4 bg-white/80 backdrop-blur-xl pt-3 pb-[max(12px,env(safe-area-inset-bottom))] lg:static lg:bg-transparent lg:backdrop-blur-none lg:pb-0">
               <button
                 onClick={handlePay}
-                disabled={checkoutLoading}
+                disabled={checkoutLoading || paying}
                 className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-live="polite"
               >
-                {checkoutLoading ? (
+                {(checkoutLoading || paying) ? (
                   <Loader2 className="w-[22px] h-[22px] animate-spin" />
                 ) : (
                   `Pagar ${total}`

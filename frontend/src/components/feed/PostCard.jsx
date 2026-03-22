@@ -211,15 +211,18 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const handleLike = useCallback(() => {
     if (likingRef.current) return;
     likingRef.current = true;
-    trigger('light');
-    onLike?.(post.id);
-    // Reset after a short delay to allow the mutation to complete
-    setTimeout(() => { likingRef.current = false; }, 500);
-    // Check milestone after like (optimistic: assume count increments)
-    if (!liked) {
-      const newCount = likesCount + 1;
-      const m = checkMilestone('first_10_likes', newCount) || checkMilestone('first_50_likes', newCount);
-      if (m) setActiveMilestone(m);
+    try {
+      trigger('light');
+      onLike?.(post.id);
+      // Check milestone after like (optimistic: assume count increments)
+      if (!liked) {
+        const newCount = likesCount + 1;
+        const m = checkMilestone('first_10_likes', newCount) || checkMilestone('first_50_likes', newCount);
+        if (m) setActiveMilestone(m);
+      }
+    } finally {
+      // Reset after a short delay to allow the mutation to complete
+      setTimeout(() => { likingRef.current = false; }, 500);
     }
   }, [onLike, post.id, trigger, liked, likesCount]);
 
@@ -292,7 +295,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         await navigator.clipboard?.writeText(url);
         toast.success('Enlace copiado');
       }
-    } catch {}
+    } catch { /* share cancelled or clipboard unavailable */ }
     onShare?.(post.id);
   }, [post.id, onShare]);
 

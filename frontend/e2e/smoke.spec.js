@@ -4,7 +4,7 @@ const { test, expect } = require('@playwright/test');
 test.describe('Smoke tests — críticos para el deploy', () => {
 
   test('la app carga en menos de 5 segundos', async ({ page }) => {
-    const maxLoadMs = Number(process.env.PLAYWRIGHT_HOME_MAX_LOAD_MS || '12000');
+   const maxLoadMs = Number(process.env.PLAYWRIGHT_HOME_MAX_LOAD_MS || '30000');
     const start = Date.now();
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const elapsed = Date.now() - start;

@@ -1,7 +1,7 @@
 {
-  "total_tests": 33,
-  "passed_tests": 33,
-  "success_rate": 100.0,
+  "total_tests": 30,
+  "passed_tests": 28,
+  "success_rate": 93.33333333333333,
   "test_results": [
     {
       "name": "API Connectivity",
@@ -11,12 +11,12 @@
     {
       "name": "Seed Data",
       "success": true,
-      "details": "Status: 200, Response: {'message': 'Data already seeded'}"
+      "details": "Status: 401, Response: {'detail': 'Not authenticated'}"
     },
     {
       "name": "Get Categories",
       "success": true,
-      "details": "Found 7 categories"
+      "details": "Found 9 categories"
     },
     {
       "name": "Get All Products",
@@ -91,22 +91,22 @@
     {
       "name": "Products for Spain (ES)",
       "success": true,
-      "details": "Status: 200, Count: 5"
+      "details": "Status: 200, Count: 26"
     },
     {
       "name": "Products for US",
       "success": true,
-      "details": "Status: 200, Count: 5"
+      "details": "Status: 200, Count: 26"
     },
     {
       "name": "Products for Japan (JP)",
       "success": true,
-      "details": "Status: 200, Count: 4"
+      "details": "Status: 200, Count: 25"
     },
     {
       "name": "Products have display pricing",
       "success": true,
-      "details": "Fields: ['product_id', 'producer_id', 'producer_name', 'category_id', 'name', 'slug', 'description', 'price', 'images', 'country_origin', 'ingredients', 'allergens', 'certifications', 'approved', 'created_at', 'low_stock_threshold', 'stock', 'track_stock', 'display_price', 'display_currency']"
+      "details": "Fields: ['product_id', 'approved', 'average_rating', 'category', 'category_id', 'country_origin', 'created_at', 'currency', 'description', 'featured', 'image_urls', 'images', 'name', 'price', 'price_cents', 'producer_id', 'review_count', 'seller_type', 'slug', 'status', 'stock', 'store_id', 'units_sold', 'updated_at', 'certificate_id', 'translated_fields', 'producer_slug', 'target_markets', 'display_price', 'display_currency', 'available_in_country']"
     },
     {
       "name": "GET /user/locale",
@@ -126,11 +126,11 @@
     {
       "name": "Add to Cart",
       "success": true,
-      "details": "Status: 200, Response: {'message': 'Added to cart', 'stock': 100}"
+      "details": "Status: 200, Response: {'success': True, 'message': 'Added to cart', 'data': {'product_id': 'demo_p_jamon_bellota', 'product_name': 'Jam\u00f3n Ib\u00e9rico de Bellota DOP (sobre 100g)', 'product_image': 'https://images.unsplash.com/photo-1603048719539-9ecb4aa395e3?w=1200&auto=format&fit=crop', 'seller_id': 'demo_prod_jamon', 'seller_type': 'producer', 'quantity': 1, 'unit_price_cents': 2490, 'total_price_cents': 2490, 'variant_id': None, 'pack_id': None, 'added_at': '2026-03-22T17:06:22.234741+00:00'}}"
     },
     {
       "name": "Cart Country Validation",
-      "success": true,
+      "success": false,
       "details": "Status: 200"
     },
     {
@@ -141,32 +141,17 @@
     {
       "name": "Checkout Country Validation",
       "success": true,
-      "details": "Status: 400, Response: {'detail': {'message': 'Checkout validation failed', 'issues': [\"Price changed for 'Premium Extra Virgin Olive Oil'. Please refresh your cart.\", \"Price changed for 'Premium Extra Virgin Olive Oil'. Please refresh your cart.\"]}}"
+      "details": "Status: 503, Response: {'detail': 'Payment processing not configured. Contact the administrator.'}"
     },
     {
       "name": "AI Chat Endpoint",
       "success": true,
-      "details": "Status: 200"
+      "details": "Status: 500"
     },
     {
-      "name": "GET Producer Product Countries",
-      "success": true,
-      "details": "Status: 200"
-    },
-    {
-      "name": "PUT Producer Product Countries",
-      "success": true,
-      "details": "Status: 200"
-    },
-    {
-      "name": "POST Add Country",
-      "success": true,
-      "details": "Status: 200"
-    },
-    {
-      "name": "DELETE Remove Country",
-      "success": true,
-      "details": "Status: 200"
+      "name": "Producer Country Tests",
+      "success": false,
+      "details": "Could not login producer user"
     }
   ]
 }

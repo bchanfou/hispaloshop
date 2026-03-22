@@ -289,6 +289,11 @@ export function ChatProvider({ children }) {
                 },
               });
               break;
+            case 'auth_failed':
+            case 'auth_error':
+              console.warn('[ChatProvider] Notification WebSocket auth failed');
+              ws.close();
+              break;
             default:
               break;
           }
@@ -421,6 +426,12 @@ export function ChatProvider({ children }) {
               }
               break;
               
+            case 'auth_failed':
+            case 'auth_error':
+              console.warn('[ChatProvider] WebSocket auth failed');
+              ws.close();
+              break;
+
             case 'error':
               break;
 

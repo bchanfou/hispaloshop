@@ -109,7 +109,7 @@ export default function RecipeDetailPage() {
     let active = true;
     apiClient.get(`/recipes?category=${encodeURIComponent(recipe.category)}&limit=3&exclude=${recipeId}`)
       .then(data => { if (active) setSimilarRecipes(Array.isArray(data) ? data : (data?.recipes || [])); })
-      .catch(() => {});
+      .catch(() => { /* similar recipes non-critical */ });
     return () => { active = false; };
   }, [recipe?.category, recipeId]);
 
@@ -187,7 +187,7 @@ export default function RecipeDetailPage() {
         existing.push({ name: ingredient.name, display: name, added_at: Date.now() });
         localStorage.setItem('shopping_list', JSON.stringify(existing));
       }
-    } catch {}
+    } catch { /* localStorage unavailable */ }
     toast.success('Añadido a la lista');
   };
 

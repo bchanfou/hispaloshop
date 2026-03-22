@@ -362,12 +362,20 @@ async def get_producer_stats(user: User = Depends(get_current_user)):
         "status": {"$ne": "expired"}
     })
 
-    # Top products by sales (last 30 days)
-    top_products = await db.products.find(
-        {"seller_id": user.user_id, "approved": True}
+    # Top products by sales
+    top_products_raw = await db.products.find(
+        {"producer_id": user.user_id, "approved": True},
+        {"_id": 0, "product_id": 1, "name": 1, "images": 1, "sales_count": 1}
     ).sort("sales_count", -1).limit(3).to_list(3)
-    for p in top_products:
-        p["_id"] = str(p["_id"])
+    top_products = [
+        {
+            "product_id": p.get("product_id", ""),
+            "name": p.get("name", ""),
+            "image": (p.get("images") or [None])[0],
+            "sales_count": p.get("sales_count", 0),
+        }
+        for p in top_products_raw
+    ]
 
     return {
         "total_products": total_products,

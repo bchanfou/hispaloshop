@@ -1663,7 +1663,8 @@ async def get_social_feed(
     """
     try:
         current_user = await get_optional_user(request)
-    except Exception:
+    except Exception as exc:
+        logger.warning(f"[SOCIAL] Failed to resolve optional user for /feed: {exc}")
         current_user = None
     base_query = {}
     feed_scope = (scope or "hybrid").lower()
@@ -1856,7 +1857,8 @@ async def get_social_feed(
 async def get_trending_posts(request: Request, limit: int = 5):
     try:
         current_user = await get_optional_user(request)
-    except Exception:
+    except Exception as exc:
+        logger.warning(f"[SOCIAL] Failed to resolve optional user for /feed/trending: {exc}")
         current_user = None
     seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
     pipeline = [
@@ -1934,7 +1936,8 @@ async def search_users_autocomplete(q: str = Query("", min_length=1), limit: int
 async def discover_profiles(request: Request, role: str = None, search: str = None, skip: int = 0, limit: int = 30):
     try:
         current_user = await get_optional_user(request)
-    except Exception:
+    except Exception as exc:
+        logger.warning(f"[SOCIAL] Failed to resolve optional user for /discover/profiles: {exc}")
         current_user = None
     query = {}
     if role and role != "all":
@@ -2045,7 +2048,8 @@ async def get_stories_feed(request: Request):
     """Get active stories grouped by user (not expired)."""
     try:
         current_user = await get_optional_user(request)
-    except Exception:
+    except Exception as exc:
+        logger.warning(f"[SOCIAL] Failed to resolve optional user for /stories: {exc}")
         current_user = None
     now = datetime.now(timezone.utc).isoformat()
 
@@ -2125,8 +2129,8 @@ async def view_story(story_id: str, request: Request):
     if not current_user:
         return {"status": "ok"}
     await db.hispalostories.update_one(
-        {"story_id": story_id, "views": {"$ne": current_user.user_id}},
-        {"$push": {"views": current_user.user_id}}
+        {"story_id": story_id},
+        {"$addToSet": {"views": current_user.user_id}}
     )
     return {"status": "ok"}
 

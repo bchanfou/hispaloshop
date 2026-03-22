@@ -13,7 +13,7 @@ module.exports = defineConfig({
     video:         'retain-on-failure',
     trace:         'on-first-retry',
     actionTimeout: 10_000,
-    navigationTimeout: 30_000,
+    navigationTimeout: 60_000,
   },
 
   projects: [

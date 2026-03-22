@@ -164,7 +164,7 @@ export default function PostDetailPage() {
       next.has(commentId) ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    try { await apiClient.post(`/comments/${commentId}/like`); } catch {}
+    try { await apiClient.post(`/comments/${commentId}/like`); } catch { /* like toggle best-effort */ }
   };
 
   const handleLikePost = async () => {
@@ -186,7 +186,7 @@ export default function PostDetailPage() {
     try {
       if (navigator.share) await navigator.share({ title: 'HispaloShop', url });
       else { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); }
-    } catch {}
+    } catch { /* share cancelled or clipboard unavailable */ }
   };
 
   const handleReply = useCallback((commentId, username) => {

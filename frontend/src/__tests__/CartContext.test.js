@@ -1,4 +1,6 @@
 /**
+ * @jest-environment jsdom
+ *
  * CartContext — critical flow tests
  *
  * Run with: npx vitest (after installing vitest)

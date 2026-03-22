@@ -126,7 +126,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       link.as = 'video';
       link.href = nextVideoUrl;
       document.head.appendChild(link);
-      return () => { try { document.head.removeChild(link); } catch {} };
+      return () => { try { document.head.removeChild(link); } catch { /* cleanup safe to ignore */ } };
     }
   }, [isActive, nextVideoUrl]);
 
@@ -136,7 +136,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     setLikesCount(reel.likes ?? reel.likes_count ?? 0);
   }, [reel.liked, reel.is_liked, reel.likes, reel.likes_count]);
   const [muted, setMuted] = useState(() => {
-    try { return localStorage.getItem('hsp_reel_muted') !== 'false'; } catch { return true; }
+    try { return localStorage.getItem('hsp_reel_muted') !== 'false'; } catch { /* storage unavailable */ return true; }
   });
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
@@ -327,7 +327,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
     }));
     const reelId = reel.id || reel.reel_id || reel.post_id;
-    try { await apiClient.post(`/reels/${reelId}/comments/${commentId}/like`); } catch {}
+    try { await apiClient.post(`/reels/${reelId}/comments/${commentId}/like`); } catch { /* like toggle best-effort */ }
     likingCommentRef.current = false;
   }, [likedComments, reel.id, reel.reel_id, reel.post_id]);
 
@@ -348,7 +348,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     if (!video) return;
     video.muted = !video.muted;
     setMuted(video.muted);
-    try { localStorage.setItem('hsp_reel_muted', String(video.muted)); } catch {}
+    try { localStorage.setItem('hsp_reel_muted', String(video.muted)); } catch { /* storage unavailable */ }
   }, []);
 
   const handleEditSave = useCallback(async () => {
