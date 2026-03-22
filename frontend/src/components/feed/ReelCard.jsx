@@ -28,6 +28,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import BottomSheet from '../motion/BottomSheet';
 import { useDwellTime } from '../../hooks/useDwellTime';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useAutocomplete } from '../../hooks/useAutocomplete';
 import MentionDropdown from './MentionDropdown';
 
@@ -90,6 +91,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { addToCart } = useCart();
+  const { trigger } = useHaptics();
   const dwellRef = useDwellTime(reel.id || reel.reel_id || reel.post_id, 'reel');
   const [addingToCart, setAddingToCart] = useState(null);
   const [showComments, setShowComments] = useState(false);
@@ -367,6 +369,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   }, [editCaption, reel.id, reel.reel_id, reel.post_id]);
 
   const handleDeleteReel = useCallback(() => {
+    trigger('error');
     setDeleted(true);
     setShowDeleteConfirm(false);
     toast('Reel eliminado', {
@@ -388,7 +391,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         toast.error('Error al eliminar');
       }
     }, 5500);
-  }, [reel.id, reel.reel_id, reel.post_id]);
+  }, [reel.id, reel.reel_id, reel.post_id, trigger]);
 
   const likingRef = useRef(false);
   const handleLike = useCallback(async () => {
@@ -710,6 +713,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                 aria-label={isFollowing ? 'Dejar de seguir' : 'Seguir'}
                 onClick={async (e) => {
                   e.stopPropagation();
+                  trigger('medium');
                   try {
                     if (isFollowing) {
                       await apiClient.delete(`/users/${reelUserId}/follow`);
@@ -789,6 +793,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         <button
           className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
           onClick={async () => {
+            trigger('light');
             const reelId = reel.id || reel.reel_id || reel.post_id;
             const url = `${window.location.origin}/reels/${reelId}`;
             try {

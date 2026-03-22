@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import {
   ArrowLeft,
+  MessageCircle,
+  PenSquare,
   Package,
   ChevronRight,
   ArrowUp,
@@ -64,10 +66,27 @@ function formatOnlineStatus(lastSeen) {
   return { text: seen.toLocaleDateString('es-ES', { weekday: 'short' }), online: false };
 }
 
+function formatConversationListTimestamp(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const diffMs = now - d;
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffDays === 0) {
+    return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  }
+  if (diffDays === 1) return 'Ayer';
+  if (diffDays < 7) {
+    return d.toLocaleDateString('es-ES', { weekday: 'short' });
+  }
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+}
+
 /* ================================================================
    ChatHeader
    ================================================================ */
-function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, searchQuery, onSearchChange, onDeleteConversation }) {
+function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, searchQuery, onSearchChange, onDeleteConversation, showBackButton = true }) {
   const status = formatOnlineStatus(conversation?.last_seen);
   const isOnline = conversation?.online || status?.online;
   const [showMenu, setShowMenu] = useState(false);
@@ -78,7 +97,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
         {/* Left: back button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-transparent text-stone-950 active:bg-stone-100"
+          className={`min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-transparent text-stone-950 active:bg-stone-100 md:min-h-[40px] md:min-w-[40px] md:rounded-lg md:transition-colors md:duration-150 md:hover:bg-stone-100 md:focus-visible:outline md:focus-visible:outline-2 md:focus-visible:outline-offset-[-2px] md:focus-visible:outline-stone-300 ${showBackButton ? 'flex' : 'hidden'}`}
           aria-label="Volver"
         >
           <ArrowLeft size={22} />
@@ -100,14 +119,14 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
           </div>
 
           <div className="min-w-0" onClick={() => { const uid = conversation?.other_user_id || conversation?.user2_id; if (uid) navigate(`/${uid}`); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const uid = conversation?.other_user_id || conversation?.user2_id; if (uid) navigate(`/${uid}`); } }} role="button" tabIndex={0}>
-            <p className="truncate text-base font-semibold leading-5 text-stone-950">
+            <p className={`truncate leading-5 text-stone-950 ${showBackButton ? 'text-base font-semibold' : 'text-[15px] font-medium'}`}>
               {conversation?.name || 'Chat'}
             </p>
             <div className="mt-0.5 flex items-center gap-1">
               {isOnline ? (
-                <span className="text-xs font-medium text-stone-950">En línea</span>
+                <span className={`font-medium text-stone-950 ${showBackButton ? 'text-xs' : 'text-[11px]'}`}>En línea</span>
               ) : (
-                <span className="text-xs text-stone-500">{status?.text || ''}</span>
+                <span className={`${showBackButton ? 'text-xs' : 'text-[11px]'} text-stone-500`}>{status?.text || ''}</span>
               )}
             </div>
           </div>
@@ -117,7 +136,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
         <div className="flex shrink-0 items-center gap-0.5">
           <button
             onClick={onToggleSearch}
-            className={`flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full active:bg-stone-100 ${showSearch ? 'text-stone-950' : 'text-stone-500'}`}
+            className={`flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full active:bg-stone-100 md:min-h-[40px] md:min-w-[40px] md:rounded-lg md:transition-colors md:duration-150 md:hover:bg-stone-100 md:focus-visible:outline md:focus-visible:outline-2 md:focus-visible:outline-offset-[-2px] md:focus-visible:outline-stone-300 ${showSearch ? 'text-stone-950' : 'text-stone-500'}`}
             aria-label="Buscar"
           >
             <Search size={20} />
@@ -125,7 +144,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
 
           <button
             onClick={() => setShowMenu((s) => !s)}
-            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
+            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100 md:min-h-[40px] md:min-w-[40px] md:rounded-lg md:transition-colors md:duration-150 md:hover:bg-stone-100 md:focus-visible:outline md:focus-visible:outline-2 md:focus-visible:outline-offset-[-2px] md:focus-visible:outline-stone-300"
             aria-label="Más opciones"
           >
             <MoreVertical size={20} />
@@ -148,7 +167,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -4 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-4 top-full z-50 mt-1 w-48 overflow-hidden rounded-2xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)] font-apple"
+                className="absolute right-4 top-full z-50 mt-1 w-48 overflow-hidden rounded-xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)] font-apple"
               >
                 <button
                   onClick={() => { setShowMenu(false); onDeleteConversation?.(); }}
@@ -217,9 +236,9 @@ function ContextBanner({ orderId, navigate }) {
 /* ================================================================
    DateSeparator
    ================================================================ */
-function DateSeparator({ date }) {
+function DateSeparator({ date, compact = false }) {
   return (
-    <div className="flex justify-center py-3">
+    <div className={`flex justify-center ${compact ? 'py-2' : 'py-3'}`}>
       <span className="rounded-full bg-stone-100/80 px-3 py-1 text-xs font-medium text-stone-500">
         {formatDateSeparator(date)}
       </span>
@@ -323,7 +342,7 @@ const AudioPlayer = React.memo(function AudioPlayer({ url, duration, isOwn }) {
    MessageBubble — with reactions, reply preview, swipe-to-reply,
    audio messages, and sending state
    ================================================================ */
-const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastInGroup, isMiddleInGroup, onImageTap, onContextMenu: onCtxMenu, onReply, onReact, searchHighlight }) {
+const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastInGroup, isMiddleInGroup, onImageTap, onContextMenu: onCtxMenu, onReply, onReact, searchHighlight, compact = false }) {
   const rawTs = message?.created_at || message?.timestamp;
   const ts = rawTs ? new Date(rawTs) : new Date();
   const touchTimerRef = useRef(null);
@@ -333,7 +352,9 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
 
   useEffect(() => () => clearTimeout(touchTimerRef.current), []);
 
-  const gap = isConsecutive && !isFirstInGroup ? 2 : isConsecutive ? 4 : 12;
+  const gap = compact
+    ? (isConsecutive && !isFirstInGroup ? 1 : isConsecutive ? 3 : 9)
+    : (isConsecutive && !isFirstInGroup ? 2 : isConsecutive ? 4 : 12);
   const showTimestamp = !isMiddleInGroup;
 
   const sentRadius = isFirstInGroup ? '20px 20px 4px 20px' : isLastInGroup ? '20px 4px 20px 20px' : '20px 4px 4px 20px';
@@ -459,7 +480,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
       <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
         <div className="min-w-0 max-w-[80%]">
           <div
-            className={`min-w-[200px] break-words px-3.5 py-2.5 font-apple ${
+            className={`min-w-[200px] break-words font-apple ${compact ? 'px-3 py-2' : 'px-3.5 py-2.5'} ${
               isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
             }`}
             style={{ borderRadius: bubbleRadius, overflowWrap: 'anywhere' }}
@@ -482,7 +503,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
   const bubbleContent = (
     <div className="min-w-0 max-w-[80%]">
       <div
-        className={`whitespace-pre-wrap break-words px-3.5 py-2.5 text-[15px] leading-[21px] font-apple ${
+        className={`whitespace-pre-wrap break-words font-apple ${compact ? 'px-3 py-2 text-[14px] leading-5' : 'px-3.5 py-2.5 text-[15px] leading-[21px]'} ${
           isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
         }`}
         style={{ borderRadius: bubbleRadius, overflowWrap: 'anywhere', wordBreak: 'break-word' }}
@@ -1053,6 +1074,7 @@ export default function ChatPage() {
   const [replyTo, setReplyTo] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [desktopSearchQuery, setDesktopSearchQuery] = useState('');
 
   const scrollRef = useRef(null);
   const bottomRef = useRef(null);
@@ -1284,11 +1306,16 @@ export default function ChatPage() {
     return result;
   }, [localMessages, user]);
 
-  return (
-    <div
-      className="fixed inset-0 z-40 flex flex-col bg-white font-apple"
-      style={{ paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}
-    >
+  const filteredDesktopConversations = useMemo(() => {
+    const query = desktopSearchQuery.trim().toLowerCase();
+    if (!query) return conversations || [];
+    return (conversations || []).filter((c) => (c.name || '').toLowerCase().includes(query));
+  }, [conversations, desktopSearchQuery]);
+
+  const renderThread = (showBackButton) => {
+    const compact = !showBackButton;
+    return (
+    <>
       <ChatHeader
         conversation={conversation}
         navigate={navigate}
@@ -1297,11 +1324,12 @@ export default function ChatPage() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onDeleteConversation={handleDeleteConversation}
+        showBackButton={showBackButton}
       />
       <ContextBanner orderId={conversation?.order_id} navigate={navigate} />
 
       <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-white scroll-smooth" role="log" aria-live="polite" aria-label="Mensajes">
-        <div className="pb-4 pt-2">
+        <div className={compact ? 'pb-3 pt-1.5' : 'pb-4 pt-2'}>
           {/* Pagination spinner (Q10) */}
           {loadingMore && (
             <div className="flex justify-center py-3">
@@ -1315,7 +1343,7 @@ export default function ChatPage() {
 
           {groupedMessages.map((item) =>
             item.type === 'date'
-              ? <DateSeparator key={item.key} date={item.date} />
+              ? <DateSeparator key={item.key} date={item.date} compact={compact} />
               : <MessageBubble
                   key={item.key}
                   message={item.message}
@@ -1329,6 +1357,7 @@ export default function ChatPage() {
                   onReply={handleReply}
                   onReact={handleReact}
                   searchHighlight={searchQuery.trim() || null}
+                  compact={compact}
                 />
           )}
 
@@ -1349,6 +1378,110 @@ export default function ChatPage() {
         onCancelReply={() => setReplyTo(null)}
         onVoiceSend={handleVoiceSend}
       />
+    </>
+    );
+  };
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-40 flex flex-col bg-white font-apple md:hidden"
+        style={{ paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}
+      >
+        {renderThread(true)}
+      </div>
+
+      <div className="mx-auto hidden min-h-screen max-w-[1240px] bg-white px-4 py-4 font-apple md:block">
+        <div className="grid h-[calc(100vh-88px)] grid-cols-[410px_1fr] overflow-hidden rounded-xl border border-stone-200/90">
+          <aside className="flex min-h-0 flex-col border-r border-stone-200 bg-white">
+            <div className="flex items-center gap-3 border-b border-stone-100 px-4 py-4">
+              <h1 className="flex-1 text-[20px] font-semibold text-stone-950">Mensajes</h1>
+              <button
+                className="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-lg text-stone-950 transition-colors duration-150 hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300"
+                aria-label="Nuevo mensaje"
+                onClick={() => navigate('/messages/new')}
+              >
+                <PenSquare size={22} strokeWidth={1.8} />
+              </button>
+            </div>
+
+            <div className="border-b border-stone-100 px-4 pb-3 pt-2">
+              <label className="flex h-10 items-center gap-2 rounded-lg bg-stone-100 px-4">
+                <Search size={16} className="text-stone-400" strokeWidth={2} />
+                <input
+                  type="text"
+                  value={desktopSearchQuery}
+                  onChange={(e) => setDesktopSearchQuery(e.target.value)}
+                  placeholder="Buscar"
+                  className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+                />
+              </label>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {filteredDesktopConversations.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+                  <MessageCircle size={40} className="text-stone-300" />
+                  <p className="mt-3 text-sm font-medium text-stone-950">Sin conversaciones</p>
+                  <p className="mt-1 text-xs text-stone-500">Prueba otro término de búsqueda.</p>
+                </div>
+              ) : (
+                filteredDesktopConversations.map((conv) => {
+                  const isActive = String(conv.id || conv.conversation_id) === String(conversationId);
+                  const isUnread = (conv.unread_count || 0) > 0;
+                  return (
+                    <button
+                      key={conv.id || conv.conversation_id}
+                      onClick={() => navigate(`/messages/${conv.id || conv.conversation_id}`)}
+                      className={`flex h-[72px] w-full items-center gap-3 border-none px-4 text-left transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300 ${isActive ? 'bg-stone-50' : 'bg-white hover:bg-stone-50'}`}
+                    >
+                      {conv.avatar_url ? (
+                        <img src={conv.avatar_url} alt={conv.name} className="h-12 w-12 rounded-full object-cover" />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-950 text-base font-semibold text-white">
+                          {(conv.name || '?').charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1 border-b border-stone-100/80 py-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={`truncate text-[14px] ${isUnread ? 'font-semibold text-stone-950' : 'font-medium text-stone-900'}`}>
+                            {conv.name || 'Sin nombre'}
+                          </span>
+                          <span className="text-[11px] font-medium text-stone-500">{formatConversationListTimestamp(conv.last_message_at)}</span>
+                        </div>
+                        <p className={`mt-0.5 truncate text-[13px] ${isUnread ? 'font-medium text-stone-900' : 'text-stone-400'}`}>
+                          {conv.last_message || 'Sin mensajes aún'}
+                        </p>
+                      </div>
+                      {isUnread && (
+                        <span className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-stone-950 px-1 text-[11px] font-semibold text-white">
+                          {conv.unread_count > 99 ? '99+' : conv.unread_count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </aside>
+
+          <main className="flex min-h-0 flex-col bg-white">
+            {conversation ? (
+              renderThread(false)
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center bg-stone-50 px-8 text-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-stone-950 text-stone-950">
+                  <MessageCircle size={34} strokeWidth={1.8} />
+                </div>
+                <h2 className="mt-5 text-[22px] font-medium text-stone-950">Tus mensajes</h2>
+                <p className="mt-2 max-w-[320px] text-[13px] text-stone-500">
+                  Selecciona una conversación para empezar a chatear.
+                </p>
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
 
       <AnimatePresence>
         {contextMenu && (
@@ -1365,6 +1498,6 @@ export default function ChatPage() {
       <AnimatePresence>
         {lightboxImage && <ImageLightbox src={lightboxImage} onClose={() => setLightboxImage(null)} />}
       </AnimatePresence>
-    </div>
+    </>
   );
 }

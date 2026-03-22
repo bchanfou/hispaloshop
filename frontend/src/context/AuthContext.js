@@ -5,6 +5,41 @@ import { getToken, removeToken } from '../lib/auth';
 import { setUser as setSentryUser } from '../lib/sentry';
 
 const AuthContext = createContext(null);
+const ACCOUNTS_KEY = 'hsp_accounts';
+
+function accountId(accountLike) {
+  return String(accountLike?.user_id || accountLike?.id || '');
+}
+
+function readStoredAccounts() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredAccounts(accounts) {
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(Array.isArray(accounts) ? accounts : []));
+}
+
+function upsertStoredAccount(account) {
+  const id = accountId(account);
+  if (!id) return;
+  const accounts = readStoredAccounts();
+  const idx = accounts.findIndex((a) => accountId(a) === id);
+  if (idx >= 0) accounts[idx] = account;
+  else accounts.push(account);
+  writeStoredAccounts(accounts);
+}
+
+function removeStoredAccountById(userId) {
+  const targetId = String(userId || '');
+  if (!targetId) return;
+  const accounts = readStoredAccounts();
+  writeStoredAccounts(accounts.filter((a) => accountId(a) !== targetId));
+}
 
 function normalizeRole(rawRole) {
   if (!rawRole) return null;
@@ -38,6 +73,19 @@ function normalizeUser(rawUser) {
   normalizedUser.avatar = avatar;
 
   return normalizedUser;
+}
+
+function toAccountObject(user, token) {
+  if (!user) return null;
+  return {
+    token: token || '',
+    user_id: user.user_id || user.id,
+    username: user.username,
+    name: user.name || user.full_name,
+    avatar_url: user.profile_image || user.avatar_url,
+    email: user.email,
+    role: user.role,
+  };
 }
 
 export function AuthProvider({ children }) {
@@ -126,25 +174,8 @@ export function AuthProvider({ children }) {
       if (normalizedUser) {
         setSentryUser({ id: normalizedUser.user_id, username: normalizedUser.username, email: normalizedUser.email });
 
-        // Save account to hsp_accounts so the account switcher works
-        try {
-          const token = data?.session_token || data?.access_token || localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
-          let accounts = [];
-          try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
-          const idx = accounts.findIndex(a => String(a.user_id) === String(normalizedUser.user_id || normalizedUser.id));
-          const accObj = {
-            token,
-            user_id: normalizedUser.user_id || normalizedUser.id,
-            username: normalizedUser.username,
-            name: normalizedUser.name || normalizedUser.full_name,
-            avatar_url: normalizedUser.profile_image || normalizedUser.avatar_url,
-            email: normalizedUser.email,
-            role: normalizedUser.role,
-          };
-          if (idx >= 0) accounts[idx] = accObj;
-          else accounts.push(accObj);
-          localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
-        } catch { /* ignore */ }
+        const token = data?.session_token || data?.access_token || localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
+        upsertStoredAccount(toAccountObject(normalizedUser, token));
       }
 
       return { ...data, user: normalizedUser };
@@ -177,25 +208,8 @@ export function AuthProvider({ children }) {
       }
 
       if (normalizedUser) {
-        // Save account to hsp_accounts so the account switcher works
-        try {
-          const token = data?.session_token || data?.access_token || localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
-          let accounts = [];
-          try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
-          const idx = accounts.findIndex(a => String(a.user_id) === String(normalizedUser.user_id || normalizedUser.id));
-          const accObj = {
-            token,
-            user_id: normalizedUser.user_id || normalizedUser.id,
-            username: normalizedUser.username,
-            name: normalizedUser.name || normalizedUser.full_name,
-            avatar_url: normalizedUser.profile_image || normalizedUser.avatar_url,
-            email: normalizedUser.email,
-            role: normalizedUser.role,
-          };
-          if (idx >= 0) accounts[idx] = accObj;
-          else accounts.push(accObj);
-          localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
-        } catch { /* ignore */ }
+        const token = data?.session_token || data?.access_token || localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
+        upsertStoredAccount(toAccountObject(normalizedUser, token));
       }
 
       return { ...data, user: normalizedUser };
@@ -229,25 +243,14 @@ export function AuthProvider({ children }) {
   }, [setUser]);
 
   const switchAccount = useCallback(async (account) => {
+    const prevToken = getToken() || '';
+    const prevUser = user;
     try {
+      if (!account?.token) throw new Error('missing account token');
+
       // Save current account to hsp_accounts before switching
-      const currentToken = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token');
-      if (currentToken && user) {
-        let accounts = [];
-        try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
-        const idx = accounts.findIndex(a => String(a.user_id) === String(user.user_id || user.id));
-        const currentObj = {
-          token: currentToken,
-          user_id: user.user_id || user.id,
-          username: user.username,
-          name: user.name || user.full_name,
-          avatar_url: user.profile_image || user.avatar_url,
-          email: user.email,
-          role: user.role,
-        };
-        if (idx >= 0) accounts[idx] = currentObj;
-        else accounts.push(currentObj);
-        localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
+      if (prevToken && user) {
+        upsertStoredAccount(toAccountObject(user, prevToken));
       }
 
       // Set new account token
@@ -259,34 +262,67 @@ export function AuthProvider({ children }) {
 
       // Update the switched account in localStorage with fresh data from server
       if (newUser) {
-        try {
-          let accs = JSON.parse(localStorage.getItem('hsp_accounts') || '[]');
-          const accIdx = accs.findIndex(a => String(a.user_id) === String(newUser.user_id || newUser.id));
-          const freshObj = {
-            token: account.token,
-            user_id: newUser.user_id || newUser.id,
-            username: newUser.username,
-            name: newUser.name || newUser.full_name,
-            avatar_url: newUser.profile_image || newUser.avatar_url,
-            email: newUser.email,
-            role: newUser.role,
-          };
-          if (accIdx >= 0) accs[accIdx] = freshObj;
-          else accs.push(freshObj);
-          localStorage.setItem('hsp_accounts', JSON.stringify(accs));
-        } catch {}
+        upsertStoredAccount(toAccountObject(newUser, account.token));
+      } else {
+        throw new Error('Unable to resolve user for switched account');
       }
     } catch (err) {
       console.error('Switch account failed', err);
       toast.error('Error al cambiar de cuenta. Inicia sesión de nuevo.');
       // Remove invalid account from localStorage
-      try {
-        const accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]');
-        const filtered = accounts.filter(a => String(a.user_id) !== String(account.user_id));
-        localStorage.setItem('hsp_accounts', JSON.stringify(filtered));
-      } catch {}
+      removeStoredAccountById(account?.user_id || account?.id);
+
+      // Try to restore previous account token
+      if (prevToken) {
+        localStorage.setItem('hispalo_access_token', prevToken);
+        localStorage.setItem('hsp_token', prevToken);
+        if (prevUser) setUser(prevUser);
+      } else {
+        removeToken();
+        if (mountedRef.current) setUser(null);
+      }
     }
-  }, [user, checkAuth]);
+  }, [user, checkAuth, setUser]);
+
+  const logoutAccount = useCallback(async (account) => {
+    const targetId = accountId(account) || accountId(user);
+    const currentId = accountId(user);
+    const isActiveTarget = !targetId || targetId === currentId;
+
+    if (isActiveTarget) {
+      try {
+        await authApi.logout();
+      } catch {
+        // silently handled
+      }
+
+      removeStoredAccountById(currentId);
+      const remaining = readStoredAccounts();
+      const fallback = remaining.find((a) => a?.token);
+
+      if (fallback?.token) {
+        localStorage.setItem('hispalo_access_token', fallback.token);
+        localStorage.setItem('hsp_token', fallback.token);
+        const nextUser = await checkAuth();
+        if (nextUser) {
+          upsertStoredAccount(toAccountObject(nextUser, fallback.token));
+          return { switched: true, user: nextUser };
+        }
+      }
+
+      removeToken();
+      if (mountedRef.current) {
+        setUser(null);
+        setError(null);
+        setInitialized(true);
+      }
+      setSentryUser(null);
+      return { switched: false, user: null };
+    }
+
+    removeStoredAccountById(targetId);
+    return { switched: false, user };
+  }, [user, checkAuth, setUser]);
 
   const refreshUser = useCallback(async () => checkAuth(), [checkAuth]);
 
@@ -308,6 +344,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    logoutAccount,
     switchAccount,
     role,
     onboarding_completed,
@@ -326,6 +363,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    logoutAccount,
     switchAccount,
     role,
     onboarding_completed,

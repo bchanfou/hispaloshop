@@ -43,7 +43,7 @@ function formatTimestamp(ts) {
   return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
-function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) {
+function ConversationItem({ conversation, index, onClick, onDelete, isTyping, isActive = false }) {
   const {
     name,
     avatar_url,
@@ -84,7 +84,7 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping }) 
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
         onClick={onClick}
-        className="flex h-[72px] w-full items-center gap-3 border-none bg-white px-4 text-left font-apple active:bg-stone-50"
+        className={`flex h-[72px] w-full items-center gap-3 border-none px-4 text-left font-apple transition-colors duration-150 active:bg-stone-50 md:hover:bg-stone-50 md:focus-visible:outline md:focus-visible:outline-2 md:focus-visible:outline-offset-[-2px] md:focus-visible:outline-stone-300 ${isActive ? 'bg-stone-50' : 'bg-white'}`}
       >
         {/* Avatar */}
         <div className="relative shrink-0">
@@ -211,157 +211,178 @@ export default function ChatsPage() {
   const isEmpty = filteredConversations.length === 0;
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-[600px] lg:max-w-[800px] flex-col bg-white font-apple">
-      {/* TopBar — Instagram style */}
-      <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
-          aria-label="Volver"
-        >
-          <ArrowLeft size={22} />
-        </button>
-        <h1 className="flex-1 text-[22px] font-bold text-stone-950">Mensajes</h1>
+    <div className="mx-auto min-h-screen max-w-[1240px] bg-white font-apple md:px-4 md:py-4">
+      <div className="flex min-h-screen flex-col bg-white md:min-h-0 md:h-[calc(100vh-88px)] md:grid md:grid-cols-[410px_1fr] md:overflow-hidden md:rounded-xl md:border md:border-stone-200/90">
+        <section className="flex min-h-0 flex-col bg-white md:border-r md:border-stone-200">
+          {/* TopBar — Instagram style */}
+          <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl md:static md:pt-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100 md:hidden"
+              aria-label="Volver"
+            >
+              <ArrowLeft size={22} />
+            </button>
+            <h1 className="flex-1 text-[22px] font-bold text-stone-950 md:text-[20px] md:font-semibold">Mensajes</h1>
 
-        <button
-          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-950 active:bg-stone-100"
-          aria-label="Nuevo mensaje"
-          onClick={() => navigate('/messages/new')}
-        >
-          <PenSquare size={22} strokeWidth={1.8} />
-        </button>
-      </div>
+            <button
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-950 active:bg-stone-100 md:min-h-[40px] md:min-w-[40px] md:rounded-lg md:transition-colors md:duration-150 md:hover:bg-stone-100 md:focus-visible:outline md:focus-visible:outline-2 md:focus-visible:outline-offset-[-2px] md:focus-visible:outline-stone-300"
+              aria-label="Nuevo mensaje"
+              onClick={() => navigate('/messages/new')}
+            >
+              <PenSquare size={22} strokeWidth={1.8} />
+            </button>
+          </div>
 
-      {/* Search bar */}
-      <div className="px-4 pb-2 pt-2">
-        <label className="flex h-12 items-center gap-2 rounded-full bg-stone-100 px-4">
-          <Search size={16} className="text-stone-400" strokeWidth={2} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            placeholder="Buscar"
-            className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
-          />
-        </label>
-      </div>
+          {/* Search bar */}
+          <div className="px-4 pb-2 pt-2">
+            <label className="flex h-12 items-center gap-2 rounded-full bg-stone-100 px-4 md:h-10 md:rounded-lg">
+              <Search size={16} className="text-stone-400" strokeWidth={2} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Buscar"
+                className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+              />
+            </label>
+          </div>
 
-      {/* Active Now row — Instagram-style online contacts */}
-      {onlineConversations.length > 0 && (
-        <div className="border-b border-stone-100 pb-3 pt-1">
-          <div className="scrollbar-hide flex gap-4 overflow-x-auto px-4">
-            {onlineConversations.map((conv) => {
-              const isStore = conv.type === 'b2c' || conv.type === 'b2b';
+          {/* Active Now row — Instagram-style online contacts */}
+          {onlineConversations.length > 0 && (
+            <div className="border-b border-stone-100 pb-3 pt-1 md:hidden">
+              <div className="scrollbar-hide flex gap-4 overflow-x-auto px-4">
+                {onlineConversations.map((conv) => {
+                  const isStore = conv.type === 'b2c' || conv.type === 'b2b';
+                  return (
+                    <button
+                      key={conv.id}
+                      onClick={() => navigate(`/messages/${conv.id}`)}
+                      className="flex w-[58px] shrink-0 flex-col items-center gap-1"
+                    >
+                      <div className="relative">
+                        {conv.avatar_url ? (
+                          <img
+                            src={conv.avatar_url}
+                            alt={conv.name}
+                            className={`h-14 w-14 object-cover ${isStore ? 'rounded-2xl' : 'rounded-full'}`}
+                          />
+                        ) : (
+                          <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-2xl' : 'rounded-full'}`}>
+                            {getInitial(conv.name)}
+                          </div>
+                        )}
+                        <span className="absolute -bottom-0.5 -right-0.5 h-[12px] w-[12px] rounded-full border-2 border-white bg-stone-950" />
+                      </div>
+                      <span className="w-full truncate text-center text-[11px] text-stone-500">{(conv.name || '').split(' ')[0]}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Swipe hint — shown once */}
+          <AnimatePresence>
+            {showSwipeHint && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="py-1 text-center text-xs text-stone-400 md:hidden"
+              >
+                ← Desliza para eliminar conversaciones
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          {/* Filter pills */}
+          <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3 pt-1 md:hidden">
+            {FILTERS.map((f) => {
+              const isActive = activeFilter === f.key;
               return (
                 <button
-                  key={conv.id}
-                  onClick={() => navigate(`/messages/${conv.id}`)}
-                  className="flex w-[58px] shrink-0 flex-col items-center gap-1"
+                  key={f.key}
+                  onClick={() => setActiveFilter(f.key)}
+                  className={`shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${
+                    isActive
+                      ? 'bg-stone-950 text-white'
+                      : 'bg-stone-100 text-stone-500 active:bg-stone-200'
+                  }`}
                 >
-                  <div className="relative">
-                    {conv.avatar_url ? (
-                      <img
-                        src={conv.avatar_url}
-                        alt={conv.name}
-                        className={`h-14 w-14 object-cover ${isStore ? 'rounded-2xl' : 'rounded-full'}`}
-                      />
-                    ) : (
-                      <div className={`flex h-14 w-14 items-center justify-center bg-stone-950 text-lg font-semibold text-white ${isStore ? 'rounded-2xl' : 'rounded-full'}`}>
-                        {getInitial(conv.name)}
-                      </div>
-                    )}
-                    <span className="absolute -bottom-0.5 -right-0.5 h-[12px] w-[12px] rounded-full border-2 border-white bg-stone-950" />
-                  </div>
-                  <span className="w-full truncate text-center text-[11px] text-stone-500">{(conv.name || '').split(' ')[0]}</span>
+                  {f.label}
                 </button>
               );
             })}
           </div>
-        </div>
-      )}
 
-      {/* Swipe hint — shown once */}
-      <AnimatePresence>
-        {showSwipeHint && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-xs text-stone-400 text-center py-1"
+          {/* Conversation list */}
+          <div className="flex-1 overflow-y-auto">
+            <AnimatePresence mode="wait">
+              {isEmpty ? (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex flex-col items-center justify-center gap-3 px-6 pt-28"
+                >
+                  <MessageCircle size={48} className="text-stone-300" strokeWidth={1.5} />
+                  <span className="text-base font-semibold text-stone-950">Aún no tienes mensajes</span>
+                  <span className="text-center text-[13px] text-stone-500">Empieza una conversación con productores, influencers y más</span>
+                  <button
+                    onClick={() => navigate('/messages/new')}
+                    className="mt-2 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white active:opacity-80"
+                  >
+                    Nueva conversación
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="list"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {filteredConversations.map((conv, i) => (
+                    <React.Fragment key={conv.id}>
+                      <ConversationItem
+                        conversation={conv}
+                        index={i}
+                        onClick={() => navigate(`/messages/${conv.id}`)}
+                        onDelete={() => deleteConversation(conv.id)}
+                        isTyping={!!typingUsers[conv.id]}
+                        isActive={false}
+                      />
+                      {i < filteredConversations.length - 1 && (
+                        <div className="ml-[76px] mr-4 h-px bg-stone-100/80" />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </section>
+
+        <aside className="hidden flex-col items-center justify-center bg-stone-50 px-8 md:flex">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-stone-950 text-stone-950">
+            <MessageCircle size={34} strokeWidth={1.8} />
+          </div>
+          <h2 className="mt-5 text-[22px] font-medium text-stone-950">Tus mensajes</h2>
+          <p className="mt-2 max-w-[320px] text-center text-[13px] text-stone-500">
+            Envía mensajes privados a tiendas, productores e influencers de la comunidad HispaloShop.
+          </p>
+          <button
+            onClick={() => navigate('/messages/new')}
+            className="mt-5 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 md:rounded-lg"
           >
-            ← Desliza para eliminar conversaciones
-          </motion.p>
-        )}
-      </AnimatePresence>
-
-      {/* Filter pills */}
-      <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3 pt-1">
-        {FILTERS.map((f) => {
-          const isActive = activeFilter === f.key;
-          return (
-            <button
-              key={f.key}
-              onClick={() => setActiveFilter(f.key)}
-              className={`shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${
-                isActive
-                  ? 'bg-stone-950 text-white'
-                  : 'bg-stone-100 text-stone-500 active:bg-stone-200'
-              }`}
-            >
-              {f.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Conversation list */}
-      <div className="flex-1">
-        <AnimatePresence mode="wait">
-          {isEmpty ? (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="flex flex-col items-center justify-center gap-3 pt-28 px-6"
-            >
-              <MessageCircle size={48} className="text-stone-300" strokeWidth={1.5} />
-              <span className="text-base font-semibold text-stone-950">Aún no tienes mensajes</span>
-              <span className="text-[13px] text-stone-500 text-center">Empieza una conversación con productores, influencers y más</span>
-              <button
-                onClick={() => navigate('/messages/new')}
-                className="mt-2 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white active:opacity-80"
-              >
-                Nueva conversación
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="list"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              {filteredConversations.map((conv, i) => (
-                <React.Fragment key={conv.id}>
-                  <ConversationItem
-                    conversation={conv}
-                    index={i}
-                    onClick={() => navigate(`/messages/${conv.id}`)}
-                    onDelete={() => deleteConversation(conv.id)}
-                    isTyping={!!typingUsers[conv.id]}
-                  />
-                  {i < filteredConversations.length - 1 && (
-                    <div className="ml-[76px] mr-4 h-px bg-stone-100/80" />
-                  )}
-                </React.Fragment>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+            Enviar mensaje
+          </button>
+        </aside>
       </div>
     </div>
   );

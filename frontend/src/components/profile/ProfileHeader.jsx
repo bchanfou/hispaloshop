@@ -21,6 +21,7 @@ import {
   UserPlus,
   Flag,
   ShieldBan,
+  LogOut,
   Pencil,
   Trash2,
   Globe,
@@ -30,6 +31,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import AnimatedNumber from '../motion/AnimatedNumber';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useHaptics } from '../../hooks/useHaptics';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -152,13 +154,15 @@ export default function ProfileHeader({
   onCreateStory,
 }) {
   const navigate = useNavigate();
-  const { switchAccount } = useAuth();
+  const { switchAccount, logoutAccount } = useAuth();
   const queryClient = useQueryClient();
+  const { trigger } = useHaptics();
   const fileInputRef = useRef(null);
 
   const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
   const [showOptionsSheet, setShowOptionsSheet] = useState(false);
   const [bioExpanded, setBioExpanded] = useState(false);
+  const [accountsVersion, setAccountsVersion] = useState(0);
 
   /* highlight edit/delete state */
   const [highlightMenu, setHighlightMenu] = useState(null); // highlight object or null
@@ -217,7 +221,7 @@ export default function ProfileHeader({
       /* ignore */
     }
     return [currentAccObj];
-  }, [user]);
+  }, [user, accountsVersion]);
 
   const currentUserId = String(user?.user_id || user?.id || '');
 
@@ -226,13 +230,37 @@ export default function ProfileHeader({
     if (!user) return;
     try {
       const accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]');
-      const idx = accounts.findIndex(a => String(a.user_id) === String(user.user_id || user.id));
+      const idx = accounts.findIndex(a => String(a.user_id || a.id || '') === String(user.user_id || user.id || ''));
       if (idx >= 0) {
         accounts[idx] = { ...accounts[idx], name: user.name || user.full_name, username: user.username, avatar_url: user.profile_image || user.avatar_url };
         localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
       }
     } catch { /* ignore */ }
   }, [user?.name, user?.username, user?.profile_image, user?.avatar_url]);
+
+  const handleCloseAccount = useCallback(async (acc) => {
+    const isActive = String(acc.user_id || acc.id || '') === currentUserId;
+    const result = await logoutAccount(acc);
+    queryClient.clear();
+    setAccountsVersion((v) => v + 1);
+    setShowAccountSwitcher(false);
+
+    if (isActive) {
+      if (result?.switched && result?.user?.username) {
+        toast.success('Sesion cerrada. Cambiado a otra cuenta.');
+        navigate(`/${result.user.username}`);
+      } else if (result?.switched) {
+        toast.success('Sesion cerrada. Cambiado a otra cuenta.');
+        navigate('/');
+      } else {
+        toast.success('Sesion cerrada');
+        navigate('/login');
+      }
+      return;
+    }
+
+    toast.success('Cuenta eliminada del dispositivo');
+  }, [currentUserId, logoutAccount, queryClient, navigate]);
 
   /* ── avatar file pick ──────────────────────────────────────────── */
 
@@ -462,39 +490,54 @@ export default function ProfileHeader({
               <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
               <div className="mb-4 text-base font-semibold">Cuentas</div>
 
-              {accounts.map((acc) => {
+              {accounts.map((acc, idx) => {
                 const isActive = String(acc.user_id || acc.id || '') === currentUserId;
                 return (
-                  <button
-                    key={acc.user_id || acc.username}
-                    onClick={async () => {
-                      if (!isActive && acc.token) {
-                        await switchAccount(acc);
-                        queryClient.clear();
-                        toast.success('Cuenta cambiada');
-                        navigate(acc.username ? `/${acc.username}` : '/');
-                      }
-                      setShowAccountSwitcher(false);
-                    }}
-                    className="flex w-full items-center gap-3 py-2.5 text-left"
-                  >
-                    <img
-                      src={acc.avatar_url || '/default-avatar.png'}
-                      alt={acc.username}
-                      className="h-11 w-11 rounded-full object-cover"
-                      onError={e => { e.target.src = '/default-avatar.png'; }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-stone-950">{acc.name || acc.full_name || acc.email?.split('@')[0] || 'Cuenta ' + (accounts.indexOf(acc) + 1)}</div>
-                      <div className="text-xs text-stone-500">@{acc.username || acc.email?.split('@')[0] || 'usuario'}</div>
-                    </div>
-                    {acc.role && (
-                      <span className="rounded-full bg-stone-100 text-stone-700 border border-stone-200 text-[10px] font-medium uppercase px-2 py-0.5">
-                        {ROLE_LABELS[acc.role] || acc.role}
-                      </span>
-                    )}
-                    {isActive && <Check size={18} className="text-stone-950" />}
-                  </button>
+                  <div key={acc.user_id || acc.id || acc.username || idx} className="flex items-center gap-2 py-1.5">
+                    <button
+                      onClick={async () => {
+                        if (!isActive && acc.token) {
+                          await switchAccount(acc);
+                          queryClient.clear();
+                          setAccountsVersion((v) => v + 1);
+                          toast.success('Cuenta cambiada');
+                          navigate(acc.username ? `/${acc.username}` : '/');
+                        }
+                        setShowAccountSwitcher(false);
+                      }}
+                      className="flex min-w-0 flex-1 items-center gap-3 py-1 text-left"
+                    >
+                      <img
+                        src={acc.avatar_url || '/default-avatar.png'}
+                        alt={acc.username}
+                        className="h-11 w-11 rounded-full object-cover"
+                        onError={e => { e.target.src = '/default-avatar.png'; }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-stone-950">{acc.name || acc.full_name || acc.email?.split('@')[0] || `Cuenta ${idx + 1}`}</div>
+                        <div className="text-xs text-stone-500">@{acc.username || acc.email?.split('@')[0] || 'usuario'}</div>
+                      </div>
+                      {acc.role && (
+                        <span className="rounded-full bg-stone-100 text-stone-700 border border-stone-200 text-[10px] font-medium uppercase px-2 py-0.5">
+                          {ROLE_LABELS[acc.role] || acc.role}
+                        </span>
+                      )}
+                      {isActive && <Check size={18} className="text-stone-950" />}
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCloseAccount(acc);
+                      }}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-600"
+                      aria-label={isActive ? 'Cerrar sesion de esta cuenta' : 'Eliminar cuenta de este dispositivo'}
+                      title={isActive ? 'Cerrar sesion' : 'Eliminar cuenta'}
+                    >
+                      <LogOut size={16} />
+                    </button>
+                  </div>
                 );
               })}
 
@@ -745,10 +788,10 @@ export default function ProfileHeader({
         ) : (
           <>
             <motion.button
-              whileTap={{ scale: 0.96 }}
+              whileTap={{ scale: 0.95 }}
               animate={user?.is_following ? { scale: [1, 1.1, 1] } : { scale: 1 }}
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
-              onClick={onFollowToggle}
+              onClick={() => { onFollowToggle?.(); trigger('medium'); }}
               aria-label={
                 user?.follow_request_pending
                   ? 'Cancelar solicitud'

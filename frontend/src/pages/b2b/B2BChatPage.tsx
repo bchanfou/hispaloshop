@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { MessageSquare, Send, ArrowLeft, Loader2, RefreshCw, Search, X, Sparkles, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -29,7 +29,7 @@ function ConvRow({ conv, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full px-4 py-3 flex items-start gap-3 border-b border-stone-100 text-left transition-colors ${active ? 'bg-stone-50' : 'hover:bg-stone-50'}`}
+      className={`w-full px-4 py-3 flex items-start gap-3 border-b border-stone-100 text-left transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300 ${active ? 'bg-stone-50' : 'hover:bg-stone-50'}`}
     >
       <Avatar name={name} />
       <div className="flex-1 min-w-0">
@@ -62,8 +62,8 @@ function Bubble({ msg, myId }) {
     ? new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
     : '';
   return (
-    <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mb-2`}>
-      <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${isMine ? 'bg-stone-950 text-white rounded-br-sm' : 'bg-stone-100 text-stone-800 rounded-bl-sm'}`}>
+    <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mb-2 md:mb-1.5`}>
+      <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm md:rounded-xl md:py-2 md:text-[13px] ${isMine ? 'bg-stone-950 text-white rounded-br-sm' : 'bg-stone-100 text-stone-800 rounded-bl-sm'}`}>
         <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
         <p className={`text-[10px] mt-1 ${isMine ? 'text-white/60' : 'text-stone-400'}`}>{time}</p>
       </div>
@@ -116,7 +116,7 @@ function MessageThread({ convId, myId, operationId, searchFilter = '' }) {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 md:py-3">
         {messages.length === 0 ? (
           <p className="text-center text-stone-400 text-sm mt-8">
             {activeFilter ? 'Sin resultados' : 'Inicia la conversacion enviando un mensaje'}
@@ -128,14 +128,14 @@ function MessageThread({ convId, myId, operationId, searchFilter = '' }) {
         )}
         <div ref={bottomRef} />
       </div>
-      <form onSubmit={handleSend} className="border-t border-stone-200 p-3 flex flex-col gap-2">
+      <form onSubmit={handleSend} className="border-t border-stone-200 p-3 md:p-2.5 flex flex-col gap-2">
         {/* Pedro AI quick action */}
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleAskPedro}
             aria-label="Preguntar a Pedro AI"
-            className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600 border-none cursor-pointer flex items-center gap-1.5 hover:bg-stone-200 transition-colors"
+            className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-600 border-none cursor-pointer flex items-center gap-1.5 hover:bg-stone-200 transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300"
           >
             <Sparkles size={12} />
             Preguntar a Pedro
@@ -148,13 +148,13 @@ function MessageThread({ convId, myId, operationId, searchFilter = '' }) {
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(e); }}
             rows={1}
             placeholder="Escribe un mensaje..."
-            className="flex-1 resize-none border border-stone-200 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-stone-950 max-h-32"
+            className="flex-1 resize-none border border-stone-200 rounded-2xl md:rounded-xl px-3 py-2.5 md:py-2 text-sm focus:outline-none focus:border-stone-950 max-h-32"
           />
           <button
             type="submit"
             disabled={!text.trim() || sendMutation.isPending}
             aria-label="Enviar mensaje"
-            className="w-10 h-10 rounded-2xl bg-stone-950 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0"
+            className="w-10 h-10 rounded-2xl md:rounded-xl bg-stone-950 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0 transition-opacity duration-150 hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300"
           >
             {sendMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
@@ -166,6 +166,7 @@ function MessageThread({ convId, myId, operationId, searchFilter = '' }) {
 
 export default function B2BChatPage() {
   const { user } = useAuth();
+  const { conversationId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -175,7 +176,11 @@ export default function B2BChatPage() {
   const conversations = convsQuery.data?.data || convsQuery.data || [];
 
   const targetProducerId = searchParams.get('producer');
-  const [activeConvId, setActiveConvId] = useState(searchParams.get('conv') || null);
+  const [activeConvId, setActiveConvId] = useState(conversationId || searchParams.get('conv') || null);
+
+  useEffect(() => {
+    setActiveConvId(conversationId || searchParams.get('conv') || null);
+  }, [conversationId, searchParams]);
 
   // Auto-start conversation if ?producer= is set
   useEffect(() => {
@@ -184,8 +189,14 @@ export default function B2BChatPage() {
       (c) => c.producer_id === targetProducerId || c.importer_id === targetProducerId
     );
     if (existing) {
-      setActiveConvId(existing.conversation_id);
-      setSearchParams({ conv: existing.conversation_id }, { replace: true });
+      const nextId = existing.conversation_id;
+      setActiveConvId(nextId);
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        params.delete('conv');
+        return params;
+      }, { replace: true });
+      navigate(`/b2b/chat/${nextId}`, { replace: true });
     } else if (conversations !== undefined && !createConv.data) {
       createConv.mutate(
         { producerId: targetProducerId },
@@ -194,7 +205,12 @@ export default function B2BChatPage() {
             const newId = res?.conversation_id || res?.data?.conversation_id;
             if (newId) {
               setActiveConvId(newId);
-              setSearchParams({ conv: newId }, { replace: true });
+              setSearchParams((prev) => {
+                const params = new URLSearchParams(prev);
+                params.delete('conv');
+                return params;
+              }, { replace: true });
+              navigate(`/b2b/chat/${newId}`, { replace: true });
             }
           },
         }
@@ -213,8 +229,14 @@ export default function B2BChatPage() {
   const [threadSearchQuery, setThreadSearchQuery] = useState('');
 
   const handleSelectConv = (conv) => {
-    setActiveConvId(conv.conversation_id);
-    setSearchParams({ conv: conv.conversation_id }, { replace: true });
+    const nextId = conv.conversation_id;
+    setActiveConvId(nextId);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.delete('conv');
+      return params;
+    }, { replace: true });
+    navigate(`/b2b/chat/${nextId}`);
     setMobileView('thread');
   };
 
@@ -274,7 +296,7 @@ export default function B2BChatPage() {
         </div>
         <div className="ml-auto flex items-center gap-1">
           <button
-            className="p-1.5 rounded-2xl hover:bg-stone-100"
+            className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300"
             aria-label={showSearch ? 'Cerrar búsqueda' : 'Buscar en mensajes'}
             onClick={() => {
               setShowSearch((prev) => !prev);
@@ -284,7 +306,7 @@ export default function B2BChatPage() {
             {showSearch ? <X className="w-4 h-4 text-stone-400" /> : <Search className="w-4 h-4 text-stone-400" />}
           </button>
           <button
-            className="p-1.5 rounded-2xl hover:bg-stone-100"
+            className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300"
             aria-label="Actualizar conversaciones"
             onClick={() => convsQuery.refetch()}
           >

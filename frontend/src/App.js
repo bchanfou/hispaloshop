@@ -200,6 +200,12 @@ const ImporterOrdersPage = lazy(() => import('./pages/importer/ImporterOrdersPag
 const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
 
 function RouteLoader() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+  if (!show) return null;
   return (
     <div className="min-h-[40vh] flex items-center justify-center">
       <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-700 animate-spin" />
@@ -212,9 +218,12 @@ function PageTransitionLoader() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(true);
-    const timer = window.setTimeout(() => setVisible(false), 350);
-    return () => window.clearTimeout(timer);
+    // Only show the progress bar if the transition takes more than 300ms
+    const showTimer = window.setTimeout(() => setVisible(true), 300);
+    return () => {
+      window.clearTimeout(showTimer);
+      setVisible(false);
+    };
   }, [location.pathname, location.search, location.hash]);
 
   if (!visible) {
@@ -481,6 +490,7 @@ function AppRouter() {
               <Route path="/b2b/producers" element={<Navigate to="/b2b/marketplace" replace />} />
               <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
               <Route path="/b2b/chat" element={<B2BChatPage />} />
+              <Route path="/b2b/chat/:conversationId" element={<B2BChatPage />} />
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/profile" element={<LegacyProfileRedirect />} />
               <Route path="/perfil" element={<LegacyProfileRedirect />} />
@@ -783,7 +793,7 @@ function App() {
                       <Suspense fallback={null}><ChatToastContainer /></Suspense>
                       <HispalAI />
                       <ConsentBanner onConsent={(accepted) => { if (accepted) initAnalyticsOnConsent(); }} />
-                      <Toaster position="top-center" />
+                      <Toaster position="top-center" toastOptions={{ duration: 3000, className: 'font-sans' }} />
                     </UploadQueueProvider>
                     </FeedTabProvider>
                   </ChatProvider>

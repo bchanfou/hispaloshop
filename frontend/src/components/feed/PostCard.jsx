@@ -286,6 +286,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
   // Share — uses ref for always-fresh caption
   const handleShare = useCallback(async () => {
+    trigger('light');
     const url = `${window.location.origin}/posts/${post.id}`;
     const title = (captionRef.current || '').slice(0, 60) || 'Post';
     try {
@@ -297,7 +298,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       }
     } catch (err) { /* share cancelled or clipboard unavailable */ }
     onShare?.(post.id);
-  }, [post.id, onShare]);
+  }, [post.id, onShare, trigger]);
 
   const scrollThrottleRef = useRef(null);
   const handleScroll = useCallback(() => {
@@ -327,6 +328,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   }, [editCaption, post.id]);
 
   const handleDelete = useCallback(() => {
+    trigger('error');
     setDeleted(true);
     setShowDeleteConfirm(false);
     toast('Post eliminado', {
@@ -348,7 +350,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         toast.error('Error al eliminar');
       }
     }, 5500);
-  }, [post.id, onDelete]);
+  }, [post.id, onDelete, trigger]);
 
   const handleQuickAddToCart = useCallback(async (e, product) => {
     e.stopPropagation();
