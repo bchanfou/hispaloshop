@@ -311,13 +311,21 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   }, [isActive]);
 
   const handleLikeComment = useCallback(async (commentId) => {
+    const wasLiked = likedComments.has(commentId);
     setLikedComments(prev => {
       const next = new Set(prev);
       next.has(commentId) ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    try { await apiClient.post(`/comments/${commentId}/like`); } catch {}
-  }, []);
+    // Optimistic count update
+    setComments(prev => prev.map(c => {
+      const cId = c.comment_id || c.id || c._id;
+      if (cId !== commentId) return c;
+      return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
+    }));
+    const reelId = reel.id || reel.reel_id || reel.post_id;
+    try { await apiClient.post(`/reels/${reelId}/comments/${commentId}/like`); } catch {}
+  }, [likedComments, reel.id, reel.reel_id, reel.post_id]);
 
   const handleDeleteComment = useCallback(async (commentId) => {
     try {
@@ -964,13 +972,6 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
                         <button
-                          onClick={() => handleLikeComment(cId)}
-                          className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[28px]"
-                        >
-                          <Heart size={12} className={likedComments.has(cId) ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white/40'} strokeWidth={1.8} />
-                          {(c.likes_count || 0) > 0 && <span className="text-[10px] text-white/40">{c.likes_count}</span>}
-                        </button>
-                        <button
                           onClick={() => handleReplyComment(cId, cName)}
                           className="bg-transparent border-none cursor-pointer p-0 text-[10px] text-white/40 font-semibold hover:text-white/70 min-h-[28px] flex items-center"
                         >
@@ -985,6 +986,17 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                           </button>
                         )}
                       </div>
+                    </div>
+                    {/* Comment like — right side */}
+                    <div className="flex flex-col items-center justify-start pt-1 shrink-0">
+                      <button
+                        onClick={() => handleLikeComment(cId)}
+                        className="bg-transparent border-none cursor-pointer p-0 flex flex-col items-center gap-0.5"
+                        aria-label={likedComments.has(cId) ? 'Quitar me gusta del comentario' : 'Me gusta en comentario'}
+                      >
+                        <Heart size={14} className={likedComments.has(cId) ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white/40'} strokeWidth={1.8} />
+                        {(c.likes_count || 0) > 0 && <span className="text-[10px] text-white/40 leading-none">{c.likes_count}</span>}
+                      </button>
                     </div>
                   </div>
                 );
@@ -1013,13 +1025,19 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
               </button>
             ))}
           </div>
-          {/* Reply indicator */}
+          {/* Reply-to context banner */}
           {replyTo && (
-            <div className="flex items-center justify-between px-4 py-1.5 border-t border-white/10 shrink-0">
-              <span className="text-[11px] text-white/50">Respondiendo a <span className="font-semibold text-white/70">@{replyTo.username}</span></span>
-              <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0">
-                <XIcon size={12} className="text-white/40" />
-              </button>
+            <div className="mx-4 mt-2 mb-1 shrink-0">
+              <div className="flex items-center justify-between bg-stone-100 rounded-xl px-3 py-2">
+                <span className="text-xs text-stone-600">Respondiendo a <span className="font-semibold">@{replyTo.username}</span></span>
+                <button
+                  onClick={() => { setReplyTo(null); setNewComment(''); }}
+                  className="w-6 h-6 rounded-full bg-transparent hover:bg-stone-200 border-none cursor-pointer flex items-center justify-center transition-colors"
+                  aria-label="Cancelar respuesta"
+                >
+                  <XIcon size={12} className="text-stone-500" />
+                </button>
+              </div>
             </div>
           )}
           {/* Input */}
