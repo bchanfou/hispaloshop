@@ -2,18 +2,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 /**
- * HomeHeader v7 — feed tab toggle only (logo + bell live in AppHeader)
- * Sticky below AppHeader (top-[52px] on mobile, top-0 on desktop).
+ * HomeHeader v8 — compact feed tab toggle, inline (not sticky).
+ * Sits between AppHeader and StoriesBar as part of scrollable content.
  */
 export default function HomeHeader({ activeTab = 'foryou', onTabChange }) {
   if (!onTabChange) return null;
 
   return (
-    <div
-      className="sticky top-[52px] lg:top-0 z-30 bg-white border-b border-stone-100 flex items-center justify-center py-2.5"
-      data-testid="home-header"
-    >
-      {/* Feed tab toggle — centered */}
+    <div className="flex items-center justify-center py-2 bg-white">
       <div className="flex items-center rounded-full bg-stone-100 p-0.5 gap-0.5">
         {[
           { key: 'foryou', label: 'Para ti' },
@@ -23,7 +19,7 @@ export default function HomeHeader({ activeTab = 'foryou', onTabChange }) {
             key={key}
             type="button"
             onClick={() => onTabChange(key)}
-            className={`relative rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors ${
+            className={`relative rounded-full px-5 py-1.5 text-[13px] font-semibold transition-colors ${
               activeTab === key ? 'text-white' : 'text-stone-500 bg-transparent'
             }`}
             aria-pressed={activeTab === key}
