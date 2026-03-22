@@ -377,8 +377,7 @@ function AppRouter() {
               <Route path="/store/:storeSlug" element={<StorePage />} />
               <Route path="/tienda/:storeSlug" element={<StorePage />} />
               <Route path="/tiendas/:storeSlug" element={<StorePage />} />
-              <Route path="/certificate/:productId" element={<CertificatePage />} />
-              <Route path="/certificado/:productId" element={<CertificatePage />} />
+              {/* Certificate routes moved to public section below */}
               <Route path="/certificates" element={<CertificatesListPage />} />
               <Route path="/certificados" element={<Navigate to="/certificates" replace />} />
               <Route path="/settings" element={<SettingsPage />} />
@@ -412,6 +411,10 @@ function AppRouter() {
               <Route path="/activity" element={<ActivityPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
+              {/* Public certificate pages — no auth required */}
+              <Route path="/certificate/:productId" element={<CertificatePage />} />
+              <Route path="/certificado/:productId" element={<CertificatePage />} />
+
               <Route path="/que-es" element={<InfoLayout><QueEsPage /></InfoLayout>} />
               <Route path="/que-es-hispaloshop" element={<InfoLayout><QueEsPage /></InfoLayout>} />
               <Route path="/landing" element={<InfoLayout><LandingPage /></InfoLayout>} />
