@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { AlertTriangle, Award, ChevronDown, ChevronRight, Copy, FileCheck, Globe, MapPin, Share2, Shield, Package, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, Award, ChevronDown, ChevronRight, Copy, Download, FileCheck, Globe, MapPin, Share2, Shield, Package, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import BackButton from '../components/BackButton';
@@ -192,7 +192,7 @@ export default function CertificatePage() {
     <div className="min-h-screen bg-stone-50" data-testid="certificate-page">
       <Header />
 
-      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-[600px] px-4 py-8 sm:px-6">
         <BackButton />
         <Breadcrumbs />
 
@@ -262,7 +262,7 @@ export default function CertificatePage() {
                   src={productImage}
                   alt={product.name}
                   loading="lazy"
-                  className="max-h-44 w-full object-contain"
+                  className="max-h-[300px] w-full rounded-2xl object-cover"
                   data-testid="certificate-product-image"
                 />
               ) : (
@@ -425,11 +425,26 @@ export default function CertificatePage() {
               product.description ||
               'Este producto forma parte de una selección con trazabilidad visible y una narrativa de origen más clara.'}
           </p>
-          {product.country_origin && (
-            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-600">
-              <MapPin className="h-3 w-3" />
-              {product.country_origin}
-            </div>
+          {(product.country_origin || product.region) && (
+            <>
+              <h3 className="mt-5 mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
+                Origen
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {product.country_origin && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-600">
+                    <MapPin className="h-3 w-3" />
+                    {product.country_origin}
+                  </span>
+                )}
+                {product.region && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-600">
+                    <MapPin className="h-3 w-3" />
+                    {product.region}
+                  </span>
+                )}
+              </div>
+            </>
           )}
           {canBuyFromStore && (
             <button
@@ -444,57 +459,97 @@ export default function CertificatePage() {
         </div>
 
         {/* ── QR Verification + Share ── */}
-        <div className="mt-4 flex items-center gap-5 rounded-[28px] border border-stone-100 bg-white p-6 shadow-sm">
-          {certificate?.qr_code ? (
-            <img
-              src={`data:image/png;base64,${certificate.qr_code}`}
-              alt={t('certificate.qrCode', 'Código QR de verificación')}
-              width={100}
-              height={100}
-              className="shrink-0 rounded-2xl"
-            />
-          ) : (
-            <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}&bgcolor=ffffff&color=0c0a09`}
-              alt={t('certificate.qrCode', 'Código QR de verificación')}
-              width={100}
-              height={100}
-              className="shrink-0 rounded-2xl"
-            />
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-stone-950">{t('certificate.verify', 'Verificar autenticidad')}</p>
-            <p className="mt-1 text-xs text-stone-500">{t('certificate.scanQR', 'Escanea el QR o copia el enlace para verificar este certificado.')}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast.success(t('social.linkCopied', 'Enlace copiado'));
-                }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
-              >
-                <Copy className="h-3 w-3" />
-                {t('certificate.copyLink', 'Copiar enlace')}
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  if (navigator.share) {
-                    try { await navigator.share({ title: `${t('certificate.title', 'Certificado')} - ${product.name}`, url: window.location.href }); } catch { /* cancelled */ }
-                  } else {
-                    navigator.clipboard.writeText(window.location.href);
-                    toast.success(t('social.linkCopied', 'Enlace copiado'));
-                  }
-                }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
-              >
-                <Share2 className="h-3 w-3" />
-                {t('certificate.share', 'Compartir')}
-              </button>
+        {(() => {
+          const certUrl = `${window.location.origin}/certificado/${product.slug || product.product_id}`;
+          const qrSrc = certificate?.qr_code
+            ? `data:image/png;base64,${certificate.qr_code}`
+            : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(certUrl)}&bgcolor=ffffff&color=0c0a09`;
+          const qrHiRes = `https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=${encodeURIComponent(certUrl)}&bgcolor=ffffff&color=0c0a09`;
+          const pdfUrl = certificate?.pdf_url || certificate?.data?.pdf_url || null;
+
+          return (
+            <div className="mt-4 rounded-[28px] border border-stone-100 bg-white p-6 shadow-sm">
+              <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+                {/* QR column */}
+                <div className="flex flex-col items-center gap-2">
+                  <img
+                    src={qrSrc}
+                    alt="Código QR del certificado"
+                    width={200}
+                    height={200}
+                    className="shrink-0 rounded-2xl"
+                    data-testid="certificate-qr"
+                  />
+                  <a
+                    href={qrHiRes}
+                    download="certificado-qr.png"
+                    className="flex items-center gap-1.5 text-sm text-stone-500 transition-colors hover:text-stone-950"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Descargar QR
+                  </a>
+                </div>
+
+                {/* Info column */}
+                <div className="min-w-0 flex-1 text-center sm:text-left">
+                  <p className="text-sm font-semibold text-stone-950">{t('certificate.verify', 'Verificar autenticidad')}</p>
+                  <p className="mt-1 text-xs text-stone-500">{t('certificate.scanQR', 'Escanea el QR o copia el enlace para verificar este certificado.')}</p>
+                  <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(certUrl);
+                        toast.success(t('social.linkCopied', 'Enlace copiado'));
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+                    >
+                      <Copy className="h-3 w-3" />
+                      {t('certificate.copyLink', 'Copiar enlace')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (navigator.share) {
+                          try { await navigator.share({ title: `${t('certificate.title', 'Certificado')} - ${product.name}`, url: certUrl }); } catch { /* cancelled */ }
+                        } else {
+                          navigator.clipboard.writeText(certUrl);
+                          toast.success(t('social.linkCopied', 'Enlace copiado'));
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+                    >
+                      <Share2 className="h-3 w-3" />
+                      {t('certificate.share', 'Compartir')}
+                    </button>
+                  </div>
+
+                  {/* Download PDF */}
+                  <div className="mt-4">
+                    {pdfUrl ? (
+                      <a
+                        href={pdfUrl}
+                        download="certificado.pdf"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
+                      >
+                        <Download className="h-4 w-4" />
+                        Descargar certificado PDF
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-stone-200 px-6 py-2.5 text-sm font-semibold text-stone-400"
+                      >
+                        <Download className="h-4 w-4" />
+                        Descargar certificado PDF — Próximamente
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })()}
 
         {/* ── Buy CTA bar ── */}
         <div className="mt-5 flex items-center justify-between rounded-[28px] bg-stone-950 px-6 py-5">

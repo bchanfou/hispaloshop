@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Plus, Star, Leaf, Shield, Award, Eye, Heart, ShoppingBag } from 'lucide-react';
+import { Bookmark, Plus, Star, Leaf, Shield, Award } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from './ui/ProductImage.tsx';
 import { useAuth } from '../context/AuthContext';
@@ -151,24 +151,21 @@ function ProductCard({ product, variant = 'default' }) {
               Últimas uds.
             </span>
           )}
-          {/* Quick-add button — always visible on mobile, hover on desktop */}
-          {!isBlocked && (
-            <div className="absolute bottom-1.5 right-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-              <AddButton
-                onAdd={handleAddToCart}
-                isDisabled={isBlocked}
-                testId={`add-to-cart-${productId}`}
-              />
-            </div>
-          )}
         </div>
         <div className="px-2 pb-2 pt-1.5">
           <p className="truncate text-[11px] font-semibold text-stone-950 leading-tight">
             {product.name}
           </p>
-          <p className="mt-0.5 text-[11px] font-bold text-stone-950">
-            {displayPrice}
-          </p>
+          <div className="mt-0.5 flex items-center justify-between">
+            <span className="text-[11px] font-bold text-stone-950">
+              {displayPrice}
+            </span>
+            <AddButton
+              onAdd={handleAddToCart}
+              isDisabled={isBlocked}
+              testId={`add-to-cart-${productId}`}
+            />
+          </div>
         </div>
       </Link>
     );
@@ -223,38 +220,6 @@ function ProductCard({ product, variant = 'default' }) {
           </span>
         )}
 
-        {/* Desktop hover overlay — action icons centered on image */}
-        {!isBlocked && (
-          <div className="hidden lg:flex absolute inset-0 items-center justify-center gap-2.5 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-            <span className="pointer-events-auto w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm cursor-pointer hover:bg-white transition-colors" aria-label="Ver producto">
-              <Eye size={16} className="text-stone-950" />
-            </span>
-            <span className="pointer-events-auto w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm cursor-pointer hover:bg-white transition-colors" aria-label="Añadir a favoritos">
-              <Heart size={16} className="text-stone-950" />
-            </span>
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={handleAddToCart}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAddToCart(e); }}
-              className="pointer-events-auto w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm cursor-pointer hover:bg-white transition-colors"
-              aria-label="Añadir al carrito"
-            >
-              <ShoppingBag size={16} className="text-stone-950" />
-            </span>
-          </div>
-        )}
-
-        {/* Quick-add button overlay — always visible on mobile, hover on desktop */}
-        {!isBlocked && (
-          <div className="absolute bottom-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-            <AddButton
-              onAdd={handleAddToCart}
-              isDisabled={isBlocked}
-              testId={`add-to-cart-overlay-${productId}`}
-            />
-          </div>
-        )}
       </div>
 
       {/* Info — tight 8px padding */}
