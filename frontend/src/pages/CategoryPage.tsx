@@ -50,7 +50,7 @@ const CategoryPage = () => {
   const category = CATEGORIES.find((c) => c.id === categoryId) || CATEGORIES[0];
   const Icon = category.icon;
 
-  const { products, isLoading, error } = useProducts({
+  const { products, pagination, isLoading, error } = useProducts({
     category: categoryId,
     sort: sortBy,
   });
@@ -295,6 +295,17 @@ const CategoryPage = () => {
               </motion.div>
             ))}
           </div>
+        )}
+
+        {/* Ver más — link to full catalog with category filter */}
+        {!isLoading && filteredProducts.length >= 10 && (
+          <button
+            type="button"
+            onClick={() => navigate(`/products?category=${encodeURIComponent(categoryId)}`)}
+            className="w-full py-3 mt-4 text-sm font-semibold text-stone-950 bg-white rounded-full hover:bg-stone-100 transition-colors border border-stone-200"
+          >
+            Ver más productos
+          </button>
         )}
       </div>
 

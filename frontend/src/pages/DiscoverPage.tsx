@@ -254,10 +254,10 @@ export default function DiscoverPage() {
     // else: silently ignore (no navigate to /undefined)
   }, [navigate]);
 
-  /* ── category navigate — navigates to category page ── */
+  /* ── category filter — toggles local explore grid filter ── */
   const handleCategoryClick = useCallback((slug) => {
-    navigate(`/explore/category/${slug}`);
-  }, [activeCategory]);
+    setActiveCategory(prev => prev === slug ? null : slug);
+  }, []);
 
   /* ── elite carousel card ── */
   const EliteCarousel = () => {
@@ -562,6 +562,7 @@ export default function DiscoverPage() {
       ) : (loadingProducts && loadingTrending) ? (
         <SkeletonGrid />
       ) : exploreItems.length > 0 ? (
+        <>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
           {exploreItems.map((item, idx) => (
             <ExploreGridItem
@@ -572,6 +573,15 @@ export default function DiscoverPage() {
             />
           ))}
         </div>
+        {exploreItems.length >= 20 && (
+          <button
+            onClick={() => navigate('/products')}
+            className="w-full py-3 mt-4 text-sm font-semibold text-stone-950 bg-stone-50 rounded-full hover:bg-stone-100 transition-colors"
+          >
+            Ver más productos
+          </button>
+        )}
+        </>
       ) : (
         <div className="flex flex-col items-center py-16 text-center">
           <ShoppingBag size={32} className="mb-3 text-stone-300" />

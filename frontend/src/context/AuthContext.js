@@ -127,9 +127,14 @@ export function AuthProvider({ children }) {
     try {
       const currentUser = await authApi.getCurrentUser();
       const normalizedUser = normalizeUser(currentUser || null);
+      const activeToken = getToken() || '';
 
       if (mountedRef.current) {
         setUser(normalizedUser);
+      }
+
+      if (normalizedUser && activeToken) {
+        upsertStoredAccount(toAccountObject(normalizedUser, activeToken));
       }
 
       return normalizedUser;
@@ -226,11 +231,15 @@ export function AuthProvider({ children }) {
   }, [setUser]);
 
   const logout = useCallback(async () => {
+    const currentId = accountId(user);
     try {
       await authApi.logout();
     } catch (logoutError) {
       // silently handled
     } finally {
+      if (currentId) {
+        removeStoredAccountById(currentId);
+      }
       // Clear localStorage tokens so subsequent API calls don't send stale Bearer headers
       removeToken();
       if (mountedRef.current) {
@@ -240,13 +249,17 @@ export function AuthProvider({ children }) {
       }
       setSentryUser(null);
     }
-  }, [setUser]);
+  }, [setUser, user]);
 
   const switchAccount = useCallback(async (account) => {
     const prevToken = getToken() || '';
     const prevUser = user;
     try {
-      if (!account?.token) throw new Error('missing account token');
+      if (!account?.token) {
+        const error = new Error('missing account token');
+        error.code = 'missing_token';
+        throw error;
+      }
 
       // Save current account to hsp_accounts before switching
       if (prevToken && user) {
@@ -263,12 +276,21 @@ export function AuthProvider({ children }) {
       // Update the switched account in localStorage with fresh data from server
       if (newUser) {
         upsertStoredAccount(toAccountObject(newUser, account.token));
+        setSentryUser({ id: newUser.user_id, username: newUser.username, email: newUser.email });
+        return { ok: true, user: newUser };
       } else {
-        throw new Error('Unable to resolve user for switched account');
+        const error = new Error('Unable to resolve user for switched account');
+        error.code = 'expired_or_invalid';
+        throw error;
       }
     } catch (err) {
       console.error('Switch account failed', err);
-      toast.error('Error al cambiar de cuenta. Inicia sesión de nuevo.');
+      const errorCode = err?.code || 'switch_failed';
+      if (errorCode === 'missing_token' || errorCode === 'expired_or_invalid') {
+        toast.error('La sesión guardada de esta cuenta ya no es válida. Se ha eliminado del dispositivo.');
+      } else {
+        toast.error('Error al cambiar de cuenta. Inicia sesión de nuevo.');
+      }
       // Remove invalid account from localStorage
       removeStoredAccountById(account?.user_id || account?.id);
 
@@ -281,6 +303,7 @@ export function AuthProvider({ children }) {
         removeToken();
         if (mountedRef.current) setUser(null);
       }
+      return { ok: false, user: null, error: err, errorCode };
     }
   }, [user, checkAuth, setUser]);
 
@@ -297,17 +320,19 @@ export function AuthProvider({ children }) {
       }
 
       removeStoredAccountById(currentId);
-      const remaining = readStoredAccounts();
-      const fallback = remaining.find((a) => a?.token);
+      const remaining = readStoredAccounts().filter((a) => a?.token);
 
-      if (fallback?.token) {
+      for (const fallback of remaining) {
         localStorage.setItem('hispalo_access_token', fallback.token);
         localStorage.setItem('hsp_token', fallback.token);
         const nextUser = await checkAuth();
         if (nextUser) {
           upsertStoredAccount(toAccountObject(nextUser, fallback.token));
+          setSentryUser({ id: nextUser.user_id, username: nextUser.username, email: nextUser.email });
           return { switched: true, user: nextUser };
         }
+
+        removeStoredAccountById(fallback.user_id || fallback.id);
       }
 
       removeToken();

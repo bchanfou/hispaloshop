@@ -163,6 +163,8 @@ export default function ProfileHeader({
   const [showOptionsSheet, setShowOptionsSheet] = useState(false);
   const [bioExpanded, setBioExpanded] = useState(false);
   const [accountsVersion, setAccountsVersion] = useState(0);
+  const [accountToClose, setAccountToClose] = useState(null);
+  const [closingAccount, setClosingAccount] = useState(false);
 
   /* highlight edit/delete state */
   const [highlightMenu, setHighlightMenu] = useState(null); // highlight object or null
@@ -184,16 +186,17 @@ export default function ProfileHeader({
 
   /* close bottom sheets on Escape */
   useEffect(() => {
-    if (!showAccountSwitcher && !showOptionsSheet) return;
+    if (!showAccountSwitcher && !showOptionsSheet && !accountToClose) return;
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
         setShowAccountSwitcher(false);
         setShowOptionsSheet(false);
+        setAccountToClose(null);
       }
     };
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
-  }, [showAccountSwitcher, showOptionsSheet]);
+  }, [showAccountSwitcher, showOptionsSheet, accountToClose]);
 
   /* ── accounts from localStorage ────────────────────────────────── */
 
@@ -224,6 +227,10 @@ export default function ProfileHeader({
   }, [user, accountsVersion]);
 
   const currentUserId = String(user?.user_id || user?.id || '');
+  const hasAlternativeAccount = useMemo(
+    () => accounts.some((acc) => String(acc.user_id || acc.id || '') !== currentUserId && acc.token),
+    [accounts, currentUserId],
+  );
 
   /* ── sync account switcher cache when profile data changes ────── */
   useEffect(() => {
@@ -239,11 +246,14 @@ export default function ProfileHeader({
   }, [user?.name, user?.username, user?.profile_image, user?.avatar_url]);
 
   const handleCloseAccount = useCallback(async (acc) => {
+    setClosingAccount(true);
     const isActive = String(acc.user_id || acc.id || '') === currentUserId;
     const result = await logoutAccount(acc);
     queryClient.clear();
     setAccountsVersion((v) => v + 1);
     setShowAccountSwitcher(false);
+    setAccountToClose(null);
+    setClosingAccount(false);
 
     if (isActive) {
       if (result?.switched && result?.user?.username) {
@@ -497,11 +507,17 @@ export default function ProfileHeader({
                     <button
                       onClick={async () => {
                         if (!isActive && acc.token) {
-                          await switchAccount(acc);
+                          const switched = await switchAccount(acc);
+                          if (!switched?.ok) {
+                            setAccountsVersion((v) => v + 1);
+                            return;
+                          }
                           queryClient.clear();
                           setAccountsVersion((v) => v + 1);
                           toast.success('Cuenta cambiada');
-                          navigate(acc.username ? `/${acc.username}` : '/');
+                          navigate(switched.user?.username ? `/${switched.user.username}` : '/');
+                          setShowAccountSwitcher(false);
+                          return;
                         }
                         setShowAccountSwitcher(false);
                       }}
@@ -516,6 +532,11 @@ export default function ProfileHeader({
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-medium text-stone-950">{acc.name || acc.full_name || acc.email?.split('@')[0] || `Cuenta ${idx + 1}`}</div>
                         <div className="text-xs text-stone-500">@{acc.username || acc.email?.split('@')[0] || 'usuario'}</div>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${isActive ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-stone-50 text-stone-500'}`}>
+                            {isActive ? 'Activa' : 'Guardada'}
+                          </span>
+                        </div>
                       </div>
                       {acc.role && (
                         <span className="rounded-full bg-stone-100 text-stone-700 border border-stone-200 text-[10px] font-medium uppercase px-2 py-0.5">
@@ -529,7 +550,8 @@ export default function ProfileHeader({
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleCloseAccount(acc);
+                        setShowAccountSwitcher(false);
+                        setAccountToClose(acc);
                       }}
                       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-600"
                       aria-label={isActive ? 'Cerrar sesion de esta cuenta' : 'Eliminar cuenta de este dispositivo'}
@@ -553,9 +575,9 @@ export default function ProfileHeader({
                     const idx = existingAccounts.findIndex(a => String(a.user_id || a.id || '') === String(user.user_id || user.id || ''));
                     const currentAccObj = {
                       token: currentToken,
-                      user_id: user.user_id,
+                      user_id: user.user_id || user.id,
                       username: user.username,
-                      name: user.name,
+                      name: user.name || user.full_name,
                       avatar_url: user.profile_image || user.avatar_url,
                       role: user.role,
                     };
@@ -570,6 +592,58 @@ export default function ProfileHeader({
               >
                 + Agregar cuenta
               </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── 2b. ACCOUNT CLOSE CONFIRMATION ──────────────────────── */}
+      <AnimatePresence>
+        {accountToClose && (
+          <>
+            <motion.div
+              key="acc-close-overlay"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              onClick={() => { if (!closingAccount) setAccountToClose(null); }}
+              className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div
+              key="acc-close-modal"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="fixed left-4 right-4 top-1/2 z-[9999] mx-auto max-w-[340px] -translate-y-1/2 rounded-2xl bg-white p-4 shadow-modal"
+            >
+              <p className="mb-1 text-center text-[15px] font-semibold text-stone-950">
+                {String(accountToClose.user_id || accountToClose.id || '') === currentUserId ? 'Cerrar sesion de esta cuenta?' : 'Eliminar cuenta del dispositivo?'}
+              </p>
+              <p className="mb-4 text-center text-sm text-stone-500">
+                {String(accountToClose.user_id || accountToClose.id || '') === currentUserId
+                  ? (hasAlternativeAccount
+                      ? 'Se cerrara la sesion y se cambiara automaticamente a otra cuenta guardada.'
+                      : 'Se cerrara la sesion de esta cuenta y tendras que iniciar sesion de nuevo.')
+                  : 'Solo se elimina del selector de cuentas en este dispositivo.'}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setAccountToClose(null)}
+                  disabled={closingAccount}
+                  className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950 disabled:opacity-60"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => handleCloseAccount(accountToClose)}
+                  disabled={closingAccount}
+                  className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                >
+                  {closingAccount ? 'Procesando...' : (String(accountToClose.user_id || accountToClose.id || '') === currentUserId ? 'Cerrar sesion' : 'Eliminar')}
+                </button>
+              </div>
             </motion.div>
           </>
         )}
