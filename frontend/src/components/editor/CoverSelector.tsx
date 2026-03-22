@@ -76,7 +76,7 @@ const CoverSelector: React.FC<CoverSelectorProps> = ({
           ${
             isCustomSelected
               ? 'border-stone-950 ring-2 ring-stone-950'
-              : 'border-stone-300 hover:border-stone-400'
+              : 'border-stone-200 hover:border-stone-400'
           }
           bg-stone-50
         `}

@@ -57,7 +57,7 @@ function RoleSelector({ activeRole, onSwitch, isOpen, onClose, availableRoles })
                   className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-3.5 text-left transition-all duration-150 ${
                     isActive
                       ? 'border-stone-950 bg-stone-50'
-                      : 'border-stone-100 bg-white hover:border-stone-300 hover:bg-stone-50'
+                      : 'border-stone-100 bg-white hover:border-stone-200 hover:bg-stone-50'
                   }`}
                 >
                   <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-colors ${

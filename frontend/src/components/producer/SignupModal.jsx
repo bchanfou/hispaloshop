@@ -875,7 +875,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 key={type}
                 type="button"
                 onClick={() => toggleProductType(type)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}
               >
                 {type}
               </button>
@@ -893,7 +893,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               key={option}
               type="button"
               onClick={() => updateField('exportStage', option)}
-              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${formData.exportStage === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${formData.exportStage === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}
             >
               {option}
             </button>
@@ -934,7 +934,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 key={option}
                 type="button"
                 onClick={() => updateField('references', option)}
-                className={`flex w-full items-center justify-between rounded-[14px] border px-4 py-3 text-sm font-semibold transition ${formData.references === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+                className={`flex w-full items-center justify-between rounded-[14px] border px-4 py-3 text-sm font-semibold transition ${formData.references === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}
               >
                 <span>{option}</span>
                 <span className={`h-3 w-3 rounded-full border ${formData.references === option ? 'border-stone-950 bg-stone-950' : 'border-stone-200 bg-white'}`} />
@@ -1153,7 +1153,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-full border border-stone-200 px-4 py-2 text-sm font-semibold text-stone-600 transition hover:border-stone-300 hover:text-stone-900"
+                className="rounded-full border border-stone-200 px-4 py-2 text-sm font-semibold text-stone-600 transition hover:border-stone-200 hover:text-stone-900"
               >
                 Cerrar
               </button>

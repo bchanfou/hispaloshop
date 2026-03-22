@@ -584,7 +584,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               ref={index === 0 ? secondRef : undefined}
               type="button"
               onClick={() => updateField('tradeStage', option)}
-              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.tradeStage === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.tradeStage === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}
             >
               {option}
             </button>
@@ -603,7 +603,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 key={type}
                 type="button"
                 onClick={() => toggleProductType(type)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}
               >
                 {type}
               </button>
@@ -621,7 +621,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               key={option}
               type="button"
               onClick={() => updateField('monthlyVolume', option)}
-              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.monthlyVolume === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.monthlyVolume === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}
             >
               {option}
             </button>
@@ -708,7 +708,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               ref={key === 'free' ? thirdRef : undefined}
               type="button"
               onClick={() => updateField('plan', key)}
-              className={`rounded-[26px] border px-5 py-5 text-left transition ${selectedPlan === key ? key === 'elite' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+              className={`rounded-[26px] border px-5 py-5 text-left transition ${selectedPlan === key ? key === 'elite' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'}`}
             >
               <div className="flex items-center justify-between gap-3">
                 <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${key === 'elite' ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-700'}`}>
@@ -830,7 +830,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-400">Onboarding importador</p>
                 <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-stone-900">{successState ? 'Infraestructura activada' : step === 1 ? 'Quien eres' : step === 2 ? 'Tu negocio' : 'Confirma tu plan'}</h2>
               </div>
-              <button type="button" onClick={closeModal} className="rounded-full border border-stone-200 px-4 py-2 text-sm font-semibold text-stone-600 transition hover:border-stone-300 hover:text-stone-900">Cerrar</button>
+              <button type="button" onClick={closeModal} className="rounded-full border border-stone-200 px-4 py-2 text-sm font-semibold text-stone-600 transition hover:border-stone-200 hover:text-stone-900">Cerrar</button>
             </div>
             <div className="mt-5">
               <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-stone-400">

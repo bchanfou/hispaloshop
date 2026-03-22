@@ -69,7 +69,7 @@ const Step4Preferences = ({ onNext, data, onDataChange }) => {
               type="button"
               onClick={() => setDiscoveryMethod(option.value)}
               className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors ${
-                selected ? 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-300'
+                selected ? 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-200'
               }`}
             >
               <div className={`mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl ${selected ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'}`}>
@@ -98,7 +98,7 @@ const Step4Preferences = ({ onNext, data, onDataChange }) => {
                 type="button"
                 onClick={() => setFrequency(value)}
                 className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition-colors ${
-                  selected ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                  selected ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'
                 }`}
               >
                 <span className="font-medium">{option}</span>

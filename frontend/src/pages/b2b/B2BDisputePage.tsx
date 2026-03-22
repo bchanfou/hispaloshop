@@ -115,7 +115,7 @@ export default function B2BDisputePage() {
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 py-5 pb-[100px]">
         {/* Warning card */}
-        <div className="bg-stone-50 border border-stone-300/30 rounded-xl p-4 mb-6">
+        <div className="bg-stone-50 border border-stone-200/30 rounded-xl p-4 mb-6">
           <div className="flex items-start gap-3 mb-2.5">
             <AlertTriangle size={20} className="text-stone-500 flex-shrink-0 mt-px" />
             <span className="text-[13px] text-stone-950 leading-[1.4]">

@@ -88,7 +88,7 @@ const ConsumerRegister = () => {
           <button
             type="button"
             onClick={() => navigate('/register/new')}
-            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-300 hover:text-stone-950"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-200 hover:text-stone-950"
           >
             <ArrowLeft className="h-4 w-4" />
             Volver

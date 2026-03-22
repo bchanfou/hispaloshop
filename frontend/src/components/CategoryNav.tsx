@@ -134,7 +134,7 @@ export default function CategoryNav({
                 }}
                 className={`group relative snap-start shrink-0 transition-all duration-150 ease-out ${
                   isCatalog
-                    ? `w-[120px] rounded-2xl border bg-white px-3 py-3 hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-sm ${
+                    ? `w-[120px] rounded-2xl border bg-white px-3 py-3 hover:-translate-y-[1px] hover:border-stone-200 hover:shadow-sm ${
                         isActive ? 'border-stone-950 bg-stone-50 shadow-sm' : 'border-stone-100'
                       }`
                     : `rounded-[1.5rem] border bg-white/85 p-3 transition-all duration-200 hover:bg-white ${category.border} ${

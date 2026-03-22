@@ -143,7 +143,7 @@ function TextToolPanel({ onAddText }: { onAddText: (config: TextConfig) => void 
             <button
               key={f.key}
               onClick={() => setFont(f.family)}
-              className={`shrink-0 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+              className={`shrink-0 px-3 py-1.5 rounded-xl text-sm transition-colors ${
                 font === f.family
                   ? 'bg-stone-950 text-white'
                   : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
@@ -196,7 +196,7 @@ function TextToolPanel({ onAddText }: { onAddText: (config: TextConfig) => void 
             <button
               key={s}
               onClick={() => setStyle(s)}
-              className={`px-3 py-1.5 rounded-lg text-sm capitalize transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-sm capitalize transition-colors ${
                 style === s
                   ? 'bg-stone-950 text-white'
                   : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
@@ -367,10 +367,10 @@ function ProductToolPanel({
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-10 h-10 rounded-lg object-cover bg-stone-100"
+                className="w-10 h-10 rounded-xl object-cover bg-stone-100"
               />
             ) : (
-              <div className="w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
                 <ShoppingBag size={16} className="text-stone-400" />
               </div>
             )}

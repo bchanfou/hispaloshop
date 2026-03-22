@@ -66,7 +66,7 @@ export default function StepInterests({ data, onUpdate, onNext }) {
               className={`relative p-4 rounded-2xl border-2 transition-all ${
                 isSelected
                   ? 'border-stone-950 bg-stone-50'
-                  : 'border-stone-200 hover:border-stone-300'
+                  : 'border-stone-200 hover:border-stone-200'
               }`}
             >
               <span className="text-3xl">{category.icon || category.emoji}</span>

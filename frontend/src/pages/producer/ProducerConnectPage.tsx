@@ -99,7 +99,7 @@ export default function ProducerConnectPage() {
                     className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors ${
                       isCompleted || isActive
                         ? 'bg-stone-950'
-                        : 'bg-transparent border-2 border-stone-300'
+                        : 'bg-transparent border-2 border-stone-200'
                     }`}
                   >
                     {isCompleted ? (

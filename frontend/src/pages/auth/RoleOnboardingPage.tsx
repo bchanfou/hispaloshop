@@ -57,7 +57,7 @@ function SelectGrid({ options, selected, onToggle }) {
           className={`cursor-pointer rounded-xl border-2 px-3 py-3.5 text-center transition-all ${
             selected.includes(opt.id)
               ? 'border-stone-950 bg-stone-950 text-white'
-              : 'border-stone-200 bg-stone-100 text-stone-950 hover:border-stone-300'
+              : 'border-stone-200 bg-stone-100 text-stone-950 hover:border-stone-200'
           }`}
         >
           <div className="mb-1 text-2xl">{opt.emoji}</div>

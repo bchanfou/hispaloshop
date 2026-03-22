@@ -112,7 +112,7 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
               className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all cursor-pointer ${
                 isFollowing
                   ? 'border-stone-950 bg-stone-50'
-                  : 'border-stone-200 hover:border-stone-300'
+                  : 'border-stone-200 hover:border-stone-200'
               }`}
               onClick={() => toggleFollow(producer.id)}
             >

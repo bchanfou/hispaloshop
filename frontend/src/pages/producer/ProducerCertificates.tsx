@@ -308,7 +308,7 @@ export default function ProducerCertificates() {
                           className={`p-4 rounded-2xl border-2 transition-all text-left ${
                             formData.certificate_type === type.id
                               ? 'border-stone-950 bg-stone-50'
-                              : 'border-stone-200 hover:border-stone-300'
+                              : 'border-stone-200 hover:border-stone-200'
                           }`}
                           data-testid={`cert-type-${type.id}`}
                         >

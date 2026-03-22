@@ -264,7 +264,7 @@ export default function B2BQuotesHistoryPage() {
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="px-2 py-1 rounded-lg border border-stone-200 text-xs bg-white text-stone-700 cursor-pointer focus:outline-none"
+            className="px-2 py-1 rounded-xl border border-stone-200 text-xs bg-white text-stone-700 cursor-pointer focus:outline-none"
           >
             {SORT_OPTIONS.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>

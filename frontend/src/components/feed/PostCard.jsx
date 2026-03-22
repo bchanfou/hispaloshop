@@ -845,7 +845,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                       src={img}
                       alt={product.name || product.title}
                       loading="lazy"
-                      className="h-7 w-7 rounded-lg object-cover"
+                      className="h-7 w-7 rounded-xl object-cover"
                     />
                   )}
                   <span className="max-w-[80px] truncate text-[11px] font-medium text-stone-950">

@@ -171,7 +171,7 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
                 <button
                   key={i}
                   onClick={() => sendMessage(p.prompt)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-50 border border-stone-200 rounded-full text-xs text-stone-700 hover:bg-stone-100 hover:border-stone-300 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-50 border border-stone-200 rounded-full text-xs text-stone-700 hover:bg-stone-100 hover:border-stone-200 transition-colors"
                   data-testid={`seller-ai-prompt-${i}`}
                 >
                   <Icon className="w-3 h-3" />

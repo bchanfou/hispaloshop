@@ -23,7 +23,7 @@ const CheckboxGroup = ({ options, selected, onChange, columns = 2 }) => {
             className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left ${
               isSelected 
                 ? 'border-stone-950 bg-stone-50' 
-                : 'border-stone-200 hover:border-stone-300'
+                : 'border-stone-200 hover:border-stone-200'
             }`}
           >
             <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${

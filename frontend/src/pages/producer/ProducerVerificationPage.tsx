@@ -54,8 +54,8 @@ function StepIndicator({ steps, current }) {
 /* ── Status Card ────────────────────────────────────────── */
 function StatusCard({ status, children }) {
   const styles = {
-    verified: { bg: 'bg-stone-100', border: 'border-stone-300', icon: Check, color: 'text-stone-800' },
-    rejected: { bg: 'bg-stone-100', border: 'border-stone-300', icon: AlertCircle, color: 'text-stone-700' },
+    verified: { bg: 'bg-stone-100', border: 'border-stone-200', icon: Check, color: 'text-stone-800' },
+    rejected: { bg: 'bg-stone-100', border: 'border-stone-200', icon: AlertCircle, color: 'text-stone-700' },
     manual_review: { bg: 'bg-stone-50', border: 'border-stone-200', icon: Clock, color: 'text-stone-600' },
     pending: { bg: 'bg-stone-50', border: 'border-stone-200', icon: Loader2, color: 'text-stone-500' },
   };

@@ -5,6 +5,7 @@ import {
   TrendingUp, ShoppingCart, Clock, AlertCircle,
   CheckCircle, ChevronRight, RefreshCw, Zap
 } from 'lucide-react';
+import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 
 const STATUS_CONFIG = {
@@ -122,8 +123,9 @@ export default function HispaloPredictions() {
         product_id: productId,
         quantity: 1,
       });
+      toast.success('Producto añadido al carrito');
     } catch (err) {
-      // Sentry captures this automatically
+      toast.error('Error al añadir al carrito');
     } finally {
       setReordering(null);
     }

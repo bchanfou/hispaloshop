@@ -1073,7 +1073,7 @@ export default function ProfileHeader({
                   </p>
                   {archivedStoriesLoading ? (
                     <div className="flex items-center justify-center py-10">
-                      <div className="w-6 h-6 border-2 border-stone-300 border-t-stone-950 rounded-full animate-spin" />
+                      <div className="w-6 h-6 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
                     </div>
                   ) : archivedStories.length === 0 ? (
                     <p className="py-10 text-center text-sm text-stone-500">No hay historias en tu archivo</p>

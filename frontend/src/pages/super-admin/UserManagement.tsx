@@ -227,7 +227,7 @@ export default function UserManagement() {
           <div 
             onClick={() => setSelectedRole('customer')}
             className={`bg-white rounded-2xl border p-4 cursor-pointer transition-all ${
-              selectedRole === 'customer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-300'
+              selectedRole === 'customer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-200'
             }`}
           >
             <div className="flex items-center gap-3 mb-3">
@@ -255,7 +255,7 @@ export default function UserManagement() {
           <div 
             onClick={() => setSelectedRole('producer')}
             className={`bg-white rounded-2xl border p-4 cursor-pointer transition-all ${
-              selectedRole === 'producer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-300'
+              selectedRole === 'producer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-200'
             }`}
           >
             <div className="flex items-center gap-3 mb-3">
@@ -283,7 +283,7 @@ export default function UserManagement() {
           <div 
             onClick={() => setSelectedRole('influencer')}
             className={`bg-white rounded-2xl border p-4 cursor-pointer transition-all ${
-              selectedRole === 'influencer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-300'
+              selectedRole === 'influencer' ? 'border-stone-950 ring-2 ring-stone-950/20' : 'border-stone-200 hover:border-stone-200'
             }`}
           >
             <div className="flex items-center gap-3 mb-3">

@@ -69,7 +69,7 @@ export default function InterestsStep({ onNext, onError }) {
               type="button"
               onClick={() => toggleCategory(category)}
               className={`rounded-2xl border p-4 text-left text-sm font-medium transition-colors ${
-                active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'
               }`}
             >
               {category}

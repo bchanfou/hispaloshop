@@ -868,7 +868,7 @@ export default function ProducerOverview() {
             {stats.top_products.slice(0, 3).map((tp, i) => (
               <div key={tp.product_id || i} className="flex items-center gap-2 rounded-xl shadow-sm p-2 min-w-0 shrink-0">
                 {tp.image && (
-                  <img src={tp.image} alt={tp.name} className="w-10 h-10 rounded-lg object-cover shrink-0" loading="lazy" />
+                  <img src={tp.image} alt={tp.name} className="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy" />
                 )}
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-stone-950 truncate">{tp.name}</p>

@@ -218,10 +218,10 @@ function ProductAutocomplete({ value, onSelect, onChange }) {
                 <img
                   src={product.image_url}
                   alt={product.name}
-                  className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                  className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0">
                   <Package size={16} className="text-stone-300" />
                 </div>
               )}
@@ -503,7 +503,7 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
           <Package size={16} className="text-stone-950" />
           <span className="text-[13px] font-semibold text-stone-950">Producto</span>
           {modifiedFields.includes('product_name') && (
-            <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 border border-stone-300 rounded-md px-1.5 py-px">Modificado</span>
+            <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 border border-stone-200 rounded-md px-1.5 py-px">Modificado</span>
           )}
         </div>
         <p className="text-sm font-medium text-stone-950">{form.product_name}</p>
@@ -567,7 +567,7 @@ function StepRevisar({ form, prefillData, confirmed, setConfirmed }) {
           <p className="text-sm font-medium text-stone-950">{termLabel}</p>
         </div>
         {subtotal > 0 && (
-          <div className="bg-stone-50 rounded-lg p-3">
+          <div className="bg-stone-50 rounded-xl p-3">
             <div className="flex items-center gap-1.5 mb-2">
               <Percent size={12} className="text-stone-500" />
               <span className="text-xs font-medium text-stone-500">Desglose</span>

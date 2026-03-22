@@ -62,7 +62,7 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
                 type="button"
                 onClick={() => toggleItem(option.value, dietaryRestrictions, setDietaryRestrictions)}
                 className={`rounded-2xl border p-3 text-left text-sm font-medium transition-colors ${
-                  selected ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                  selected ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'
                 }`}
               >
                 {option.label}
@@ -85,7 +85,7 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
                 type="button"
                 onClick={() => toggleItem(category, categories, setCategories)}
                 className={`rounded-2xl border p-3 text-left text-sm font-medium transition-colors ${
-                  selected ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                  selected ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-200'
                 }`}
               >
                 {category}

@@ -1081,7 +1081,7 @@ export default function CreateReelPage() {
             <button
               onClick={() => coverInputRef.current?.click()}
               className={`w-14 h-20 rounded-2xl bg-stone-100 shrink-0 flex flex-col items-center justify-center p-1 overflow-hidden border-2 cursor-pointer ${
-                coverFromGallery ? 'border-stone-950' : 'border-dashed border-stone-300'
+                coverFromGallery ? 'border-stone-950' : 'border-dashed border-stone-200'
               }`}
               aria-label="Portada desde galería"
             >

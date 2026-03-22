@@ -143,7 +143,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
                 transition-all duration-200 hover:scale-105
                 ${selectedImageIndex === idx
                   ? 'border-stone-950 ring-2 ring-stone-200'
-                  : 'border-stone-200 hover:border-stone-300'
+                  : 'border-stone-200 hover:border-stone-200'
                 }
               `}
               data-testid={`product-thumbnail-${idx}`}

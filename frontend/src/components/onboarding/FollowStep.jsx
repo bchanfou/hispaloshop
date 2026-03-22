@@ -77,7 +77,7 @@ export default function FollowStep({ onBack, onComplete, onError }) {
                 type="button"
                 onClick={() => toggleUser(user.user_id)}
                 className={`flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition-colors ${
-                  active ? 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-300'
+                  active ? 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-200'
                 }`}
               >
                 <img src={user.picture || '/default-avatar.png'} alt={user.name} className="h-12 w-12 rounded-full object-cover" />

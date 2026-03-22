@@ -105,7 +105,7 @@ export default function ContactPage() {
                     className={`px-3.5 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-150 ${
                       role === r
                         ? 'bg-stone-950 text-white border border-stone-950'
-                        : 'bg-white text-stone-500 border border-stone-200 hover:border-stone-300'
+                        : 'bg-white text-stone-500 border border-stone-200 hover:border-stone-200'
                     }`}
                   >
                     {r}

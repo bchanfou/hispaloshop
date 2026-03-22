@@ -56,7 +56,7 @@ function QuickAction({ icon: Icon, label, href, variant = 'default' }) {
     <Link
       to={href}
       className={`flex items-center gap-3 p-3.5 rounded-2xl transition-all text-sm font-semibold ${
-        isPrimary ? 'bg-stone-950 text-white' : 'bg-white border border-stone-200 text-stone-950 hover:border-stone-300'
+        isPrimary ? 'bg-stone-950 text-white' : 'bg-white border border-stone-200 text-stone-950 hover:border-stone-200'
       }`}
     >
       <Icon className={`w-5 h-5 shrink-0 ${isPrimary ? 'text-white' : 'text-stone-500'}`} />

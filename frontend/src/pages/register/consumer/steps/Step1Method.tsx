@@ -35,7 +35,7 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
           onMethodSelect('email');
           onNext();
         }}
-        className="flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white p-4 text-left transition-all hover:border-stone-300 hover:shadow-sm"
+        className="flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white p-4 text-left transition-all hover:border-stone-200 hover:shadow-sm"
       >
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white">
           <Mail className="h-5 w-5" />

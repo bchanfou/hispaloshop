@@ -238,7 +238,7 @@ export default function OnboardingPage() {
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setSelectedRole(role.id)}
                 className={`relative flex flex-col items-center text-center rounded-2xl p-5 cursor-pointer transition-all border-2 bg-white ${
-                  selected ? 'border-stone-950' : 'border-stone-200 hover:border-stone-300'
+                  selected ? 'border-stone-950' : 'border-stone-200 hover:border-stone-200'
                 }`}
                 style={{ fontFamily: 'inherit' }}
               >

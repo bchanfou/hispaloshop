@@ -40,7 +40,7 @@ export default function LandingSectionNav({ items = DEFAULT_ITEMS }) {
               key={item.label}
               type="button"
               onClick={() => handleClick(item.href)}
-              className="shrink-0 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50 hover:text-stone-950"
+              className="shrink-0 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-200 hover:bg-stone-50 hover:text-stone-950"
             >
               {item.label}
             </button>
