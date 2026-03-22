@@ -23,7 +23,7 @@ function SuggestionItem({ item, type, onClick }) {
       onClick={onClick}
       className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-stone-50"
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-stone-100">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-stone-100">
         {img ? (
           <img src={img} alt={name} className="h-full w-full object-cover" />
         ) : (
