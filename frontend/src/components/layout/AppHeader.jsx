@@ -24,7 +24,7 @@ export default function AppHeader() {
 
   // WS count is real-time; polled count is fallback
   const unreadCount = isAuthenticated
-    ? (wsCount > 0 ? wsCount : (unreadData?.count ?? 0))
+    ? (wsCount > 0 ? wsCount : (unreadData?.unread_count ?? 0))
     : 0;
   const totalCartItems = isAuthenticated ? getTotalItems() : 0;
 

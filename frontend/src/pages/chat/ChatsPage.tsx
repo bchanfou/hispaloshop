@@ -100,7 +100,11 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping, is
             </div>
           )}
           {online && (
-            <span className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-white bg-stone-950" />
+            <motion.span
+              animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -bottom-0.5 -right-0.5 h-[11px] w-[11px] rounded-full border-2 border-white bg-stone-950"
+            />
           )}
         </div>
 
@@ -138,9 +142,13 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping, is
           )}
 
           {isUnread && (
-            <span className="flex h-[20px] min-w-[20px] shrink-0 items-center justify-center rounded-full bg-stone-950 px-1 text-[11px] font-semibold leading-none text-white">
+            <motion.span
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex h-[20px] min-w-[20px] shrink-0 items-center justify-center rounded-full bg-stone-950 px-1 text-[11px] font-semibold leading-none text-white"
+            >
               {unread_count > 99 ? '99+' : unread_count}
-            </span>
+            </motion.span>
           )}
         </div>
       </div>
@@ -272,7 +280,11 @@ export default function ChatsPage() {
                             {getInitial(conv.name)}
                           </div>
                         )}
-                        <span className="absolute -bottom-0.5 -right-0.5 h-[12px] w-[12px] rounded-full border-2 border-white bg-stone-950" />
+                        <motion.span
+                          animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                          className="absolute -bottom-0.5 -right-0.5 h-[12px] w-[12px] rounded-full border-2 border-white bg-stone-950"
+                        />
                       </div>
                       <span className="w-full truncate text-center text-[11px] text-stone-500">{(conv.name || '').split(' ')[0]}</span>
                     </button>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Grid3X3,
@@ -254,23 +255,29 @@ const ProfileTabs = forwardRef(function ProfileTabs({
         {items.map((post, i) => {
           const src = (post.images?.length > 0 && post.images[0]) || post.image_url;
           const hasMultiple = post.images?.length > 1;
+          const Wrapper = i < 12 ? motion.div : 'div';
+          const motionProps = i < 12 ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3, delay: Math.min(i * 0.03, 0.3) } } : {};
           return (
-            <div
+            <Wrapper
               key={post.id || post.post_id || i}
-              onClick={() => onPostClick?.(post, items)}
-              onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(post, items); }}
-              role="button"
-              tabIndex={0}
-              className="relative aspect-square cursor-pointer overflow-hidden bg-white active:scale-[0.97] active:opacity-80 transition-transform"
+              {...motionProps}
             >
-              <img
-                src={src}
-                alt={post.caption ? post.caption.slice(0, 80) : 'Publicación'}
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-              {hasMultiple && <MultiImageBadge />}
-            </div>
+              <div
+                onClick={() => onPostClick?.(post, items)}
+                onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(post, items); }}
+                role="button"
+                tabIndex={0}
+                className="relative aspect-square cursor-pointer overflow-hidden bg-white active:scale-[0.97] active:opacity-80 transition-transform"
+              >
+                <img
+                  src={src}
+                  alt={post.caption ? post.caption.slice(0, 80) : 'Publicación'}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+                {hasMultiple && <MultiImageBadge />}
+              </div>
+            </Wrapper>
           );
         })}
       </div>
@@ -291,28 +298,34 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       <div className="grid grid-cols-3 gap-1">
         {items.map((reel, i) => {
           const src = reel.thumbnail_url || reel.cover_url || reel.image_url || '';
+          const Wrapper = i < 12 ? motion.div : 'div';
+          const motionProps = i < 12 ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3, delay: Math.min(i * 0.03, 0.3) } } : {};
           return (
-            <div
+            <Wrapper
               key={reel.id || reel.reel_id || i}
-              onClick={() => { setSelectedReel(reel); setReelIndex(i); }}
-              onKeyDown={(e) => { if (e.key === 'Enter') { setSelectedReel(reel); setReelIndex(i); } }}
-              role="button"
-              tabIndex={0}
-              className="relative aspect-square cursor-pointer overflow-hidden bg-black active:scale-[0.97] active:opacity-80 transition-transform"
+              {...motionProps}
             >
-              <img
-                src={src}
-                alt={reel.caption ? reel.caption.slice(0, 80) : 'Reel'}
-                loading="lazy"
-                className="block h-full w-full object-cover"
-              />
-              {reel.views != null && (
-                <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 text-[12px] font-semibold text-white drop-shadow-md">
-                  <Play size={12} fill="white" />
-                  {formatViews(reel.views)}
-                </span>
-              )}
-            </div>
+              <div
+                onClick={() => { setSelectedReel(reel); setReelIndex(i); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { setSelectedReel(reel); setReelIndex(i); } }}
+                role="button"
+                tabIndex={0}
+                className="relative aspect-square cursor-pointer overflow-hidden bg-black active:scale-[0.97] active:opacity-80 transition-transform"
+              >
+                <img
+                  src={src}
+                  alt={reel.caption ? reel.caption.slice(0, 80) : 'Reel'}
+                  loading="lazy"
+                  className="block h-full w-full object-cover"
+                />
+                {reel.views != null && (
+                  <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 text-[12px] font-semibold text-white drop-shadow-md">
+                    <Play size={12} fill="white" />
+                    {formatViews(reel.views)}
+                  </span>
+                )}
+              </div>
+            </Wrapper>
           );
         })}
       </div>
@@ -335,9 +348,14 @@ const ProfileTabs = forwardRef(function ProfileTabs({
           const src = product.image_url || product.images?.[0] || '';
           const handleProductClick = () =>
             onProductClick ? onProductClick(product) : navigate(`/products/${product.id || product.product_id}`);
+          const Wrapper = i < 12 ? motion.div : 'div';
+          const motionProps = i < 12 ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3, delay: Math.min(i * 0.03, 0.3) } } : {};
           return (
-            <div
+            <Wrapper
               key={product.id || product.product_id || i}
+              {...motionProps}
+            >
+            <div
               onClick={handleProductClick}
               onKeyDown={(e) => { if (e.key === 'Enter') handleProductClick(); }}
               role="button"
@@ -359,6 +377,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
                 </p>
               </div>
             </div>
+            </Wrapper>
           );
         })}
       </div>
@@ -380,38 +399,44 @@ const ProfileTabs = forwardRef(function ProfileTabs({
         {items.map((recipe, i) => {
           const src = recipe.image_url || recipe.images?.[0] || '';
           const recipeUrl = `/recipes/${recipe.id || recipe.recipe_id}`;
+          const Wrapper = i < 12 ? motion.div : 'div';
+          const motionProps = i < 12 ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3, delay: Math.min(i * 0.03, 0.3) } } : {};
           return (
-            <div
+            <Wrapper
               key={recipe.id || recipe.recipe_id || i}
-              onClick={() => navigate(recipeUrl)}
-              onKeyDown={(e) => { if (e.key === 'Enter') navigate(recipeUrl); }}
-              role="button"
-              tabIndex={0}
-              className="cursor-pointer overflow-hidden rounded-2xl border border-stone-200 bg-white"
+              {...motionProps}
             >
-              <img
-                src={src}
-                alt={recipe.name || recipe.title || 'Receta'}
-                loading="lazy"
-                className="block aspect-[4/3] w-full rounded-t-2xl object-cover"
-              />
-              <div className="p-2">
-                <p className="truncate text-[13px] font-medium text-stone-950">
-                  {recipe.name || recipe.title}
-                </p>
-                {recipe.prep_time != null && (
-                  <p className="mt-1 text-[11px] text-stone-500">
-                    ⏱ {recipe.prep_time}min
+              <div
+                onClick={() => navigate(recipeUrl)}
+                onKeyDown={(e) => { if (e.key === 'Enter') navigate(recipeUrl); }}
+                role="button"
+                tabIndex={0}
+                className="cursor-pointer overflow-hidden rounded-2xl border border-stone-200 bg-white"
+              >
+                <img
+                  src={src}
+                  alt={recipe.name || recipe.title || 'Receta'}
+                  loading="lazy"
+                  className="block aspect-[4/3] w-full rounded-t-2xl object-cover"
+                />
+                <div className="p-2">
+                  <p className="truncate text-[13px] font-medium text-stone-950">
+                    {recipe.name || recipe.title}
                   </p>
-                )}
-                {recipe.avg_rating > 0 && (
-                  <p className="text-[11px] text-stone-500 flex items-center gap-1">
-                    <Star size={10} className="fill-stone-950 text-stone-950" />
-                    {recipe.avg_rating.toFixed(1)} · {recipe.review_count || 0}
-                  </p>
-                )}
+                  {recipe.prep_time != null && (
+                    <p className="mt-1 text-[11px] text-stone-500">
+                      {recipe.prep_time}min
+                    </p>
+                  )}
+                  {recipe.avg_rating > 0 && (
+                    <p className="text-[11px] text-stone-500 flex items-center gap-1">
+                      <Star size={10} className="fill-stone-950 text-stone-950" />
+                      {recipe.avg_rating.toFixed(1)} · {recipe.review_count || 0}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            </Wrapper>
           );
         })}
       </div>
@@ -428,22 +453,28 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       <div className="grid grid-cols-3 gap-1">
         {items.map((item, i) => {
           const src = (item.images?.length > 0 && item.images[0]) || item.image_url;
+          const Wrapper = i < 12 ? motion.div : 'div';
+          const motionProps = i < 12 ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3, delay: Math.min(i * 0.03, 0.3) } } : {};
           return (
-            <div
+            <Wrapper
               key={item.id || item.post_id || i}
-              onClick={() => onPostClick?.(item, items)}
-              onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(item, items); }}
-              role="button"
-              tabIndex={0}
-              className="relative aspect-square cursor-pointer overflow-hidden"
+              {...motionProps}
             >
-              <img
-                src={src}
-                alt="Publicación guardada"
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-            </div>
+              <div
+                onClick={() => onPostClick?.(item, items)}
+                onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(item, items); }}
+                role="button"
+                tabIndex={0}
+                className="relative aspect-square cursor-pointer overflow-hidden"
+              >
+                <img
+                  src={src}
+                  alt="Publicación guardada"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </Wrapper>
           );
         })}
       </div>

@@ -31,6 +31,7 @@ import CollabProposalCard from '../../components/chat/collab/CollabProposalCard'
 import AffiliateLinkCard from '../../components/chat/collab/AffiliateLinkCard';
 import ProductCardMessage from '../../components/chat/ProductCardMessage';
 import SampleShipmentCard from '../../components/chat/collab/SampleShipmentCard';
+import { useHaptics } from '../../hooks/useHaptics';
 
 /* ────────── Date helpers ────────── */
 function isSameDay(a, b) {
@@ -853,6 +854,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
   const timerRef = useRef(null);
   const fileInputRef = useRef(null);
   const recordingSecsRef = useRef(0);
+  const { trigger: haptic } = useHaptics();
 
   // Auto-focus the input when the component mounts
   useEffect(() => {
@@ -880,12 +882,13 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
   const handleSend = useCallback(() => {
     const trimmed = text.trim();
     if (!trimmed) return;
+    haptic('light');
     onSend(trimmed);
     setText('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     onTyping(false);
-  }, [text, onSend, onTyping]);
+  }, [text, onSend, onTyping, haptic]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -1024,6 +1027,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
+                whileTap={{ scale: 0.9 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 onClick={handleSend}
                 className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75"
@@ -1137,7 +1141,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (!user || !conversationId) return;
     const unread = localMessages
-      .filter((m) => !m.read && String(m.sender_id || m.user_id) !== String(user.id))
+      .filter((m) => !m.read && String(m.sender_id || m.user_id) !== String(user.user_id || user.id))
       .map((m) => m.message_id || m.id);
     if (unread.length > 0) markAsRead(conversationId, unread);
   }, [localMessages, user, conversationId, markAsRead]);
@@ -1158,7 +1162,7 @@ export default function ChatPage() {
     const optimistic = {
       id: tempId,
       message_id: tempId,
-      sender_id: user?.id,
+      sender_id: user?.user_id || user?.id,
       content,
       message_type: 'text',
       created_at: new Date().toISOString(),
@@ -1182,7 +1186,7 @@ export default function ChatPage() {
       if (data?.image_url) {
         const tempId = `temp-img-${Date.now()}`;
         const optimistic = {
-          id: tempId, message_id: tempId, sender_id: user?.id,
+          id: tempId, message_id: tempId, sender_id: user?.user_id || user?.id,
           content: '', message_type: 'image', image_url: data.image_url,
           created_at: new Date().toISOString(), read: false, status: 'sending',
         };
@@ -1206,7 +1210,7 @@ export default function ChatPage() {
       if (data?.audio_url) {
         const tempId = `temp-audio-${Date.now()}`;
         const optimistic = {
-          id: tempId, message_id: tempId, sender_id: user?.id,
+          id: tempId, message_id: tempId, sender_id: user?.user_id || user?.id,
           content: '', message_type: 'audio', audio_url: data.audio_url,
           audio_duration: duration,
           created_at: new Date().toISOString(), read: false, status: 'sending',
@@ -1226,9 +1230,10 @@ export default function ChatPage() {
     // Optimistic update
     setLocalMessages((prev) => prev.map(m => {
       if ((m.message_id || m.id) !== (message.message_id || message.id)) return m;
-      const reactions = (m.reactions || []).filter(r => r.user_id !== user?.id);
-      const alreadyHas = (m.reactions || []).some(r => r.user_id === user?.id && r.emoji === emoji);
-      if (!alreadyHas) reactions.push({ user_id: user?.id, emoji, name: user?.name || '' });
+      const currentUserId = user?.user_id || user?.id;
+      const reactions = (m.reactions || []).filter(r => r.user_id !== currentUserId);
+      const alreadyHas = (m.reactions || []).some(r => r.user_id === currentUserId && r.emoji === emoji);
+      if (!alreadyHas) reactions.push({ user_id: currentUserId, emoji, name: user?.name || '' });
       return { ...m, reactions };
     }));
   }, [conversationId, sendReaction, user]);
@@ -1291,7 +1296,7 @@ export default function ChatPage() {
       result.push({
         type: 'message',
         message: msg,
-        isOwn: senderId === String(user?.id),
+        isOwn: senderId === String(user?.user_id || user?.id),
         isConsecutive: senderId === lastSender,
         isFirstInGroup: !withinGroup,
         isLastInGroup: !nextWithinGroup,
@@ -1341,25 +1346,40 @@ export default function ChatPage() {
             <EmptyConversation conversation={conversation} onSendSuggestion={handleSend} />
           )}
 
-          {groupedMessages.map((item) =>
-            item.type === 'date'
-              ? <DateSeparator key={item.key} date={item.date} compact={compact} />
-              : <MessageBubble
-                  key={item.key}
-                  message={item.message}
-                  isOwn={item.isOwn}
-                  isConsecutive={item.isConsecutive}
-                  isFirstInGroup={item.isFirstInGroup}
-                  isLastInGroup={item.isLastInGroup}
-                  isMiddleInGroup={item.isMiddleInGroup}
-                  onImageTap={setLightboxImage}
-                  onContextMenu={handleContextMenu}
-                  onReply={handleReply}
-                  onReact={handleReact}
-                  searchHighlight={searchQuery.trim() || null}
-                  compact={compact}
-                />
-          )}
+          {groupedMessages.map((item) => {
+            if (item.type === 'date') return <DateSeparator key={item.key} date={item.date} compact={compact} />;
+            const isNewlySent = item.message?.status === 'sending' || String(item.message?.id || '').startsWith('temp-');
+            const bubble = (
+              <MessageBubble
+                key={item.key}
+                message={item.message}
+                isOwn={item.isOwn}
+                isConsecutive={item.isConsecutive}
+                isFirstInGroup={item.isFirstInGroup}
+                isLastInGroup={item.isLastInGroup}
+                isMiddleInGroup={item.isMiddleInGroup}
+                onImageTap={setLightboxImage}
+                onContextMenu={handleContextMenu}
+                onReply={handleReply}
+                onReact={handleReact}
+                searchHighlight={searchQuery.trim() || null}
+                compact={compact}
+              />
+            );
+            if (isNewlySent) {
+              return (
+                <motion.div
+                  key={`entrance-${item.key}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {bubble}
+                </motion.div>
+              );
+            }
+            return bubble;
+          })}
 
           {isTyping && <TypingIndicator />}
           <div ref={bottomRef} />
@@ -1488,7 +1508,7 @@ export default function ChatPage() {
           <MessageContextMenu
             contextMenu={contextMenu}
             onClose={() => setContextMenu(null)}
-            userId={user?.id}
+            userId={user?.user_id || user?.id}
             onReact={handleReact}
             onReply={handleReply}
             onDelete={handleDeleteMessage}

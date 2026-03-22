@@ -45,9 +45,10 @@ export function useUnreadNotifications({ enabled = true } = {}) {
 export function useNotifications() {
   return useInfiniteQuery({
     queryKey: NOTIF_KEYS.all,
-    queryFn: ({ pageParam }) => 
-      apiClient.get('/notifications', { params: { cursor: pageParam, limit: 20 } }),
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    queryFn: ({ pageParam = 1 }) => 
+      apiClient.get('/notifications', { params: { page: pageParam, limit: 20 } }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => (lastPage?.has_more ? (lastPage?.page || 1) + 1 : undefined),
     staleTime: 30 * 1000,
   });
 }
@@ -141,8 +142,8 @@ export function useUpdateNotificationPreferences() {
  */
 export function useRegisterPushToken() {
   return useMutation({
-    mutationFn: (fcmToken) => 
-      apiClient.post('/notifications/push/register', { token: fcmToken }),
+    mutationFn: ({ subscription }) => 
+      apiClient.post('/push/subscribe', { subscription }),
   });
 }
 
@@ -151,7 +152,7 @@ export function useRegisterPushToken() {
  */
 export function useUnregisterPushToken() {
   return useMutation({
-    mutationFn: () => apiClient.post('/notifications/push/unregister'),
+    mutationFn: ({ endpoint } = {}) => apiClient.post('/push/unsubscribe', endpoint ? { endpoint } : {}),
   });
 }
 

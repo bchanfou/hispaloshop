@@ -41,6 +41,15 @@ const HIDDEN_ON_PREFIXES = [
   '/vender',
 ];
 
+export function resolveChatToastTarget(messageToast) {
+  const conversationId = messageToast?.conversationId;
+  if (conversationId) {
+    return `/messages/${conversationId}`;
+  }
+
+  return '/messages';
+}
+
 
 export default function BottomNavBar() {
   const { user } = useAuth();
@@ -79,11 +88,8 @@ export default function BottomNavBar() {
   }, []);
 
   const openMessageToast = useCallback(() => {
-    if (!messageToast?.senderId) return;
-    const senderId = messageToast.senderId;
     dismissMessageToast();
-    if (!senderId) return;
-    navigate(`/messages/${senderId}`);
+    navigate(resolveChatToastTarget(messageToast));
   }, [dismissMessageToast, messageToast, navigate]);
 
   useEffect(() => {

@@ -463,7 +463,7 @@ export default function NotificationsPage() {
   const { mutate: markAll }     = useMarkAllAsRead();
   const { mutate: deleteNotif } = useDeleteNotification();
 
-  const unreadCount = unreadData?.count ?? 0;
+  const unreadCount = unreadData?.unread_count ?? 0;
 
   // Flatten pages
   const notifications = data?.pages?.flatMap(

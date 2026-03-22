@@ -297,7 +297,7 @@ export default function UserProfilePage() {
           initial={{ y: -48, opacity: 0 }}
           animate={{ y: scrolled ? 0 : -48, opacity: scrolled ? 1 : 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-          className="fixed top-0 left-0 right-0 z-40 flex h-12 items-center justify-between bg-white/95 backdrop-blur-md border-b border-stone-100 px-3"
+          className="fixed top-0 left-0 right-0 z-40 flex h-12 items-center justify-between backdrop-blur-md bg-white/90 border-b border-stone-100 px-3"
           aria-hidden={!scrolled}
         >
           <button

@@ -9,6 +9,13 @@ export const internalChatKeys = {
   producer: (id) => ['internal-chat', 'producer', id],
 };
 
+export function buildInternalChatStartConversationPayload(userId) {
+  return {
+    recipient_id: userId,
+    other_user_id: userId,
+  };
+}
+
 export function useInternalChatConversations(enabled = true) {
   return useQuery({
     queryKey: internalChatKeys.conversations,
@@ -78,7 +85,8 @@ export function useInternalChatStartConversation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userId) => apiClient.post('/internal-chat/start-conversation', { user_id: userId }),
+    mutationFn: (userId) =>
+      apiClient.post('/internal-chat/start-conversation', buildInternalChatStartConversationPayload(userId)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: internalChatKeys.conversations });
     },

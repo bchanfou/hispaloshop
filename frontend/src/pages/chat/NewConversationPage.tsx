@@ -72,11 +72,12 @@ export default function NewConversationPage() {
     if (!conversations || !user) return [];
     const seen = new Set();
     const contacts = [];
+    const currentUserId = user.user_id || user.id;
     for (const conv of conversations) {
       const other = conv.other_user || conv.otherUser;
       if (!other) continue;
       const id = other.id || other.user_id;
-      if (id && !seen.has(id) && id !== user.id) {
+      if (id && !seen.has(id) && id !== currentUserId) {
         seen.add(id);
         contacts.push({ ...other, _convId: conv.id });
       }

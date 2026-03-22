@@ -109,14 +109,24 @@ export function ChatProvider({ children }) {
 
   // Mark messages as read
   const markAsRead = useCallback((conversationId, messageIds) => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
     if (!messageIds || messageIds.length === 0) return;
-    
-    wsRef.current.send(JSON.stringify({
-      type: 'read_receipt',
-      conversation_id: conversationId,
-      message_ids: messageIds
-    }));
+
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'read_receipt',
+        conversation_id: conversationId,
+        message_ids: messageIds
+      }));
+    } else {
+      apiClient.post(`/chat/conversations/${conversationId}/read`, {}).catch(() => {});
+    }
+
+    setMessages((prev) => prev.map((msg) =>
+      messageIds.includes(msg.message_id || msg.id)
+        ? { ...msg, read: true }
+        : msg
+    ));
+    setUnreadTotal((prev) => Math.max(0, prev - messageIds.length));
   }, []);
 
   // Create new conversation
@@ -256,15 +266,18 @@ export function ChatProvider({ children }) {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          const { type, payload } = data.type ? data : { type: data.event, payload: data };
+          const type = data?.type || data?.event;
+          const payload = data?.payload || data;
 
           switch (type) {
             case 'notification':
               toast(payload.title, { description: payload.body, duration: 5000 });
-              if (!payload.read) setNotifUnreadCount(prev => prev + 1);
+              if (!payload.read && !payload.read_at) setNotifUnreadCount(prev => prev + 1);
               queryClient.invalidateQueries({ queryKey: ['notifications'] });
+              queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
               break;
             case 'message':
+            case 'new_message':
               queryClient.invalidateQueries({ queryKey: ['hi', 'conversations'] });
               queryClient.invalidateQueries({ queryKey: ['hi', 'conversation'] });
               break;

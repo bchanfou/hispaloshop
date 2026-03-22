@@ -362,7 +362,7 @@ export default function SideNav() {
   const { t } = useTranslation();
   const { getTotalItems } = useCart();
   const { data: unreadData } = useUnreadNotifications();
-  const unreadCount = user ? (unreadData?.count ?? 0) : 0;
+  const unreadCount = user ? (unreadData?.unread_count ?? 0) : 0;
   const totalCartItems = getTotalItems();
 
   const [searchOpen, setSearchOpen] = useState(false);

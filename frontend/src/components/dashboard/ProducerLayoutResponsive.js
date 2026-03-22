@@ -35,7 +35,7 @@ export default function ProducerLayout() {
   const { data: stats } = useProducerDashboardStats(Boolean(user) && ['producer', 'importer'].includes(user.role));
   const logoutMutation = useDashboardLogout();
   const { data: notifData } = useUnreadNotifications();
-  const unreadNotifs = user ? (notifData?.count ?? 0) : 0;
+  const unreadNotifs = user ? (notifData?.unread_count ?? 0) : 0;
   const badges = { pending_products: stats?.pending_products || 0 };
 
   // All navigation items

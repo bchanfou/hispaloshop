@@ -733,7 +733,7 @@ export default function ProfileHeader({
 
         {/* bio (Q4: line breaks + linkify) */}
         {user?.bio && (
-          <div className="mt-1 whitespace-pre-line text-sm leading-relaxed text-stone-950">
+          <motion.div layout transition={{ duration: 0.2, ease: 'easeOut' }} className="mt-1 whitespace-pre-line text-sm leading-relaxed text-stone-950">
             <LinkifiedBio text={bioText} />
             {user.bio.length > 150 && !bioExpanded && (
               <button
@@ -751,7 +751,7 @@ export default function ProfileHeader({
                 menos
               </button>
             )}
-          </div>
+          </motion.div>
         )}
 
         {/* social links — all roles */}
@@ -984,8 +984,11 @@ export default function ProfileHeader({
           )}
 
           {highlights.map((hl, i) => (
-            <div
+            <motion.div
               key={hl.highlight_id || hl.id || i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.06 }}
               className="relative flex shrink-0 flex-col items-center gap-1.5 cursor-pointer snap-start"
               onClick={() => onViewHighlight?.(hl)}
               onPointerDown={isOwn ? () => handleHighlightLongPressStart(hl) : undefined}
@@ -1005,7 +1008,7 @@ export default function ProfileHeader({
               <span className="max-w-[64px] truncate text-[11px] text-stone-950">
                 {hl.title?.slice(0, 15)}
               </span>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
