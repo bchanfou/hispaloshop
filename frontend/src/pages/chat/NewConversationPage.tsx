@@ -147,7 +147,7 @@ export default function NewConversationPage() {
   const showResults = query.length >= 2;
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-[600px] flex-col bg-white font-apple">
+    <div className="mx-auto flex min-h-screen max-w-[600px] lg:max-w-[600px] flex-col bg-white font-apple lg:my-8 lg:min-h-0 lg:rounded-2xl lg:shadow-sm lg:border lg:border-stone-100">
       {/* TopBar */}
       <div className="sticky top-0 z-30 flex h-14 items-center border-b border-stone-100 bg-white/95 px-4 pt-[env(safe-area-inset-top,0px)] backdrop-blur-xl">
         <button

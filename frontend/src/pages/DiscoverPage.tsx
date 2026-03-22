@@ -427,7 +427,7 @@ export default function DiscoverPage() {
         <div className="px-4 pb-4">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-[13px] font-bold text-stone-950">Para ti</p>
-            <Link to="/products?recommended=true" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700">
+            <Link to="/products?recommended=true" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700 hover:underline">
               Ver todo
             </Link>
           </div>
@@ -462,7 +462,7 @@ export default function DiscoverPage() {
         <div className="px-4 pb-4">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-[13px] font-bold text-stone-950">Nuevos en HispaloShop</p>
-            <Link to="/stores" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700">
+            <Link to="/stores" className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700 hover:underline">
               Ver todo
             </Link>
           </div>

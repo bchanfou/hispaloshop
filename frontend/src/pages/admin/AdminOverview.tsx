@@ -112,6 +112,7 @@ export default function AdminOverview() {
 
   return (
     <div className="bg-stone-50 min-h-full">
+     <div className="max-w-[975px] mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
         <h1 className="text-2xl font-bold text-stone-950">Panel de administración</h1>
@@ -250,6 +251,7 @@ export default function AdminOverview() {
           <QuickLink icon={TrendingUp} label="Crecimiento" to="/admin/growth" />
         </div>
       </div>
+     </div>
     </div>
   );
 }

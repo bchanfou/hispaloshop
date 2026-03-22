@@ -211,7 +211,7 @@ export default function ChatsPage() {
   const isEmpty = filteredConversations.length === 0;
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-[600px] flex-col bg-white font-apple">
+    <div className="mx-auto flex min-h-screen max-w-[600px] lg:max-w-[800px] flex-col bg-white font-apple">
       {/* TopBar — Instagram style */}
       <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl">
         <button

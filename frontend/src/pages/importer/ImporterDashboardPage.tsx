@@ -289,6 +289,7 @@ export default function ImporterDashboardPage() {
 
   return (
     <div className="bg-stone-50">
+     <div className="max-w-[975px] mx-auto">
       {/* Header with company name + plan badge */}
       <div className="flex items-center gap-3 mb-1">
         <h1 className="text-2xl font-bold text-stone-950">{companyName}</h1>
@@ -747,6 +748,7 @@ export default function ImporterDashboardPage() {
           ))}
         </div>
       </div>
+     </div>
     </div>
   );
 }

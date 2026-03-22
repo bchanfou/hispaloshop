@@ -84,7 +84,7 @@ export default function SuggestedUsersCard({ onDismiss }: SuggestedUsersCardProp
         </span>
         <Link
           to="/people"
-          className="text-xs text-stone-500 hover:text-stone-700 no-underline"
+          className="text-xs text-stone-500 hover:text-stone-700 hover:underline no-underline transition-colors"
         >
           Ver todo
         </Link>
@@ -103,7 +103,7 @@ export default function SuggestedUsersCard({ onDismiss }: SuggestedUsersCardProp
           return (
             <div
               key={user.user_id}
-              className="relative flex w-[140px] shrink-0 flex-col items-center rounded-2xl shadow-sm bg-white px-3 pt-4 pb-3"
+              className="relative flex w-[140px] shrink-0 flex-col items-center rounded-2xl shadow-sm bg-white px-3 pt-4 pb-3 lg:hover:shadow-md lg:hover:-translate-y-0.5 transition-all duration-200"
             >
               {/* Dismiss X */}
               <button

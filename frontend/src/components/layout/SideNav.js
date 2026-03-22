@@ -211,6 +211,7 @@ function SearchPanel({ open, onClose }) {
               value={query}
               onChange={handleInput}
               placeholder="Buscar productos, personas, tiendas..."
+              data-search-input
               className="w-full h-10 pl-9 pr-3 bg-stone-100 border-none rounded-2xl text-sm text-stone-950 outline-none focus:ring-2 focus:ring-stone-300 font-sans placeholder:text-stone-400"
             />
           </div>

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import AppHeader from './AppHeader';
@@ -72,11 +72,38 @@ function EmailVerificationBanner() {
 
 export default function AppLayout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const hideChrome = useMemo(() => shouldHideChrome(location.pathname), [location.pathname]);
   const prevPathRef = useRef(location.pathname);
   const direction = useNavigationDirection();
   const { bind: swipeBind, swipeProgress } = useSwipeBack();
+
+  // Global keyboard shortcuts for desktop navigation
+  useEffect(() => {
+    const handleKey = (e) => {
+      // Ignore when typing in form fields
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+
+      if (e.key === 'Escape') {
+        // Close any open modal/sheet
+        document.dispatchEvent(new CustomEvent('close-modals'));
+      }
+
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        // Focus search input if present, otherwise navigate to search page
+        const searchInput = document.querySelector('[data-search-input]');
+        if (searchInput) {
+          searchInput.focus();
+        } else {
+          navigate('/search');
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [navigate]);
 
   // Track page visits for analytics
   useEffect(() => {

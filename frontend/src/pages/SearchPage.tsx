@@ -393,6 +393,7 @@ export default function SearchPage() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar"
               autoComplete="off"
+              data-search-input
               className="flex-1 bg-transparent border-none text-sm text-stone-950 outline-none placeholder:text-stone-400"
             />
             <AnimatePresence>

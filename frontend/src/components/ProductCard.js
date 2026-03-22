@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Plus, Star, Leaf, Shield, Award } from 'lucide-react';
+import { Bookmark, Plus, Star, Leaf, Shield, Award, Eye, Heart, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from './ui/ProductImage.tsx';
 import { useAuth } from '../context/AuthContext';
@@ -119,7 +119,7 @@ function ProductCard({ product, variant = 'default' }) {
     return (
       <Link
         to={`/products/${productId}`}
-        className="group block overflow-hidden rounded-2xl bg-white shadow-sm"
+        className="group block overflow-hidden rounded-2xl bg-white shadow-sm lg:hover:shadow-md lg:hover:-translate-y-0.5 transition-all duration-200"
         data-testid={`product-card-${productId}`}
       >
         <div className={`relative overflow-hidden bg-stone-100 aspect-[4/5] ${isBlocked ? 'opacity-60' : ''}`}>
@@ -178,7 +178,7 @@ function ProductCard({ product, variant = 'default' }) {
   return (
     <Link
       to={`/products/${productId}`}
-      className="group block overflow-hidden rounded-2xl bg-white shadow-sm"
+      className="group block overflow-hidden rounded-2xl bg-white shadow-sm lg:hover:shadow-md lg:hover:-translate-y-0.5 transition-all duration-200"
       data-testid={`product-card-${productId}`}
     >
       {/* Image — 4:5 aspect ratio */}
@@ -223,6 +223,28 @@ function ProductCard({ product, variant = 'default' }) {
           </span>
         )}
 
+        {/* Desktop hover overlay — action icons centered on image */}
+        {!isBlocked && (
+          <div className="hidden lg:flex absolute inset-0 items-center justify-center gap-2.5 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+            <span className="pointer-events-auto w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm cursor-pointer hover:bg-white transition-colors" aria-label="Ver producto">
+              <Eye size={16} className="text-stone-950" />
+            </span>
+            <span className="pointer-events-auto w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm cursor-pointer hover:bg-white transition-colors" aria-label="Añadir a favoritos">
+              <Heart size={16} className="text-stone-950" />
+            </span>
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={handleAddToCart}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddToCart(e); }}
+              className="pointer-events-auto w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-sm cursor-pointer hover:bg-white transition-colors"
+              aria-label="Añadir al carrito"
+            >
+              <ShoppingBag size={16} className="text-stone-950" />
+            </span>
+          </div>
+        )}
+
         {/* Quick-add button overlay — always visible on mobile, hover on desktop */}
         {!isBlocked && (
           <div className="absolute bottom-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
@@ -239,7 +261,7 @@ function ProductCard({ product, variant = 'default' }) {
       <div className="px-2 pb-2 pt-1.5">
         {/* Producer name */}
         {(product.producer_name || product.store_name) && (
-          <p className="truncate text-xs text-stone-500">
+          <p className="truncate text-xs text-stone-500 lg:group-hover:underline transition-colors">
             {product.producer_name || product.store_name}
           </p>
         )}
