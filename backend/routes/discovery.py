@@ -643,3 +643,25 @@ async def get_producer_insights(
         "products": product_insights[:10],
         "recipes_featuring": [_s(r) for r in recipes_raw],
     }
+
+
+# ── Recommended products ──────────────────────────────────────────────────────
+
+@router.get("/discovery/recommended")
+async def get_recommended_products(
+    limit: int = Query(6, le=20),
+    user: Optional[User] = Depends(get_current_user),
+):
+    """Get personalized product recommendations (simple: trending approved products)."""
+    db = get_db()
+
+    query = {"status": {"$in": ["active", "approved"]}}
+    country = _country_of(user)
+    if country:
+        query["$or"] = [{"target_markets": country}, {"target_markets": {"$exists": False}}]
+
+    products = await db.products.find(query).sort(
+        [("stats.orders_count", -1), ("stats.avg_rating", -1)]
+    ).limit(limit).to_list(length=limit)
+
+    return {"products": [_s(p) for p in products]}

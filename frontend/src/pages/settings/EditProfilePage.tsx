@@ -24,7 +24,7 @@ export default function EditProfilePage() {
   const usernameTimerRef = useRef(null);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
-  const canSave = hasChanges() && !saving && usernameStatus !== 'taken' && usernameStatus !== 'checking';
+  const canSave = hasChanges() && !saving && usernameStatus !== 'taken' && usernameStatus !== 'checking' && form.username.trim().length >= 3;
 
   /* cleanup username debounce timer + blob URL on unmount */
   useEffect(() => {

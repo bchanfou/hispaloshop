@@ -82,6 +82,7 @@ export default function CreateReelPage() {
   const cameraInputRef = useRef(null);
   const playIconTimer = useRef(null);
   const dragRef = useRef(null);
+  const rafRef = useRef(null);
 
   // Revoke blob URL on unmount to free memory
   useEffect(() => {
@@ -234,8 +235,6 @@ export default function CreateReelPage() {
     setTextDraft('');
     setShowTextInput(false);
   }, [textDraft, selectedFont, selectedColor, textSize, textStyle, textOverlays.length]);
-
-  const rafRef = useRef(null);
 
   // Direct DOM drag for text overlays — no state during move
   const handleTextDragDOM = useCallback((el, e) => {

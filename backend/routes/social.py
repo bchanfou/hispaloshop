@@ -1288,9 +1288,12 @@ async def create_post(
 
 
 @router.get("/posts")
-async def list_posts(skip: int = 0, limit: int = 30):
-    """List public posts ordered by newest first."""
-    posts = await db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
+async def list_posts(skip: int = 0, limit: int = 30, hashtag: Optional[str] = None):
+    """List public posts ordered by newest first. Optionally filter by hashtag."""
+    query = {}
+    if hashtag:
+        query["caption"] = {"$regex": f"#{re.escape(hashtag)}", "$options": "i"}
+    posts = await db.user_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
     _has_more = len(posts) > limit
     posts = posts[:limit]
     for post in posts:
@@ -2052,6 +2055,19 @@ async def get_stories_feed(request: Request):
     return result
 
 
+@router.get("/stories/archive")
+async def get_story_archive(user: User = Depends(get_current_user)):
+    """Get current user's past stories (for highlight creation)."""
+    stories = await db.hispalostories.find(
+        {"user_id": user.user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(50).to_list(50)
+    for s in stories:
+        s["view_count"] = len(s.get("views", []))
+        s.pop("views", None)
+    return stories
+
+
 @router.get("/stories/mine")
 async def get_my_stories(user: User = Depends(get_current_user)):
     """Get current user's active stories."""
@@ -2347,3 +2363,39 @@ async def get_influencer_product_performance(user: User = Depends(get_current_us
 
     performance.sort(key=lambda item: (item["sales"], item["clicks"], item["views"]), reverse=True)
     return {"items": performance[:5]}
+
+
+# ── Saved posts & reels (social namespace) ────────────────────────────────────
+
+@router.get("/social/saved-posts")
+async def get_social_saved_posts(skip: int = 0, limit: int = 20, user: User = Depends(get_current_user)):
+    """Get saved/bookmarked posts for the current user (social namespace alias)."""
+    bookmarks = await db.post_bookmarks.find(
+        {"user_id": user.user_id}, {"_id": 0, "post_id": 1}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    post_ids = [b["post_id"] for b in bookmarks]
+    if not post_ids:
+        return {"posts": [], "has_more": False}
+    posts = await db.user_posts.find(
+        {"post_id": {"$in": post_ids}}, {"_id": 0}
+    ).to_list(len(post_ids))
+    post_map = {p["post_id"]: p for p in posts}
+    ordered = [_normalize_post_media(post_map[pid]) for pid in post_ids if pid in post_map]
+    return {"posts": ordered, "has_more": len(bookmarks) == limit}
+
+
+@router.get("/social/saved-reels")
+async def get_saved_reels(skip: int = 0, limit: int = 20, user: User = Depends(get_current_user)):
+    """Get saved/bookmarked reels for the current user."""
+    saved = await db.reel_saves.find(
+        {"user_id": user.user_id}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    reel_ids = [s["reel_id"] for s in saved]
+    if not reel_ids:
+        return {"reels": [], "has_more": False}
+    reels = await db.reels.find(
+        {"reel_id": {"$in": reel_ids}}, {"_id": 0}
+    ).to_list(len(reel_ids))
+    reel_map = {r["reel_id"]: r for r in reels}
+    ordered = [reel_map[rid] for rid in reel_ids if rid in reel_map]
+    return {"reels": ordered, "has_more": len(saved) == limit}

@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,6 +22,18 @@ export default function ForgotPasswordPage() {
     } finally {
       setLoading(false);
       setSent(true);
+    }
+  };
+
+  const handleResend = async () => {
+    setSending(true);
+    try {
+      await apiClient.post('/auth/forgot-password', { email });
+      toast.success('Email reenviado');
+    } catch {
+      toast.error('Error al reenviar');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -40,10 +54,11 @@ export default function ForgotPasswordPage() {
 
         <button
           type="button"
-          onClick={() => { setSent(false); handleSubmit({ preventDefault: () => {} }); }}
-          className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors"
+          onClick={handleResend}
+          disabled={sending}
+          className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Reenviar email
+          {sending ? <Loader2 size={18} className="animate-spin" /> : 'Reenviar email'}
         </button>
 
         <p className="mt-5 text-sm">
