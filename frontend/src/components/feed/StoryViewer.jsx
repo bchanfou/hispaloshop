@@ -83,6 +83,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const directionRef = useRef(1);
   const isUserChangeRef = useRef(false);
 
+  const viewedRef = useRef(new Set());
+
   const currentStory = stories[currentUserIndex];
   const items = currentStory?.items || [];
   const currentItem = items[currentItemIndex];
@@ -193,6 +195,16 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   useEffect(() => {
     setProgress(0);
   }, [currentUserIndex, currentItemIndex]);
+
+  // Track story view when current item changes
+  useEffect(() => {
+    const item = currentStory?.items?.[currentItemIndex];
+    const storyId = item?.story_id || item?.id;
+    if (storyId && !viewedRef.current.has(storyId)) {
+      viewedRef.current.add(storyId);
+      apiClient.post(`/stories/${storyId}/view`).catch(() => {});
+    }
+  }, [currentStory, currentItemIndex]);
 
   // Lock body scroll while viewer is open + cleanup timers + pause/unload video on unmount
   useEffect(() => {

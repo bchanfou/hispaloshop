@@ -1,60 +1,52 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { RefreshCw, Plus } from 'lucide-react';
 import StoryRing from './StoryRing';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 
+// Normalize backend story format → StoryViewer-compatible format
+function normalizeStories(raw) {
+  const list = Array.isArray(raw) ? raw : raw?.data || [];
+  return list.map((s) => ({
+    user_id: s.user_id,
+    user: {
+      id: s.user_id,
+      name: s.name,
+      avatar_url: s.avatar,
+      profile_image: s.avatar,
+    },
+    is_recent: s.is_recent,
+    is_followed: s.is_followed,
+    has_unseen: s.is_recent,
+    // StoryViewer needs an `items` array with image_url/video_url
+    items: s.preview ? [{
+      id: `${s.user_id}_preview`,
+      image_url: s.preview.image,
+      caption: s.preview.text,
+      type: s.preview.type,
+      price: s.preview.price,
+    }] : [],
+  }));
+}
+
 export default function StoriesBar({ onStoryClick, onCreateStory }) {
   const { user: currentUser } = useAuth();
-  const [stories, setStories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [loadingUserId, setLoadingUserId] = useState(null);
 
-  // Normalize backend story format → StoryViewer-compatible format
-  const normalizeStories = useCallback((raw) => {
-    const list = Array.isArray(raw) ? raw : raw?.data || [];
-    return list.map((s) => ({
-      user_id: s.user_id,
-      user: {
-        id: s.user_id,
-        name: s.name,
-        avatar_url: s.avatar,
-        profile_image: s.avatar,
-      },
-      is_recent: s.is_recent,
-      is_followed: s.is_followed,
-      has_unseen: s.is_recent,
-      // StoryViewer needs an `items` array with image_url/video_url
-      items: s.preview ? [{
-        id: `${s.user_id}_preview`,
-        image_url: s.preview.image,
-        caption: s.preview.text,
-        type: s.preview.type,
-        price: s.preview.price,
-      }] : [],
-    }));
-  }, []);
-
-  const fetchStories = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
+  const { data: storiesData, isLoading: loading, isError: error, refetch } = useQuery({
+    queryKey: ['feed-stories'],
+    queryFn: async () => {
       const res = await apiClient.get('/feed/stories');
       const normalized = normalizeStories(res);
-      // Filter out stories with no viewable items
-      setStories(normalized.filter(s => s.items && s.items.length > 0 && s.items[0].image_url));
-    } catch {
-      setStories([]);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [normalizeStories]);
+      return normalized.filter(s => s.items && s.items.length > 0 && s.items[0].image_url);
+    },
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+  });
 
-  useEffect(() => {
-    fetchStories();
-  }, [fetchStories]);
+  const stories = storiesData || [];
 
   // Preload full story data for the first 3 users to warm the cache
   useEffect(() => {
@@ -116,7 +108,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
           ))
         : error ? (
             <button
-              onClick={fetchStories}
+              onClick={() => refetch()}
               className="flex shrink-0 snap-center flex-col items-center gap-1 w-[58px] bg-transparent border-none cursor-pointer"
               aria-label="Reintentar cargar historias"
             >

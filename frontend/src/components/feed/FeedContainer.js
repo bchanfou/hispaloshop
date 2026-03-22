@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import ForYouFeed from './ForYouFeed';
 import FollowingFeed from './FollowingFeed';
@@ -15,6 +16,7 @@ function FeedContainer() {
 
   // Story viewer state
   const [storyViewer, setStoryViewer] = useState(null);
+  const queryClient = useQueryClient();
 
   const handleCreateStory = () => {
     window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
@@ -28,7 +30,8 @@ function FeedContainer() {
 
   const handleCloseStoryViewer = useCallback(() => {
     setStoryViewer(null);
-  }, []);
+    queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+  }, [queryClient]);
 
   return (
     <div className="min-h-screen bg-white">

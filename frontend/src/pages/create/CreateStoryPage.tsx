@@ -2,6 +2,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Type, Tag, Check, Search, ShoppingBag, Pencil, Undo2, Redo2, MapPin, Link2, AtSign, HelpCircle, Trash2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -53,6 +54,7 @@ const COLOR_DOTS = ['#000000', '#ffffff', '#a8a29e', '#78716c', '#44403c'];
 
 export default function CreateStoryPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [background, setBackground] = useState('black');
   const [imageFile, setImageFile] = useState(null);
@@ -554,6 +556,7 @@ export default function CreateStoryPage() {
 
       fd.append('caption', '');
       await apiClient.post('/stories', fd);
+      queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
       if (navigator.vibrate) navigator.vibrate(50);
       try { localStorage.removeItem('story_draft'); } catch { /* ignore */ }
       setPublishSuccess(true);
