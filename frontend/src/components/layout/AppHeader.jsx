@@ -38,7 +38,7 @@ export default function AppHeader() {
   return (
     <header
       className={`sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b transition-all duration-200 pt-[env(safe-area-inset-top)] ${
-        scrolled ? 'border-stone-200 shadow-sm' : 'border-transparent'
+        scrolled ? 'border-stone-200 shadow-nav' : 'border-stone-100'
       }`}
     >
       {/* Hamburger Menu drawer */}

@@ -10,7 +10,7 @@ export default function HomeHeader({ activeTab = 'foryou', onTabChange }) {
 
   return (
     <div
-      className="sticky top-[52px] lg:top-0 z-30 bg-white/80 backdrop-blur-xl flex items-center justify-center py-2"
+      className="sticky top-[52px] lg:top-0 z-30 bg-white border-b border-stone-100 flex items-center justify-center py-2.5"
       data-testid="home-header"
     >
       {/* Feed tab toggle — centered */}
