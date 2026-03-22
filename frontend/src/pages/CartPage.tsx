@@ -469,22 +469,57 @@ export default function CartPage() {
                   );
                   return (
                   <div key={producerName} className="space-y-3">
-                    <div className="flex items-center gap-2 pt-2">
-                      <Package className="w-4 h-4 text-stone-400" />
-                      <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{producerName}</span>
-                      <span className="text-xs text-stone-400">· {items.length} {items.length === 1 ? 'producto' : 'productos'}</span>
-                    </div>
-                    {/* Per-producer shipping estimate */}
-                    {storeShipping && (
-                      <div className="flex items-center gap-1.5 text-xs text-stone-500">
-                        <Truck className="w-3.5 h-3.5 flex-shrink-0" />
-                        {storeShipping.is_free ? (
-                          <span className="font-semibold text-stone-950">Envío gratis</span>
+                    <div className="rounded-xl bg-white p-3 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        {storeShipping?.seller_avatar ? (
+                          <img loading="lazy" src={storeShipping.seller_avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
                         ) : (
-                          <span>Envío: {((storeShipping.shipping_cents || 0) / 100).toFixed(2)} €</span>
+                          <Package className="w-4 h-4 text-stone-400 flex-shrink-0" />
                         )}
+                        <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide flex-1 truncate">{producerName}</span>
+                        <span className="text-xs text-stone-400">· {items.length} {items.length === 1 ? 'producto' : 'productos'}</span>
                       </div>
-                    )}
+                      {/* Per-producer shipping progress bar */}
+                      {(() => {
+                        const thresholdCents = storeShipping?.threshold_cents ?? storeShipping?.free_shipping_threshold_cents ?? 5000;
+                        const subtotalCents = items.reduce((sum, i) => sum + ((i.price_cents || Math.round((i.price || 0) * 100)) * (i.quantity || 1)), 0);
+                        const isFree = storeShipping?.is_free || subtotalCents >= thresholdCents;
+                        const pct = Math.min(100, Math.round((subtotalCents / thresholdCents) * 100));
+                        const remainingCents = Math.max(0, thresholdCents - subtotalCents);
+
+                        if (storeShipping?.threshold_cents == null && storeShipping?.free_shipping_threshold_cents == null && !storeShipping) {
+                          // No shipping data yet — show simple estimate
+                          return (
+                            <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
+                              <Truck className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span>Calculando envío...</span>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="mt-2">
+                            {isFree ? (
+                              <div className="flex items-center gap-1.5">
+                                <Check className="w-3.5 h-3.5 text-stone-950 flex-shrink-0" />
+                                <span className="text-xs font-semibold text-stone-950">Envío gratis</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1.5 text-xs text-stone-600">
+                                <Truck className="w-3.5 h-3.5 flex-shrink-0" />
+                                <span>Envío gratis a partir de {(thresholdCents / 100).toFixed(0)} € · Te faltan {(remainingCents / 100).toFixed(2)} €</span>
+                              </div>
+                            )}
+                            <div className="h-1.5 w-full rounded-full bg-stone-200 overflow-hidden mt-1.5">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${isFree ? 'bg-stone-950' : pct >= 60 ? 'bg-stone-700' : 'bg-stone-400'}`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
                     <AnimatePresence>
                     {items.map((item) => {
                       const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);

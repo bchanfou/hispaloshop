@@ -528,11 +528,12 @@ export default function SideNav() {
         </div>
       </aside>
 
-      {/* Search panel overlay */}
-      {/* SearchPanel — only on lg+ (desktop) where SideNav is visible */}
-      <div className="hidden lg:block">
-        <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
-      </div>
+      {/* Search panel overlay — only mount on lg+ when open */}
+      {searchOpen && (
+        <div className="hidden lg:block">
+          <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
+        </div>
+      )}
     </>
   );
 }
