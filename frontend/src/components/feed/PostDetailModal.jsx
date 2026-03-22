@@ -44,7 +44,7 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
           >
             <Heart
               size={14}
-              className={liked ? 'text-[#FF3040] fill-[#FF3040]' : 'text-stone-400'}
+              className={liked ? 'text-stone-950 fill-stone-950' : 'text-stone-400'}
               strokeWidth={1.8}
             />
             {(comment.likes_count || 0) > 0 && (
@@ -789,7 +789,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             {/* Actions row */}
             <div className="flex items-center px-3 py-2">
               <div className="flex items-center gap-3">
-                <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-[#FF3040]' : 'text-stone-950'}`} aria-label="Me gusta">
+                <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label="Me gusta">
                   <Heart size={24} fill={liked ? 'currentColor' : 'none'} />
                 </button>
                 <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Comentar">
@@ -886,7 +886,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             <div className="border-t border-stone-100 shrink-0">
               <div className="flex items-center px-3 py-2">
                 <div className="flex items-center gap-3">
-                  <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-[#FF3040]' : 'text-stone-950'}`}>
+                  <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`}>
                     <Heart size={22} fill={liked ? 'currentColor' : 'none'} />
                   </button>
                   <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950">

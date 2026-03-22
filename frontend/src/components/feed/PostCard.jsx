@@ -709,7 +709,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             whileTap={{ scale: 0.85 }}
             transition={{ type: 'spring', damping: 20, stiffness: 400 }}
             className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer ${
-              liked || selectedReaction ? 'text-[#FF3040]' : 'text-stone-950'
+              liked || selectedReaction ? 'text-stone-950' : 'text-stone-950'
             }`}
             onClick={handleLike}
             onPointerDown={handleLongPressStart}

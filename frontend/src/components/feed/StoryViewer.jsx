@@ -875,7 +875,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         >
           <Heart
             size={24}
-            className={liked ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white'}
+            className={liked ? 'text-stone-950 fill-stone-950' : 'text-white'}
             strokeWidth={liked ? 0 : 1.5}
           />
         </button>

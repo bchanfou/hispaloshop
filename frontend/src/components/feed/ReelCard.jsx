@@ -760,7 +760,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             ) : (
               <Heart
                 size={28}
-                className={liked || selectedReaction === '❤️' ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white'}
+                className={liked || selectedReaction === '❤️' ? 'text-stone-950 fill-stone-950' : 'text-white'}
               />
             )}
             <motion.span
@@ -1003,7 +1003,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                         className="bg-transparent border-none cursor-pointer p-0 flex flex-col items-center gap-0.5"
                         aria-label={likedComments.has(cId) ? 'Quitar me gusta del comentario' : 'Me gusta en comentario'}
                       >
-                        <Heart size={14} className={likedComments.has(cId) ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white/40'} strokeWidth={1.8} />
+                        <Heart size={14} className={likedComments.has(cId) ? 'text-stone-950 fill-stone-950' : 'text-white/40'} strokeWidth={1.8} />
                         {(c.likes_count || 0) > 0 && <span className="text-[10px] text-white/40 leading-none">{c.likes_count}</span>}
                       </button>
                     </div>

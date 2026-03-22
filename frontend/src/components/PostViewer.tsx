@@ -319,7 +319,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
       {/* Actions */}
       <div className="flex items-center gap-4 px-4 py-2">
         <button onClick={handleLike} aria-label="Me gusta" className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1">
-          <Heart size={24} fill={liked ? '#FF3040' : 'none'} className={liked ? 'text-[#FF3040]' : 'text-stone-600'} />
+          <Heart size={24} fill={liked ? '#0c0a09' : 'none'} className={liked ? 'text-stone-950' : 'text-stone-600'} />
         </button>
         <span className="text-[13px] font-semibold text-stone-950">{localLikesCount}</span>
         <button onClick={handleComment} aria-label="Comentar" className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1">

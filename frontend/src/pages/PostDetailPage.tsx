@@ -357,7 +357,7 @@ export default function PostDetailPage() {
         {/* Actions row */}
         <div className="flex items-center px-3 py-2">
           <div className="flex items-center gap-3">
-            <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-[#FF3040]' : 'text-stone-950'}`} aria-label="Me gusta">
+            <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label="Me gusta">
               <Heart size={24} fill={liked ? 'currentColor' : 'none'} />
             </button>
             <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Comentar">
@@ -510,7 +510,7 @@ export default function PostDetailPage() {
                           onClick={() => handleLikeComment(cId)}
                           className="bg-transparent border-none cursor-pointer p-0 flex items-center gap-1 min-h-[32px]"
                         >
-                          <Heart size={12} className={likedComments.has(cId) ? 'text-[#FF3040] fill-[#FF3040]' : 'text-stone-400'} strokeWidth={1.8} />
+                          <Heart size={12} className={likedComments.has(cId) ? 'text-stone-950 fill-stone-950' : 'text-stone-400'} strokeWidth={1.8} />
                           {(c.likes_count || 0) > 0 && <span className="text-[11px] text-stone-400">{c.likes_count}</span>}
                         </button>
                         <button
