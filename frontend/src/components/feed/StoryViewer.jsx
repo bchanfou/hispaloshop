@@ -32,7 +32,7 @@ const isInternalUrl = (url) => {
   try {
     const u = new URL(url, window.location.origin);
     return u.hostname === window.location.hostname || u.hostname.endsWith('hispaloshop.com');
-  } catch { /* invalid URL */ return false; }
+  } catch (err) { /* invalid URL */ return false; }
 };
 
 // 4.1: Transition variants — crossfade within same user, slide between different users
@@ -69,7 +69,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [viewers, setViewers] = useState([]);
   const [viewersLoading, setViewersLoading] = useState(false);
   const [tapHintShown, setTapHintShown] = useState(() => {
-    try { return localStorage.getItem('hsp_story_tap_hint') === '1'; } catch { /* storage unavailable */ return false; }
+    try { return localStorage.getItem('hsp_story_tap_hint') === '1'; } catch (err) { /* storage unavailable */ return false; }
   });
   const [tapHintSide, setTapHintSide] = useState(null); // 'left' | 'right' | null
   const tapHintTimerRef = useRef(null);
@@ -357,7 +357,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           navigate(`/chat/${conversationId}`);
         }, 250);
       }
-    } catch {
+    } catch (err) {
       // fallback: legacy story reply endpoint
       try {
         await apiClient.post(`/stories/${currentItem?.story_id}/reply`, { text });
@@ -365,7 +365,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         replyInputRef.current?.blur();
         setReplySent(true);
         setTimeout(() => setReplySent(false), 200);
-      } catch { toast.error('Error al responder'); }
+      } catch (err) { toast.error('Error al responder'); }
     } finally {
       setSendingReply(false);
     }
@@ -377,7 +377,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     setEmojiBursts((prev) => [...prev, { id: burstId, emoji }]);
     try {
       await apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji });
-    } catch { /* reaction best-effort */ }
+    } catch (err) { /* reaction best-effort */ }
   }, [currentItem]);
 
   const removeEmojiBurst = useCallback((id) => {
@@ -395,8 +395,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           url: storyUrl,
         });
         return;
-      } catch {
-        // User cancelled or unsupported — fall through to DM picker
+      } catch (err) {
+        // non-critical: User cancelled or unsupported — fall through to DM picker
       }
     }
     setShareSheetOpen(true);
@@ -407,7 +407,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       const res = await apiClient.get('/chat/conversations');
       const convs = Array.isArray(res) ? res : res?.conversations || res?.data || [];
       setShareConversations(convs);
-    } catch { /* conversations fetch failed, show empty */
+    } catch (err) { /* non-critical: conversations fetch failed, show empty */
       setShareConversations([]);
     } finally {
       setShareLoading(false);
@@ -429,7 +429,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       isPaused.current = false;
       setPaused(false);
       setShareSearch('');
-    } catch { toast.error('Error al compartir'); }
+    } catch (err) { toast.error('Error al compartir'); }
     setShareSending(null);
   }, [currentItem, shareSending]);
 
@@ -455,7 +455,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     tapHintTimerRef.current = setTimeout(() => {
       setTapHintSide(null);
       setTapHintShown(true);
-      try { localStorage.setItem('hsp_story_tap_hint', '1'); } catch { /* storage unavailable */ }
+      try { localStorage.setItem('hsp_story_tap_hint', '1'); } catch (err) { /* storage unavailable */ }
     }, 600);
   }, [tapHintShown]);
 
@@ -467,7 +467,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     try {
       const res = await apiClient.get(`/stories/${storyId}/viewers`);
       setViewers(Array.isArray(res) ? res : res?.viewers || res?.data || []);
-    } catch { /* viewers fetch failed, show empty */
+    } catch (err) { /* viewers fetch failed, show empty */
       setViewers([]);
     } finally {
       setViewersLoading(false);
@@ -759,7 +759,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                         try {
                           const u = new URL(link.url, window.location.origin);
                           navigate(u.pathname + u.search);
-                        } catch { /* invalid URL, navigate raw */
+                        } catch (err) { /* invalid URL, navigate raw */
                           navigate(link.url);
                         }
                       } else {
@@ -776,7 +776,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                           try {
                             const u = new URL(link.url, window.location.origin);
                             navigate(u.pathname + u.search);
-                          } catch {
+                          } catch (err) { /* non-critical: invalid URL, navigate raw */
                             navigate(link.url);
                           }
                         } else {
@@ -869,7 +869,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               if (newLiked) {
                 apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji: 'heart' });
               }
-            } catch { /* like best-effort */ }
+            } catch (err) { /* like best-effort */ }
           }}
           className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"
           aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}

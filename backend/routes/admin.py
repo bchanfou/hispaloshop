@@ -6,7 +6,7 @@ Extracted from server.py.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 import logging
 import re
@@ -1788,6 +1788,24 @@ async def admin_dashboard_stats(user: User = Depends(get_current_user)):
     revenue_result = await db.orders.aggregate(pipeline).to_list(1)
     revenue_today = revenue_result[0]["total"] if revenue_result else 0
     
+    # Expiring certificates (within 30 days)
+    thirty_days = datetime.now(timezone.utc) + timedelta(days=30)
+    expiring_certs = await db.certificates.count_documents({
+        "expiry_date": {"$lte": thirty_days.isoformat(), "$gte": datetime.now(timezone.utc).isoformat()},
+        "status": "approved"
+    })
+
+    # Top 5 products by sales this month
+    first_of_month = datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    top_products_pipeline = [
+        {"$match": {"created_at": {"$gte": first_of_month.isoformat()}, "status": {"$in": ["paid", "delivered", "shipped"]}}},
+        {"$unwind": "$items"},
+        {"$group": {"_id": "$items.product_id", "total_sold": {"$sum": "$items.quantity"}, "name": {"$first": "$items.product_name"}}},
+        {"$sort": {"total_sold": -1}},
+        {"$limit": 5}
+    ]
+    top_products = await db.orders.aggregate(top_products_pipeline).to_list(5)
+
     return {
         "total_users": total_users,
         "total_customers": total_customers,
@@ -1800,5 +1818,7 @@ async def admin_dashboard_stats(user: User = Depends(get_current_user)):
         "pending_moderation": {
             "products": pending_products,
             "users": await db.users.count_documents({"approved": False})
-        }
+        },
+        "expiring_certificates": expiring_certs,
+        "top_products": top_products,
     }

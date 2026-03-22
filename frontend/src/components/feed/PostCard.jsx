@@ -243,7 +243,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
     trigger('medium');
     try {
       await apiClient.post(`/posts/${post.id}/react`, { reaction: emoji });
-    } catch {
+    } catch (err) {
       toast.error('Error al reaccionar');
     }
   }, [post.id, trigger]);
@@ -271,7 +271,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       await apiClient.post(`/posts/${post.id}/save`);
       onSave?.(post.id);
       // Keep optimistic value until prop syncs (onSave may trigger cache update)
-    } catch {
+    } catch (err) {
       setSavePending(null); // rollback to prop value
       toast.error('Error al guardar');
     }
@@ -295,7 +295,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         await navigator.clipboard?.writeText(url);
         toast.success('Enlace copiado');
       }
-    } catch { /* share cancelled or clipboard unavailable */ }
+    } catch (err) { /* share cancelled or clipboard unavailable */ }
     onShare?.(post.id);
   }, [post.id, onShare]);
 
@@ -321,7 +321,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       setIsEdited(true);
       setShowEditCaption(false);
       toast.success('Publicación editada');
-    } catch {
+    } catch (err) {
       toast.error('Error al editar');
     }
   }, [editCaption, post.id]);
@@ -343,7 +343,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       try {
         await apiClient.delete(`/posts/${post.id}`);
         onDelete?.(post.id);
-      } catch {
+      } catch (err) {
         setDeleted(false);
         toast.error('Error al eliminar');
       }
@@ -357,7 +357,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       await addToCart(product.id || product.product_id, 1);
       trigger('medium');
       toast.success('Añadido al carrito');
-    } catch {
+    } catch (err) {
       toast.error('Error al añadir al carrito');
     }
   }, [addToCart, trigger]);
@@ -440,7 +440,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                     try {
                       await apiClient.delete(`/users/${user.id || user.user_id}/follow`);
                       toast.success(`Has dejado de seguir a ${user.name}`);
-                    } catch { /* ignore */ }
+                    } catch (err) { /* non-critical: unfollow best-effort */ }
                     setShowMenu(false);
                   }}
                 >
@@ -452,7 +452,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                     try {
                       await apiClient.post(`/posts/${post.id}/report`, { reason: 'inappropriate' });
                       toast.success('Reporte enviado');
-                    } catch { toast.error('Error al reportar'); }
+                    } catch (err) { toast.error('Error al reportar'); }
                     setShowMenu(false);
                   }}
                 >

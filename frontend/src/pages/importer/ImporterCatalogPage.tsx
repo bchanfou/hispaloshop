@@ -446,22 +446,24 @@ export default function ImporterCatalogPage() {
     try {
       const params = new URLSearchParams();
       if (filters.category) params.set('category', filters.category);
+      if (filters.certification) params.set('certification', filters.certification);
+      if (filters.country) params.set('country', filters.country);
       if (search) params.set('q', search);
       params.set('page', p);
-      params.set('limit', 12);
+      params.set('limit', '24');
 
       const res = await apiClient.get(`/b2b/catalog?${params.toString()}`);
       const data = res?.data || res || {};
       const items = Array.isArray(data.products) ? data.products : [];
       setProducts(prev => append ? [...prev, ...items] : items);
-      setHasMore(items.length >= 12);
+      setHasMore(items.length >= 24);
       setPage(p);
     } catch {
       if (!append) { setProducts([]); setError(true); }
     } finally {
       setLoading(false);
     }
-  }, [filters.category, search]);
+  }, [filters.category, filters.certification, filters.country, search]);
 
   useEffect(() => {
     fetchProducts(1, false);

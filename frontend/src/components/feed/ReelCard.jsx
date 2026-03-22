@@ -126,7 +126,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       link.as = 'video';
       link.href = nextVideoUrl;
       document.head.appendChild(link);
-      return () => { try { document.head.removeChild(link); } catch { /* cleanup safe to ignore */ } };
+      return () => { try { document.head.removeChild(link); } catch (err) { /* cleanup safe to ignore */ } };
     }
   }, [isActive, nextVideoUrl]);
 
@@ -136,7 +136,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     setLikesCount(reel.likes ?? reel.likes_count ?? 0);
   }, [reel.liked, reel.is_liked, reel.likes, reel.likes_count]);
   const [muted, setMuted] = useState(() => {
-    try { return localStorage.getItem('hsp_reel_muted') !== 'false'; } catch { /* storage unavailable */ return true; }
+    try { return localStorage.getItem('hsp_reel_muted') !== 'false'; } catch (err) { /* storage unavailable */ return true; }
   });
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
@@ -273,7 +273,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       const reelId = reel.id || reel.reel_id || reel.post_id;
       const res = await apiClient.get(`/reels/${reelId}/comments?limit=60`);
       setComments(Array.isArray(res) ? res : res?.data || res?.comments || []);
-    } catch { setComments([]); }
+    } catch (err) { /* non-critical: comments fetch failed */ setComments([]); }
     finally { setCommentsLoading(false); }
   }, [reel]);
 
@@ -288,7 +288,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       setNewComment('');
       setReplyTo(null);
       fetchComments();
-    } catch { toast.error('Error al comentar'); }
+    } catch (err) { toast.error('Error al comentar'); }
     finally { setSendingComment(false); }
   }, [newComment, sendingComment, reel, replyTo, fetchComments]);
 
@@ -327,7 +327,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
     }));
     const reelId = reel.id || reel.reel_id || reel.post_id;
-    try { await apiClient.post(`/reels/${reelId}/comments/${commentId}/like`); } catch { /* like toggle best-effort */ }
+    try { await apiClient.post(`/reels/${reelId}/comments/${commentId}/like`); } catch (err) { /* like toggle best-effort */ }
     likingCommentRef.current = false;
   }, [likedComments, reel.id, reel.reel_id, reel.post_id]);
 
@@ -335,7 +335,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     try {
       await apiClient.delete(`/comments/${commentId}`);
       setComments(prev => prev.filter(c => (c.comment_id || c.id || c._id) !== commentId));
-    } catch { toast.error('Error al eliminar'); }
+    } catch (err) { toast.error('Error al eliminar'); }
   }, []);
 
   const handleReplyComment = useCallback((commentId, username) => {
@@ -348,7 +348,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     if (!video) return;
     video.muted = !video.muted;
     setMuted(video.muted);
-    try { localStorage.setItem('hsp_reel_muted', String(video.muted)); } catch { /* storage unavailable */ }
+    try { localStorage.setItem('hsp_reel_muted', String(video.muted)); } catch (err) { /* storage unavailable */ }
   }, []);
 
   const handleEditSave = useCallback(async () => {
@@ -359,7 +359,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       setLocalCaption(editCaption);
       setShowEditCaption(false);
       toast.success('Reel editado');
-    } catch {
+    } catch (err) {
       toast.error('Error al editar');
     } finally {
       setSavingCaption(false);
@@ -383,7 +383,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       const reelId = reel.id || reel.reel_id || reel.post_id;
       try {
         await apiClient.delete(`/reels/${reelId}`);
-      } catch {
+      } catch (err) {
         setDeleted(false);
         toast.error('Error al eliminar');
       }
@@ -401,7 +401,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     const reelId = reel.id || reel.reel_id || reel.post_id;
     try {
       await apiClient.post(`/reels/${reelId}/like`);
-    } catch {
+    } catch (err) {
       // Rollback on failure
       setLiked(prev);
       setLikesCount((c) => (prev ? c + 1 : c - 1));
@@ -428,7 +428,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     const reelId = reel.id || reel.reel_id || reel.post_id;
     try {
       await apiClient.post(`/reels/${reelId}/react`, { reaction: emoji });
-    } catch {
+    } catch (err) {
       setSelectedReaction(null);
       toast.error('Error al reaccionar');
     }
@@ -485,7 +485,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     try {
       await addToCart(productId, 1);
       toast.success('Añadido al carrito', { duration: 1500 });
-    } catch {
+    } catch (err) {
       toast.error('Error al añadir');
     } finally {
       setAddingToCart(null);
@@ -722,7 +722,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                         setIsFollowing(true);
                       }
                     }
-                  } catch {
+                  } catch (err) {
                     toast.error(isFollowing ? 'No se pudo dejar de seguir' : 'No se pudo seguir al usuario');
                   }
                 }}
@@ -798,7 +798,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                 await navigator.clipboard?.writeText(url);
                 toast.success('Enlace copiado');
               }
-            } catch {
+            } catch (err) {
               // User cancelled share dialog
             }
             onShare?.(reelId);
@@ -820,7 +820,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             try {
               const reelId = reel.id || reel.reel_id || reel.post_id;
               await apiClient.post(`/reels/${reelId}/save`);
-            } catch {
+            } catch (err) {
               setSaved(!next); // rollback
               toast.error('Error al guardar');
             }

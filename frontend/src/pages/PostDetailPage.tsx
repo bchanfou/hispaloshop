@@ -141,7 +141,7 @@ export default function PostDetailPage() {
       setNewComment('');
       setReplyTo(null);
       setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
-    } catch {
+    } catch (err) {
       toast.error('Error al enviar comentario');
     } finally {
       setSending(false);
@@ -153,7 +153,7 @@ export default function PostDetailPage() {
       await apiClient.delete(`/comments/${commentId}`);
       setComments(prev => prev.filter(c => (c.comment_id || c.id) !== commentId));
       setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
-    } catch {
+    } catch (err) {
       toast.error('Error al eliminar comentario');
     }
   };
@@ -164,13 +164,13 @@ export default function PostDetailPage() {
       next.has(commentId) ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    try { await apiClient.post(`/comments/${commentId}/like`); } catch { /* like toggle best-effort */ }
+    try { await apiClient.post(`/comments/${commentId}/like`); } catch (err) { /* like toggle best-effort */ }
   };
 
   const handleLikePost = async () => {
     setLiked(l => !l);
     setLikesCount(c => liked ? Math.max(0, c - 1) : c + 1);
-    try { await apiClient.post(`/posts/${postId}/like`); } catch {
+    try { await apiClient.post(`/posts/${postId}/like`); } catch (err) {
       setLiked(l => !l);
       setLikesCount(c => liked ? c + 1 : Math.max(0, c - 1));
     }
@@ -178,7 +178,7 @@ export default function PostDetailPage() {
 
   const handleSavePost = async () => {
     setSaved(s => !s);
-    try { await apiClient.post(`/posts/${postId}/save`); } catch { setSaved(s => !s); }
+    try { await apiClient.post(`/posts/${postId}/save`); } catch (err) { setSaved(s => !s); }
   };
 
   const handleShare = async () => {
@@ -186,7 +186,7 @@ export default function PostDetailPage() {
     try {
       if (navigator.share) await navigator.share({ title: 'HispaloShop', url });
       else { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); }
-    } catch { /* share cancelled or clipboard unavailable */ }
+    } catch (err) { /* share cancelled or clipboard unavailable */ }
   };
 
   const handleReply = useCallback((commentId, username) => {
@@ -205,7 +205,7 @@ export default function PostDetailPage() {
       setLocalCaption(editCaption);
       setShowEditCaption(false);
       toast.success('Publicación editada');
-    } catch {
+    } catch (err) {
       toast.error('Error al editar');
     }
   };
@@ -216,7 +216,7 @@ export default function PostDetailPage() {
       await apiClient.delete(`/posts/${postId}`);
       toast.success('Post eliminado');
       navigate(-1);
-    } catch {
+    } catch (err) {
       toast.error('Error al eliminar');
     }
   };
@@ -341,7 +341,7 @@ export default function PostDetailPage() {
                   try {
                     await apiClient.post(`/posts/${postId}/report`, { reason: 'inappropriate' });
                     toast.success('Reporte enviado');
-                  } catch { toast.error('Error al reportar'); }
+                  } catch (err) { toast.error('Error al reportar'); }
                   setShowMenu(false);
                 }}
               >

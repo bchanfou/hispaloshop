@@ -534,7 +534,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
       setNewComment('');
       setReplyTo(null);
       setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
-    } catch {
+    } catch (err) {
       toast.error('Error al enviar');
     } finally {
       setSending(false);
@@ -574,7 +574,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
       if (undone) return;
       try {
         await apiClient.delete(`/posts/${postId}/comments/${commentId}`);
-      } catch {
+      } catch (err) {
         // Restore on error
         if (deletedComment) {
           setComments(prev => [deletedComment, ...prev]);
@@ -601,7 +601,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     }));
     try {
       await apiClient.post(`/posts/${postId}/comments/${commentId}/like`);
-    } catch {
+    } catch (err) {
       // Rollback optimistic update
       setLikedComments(prev => {
         const next = new Set(prev);
@@ -625,7 +625,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
   const handleLikePost = useCallback(async () => {
     setLiked(l => !l);
     setLikesCount(c => liked ? Math.max(0, c - 1) : c + 1);
-    try { await apiClient.post(`/posts/${postId}/like`); } catch {
+    try { await apiClient.post(`/posts/${postId}/like`); } catch (err) {
       setLiked(l => !l);
       setLikesCount(c => liked ? c + 1 : Math.max(0, c - 1));
     }
@@ -650,7 +650,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
 
   const handleSavePost = async () => {
     setSaved(s => !s);
-    try { await apiClient.post(`/posts/${postId}/save`); } catch { setSaved(s => !s); }
+    try { await apiClient.post(`/posts/${postId}/save`); } catch (err) { setSaved(s => !s); }
   };
 
   const handleShare = async () => {
@@ -658,7 +658,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     try {
       if (navigator.share) await navigator.share({ title: 'HispaloShop', url });
       else { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); }
-    } catch { /* share cancelled or clipboard unavailable */ }
+    } catch (err) { /* share cancelled or clipboard unavailable */ }
   };
 
   const images = (() => {

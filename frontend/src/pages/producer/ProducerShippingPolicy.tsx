@@ -119,11 +119,12 @@ export default function ProducerShippingPolicy() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-950 mb-1">Umbral de envío gratis (€)</label>
+              <label className="block text-sm font-medium text-stone-950 mb-1">Pedido mínimo para envío gratis (€)</label>
               <input
                 type="number"
+                min="0"
                 step="0.01"
-                placeholder="Vacío = sin envío gratis"
+                placeholder="0 = sin envío gratis"
                 value={policy.free_threshold_cents === null ? '' : toEuros(policy.free_threshold_cents)}
                 onChange={(e) =>
                   setPolicy((prev) => ({
@@ -131,8 +132,9 @@ export default function ProducerShippingPolicy() {
                     free_threshold_cents: e.target.value ? toCents(e.target.value) : null,
                   }))
                 }
-                className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full h-12 px-3 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
               />
+              <p className="text-xs text-stone-500 mt-1">Pedidos que superen este importe tendrán envío gratuito. Déjalo vacío o en 0 para desactivar.</p>
             </div>
 
             <div className="rounded-2xl bg-stone-50 border border-stone-200 p-3 text-sm text-stone-700">
