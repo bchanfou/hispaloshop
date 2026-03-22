@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, Check, Sparkles } from 'lucide-react';
+import { AlertCircle, Check } from 'lucide-react';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
 import PostDetailModal from './PostDetailModal';
@@ -158,22 +158,18 @@ export default function ForYouFeed() {
           <FeedSkeleton count={3} />
         </div>
       ) : allPosts.length === 0 ? (
-        <div className="flex flex-col items-center px-6 py-16 text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
-            <Sparkles className="h-7 w-7 text-stone-400" />
+        <div className="px-4 py-8 space-y-6">
+          <div className="text-center">
+            <p className="text-lg font-semibold text-stone-950">Bienvenido a HispaloShop</p>
+            <p className="text-sm text-stone-500 mt-1">Sigue productores para ver su contenido aquí</p>
           </div>
-          <p className="text-[15px] font-semibold text-stone-950">
-            {t('feed.empty.title', 'Tu feed está vacío')}
-          </p>
-          <p className="mt-1.5 max-w-[260px] text-[13px] leading-relaxed text-stone-400">
-            {t('feed.empty.description', 'Sigue a productores e influencers para ver publicaciones aquí.')}
-          </p>
+          <SuggestedUsersCard />
           <button
             type="button"
             onClick={() => navigate('/discover')}
-            className="mt-5 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
+            className="w-full py-3 bg-stone-950 text-white rounded-full text-sm font-semibold"
           >
-            {t('feed.explore', 'Descubrir')}
+            Explorar productos
           </button>
         </div>
       ) : (

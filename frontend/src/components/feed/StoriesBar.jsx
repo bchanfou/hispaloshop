@@ -18,7 +18,7 @@ function normalizeStories(raw) {
     },
     is_recent: s.is_recent,
     is_followed: s.is_followed,
-    has_unseen: s.is_recent,
+    has_unseen: s.has_unseen ?? s.is_recent ?? true,
     // StoryViewer needs an `items` array with image_url/video_url
     items: s.preview ? [{
       id: `${s.user_id}_preview`,

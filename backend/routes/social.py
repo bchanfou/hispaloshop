@@ -251,27 +251,37 @@ async def _fallback_discover_from_postgres(role: Optional[str], search: Optional
 # ── User Profile ─────────────────────────────────────────────
 
 @router.get("/reels")
-async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
+async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request: Request = None):
     """
     Legacy reels endpoint used by the current frontend (/api/reels).
     Reads from Mongo social collections and never requires authentication.
+    Supports tab='foryou' (default) or tab='following' (only followed users' reels).
     """
     current_user = await get_optional_user(request) if request is not None else None
+
+    query: dict = {}
+    if tab == "following" and current_user:
+        following_ids = [f["following_id"] async for f in db.user_follows.find({"follower_id": current_user.user_id}, {"following_id": 1})]
+        query["user_id"] = {"$in": following_ids}
+
     try:
-        reels = await db.reels.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
+        reels = await db.reels.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
     except Exception as e:
         logger.warning(f"Failed to fetch reels: {e}")
         reels = []
 
     if not reels:
+        fallback_query = {
+            "$or": [
+                {"is_reel": True},
+                {"media_type": "video"},
+                {"video_url": {"$exists": True}},
+            ]
+        }
+        if "user_id" in query:
+            fallback_query["user_id"] = query["user_id"]
         reels = await db.user_posts.find(
-            {
-                "$or": [
-                    {"is_reel": True},
-                    {"media_type": "video"},
-                    {"video_url": {"$exists": True}},
-                ]
-            },
+            fallback_query,
             {"_id": 0},
         ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
 
@@ -633,7 +643,7 @@ async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(
     # Toggle like (delete if exists, create if not)
     result = await db.comment_likes.delete_one({"comment_id": comment_id, "user_id": user_id})
     if result.deleted_count > 0:
-        await db.comment_likes.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
+        await db.post_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
         return {"liked": False}
 
     await db.comment_likes.update_one(
@@ -941,6 +951,16 @@ async def get_user_recipes(user_id: str, skip: int = 0, limit: int = 50):
 
 @router.post("/users/{user_id}/follow")
 async def follow_user(user_id: str, user: User = Depends(get_current_user)):
+    # Check if blocked in either direction
+    is_blocked = await db.user_blocks.find_one({
+        "$or": [
+            {"blocker_id": user.user_id, "blocked_id": user_id},
+            {"blocker_id": user_id, "blocked_id": user.user_id}
+        ]
+    })
+    if is_blocked:
+        raise HTTPException(status_code=403, detail="No puedes seguir a este usuario")
+
     if user.user_id == user_id:
         raise HTTPException(status_code=400, detail="Cannot follow yourself")
 
@@ -1474,6 +1494,9 @@ async def get_post_comments(post_id: str, skip: int = 0, limit: int = 50):
 @router.post("/posts/{post_id}/comments")
 async def add_comment(post_id: str, request: Request, user: User = Depends(get_current_user)):
     await rate_limiter.check(request, "create_comment")
+    post = await db.user_posts.find_one({"post_id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
     body = await request.json()
     text = body.get("text", "").strip()
     if not text:

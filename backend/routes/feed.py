@@ -106,18 +106,20 @@ async def get_stories(request: Request):
     try:
         active_ephemeral = await db.hispalostories.find(
             {"expires_at": {"$gt": now}, "image_url": {"$ne": None}},
-            {"_id": 0, "user_id": 1, "image_url": 1, "caption": 1, "created_at": 1},
+            {"_id": 0, "user_id": 1, "image_url": 1, "caption": 1, "created_at": 1, "views": 1},
         ).sort("created_at", -1).to_list(300)
     except Exception as exc:
         logger.warning(f"[FEED/STORIES] hispalostories unavailable: {exc}")
         active_ephemeral = []
 
-    # Keep only the most-recent story per user (preview image)
+    # Keep only the most-recent story per user (preview image) + all stories for has_unseen
     story_by_user: dict = {}
+    all_stories_by_user: dict = {}
     for s in active_ephemeral:
         uid = s["user_id"]
         if uid not in story_by_user:
             story_by_user[uid] = s
+        all_stories_by_user.setdefault(uid, []).append(s)
 
     # Batch-fetch user profiles for story owners
     story_user_ids = list(story_by_user.keys())
@@ -132,11 +134,20 @@ async def get_stories(request: Request):
     result = []
     seen_user_ids: set = set()
 
+    current_user_id = current_user.user_id if current_user else None
     for uid, story in story_by_user.items():
         u = story_user_docs.get(uid)
         if not u:
             continue
         seen_user_ids.add(uid)
+        # Check if any story for this user has NOT been viewed by current user
+        user_all_stories = all_stories_by_user.get(uid, [])
+        has_unseen = any(
+            current_user_id not in (s.get("views", []) if isinstance(s.get("views"), list) else [])
+            for s in user_all_stories
+        ) if current_user_id else True
+        # Strip views from preview story before sending to client
+        story.pop("views", None)
         result.append({
             "user_id": uid,
             "name": u.get("company_name") or u.get("name", ""),
@@ -148,6 +159,7 @@ async def get_stories(request: Request):
             },
             "is_recent": True,
             "is_followed": uid in followed_ids,
+            "has_unseen": has_unseen,
         })
 
     # Sort: followed users first, then others
@@ -219,6 +231,7 @@ async def get_stories(request: Request):
                         "preview": preview,
                         "is_recent": False,
                         "is_followed": sid in followed_ids,
+                        "has_unseen": True,
                     })
 
     return result
