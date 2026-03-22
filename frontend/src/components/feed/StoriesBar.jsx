@@ -65,7 +65,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
 
   // Determine if the current user has an active story in the fetched list
   const selfStory = currentUser
-    ? stories.find(s => s.user_id === currentUser.id || s.user_id === currentUser._id)
+    ? stories.find(s => s.user_id === currentUser.user_id || s.user_id === currentUser.id || s.user_id === currentUser._id)
     : null;
   const hasActiveStory = !!selfStory;
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import apiClient from '../services/api/client';
 import { useAuth } from './AuthContext';
 import { captureException } from '../lib/sentry';
@@ -291,24 +291,24 @@ export function CartProvider({ children }) {
     return cartItems.reduce((sum, item) => sum + (item.unit_price_cents || 0) * item.quantity, 0);
   }, [cartItems]);
 
+  const value = useMemo(() => ({
+    cartItems,
+    appliedDiscount,
+    loading,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    applyDiscount,
+    removeDiscount,
+    fetchCart,
+    getShippingPreview,
+    getTotalItems,
+    getTotalPrice,
+  }), [cartItems, appliedDiscount, loading, addToCart, removeFromCart, updateQuantity, clearCart, applyDiscount, removeDiscount, fetchCart, getShippingPreview, getTotalItems, getTotalPrice]);
+
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        appliedDiscount,
-        loading,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        applyDiscount,
-        removeDiscount,
-        fetchCart,
-        getShippingPreview,
-        getTotalItems,
-        getTotalPrice
-      }}
-    >
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

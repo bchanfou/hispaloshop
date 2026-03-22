@@ -17,6 +17,9 @@ class RateLimiter:
             "commercial_ai": (50, 3600), # 50 per hour
             "payment_create": (10, 60),  # 10 per min
             "upload": (30, 60),          # 30 per min
+            "create_post": (10, 3600),   # 10 posts per hour
+            "create_comment": (30, 300), # 30 comments per 5 min
+            "create_story": (20, 3600),  # 20 stories per hour
             "api_general": (100, 60),    # 100 per min
         }
 

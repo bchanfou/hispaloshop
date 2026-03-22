@@ -99,7 +99,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
             )}
           </div>
 
-          <div className="min-w-0" onClick={() => { const uid = conversation?.other_user_id || conversation?.user2_id; if (uid) navigate(`/${uid}`); }} role="button" tabIndex={0}>
+          <div className="min-w-0" onClick={() => { const uid = conversation?.other_user_id || conversation?.user2_id; if (uid) navigate(`/${uid}`); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const uid = conversation?.other_user_id || conversation?.user2_id; if (uid) navigate(`/${uid}`); } }} role="button" tabIndex={0}>
             <p className="truncate text-base font-semibold leading-5 text-stone-950">
               {conversation?.name || 'Chat'}
             </p>

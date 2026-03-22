@@ -4,6 +4,14 @@ import { getApiUrl } from '../../utils/api';
 
 export const API_BASE_URL = getApiUrl();
 
+// Online/offline awareness
+let isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => { isOnline = true; });
+  window.addEventListener('offline', () => { isOnline = false; });
+}
+
 function generateRequestId() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -153,15 +161,16 @@ httpClient.interceptors.response.use(
         return httpClient(originalRequest);
       }
 
+      // Clear all stale auth tokens
       removeToken();
-      // Redirect to login if session is truly expired (refresh failed)
-      // Only redirect for non-GET requests or protected routes to avoid redirect loops
-      const publicPaths = ['/', '/products', '/login', '/register', '/auth', '/certificate', '/certificado', '/que-es', '/productor', '/influencer', '/importador', '/contacto', '/legal'];
-      const isProtectedRoute = !publicPaths.some(
-        (p) => window.location.pathname.startsWith(p)
-      );
-      if (isProtectedRoute && typeof window !== 'undefined') {
-        window.location.href = `/login?expired=1&redirect=${encodeURIComponent(window.location.pathname)}`;
+      localStorage.removeItem('hispalo_access_token');
+      localStorage.removeItem('hsp_token');
+
+      // Redirect to login with return URL so the user can resume after re-auth
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/login?redirect=${returnUrl}&expired=true`;
+        return Promise.reject(error);
       }
     }
 
@@ -170,6 +179,11 @@ httpClient.interceptors.response.use(
 );
 
 async function request(config) {
+  if (!isOnline) {
+    const error = new Error('Sin conexión a internet');
+    error.isOffline = true;
+    throw error;
+  }
   const response = await httpClient.request(config);
   return response.data;
 }

@@ -12,6 +12,7 @@ from bson import ObjectId
 
 from core.database import get_db
 from core.auth import get_current_user, get_optional_user
+from core.sanitize import sanitize_text
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["communities"])
@@ -180,9 +181,9 @@ async def create_community(body: CreateCommunityBody, request: Request):
 
     now = datetime.now(timezone.utc)
     community = {
-        "name": body.name,
+        "name": sanitize_text(body.name),
         "slug": body.slug,
-        "description": body.description,
+        "description": sanitize_text(body.description),
         "emoji": body.emoji,
         "category": body.category,
         "tags": body.tags[:5],
@@ -348,7 +349,7 @@ async def create_community_post(
         "author_username": getattr(user, "username", None) or user.name,
         "author_avatar": getattr(user, "picture", None),
         "author_is_seller": user.role in ("producer", "importer"),
-        "text": body.text.strip()[:1000],
+        "text": sanitize_text(body.text.strip()[:1000]),
         "image_url": body.image_url,
         "likes_count": 0,
         "comments_count": 0,

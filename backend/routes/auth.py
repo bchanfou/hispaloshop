@@ -15,6 +15,7 @@ from core.database import db
 from core.models import User, RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput
 from core.auth import get_current_user
 from core.config import settings
+from core.sanitize import sanitize_text
 from core.constants import get_email_template
 from services.auth_helpers import (
     hash_password, verify_password, needs_rehash,
@@ -275,7 +276,7 @@ async def register(input: RegisterInput, request: Request):
     user_data = {
         "user_id": user_id,
         "email": normalized_email,
-        "name": input.name,
+        "name": sanitize_text(input.name),
         "username": username,
         "role": input.role,
         "country": input.country,

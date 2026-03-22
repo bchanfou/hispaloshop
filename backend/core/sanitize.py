@@ -1,7 +1,29 @@
 """
-Input sanitization utilities to prevent MongoDB operator injection.
+Input sanitization utilities to prevent MongoDB operator injection and XSS.
 """
 import re
+import html
+
+
+def sanitize_text(text: str, max_length: int = 2200) -> str:
+    """Strip HTML tags and dangerous content from user text input."""
+    if not text:
+        return ""
+    # Strip HTML tags
+    clean = re.sub(r'<[^>]+>', '', text)
+    # Remove javascript: protocol
+    clean = re.sub(r'javascript:', '', clean, flags=re.IGNORECASE)
+    # Decode HTML entities then re-escape to prevent entity-based XSS
+    clean = html.escape(html.unescape(clean))
+    # Trim to max length
+    return clean[:max_length].strip()
+
+
+def sanitize_username(username: str) -> str:
+    """Only allow alphanumeric, dots, underscores."""
+    if not username:
+        return ""
+    return re.sub(r'[^a-zA-Z0-9._]', '', username)[:30]
 
 
 def strip_mongo_operators(data: dict) -> dict:

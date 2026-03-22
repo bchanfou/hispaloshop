@@ -345,7 +345,7 @@ export default function ProfileHeader({
         (s) => (s.story_id || s.id || s._id) === createHighlightSelectedIds[0]
       );
       await apiClient.post('/users/me/highlights', {
-        name: createHighlightName.trim(),
+        title: createHighlightName.trim(),
         story_ids: createHighlightSelectedIds,
         cover_url: firstStory?.image_url || firstStory?.media_url || firstStory?.thumbnail || null,
       });

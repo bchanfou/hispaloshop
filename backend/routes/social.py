@@ -23,6 +23,8 @@ from config import normalize_influencer_tier
 from services.cloudinary_storage import upload_image as cloudinary_upload, upload_video as cloudinary_upload_video
 from services.video_service import VideoService
 from utils.images import extract_product_image
+from core.sanitize import sanitize_text
+from middleware.rate_limit import rate_limiter
 # NOTE: PostgreSQL fallback disabled - using MongoDB only for MVP
 # from database import AsyncSessionLocal
 # from models import Post as PgPost, User as PgUser
@@ -443,8 +445,8 @@ async def create_reel(
         "video_url": video_url,
         "original_video_url": original_video_url,
         "thumbnail_url": thumbnail_url,
-        "caption": caption[:500] if caption else "",
-        "location": location[:120] if location else "",
+        "caption": sanitize_text(caption[:500]) if caption else "",
+        "location": sanitize_text(location[:120]) if location else "",
         "duration_seconds": duration_seconds,
         "cover_frame_seconds": safe_cover_frame,
         "trim_start_seconds": safe_trim_start,
@@ -582,7 +584,7 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
         "user_id": user.user_id,
         "user_name": user.get("name") if hasattr(user, "get") else getattr(user, "name", "Usuario"),
         "user_profile_image": user.get("profile_image") if hasattr(user, "get") else getattr(user, "profile_image", None),
-        "text": text[:500],
+        "text": sanitize_text(text[:500]),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "likes_count": 0,
         "replies": [],
@@ -652,7 +654,7 @@ async def edit_reel(reel_id: str, body: dict = Body(...), user: User = Depends(g
         raise HTTPException(status_code=404, detail="Reel not found or not owned")
     update = {}
     if "caption" in body:
-        update["caption"] = str(body["caption"])[:500]
+        update["caption"] = sanitize_text(str(body["caption"])[:500])
     if not update:
         raise HTTPException(status_code=400, detail="Nothing to update")
     await db.reels.update_one(filter_q, {"$set": update})
@@ -1201,7 +1203,8 @@ async def get_highlight_detail(user_id: str, highlight_id: str):
 async def create_highlight(request: Request, user: User = Depends(get_current_user)):
     """Create a new story highlight group."""
     body = await request.json()
-    title = str(body.get("title", "")).strip()
+    # Accept both "title" and "name" from frontend
+    title = str(body.get("title") or body.get("name") or "").strip()
     if not title or len(title) > 30:
         raise HTTPException(status_code=400, detail="Title required (max 30 chars)")
 
@@ -1283,6 +1286,7 @@ async def create_post(
     user: User = Depends(get_current_user)
 ):
     """Create a new post. Producers and influencers MUST tag a product."""
+    await rate_limiter.check(request, "create_post")
     requested_tags = _normalize_tagged_products(tagged_products_json)
     if product_id and product_id.strip() and not requested_tags:
         requested_tags = [{"product_id": product_id.strip(), "x": 50, "y": 62}]
@@ -1334,8 +1338,8 @@ async def create_post(
         "user_profile_image": (user_doc or {}).get("profile_image"),
         "image_url": image_url,
         "media": media,
-        "caption": caption,
-        "location": location[:120] if location else "",
+        "caption": sanitize_text(caption),
+        "location": sanitize_text(location[:120]) if location else "",
         "type": "carousel" if len(media) > 1 or post_type == "carousel" else "post",
         "post_type": "carousel" if len(media) > 1 or post_type == "carousel" else "post",
         "tagged_product": tagged_product,
@@ -1461,13 +1465,15 @@ async def get_post_reactions(post_id: str):
 
 
 @router.get("/posts/{post_id}/comments")
-async def get_post_comments(post_id: str, skip: int = 0, limit: int = 20):
+async def get_post_comments(post_id: str, skip: int = 0, limit: int = 50):
+    limit = min(limit, 50)  # Cap to prevent unbounded queries
     comments = await db.post_comments.find({"post_id": post_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     return comments
 
 
 @router.post("/posts/{post_id}/comments")
 async def add_comment(post_id: str, request: Request, user: User = Depends(get_current_user)):
+    await rate_limiter.check(request, "create_comment")
     body = await request.json()
     text = body.get("text", "").strip()
     if not text:
@@ -1477,7 +1483,7 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
         "post_id": post_id,
         "user_id": user.user_id,
         "user_name": user.name,
-        "text": text[:500],
+        "text": sanitize_text(text[:500]),
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.post_comments.insert_one(comment)
@@ -1497,7 +1503,7 @@ async def edit_comment(comment_id: str, request: Request, user: User = Depends(g
     text = body.get("text", "").strip()
     if not text:
         raise HTTPException(status_code=400, detail="Comment text required")
-    await db.post_comments.update_one({"comment_id": comment_id}, {"$set": {"text": text[:500], "edited_at": datetime.now(timezone.utc).isoformat()}})
+    await db.post_comments.update_one({"comment_id": comment_id}, {"$set": {"text": sanitize_text(text[:500]), "edited_at": datetime.now(timezone.utc).isoformat()}})
     return {"status": "updated"}
 
 @router.delete("/comments/{comment_id}")
@@ -1657,10 +1663,10 @@ async def update_post(post_id: str, request: Request, user: User = Depends(get_c
     body = await request.json()
     update_fields = {}
     if "caption" in body:
-        update_fields["caption"] = str(body["caption"])[:2200]
+        update_fields["caption"] = sanitize_text(str(body["caption"])[:2200])
         update_fields["edited"] = True
     if "location" in body:
-        update_fields["location"] = str(body["location"])[:120]
+        update_fields["location"] = sanitize_text(str(body["location"])[:120])
 
     if not update_fields:
         raise HTTPException(status_code=400, detail="Nothing to update")
@@ -2025,11 +2031,11 @@ async def update_user_profile_data(request: Request, user: User = Depends(get_cu
     body = await request.json()
     update_fields = {}
     if "bio" in body:
-        update_fields["bio"] = body["bio"][:300]
+        update_fields["bio"] = sanitize_text(body["bio"][:300])
     if "profile_image" in body:
         update_fields["profile_image"] = body["profile_image"]
     if "name" in body:
-        update_fields["name"] = body["name"][:50]
+        update_fields["name"] = sanitize_text(body["name"][:50])
     if update_fields:
         await db.users.update_one({"user_id": user.user_id}, {"$set": update_fields})
     return {"status": "ok"}
@@ -2053,12 +2059,14 @@ async def upload_avatar(file: UploadFile = File(...), user: User = Depends(get_c
 
 @router.post("/stories")
 async def create_story(
+    request: Request,
     file: UploadFile = File(...),
     caption: str = Form(""),
     location: str = Form(""),
     user: User = Depends(get_current_user)
 ):
     """Upload a story that auto-expires after 24h."""
+    await rate_limiter.check(request, "create_story")
     if not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="Only image files are allowed")
     contents = await file.read()
@@ -2076,8 +2084,8 @@ async def create_story(
         "user_name": (story_user_doc or {}).get("company_name") or user.name,
         "user_profile_image": (story_user_doc or {}).get("profile_image"),
         "image_url": image_url,
-        "caption": caption[:200] if caption else "",
-        "location": location[:120] if location else "",
+        "caption": sanitize_text(caption[:200]) if caption else "",
+        "location": sanitize_text(location[:120]) if location else "",
         "created_at": now.isoformat(),
         "expires_at": (now + timedelta(hours=24)).isoformat(),
         "views": [],
@@ -2254,7 +2262,7 @@ async def reply_story(story_id: str, request: Request, user: User = Depends(get_
         "user_id": user.user_id,
         "user_name": user.get("name") if hasattr(user, "get") else getattr(user, "name", "Usuario"),
         "user_profile_image": user.get("profile_image") if hasattr(user, "get") else getattr(user, "profile_image", None),
-        "message": message[:500],
+        "message": sanitize_text(message[:500]),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.story_replies.insert_one(reply)

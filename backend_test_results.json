@@ -1,7 +1,7 @@
 {
-  "total_tests": 30,
-  "passed_tests": 28,
-  "success_rate": 93.33333333333333,
+  "total_tests": 26,
+  "passed_tests": 21,
+  "success_rate": 80.76923076923077,
   "test_results": [
     {
       "name": "API Connectivity",
@@ -109,44 +109,24 @@
       "details": "Fields: ['product_id', 'approved', 'average_rating', 'category', 'category_id', 'country_origin', 'created_at', 'currency', 'description', 'featured', 'image_urls', 'images', 'name', 'price', 'price_cents', 'producer_id', 'review_count', 'seller_type', 'slug', 'status', 'stock', 'store_id', 'units_sold', 'updated_at', 'certificate_id', 'translated_fields', 'producer_slug', 'target_markets', 'display_price', 'display_currency', 'available_in_country']"
     },
     {
-      "name": "GET /user/locale",
-      "success": true,
-      "details": "Status: 200, Data: {'country': 'ES', 'language': 'fr', 'currency': 'EUR'}"
-    },
-    {
-      "name": "PUT /user/locale",
-      "success": true,
-      "details": "Status: 200"
-    },
-    {
-      "name": "Locale Update Verified",
-      "success": true,
-      "details": "Data: {'country': 'FR', 'language': 'fr', 'currency': 'EUR'}"
-    },
-    {
-      "name": "Add to Cart",
-      "success": true,
-      "details": "Status: 200, Response: {'success': True, 'message': 'Added to cart', 'data': {'product_id': 'demo_p_jamon_bellota', 'product_name': 'Jam\u00f3n Ib\u00e9rico de Bellota DOP (sobre 100g)', 'product_image': 'https://images.unsplash.com/photo-1603048719539-9ecb4aa395e3?w=1200&auto=format&fit=crop', 'seller_id': 'demo_prod_jamon', 'seller_type': 'producer', 'quantity': 1, 'unit_price_cents': 2490, 'total_price_cents': 2490, 'variant_id': None, 'pack_id': None, 'added_at': '2026-03-22T17:06:22.234741+00:00'}}"
-    },
-    {
-      "name": "Cart Country Validation",
+      "name": "User Locale Tests",
       "success": false,
-      "details": "Status: 200"
+      "details": "Could not login test user"
     },
     {
-      "name": "Apply Country Change",
-      "success": true,
-      "details": "Status: 200"
+      "name": "Cart Country Tests",
+      "success": false,
+      "details": "Could not login test user"
     },
     {
-      "name": "Checkout Country Validation",
-      "success": true,
-      "details": "Status: 503, Response: {'detail': 'Payment processing not configured. Contact the administrator.'}"
+      "name": "Checkout Country Tests",
+      "success": false,
+      "details": "Could not login test user"
     },
     {
-      "name": "AI Chat Endpoint",
-      "success": true,
-      "details": "Status: 500"
+      "name": "AI Chat Country Tests",
+      "success": false,
+      "details": "Could not login test user"
     },
     {
       "name": "Producer Country Tests",

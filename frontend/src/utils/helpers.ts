@@ -3,6 +3,17 @@
  */
 
 /**
+ * Escape HTML entities to prevent XSS when rendering user content.
+ * Use this instead of dangerouslySetInnerHTML for user-generated text.
+ */
+export function sanitizeHTML(html: string | null | undefined): string {
+  if (!html) return '';
+  const div = document.createElement('div');
+  div.textContent = html;
+  return div.innerHTML; // Escapes all HTML entities
+}
+
+/**
  * Sanitize image URLs and normalize known asset patterns.
  */
 export const sanitizeImageUrl = (url: any): string | null => {

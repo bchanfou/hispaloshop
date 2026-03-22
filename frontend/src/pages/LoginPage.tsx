@@ -39,7 +39,8 @@ export default function LoginPage() {
 
   const sessionExpired = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return params.get('expired') === '1';
+    const v = params.get('expired');
+    return v === '1' || v === 'true';
   }, [location.search]);
 
   const validate = () => {

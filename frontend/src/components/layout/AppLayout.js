@@ -10,6 +10,7 @@ import apiClient from '../../services/api/client';
 import { trackPageVisit } from '../../utils/analytics';
 import { useNavigationDirection } from '../../hooks/useNavigationDirection';
 import { useSwipeBack } from '../../hooks/useSwipeBack';
+import OfflineBanner from './OfflineBanner';
 
 /**
  * AppLayout — responsive shell for authenticated app pages
@@ -142,6 +143,9 @@ export default function AppLayout({ children }) {
 
   return (
     <>
+      {/* Offline detection banner */}
+      <OfflineBanner />
+
       {/* Email verification banner */}
       {showVerificationBanner && <EmailVerificationBanner />}
 

@@ -86,7 +86,7 @@ export default function UserProfilePage() {
     if (!title?.trim()) return;
     try {
       await apiClient.post('/users/me/highlights', {
-        name: title.trim(),
+        title: title.trim(),
         story_ids: storyIds || [],
         cover_url: coverUrl || null,
       });

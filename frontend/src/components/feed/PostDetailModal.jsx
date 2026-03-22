@@ -462,7 +462,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     setSaved(post.saved ?? post.is_saved ?? false);
   }, [post]);
 
-  const COMMENTS_PAGE_SIZE = 20;
+  const COMMENTS_PAGE_SIZE = 50;
   const [commentsPage, setCommentsPage] = useState(0);
   const [hasMoreComments, setHasMoreComments] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);

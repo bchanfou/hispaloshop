@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
 import { translations, defaultLanguage, supportedLanguages } from '../locales';
@@ -354,42 +354,42 @@ export function LocaleProvider({ children }) {
     };
   };
 
-  const value = {
+  const value = useMemo(() => ({
     // Current state
     country,
     language,
     currency,
-    
+
     // Configuration
     countries,
     languages,
     currencies,
-    
+
     // Exchange rates
     exchangeRates,
     ratesLoading,
-    
+
     // Update functions
     updateCountry,
     updateLanguage,
     updateCurrency,
-    
+
     // Helper functions
     getCountryFlag,
     getCurrencySymbol,
     getLanguageName,
-    
+
     // Currency conversion helpers
     convertAndFormatPrice,
     getConvertedPrice,
     formatPrice,
     getExchangeRateDisplay,
-    
+
     // Translation function
     t,
-    
-    loading
-  };
+
+    loading,
+  }), [country, language, currency, countries, languages, currencies, exchangeRates, ratesLoading, updateCountry, updateLanguage, updateCurrency, getCountryFlag, getCurrencySymbol, getLanguageName, convertAndFormatPrice, getConvertedPrice, formatPrice, getExchangeRateDisplay, t, loading]);
 
   return (
     <LocaleContext.Provider value={value}>
