@@ -248,28 +248,33 @@ export default function ProfileHeader({
   const handleCloseAccount = useCallback(async (acc) => {
     setClosingAccount(true);
     const isActive = String(acc.user_id || acc.id || '') === currentUserId;
-    const result = await logoutAccount(acc);
-    queryClient.clear();
-    setAccountsVersion((v) => v + 1);
-    setShowAccountSwitcher(false);
-    setAccountToClose(null);
-    setClosingAccount(false);
+    try {
+      const result = await logoutAccount(acc);
+      queryClient.clear();
+      setAccountsVersion((v) => v + 1);
+      setShowAccountSwitcher(false);
+      setAccountToClose(null);
 
-    if (isActive) {
-      if (result?.switched && result?.user?.username) {
-        toast.success('Sesion cerrada. Cambiado a otra cuenta.');
-        navigate(`/${result.user.username}`);
-      } else if (result?.switched) {
-        toast.success('Sesion cerrada. Cambiado a otra cuenta.');
-        navigate('/');
-      } else {
-        toast.success('Sesion cerrada');
-        navigate('/login');
+      if (isActive) {
+        if (result?.switched && result?.user?.username) {
+          toast.success('Sesion cerrada. Cambiado a otra cuenta.');
+          navigate(`/${result.user.username}`);
+        } else if (result?.switched) {
+          toast.success('Sesion cerrada. Cambiado a otra cuenta.');
+          navigate('/');
+        } else {
+          toast.success('Sesion cerrada');
+          navigate('/login');
+        }
+        return;
       }
-      return;
-    }
 
-    toast.success('Cuenta eliminada del dispositivo');
+      toast.success('Cuenta eliminada del dispositivo');
+    } catch (err) {
+      toast.error('No se pudo cerrar la cuenta. Intentalo de nuevo.');
+    } finally {
+      setClosingAccount(false);
+    }
   }, [currentUserId, logoutAccount, queryClient, navigate]);
 
   /* ── avatar file pick ──────────────────────────────────────────── */

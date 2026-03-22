@@ -96,6 +96,11 @@ export function AuthProvider({ children }) {
   const mountedRef = useRef(true);
   const checkingRef = useRef(false);
 
+  const authDebug = useCallback((event, payload = {}) => {
+    if (process.env.NODE_ENV === 'production') return;
+    console.info('[auth-debug]', event, payload);
+  }, []);
+
   const setUser = useCallback((value) => {
     if (typeof value === 'function') {
       setUserState((currentUser) => normalizeUser(value(currentUser)));
@@ -251,9 +256,25 @@ export function AuthProvider({ children }) {
     }
   }, [setUser, user]);
 
+  const resolveUserFromActiveToken = useCallback(async () => {
+    const currentUser = await authApi.getCurrentUser();
+    const normalizedUser = normalizeUser(currentUser || null);
+    if (mountedRef.current) {
+      setUser(normalizedUser);
+      setInitialized(true);
+    }
+    return normalizedUser;
+  }, [setUser]);
+
   const switchAccount = useCallback(async (account) => {
     const prevToken = getToken() || '';
     const prevUser = user;
+    authDebug('switch:start', {
+      targetId: accountId(account),
+      hasTargetToken: Boolean(account?.token),
+      currentId: accountId(user),
+      hasPrevToken: Boolean(prevToken),
+    });
     try {
       if (!account?.token) {
         const error = new Error('missing account token');
@@ -270,13 +291,18 @@ export function AuthProvider({ children }) {
       localStorage.setItem('hispalo_access_token', account.token);
       localStorage.setItem('hsp_token', account.token);
 
-      // Re-authenticate with new token
-      const newUser = await checkAuth();
+      // Re-authenticate deterministically with the new token
+      const newUser = await resolveUserFromActiveToken();
 
       // Update the switched account in localStorage with fresh data from server
       if (newUser) {
         upsertStoredAccount(toAccountObject(newUser, account.token));
         setSentryUser({ id: newUser.user_id, username: newUser.username, email: newUser.email });
+        authDebug('switch:success', {
+          targetId: accountId(account),
+          resolvedId: accountId(newUser),
+          username: newUser.username,
+        });
         return { ok: true, user: newUser };
       } else {
         const error = new Error('Unable to resolve user for switched account');
@@ -285,6 +311,11 @@ export function AuthProvider({ children }) {
       }
     } catch (err) {
       console.error('Switch account failed', err);
+      authDebug('switch:failed', {
+        targetId: accountId(account),
+        code: err?.code || 'switch_failed',
+        message: err?.message || null,
+      });
       const errorCode = err?.code || 'switch_failed';
       if (errorCode === 'missing_token' || errorCode === 'expired_or_invalid') {
         toast.error('La sesión guardada de esta cuenta ya no es válida. Se ha eliminado del dispositivo.');
@@ -298,19 +329,28 @@ export function AuthProvider({ children }) {
       if (prevToken) {
         localStorage.setItem('hispalo_access_token', prevToken);
         localStorage.setItem('hsp_token', prevToken);
-        if (prevUser) setUser(prevUser);
+        if (prevUser) {
+          setUser(prevUser);
+          setSentryUser({ id: prevUser.user_id, username: prevUser.username, email: prevUser.email });
+        }
       } else {
         removeToken();
         if (mountedRef.current) setUser(null);
       }
       return { ok: false, user: null, error: err, errorCode };
     }
-  }, [user, checkAuth, setUser]);
+  }, [user, resolveUserFromActiveToken, setUser, authDebug]);
 
   const logoutAccount = useCallback(async (account) => {
     const targetId = accountId(account) || accountId(user);
     const currentId = accountId(user);
     const isActiveTarget = !targetId || targetId === currentId;
+
+    authDebug('logout-account:start', {
+      targetId,
+      currentId,
+      isActiveTarget,
+    });
 
     if (isActiveTarget) {
       try {
@@ -325,10 +365,31 @@ export function AuthProvider({ children }) {
       for (const fallback of remaining) {
         localStorage.setItem('hispalo_access_token', fallback.token);
         localStorage.setItem('hsp_token', fallback.token);
-        const nextUser = await checkAuth();
+        authDebug('logout-account:fallback-attempt', {
+          fallbackId: accountId(fallback),
+          fallbackUsername: fallback?.username || null,
+        });
+
+        let nextUser = null;
+        try {
+          nextUser = await resolveUserFromActiveToken();
+        } catch (err) {
+          authDebug('logout-account:fallback-failed', {
+            fallbackId: accountId(fallback),
+            code: err?.code || null,
+            message: err?.message || null,
+          });
+          nextUser = null;
+        }
+
         if (nextUser) {
           upsertStoredAccount(toAccountObject(nextUser, fallback.token));
           setSentryUser({ id: nextUser.user_id, username: nextUser.username, email: nextUser.email });
+          authDebug('logout-account:fallback-success', {
+            fallbackId: accountId(fallback),
+            resolvedId: accountId(nextUser),
+            username: nextUser.username,
+          });
           return { switched: true, user: nextUser };
         }
 
@@ -342,12 +403,14 @@ export function AuthProvider({ children }) {
         setInitialized(true);
       }
       setSentryUser(null);
+      authDebug('logout-account:ended-without-fallback', { targetId });
       return { switched: false, user: null };
     }
 
     removeStoredAccountById(targetId);
+    authDebug('logout-account:removed-secondary', { targetId });
     return { switched: false, user };
-  }, [user, checkAuth, setUser]);
+  }, [user, resolveUserFromActiveToken, setUser, authDebug]);
 
   const refreshUser = useCallback(async () => checkAuth(), [checkAuth]);
 

@@ -767,8 +767,8 @@ async def add_password_to_account(
     """Allow Google-only users to add a password to their account"""
     body = await request.json()
     new_password = body.get("new_password", "")
-    if not new_password or len(new_password) < 6:
-        raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 6 caracteres")
+    if not new_password or len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 8 caracteres")
 
     user_doc = await db.users.find_one({"user_id": current_user.user_id})
     if not user_doc:
