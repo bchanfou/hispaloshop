@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search } from 'lucide-react';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { useAuth } from '../../context/AuthContext';
@@ -57,6 +57,7 @@ function UserAvatar({ src, name, size = 'h-11 w-11', rounded = 'rounded-full' })
 
 export default function NewConversationPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { conversations, openConversation } = useChatContext();
 
@@ -65,6 +66,7 @@ export default function NewConversationPage() {
   const [followedStores, setFollowedStores] = useState([]);
   const [selecting, setSelecting] = useState(false);
   const debounceRef = useRef(null);
+  const handledPrefillRef = useRef(false);
 
   const recentContacts = useMemo(() => {
     if (!conversations || !user) return [];
@@ -129,7 +131,8 @@ export default function NewConversationPage() {
     });
 
     if (existing) {
-      navigate(`/chat/${existing.id}`);
+      navigate(`/messages/${existing.id}`);
+      setSelecting(false);
       return;
     }
 
@@ -137,12 +140,37 @@ export default function NewConversationPage() {
     try {
       const newConv = await openConversation(targetId, chatType);
       if (newConv && newConv.id) {
-        navigate(`/chat/${newConv.id}`);
+        navigate(`/messages/${newConv.id}`);
       }
     } finally {
       setSelecting(false);
     }
   }, [selecting, user, conversations, openConversation, navigate]);
+
+  useEffect(() => {
+    if (handledPrefillRef.current) return;
+    const toUserId = searchParams.get('to');
+    if (!toUserId || !user || !conversations) return;
+
+    handledPrefillRef.current = true;
+
+    const existing = conversations.find((c) => {
+      const other = c.other_user || c.otherUser;
+      return other && String(other.id || other.user_id) === String(toUserId);
+    });
+
+    if (existing?.id) {
+      navigate(`/messages/${existing.id}`, { replace: true });
+      return;
+    }
+
+    (async () => {
+      const newConv = await openConversation(toUserId, 'c2c');
+      if (newConv?.id) {
+        navigate(`/messages/${newConv.id}`, { replace: true });
+      }
+    })();
+  }, [searchParams, user, conversations, openConversation, navigate]);
 
   const showResults = query.length >= 2;
 

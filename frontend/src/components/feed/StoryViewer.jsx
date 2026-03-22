@@ -354,7 +354,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       if (conversationId) {
         setTimeout(() => {
           onClose();
-          navigate(`/chat/${conversationId}`);
+          navigate(`/messages/${conversationId}`);
         }, 250);
       }
     } catch (err) {

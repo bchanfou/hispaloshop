@@ -119,6 +119,7 @@ export default function CheckoutPage() {
   const [discountLoading, setDiscountLoading] = useState(false);
   const [discountError, setDiscountError] = useState('');
   const [paying, setPaying] = useState(false);
+  const [phoneWarning, setPhoneWarning] = useState('');
 
   // Auto-fill phone from user profile
   useEffect(() => {
@@ -389,14 +390,23 @@ export default function CheckoutPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-stone-950 mb-1">Teléfono</label>
+                        <label className="block text-xs font-semibold text-stone-950 mb-1">Teléfono <span className="text-stone-400">*</span></label>
                         <input
                           value={newAddress.phone}
-                          onChange={e => setNewAddress(p => ({ ...p, phone: e.target.value }))}
-                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+                          onChange={e => {
+                            setNewAddress(p => ({ ...p, phone: e.target.value }));
+                            if (phoneWarning && e.target.value.replace(/\s/g, '').length >= 6) setPhoneWarning('');
+                          }}
+                          onBlur={() => {
+                            const digits = newAddress.phone.replace(/\s/g, '');
+                            if (!digits || digits.length < 6) setPhoneWarning('Teléfono requerido para la entrega');
+                            else setPhoneWarning('');
+                          }}
+                          className={`w-full h-12 px-3.5 text-sm border rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors ${phoneWarning ? 'border-stone-400' : 'border-stone-200'}`}
                           placeholder="+34 600 000 000"
                           type="tel"
                         />
+                        {phoneWarning && <p className="text-xs text-stone-500 mt-1">{phoneWarning}</p>}
                       </div>
                       <label className="flex items-center gap-2 text-[13px] text-stone-500 cursor-pointer">
                         <input type="checkbox" checked={saveAddress} onChange={e => setSaveAddress(e.target.checked)} className="accent-stone-950" />

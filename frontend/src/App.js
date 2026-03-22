@@ -731,7 +731,8 @@ function AppRouter() {
 
               <Route path="/reels" element={<ReelsPage />} />
               <Route path="/feed" element={<Navigate to="/" replace />} />
-              <Route path="/chat" element={<ChatContainer />} />
+              <Route path="/chat" element={<Navigate to="/messages" replace />} />
+              <Route path="/ai/chat" element={<ChatContainer />} />
               <Route path="/messages" element={<ChatsPage />} />
               <Route path="/messages/new" element={<NewConversationPage />} />
               <Route path="/messages/:conversationId" element={<ChatPage />} />

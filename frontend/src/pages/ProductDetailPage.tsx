@@ -1274,36 +1274,50 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* Add to Cart */}
-          <motion.button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            whileTap={{ scale: 0.96 }}
-            animate={{
-              background: addedToCart
-                ? '#0c0a09'
-                : isOutOfStock
-                  ? '#f5f5f4'
-                  : '#0c0a09',
-            }}
-            transition={{ duration: 0.3 }}
-            className={`flex h-11 items-center justify-center gap-2 rounded-full px-7 text-sm font-semibold ${
-              isOutOfStock ? 'cursor-not-allowed text-stone-500' : 'text-white'
-            }`}
-            data-testid="mobile-buy-button"
-          >
-            {addedToCart ? (
-              <>
-                <Check size={18} strokeWidth={2.5} />
-                {t('success.added', '¡Añadido!')}
-              </>
-            ) : isOutOfStock ? (
-              t('products.soldOut', 'Agotado')
-            ) : (
-              t('products.addToCart', 'Añadir al carrito')
-            )}
-          </motion.button>
+          {/* Buy Now + Add to Cart */}
+          <div className="flex gap-2 flex-1">
+            <button
+              type="button"
+              onClick={async () => {
+                if (isOutOfStock) return;
+                await addToCart(productId, quantity, selectedVariant?.variant_id, selectedPack?.pack_id);
+                navigate('/cart');
+              }}
+              disabled={isOutOfStock || addingRef.current}
+              className="flex-1 h-11 bg-white text-stone-950 border border-stone-950 rounded-full text-sm font-semibold transition-colors hover:bg-stone-50 disabled:opacity-50"
+            >
+              Comprar ahora
+            </button>
+            <motion.button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              whileTap={{ scale: 0.96 }}
+              animate={{
+                background: addedToCart
+                  ? '#0c0a09'
+                  : isOutOfStock
+                    ? '#f5f5f4'
+                    : '#0c0a09',
+              }}
+              transition={{ duration: 0.3 }}
+              className={`flex-1 flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold ${
+                isOutOfStock ? 'cursor-not-allowed text-stone-500' : 'text-white'
+              }`}
+              data-testid="mobile-buy-button"
+            >
+              {addedToCart ? (
+                <>
+                  <Check size={18} strokeWidth={2.5} />
+                  {t('success.added', '¡Añadido!')}
+                </>
+              ) : isOutOfStock ? (
+                t('products.soldOut', 'Agotado')
+              ) : (
+                t('products.addToCart', 'Añadir al carrito')
+              )}
+            </motion.button>
+          </div>
         </div>
       </div>
     </div>

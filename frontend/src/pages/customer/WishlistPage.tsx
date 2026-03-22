@@ -127,7 +127,22 @@ export default function WishlistPage() {
               </Link>
               <div className="flex-1 min-w-0">
                 <Link to={productPath} className="text-sm font-medium text-stone-900 hover:underline line-clamp-1">{item.name}</Link>
-                <p className="text-sm font-semibold text-stone-700 mt-0.5">{item.price ? `${Number(item.price).toFixed(2)} EUR` : ''}</p>
+                {item.saved_price && item.saved_price !== item.price ? (
+                  <div className="flex items-center gap-2 text-xs mt-0.5">
+                    <span className="line-through text-stone-400">{Number(item.saved_price).toFixed(2)} EUR</span>
+                    <span className={item.price < item.saved_price ? 'font-semibold text-stone-950' : 'text-stone-500'}>
+                      {Number(item.price).toFixed(2)} EUR
+                    </span>
+                    {item.price < item.saved_price && (
+                      <span className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">{'\u2193'} Rebajado</span>
+                    )}
+                    {item.price > item.saved_price && (
+                      <span className="text-stone-400 text-[10px]">{'\u2191'} Precio subió</span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm font-semibold text-stone-700 mt-0.5">{item.price ? `${Number(item.price).toFixed(2)} EUR` : ''}</p>
+                )}
                 <p className="text-[10px] text-stone-400">{item.added_at ? new Date(item.added_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : ''}</p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
