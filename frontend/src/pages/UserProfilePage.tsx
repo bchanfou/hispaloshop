@@ -20,7 +20,7 @@ import SEO from '../components/SEO';
 
 export default function UserProfilePage() {
   const params = useParams();
-  const userId = params.userId || params.username;
+  const routeUserKey = params.userId || params.username;
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 
@@ -42,16 +42,23 @@ export default function UserProfilePage() {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
-  const isOwn = currentUser && (
-    String(currentUser.user_id) === String(userId) ||
-    String(currentUser.id) === String(userId) ||
-    currentUser.username === userId
-  );
+  const currentUserId = currentUser?.user_id || currentUser?.id || null;
+  const currentUsername = currentUser?.username || null;
 
-  const { profile, isLoading, refetch } = useUserProfile(userId);
+  const isOwn = Boolean(currentUser && (
+    String(currentUser.user_id) === String(routeUserKey) ||
+    String(currentUser.id) === String(routeUserKey) ||
+    String(currentUsername || '').toLowerCase() === String(routeUserKey || '').toLowerCase()
+  ));
+
+  // Important: own profile must resolve by authenticated user_id to avoid
+  // fallback "Usuario" state when route username and backend lookup desync.
+  const profileLookupKey = isOwn && currentUserId ? String(currentUserId) : routeUserKey;
+
+  const { profile, isLoading, refetch } = useUserProfile(profileLookupKey);
 
   const user = profile ? {
-    user_id: profile.user_id || profile.id || userId,
+    user_id: profile.user_id || profile.id || profileLookupKey,
     username: profile.username,
     name: profile.name || profile.full_name,
     bio: profile.bio,
@@ -79,7 +86,8 @@ export default function UserProfilePage() {
   } : null;
 
   const { toggleFollow, followLoading } = useUserFollow(user?.user_id, profile);
-  const { data: highlights = [] } = useUserHighlightsQuery(userId);
+  const highlightsLookupKey = user?.user_id || profileLookupKey;
+  const { data: highlights = [] } = useUserHighlightsQuery(highlightsLookupKey);
   const queryClient = useQueryClient();
 
   const handleCreateHighlight = useCallback(async (title, storyIds, coverUrl) => {
@@ -90,13 +98,13 @@ export default function UserProfilePage() {
         story_ids: storyIds || [],
         cover_url: coverUrl || null,
       });
-      queryClient.invalidateQueries({ queryKey: userKeys.highlights(userId) });
+      queryClient.invalidateQueries({ queryKey: userKeys.highlights(highlightsLookupKey) });
       setShowCreateHighlight(false);
       toast.success('Destacado creado');
     } catch {
       toast.error('Error al crear destacado');
     }
-  }, [userId, queryClient]);
+  }, [highlightsLookupKey, queryClient]);
 
   /* ── View own stories ─────────────────────────────────────────── */
   const handleViewOwnStory = useCallback(async () => {
@@ -124,13 +132,13 @@ export default function UserProfilePage() {
     } catch {
       toast.error('Error al cargar tus stories');
     }
-  }, [user, userId]);
+  }, [user, profileLookupKey]);
 
   /* ── View a highlight ─────────────────────────────────────────── */
   const handleViewHighlight = useCallback(async (highlight) => {
     const hlId = highlight.highlight_id || highlight.id;
     try {
-      const data = await apiClient.get(`/users/${userId}/highlights/${hlId}`);
+    const data = await apiClient.get(`/users/${highlightsLookupKey}/highlights/${hlId}`);
       const items = data?.stories || data?.items || [];
       if (items.length === 0) {
         toast('Este destacado no tiene stories');
@@ -153,7 +161,7 @@ export default function UserProfilePage() {
     } catch {
       toast.error('Error al cargar destacado');
     }
-  }, [userId, user]);
+  }, [highlightsLookupKey, user]);
 
   /* ── Handle post click (collect all posts for scrolling) ──── */
   const handlePostClick = useCallback((post, allPostsFromTab) => {
@@ -165,9 +173,9 @@ export default function UserProfilePage() {
   const handleDeletePost = useCallback((postId) => {
     setAllPosts(prev => prev.filter(p => (p.id || p.post_id) !== postId));
     setSelectedPost(null);
-    queryClient.invalidateQueries({ queryKey: ['users', userId, 'posts'] });
-    queryClient.invalidateQueries({ queryKey: ['userProfile', userId] });
-  }, [userId, queryClient]);
+    queryClient.invalidateQueries({ queryKey: ['users', profileLookupKey, 'posts'] });
+    queryClient.invalidateQueries({ queryKey: ['userProfile', profileLookupKey] });
+  }, [profileLookupKey, queryClient]);
 
   const handleFollowToggle = useCallback(async () => {
     if (!user || followLoading) return;
@@ -316,7 +324,7 @@ export default function UserProfilePage() {
         onMessage={handleMessage}
         highlights={highlights}
         onCreateHighlight={() => setShowCreateHighlight(true)}
-        onHighlightDeleted={() => queryClient.invalidateQueries({ queryKey: userKeys.highlights(userId) })}
+        onHighlightDeleted={() => queryClient.invalidateQueries({ queryKey: userKeys.highlights(highlightsLookupKey) })}
         onSwitchTab={(tabId) => tabsRef.current?.switchTab(tabId)}
         onViewOwnStory={handleViewOwnStory}
         onViewHighlight={handleViewHighlight}

@@ -401,6 +401,11 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     const next = !liked;
     setLiked(next);
     setLikesCount((c) => (next ? c + 1 : c - 1));
+    // Milestone haptic every 10 likes
+    const newCount = liked ? likesCount - 1 : likesCount + 1;
+    if (newCount > 0 && newCount % 10 === 0) {
+      trigger('success');
+    }
     const reelId = reel.id || reel.reel_id || reel.post_id;
     try {
       await apiClient.post(`/reels/${reelId}/like`);
@@ -630,21 +635,35 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         </div>
       </BottomSheet>
 
-      {/* Play/Pause icon — flash on toggle, persistent when paused */}
-      <div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none motion-reduce:hidden"
-        style={{
-          opacity: showPlayIcon ? 0.8 : (!playing && !showDoubleTapHeart ? 0.5 : 0),
-          transition: `opacity ${showPlayIcon ? '100ms' : '400ms'} ease`,
-        }}
-      >
-        <div className="bg-black/30 rounded-full p-4">
-          {playing ? (
-            <Pause size={36} className="text-white" />
-          ) : (
-            <Play size={36} className="text-white fill-white" />
-          )}
-        </div>
+      {/* Play/Pause icon — animated with AnimatePresence */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none motion-reduce:hidden z-[3]">
+        <AnimatePresence mode="wait">
+          {!playing && !showDoubleTapHeart ? (
+            <motion.div
+              key="play"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <div className="bg-black/30 rounded-full p-4">
+                <Play size={48} className="text-white/80 fill-white/80" />
+              </div>
+            </motion.div>
+          ) : showPlayIcon ? (
+            <motion.div
+              key="pause"
+              initial={{ scale: 1.2, opacity: 0 }}
+              animate={{ scale: 1, opacity: 0.6 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="bg-black/30 rounded-full p-4">
+                <Pause size={48} className="text-white/80 fill-white/80" />
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
 
 
@@ -841,7 +860,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       </div>
 
       {/* Info bottom-left */}
-      <div
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
         className={`absolute left-4 right-20 z-[2] ${
           embedded
             ? product ? 'bottom-[76px]' : 'bottom-[50px]'
@@ -879,7 +901,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             Ver {abbreviateCount(reelCommentsCount)} comentarios
           </button>
         )}
-      </div>
+      </motion.div>
 
       {/* "Comprar" pill — shown when there are tagged products */}
       {(allProducts.length > 0 || reel.tagged_product || reel.productTag) && (

@@ -16,16 +16,18 @@ import MilestoneToast, { checkMilestone } from './MilestoneToast';
 // ---------------------------------------------------------------------------
 // Like-particle burst (double-tap)
 // ---------------------------------------------------------------------------
-const PARTICLE_COUNT_MIN = 8;
-const PARTICLE_COUNT_MAX = 12;
+const PARTICLE_COUNT_MIN = 14;
+const PARTICLE_COUNT_MAX = 18;
+const PARTICLE_COLORS = ['#ffffff', '#f5f5f4', '#a8a29e']; // white, stone-50, stone-400
 
 function generateParticles() {
   const count = PARTICLE_COUNT_MIN + Math.floor(Math.random() * (PARTICLE_COUNT_MAX - PARTICLE_COUNT_MIN + 1));
   return Array.from({ length: count }, (_, i) => ({
     id: i,
     x: (Math.random() - 0.5) * 60,
-    y: -(80 + Math.random() * 70),
+    y: -(100 + Math.random() * 100),
     delay: Math.random() * 0.05 + 0.05 * i,
+    color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
   }));
 }
 
@@ -46,9 +48,9 @@ function LikeParticles({ show }) {
           initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
           animate={{ x: p.x, y: p.y, opacity: 0, scale: 0.6 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, delay: p.delay, ease: 'easeOut' }}
+          transition={{ duration: 1, delay: p.delay, ease: 'easeOut' }}
         >
-          <Heart size={12} className="fill-white text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.6)]" />
+          <Heart size={16} style={{ fill: p.color, color: p.color }} className="drop-shadow-[0_2px_6px_rgba(255,255,255,0.6)]" />
         </motion.div>
       ))}
     </AnimatePresence>
@@ -828,18 +830,20 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       {/* ---- Caption ---- */}
       {captionText && (
         <div className="px-3 pb-3 text-sm leading-[1.45] text-stone-950 break-words">
-          <div className={shouldClamp ? 'line-clamp-3' : ''}>
-            <span className="mr-1 font-semibold">{user.name}</span>
-            {captionJSX}
-          </div>
-          {shouldClamp && (
-            <button
-              className="min-h-[44px] bg-transparent border-none p-0 py-1 text-sm text-stone-500 cursor-pointer font-[inherit]"
-              onClick={() => setExpanded(true)}
-            >
-              ... Ver más
-            </button>
-          )}
+          <motion.div layout transition={{ duration: 0.2, ease: 'easeOut' }}>
+            <div className={shouldClamp ? 'line-clamp-3' : ''}>
+              <span className="mr-1 font-semibold">{user.name}</span>
+              {captionJSX}
+            </div>
+            {shouldClamp && (
+              <button
+                className="min-h-[44px] bg-transparent border-none p-0 py-1 text-sm text-stone-500 cursor-pointer font-[inherit]"
+                onClick={() => setExpanded(true)}
+              >
+                ... Ver más
+              </button>
+            )}
+          </motion.div>
         </div>
       )}
 
