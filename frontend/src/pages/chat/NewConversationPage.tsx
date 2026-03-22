@@ -165,9 +165,13 @@ export default function NewConversationPage() {
     }
 
     (async () => {
-      const newConv = await openConversation(toUserId, 'c2c');
-      if (newConv?.id) {
-        navigate(`/messages/${newConv.id}`, { replace: true });
+      try {
+        const newConv = await openConversation(toUserId, 'c2c');
+        if (newConv?.id) {
+          navigate(`/messages/${newConv.id}`, { replace: true });
+        }
+      } catch {
+        // best effort — user can still pick manually in the UI
       }
     })();
   }, [searchParams, user, conversations, openConversation, navigate]);

@@ -28,12 +28,12 @@ const EMOJI_CATEGORIES = {
 const EMOJI_CATEGORY_KEYS = Object.keys(EMOJI_CATEGORIES);
 
 const CERTIFICACIONES = [
-  '🌿 Ecológico EU',
-  '🏆 DOP',
-  '🥇 IGP',
-  '☪️ Halal',
-  '🌾 Sin gluten',
-  '🌱 Vegano',
+  { emoji: '🌿', label: 'Ecológico EU' },
+  { emoji: '🏆', label: 'DOP' },
+  { emoji: '🥇', label: 'IGP' },
+  { emoji: '☪️', label: 'Halal' },
+  { emoji: '🌾', label: 'Sin gluten' },
+  { emoji: '🌱', label: 'Vegano' },
 ];
 
 const FRASES = [
@@ -1086,7 +1086,7 @@ export default function CreateStoryPage() {
           <div className="flex border-b border-white/15 overflow-x-auto" role="tablist" aria-label="Tipo de sticker">
             {[
               { key: 'emojis', label: 'Emojis' },
-              { key: 'certificaciones', label: 'Certificaciones' },
+              { key: 'certificaciones', label: 'Certificados' },
               { key: 'frases', label: 'Frases' },
               { key: 'encuesta', label: 'Encuesta' },
               { key: 'mencion', label: '@Mención' },
@@ -1141,16 +1141,17 @@ export default function CreateStoryPage() {
             </div>
           )}
 
-          {/* Certificaciones pills */}
+          {/* Certificaciones grid */}
           {stickerTab === 'certificaciones' && (
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-2 p-2">
               {CERTIFICACIONES.map((cert) => (
                 <button
-                  key={cert}
-                  onClick={() => addSticker(cert, 'badge')}
-                  className="bg-white/[0.12] text-white border border-white/20 rounded-full px-3.5 py-2 text-[13px] cursor-pointer whitespace-nowrap transition-colors hover:bg-white/20"
+                  key={cert.label}
+                  onClick={() => addSticker(`${cert.emoji} ${cert.label}`, 'badge')}
+                  className="flex items-center gap-2 p-2.5 rounded-xl bg-stone-50 text-xs font-medium text-stone-700 hover:bg-stone-100 transition-colors border-none cursor-pointer"
                 >
-                  {cert}
+                  <span className="text-base">{cert.emoji}</span>
+                  {cert.label}
                 </button>
               ))}
             </div>

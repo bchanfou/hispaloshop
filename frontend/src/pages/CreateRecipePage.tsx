@@ -227,6 +227,14 @@ export default function CreateRecipePage() {
   const updateStep = (index, field, value) => { const n = [...recipe.steps]; n[index] = { ...n[index], [field]: value }; updateRecipe('steps', n); };
   const addStep = () => updateRecipe('steps', [...recipe.steps, { text: '', image_url: '' }]);
   const removeStep = (index) => updateRecipe('steps', recipe.steps.filter((_, i) => i !== index));
+  const moveStep = (from, to) => {
+    updateRecipe('steps', (() => {
+      const arr = [...recipe.steps];
+      const [item] = arr.splice(from, 1);
+      arr.splice(to, 0, item);
+      return arr;
+    })());
+  };
 
   const handleStepImage = async (index, file) => {
     if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
@@ -462,11 +470,25 @@ export default function CreateRecipePage() {
                   </label>
                 )}
               </div>
-              {recipe.steps.length > 1 && (
-                <button type="button" onClick={() => removeStep(index)} aria-label={`Eliminar paso ${index + 1}`} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center self-start rounded-full bg-transparent border-none cursor-pointer text-stone-400 hover:text-stone-700">
-                  <X size={13} />
-                </button>
-              )}
+              <div className="flex flex-col items-center gap-0.5 self-start shrink-0">
+                <div className="flex gap-1">
+                  {index > 0 && (
+                    <button type="button" onClick={() => moveStep(index, index - 1)} className="p-1 text-stone-400 hover:text-stone-700 bg-transparent border-none cursor-pointer" aria-label="Subir paso">
+                      <ChevronUp size={16} />
+                    </button>
+                  )}
+                  {index < recipe.steps.length - 1 && (
+                    <button type="button" onClick={() => moveStep(index, index + 1)} className="p-1 text-stone-400 hover:text-stone-700 bg-transparent border-none cursor-pointer" aria-label="Bajar paso">
+                      <ChevronDown size={16} />
+                    </button>
+                  )}
+                </div>
+                {recipe.steps.length > 1 && (
+                  <button type="button" onClick={() => removeStep(index)} aria-label={`Eliminar paso ${index + 1}`} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-400 hover:text-stone-700">
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
 
@@ -489,6 +511,34 @@ export default function CreateRecipePage() {
               className="mt-2 w-full min-h-[90px] resize-none rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
             />
           )}
+        </div>
+
+        {/* Tags */}
+        <div className="mb-6 space-y-2">
+          <label className="text-sm font-semibold text-stone-950">Etiquetas</label>
+          <div className="flex flex-wrap gap-2">
+            {recipe.tags.map((tag, i) => (
+              <span key={i} className="flex items-center gap-1 bg-stone-100 rounded-full px-3 py-1 text-xs text-stone-700">
+                #{tag}
+                <button type="button" onClick={() => updateRecipe('tags', recipe.tags.filter((_, j) => j !== i))} className="text-stone-400 hover:text-stone-700 bg-transparent border-none cursor-pointer p-0 text-xs">&times;</button>
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            placeholder="Añadir etiqueta..."
+            className="w-full h-10 px-3 rounded-xl border border-stone-200 text-sm focus:border-stone-400 outline-none box-border"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.target.value.trim()) {
+                e.preventDefault();
+                const tag = e.target.value.trim().replace(/^#/, '');
+                if (tag && !recipe.tags.includes(tag)) {
+                  updateRecipe('tags', [...recipe.tags, tag]);
+                  e.target.value = '';
+                }
+              }
+            }}
+          />
         </div>
 
         {/* David AI card */}

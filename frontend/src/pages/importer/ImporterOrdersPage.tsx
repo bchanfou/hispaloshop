@@ -206,7 +206,7 @@ function B2BOrderCard({ order, onRefresh }) {
                   Ver tracking
                 </Link>
                 <button
-                  onClick={() => navigate(`/chat?to=${order.producer_id || ''}`)}
+                  onClick={() => navigate(`/messages/new?to=${order.producer_id || ''}`)}
                   aria-label={`Enviar mensaje a ${order.producer_name || 'productor'}`}
                   className="flex-1 py-2 text-xs font-medium border border-stone-200 rounded-2xl text-stone-700 hover:bg-stone-50 transition-colors flex items-center justify-center gap-1"
                 >

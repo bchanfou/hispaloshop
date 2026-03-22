@@ -290,6 +290,11 @@ function LegacyProfileRedirect() {
   return <Navigate to="/settings/profile" replace />;
 }
 
+function LegacyChatConversationRedirect() {
+  const { conversationId } = useParams();
+  return <Navigate to={`/messages/${conversationId}`} replace />;
+}
+
 const HeroBanner = lazy(() => import('./components/informativas/HeroBanner'));
 
 /** Redirect authenticated users away from login/register */
@@ -732,6 +737,8 @@ function AppRouter() {
               <Route path="/reels" element={<ReelsPage />} />
               <Route path="/feed" element={<Navigate to="/" replace />} />
               <Route path="/chat" element={<Navigate to="/messages" replace />} />
+              <Route path="/chat/:conversationId" element={<Navigate to="/messages" replace />} />
+                            <Route path="/chat/:conversationId" element={<LegacyChatConversationRedirect />} />
               <Route path="/ai/chat" element={<ChatContainer />} />
               <Route path="/messages" element={<ChatsPage />} />
               <Route path="/messages/new" element={<NewConversationPage />} />
