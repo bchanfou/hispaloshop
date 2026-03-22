@@ -1184,7 +1184,12 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         {"$set": {"session_id": session.id}}
     )
 
-    return {"url": session.url, "session_id": session.id}
+    return {
+        "url": session.url,
+        "checkout_url": session.url,
+        "session_id": session.id,
+        "order_id": order_id,
+    }
 
 @router.post("/checkout/buy-now")
 async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = Depends(get_current_user)):
@@ -1437,6 +1442,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
     logger.info(f"[BUY_NOW] Created checkout session for user {user.user_id}, order {order_id}")
     
     return {
+        "url": session.url,
         "checkout_url": session.url,
         "session_id": session.id,
         "order_id": order_id
@@ -1451,20 +1457,48 @@ async def checkout_status(session_id: str, user: User = Depends(get_current_user
         logger.error(f"[CHECKOUT-STATUS] Stripe error: {e}")
         raise HTTPException(status_code=400, detail="Could not retrieve payment status")
     
-    transaction = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+    transaction = await db.payment_transactions.find_one({"session_id": session_id, "user_id": user.user_id}, {"_id": 0})
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
+
+    order_id = transaction.get("order_id", "")
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0}) if order_id else None
     
     if transaction["status"] == "paid":
-        return {"message": "Payment already processed", "status": "paid"}
+        return {
+            "message": "Payment already processed",
+            "status": "paid",
+            "payment_status": "paid",
+            "order_status": order.get("status", "paid") if order else "paid",
+            "order_id": order_id,
+            "amount_total": session.amount_total,
+            "currency": session.currency,
+        }
     
     payment_status = session.payment_status
     
     if payment_status == "paid":
         # Trigger full post-payment processing (idempotent)
         await process_payment_confirmed(session_id, user_id=user.user_id)
+
+        order = await db.orders.find_one({"order_id": order_id}, {"_id": 0}) if order_id else order
+        return {
+            "status": "paid",
+            "payment_status": "paid",
+            "order_status": order.get("status", "paid") if order else "paid",
+            "order_id": order_id,
+            "amount_total": session.amount_total,
+            "currency": session.currency,
+        }
     
-    return {"status": session.status, "payment_status": payment_status, "amount_total": session.amount_total, "currency": session.currency}
+    return {
+        "status": session.status,
+        "payment_status": payment_status,
+        "order_status": order.get("status", transaction.get("status", "pending")) if order else transaction.get("status", "pending"),
+        "order_id": order_id,
+        "amount_total": session.amount_total,
+        "currency": session.currency,
+    }
 
 
 @router.get("/checkout/{checkout_id}")

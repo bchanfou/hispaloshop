@@ -62,7 +62,7 @@ function normalizeProfileResponse(data: any, userId: string): UserProfile {
     data;
 
   if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
-    return buildFallbackProfile(userId);
+    return null as any;
   }
 
   return {
@@ -108,13 +108,13 @@ export function resolveUserImage(url: string | null | undefined): string | null 
 export function useUserProfileQuery(userId: string) {
   return useQuery({
     queryKey: userKeys.profile(userId),
-    queryFn: async (): Promise<UserProfile> => {
+    queryFn: async (): Promise<UserProfile | null> => {
       try {
         const data = await apiClient.get(`/users/${userId}/profile`);
         return normalizeProfileResponse(data, userId);
       } catch (error: any) {
         if (error?.status === 404) {
-          return buildFallbackProfile(userId);
+          return null;
         }
 
         throw error;

@@ -521,16 +521,16 @@ export default function CartPage() {
                       })()}
                     </div>
                     <AnimatePresence>
-                    {items.map((item) => {
+                    {items.map((item, index) => {
                       const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
                       const itemKey = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
                       return (
                         <motion.div
                           layout
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, x: -100 }}
-                          transition={{ type: 'spring', damping: 25 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
                           key={itemKey}
                           className={`flex items-start gap-3 rounded-2xl border bg-white p-3 md:items-center md:gap-6 md:p-6 ${hasStockIssue ? 'border-stone-950 bg-stone-100' : 'border-stone-200'}`}
                           data-testid={`cart-item-${itemKey}`}
@@ -556,7 +556,7 @@ export default function CartPage() {
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
                                   <motion.button
-                                    whileTap={{ scale: 0.9 }}
+                                    whileTap={{ scale: 0.88 }}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                                     className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
@@ -566,7 +566,7 @@ export default function CartPage() {
                                   </motion.button>
                                   <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
                                   <motion.button
-                                    whileTap={{ scale: 0.9 }}
+                                    whileTap={{ scale: 0.88 }}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                                     className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
@@ -777,7 +777,7 @@ export default function CartPage() {
               <div className="mb-4 md:mb-6">
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
-                    <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors" aria-label={t('cart.discountCode')} data-testid="discount-code-input" />
+                    <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200" aria-label={t('cart.discountCode')} data-testid="discount-code-input" />
                     <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-2xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50" data-testid="apply-discount-btn">
                       {discountLoading ? t('common.loading') : t('cart.apply')}
                     </button>

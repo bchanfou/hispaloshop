@@ -118,23 +118,25 @@ const AddToCartButton = ({
     <div className={`flex items-center gap-2 ${className}`}>
       {showQuantity && (
         <div className="flex items-center bg-stone-100 rounded-2xl">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.88 }}
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-l-2xl transition-colors"
             disabled={state === 'loading'}
             aria-label="Disminuir cantidad"
           >
             <Minus className="w-4 h-4 text-stone-950" />
-          </button>
+          </motion.button>
           <span className="w-10 text-center font-medium text-stone-950" aria-live="polite">{quantity}</span>
-          <button
+          <motion.button
+            whileTap={{ scale: 0.88 }}
             onClick={() => setQuantity(quantity + 1)}
             className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-r-2xl transition-colors"
             disabled={state === 'loading'}
             aria-label="Aumentar cantidad"
           >
             <Plus className="w-4 h-4 text-stone-950" />
-          </button>
+          </motion.button>
         </div>
       )}
       

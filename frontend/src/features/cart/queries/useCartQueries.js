@@ -105,11 +105,18 @@ export function useResendVerification() {
 
 export function useCreateStripeCheckout() {
   return useMutation({
-    mutationFn: ({ shippingAddress, origin }) =>
-      apiClient.post('/payments/create-checkout', {
+    mutationFn: async ({ shippingAddress, origin }) => {
+      const data = await apiClient.post('/payments/create-checkout', {
         shipping_address: shippingAddress,
         origin,
-      }),
+      });
+
+      return {
+        ...data,
+        url: data?.url || data?.checkout_url || null,
+        checkout_url: data?.checkout_url || data?.url || null,
+      };
+    },
   });
 }
 

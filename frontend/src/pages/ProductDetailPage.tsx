@@ -408,9 +408,14 @@ export default function ProductDetailPage() {
                 aria-label={`Ir a imagen ${i + 1}`}
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-transparent"
               >
-                <span className={`block h-2 w-2 rounded-full transition-colors duration-200 ${
-                  i === activeImageIndex ? 'bg-stone-950' : 'bg-black/25'
-                }`} />
+                <motion.span
+                  animate={{
+                    scale: i === activeImageIndex ? 1.3 : 1,
+                    backgroundColor: i === activeImageIndex ? '#0c0a09' : '#d6d3d1',
+                  }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  className="block h-1.5 w-1.5 rounded-full"
+                />
               </button>
             ))}
           </div>
@@ -704,15 +709,16 @@ export default function ProductDetailPage() {
           {t('productDetail.quantity', 'Cantidad')}
         </span>
         <div className="flex items-center rounded-2xl shadow-sm">
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.88 }}
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             disabled={isOutOfStock}
             aria-label="Reducir cantidad"
             className="flex h-11 w-11 items-center justify-center text-stone-500 disabled:cursor-not-allowed"
           >
             <Minus size={16} />
-          </button>
+          </motion.button>
           <span
             aria-live="polite"
             aria-label={`Cantidad: ${quantity}`}
@@ -720,15 +726,16 @@ export default function ProductDetailPage() {
           >
             {quantity}
           </span>
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.88 }}
             onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
             disabled={isOutOfStock}
             aria-label="Aumentar cantidad"
             className="flex h-11 w-11 items-center justify-center text-stone-500 disabled:cursor-not-allowed"
           >
             <Plus size={16} />
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -1260,7 +1267,7 @@ export default function ProductDetailPage() {
       )}
 
       {/* ── Sticky Bottom Bar ── */}
-      <div className="fixed bottom-[calc(50px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white px-4 py-3">
+      <div className="fixed bottom-[calc(50px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
         <div className="mx-auto flex max-w-[1200px] items-center gap-3">
           {/* Price */}
           <div className="min-w-0 flex-1">

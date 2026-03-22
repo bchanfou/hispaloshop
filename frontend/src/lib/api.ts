@@ -187,7 +187,7 @@ class ApiClient {
   }
 
   async createCheckout(shippingAddress: ShippingAddress) {
-    return this.request('/checkout/session', { method: 'POST', body: JSON.stringify({ shipping_address: shippingAddress }) });
+    return this.request('/payments/create-checkout', { method: 'POST', body: JSON.stringify({ shipping_address: shippingAddress }) });
   }
 
   async getMyOrders(params?: { status?: string; page?: number }) {

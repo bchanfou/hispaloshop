@@ -37,7 +37,15 @@ function Stepper({ current, onStepClick }) {
                 : isActive   ? 'bg-stone-950 text-white'
                 :               'bg-stone-100 text-stone-400'
               }`}>
-                {isCompleted ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : step}
+                {isCompleted ? (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                  >
+                    <Check size={14} className="text-white" />
+                  </motion.div>
+                ) : step}
               </div>
               <span className={`text-[11px] leading-none ${
                 isActive ? 'font-semibold text-stone-950' : isFuture ? 'text-stone-300' : 'text-stone-950'
@@ -326,7 +334,7 @@ export default function CheckoutPage() {
                         <input
                           value={newAddress.full_name}
                           onChange={e => setNewAddress(p => ({ ...p, full_name: e.target.value }))}
-                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
                           placeholder="María García"
                         />
                       </div>
@@ -335,7 +343,7 @@ export default function CheckoutPage() {
                         <input
                           value={newAddress.street}
                           onChange={e => setNewAddress(p => ({ ...p, street: e.target.value }))}
-                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
                           placeholder="Calle Mayor 12"
                         />
                       </div>
@@ -344,7 +352,7 @@ export default function CheckoutPage() {
                         <input
                           value={newAddress.floor}
                           onChange={e => setNewAddress(p => ({ ...p, floor: e.target.value }))}
-                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
                           placeholder="3ºA"
                         />
                       </div>
@@ -354,7 +362,7 @@ export default function CheckoutPage() {
                           <input
                             value={newAddress.postal_code}
                             onChange={e => setNewAddress(p => ({ ...p, postal_code: e.target.value }))}
-                            className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+                            className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
                             placeholder="28001"
                             inputMode="numeric"
                             maxLength={10}
@@ -365,7 +373,7 @@ export default function CheckoutPage() {
                           <input
                             value={newAddress.city}
                             onChange={e => setNewAddress(p => ({ ...p, city: e.target.value }))}
-                            className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+                            className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
                             placeholder="Madrid"
                           />
                         </div>
@@ -375,7 +383,7 @@ export default function CheckoutPage() {
                         <select
                           value={newAddress.country}
                           onChange={e => setNewAddress(p => ({ ...p, country: e.target.value }))}
-                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors"
+                          className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
                         >
                           <option value="ES">España</option>
                           <option value="PT">Portugal</option>
@@ -402,7 +410,7 @@ export default function CheckoutPage() {
                             if (!digits || digits.length < 6) setPhoneWarning('Teléfono requerido para la entrega');
                             else setPhoneWarning('');
                           }}
-                          className={`w-full h-12 px-3.5 text-sm border rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors ${phoneWarning ? 'border-stone-400' : 'border-stone-200'}`}
+                          className={`w-full h-12 px-3.5 text-sm border rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200 ${phoneWarning ? 'border-stone-400' : 'border-stone-200'}`}
                           placeholder="+34 600 000 000"
                           type="tel"
                         />
@@ -495,7 +503,7 @@ export default function CheckoutPage() {
                       value={discountCode}
                       onChange={e => { setDiscountCode(e.target.value); if (discountError) setDiscountError(''); }}
                       placeholder="CODIGO10"
-                      className={`flex-1 h-12 px-3.5 text-[13px] border rounded-xl bg-white text-stone-950 outline-none focus:border-stone-400 transition-colors ${discountError ? 'border-red-300' : 'border-stone-200'}`}
+                      className={`flex-1 h-12 px-3.5 text-[13px] border rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200 ${discountError ? 'border-red-300' : 'border-stone-200'}`}
                       aria-label="Código de descuento"
                     />
                     <button

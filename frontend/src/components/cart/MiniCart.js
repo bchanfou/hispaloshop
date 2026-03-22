@@ -202,23 +202,25 @@ const MiniCart = ({ isOpen, onClose }) => {
 
                                 <div className="flex items-center justify-between mt-2">
                                   <div className="flex items-center gap-2">
-                                    <button
+                                    <motion.button
+                                      whileTap={{ scale: 0.88 }}
                                       onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                                       className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
                                       aria-label={`Disminuir cantidad de ${item.product_name || item.name || item.product?.name}`}
                                     >
                                       <Minus className="w-3.5 h-3.5 text-stone-950" />
-                                    </button>
+                                    </motion.button>
                                     <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
                                       {item.quantity}
                                     </span>
-                                    <button
+                                    <motion.button
+                                      whileTap={{ scale: 0.88 }}
                                       onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                                       className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
                                       aria-label={`Aumentar cantidad de ${item.product_name || item.name || item.product?.name}`}
                                     >
                                       <Plus className="w-3.5 h-3.5 text-stone-950" />
-                                    </button>
+                                    </motion.button>
                                   </div>
                                   <span className="font-semibold text-stone-950">
                                     €{((item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0)) * item.quantity).toFixed(2)}

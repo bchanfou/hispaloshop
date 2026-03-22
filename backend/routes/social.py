@@ -683,6 +683,9 @@ async def delete_reel(reel_id: str, user: User = Depends(get_current_user)):
     await db.reel_likes.delete_many({"reel_id": reel_id})
     await db.reel_comments.delete_many({"reel_id": reel_id})
     return {"status": "deleted"}
+
+
+@router.get("/users/{user_id}/profile")
 async def get_user_profile(user_id: str, request: Request):
     """Get public user profile — enhanced with seller stats for producers."""
     projection = {"_id": 0, "password_hash": 0, "verification_code": 0}

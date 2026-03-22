@@ -37,9 +37,6 @@ export default function CheckoutSuccessPage() {
   useEffect(() => {
     if (!sessionId) { setStatus('error'); return; }
 
-    // Show confirmed state immediately while we poll for details
-    setStatus('success');
-
     let cancelled = false;
     let attempt = 0;
     const MAX = 20;
@@ -52,13 +49,15 @@ export default function CheckoutSuccessPage() {
       attempt++;
       try {
         const data = await apiClient.get(`/payments/checkout-status/${sessionId}`);
-        if (data.payment_status === 'paid' || data.status === 'paid') {
+        const isPaid = data?.payment_status === 'paid' || data?.status === 'paid' || data?.order_status === 'confirmed';
+        if (isPaid) {
           if (!cancelled && data.order_id) {
             try {
               const orderData = await apiClient.get(`/customer/orders/${data.order_id}`);
               if (!cancelled) setOrder(orderData);
             } catch { /* ignore */ }
           }
+          if (!cancelled) setStatus('success');
         } else if (!cancelled) {
           setTimeout(poll, getDelay(attempt));
         }

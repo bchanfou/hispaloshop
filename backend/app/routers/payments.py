@@ -129,6 +129,7 @@ async def create_checkout(
         
         return {
             "session_id": session_id,
+            "url": checkout_url,
             "checkout_url": checkout_url,
             "order_id": order_id
         }
@@ -233,6 +234,7 @@ async def buy_now_checkout(
         
         return {
             "session_id": session_id,
+            "url": checkout_url,
             "checkout_url": checkout_url,
             "order_id": order_id
         }
@@ -260,39 +262,44 @@ async def checkout_status(
     try:
         session = stripe.checkout.Session.retrieve(session_id)
         payment_status = session.payment_status
+        order_status = order.get("status", "")
         
         # Update order if paid
         if payment_status == "paid" and order.get("status") == "pending":
-            await db.orders.update_one(
-                {"order_id": order.get("order_id", "")},
+            update_result = await db.orders.update_one(
+                {"order_id": order.get("order_id", ""), "status": "pending"},
                 {"$set": {
                     "status": "confirmed",
                     "payment_status": "paid",
                     "paid_at": datetime.now(timezone.utc).isoformat()
                 }}
             )
+            if update_result.modified_count > 0:
+                order_status = "confirmed"
 
-            # Record payment transaction
-            await db.payment_transactions.insert_one({
-                "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
-                "order_id": order.get("order_id", ""),
-                "amount": order.get("total_amount", 0),
-                "currency": order.get("currency", "EUR"),
-                "status": "completed",
-                "stripe_session_id": session_id,
-                "created_at": datetime.now(timezone.utc).isoformat()
-            })
-            
-            # Update stock
-            for item in order.get("line_items", []):
-                await db.products.update_one(
-                    {"product_id": item.get("product_id", ""), "track_stock": True},
-                    {"$inc": {"stock": -item.get("quantity", 0)}}
-                )
+                # Record payment transaction exactly once for the pending -> confirmed transition
+                await db.payment_transactions.insert_one({
+                    "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
+                    "order_id": order.get("order_id", ""),
+                    "amount": order.get("total_amount", 0),
+                    "currency": order.get("currency", "EUR"),
+                    "status": "completed",
+                    "stripe_session_id": session_id,
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                })
+                
+                # Update stock exactly once for the pending -> confirmed transition
+                for item in order.get("line_items", []):
+                    await db.products.update_one(
+                        {"product_id": item.get("product_id", ""), "track_stock": True},
+                        {"$inc": {"stock": -item.get("quantity", 0)}}
+                    )
+            else:
+                order_status = "confirmed"
         
         return {
             "status": payment_status,
-            "order_status": order.get("status", ""),
+            "order_status": order_status,
             "order_id": order.get("order_id", "")
         }
 
