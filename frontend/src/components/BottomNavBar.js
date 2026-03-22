@@ -80,8 +80,10 @@ export default function BottomNavBar() {
 
   const openMessageToast = useCallback(() => {
     if (!messageToast?.senderId) return;
+    const senderId = messageToast.senderId;
     dismissMessageToast();
-    navigate('/messages');
+    if (!senderId) return;
+    navigate(`/messages/${senderId}`);
   }, [dismissMessageToast, messageToast, navigate]);
 
   useEffect(() => {

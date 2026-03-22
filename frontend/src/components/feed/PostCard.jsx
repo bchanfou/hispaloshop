@@ -367,6 +367,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const avatarUrl = user.avatar_url || user.avatar || user.profile_image;
   const captionText = localCaption ?? post.content ?? post.caption ?? '';
   captionRef.current = captionText; // keep ref fresh for handleShare closure
+  const captionJSX = useMemo(() => renderCaption(captionText, navigate), [captionText, navigate]);
   const commentsCount = post.comments_count ?? post.comments ?? 0;
   const createdAt = post.created_at ?? post.timestamp;
   const hasStory = user.has_story ?? post.has_story ?? false;
@@ -814,7 +815,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         <div className="px-3 pb-3 text-sm leading-[1.45] text-stone-950 break-words">
           <div className={shouldClamp ? 'line-clamp-3' : ''}>
             <span className="mr-1 font-semibold">{user.name}</span>
-            {renderCaption(captionText, navigate)}
+            {captionJSX}
           </div>
           {shouldClamp && (
             <button

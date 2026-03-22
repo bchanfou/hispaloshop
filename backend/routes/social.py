@@ -257,7 +257,8 @@ async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
     current_user = await get_optional_user(request) if request is not None else None
     try:
         reels = await db.reels.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Failed to fetch reels: {e}")
         reels = []
 
     if not reels:
@@ -412,14 +413,16 @@ async def create_reel(
                 secure=True,
                 transformation=transformation,
             )
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to build video URL for {video_public_id}: {e}")
             video_url = original_video_url
 
     thumbnail_url = result.get("thumbnail") or original_video_url
     if video_public_id:
         try:
             thumbnail_url = await VideoService.generate_thumbnail_at_time(video_public_id, safe_cover_frame)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to generate thumbnail for {video_public_id}: {e}")
             thumbnail_url = result.get("thumbnail") or original_video_url
 
     requested_tags = _normalize_tagged_products(tagged_products_json)
@@ -487,8 +490,8 @@ async def create_reel(
                 from services.cloudinary_storage import delete_media
                 await delete_media(video_public_id, resource_type="video")
                 logger.warning(f"[REEL] Cleaned up orphaned Cloudinary video {video_public_id} after DB insert failure")
-            except Exception:
-                logger.error(f"[REEL] Failed to cleanup orphaned video {video_public_id}")
+            except Exception as cleanup_err:
+                logger.error(f"[REEL] Failed to cleanup orphaned video {video_public_id}: {cleanup_err}")
         raise db_err
     for tag in tagged_products:
         await _record_intelligence_signal(
@@ -542,7 +545,8 @@ async def get_reel_comments(reel_id: str, request: Request, skip: int = 0, limit
 
     try:
         current_user = await get_optional_user(request)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Failed to resolve optional user for reel comments: {e}")
         current_user = None
 
     if current_user and comments:

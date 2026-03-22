@@ -14,6 +14,7 @@ export function ChatProvider({ children }) {
   const notifWsRef = useRef(null);
   const reconnectRef = useRef(null);
   const reconnectDelayRef = useRef(1000);
+  const pingIntervalRef = useRef(null);
   const notifReconnectRef = useRef(null);
   const [connected, setConnected] = useState(false);
   const [notifConnected, setNotifConnected] = useState(false);
@@ -322,16 +323,17 @@ export function ChatProvider({ children }) {
         loadConversations();
         
         // Send ping every 30s to keep connection alive
-        const pingInterval = setInterval(() => {
+        pingIntervalRef.current = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
           } else {
-            clearInterval(pingInterval);
+            clearInterval(pingIntervalRef.current);
           }
         }, 30000);
       };
 
       ws.onclose = (event) => {
+        clearInterval(pingIntervalRef.current);
         setConnected(false);
         // Exponential backoff reconnection: 1s → 2s → 4s → … → 30s max
         const delay = reconnectDelayRef.current;
@@ -454,6 +456,7 @@ export function ChatProvider({ children }) {
     }
 
     return () => {
+      clearInterval(pingIntervalRef.current);
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       if (notifReconnectRef.current) clearTimeout(notifReconnectRef.current);
       if (wsRef.current) wsRef.current.close();

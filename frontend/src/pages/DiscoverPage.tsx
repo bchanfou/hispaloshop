@@ -235,11 +235,13 @@ export default function DiscoverPage() {
 
   /* ── handle explore item tap ── */
   const handleItemTap = useCallback((item) => {
-    if (item._type === 'recipe') {
-      navigate(`/recipes/${item.recipe_id || item.id}`);
-    } else {
-      navigate(`/products/${item.product_id || item.id}`);
+    if (!item) return;
+    if (item._type === 'recipe' && item.recipe_id) {
+      navigate(`/recipes/${item.recipe_id}`);
+    } else if (item.product_id) {
+      navigate(`/products/${item.product_id}`);
     }
+    // else: silently ignore (no navigate to /undefined)
   }, [navigate]);
 
   /* ── category navigate ── */

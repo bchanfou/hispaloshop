@@ -140,7 +140,8 @@ export function CartProvider({ children }) {
       console.error('[CartContext] Error adding to cart:', error);
       captureException(error);
 
-      if (error.status === 401) {
+      const status = error?.response?.status || error?.status || error?.statusCode;
+      if (status === 401) {
         sessionStorage.setItem('pendingCartAction', JSON.stringify({ productId, quantity, variantId, packId }));
         window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
         return 'redirect';

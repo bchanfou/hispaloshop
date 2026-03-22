@@ -748,6 +748,10 @@ async def delete_product(product_id: str, user: User = Depends(get_current_user)
     if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not your product")
     
+    # Clean up orphaned references
+    await db.cart_items.delete_many({"product_id": product_id})
+    await db.stock_holds.delete_many({"product_id": product_id})
+
     # Delete product and ALL related data (zero residue)
     await db.products.delete_one({"product_id": product_id})
     await db.reviews.delete_many({"product_id": product_id})

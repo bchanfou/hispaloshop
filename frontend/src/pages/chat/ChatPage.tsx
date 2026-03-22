@@ -839,7 +839,13 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => () => { clearTimeout(typingTimeoutRef.current); clearInterval(timerRef.current); }, []);
+  useEffect(() => () => {
+    clearTimeout(typingTimeoutRef.current);
+    clearInterval(timerRef.current);
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+  }, []);
 
   const handleChange = (e) => {
     setText(e.target.value);
