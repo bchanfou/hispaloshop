@@ -52,6 +52,8 @@ export default function CreateReelPage() {
   const [caption, setCaption] = useState('');
   const [thumbnailIndex, setThumbnailIndex] = useState(0);
   const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [location, setLocation] = useState('');
   const [audience, setAudience] = useState('public');
   const [taggedProducts, setTaggedProducts] = useState([]);
@@ -327,13 +329,27 @@ export default function CreateReelPage() {
     };
   }, [caption, activeFilter, textOverlays, speed, audience]);
 
+  const handleCancelUpload = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setPublishing(false);
+    setUploadProgress(0);
+    setPublishError(false);
+    toast('Subida cancelada');
+  }, []);
+
   const handlePublish = useCallback(async () => {
     if (!videoFile) {
       toast.error('No hay vídeo seleccionado');
       return;
     }
     setPublishing(true);
+    setPublishError(false);
     setUploadProgress(0);
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     try {
       const fd = new FormData();
       fd.append('file', videoFile);
@@ -358,13 +374,15 @@ export default function CreateReelPage() {
         fd.append('cover_image', coverFromGallery);
       }
       const res = await apiClient.post('/reels', fd, {
+        signal: controller.signal,
         onUploadProgress: (e) => {
           if (e.total) setUploadProgress(Math.round((e.loaded / e.total) * 100));
         },
       });
+      abortControllerRef.current = null;
       setUploadProgress(100);
       const postId = res?.id || res?.post?.id || res?.data?.id;
-      if (navigator.vibrate) navigator.vibrate(50);
+      if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
       try { localStorage.removeItem('reel_draft'); } catch { /* ignore */ }
       setPublishSuccess(true);
       setTimeout(() => {
@@ -373,15 +391,18 @@ export default function CreateReelPage() {
           duration: 4000,
         });
         navigate(postId ? `/posts/${postId}` : '/');
-      }, 800);
+      }, 1200);
     } catch (err) {
+      abortControllerRef.current = null;
+      if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
       const detail = err?.response?.data?.detail;
       const msg = typeof detail === 'string' ? detail : 'Error al publicar el reel. Comprueba tu conexión e inténtalo de nuevo.';
       toast.error(msg, { duration: 5000 });
       setPublishing(false);
+      setPublishError(true);
       setUploadProgress(0);
     }
-  }, [videoFile, caption, activeFilter, speed, textOverlays, thumbnailIndex, navigate, location, audience, isMuted, trimStart, trimEnd, duration]);
+  }, [videoFile, caption, activeFilter, speed, textOverlays, thumbnailIndex, navigate, location, audience, isMuted, trimStart, trimEnd, duration, taggedProducts, coverFromGallery]);
 
   // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
   if (screen === 'upload') {
@@ -1158,29 +1179,51 @@ export default function CreateReelPage() {
       <div className="px-4 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] border-t border-stone-200">
         {/* Upload progress bar */}
         {publishing && uploadProgress > 0 && uploadProgress < 100 && (
-          <div className="w-full h-[3px] bg-stone-200 rounded-full mb-3 overflow-hidden">
+          <div className="w-full h-1 bg-white/20 rounded-full mb-3 overflow-hidden">
             <div
               className="h-full bg-stone-950 rounded-full transition-[width] duration-300 ease-out"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
         )}
-        <button
-          onClick={handlePublish}
-          disabled={publishing}
-          className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 flex items-center justify-center gap-2 min-h-[48px] ${
-            publishing ? 'opacity-60 cursor-not-allowed' : ''
-          }`}
-        >
-          {publishing && (
-            <span className="inline-block w-[18px] h-[18px] border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          )}
-          {publishing
-            ? uploadProgress < 100
-              ? `Subiendo... ${uploadProgress}%`
-              : 'Procesando...'
-            : 'Publicar ahora'}
-        </button>
+        {/* Cancel upload button */}
+        {publishing && (
+          <button
+            onClick={handleCancelUpload}
+            className="w-full flex items-center justify-center gap-1.5 bg-transparent border border-stone-200 rounded-full py-2.5 text-sm text-stone-500 font-medium cursor-pointer mb-2 hover:bg-stone-50 transition-colors"
+            aria-label="Cancelar subida"
+          >
+            <X size={14} />
+            Cancelar subida
+          </button>
+        )}
+        {/* Retry button on error */}
+        {publishError && !publishing && (
+          <button
+            onClick={handlePublish}
+            className="w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 flex items-center justify-center gap-2 min-h-[48px] mb-2"
+          >
+            Reintentar
+          </button>
+        )}
+        {!publishError && (
+          <button
+            onClick={handlePublish}
+            disabled={publishing}
+            className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 flex items-center justify-center gap-2 min-h-[48px] ${
+              publishing ? 'opacity-60 cursor-not-allowed' : ''
+            }`}
+          >
+            {publishing && (
+              <span className="inline-block w-[18px] h-[18px] border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            )}
+            {publishing
+              ? uploadProgress < 100
+                ? `Subiendo... ${uploadProgress}%`
+                : 'Procesando...'
+              : 'Publicar ahora'}
+          </button>
+        )}
       </div>
 
       {/* Product search modal */}

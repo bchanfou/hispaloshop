@@ -182,8 +182,27 @@ export default function ReelsPage() {
       className="h-dvh overflow-y-scroll snap-y snap-mandatory bg-black [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       style={{ scrollBehavior: 'smooth' }}
     >
+      {/* Active reel dot indicator */}
+      {reels.length > 1 && (
+        <div className="fixed right-3 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-[101]">
+          {reels.slice(0, 5).map((_, i) => (
+            <div
+              key={i}
+              className={
+                i === activeIndex
+                  ? 'w-2 h-2 rounded-full bg-white'
+                  : 'w-1.5 h-1.5 rounded-full bg-white/40'
+              }
+            />
+          ))}
+          {reels.length > 5 && (
+            <span className="text-[8px] text-white/40 text-center leading-none">…</span>
+          )}
+        </div>
+      )}
+
       {/* Header — horizontal tab scroll */}
-      <div className="fixed top-0 left-0 right-0 z-[100] pt-[max(8px,env(safe-area-inset-top))]">
+      <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-b from-black/40 to-transparent pt-[max(8px,env(safe-area-inset-top))]">
         <div className="flex items-center gap-2 px-4 pb-1">
           <button
             onClick={() => navigate(-1)}

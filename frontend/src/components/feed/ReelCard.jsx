@@ -96,6 +96,8 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const [showProductSheet, setShowProductSheet] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentsPage, setCommentsPage] = useState(1);
+  const COMMENTS_PER_PAGE = 20;
   const [newComment, setNewComment] = useState('');
   const [sendingComment, setSendingComment] = useState(false);
   const [likedComments, setLikedComments] = useState(new Set());
@@ -145,6 +147,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEditCaption, setShowEditCaption] = useState(false);
   const [editCaption, setEditCaption] = useState('');
+  const [savingCaption, setSavingCaption] = useState(false);
   const [localCaption, setLocalCaption] = useState(null);
   const [deleted, setDeleted] = useState(false);
   const undoTimerRef = useRef(null);
@@ -265,9 +268,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   // Comment handlers
   const fetchComments = useCallback(async () => {
     setCommentsLoading(true);
+    setCommentsPage(1);
     try {
       const reelId = reel.id || reel.reel_id || reel.post_id;
-      const res = await apiClient.get(`/reels/${reelId}/comments?limit=30`);
+      const res = await apiClient.get(`/reels/${reelId}/comments?limit=60`);
       setComments(Array.isArray(res) ? res : res?.data || res?.comments || []);
     } catch { setComments([]); }
     finally { setCommentsLoading(false); }
@@ -337,6 +341,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
 
   const handleEditSave = useCallback(async () => {
     const reelId = reel.id || reel.reel_id || reel.post_id;
+    setSavingCaption(true);
     try {
       await apiClient.patch(`/reels/${reelId}`, { caption: editCaption });
       setLocalCaption(editCaption);
@@ -344,6 +349,8 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       toast.success('Reel editado');
     } catch {
       toast.error('Error al editar');
+    } finally {
+      setSavingCaption(false);
     }
   }, [editCaption, reel.id, reel.reel_id, reel.post_id]);
 
@@ -546,30 +553,40 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         </>
       )}
 
-      {/* Edit caption modal */}
-      <BottomSheet isOpen={showEditCaption} onClose={() => setShowEditCaption(false)} maxHeight="50vh">
-        <div className="p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-stone-950">Editar reel</span>
-            <button className="bg-transparent border-none cursor-pointer p-1" onClick={() => setShowEditCaption(false)} aria-label="Cerrar">
-              <XIcon size={18} />
-            </button>
-          </div>
-          <textarea
-            value={editCaption}
-            onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
-            className="w-full border border-stone-200 rounded-2xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
-            aria-label="Editar descripción"
-          />
-          <p className="text-[11px] text-stone-400">El vídeo no se puede cambiar tras publicar.</p>
-          <button
-            onClick={handleEditSave}
-            className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 active:bg-stone-700 transition-colors"
+      {/* Inline caption edit overlay */}
+      <AnimatePresence>
+        {showEditCaption && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-20 left-3 right-20 z-[8] bg-black/80 rounded-xl p-3 flex flex-col gap-2"
+            onClick={(e) => e.stopPropagation()}
           >
-            Guardar cambios
-          </button>
-        </div>
-      </BottomSheet>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-white/70">Editar descripción</span>
+              <button className="bg-transparent border-none cursor-pointer p-0.5" onClick={() => setShowEditCaption(false)} aria-label="Cerrar">
+                <XIcon size={14} className="text-white/50" />
+              </button>
+            </div>
+            <textarea
+              value={editCaption}
+              onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
+              className="w-full bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-white/40 min-h-[60px] box-border placeholder:text-white/30"
+              aria-label="Editar descripción"
+              autoFocus
+            />
+            <button
+              onClick={handleEditSave}
+              disabled={savingCaption}
+              className="w-full bg-white text-stone-950 border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer hover:bg-white/90 active:bg-white/80 transition-colors disabled:opacity-50"
+            >
+              {savingCaption ? 'Guardando...' : 'Guardar'}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Delete confirmation modal */}
       <BottomSheet isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} maxHeight="50vh">
@@ -748,7 +765,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           aria-label="Comentar"
         >
           <MessageCircle size={28} className="text-white" />
-          <span className="text-xs text-white font-sans leading-none">{reelCommentsCount}</span>
+          <span className="text-xs text-white/70 font-sans leading-none">{abbreviateCount(reelCommentsCount)}</span>
         </button>
 
         {/* Share */}
@@ -832,6 +849,14 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             <span>{abbreviateCount(reel.views || reel.view_count || reel.views_count || 0)}</span>
           </div>
         ) : null}
+        {embedded && reelCommentsCount > 0 && (
+          <button
+            onClick={(e) => { e.stopPropagation(); openComments(); }}
+            className="text-xs text-white/50 font-sans bg-transparent border-none p-0 cursor-pointer hover:text-white/70 transition-colors mt-1 text-left"
+          >
+            Ver {abbreviateCount(reelCommentsCount)} comentarios
+          </button>
+        )}
       </div>
 
       {/* "Comprar" pill — shown when there are tagged products */}
@@ -918,7 +943,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             ) : comments.length === 0 ? (
               <p className="text-center text-white/40 text-sm py-8">Sé el primero en comentar</p>
             ) : (
-              comments.map((c, i) => {
+              comments.slice(0, commentsPage * COMMENTS_PER_PAGE).map((c, i) => {
                 const cId = c.comment_id || c.id || c._id;
                 const cName = c.user?.name || c.user_name || c.username || 'Usuario';
                 const isOwn = currentUser?.user_id === c.user_id;
@@ -964,6 +989,14 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                   </div>
                 );
               })
+            )}
+            {!commentsLoading && comments.length > commentsPage * COMMENTS_PER_PAGE && (
+              <button
+                onClick={() => setCommentsPage((p) => p + 1)}
+                className="w-full py-2.5 text-center text-xs font-semibold text-white/50 hover:text-white/80 bg-transparent border-none cursor-pointer transition-colors"
+              >
+                Ver más comentarios ({comments.length - commentsPage * COMMENTS_PER_PAGE} restantes)
+              </button>
             )}
           </div>
           {/* Emoji quick-react row — Instagram style */}
@@ -1064,14 +1097,14 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                   className="flex items-center gap-2.5 py-2 border-b border-stone-200/50 last:border-b-0"
                 >
                   <div
-                    className="w-10 h-10 rounded-xl overflow-hidden bg-stone-100 shrink-0 cursor-pointer"
+                    className="w-12 h-12 rounded-xl overflow-hidden bg-stone-100 shrink-0 cursor-pointer"
                     onClick={() => { setShowProductSheet(false); if (pid) navigate(`/products/${pid}`); }}
                   >
                     {pImg ? (
                       <img src={pImg} alt={p.name || p.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ShoppingBag size={14} className="text-stone-300" />
+                        <ShoppingBag size={16} className="text-stone-300" />
                       </div>
                     )}
                   </div>
@@ -1079,18 +1112,18 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                     className="flex-1 min-w-0 cursor-pointer"
                     onClick={() => { setShowProductSheet(false); if (pid) navigate(`/products/${pid}`); }}
                   >
-                    <p className="text-[13px] font-semibold text-stone-950 truncate">{p.name || p.title}</p>
+                    <p className="text-sm font-semibold text-stone-950 truncate max-w-[140px]">{p.name || p.title}</p>
                     {p.price != null && (
-                      <p className="text-[12px] text-stone-500 mt-0.5">{formatPrice(p.price)}</p>
+                      <p className="text-base font-bold text-stone-950 mt-0.5">{formatPrice(p.price)}</p>
                     )}
                   </div>
                   <button
-                    className="flex items-center gap-1 bg-stone-950 text-white text-[11px] font-bold py-1.5 px-3 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-800 active:bg-stone-700 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1.5 bg-stone-950 text-white text-sm font-bold py-2 px-4 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-800 active:bg-stone-700 transition-colors disabled:opacity-50"
                     onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
                     disabled={addingToCart === pid}
                     aria-label={`Añadir ${p.name || p.title || 'producto'} al carrito`}
                   >
-                    <Plus size={12} strokeWidth={2.5} />
+                    <Plus size={14} strokeWidth={2.5} />
                     {addingToCart === pid ? '…' : 'Añadir'}
                   </button>
                 </div>
