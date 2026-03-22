@@ -65,7 +65,7 @@ export default function DraftsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-stone-200">
         <div className="max-w-[600px] mx-auto flex items-center gap-3 px-4 py-3">

@@ -98,7 +98,7 @@ export default function B2BDisputePage() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-white font-sans">
+    <div className="fixed inset-0 flex flex-col bg-white">
       {/* TopBar */}
       <div className="flex items-center gap-3 px-4 shrink-0 h-14 border-b border-stone-200 bg-white">
         <button

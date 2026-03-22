@@ -161,7 +161,7 @@ export default function B2BPaymentPage() {
   /* -- Role guard -- */
   if (user && user.role !== 'producer' && user.role !== 'importer') {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6 text-center">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center">
         <ShieldAlert size={36} className="text-stone-400" />
         <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
         <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a los pagos B2B.</p>
@@ -179,7 +179,7 @@ export default function B2BPaymentPage() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white font-sans">
+      <div className="fixed inset-0 flex items-center justify-center bg-white">
         <Loader2 size={32} className="animate-spin text-stone-500" />
       </div>
     );
@@ -187,7 +187,7 @@ export default function B2BPaymentPage() {
 
   if (error) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 px-6 bg-white font-sans">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 px-6 bg-white">
         <AlertCircle size={32} className="text-stone-500" />
         <p className="text-stone-950 text-[15px]">{error}</p>
         <button
@@ -202,7 +202,7 @@ export default function B2BPaymentPage() {
 
   if (!operation) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white font-sans">
+      <div className="fixed inset-0 flex items-center justify-center bg-white">
         <Loader2 size={32} className="animate-spin text-stone-500" />
       </div>
     );
@@ -216,7 +216,7 @@ export default function B2BPaymentPage() {
   const depositPaid = operation?.payment_status === 'deposit_paid' || operation?.payment_status === 'paid';
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-white font-sans">
+    <div className="fixed inset-0 flex flex-col bg-white">
       {/* TopBar */}
       <div className="sticky top-0 z-20 flex items-center gap-3 px-4 h-14 bg-white/85 backdrop-blur-xl border-b border-stone-200">
         <button

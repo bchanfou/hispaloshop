@@ -65,7 +65,7 @@ export function useCreateInfluencerCodeMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (code) => apiClient.post('/influencer/create-code', { code }),
+    mutationFn: ({ code, discount_percent = 10 }) => apiClient.post('/influencer/create-code', { code, discount_percent }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: influencerKeys.dashboard });
     },

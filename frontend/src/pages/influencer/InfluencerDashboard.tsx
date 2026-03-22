@@ -189,8 +189,12 @@ function EmailVerificationBanner({ user, onVerified }) {
 }
 
 // Create Code Component
+const DISCOUNT_OPTIONS = [5, 10, 15, 20];
+
 function CreateCodeCard({ onCodeCreated }) {
   const [code, setCode] = useState('');
+  const [discountPercent, setDiscountPercent] = useState(10);
+  const [showForm, setShowForm] = useState(false);
   const { creatingCode, createDiscountCode } = useInfluencerDiscountCodes();
 
   const handleCreate = async () => {
@@ -199,9 +203,11 @@ function CreateCodeCard({ onCodeCreated }) {
       return;
     }
     try {
-      const res = await createDiscountCode(code);
+      const res = await createDiscountCode(code, discountPercent);
       toast.success(res?.message || 'Código creado');
       onCodeCreated(res?.code || code);
+      setCode('');
+      setShowForm(false);
     } catch (error) {
       toast.error(error?.message || 'Error al crear código');
     }
@@ -209,38 +215,80 @@ function CreateCodeCard({ onCodeCreated }) {
 
   return (
     <div className="bg-white shadow-sm rounded-2xl">
-      <div className="px-6 pt-6 pb-4">
+      <div className="px-6 pt-6 pb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
           <Sparkles className="w-5 h-5 text-stone-500" />
-          Crea tu código de descuento
+          Códigos de descuento
         </h3>
-      </div>
-      <div className="px-6 pb-6">
-        <p className="text-sm mb-4 text-stone-500">
-          Elige un código personalizado que tus seguidores usarán para obtener el 10% de descuento.
-        </p>
-        <div className="flex items-center gap-3">
-          <input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20))}
-            placeholder="Ej: MARIA10"
-            className="flex-1 px-3 py-2 uppercase text-lg font-mono border border-stone-200 rounded-xl text-stone-950 bg-white outline-none"
-            maxLength={20}
-          />
-          <button onClick={handleCreate} disabled={creatingCode || code.length < 3} className="px-4 py-2 transition-colors disabled:opacity-50 bg-stone-950 text-white rounded-xl">
-            {creatingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear código'}
+        {!showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="text-sm px-4 py-1.5 rounded-full bg-stone-950 text-white transition-colors"
+          >
+            Crear código
           </button>
-        </div>
-        <p className="text-xs mt-2 text-stone-500">
-          Solo letras y números, entre 3-20 caracteres
-        </p>
+        )}
       </div>
+      {showForm && (
+        <div className="px-6 pb-6">
+          <p className="text-sm mb-4 text-stone-500">
+            Elige un código personalizado y el porcentaje de descuento para tu comunidad.
+          </p>
+          {/* Discount % selector pills */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-sm text-stone-500">Descuento:</span>
+            {DISCOUNT_OPTIONS.map((pct) => (
+              <button
+                key={pct}
+                onClick={() => setDiscountPercent(pct)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  discountPercent === pct
+                    ? 'bg-stone-950 text-white'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                {pct}%
+              </button>
+            ))}
+          </div>
+          {/* Code input + submit */}
+          <div className="flex items-center gap-3">
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20))}
+              placeholder="Ej: MARIA10"
+              className="flex-1 px-3 py-2 uppercase text-lg font-mono border border-stone-200 rounded-xl text-stone-950 bg-white outline-none"
+              maxLength={20}
+            />
+            <button onClick={handleCreate} disabled={creatingCode || code.length < 3} className="px-4 py-2 transition-colors disabled:opacity-50 bg-stone-950 text-white rounded-xl">
+              {creatingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear'}
+            </button>
+          </div>
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xs text-stone-500">
+              Solo letras y números, entre 3-20 caracteres
+            </p>
+            <button onClick={() => setShowForm(false)} className="text-xs text-stone-400 hover:text-stone-600 transition-colors">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // Discount Codes List Component
 function DiscountCodesList({ codes, convertAndFormatPrice }) {
+  const [copiedCode, setCopiedCode] = useState(null);
+
+  const handleCopy = useCallback((code) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    toast.success('Código copiado');
+    setTimeout(() => setCopiedCode(null), 2000);
+  }, []);
+
   if (!codes || codes.length === 0) {
     return (
       <div className="bg-white shadow-sm rounded-2xl">
@@ -268,21 +316,36 @@ function DiscountCodesList({ codes, convertAndFormatPrice }) {
       <div className="px-6 pb-6 space-y-2">
         {codes.map((dc, i) => (
           <div
-            key={dc.code || i}
-            className="rounded-2xl shadow-sm p-3 flex items-center justify-between gap-3"
+            key={dc.code_id || dc.code || i}
+            className="rounded-2xl shadow-sm p-4 flex items-center justify-between gap-3"
           >
-            <div className="min-w-0">
-              <p className="font-mono text-sm font-semibold text-stone-950 truncate">{dc.code}</p>
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Code pill */}
+              <span className="bg-stone-100 rounded-full px-3 py-1 font-mono text-sm font-semibold text-stone-950 truncate">
+                {dc.code}
+              </span>
+              {/* Discount % badge */}
+              <span className="text-xs font-medium text-stone-500">
+                {dc.value || 10}%
+              </span>
             </div>
             <div className="flex items-center gap-4 shrink-0">
               <div className="text-right">
                 <p className="text-xs text-stone-500">Usos</p>
                 <p className="text-sm font-semibold text-stone-950">{dc.usage_count ?? dc.uses ?? 0}</p>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-stone-500">Ingresos</p>
-                <p className="text-sm font-semibold text-stone-950">{convertAndFormatPrice(Number(dc.revenue ?? dc.total_revenue ?? 0))}</p>
-              </div>
+              {/* Copy button */}
+              <button
+                onClick={() => handleCopy(dc.code)}
+                className="p-2 rounded-full transition-colors bg-stone-100 hover:bg-stone-200 text-stone-600"
+                title="Copiar código"
+              >
+                {copiedCode === dc.code ? (
+                  <Check className="w-4 h-4 text-stone-950" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
         ))}

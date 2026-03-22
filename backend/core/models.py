@@ -741,6 +741,7 @@ class InfluencerApplication(BaseModel):
 
 class CreateInfluencerCodeInput(BaseModel):
     code: str
+    discount_percent: Optional[int] = 10  # 5, 10, 15, or 20
 
 
 class WithdrawalRequest(BaseModel):

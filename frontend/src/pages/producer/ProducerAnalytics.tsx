@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Users, Target, Loader2, ShoppingBag, ArrowUp, ArrowDown, Euro, Star } from 'lucide-react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, LineChart, Line, CartesianGrid } from 'recharts';
 import apiClient from '../../services/api/client';
 
 function AnalyticsSection({ title, icon: Icon, children }) {
@@ -17,33 +18,102 @@ function AnalyticsSection({ title, icon: Icon, children }) {
 
 function SalesSourcesChart({ sources }) {
   const data = [
-    { name: 'Feed', value: sources?.feed || 0, color: '#57534e' },
-    { name: 'Tienda', value: sources?.store || 0, color: '#78716c' },
-    { name: 'David AI', value: sources?.hispal_ai || 0, color: '#44403c' },
-    { name: 'Influencer', value: sources?.influencer || 0, color: '#a8a29e' },
-    { name: 'Directo', value: sources?.direct || 0, color: '#d6d3d1' },
+    { name: 'Feed', value: sources?.feed || 0 },
+    { name: 'Tienda', value: sources?.store || 0 },
+    { name: 'David AI', value: sources?.hispal_ai || 0 },
+    { name: 'Influencer', value: sources?.influencer || 0 },
+    { name: 'Directo', value: sources?.direct || 0 },
   ].filter(d => d.value > 0);
 
   const total = data.reduce((s, d) => s + d.value, 0);
   if (!total) return <p className="text-sm text-stone-500 text-center py-4">Sin datos aún</p>;
 
+  // Add percentage to each entry
+  const chartData = data.map(d => ({ ...d, pct: Math.round((d.value / total) * 100) }));
+
   return (
-    <div className="space-y-2.5">
-      {data.map(source => (
-        <div key={source.name} className="flex items-center gap-3">
-          <span className="text-xs text-stone-600 w-16 shrink-0">{source.name}</span>
-          <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${(source.value / total) * 100}%`, backgroundColor: source.color }}
-            />
-          </div>
-          <span className="text-xs font-bold text-stone-950 w-8 text-right shrink-0">
-            {Math.round((source.value / total) * 100)}%
-          </span>
-        </div>
-      ))}
-    </div>
+    <ResponsiveContainer width="100%" height={chartData.length * 44 + 16}>
+      <BarChart data={chartData} layout="vertical" margin={{ top: 4, right: 40, bottom: 4, left: 0 }}>
+        <XAxis type="number" hide />
+        <YAxis
+          type="category"
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
+          width={70}
+          tick={{ fill: '#78716c', fontSize: 12 }}
+        />
+        <Tooltip
+          cursor={{ fill: 'rgba(245,245,244,0.6)' }}
+          contentStyle={{
+            backgroundColor: '#fff',
+            borderRadius: 12,
+            border: '1px solid #e7e5e4',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+            padding: '8px 12px',
+            fontSize: 12,
+          }}
+          formatter={(value, _name, props) => [`${props.payload.pct}% (${value})`, 'Ventas']}
+          labelStyle={{ fontWeight: 600, color: '#0c0a09' }}
+        />
+        <Bar
+          dataKey="value"
+          fill="#0c0a09"
+          radius={[0, 6, 6, 0]}
+          barSize={18}
+          label={{ position: 'right', fill: '#0c0a09', fontSize: 11, fontWeight: 700, formatter: (v) => `${Math.round((v / total) * 100)}%` }}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+function RevenueTrendChart({ trend }) {
+  if (!trend || !Array.isArray(trend) || trend.length < 2) return null;
+
+  return (
+    <AnalyticsSection title="Tendencia de ingresos" icon={TrendingUp}>
+      <ResponsiveContainer width="100%" height={200}>
+        <LineChart data={trend} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
+          <XAxis
+            dataKey="label"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#a8a29e', fontSize: 11 }}
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: '#a8a29e', fontSize: 11 }}
+            tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#fff',
+              borderRadius: 12,
+              border: '1px solid #e7e5e4',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+              padding: '8px 12px',
+              fontSize: 12,
+            }}
+            formatter={(value) => [
+              typeof value === 'number' ? value.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) : value,
+              'Ingresos',
+            ]}
+            labelStyle={{ fontWeight: 600, color: '#0c0a09' }}
+          />
+          <Line
+            type="monotone"
+            dataKey="revenue"
+            stroke="#0c0a09"
+            strokeWidth={2}
+            dot={{ fill: '#0c0a09', r: 3, strokeWidth: 0 }}
+            activeDot={{ fill: '#0c0a09', r: 5, strokeWidth: 2, stroke: '#fff' }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </AnalyticsSection>
   );
 }
 
@@ -268,6 +338,9 @@ export default function ProducerAnalytics() {
       <AnalyticsSection title="¿De dónde vienen tus ventas?" icon={BarChart3}>
         <SalesSourcesChart sources={data?.sales_sources} />
       </AnalyticsSection>
+
+      {/* Revenue trend */}
+      <RevenueTrendChart trend={data?.revenue_trend} />
 
       {/* Followers */}
       <AnalyticsSection title="Seguidores de la tienda" icon={Users}>

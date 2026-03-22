@@ -2,12 +2,95 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, Hash, SlidersHorizontal, Check } from 'lucide-react';
+import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, Hash, SlidersHorizontal, Check, User } from 'lucide-react';
 import apiClient from '../services/api/client';
 import { useLocale } from '../context/LocaleContext';
 import SEO from '../components/SEO';
 import SlideTabIndicator from '../components/motion/SlideTabIndicator';
 import { toast } from 'sonner';
+
+/* ── Autocomplete Suggestion Item ── */
+function SuggestionItem({ item, type, onClick }) {
+  const img = item.images?.[0] || item.image_url || item.profile_image || item.cover_image;
+  const name = item.name || item.title || item.username || 'Sin nombre';
+  const badges = { products: 'Producto', creators: 'Persona', stores: 'Tienda' };
+  const icons = { products: ShoppingBag, creators: User, stores: Store };
+  const Icon = icons[type] || ShoppingBag;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-stone-50"
+    >
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-stone-100">
+        {img ? (
+          <img src={img} alt={name} className="h-full w-full object-cover" />
+        ) : (
+          <Icon size={14} className="text-stone-400" />
+        )}
+      </div>
+      <span className="min-w-0 flex-1 truncate text-sm text-stone-950">{name}</span>
+      <span className="shrink-0 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
+        {badges[type] || type}
+      </span>
+    </button>
+  );
+}
+
+/* ── Autocomplete Dropdown ── */
+function AutocompleteDropdown({ suggestions, onSelect, onClose }) {
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        onClose();
+      }
+    }
+    function handleEscape(e) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onClose]);
+
+  const sections = [
+    { key: 'products', label: 'Productos', icon: ShoppingBag, items: suggestions.products || [] },
+    { key: 'creators', label: 'Personas', icon: Users, items: suggestions.creators || [] },
+    { key: 'stores', label: 'Tiendas', icon: Store, items: suggestions.stores || [] },
+  ].filter(s => s.items.length > 0);
+
+  if (sections.length === 0) return null;
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[420px] overflow-y-auto rounded-2xl bg-white p-2 shadow-lg"
+    >
+      {sections.map(section => (
+        <div key={section.key}>
+          <div className="flex items-center gap-2 px-3 pb-1 pt-2">
+            <section.icon size={13} className="text-stone-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400">{section.label}</span>
+          </div>
+          {section.items.map((item, i) => (
+            <SuggestionItem
+              key={item.product_id || item.store_id || item.user_id || item.id || i}
+              item={item}
+              type={section.key}
+              onClick={() => onSelect(item, section.key)}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const HISTORY_KEY = 'hispal_search_history';
 const MAX_HISTORY = 8;
@@ -218,6 +301,9 @@ export default function SearchPage() {
   const [appliedFilters, setAppliedFilters] = useState({ minPrice: '', maxPrice: '', certs: [], inStock: false, freeShipping: false });
   const [trending, setTrending] = useState(TRENDING_FALLBACK);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
+  const [suggestions, setSuggestions] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestIdRef = useRef(0);
   const searchIdRef = useRef(0);
 
   const hasActiveFilters = useMemo(() => {
@@ -265,6 +351,52 @@ export default function SearchPage() {
       })
       .catch(() => {});
   }, []);
+
+  // Autocomplete suggestions (300ms debounce, >= 2 chars)
+  useEffect(() => {
+    if (query.trim().length < 2) {
+      setSuggestions(null);
+      setShowSuggestions(false);
+      return;
+    }
+    const reqId = ++suggestIdRef.current;
+    const timer = setTimeout(async () => {
+      try {
+        const data = await apiClient.get('/search', { params: { q: query.trim(), limit: 9 } });
+        if (reqId !== suggestIdRef.current) return;
+        const hasAny = (data?.products?.length || 0) + (data?.creators?.length || 0) + (data?.stores?.length || 0) > 0;
+        if (hasAny) {
+          setSuggestions({
+            products: (data.products || []).slice(0, 3),
+            creators: (data.creators || []).slice(0, 3),
+            stores: (data.stores || []).slice(0, 3),
+          });
+          setShowSuggestions(true);
+        } else {
+          setSuggestions(null);
+          setShowSuggestions(false);
+        }
+      } catch {
+        if (reqId === suggestIdRef.current) {
+          setSuggestions(null);
+          setShowSuggestions(false);
+        }
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const handleSuggestionSelect = useCallback((item, type) => {
+    setShowSuggestions(false);
+    setSuggestions(null);
+    if (type === 'products') {
+      navigate(`/products/${item.product_id || item.id}`);
+    } else if (type === 'stores') {
+      navigate(`/store/${item.slug || item.store_slug || item.store_id || item.id}`);
+    } else if (type === 'creators') {
+      navigate(`/user/${item.slug || item.username || item.user_id || item.id}`);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (!query.trim()) { setResults(null); return; }
@@ -321,6 +453,8 @@ export default function SearchPage() {
   const handleSubmit = useCallback((e) => {
     e?.preventDefault();
     if (!query.trim()) return;
+    setShowSuggestions(false);
+    setSuggestions(null);
     saveHistory(query.trim());
     setHistory(getHistory());
     executeSearch(query.trim());
@@ -328,6 +462,8 @@ export default function SearchPage() {
 
   const handleHistoryClick = (term) => {
     setQuery(term);
+    setShowSuggestions(false);
+    setSuggestions(null);
     saveHistory(term);
     setHistory(getHistory());
     executeSearch(term);
@@ -374,7 +510,7 @@ export default function SearchPage() {
 
       {/* ── Search Bar (sticky) ── */}
       <div className="sticky top-0 z-40 bg-white px-3 py-2">
-        <form onSubmit={handleSubmit} role="search" aria-label="Buscar en Hispaloshop" className="flex items-center gap-2">
+        <form onSubmit={handleSubmit} role="search" aria-label="Buscar en Hispaloshop" className="relative flex items-center gap-2">
           <button
             type="button"
             onClick={() => { window.history.length > 1 ? navigate(-1) : navigate('/discover'); }}
@@ -425,6 +561,15 @@ export default function SearchPage() {
               <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-stone-950 ring-2 ring-white" />
             )}
           </button>
+
+          {/* ── Autocomplete Dropdown ── */}
+          {showSuggestions && suggestions && (
+            <AutocompleteDropdown
+              suggestions={suggestions}
+              onSelect={handleSuggestionSelect}
+              onClose={() => setShowSuggestions(false)}
+            />
+          )}
         </form>
 
         {/* ── Filter Panel (mobile only — desktop uses sidebar) ── */}

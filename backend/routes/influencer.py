@@ -244,13 +244,16 @@ async def create_influencer_discount_code(input: CreateInfluencerCodeInput, user
     if existing:
         raise HTTPException(status_code=400, detail="Este código ya está en uso. Elige otro.")
     
+    # Validate discount_percent (allowed: 5, 10, 15, 20)
+    discount_pct = input.discount_percent if input.discount_percent in (5, 10, 15, 20) else 10
+
     # Create the discount code (inactive until admin approves)
     code_id = f"code_{uuid.uuid4().hex[:12]}"
     discount_code = {
         "code_id": code_id,
         "code": code,
         "type": "percentage",
-        "value": 10,  # 10% discount for customers — fixed
+        "value": discount_pct,
         "active": False,  # Activated only after admin approval
         "approval_status": "pending",  # pending | approved | rejected
         "description": f"Código de influencer {influencer['full_name']}",
@@ -262,6 +265,7 @@ async def create_influencer_discount_code(input: CreateInfluencerCodeInput, user
         "end_date": None,
         "is_influencer_code": True,
         "influencer_id": influencer["influencer_id"],
+        "creator_id": user.user_id,
         "influencer_name": influencer.get("full_name", ""),
         "influencer_handle": influencer.get("social_handle", ""),
         "created_at": datetime.now(timezone.utc).isoformat()

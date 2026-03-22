@@ -363,6 +363,68 @@ async def create_shopping_list(recipe_id: str, request: Request, user: User = De
     return {"added": added, "items": added_items, "total": round(total, 2), "message": f"{added} ingredients added to cart"}
 
 
+# ============================================================================
+# RECIPE REVIEWS
+# ============================================================================
+
+@router.get("/recipes/{recipe_id}/reviews")
+async def get_recipe_reviews(recipe_id: str):
+    """Get visible reviews and average rating for a recipe (public)."""
+    reviews = await db.recipe_reviews.find(
+        {"recipe_id": recipe_id, "visible": True},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+
+    total_reviews = len(reviews)
+    average_rating = 0
+    if total_reviews > 0:
+        average_rating = round(sum(r["rating"] for r in reviews) / total_reviews, 1)
+
+    return {
+        "reviews": reviews,
+        "average_rating": average_rating,
+        "total_reviews": total_reviews,
+    }
+
+
+@router.post("/recipes/{recipe_id}/reviews")
+async def create_recipe_review(recipe_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Create a review for a recipe. One review per user per recipe."""
+    body = await request.json()
+    rating = body.get("rating")
+    text = (body.get("text") or "").strip()
+
+    if not rating or not isinstance(rating, int) or rating < 1 or rating > 5:
+        raise HTTPException(status_code=400, detail="Rating (1-5) is required")
+
+    # Verify recipe exists
+    recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0, "recipe_id": 1})
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    # Check duplicate
+    existing = await db.recipe_reviews.find_one(
+        {"recipe_id": recipe_id, "user_id": user.user_id},
+        {"_id": 0}
+    )
+    if existing:
+        raise HTTPException(status_code=400, detail="Ya has valorado esta receta")
+
+    review_id = f"rrev_{uuid.uuid4().hex[:12]}"
+    review = {
+        "review_id": review_id,
+        "recipe_id": recipe_id,
+        "user_id": user.user_id,
+        "user_name": user.name,
+        "rating": rating,
+        "text": text[:500] if text else "",
+        "visible": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.recipe_reviews.insert_one(review)
+    review.pop("_id", None)
+    return review
+
 
 @router.get("/products/{product_id}/reviews")
 async def get_product_reviews(product_id: str):

@@ -406,7 +406,7 @@ export default function CreateReelPage() {
   // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
   if (screen === 'upload') {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:max-w-[480px] lg:mx-auto">
+      <div className="fixed inset-0 z-50 bg-black flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:max-w-[480px] lg:mx-auto">
         {/* TopBar */}
         <div className="flex items-center justify-between px-4 py-3">
           <button
@@ -479,7 +479,7 @@ export default function CreateReelPage() {
   // ─── SCREEN 2: EDIT ───────────────────────────────────────────
   if (screen === 'edit') {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+      <div className="fixed inset-0 z-50 bg-black flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         {/* TopBar */}
         <div className="flex items-center justify-between px-4 py-3">
           <button
@@ -945,7 +945,7 @@ export default function CreateReelPage() {
 
   // ─── SCREEN 3: DETAILS ────────────────────────────────────────
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:max-w-[480px] lg:mx-auto">
+    <div className="fixed inset-0 z-50 bg-white flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:max-w-[480px] lg:mx-auto">
       {/* TopBar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-stone-200">
         <button

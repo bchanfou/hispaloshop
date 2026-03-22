@@ -227,7 +227,7 @@ export default function RecipesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-[975px] px-4">
       <SEO
         title="Recetas — Hispaloshop"

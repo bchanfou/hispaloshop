@@ -1,18 +1,20 @@
 // @ts-nocheck
 /**
- * Onboarding Page v2 — 3 Screens
+ * Onboarding Page v2 — 4 Screens
  * 1. Welcome & Register
  * 2. Food Preferences (diet + allergies + interests)
  * 3. Choose Role
+ * 4. Completion (summary + optional avatar + CTA)
  */
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Wheat, Star, Globe, Droplets, Package, Leaf, UtensilsCrossed, Baby, PawPrint, Check } from 'lucide-react';
+import { ShoppingCart, Wheat, Star, Globe, Droplets, Package, Leaf, UtensilsCrossed, Baby, PawPrint, Check, Camera, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { useSaveOnboardingMutation } from '../../features/onboarding/queries';
+import apiClient from '../../services/api/client';
 
 // -- Helpers --
 
@@ -163,7 +165,7 @@ function ScreenWelcome({ onNext }) {
       </p>
 
       {/* Progress dots */}
-      <ProgressDots current={0} total={3} />
+      <ProgressDots current={0} total={4} />
 
       {/* Buttons */}
       <div className="w-full flex flex-col gap-3 max-w-[360px] mt-3">
@@ -239,7 +241,7 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
   return (
     <div className="px-6">
       {/* Progress dots */}
-      <ProgressDots current={1} total={3} />
+      <ProgressDots current={1} total={4} />
 
       {/* Title */}
       <h2 className="text-[19px] font-medium text-stone-950 m-0 mb-1.5 text-center">
@@ -320,22 +322,22 @@ function ScreenFoodPreferences({ data, onUpdate, onNext, onBack }) {
 
 // -- Screen 3: Choose Role --
 
-function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
+function ScreenChooseRole({ data, onUpdate, onNext, onBack }) {
   const [selectedRole, setSelectedRole] = useState(data.role || '');
 
-  const handleStart = () => {
+  const handleContinue = () => {
     if (!selectedRole) {
       toast.error('Selecciona cómo quieres usar Hispaloshop');
       return;
     }
     onUpdate({ role: selectedRole });
-    onFinish(selectedRole);
+    onNext();
   };
 
   return (
     <div className="px-6">
       {/* Progress dots */}
-      <ProgressDots current={2} total={3} />
+      <ProgressDots current={2} total={4} />
 
       {/* Title */}
       <h2 className="text-[19px] font-medium text-stone-950 m-0 mb-6 text-center">
@@ -369,17 +371,142 @@ function ScreenChooseRole({ data, onUpdate, onFinish, onBack, saving }) {
         })}
       </div>
 
-      {/* Start button */}
+      {/* Continue button */}
       <button
-        onClick={handleStart}
-        disabled={!selectedRole || saving}
+        onClick={handleContinue}
+        disabled={!selectedRole}
         className={`w-full h-12 rounded-full border-none text-[15px] font-medium transition-all duration-200 ${
           selectedRole
             ? 'bg-stone-950 text-white cursor-pointer'
             : 'bg-stone-200 text-stone-500 cursor-not-allowed'
         }`}
       >
-        {saving ? 'Guardando...' : 'Empezar'}
+        Continuar
+      </button>
+
+      {/* Back link */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="block w-full mt-3 bg-transparent border-none text-[13px] text-stone-500 cursor-pointer p-2"
+        >
+          ← Atrás
+        </button>
+      )}
+    </div>
+  );
+}
+
+// -- Screen 4: Completion --
+
+const ROLE_ICONS = {
+  customer: <ShoppingCart size={20} className="text-stone-950" />,
+  producer: <Wheat size={20} className="text-stone-950" />,
+  influencer: <Star size={20} className="text-stone-950" />,
+  importer: <Globe size={20} className="text-stone-950" />,
+};
+const ROLE_LABELS = {
+  customer: 'Consumidor',
+  producer: 'Productor',
+  influencer: 'Influencer',
+  importer: 'Importador',
+};
+
+function ScreenCompletion({ data, onFinish, onBack, saving }) {
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const fileRef = useRef(null);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setAvatarPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const dietCount = data.diet?.length || 0;
+  const interestsCount = data.interests?.length || 0;
+
+  return (
+    <div className="px-6">
+      {/* Progress dots */}
+      <ProgressDots current={3} total={4} />
+
+      {/* Sparkle icon */}
+      <div className="flex justify-center mb-4">
+        <motion.div
+          initial={{ scale: 0, rotate: -30 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+        >
+          <Sparkles size={40} className="text-stone-950" />
+        </motion.div>
+      </div>
+
+      {/* Title */}
+      <h2 className="text-[22px] font-medium text-stone-950 m-0 mb-1.5 text-center">
+        ¡Todo listo!
+      </h2>
+
+      {/* Subtitle */}
+      <p className="text-sm text-stone-500 text-center m-0 mb-8">
+        Tu perfil está configurado
+      </p>
+
+      {/* Summary pills */}
+      <div className="flex flex-wrap justify-center gap-2 mb-8">
+        {data.role && (
+          <div className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-stone-700">
+            {ROLE_ICONS[data.role]}
+            {ROLE_LABELS[data.role]}
+          </div>
+        )}
+        {dietCount > 0 && (
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-stone-700">
+            <span className="text-[15px]">{'\uD83C\uDF7D\uFE0F'}</span>
+            {dietCount} {dietCount === 1 ? 'dieta' : 'dietas'}
+          </div>
+        )}
+        {interestsCount > 0 && (
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-stone-700">
+            <span className="text-[15px]">{'\u2764\uFE0F'}</span>
+            {interestsCount} {interestsCount === 1 ? 'interés' : 'intereses'}
+          </div>
+        )}
+      </div>
+
+      {/* Avatar upload */}
+      <div className="flex flex-col items-center mb-8">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-stone-100 border-2 border-dashed border-stone-200 cursor-pointer transition-colors hover:border-stone-400"
+        >
+          {avatarPreview ? (
+            <img src={avatarPreview} alt="Avatar" className="h-full w-full object-cover" />
+          ) : (
+            <Camera size={28} className="text-stone-400" />
+          )}
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          onChange={handleAvatarChange}
+          className="hidden"
+        />
+        <p className="mt-2 text-xs text-stone-500">
+          {avatarPreview ? 'Toca para cambiar' : 'Foto de perfil (opcional)'}
+        </p>
+      </div>
+
+      {/* CTA button */}
+      <button
+        onClick={() => onFinish(data.role, avatarPreview)}
+        disabled={saving}
+        className="w-full h-12 rounded-full bg-stone-950 text-white border-none text-[15px] font-medium cursor-pointer transition-colors hover:bg-stone-800 disabled:opacity-50"
+      >
+        {saving ? 'Guardando...' : 'Empezar a explorar'}
       </button>
 
       {/* Back link */}
@@ -422,7 +549,7 @@ export default function OnboardingPage() {
     setCurrentStep(prev => prev - 1);
   }, []);
 
-  const handleFinish = useCallback(async (selectedRole) => {
+  const handleFinish = useCallback(async (selectedRole, avatarDataUrl) => {
     try {
       await saveOnboardingMutation.mutateAsync({
         interests: data.interests,
@@ -430,6 +557,25 @@ export default function OnboardingPage() {
         allergies: data.allergies,
         role: selectedRole,
       });
+
+      // Upload avatar if provided
+      if (avatarDataUrl) {
+        try {
+          const blob = await fetch(avatarDataUrl).then(r => r.blob());
+          const formData = new FormData();
+          formData.append('file', blob, 'avatar.jpg');
+          await apiClient.post('/users/me/avatar', formData);
+        } catch {
+          // Avatar upload is optional — don't block onboarding
+        }
+      }
+
+      // Mark onboarding complete
+      try {
+        await apiClient.patch('/users/me', { onboarding_completed: true });
+      } catch {
+        // Non-critical — mutation already saved preferences
+      }
 
       setUser(prev => ({
         ...prev,
@@ -497,6 +643,13 @@ export default function OnboardingPage() {
               <ScreenChooseRole
                 data={data}
                 onUpdate={updateData}
+                onNext={nextStep}
+                onBack={prevStep}
+              />
+            )}
+            {currentStep === 3 && (
+              <ScreenCompletion
+                data={data}
                 onFinish={handleFinish}
                 onBack={prevStep}
                 saving={saving}

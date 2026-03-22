@@ -133,7 +133,7 @@ export default function B2BContractPage() {
   /* -- Role guard -- */
   if (user && user.role !== 'producer' && user.role !== 'importer') {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6 text-center">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center">
         <ShieldAlert size={36} className="text-stone-400" />
         <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
         <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a los contratos B2B.</p>
@@ -150,7 +150,7 @@ export default function B2BContractPage() {
   /* -- Loading / Error screens -- */
   if (loading) {
     return (
-      <div className="fixed inset-0 flex flex-col bg-white font-sans p-4 pt-[60px]">
+      <div className="fixed inset-0 flex flex-col bg-white p-4 pt-[60px]">
         <div className="h-10 w-48 rounded-2xl animate-pulse mb-4 bg-stone-100" />
         <div className="h-32 rounded-2xl animate-pulse mb-4 bg-stone-100" />
         <div className="h-24 rounded-2xl animate-pulse mb-4 bg-stone-100" />
@@ -161,7 +161,7 @@ export default function B2BContractPage() {
 
   if (error || !operation) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans p-6">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white p-6">
         <AlertCircle size={36} className="text-stone-500" />
         <p className="text-stone-950 text-[15px] font-semibold">
           Operación no encontrada
@@ -189,7 +189,7 @@ export default function B2BContractPage() {
 
   /* -- Main render -- */
   return (
-    <div className="fixed inset-0 flex flex-col bg-white font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    <div className="fixed inset-0 flex flex-col bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       {/* -- TopBar -- */}
       <div className="flex items-center justify-between sticky top-0 z-20 bg-white/85 backdrop-blur-xl px-4 py-3 border-b border-stone-200">
         <button

@@ -208,7 +208,7 @@ export default function B2BTrackingPage() {
   /* -- loading / error -- */
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white font-sans">
+      <div className="fixed inset-0 flex items-center justify-center bg-white">
         <div className="text-stone-500 text-sm">Cargando...</div>
       </div>
     );
@@ -216,7 +216,7 @@ export default function B2BTrackingPage() {
 
   if (!operation) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6">
         <div className="text-stone-950 text-[15px] font-semibold">Operación no encontrada</div>
         <p className="text-stone-500 text-[13px] text-center">No se pudo cargar la operación solicitada.</p>
         <button
@@ -237,7 +237,7 @@ export default function B2BTrackingPage() {
 
   /* ======================================================= */
   return (
-    <div className="fixed inset-0 flex flex-col bg-white font-sans">
+    <div className="fixed inset-0 flex flex-col bg-white">
       {/* inject pulse animation */}
       <style>{PULSE_CSS}</style>
 

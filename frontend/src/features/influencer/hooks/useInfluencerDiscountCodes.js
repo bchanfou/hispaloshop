@@ -5,7 +5,7 @@ export function useInfluencerDiscountCodes() {
 
   return {
     creatingCode: createCodeMutation.isPending,
-    createDiscountCode: (code) => createCodeMutation.mutateAsync(code),
+    createDiscountCode: (code, discount_percent) => createCodeMutation.mutateAsync({ code, discount_percent }),
   };
 }
 

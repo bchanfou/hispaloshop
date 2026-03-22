@@ -302,7 +302,7 @@ const B2BOperationsDashboard = () => {
   /* ── Role guard ── */
   if (user && user.role !== 'producer' && user.role !== 'importer') {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white font-sans px-6 text-center">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center">
         <ShieldAlert size={36} className="text-stone-400" />
         <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
         <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a las operaciones B2B.</p>

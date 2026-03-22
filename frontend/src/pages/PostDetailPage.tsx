@@ -273,7 +273,7 @@ export default function PostDetailPage() {
   const commentsCount = post.comments_count ?? comments.length;
 
   return (
-    <div className="min-h-screen bg-white pb-20 font-sans">
+    <div className="min-h-screen bg-white pb-20">
       {/* ── Top bar ── */}
       <header className="sticky top-0 z-40 bg-white border-b border-stone-100 h-12 flex items-center gap-3 px-4" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <button onClick={() => navigate(-1)} aria-label="Volver" className="bg-transparent border-none cursor-pointer p-1 flex items-center -ml-1">

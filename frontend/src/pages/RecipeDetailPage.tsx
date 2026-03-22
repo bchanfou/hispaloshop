@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ChefHat, Clock3, Users, ShoppingCart, Minus, Plus, Bookmark, Loader2, User, Share2, ArrowUp, ListPlus } from 'lucide-react';
+import { ArrowLeft, ChefHat, Clock3, Users, ShoppingCart, Minus, Plus, Bookmark, Loader2, User, Share2, ArrowUp, ListPlus, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
@@ -91,6 +91,13 @@ export default function RecipeDetailPage() {
   const [addingAll, setAddingAll] = useState(false);
   const [similarRecipes, setSimilarRecipes] = useState([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [avgRating, setAvgRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
   const pageRef = useRef(null);
 
   useEffect(() => {
@@ -112,6 +119,25 @@ export default function RecipeDetailPage() {
       .catch(() => { /* similar recipes non-critical */ });
     return () => { active = false; };
   }, [recipe?.category, recipeId]);
+
+  /* Fetch recipe reviews */
+  useEffect(() => {
+    if (!recipeId) return;
+    let active = true;
+    apiClient.get(`/recipes/${recipeId}/reviews`)
+      .then(data => {
+        if (!active) return;
+        const list = data?.reviews || [];
+        setReviews(list);
+        setAvgRating(data?.average_rating || 0);
+        setTotalReviews(data?.total_reviews || 0);
+        if (user && list.some((r: any) => r.user_id === user.user_id)) {
+          setHasReviewed(true);
+        }
+      })
+      .catch(() => { /* reviews non-critical */ });
+    return () => { active = false; };
+  }, [recipeId, user]);
 
   /* Scroll-to-top visibility */
   useEffect(() => {
@@ -191,10 +217,33 @@ export default function RecipeDetailPage() {
     toast.success('Añadido a la lista');
   };
 
+  const handleSubmitReview = async () => {
+    if (!reviewRating) { toast.error('Selecciona una valoración'); return; }
+    setSubmittingReview(true);
+    try {
+      const newReview = await apiClient.post(`/recipes/${recipeId}/reviews`, {
+        rating: reviewRating,
+        text: reviewText,
+      });
+      setReviews(prev => [newReview, ...prev]);
+      setTotalReviews(prev => prev + 1);
+      const newTotal = totalReviews + 1;
+      setAvgRating(Math.round(((avgRating * totalReviews) + reviewRating) / newTotal * 10) / 10);
+      setHasReviewed(true);
+      setReviewRating(0);
+      setReviewText('');
+      toast.success('Valoración publicada');
+    } catch (err: any) {
+      toast.error(err?.message || 'Error al publicar la valoración');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-white font-sans">
+      <div className="min-h-screen bg-white">
         <Topbar title="Receta" onBack={() => navigate(-1)} />
         <div className="flex justify-center p-12">
           <Loader2 size={28} className="animate-spin text-stone-400" />
@@ -206,7 +255,7 @@ export default function RecipeDetailPage() {
   /* ── Not found ── */
   if (!recipe) {
     return (
-      <div className="min-h-screen bg-white font-sans">
+      <div className="min-h-screen bg-white">
         <Topbar title="Receta" onBack={() => navigate(-1)} />
         <div className="flex flex-col items-center gap-3 px-4 py-16">
           <ChefHat size={56} className="text-stone-300" strokeWidth={1} />
@@ -222,7 +271,7 @@ export default function RecipeDetailPage() {
   const diff = DIFFICULTY_CLASSES[recipe.difficulty] || DIFFICULTY_CLASSES.easy;
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white">
       {/* ── Topbar ── */}
       <Topbar
         title={recipe.title}
@@ -591,6 +640,91 @@ export default function RecipeDetailPage() {
             </div>
           </section>
         )}
+
+        {/* ── Valoraciones ── */}
+        <section className="mb-5">
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">Valoraciones</h2>
+            {totalReviews > 0 && (
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <Star key={s} size={16} className={s <= Math.round(avgRating) ? 'text-stone-950' : 'text-stone-200'} fill={s <= Math.round(avgRating) ? 'currentColor' : 'none'} />
+                  ))}
+                </div>
+                <span className="text-sm font-semibold text-stone-950">{avgRating}</span>
+                <span className="text-sm text-stone-400">({totalReviews})</span>
+              </div>
+            )}
+          </div>
+
+          {/* Review list */}
+          {reviews.length > 0 ? (
+            <div className="flex flex-col">
+              {reviews.map((review: any) => (
+                <div key={review.review_id} className="border-b border-stone-100 py-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100">
+                      <User size={14} className="text-stone-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-semibold text-stone-950">{review.user_name || 'Usuario'}</p>
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <Star key={s} size={12} className={s <= review.rating ? 'text-stone-950' : 'text-stone-200'} fill={s <= review.rating ? 'currentColor' : 'none'} />
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-[11px] text-stone-400">
+                      {review.created_at ? new Date(review.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                    </span>
+                  </div>
+                  {review.text && (
+                    <p className="mt-2 text-sm leading-relaxed text-stone-600">{review.text}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-stone-400">Aún no hay valoraciones. Sé el primero.</p>
+          )}
+
+          {/* Review form */}
+          {user && !hasReviewed && (
+            <div className="mt-4 rounded-2xl border border-stone-200 p-4">
+              <p className="mb-2 text-sm font-semibold text-stone-950">Tu valoración</p>
+              <div className="mb-3 flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map(s => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setReviewRating(s)}
+                    aria-label={`${s} estrella${s > 1 ? 's' : ''}`}
+                    className="border-none bg-transparent p-0.5 cursor-pointer"
+                  >
+                    <Star size={28} className={s <= reviewRating ? 'text-stone-950' : 'text-stone-200'} fill={s <= reviewRating ? 'currentColor' : 'none'} />
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={reviewText}
+                onChange={e => setReviewText(e.target.value)}
+                placeholder="Comparte tu experiencia..."
+                maxLength={500}
+                rows={3}
+                className="mb-3 w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-950 placeholder:text-stone-400 outline-none focus:border-stone-400 transition-colors"
+              />
+              <button
+                type="button"
+                onClick={handleSubmitReview}
+                disabled={submittingReview || !reviewRating}
+                className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-default"
+              >
+                {submittingReview ? 'Publicando...' : 'Publicar valoración'}
+              </button>
+            </div>
+          )}
+        </section>
       </div>
 
       {selectedProduct && (

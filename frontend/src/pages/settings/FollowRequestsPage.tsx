@@ -34,7 +34,7 @@ export default function FollowRequestsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#fafaf9] font-sans">
+    <div className="min-h-screen bg-[#fafaf9]">
       {/* Topbar */}
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button

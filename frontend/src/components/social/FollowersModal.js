@@ -35,7 +35,7 @@ function UserRow({ user, onToggleFollow, isMutating, currentUserId }) {
           )}
         </div>
         {user.is_verified ? (
-          <span className="absolute -bottom-0.5 -right-0.5 flex h-[14px] w-[14px] items-center justify-center rounded-full bg-[#0095F6] text-[7px] font-bold text-white ring-2 ring-white">
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-[14px] w-[14px] items-center justify-center rounded-full bg-[#0c0a09] text-[7px] font-bold text-white ring-2 ring-white">
             ✓
           </span>
         ) : null}
