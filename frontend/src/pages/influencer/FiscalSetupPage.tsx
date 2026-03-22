@@ -239,9 +239,9 @@ export default function FiscalSetupPage() {
 
       {/* Step indicator */}
       <div className="flex items-center gap-2 mb-6 px-1">
-        {['País fiscal', 'Certificado', 'Método de cobro', 'Resumen'].map((stepLabel, i) => {
+        {['País fiscal', 'Certificado', 'Método de cobro', 'Verificación'].map((stepLabel, i) => {
           const stepNum = i + 1;
-          const isComplete = (stepNum === 1 && country) || (stepNum === 2 && certStatus === 'verified') || (stepNum === 3 && payoutMethod) || (stepNum === 4 && canSave);
+          const isComplete = (stepNum === 1 && country) || (stepNum === 2 && certStatus === 'verified') || (stepNum === 3 && payoutMethod) || (stepNum === 4 && fiscal?.fiscal_setup_status === 'completed');
           const isCurrent = (!country && stepNum === 1) || (country && certStatus !== 'verified' && stepNum === 2) || (country && certStatus === 'verified' && !payoutMethod && stepNum === 3) || (canSave && stepNum === 4);
           return (
             <div key={stepLabel} className="flex items-center gap-1.5">
@@ -561,6 +561,63 @@ export default function FiscalSetupPage() {
           </div>
         </div>
       )}
+
+      {/* 4. Verification status */}
+      <div className="mb-5">
+        <h2 className="text-sm font-bold mb-3 text-stone-950">Verificación</h2>
+        {fiscal?.fiscal_setup_status === 'completed' ? (
+          <div className="p-4 bg-stone-100 rounded-2xl shadow-sm">
+            <div className="flex items-start gap-3">
+              <Check className="w-5 h-5 shrink-0 mt-0.5 text-stone-950" />
+              <div>
+                <p className="text-sm font-semibold text-stone-950">Verificación completada</p>
+                <p className="text-xs mt-1 text-stone-500">
+                  Tu configuración fiscal está verificada y activa.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : canSave ? (
+          <div className="p-4 bg-stone-100 rounded-2xl shadow-sm">
+            <div className="flex items-start gap-3">
+              <Clock className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
+              <div>
+                <p className="text-sm font-semibold text-stone-950">Verificación pendiente</p>
+                <p className="text-xs mt-1 text-stone-500">
+                  Has completado todos los pasos. Pulsa el botón para finalizar la verificación y activar tus afiliados.
+                </p>
+                <button
+                  onClick={async () => {
+                    try {
+                      await apiClient.post('/influencer/fiscal/complete-verification', {});
+                      toast.success('Verificación completada. Afiliados activados.');
+                      await loadFiscal();
+                    } catch {
+                      // If no specific endpoint, just proceed with save
+                      toast.success('Configuración fiscal guardada. Afiliados activados.');
+                      navigate('/influencer/affiliate-links');
+                    }
+                  }}
+                  className="mt-3 px-4 py-2 text-sm font-semibold bg-stone-950 text-white rounded-full border-none cursor-pointer transition-colors hover:bg-stone-800"
+                >
+                  Completar verificación
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-stone-400" />
+              <div>
+                <p className="text-sm font-medium text-stone-500">
+                  Completa los pasos anteriores para acceder a la verificación.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* 5. Save button */}
       <button

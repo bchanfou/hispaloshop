@@ -438,7 +438,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                   className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
                   onClick={async () => {
                     try {
-                      await apiClient.post(`/users/${user.id || user.user_id}/unfollow`);
+                      await apiClient.delete(`/users/${user.id || user.user_id}/follow`);
                       toast.success(`Has dejado de seguir a ${user.name}`);
                     } catch { /* ignore */ }
                     setShowMenu(false);

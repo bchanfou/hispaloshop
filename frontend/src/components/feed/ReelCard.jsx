@@ -712,7 +712,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                   e.stopPropagation();
                   try {
                     if (isFollowing) {
-                      await apiClient.post(`/users/${reelUserId}/unfollow`, {});
+                      await apiClient.delete(`/users/${reelUserId}/follow`);
                       setIsFollowing(false);
                     } else {
                       const res = await apiClient.post(`/users/${reelUserId}/follow`, {});

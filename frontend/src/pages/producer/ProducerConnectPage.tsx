@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import apiClient from '../../services/api/client';
 import { AlertCircle, CheckCircle2, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,11 +24,13 @@ export default function ProducerConnectPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState(null);
+  const pollRef = useRef(null);
+  const prevStatusRef = useRef(null);
 
-  const loadStatus = async () => {
+  const loadStatus = useCallback(async () => {
     try {
       const res = await apiClient.get('/producer/stripe/status');
-      setStatus({
+      const newStatus = {
         has_account: Boolean(res?.stripe_account_id),
         account_id: res?.stripe_account_id || null,
         status: res?.status || 'not_connected',
@@ -36,17 +38,49 @@ export default function ProducerConnectPage() {
         charges_enabled: Boolean(res?.charges_enabled),
         onboarding_completed: Boolean(res?.connected),
         requirements_due: [],
-      });
+      };
+
+      // Detect transition to active: stop polling and show success
+      if (newStatus.onboarding_completed && !prevStatusRef.current?.onboarding_completed) {
+        if (pollRef.current) {
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+        }
+        toast.success('Cuenta de Stripe Connect activada correctamente');
+      }
+
+      prevStatusRef.current = newStatus;
+      setStatus(newStatus);
     } catch (error) {
       toast.error('No se pudo obtener el estado de Stripe Connect');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadStatus();
-  }, []);
+
+    // Poll every 5s so the page auto-updates after Stripe redirect
+    pollRef.current = setInterval(() => {
+      loadStatus();
+    }, 5000);
+
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [loadStatus]);
+
+  // Stop polling once onboarding is completed
+  useEffect(() => {
+    if (status?.onboarding_completed && pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, [status?.onboarding_completed]);
 
   const handleStart = async () => {
     setSubmitting(true);

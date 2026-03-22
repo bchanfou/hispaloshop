@@ -6,6 +6,7 @@ import {
   ArrowLeft, Loader2, Shield, Eye, EyeOff, ShoppingBag,
   CheckCircle, RotateCcw, AlertTriangle, ChevronUp, X
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const FILTERS = [
   { key: 'all', label: 'Todo' },
@@ -188,8 +189,8 @@ export default function AdminModerationPage() {
       if (filter !== 'all') params.action = filter;
 
       const [queueData, statsData] = await Promise.all([
-        apiClient.get('/admin/moderation/queue', { params }),
-        apiClient.get('/admin/moderation/stats'),
+        apiClient.get('/moderation/queue', { params }),
+        apiClient.get('/moderation/stats'),
       ]);
       setQueue(queueData?.queue || []);
       setStats(statsData || {});
@@ -209,27 +210,36 @@ export default function AdminModerationPage() {
   const handleConfirm = async (id) => {
     setBusy(true);
     try {
-      await apiClient.post(`/admin/moderation/${id}/confirm`);
+      await apiClient.post(`/moderation/queue/${id}/action`, { action: 'remove' });
       setQueue(q => q.filter(i => i.id !== id));
-    } catch { /* ignore */ }
+      toast.success('Contenido confirmado como infracción');
+    } catch {
+      toast.error('Error al confirmar la moderación');
+    }
     setBusy(false);
   };
 
   const handleRestore = async (id) => {
     setBusy(true);
     try {
-      await apiClient.post(`/admin/moderation/${id}/restore`);
+      await apiClient.post(`/moderation/queue/${id}/action`, { action: 'approve' });
       setQueue(q => q.filter(i => i.id !== id));
-    } catch { /* ignore */ }
+      toast.success('Contenido restaurado');
+    } catch {
+      toast.error('Error al restaurar el contenido');
+    }
     setBusy(false);
   };
 
   const handleEscalate = async (id) => {
     setBusy(true);
     try {
-      await apiClient.post(`/admin/moderation/${id}/escalate`);
+      await apiClient.post(`/moderation/queue/${id}/action`, { action: 'suspend' });
       setQueue(q => q.filter(i => i.id !== id));
-    } catch { /* ignore */ }
+      toast.success('Contenido escalado');
+    } catch {
+      toast.error('Error al escalar el contenido');
+    }
     setBusy(false);
   };
 

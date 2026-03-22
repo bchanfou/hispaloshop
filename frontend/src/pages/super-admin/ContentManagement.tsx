@@ -84,6 +84,62 @@ export default function ContentManagement() {
     }
   };
 
+  const approveProduct = async (productId) => {
+    setActionLoading(productId);
+    try {
+      await apiClient.put(`/admin/products/${productId}/approve`, null, { params: { approved: true } });
+      toast.success(t('contentManagement.messages.productApproved', 'Producto aprobado'), { duration: 2000 });
+      await fetchProducts();
+      await fetchProductStats();
+    } catch (error) {
+      toast.error(error.message || t('contentManagement.errors.approveFailed', 'Error al aprobar'), { duration: 3000 });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const rejectProduct = async (productId) => {
+    setActionLoading(productId);
+    try {
+      await apiClient.put(`/admin/products/${productId}/approve`, null, { params: { approved: false } });
+      toast.success(t('contentManagement.messages.productRejected', 'Producto rechazado'), { duration: 2000 });
+      await fetchProducts();
+      await fetchProductStats();
+    } catch (error) {
+      toast.error(error.message || t('contentManagement.errors.rejectFailed', 'Error al rechazar'), { duration: 3000 });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const approveCertificate = async (certificateId) => {
+    setActionLoading(certificateId);
+    try {
+      await apiClient.put(`/admin/certificates/${certificateId}/approve`, null, { params: { approved: true } });
+      toast.success(t('contentManagement.messages.certificateApproved', 'Certificado aprobado'), { duration: 2000 });
+      await fetchCertificates();
+      await fetchCertStats();
+    } catch (error) {
+      toast.error(error.message || t('contentManagement.errors.approveFailed', 'Error al aprobar'), { duration: 3000 });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const rejectCertificate = async (certificateId) => {
+    setActionLoading(certificateId);
+    try {
+      await apiClient.put(`/admin/certificates/${certificateId}/reject`, {});
+      toast.success(t('contentManagement.messages.certificateRejected', 'Certificado rechazado'), { duration: 2000 });
+      await fetchCertificates();
+      await fetchCertStats();
+    } catch (error) {
+      toast.error(error.message || t('contentManagement.errors.rejectFailed', 'Error al rechazar'), { duration: 3000 });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const deleteProduct = async (productId) => {
     setActionLoading(productId);
     try {
@@ -336,12 +392,32 @@ export default function ContentManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
-                          onClick={() => { setConfirmDelete(product); setDeleteType('product'); }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="inline-flex items-center gap-2">
+                          {!product.approved && (
+                            <button
+                              className="px-3 py-1.5 bg-stone-950 text-white text-xs font-medium rounded-2xl hover:bg-stone-800 transition-colors disabled:opacity-50"
+                              onClick={() => approveProduct(product.product_id)}
+                              disabled={actionLoading === product.product_id}
+                            >
+                              {actionLoading === product.product_id ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 inline mr-1" />Aprobar</>}
+                            </button>
+                          )}
+                          {product.approved && (
+                            <button
+                              className="px-3 py-1.5 border border-stone-200 text-stone-600 text-xs font-medium rounded-2xl hover:bg-stone-50 transition-colors disabled:opacity-50"
+                              onClick={() => rejectProduct(product.product_id)}
+                              disabled={actionLoading === product.product_id}
+                            >
+                              {actionLoading === product.product_id ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><XCircle className="w-3 h-3 inline mr-1" />Rechazar</>}
+                            </button>
+                          )}
+                          <button
+                            className="px-3 py-1.5 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
+                            onClick={() => { setConfirmDelete(product); setDeleteType('product'); }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -407,12 +483,32 @@ export default function ContentManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
-                          onClick={() => { setConfirmDelete(cert); setDeleteType('certificate'); }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="inline-flex items-center gap-2">
+                          {cert.status !== 'approved' && (
+                            <button
+                              className="px-3 py-1.5 bg-stone-950 text-white text-xs font-medium rounded-2xl hover:bg-stone-800 transition-colors disabled:opacity-50"
+                              onClick={() => approveCertificate(cert.certificate_id)}
+                              disabled={actionLoading === cert.certificate_id}
+                            >
+                              {actionLoading === cert.certificate_id ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 inline mr-1" />Aprobar</>}
+                            </button>
+                          )}
+                          {cert.status !== 'rejected' && (
+                            <button
+                              className="px-3 py-1.5 border border-stone-200 text-stone-600 text-xs font-medium rounded-2xl hover:bg-stone-50 transition-colors disabled:opacity-50"
+                              onClick={() => rejectCertificate(cert.certificate_id)}
+                              disabled={actionLoading === cert.certificate_id}
+                            >
+                              {actionLoading === cert.certificate_id ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><XCircle className="w-3 h-3 inline mr-1" />Rechazar</>}
+                            </button>
+                          )}
+                          <button
+                            className="px-3 py-1.5 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
+                            onClick={() => { setConfirmDelete(cert); setDeleteType('certificate'); }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

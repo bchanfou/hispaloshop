@@ -36,6 +36,7 @@ const asNumber = (value, fallback = 0) => {
 export default function InsightsDashboard() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
   
@@ -62,8 +63,9 @@ export default function InsightsDashboard() {
 
   const fetchAllData = async () => {
     setLoading(true);
+    setError(false);
     try {
-      const [globalData, aiData, trendsData, complianceData, configData] = await Promise.all([
+      const results = await Promise.allSettled([
         apiClient.get(`/insights/global-overview`),
         apiClient.get(`/insights/ai-performance`),
         apiClient.get(`/insights/trends`),
@@ -71,17 +73,34 @@ export default function InsightsDashboard() {
         apiClient.get(`/insights/config`)
       ]);
 
-      setGlobalData(globalData);
-      setAiPerformance(aiData);
-      setTrends(trendsData);
-      setCompliance(complianceData);
-      setConfig(configData);
-      setConfigForm({
-        anonymity_threshold: configData.anonymity_threshold || 15,
-        enable_fear_tracking: configData.enable_fear_tracking ?? true,
-        enable_health_inference: configData.enable_health_inference ?? true
-      });
+      const [globalResult, aiResult, trendsResult, complianceResult, configResult] = results;
+
+      if (results.every(r => r.status === 'rejected')) {
+        setError(true);
+        toast.error(t('superAdmin.insights.failedToLoad'));
+        return;
+      }
+
+      if (globalResult.status === 'fulfilled') setGlobalData(globalResult.value);
+      if (aiResult.status === 'fulfilled') setAiPerformance(aiResult.value);
+      if (trendsResult.status === 'fulfilled') setTrends(trendsResult.value);
+      if (complianceResult.status === 'fulfilled') setCompliance(complianceResult.value);
+      if (configResult.status === 'fulfilled') {
+        const configData = configResult.value;
+        setConfig(configData);
+        setConfigForm({
+          anonymity_threshold: configData.anonymity_threshold || 15,
+          enable_fear_tracking: configData.enable_fear_tracking ?? true,
+          enable_health_inference: configData.enable_health_inference ?? true
+        });
+      }
+
+      const failedCount = results.filter(r => r.status === 'rejected').length;
+      if (failedCount > 0) {
+        toast.error(`${failedCount} ${failedCount === 1 ? 'sección no disponible' : 'secciones no disponibles'}`);
+      }
     } catch {
+      setError(true);
       toast.error(t('superAdmin.insights.failedToLoad'));
     } finally {
       setLoading(false);
@@ -90,9 +109,12 @@ export default function InsightsDashboard() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchAllData();
-    setRefreshing(false);
-    toast.success(t('superAdmin.insights.dataRefreshed'));
+    try {
+      await fetchAllData();
+      if (!error) toast.success(t('superAdmin.insights.dataRefreshed'));
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const fetchCountryData = async (countryCode) => {
@@ -120,6 +142,23 @@ export default function InsightsDashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <AlertTriangle className="h-10 w-10 text-stone-400" />
+        <p className="text-sm font-medium text-stone-950">Datos no disponibles</p>
+        <p className="text-sm text-stone-500">No se pudieron cargar los datos del panel de insights.</p>
+        <button
+          onClick={fetchAllData}
+          className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Reintentar
+        </button>
       </div>
     );
   }

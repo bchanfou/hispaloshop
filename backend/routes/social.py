@@ -2438,3 +2438,50 @@ async def get_saved_reels(skip: int = 0, limit: int = 20, user: User = Depends(g
     reel_map = {r["reel_id"]: r for r in reels}
     ordered = [reel_map[rid] for rid in reel_ids if rid in reel_map]
     return {"reels": ordered, "has_more": len(saved) == limit}
+
+
+@router.post("/users/{user_id}/block")
+async def block_user(user_id: str, user: User = Depends(get_current_user)):
+    if user_id == user.user_id:
+        raise HTTPException(400, "Cannot block yourself")
+    await db.blocked_users.update_one(
+        {"blocker_id": user.user_id, "blocked_id": user_id},
+        {"$set": {"blocker_id": user.user_id, "blocked_id": user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    # Also unfollow in both directions
+    await db.user_follows.delete_one({"follower_id": user.user_id, "following_id": user_id})
+    await db.user_follows.delete_one({"follower_id": user_id, "following_id": user.user_id})
+    return {"status": "blocked"}
+
+
+@router.post("/users/{user_id}/report")
+async def report_user(user_id: str, request: Request, user: User = Depends(get_current_user)):
+    body = await request.json()
+    reason = body.get("reason", "inappropriate")
+    await db.reports.insert_one({
+        "report_id": str(uuid.uuid4()),
+        "reporter_id": user.user_id,
+        "reported_id": user_id,
+        "type": "user",
+        "reason": reason,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "reported"}
+
+
+@router.post("/posts/{post_id}/report")
+async def report_post(post_id: str, request: Request, user: User = Depends(get_current_user)):
+    body = await request.json()
+    reason = body.get("reason", "inappropriate")
+    await db.reports.insert_one({
+        "report_id": str(uuid.uuid4()),
+        "reporter_id": user.user_id,
+        "reported_id": post_id,
+        "type": "post",
+        "reason": reason,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "reported"}
