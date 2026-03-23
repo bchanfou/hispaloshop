@@ -4,7 +4,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   AlertTriangle, Award, CheckCircle, ChefHat, ChevronLeft, ExternalLink, Globe,
-  Heart, Info, Mail, MapPin, MessageCircle, Package, Phone, Search, Share2,
+  Heart, Info, Mail, MapPin, MessageCircle, Package, Phone, Search, Send,
   Star, Store, Truck, User,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -222,7 +222,7 @@ export default function StorePage() {
           {store.name}
         </span>
         <button type="button" onClick={handleShare} className="w-11 h-11 rounded-full bg-black/35 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center" aria-label="Compartir">
-          <Share2 size={18} strokeWidth={1.8} className="text-white" />
+          <Send size={18} strokeWidth={1.8} className="text-white" />
         </button>
       </div>
 
@@ -311,7 +311,7 @@ export default function StorePage() {
           </button>
           <button type="button" onClick={handleShare}
             className="flex-1 h-11 rounded-full text-[13px] font-semibold border border-stone-200 bg-white text-stone-950 cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
-            <Share2 size={15} /> Compartir
+            <Send size={15} /> Compartir
           </button>
         </div>
 

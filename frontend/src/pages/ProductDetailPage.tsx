@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import {
-  ChevronLeft, Share2, Heart, Star, Shield, Truck, ChevronDown,
+  ChevronLeft, Send, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
   CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle, Check,
   ShoppingBag, Lock, Clock3, ChefHat, Wheat,
@@ -338,7 +338,7 @@ export default function ProductDetailPage() {
               className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
               aria-label="Compartir producto"
             >
-              <Share2 size={18} strokeWidth={1.8} className="text-stone-950" />
+              <Send size={18} strokeWidth={1.8} className="text-stone-950" />
             </button>
             <button
               type="button"

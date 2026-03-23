@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ChefHat, Clock3, Users, ShoppingCart, Minus, Plus, Bookmark, Loader2, User, Share2, ArrowUp, ListPlus, Star } from 'lucide-react';
+import { ArrowLeft, ChefHat, Clock3, Users, ShoppingCart, Minus, Plus, Bookmark, Loader2, User, Send, ArrowUp, ListPlus, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
@@ -285,7 +285,7 @@ export default function RecipeDetailPage() {
               aria-label="Compartir receta"
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
             >
-              <Share2 size={20} />
+              <Send size={20} />
             </button>
             <button
               type="button"

@@ -582,6 +582,16 @@ async def view_reel(reel_id: str, request: Request):
 async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
     """Toggle like on a reel."""
     filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
+    reel = await db.reels.find_one(filter_q)
+    if not reel:
+        raise HTTPException(status_code=404, detail="Reel not found")
+    # Authorization: if private, only owner or allowed users can like
+    if reel.get("is_private"):
+        # Only owner can like their own private reel (customize as needed)
+        if reel.get("user_id") != user.user_id:
+            # Optionally, check if user is a follower or in allowed list
+            raise HTTPException(status_code=403, detail="Not authorized to interact with this reel")
+
     existing = await db.reel_likes.find_one({"reel_id": reel_id, "user_id": user.user_id})
     if existing:
         await db.reel_likes.delete_one({"reel_id": reel_id, "user_id": user.user_id})
@@ -632,9 +642,13 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
         raise HTTPException(status_code=400, detail="Comment text required")
 
     filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
-    reel = await db.reels.find_one(filter_q, {"_id": 0, "reel_id": 1, "id": 1})
+    reel = await db.reels.find_one(filter_q)
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found")
+    # Authorization: if private, only owner or allowed users can comment
+    if reel.get("is_private"):
+        if reel.get("user_id") != user.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to interact with this reel")
 
     comment_id = f"rcom_{uuid.uuid4().hex[:10]}"
     comment = {
@@ -657,9 +671,15 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
 @router.post("/reels/{reel_id}/comments/{comment_id}/like")
 async def like_reel_comment(reel_id: str, comment_id: str, user: User = Depends(get_current_user)):
     """Toggle like on a reel comment."""
-    comment = await db.reel_comments.find_one({"comment_id": comment_id, "reel_id": reel_id}, {"_id": 0, "likes_count": 1})
+    comment = await db.reel_comments.find_one({"comment_id": comment_id, "reel_id": reel_id})
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
+    # Authorization: check parent reel privacy
+    reel = await db.reels.find_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]})
+    if not reel:
+        raise HTTPException(status_code=404, detail="Reel not found")
+    if reel.get("is_private") and reel.get("user_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to interact with this reel's comments")
 
     existing = await db.reel_comment_likes.find_one({"comment_id": comment_id, "user_id": user.user_id})
     if existing:
@@ -688,6 +708,11 @@ async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(
     comment = await db.post_comments.find_one({"comment_id": comment_id, "post_id": post_id})
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
+
+    # Authorization: check parent post privacy if supported
+    post = await db.posts.find_one({"post_id": post_id})
+    if post and post.get("is_private") and post.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to interact with this post's comments")
 
     # Toggle like (delete if exists, create if not)
     result = await db.comment_likes.delete_one({"comment_id": comment_id, "user_id": user_id})

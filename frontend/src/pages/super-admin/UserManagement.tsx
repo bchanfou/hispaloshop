@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import CountryFlag from '../../components/CountryFlag';
 import {
   Users, Search, Globe, UserX, UserCheck, Trash2,
-  AlertTriangle, Building, ShoppingBag, Share2,
+  AlertTriangle, Building, ShoppingBag, Send,
   ChevronDown, Filter, RefreshCw, Edit, Key, Mail,
   Eye, EyeOff
 } from 'lucide-react';
@@ -197,7 +197,7 @@ export default function UserManagement() {
     switch (role) {
       case 'customer': return <ShoppingBag className="w-4 h-4" />;
       case 'producer': return <Building className="w-4 h-4" />;
-      case 'influencer': return <Share2 className="w-4 h-4" />;
+      case 'influencer': return <Send className="w-4 h-4" />;
       default: return <Users className="w-4 h-4" />;
     }
   };
@@ -288,7 +288,7 @@ export default function UserManagement() {
           >
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-stone-100 rounded-2xl">
-                <Share2 className="w-5 h-5 text-stone-600" />
+                <Send className="w-5 h-5 text-stone-600" />
               </div>
               <span className="font-medium text-stone-950">{t('userManagement.roles.influencers')}</span>
             </div>

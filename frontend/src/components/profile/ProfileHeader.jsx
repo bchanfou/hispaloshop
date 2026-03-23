@@ -11,7 +11,7 @@ import {
   MapPin,
   MessageCircle,
   Store,
-  Share2,
+  Send,
   Check,
   Plus,
   Copy,
@@ -1395,7 +1395,7 @@ export default function ProfileHeader({
               )}
 
               <OptionRow icon={<Copy size={20} />} label="Copiar enlace del perfil" onClick={() => { copyProfileLink(); setShowOptionsSheet(false); }} />
-              <OptionRow icon={<Share2 size={20} />} label="Compartir perfil" onClick={() => { shareProfile(); setShowOptionsSheet(false); }} />
+              <OptionRow icon={<Send size={20} />} label="Compartir perfil" onClick={() => { shareProfile(); setShowOptionsSheet(false); }} />
 
               <div className="my-3 h-px bg-stone-200" />
 

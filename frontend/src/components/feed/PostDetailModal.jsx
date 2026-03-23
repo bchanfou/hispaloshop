@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, MessageCircle, Share2, Bookmark, Send, Trash2, Loader2, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { X, Heart, MessageCircle, Bookmark, Send, Trash2, Loader2, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
@@ -796,7 +796,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                   <MessageCircle size={24} />
                 </button>
                 <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Compartir">
-                  <Share2 size={24} />
+                  <Send size={24} />
                 </button>
               </div>
               <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label={saved ? 'Quitar guardado' : 'Guardar'}>
@@ -893,7 +893,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                     <MessageCircle size={22} />
                   </button>
                   <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950">
-                    <Share2 size={22} />
+                    <Send size={22} />
                   </button>
                 </div>
                 <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-1.5 text-stone-950">

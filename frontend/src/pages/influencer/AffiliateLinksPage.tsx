@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
-import { Copy, Check, ExternalLink, Link2, Search, Loader2, Share2, AlertTriangle } from 'lucide-react';
+import { Copy, Check, ExternalLink, Link2, Search, Loader2, Send, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
@@ -284,7 +284,7 @@ export default function AffiliateLinksPage() {
                 }}
                 className="flex-1 py-2.5 bg-white text-stone-950 rounded-2xl text-sm font-medium border border-stone-200 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
               >
-                <Share2 className="w-4 h-4" />
+                <Send className="w-4 h-4" />
                 Compartir
               </button>
             </div>

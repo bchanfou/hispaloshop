@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Heart, MessageCircle, Share2, Bookmark, Send, Loader2, Trash2, MoreHorizontal, X, Pencil, Flag, UserMinus } from 'lucide-react';
+import { ChevronLeft, Heart, MessageCircle, Bookmark, Send, Loader2, Trash2, MoreHorizontal, X, Pencil, Flag, UserMinus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
@@ -47,7 +47,7 @@ function PostCarousel({ images, userName }) {
   if (!images.length) return <div className="w-full aspect-square bg-stone-100" />;
 
   return (
-    <div className="relative w-full bg-black">
+    <div className="relative w-full bg-stone-100">
       <div
         ref={scrollRef}
         className={`w-full aspect-square scrollbar-hide flex ${hasMultiple ? 'snap-x snap-mandatory overflow-x-auto' : 'overflow-hidden'}`}
@@ -364,7 +364,7 @@ export default function PostDetailPage() {
               <MessageCircle size={24} />
             </button>
             <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Compartir">
-              <Share2 size={24} />
+              <Send size={24} />
             </button>
           </div>
           <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label={saved ? 'Quitar guardado' : 'Guardar'}>

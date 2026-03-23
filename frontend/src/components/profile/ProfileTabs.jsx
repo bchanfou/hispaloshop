@@ -15,7 +15,7 @@ import {
   X,
   Heart,
   MessageCircle,
-  Share2,
+  Send,
   ChevronUp,
   ChevronDown,
   MoreHorizontal,
@@ -700,7 +700,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           <span className="text-[11px] text-white font-medium">{reel.comments_count ?? 0}</span>
         </button>
         <button onClick={handleShare} className="flex flex-col items-center bg-transparent border-none cursor-pointer">
-          <Share2 size={24} className="text-white" />
+          <Send size={24} className="text-white" />
         </button>
         <button onClick={handleSave} className="flex flex-col items-center bg-transparent border-none cursor-pointer">
           <Bookmark size={24} fill={saved ? 'white' : 'none'} className="text-white" />

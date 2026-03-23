@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { AlertTriangle, Award, ChevronDown, ChevronRight, Copy, Download, FileCheck, Globe, MapPin, Share2, Shield, Package, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, Award, ChevronDown, ChevronRight, Copy, Download, FileCheck, Globe, MapPin, Send, Shield, Package, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import BackButton from '../components/BackButton';
@@ -518,7 +518,7 @@ export default function CertificatePage() {
                       }}
                       className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
                     >
-                      <Share2 className="h-3 w-3" />
+                      <Send className="h-3 w-3" />
                       {t('certificate.share', 'Compartir')}
                     </button>
                   </div>

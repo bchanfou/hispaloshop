@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share2, Bookmark, ChevronLeft, ChevronRight, MoreHorizontal, Trash2, Pencil } from 'lucide-react';
+import { Heart, MessageCircle, Send, Bookmark, ChevronLeft, ChevronRight, MoreHorizontal, Trash2, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { timeAgo } from '../utils/time';
@@ -327,7 +327,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
         </button>
         <span className="text-[13px] font-semibold text-stone-950">{commentsCount}</span>
         <button onClick={handleShare} aria-label="Compartir" className="bg-transparent border-none cursor-pointer p-0 flex">
-          <Share2 size={24} className="text-stone-600" />
+          <Send size={24} className="text-stone-600" />
         </button>
         <button
           onClick={handleSave}
