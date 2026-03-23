@@ -46,7 +46,10 @@ export default function Header() {
   const mobileMenuLinks = useMemo(
     () => [
       ...NAV_LINKS,
-      { labelKey: 'nav.about', fallback: 'Qué es Hispaloshop', to: '/about' },
+      { labelKey: 'nav.about', fallback: '¿Qué es Hispaloshop?', to: '/about' },
+      { labelKey: 'nav.influencer', fallback: 'Soy Influencer', to: '/influencer' },
+      { labelKey: 'nav.producer', fallback: 'Soy Productor', to: '/productor' },
+      { labelKey: 'nav.importer', fallback: 'Soy Importador', to: '/importador' },
     ],
     []
   );

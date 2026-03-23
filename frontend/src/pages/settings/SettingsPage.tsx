@@ -160,7 +160,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-stone-50">
       {/* Topbar */}
-      <div className="sticky top-0 z-40 bg-white border-b border-stone-100 flex items-center gap-3 px-4 py-3">
+      <div className="sticky top-[52px] lg:top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-stone-100 flex items-center gap-3 px-4 py-3">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-9 h-9 -ml-1 rounded-full hover:bg-stone-100 transition-colors lg:hidden"
@@ -192,7 +192,7 @@ export default function SettingsPage() {
             </>
           )}
           <div className="my-2 h-px bg-stone-200" />
-          <SettingsSidebarLink icon={<HelpCircle size={16} />} label="Centro de ayuda" to="/ayuda" />
+          <SettingsSidebarLink icon={<HelpCircle size={16} />} label="Centro de ayuda" to="/contacto" />
           <SettingsSidebarLink icon={<FileText size={16} />} label="Legal" to="/legal/terminos" />
         </nav>
       </aside>
@@ -311,7 +311,7 @@ export default function SettingsPage() {
             icon={<HelpCircle size={16} />}
             iconClass="bg-stone-100 text-stone-600"
             label="Centro de ayuda"
-            to="/ayuda"
+            to="/contacto"
           />
           <SettingsItem
             icon={<MessageSquare size={16} />}
@@ -323,7 +323,7 @@ export default function SettingsPage() {
             icon={<Star size={16} />}
             iconClass="bg-stone-100 text-stone-600"
             label="Valorar la app"
-            to="/que-es-hispaloshop"
+            to="/que-es"
           />
           <SettingsItem
             icon={<FileText size={16} />}

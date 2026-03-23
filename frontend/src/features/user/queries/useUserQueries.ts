@@ -195,6 +195,8 @@ export function useToggleUserFollowMutation() {
           followers_count: Math.max(0, (current.followers_count || 0) + (isFollowing ? -1 : 1)),
         };
       });
+      // Invalidate following feed so Home 'Siguiendo' tab updates
+      queryClient.invalidateQueries({ queryKey: ["feed", "following"] });
     },
   });
 }
