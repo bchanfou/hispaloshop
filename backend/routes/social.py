@@ -2016,18 +2016,40 @@ async def get_trending_posts(request: Request, limit: int = 5):
     except Exception as exc:
         logger.warning(f"[SOCIAL] Mongo unavailable for /feed/trending, fallback to PostgreSQL: {exc}")
         return await _fallback_trending_from_postgres(limit=limit)
-    enriched = []
+
+    post_ids = [post.get("post_id") for post in posts if post.get("post_id")]
+    user_ids = list({post.get("user_id") for post in posts if post.get("user_id")})
+
     user_cache = {}
+    if user_ids:
+        user_docs = await db.users.find(
+            {"user_id": {"$in": user_ids}},
+            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1, "role": 1},
+        ).to_list(len(user_ids))
+        user_cache = {user.get("user_id", ""): user for user in user_docs}
+
+    liked_post_ids = set()
+    bookmarked_post_ids = set()
+    if current_user and post_ids:
+        liked_rows = await db.post_likes.find(
+            {"post_id": {"$in": post_ids}, "user_id": current_user.user_id},
+            {"_id": 0, "post_id": 1},
+        ).to_list(len(post_ids))
+        liked_post_ids = {row.get("post_id") for row in liked_rows if row.get("post_id")}
+
+        bookmarked_rows = await db.post_bookmarks.find(
+            {"post_id": {"$in": post_ids}, "user_id": current_user.user_id},
+            {"_id": 0, "post_id": 1},
+        ).to_list(len(post_ids))
+        bookmarked_post_ids = {row.get("post_id") for row in bookmarked_rows if row.get("post_id")}
+
+    enriched = []
     for post in posts:
         uid = post.get("user_id", "")
-        if uid not in user_cache:
-            u = await db.users.find_one({"user_id": uid}, {"_id": 0, "name": 1, "profile_image": 1, "role": 1})
-            user_cache[uid] = u or {}
-        ui = user_cache[uid]
-        is_liked = is_bookmarked = False
-        if current_user:
-            is_liked = await db.post_likes.find_one({"post_id": post["post_id"], "user_id": current_user.user_id}) is not None
-            is_bookmarked = await db.post_bookmarks.find_one({"post_id": post["post_id"], "user_id": current_user.user_id}) is not None
+        ui = user_cache.get(uid, {})
+        post_id = post.get("post_id")
+        is_liked = post_id in liked_post_ids if current_user and post_id else False
+        is_bookmarked = post_id in bookmarked_post_ids if current_user and post_id else False
         enriched.append({**post, "user_name": ui.get("name", "Usuario"), "user_profile_image": ui.get("profile_image"), "user_role": ui.get("role", "customer"), "is_liked": is_liked, "is_bookmarked": is_bookmarked})
     return {"posts": enriched}
 
@@ -2095,24 +2117,68 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
     except Exception as exc:
         logger.warning(f"[SOCIAL] Mongo unavailable for /discover/profiles, fallback to PostgreSQL: {exc}")
         return await _fallback_discover_from_postgres(role=role, search=search, skip=skip, limit=limit)
+
+    # Batch load all user_ids and emails
+    user_ids = [u.get("user_id", "") for u in users]
+    emails = [u.get("email", "").lower() for u in users if u.get("role") == "influencer"]
+
+    # Batch followers count
+    followers_counts = {r["_id"]: r["count"] for r in await db.user_follows.aggregate([
+        {"$match": {"following_id": {"$in": user_ids}}},
+        {"$group": {"_id": "$following_id", "count": {"$sum": 1}}}
+    ]).to_list(len(user_ids))}
+
+    # Batch posts count
+    posts_counts = {r["_id"]: r["count"] for r in await db.user_posts.aggregate([
+        {"$match": {"user_id": {"$in": user_ids}}},
+        {"$group": {"_id": "$user_id", "count": {"$sum": 1}}}
+    ]).to_list(len(user_ids))}
+
+    # Batch is_following (if logged in)
+    is_following_map = {}
+    if current_user:
+        following = await db.user_follows.find({
+            "follower_id": current_user.user_id,
+            "following_id": {"$in": user_ids}
+        }, {"following_id": 1, "_id": 0}).to_list(len(user_ids))
+        is_following_map = {f["following_id"]: True for f in following}
+
+    # Batch influencer info
+    influencer_info = {}
+    if emails:
+        inf_docs = await db.influencers.find({"email": {"$in": emails}}, {"_id": 0, "email": 1, "niche": 1, "followers": 1}).to_list(len(emails))
+        influencer_info = {d["email"]: {"niche": d.get("niche"), "social_followers": d.get("followers")} for d in inf_docs}
+
+    # Batch store info for producers/importers
+    store_info = {}
+    store_user_ids = [u.get("user_id", "") for u in users if u.get("role") in {"producer", "importer"}]
+    if store_user_ids:
+        store_docs = await db.stores.find({"user_id": {"$in": store_user_ids}}, {"_id": 0, "user_id": 1, "store_name": 1, "location": 1, "store_slug": 1}).to_list(len(store_user_ids))
+        store_info = {d["user_id"]: {"store_name": d.get("store_name"), "store_location": d.get("location"), "store_slug": d.get("store_slug")} for d in store_docs}
+
     profiles = []
     for u in users:
         uid = u.get("user_id", "")
-        fc = await db.user_follows.count_documents({"following_id": uid})
-        pc = await db.user_posts.count_documents({"user_id": uid})
-        is_following = False
-        if current_user:
-            is_following = await db.user_follows.find_one({"follower_id": current_user.user_id, "following_id": uid}) is not None
+        fc = followers_counts.get(uid, 0)
+        pc = posts_counts.get(uid, 0)
+        is_following = is_following_map.get(uid, False)
         extra = {}
         if u.get("role") == "influencer":
-            inf = await db.influencers.find_one({"email": u.get("email", "").lower()}, {"_id": 0, "niche": 1, "followers": 1})
-            if inf:
-                extra = {"niche": inf.get("niche"), "social_followers": inf.get("followers")}
+            extra = influencer_info.get(u.get("email", "").lower(), {})
         elif u.get("role") in {"producer", "importer"}:
-            store = await db.stores.find_one({"user_id": uid}, {"_id": 0, "store_name": 1, "location": 1, "store_slug": 1})
-            if store:
-                extra = {"store_name": store.get("store_name"), "store_location": store.get("location"), "store_slug": store.get("store_slug")}
-        profiles.append({"user_id": uid, "name": u.get("name", "Usuario"), "profile_image": u.get("profile_image"), "bio": u.get("bio", ""), "role": u.get("role"), "followers_count": fc, "posts_count": pc, "is_following": is_following, "created_at": u.get("created_at"), **extra})
+            extra = store_info.get(uid, {})
+        profiles.append({
+            "user_id": uid,
+            "name": u.get("name", "Usuario"),
+            "profile_image": u.get("profile_image"),
+            "bio": u.get("bio", ""),
+            "role": u.get("role"),
+            "followers_count": fc,
+            "posts_count": pc,
+            "is_following": is_following,
+            "created_at": u.get("created_at"),
+            **extra
+        })
     return {"profiles": profiles, "total": total}
 
 
@@ -2216,10 +2282,19 @@ async def get_stories_feed(request: Request):
             user_stories[uid] = []
         user_stories[uid].append(s)
 
+    user_ids = list(user_stories.keys())
+    user_cache = {}
+    if user_ids:
+        user_docs = await db.users.find(
+            {"user_id": {"$in": user_ids}},
+            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1, "role": 1},
+        ).to_list(len(user_ids))
+        user_cache = {user.get("user_id", ""): user for user in user_docs}
+
     # Enrich with user info
     result = []
     for uid, stories in user_stories.items():
-        u = await db.users.find_one({"user_id": uid}, {"_id": 0, "name": 1, "profile_image": 1, "role": 1})
+        u = user_cache.get(uid)
         if not u:
             continue
         is_own = current_user and current_user.user_id == uid

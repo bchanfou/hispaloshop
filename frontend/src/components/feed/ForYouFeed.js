@@ -256,18 +256,20 @@ export default function ForYouFeed() {
                   <PostCard
                     post={{
                       id: post.id,
-                      user: {
+                      user: post.user || {
                         id: post.user_id,
-                        name: post.user_name,
-                        avatar: post.user_profile_image,
+                        name: post.user_name || post.author_name || 'Usuario',
+                        username: post.username || post.author_username,
+                        avatar: post.user_profile_image || post.author_avatar,
+                        avatar_url: post.user_profile_image || post.author_avatar,
                         verified: post.user_verified,
                         has_story: post.user_has_story,
                       },
-                      media: post.media || [{ url: post.image_url, ratio: '1:1' }],
-                      caption: post.caption,
-                      likes: post.likes_count,
-                      liked: post.is_liked,
-                      comments: post.comments_count,
+                      media: post.media || (post.image_url ? [{ url: post.image_url, ratio: '1:1' }] : post.images?.map(url => ({ url, ratio: '1:1' })) || []),
+                      caption: post.caption || '',
+                      likes: post.likes_count || 0,
+                      liked: post.is_liked || post.liked || false,
+                      comments: post.comments_count || 0,
                       productTag: post.product_tag,
                       tagged_products: post.tagged_products,
                       products: post.products,
