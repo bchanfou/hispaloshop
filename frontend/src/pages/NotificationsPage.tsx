@@ -521,7 +521,7 @@ export default function NotificationsPage() {
     <div className="min-h-screen max-w-[600px] mx-auto pb-20 bg-stone-50">
 
       {/* ── Header ────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-10 bg-white border-b border-stone-200">
+      <div className="sticky top-[52px] lg:top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-stone-200">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left: back arrow */}
           <button
