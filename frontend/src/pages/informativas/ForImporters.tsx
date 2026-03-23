@@ -19,207 +19,121 @@ export default function ForImporters() {
 
   return (
     <div>
-      <SEO title="Soy Importador \u2014 HispaloShop" description="Directorio verificado de productores artesanales espa\u00f1oles. Contratos digitales, certificaciones y trazabilidad B2B completa." />
-      {/* SECTION 1 — HERO (dark) */}
+      <SEO title="Soy Importador — HispaloShop" description="Importa, vende y crece. Acceso directo a consumidores, influencers y productores globales. Descubre todas las ventajas para importadores en HispaloShop." />
+
+      {/* HERO — ACCESO B2C Y GLOBAL */}
       <section className="min-h-screen bg-stone-950 flex items-start pt-[120px] pb-20 px-4">
         <div className="max-w-[1200px] mx-auto w-full">
           <div className="max-w-[820px]">
             <p className="info-eyebrow hero-animate-in text-stone-500 mb-4">
-              PARA IMPORTADORES Y DISTRIBUIDORES
+              IMPORTA, VENDE Y CRECE
             </p>
             <h1 className="info-h1 hero-animate-in-delay-1 text-white whitespace-pre-line mb-6">
-              {'Los mercados de alimentación\nartesanal crecen un 24% al año.\n¿Ya estás dentro?'}
+              {'Tu tienda B2C y B2B en un solo lugar.'}
             </h1>
             <p className="info-lead hero-animate-in-delay-2 text-white/65 max-w-[620px] mb-10">
-              Viajé 6 meses por Asia tocando puertas de importadoras
-              con muestras de productores españoles. Me dijeron que no
-              tenían tiempo, que eran demasiado pequeños, que los formatos
-              no estaban adaptados. Tenían razón: no había una plataforma
-              que lo facilitara. Ahora la hay.
+              Accede a consumidores finales, conecta con influencers locales y compra directamente a productores de cualquier país. Todo desde una sola plataforma, sin intermediarios.
             </p>
             <div className="hero-animate-in-delay-3 flex gap-3 flex-wrap">
               <button
-                onClick={() => navigate('/b2b/marketplace')}
+                onClick={() => navigate('/register/importer')}
                 className="h-[46px] px-7 rounded-full bg-stone-950 text-white text-sm font-semibold border-none cursor-pointer"
               >
-                Acceder al catálogo B2B →
+                Crear cuenta de importador
               </button>
               <button
-                onClick={() => document.querySelector('#flujo-b2b')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.querySelector('#ventajas-importador')?.scrollIntoView({ behavior: 'smooth' })}
                 className="h-[46px] px-7 rounded-full bg-transparent text-white text-sm font-semibold border border-white/25 cursor-pointer"
               >
-                Ver cómo funciona
+                Ver ventajas
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 2 — THE PROBLEM (light) */}
+      {/* VENTAJAS Y DIFERENCIAS POR PLAN */}
       <Section dark={false}>
-        <div className="reveal">
-          <p className="uppercase-label mb-4">EL PROBLEMA</p>
-          <h2 className="info-h2 mb-4">
-            Encontrar buenos proveedores no debería ser tan difícil.
-          </h2>
-          <p className="info-body text-stone-500 max-w-[680px] mb-12">
-            La alimentación artesanal es el mercado de mayor crecimiento
-            en la categoría de alimentos premium. Los consumidores pagan
-            más por saber de dónde viene lo que comen. Y sin embargo,
-            acceder a los mejores productores sigue siendo un proceso
-            de emails, ferias, viajes y contratos en PDF.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
-            {[
-              { emoji: '📂', title: 'Sin catálogo estructurado', body: 'Los mejores productores artesanales no tienen fuerza de ventas. Encontrarlos es labor de detective.' },
-              { emoji: '📧', title: 'Procesos manuales', body: 'Negociar, redactar contratos, gestionar documentación aduanera. Horas que deberían dedicarse a vender.' },
-              { emoji: '⚠️', title: 'Sin garantías', body: 'Un acuerdo de palabra con un productor pequeño es un riesgo. Si algo falla, no hay protocolo.' },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className="bg-white shadow-sm rounded-2xl p-8 reveal"
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
-                <span className="text-[32px] block mb-3">{card.emoji}</span>
-                <h4 className="info-h4 mb-2">{card.title}</h4>
-                <p className="text-[15px] text-stone-500 m-0 leading-relaxed">{card.body}</p>
-              </div>
-            ))}
+        <div className="reveal" id="ventajas-importador">
+          <p className="uppercase-label mb-4">¿POR QUÉ IMPORTAR CON HISPALOSHOP?</p>
+          <h2 className="info-h2 mb-4">Ventajas reales para importadores</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+            <div>
+              <h4 className="font-bold mb-2">Acceso directo al consumidor final (B2C)</h4>
+              <p className="text-stone-500 mb-4">Vende tus productos importados directamente al consumidor en el país destino, sin intermediarios.</p>
+              <h4 className="font-bold mb-2">Influencers locales</h4>
+              <p className="text-stone-500 mb-4">Conecta y colabora con influencers locales para promocionar tus productos (Pro y Elite).</p>
+              <h4 className="font-bold mb-2">Productores globales</h4>
+              <p className="text-stone-500 mb-4">Compra directamente a productores de cualquier país, con contacto directo y sin intermediarios.</p>
+              <h4 className="font-bold mb-2">Panel de gestión unificado</h4>
+              <p className="text-stone-500 mb-4">Gestiona pedidos, pagos, logística, certificados y comunicación desde un solo panel.</p>
+              <h4 className="font-bold mb-2">Soporte real</h4>
+              <p className="text-stone-500 mb-4">Soporte por chat interno con admin local y por email en todos los planes.</p>
+            </div>
+            <div>
+              <h4 className="font-bold mb-2">Diferencias por plan</h4>
+              <ul className="text-stone-700 text-[15px] space-y-2">
+                <li><b>Free:</b> Todas las funciones básicas, vender B2C, publicar productos, certificados QR, soporte estándar.</li>
+                <li><b>Pro:</b> Matching con influencers, dashboard avanzado, analítica de ventas, IA scouting de productos, soporte prioritario.</li>
+                <li><b>Elite:</b> Todo lo anterior + IA comercial avanzada, análisis de mercado internacional, generación automática de contratos, alertas de tendencias, manager dedicado, comisión más baja.</li>
+              </ul>
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Acceso a consumidores finales y productores globales</div>
+            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Colaboración con influencers locales (Pro y Elite)</div>
+            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Panel de gestión, pagos y logística unificados</div>
+            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Soporte por chat interno y email</div>
+            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />IA y analítica avanzada (Pro y Elite)</div>
+            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Manager dedicado y alertas de tendencias (Elite)</div>
           </div>
         </div>
       </Section>
 
-      {/* SECTION 3 — B2B FLOW (dark) */}
+      {/* PASO A PASO Y FAQ */}
       <Section dark={true}>
-        <div className="reveal" id="flujo-b2b">
-          <p className="info-eyebrow text-stone-500 mb-4">EL FLUJO B2B</p>
-          <h2 className="info-h2 text-white whitespace-pre-line mb-12">
-            {'De la primera oferta al contenedor\nen tu almacén.'}
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-8">
-            {[
-              { num: 1, title: 'Descubre y filtra', body: 'Explora productores verificados por categoría, certificación, país de origen y capacidad de producción.' },
-              { num: 2, title: 'Negocia en el chat', body: 'Contacta directamente con el productor. Negocia precios, volúmenes, Incoterms y condiciones de entrega.' },
-              { num: 3, title: 'Firma el contrato', body: 'Genera un contrato digital con todos los términos acordados. Firma electrónica legalmente vinculante.' },
-              { num: 4, title: 'Paga con seguridad', body: 'El pago queda retenido hasta confirmar la recepción. Protección total para ambas partes.' },
-              { num: 5, title: 'Recibe y cierra', body: 'Tracking en tiempo real. Confirma la recepción, valora al productor. La operación queda registrada.' },
-            ].map((step, i) => (
-              <div key={i} className="reveal" style={{ transitionDelay: `${i * 100}ms` }}>
-                <div className="w-9 h-9 rounded-full bg-stone-950 flex items-center justify-center text-[15px] font-bold text-white mb-3">
-                  {step.num}
-                </div>
-                <h4 className="info-h4 text-white mb-2">{step.title}</h4>
-                <p className="text-sm text-white/65 m-0 leading-relaxed">{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* SECTION 3.5 — PRICING (light) */}
-      <Section dark={false}>
         <div className="reveal">
-          <div className="bg-stone-50 rounded-2xl p-6 shadow-sm">
-            <p className="uppercase-label mb-6">PRICING B2B</p>
-            <div className="flex flex-col gap-4">
-              {[
-                { text: 'Comisión B2B: 3% por operación cerrada' },
-                { text: 'Sin cuota mensual para importadores' },
-                { text: 'Pago seguro: fondos retenidos hasta confirmación de recepción' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <Check size={18} className="text-stone-950 shrink-0 mt-0.5" strokeWidth={2.5} />
-                  <span className="text-[15px] text-stone-950 leading-relaxed">{item.text}</span>
-                </div>
-              ))}
+          <p className="info-eyebrow text-stone-500 mb-4">¿CÓMO FUNCIONA?</p>
+          <h2 className="info-h2 text-white mb-8">Importar y vender nunca fue tan fácil</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10">
+            <div>
+              <ol className="list-decimal list-inside text-white/80 space-y-2">
+                <li>Crea tu cuenta de importador</li>
+                <li>Publica tus productos importados</li>
+                <li>Vende al consumidor final (B2C)</li>
+                <li>Colabora con influencers (Pro y Elite)</li>
+                <li>Accede a herramientas de IA y analítica avanzada (Pro y Elite)</li>
+                <li>Gestiona pagos, logística y certificados desde un solo panel</li>
+              </ol>
+            </div>
+            <div>
+              <h4 className="text-white mb-2">Preguntas frecuentes</h4>
+              <ul className="text-white/70 text-[15px] space-y-2">
+                <li><b>¿Qué necesito para empezar?</b> Solo crear tu cuenta y subir tus productos.</li>
+                <li><b>¿Puedo vender tanto B2C como B2B?</b> Sí, puedes vender al consumidor final y también acceder a oportunidades B2B.</li>
+                <li><b>¿Qué comisiones se aplican?</b> Depende del plan: Free (20%), Pro (18%), Elite (15%).</li>
+                <li><b>¿Cómo es el soporte?</b> Siempre por chat interno y email, con prioridad en Pro y manager dedicado en Elite.</li>
+                <li><b>¿Qué ventajas tiene Elite?</b> IA comercial avanzada, manager dedicado, alertas de tendencias y comisión más baja.</li>
+              </ul>
             </div>
           </div>
         </div>
       </Section>
 
-      {/* SECTION 4 — B2C STORE (light) */}
-      <Section dark={false}>
-        <div className="reveal">
-          <p className="uppercase-label mb-4">DOBLE CANAL</p>
-          <h2 className="info-h2 mb-4">
-            Importas al por mayor. Vendes al detalle.
-          </h2>
-          <p className="info-body text-stone-500 max-w-[600px] mb-8">
-            Tu cuenta de importador incluye una tienda online en Hispaloshop.
-            Los productos que importas se pueden vender directamente al
-            consumidor final en el país destino.
-          </p>
-
-          <div className="flex flex-col gap-4">
-            {[
-              'Tu propia tienda dentro de Hispaloshop',
-              'Misma plataforma para comprar y vender',
-              'Social commerce incluido: reels, stories, recetas',
-              'Influencers locales pueden promocionar tus productos',
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Check size={18} className="text-stone-950" strokeWidth={2.5} />
-                <span className="text-[15px] text-stone-950">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* SECTION 5 — CUSTOMS AI (dark) */}
-      <Section dark={true}>
-        <div className="reveal">
-          <p className="info-eyebrow text-stone-500 mb-4">HISPAL AI PARA B2B</p>
-          <h2 className="info-h2 text-white whitespace-pre-line mb-4">
-            {'La burocracia aduanera,\nresuelta automáticamente.'}
-          </h2>
-          <p className="text-[15px] text-white/65 max-w-[600px] leading-[1.7] mb-8">
-            Según el país de origen, el país de destino,
-            el tipo de producto y el Incoterm,
-            la IA de Hispaloshop genera automáticamente
-            la lista de documentos necesarios para
-            el despacho aduanero. Factura comercial,
-            packing list, EUR.1, certificados DOP,
-            fitosanitarios. Todo en una pantalla.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
-            {[
-              { emoji: '🤖', title: 'Lista de documentos por tráfico específico', body: 'Documentación personalizada según origen, destino, producto e Incoterm.' },
-              { emoji: '⚠️', title: 'Alertas de caducidad de certificados', body: 'Notificaciones automáticas antes de que caduquen tus certificados vigentes.' },
-              { emoji: '📄', title: 'Guía de procedimiento aduanero por país', body: 'Instrucciones paso a paso para cada país de destino.' },
-              { emoji: '🔔', title: 'Notificación cuando la documentación está completa', body: 'Aviso instantáneo cuando todo está listo para el despacho.' },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 reveal"
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
-                <span className="text-[28px] block mb-3">{card.emoji}</span>
-                <h4 className="info-h4 text-white mb-2">{card.title}</h4>
-                <p className="text-sm text-white/65 m-0 leading-relaxed">{card.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* SECTION 6 — CTA (dark) */}
+      {/* CTA FINAL */}
       <Section dark={true} className="!py-[100px]">
         <div className="text-center reveal">
           <h2 className="info-h2 text-white whitespace-pre-line mb-4">
-            {'El catálogo mayorista de alimentación\nartesanal que no existía.'}
+            {'¿Listo para importar y vender sin límites?'}
           </h2>
           <p className="info-lead text-white/55 max-w-[500px] mx-auto mb-8">
-            Más de 1.200 productores verificados.
+            Da el salto al canal digital y accede a consumidores, influencers y productores globales.
           </p>
           <button
-            onClick={() => navigate('/b2b/marketplace')}
+            onClick={() => navigate('/register/importer')}
             className="h-14 px-10 rounded-full bg-stone-950 text-white text-base font-semibold border-none cursor-pointer"
           >
-            Acceder al catálogo B2B →
+            Crear cuenta de importador
           </button>
           <p className="text-sm text-white/35 mt-3">
             Registro gratuito · Sin compromiso

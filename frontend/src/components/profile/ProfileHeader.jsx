@@ -205,7 +205,7 @@ export default function ProfileHeader({
       token: localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '',
       user_id: user?.user_id || user?.id,
       username: user?.username,
-      name: user?.name,
+      name: user?.name || user?.full_name || user?.display_name || user?.username,
       avatar_url: user?.avatar_url || user?.profile_image,
       role: user?.role,
     };
@@ -857,7 +857,7 @@ export default function ProfileHeader({
             <motion.button
               whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
-              onClick={() => navigate('/explore/people')}
+              onClick={() => navigate('/discover/people')}
               aria-label="Descubrir personas"
               className="flex min-h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-100"
             >
@@ -934,7 +934,7 @@ export default function ProfileHeader({
             <motion.button
               whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', damping: 20, stiffness: 400 }}
-              onClick={() => navigate('/explore/people')}
+              onClick={() => navigate('/discover/people')}
               aria-label="Descubrir personas"
               className="flex min-h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-100"
             >
