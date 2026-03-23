@@ -148,8 +148,12 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
               {user ? (
                 <>
-                  {/* User info row */}
-                  <div className="flex items-center gap-3 px-5 py-3">
+                  {/* User info row — clickable, navigates to profile */}
+                  <Link
+                    to={profileUsername ? `/${profileUsername}` : (profileUserId ? `/profile/${profileUserId}` : '/profile')}
+                    onClick={onClose}
+                    className="flex items-center gap-3 px-5 py-3 no-underline transition-colors hover:bg-stone-50 active:scale-[0.98]"
+                  >
                     {profileImage ? (
                       <img src={profileImage} alt="" className="w-10 h-10 rounded-full object-cover border border-stone-200" />
                     ) : (
@@ -167,16 +171,16 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                         </p>
                       )}
                     </div>
-                    {user.plan && (
+                    {user.plan && user.plan !== 'free' && (
                       <span className={`text-[9px] font-bold text-white rounded-full py-0.5 px-2 uppercase ${
-                        user.plan === 'elite' ? 'bg-stone-950' : user.plan === 'pro' ? 'bg-stone-500' : 'bg-stone-200'
+                        user.plan === 'elite' ? 'bg-stone-950' : 'bg-stone-500'
                       }`}>
                         {user.plan}
                       </span>
                     )}
-                  </div>
+                    <ChevronDown size={16} className="text-stone-400 -rotate-90" />
+                  </Link>
 
-                  <MenuItem to={profileUsername ? `/${profileUsername}` : (profileUserId ? `/profile/${profileUserId}` : '/profile')} icon={<User size={20} />} label="Mi perfil" onClose={onClose} />
                   <MenuItem to="/settings" icon={<Settings size={20} />} label="Configuración" onClose={onClose} />
                   <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />
                   <MenuItem to="/messages" icon={<MessageCircle size={20} />} label="Mensajes" onClose={onClose} />
@@ -329,7 +333,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   <Divider />
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 w-full px-5 py-3.5 border-none bg-transparent text-[15px] font-medium text-red-600 cursor-pointer text-left"
+                    className="flex items-center gap-3 w-full px-5 py-3.5 border-none bg-transparent text-[15px] font-medium text-stone-500 cursor-pointer text-left hover:text-stone-950 transition-colors"
                   >
                     <LogOut size={20} />
                     Cerrar sesión
