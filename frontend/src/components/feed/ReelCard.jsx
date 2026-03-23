@@ -6,7 +6,7 @@ import {
   Eye,
   Heart,
   MessageCircle,
-  Share2,
+
   Bookmark,
   Play,
   Pause,
@@ -682,10 +682,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       {/* Gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent pointer-events-none" />
 
-      {/* Mute toggle — positioned near bottom-right like Instagram */}
+      {/* Mute toggle — top-right to avoid overlap with product card + actions */}
       <button
         onClick={toggleMute}
-        className={`absolute right-4 z-10 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center ${embedded ? 'bottom-14' : 'bottom-[180px]'}`}
+        className="absolute right-4 top-4 z-10 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
         aria-label={muted ? 'Activar sonido' : 'Silenciar'}
       >
         <AnimatePresence mode="wait">
@@ -835,7 +835,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           }}
           aria-label="Compartir"
         >
-          <Share2 size={28} className="text-white" />
+          <Send size={28} className="text-white" />
         </button>
 
         {/* Bookmark */}

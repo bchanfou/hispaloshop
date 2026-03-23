@@ -201,7 +201,7 @@ export default function ForYouFeed() {
 
             if (isReel) {
               return (
-                <div className="px-4 py-3">
+                <div className="mb-3 mx-3 rounded-2xl overflow-hidden">
                   {showSponsored && (
                     <SponsoredProductCard
                       product={sponsoredSlot}
@@ -243,7 +243,7 @@ export default function ForYouFeed() {
             }
 
             return (
-              <div>
+              <div className="mb-2">
                 {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                 {showSponsored && (
                   <SponsoredProductCard

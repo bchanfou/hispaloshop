@@ -9,7 +9,7 @@ export default function HomeHeader({ activeTab = 'foryou', onTabChange }) {
   if (!onTabChange) return null;
 
   return (
-    <div className="flex items-center justify-center py-2 bg-white">
+    <div className="flex items-center justify-center py-1 bg-white">
       <div className="flex items-center rounded-full bg-stone-100 p-0.5 gap-0.5">
         {[
           { key: 'foryou', label: 'Para ti' },

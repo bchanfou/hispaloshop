@@ -158,7 +158,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
               <span className="text-xs text-stone-400">No hay historias recientes</span>
             </div>
           )
-        : stories.map((story, idx) => (
+        : stories.filter(s => !currentUser || (s.user_id !== currentUser.user_id && s.user_id !== currentUser.id && s.user_id !== currentUser._id)).map((story, idx) => (
             <StoryRing
               key={story.user_id || idx}
               user={story.user}

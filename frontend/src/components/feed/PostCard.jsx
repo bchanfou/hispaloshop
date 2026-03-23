@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X, Flag, UserMinus, ShoppingBag } from 'lucide-react';
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Pencil, Trash2, X, Flag, UserMinus, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import apiClient from '../../services/api/client';
@@ -767,7 +767,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           onClick={handleShare}
           aria-label="Compartir"
         >
-          <Share2 size={24} />
+          <Send size={24} />
         </motion.button>
 
         <motion.button

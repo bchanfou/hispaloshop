@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Clapperboard, Plus, User } from 'lucide-react';
+import { Home, Compass, Play, Plus, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import CreateContentSheet from './create/CreateContentSheet';
@@ -358,7 +358,7 @@ export default function BottomNavBar() {
             onClick={(e) => handleNavClick(e, isReels)}
             className="relative flex h-full flex-col items-center justify-center gap-0 active:scale-90 transition-transform"
           >
-            <Clapperboard className={`h-[24px] w-[24px] ${isReels ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
+            <Play className={`h-[24px] w-[24px] ${isReels ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             <div className="h-1 flex items-center justify-center mt-0.5">
               {isReels && (
                 <motion.div
