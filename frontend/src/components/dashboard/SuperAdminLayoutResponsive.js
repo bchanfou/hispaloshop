@@ -209,7 +209,7 @@ export default function SuperAdminLayoutResponsive() {
               }
             >
               <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center">
-                <item.icon className="w-5 h-5" strokeWidth={1.5} />
+                <item.icon className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
               </div>
               <p className="font-medium text-stone-950">{item.label}</p>
             </NavLink>

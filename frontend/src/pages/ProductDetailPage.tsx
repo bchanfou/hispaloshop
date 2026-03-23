@@ -829,7 +829,8 @@ export default function ProductDetailPage() {
           </div>
         </CollapsibleSection>
 
-        {/* Ingredients */}
+        {/* Ingredients — hidden when no data */}
+        {(currentIngredients?.length > 0 || (product.ingredients && product.ingredients !== 'No declarados')) && (
         <CollapsibleSection title={t('productDetail.ingredients', 'Ingredientes')} icon={<Leaf size={16} className="text-stone-500" />}>
           {currentIngredients?.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
@@ -839,48 +840,42 @@ export default function ProductDetailPage() {
                 </span>
               ))}
             </div>
-          ) : product.ingredients ? (
-            <p className="text-[13px] leading-relaxed text-stone-500">{product.ingredients}</p>
           ) : (
-            <p className="text-[13px] text-stone-500">No declarados</p>
+            <p className="text-[13px] leading-relaxed text-stone-500">{product.ingredients}</p>
           )}
         </CollapsibleSection>
+        )}
 
-        {/* Nutritional Info */}
-        <CollapsibleSection title={t('productDetail.nutritionalInfo', 'Información Nutricional')} icon={<Wheat size={16} className="text-stone-500" />}>
-          {(() => {
-            const nutri = currentNutritionalInfo || product.nutrition || product.nutritional_info;
-            if (nutri && Object.keys(nutri).length > 0) {
-              const nutriRows = [
-                ['calories', 'Energía', 'kcal'],
-                ['fat', 'Grasas', 'g'],
-                ['saturated_fat', 'Grasas Sat.', 'g'],
-                ['carbohydrates', 'Carbohidratos', 'g'],
-                ['sugars', 'Azúcares', 'g'],
-                ['protein', 'Proteínas', 'g'],
-                ['fiber', 'Fibra', 'g'],
-                ['salt', 'Sal', 'g'],
-                ['sodium', 'Sodio', 'mg'],
-              ].filter(([key]) => nutri[key] !== undefined);
-              if (nutriRows.length > 0) {
-                return (
-                  <>
-                    <p className="mb-2.5 text-[11px] text-stone-500">Por 100g</p>
-                    <div className="grid grid-cols-2 gap-y-2">
-                      {nutriRows.map(([key, label, unit]) => (
-                        <React.Fragment key={key}>
-                          <span className="text-sm text-stone-500">{label}</span>
-                          <span className="text-sm font-medium text-stone-950 text-right">{nutri[key]}{unit}</span>
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  </>
-                );
-              }
-            }
-            return <p className="text-[13px] text-stone-500">Información nutricional no disponible</p>;
-          })()}
-        </CollapsibleSection>
+        {/* Nutritional Info — hidden when no data */}
+        {(() => {
+          const nutri = currentNutritionalInfo || product.nutrition || product.nutritional_info;
+          if (!nutri || Object.keys(nutri).length === 0) return null;
+          const nutriRows = [
+            ['calories', 'Energía', 'kcal'],
+            ['fat', 'Grasas', 'g'],
+            ['saturated_fat', 'Grasas Sat.', 'g'],
+            ['carbohydrates', 'Carbohidratos', 'g'],
+            ['sugars', 'Azúcares', 'g'],
+            ['protein', 'Proteínas', 'g'],
+            ['fiber', 'Fibra', 'g'],
+            ['salt', 'Sal', 'g'],
+            ['sodium', 'Sodio', 'mg'],
+          ].filter(([key]) => nutri[key] !== undefined);
+          if (nutriRows.length === 0) return null;
+          return (
+            <CollapsibleSection title={t('productDetail.nutritionalInfo', 'Información Nutricional')} icon={<Wheat size={16} className="text-stone-500" />}>
+              <p className="mb-2.5 text-[11px] text-stone-500">Por 100g</p>
+              <div className="grid grid-cols-2 gap-y-2">
+                {nutriRows.map(([key, label, unit]) => (
+                  <React.Fragment key={key}>
+                    <span className="text-sm text-stone-500">{label}</span>
+                    <span className="text-sm font-medium text-stone-950 text-right">{nutri[key]}{unit}</span>
+                  </React.Fragment>
+                ))}
+              </div>
+            </CollapsibleSection>
+          );
+        })()}
 
         {/* Origen */}
         <CollapsibleSection title="Origen" icon={<MapPin size={16} className="text-stone-500" />}>
@@ -902,33 +897,31 @@ export default function ProductDetailPage() {
           )}
         </CollapsibleSection>
 
-        {/* Allergens */}
-        <CollapsibleSection title={t('productDetail.allergens', 'Alérgenos')} icon={<AlertTriangle size={16} className="text-stone-500" />}>
-          {(() => {
-            const allergenBadges = [];
-            if (product.is_gluten_free) allergenBadges.push('Sin gluten');
-            if (product.is_vegan) allergenBadges.push('Vegano');
-            if (product.is_halal) allergenBadges.push('Halal');
-            const allergenList = currentAllergens || product.allergens || [];
-            if (allergenList.length > 0 || allergenBadges.length > 0) {
-              return (
-                <div className="flex flex-wrap gap-2">
-                  {allergenBadges.map((badge) => (
-                    <span key={badge} className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-950">
-                      {badge}
-                    </span>
-                  ))}
-                  {allergenList.map((allergen, idx) => (
-                    <span key={idx} className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-950">
-                      {allergen}
-                    </span>
-                  ))}
-                </div>
-              );
-            }
-            return <p className="text-[13px] text-stone-500">Sin alérgenos declarados</p>;
-          })()}
-        </CollapsibleSection>
+        {/* Allergens — hidden when no data */}
+        {(() => {
+          const allergenBadges = [];
+          if (product.is_gluten_free) allergenBadges.push('Sin gluten');
+          if (product.is_vegan) allergenBadges.push('Vegano');
+          if (product.is_halal) allergenBadges.push('Halal');
+          const allergenList = currentAllergens || product.allergens || [];
+          if (allergenList.length === 0 && allergenBadges.length === 0) return null;
+          return (
+            <CollapsibleSection title={t('productDetail.allergens', 'Alérgenos')} icon={<AlertTriangle size={16} className="text-stone-500" />}>
+              <div className="flex flex-wrap gap-2">
+                {allergenBadges.map((badge) => (
+                  <span key={badge} className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-950">
+                    {badge}
+                  </span>
+                ))}
+                {allergenList.map((allergen, idx) => (
+                  <span key={idx} className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-950">
+                    {allergen}
+                  </span>
+                ))}
+              </div>
+            </CollapsibleSection>
+          );
+        })()}
 
         {/* Certificate */}
         {certificate && (
@@ -1270,7 +1263,7 @@ export default function ProductDetailPage() {
       )}
 
       {/* ── Sticky Bottom Bar ── */}
-      <div className="fixed bottom-[calc(50px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
+      <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
         <div className="mx-auto flex max-w-[1200px] items-center gap-3">
           {/* Price */}
           <div className="min-w-0 flex-1">

@@ -35,8 +35,44 @@ export default function ReelsPage() {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
     try {
-      const data = await apiClient.get(`/reels?skip=${(p - 1) * 10}&limit=10&tab=${activeTab}`);
-      const items = data?.reels || data?.items || data || [];
+      // Primary: dedicated /reels endpoint
+      let items = [];
+      try {
+        const data = await apiClient.get(`/reels?skip=${(p - 1) * 10}&limit=10&tab=${activeTab}`);
+        items = data?.reels || data?.items || data || [];
+      } catch {
+        // Fallback: use /feed/foryou and filter for reel-type items
+        const feedData = await apiClient.get('/feed/foryou', {
+          params: { limit: 40, cursor: ((p - 1) * 10) || undefined },
+        });
+        const feedItems = feedData?.items || feedData?.posts || feedData || [];
+        items = feedItems.filter(
+          (item) =>
+            item.type === 'reel' ||
+            item.is_reel === true ||
+            item.media_type === 'video' ||
+            item.video_url
+        ).slice(0, 10);
+
+        if (activeTab === 'following') {
+          // For the following tab, fall back to /feed/following
+          try {
+            const followData = await apiClient.get('/feed/following', {
+              params: { limit: 40, cursor: ((p - 1) * 10) || undefined },
+            });
+            const followItems = followData?.items || followData?.posts || followData || [];
+            items = followItems.filter(
+              (item) =>
+                item.type === 'reel' ||
+                item.is_reel === true ||
+                item.media_type === 'video' ||
+                item.video_url
+            ).slice(0, 10);
+          } catch {
+            // Keep whatever we got from foryou
+          }
+        }
+      }
       if (items.length < 10) setHasMore(false);
       setReels((prev) => (p === 1 ? items : [...prev, ...items]));
     } catch {

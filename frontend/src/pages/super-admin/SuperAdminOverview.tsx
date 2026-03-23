@@ -132,23 +132,23 @@ export default function SuperAdminOverview() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KPICard
           label="MRR"
-          value={`${mrr}\u20AC`}
-          sub={`ARR ~${Math.round(mrr * 12).toLocaleString()}\u20AC`}
+          value={`${mrr}€`}
+          sub={`ARR ~${Math.round(mrr * 12).toLocaleString()}€`}
         />
         <KPICard
           label="GMV 30d"
-          value={`${Math.round(gmvMonth)}\u20AC`}
+          value={`${Math.round(gmvMonth)}€`}
           sub={`${orders.last_30d || 0} pedidos`}
         />
         <KPICard
           label="Usuarios"
           value={users.total || 0}
-          sub={`+${users.new_7d || 0} \u00FAltimos 7d`}
+          sub={`+${users.new_7d || 0} últimos 7d`}
           light
         />
         <KPICard
           label="Comisiones"
-          value={`${Math.round(revenue.platform_commission || 0)}\u20AC`}
+          value={`${Math.round(revenue.platform_commission || 0)}€`}
           sub="Total acumulado"
         />
       </div>
@@ -248,7 +248,7 @@ export default function SuperAdminOverview() {
       {countries.length > 0 && (
         <SACard className="mb-5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-stone-100">Pa\u00EDses</h3>
+            <h3 className="text-sm font-bold text-stone-100">Países</h3>
             <Link to="/super-admin/markets" className="text-xs font-semibold text-stone-500 hover:text-stone-300 transition-colors">
               Gestionar
             </Link>
@@ -257,10 +257,10 @@ export default function SuperAdminOverview() {
             {countries.map((c, i) => (
               <div key={c.code || i} className="flex items-center justify-between py-2 border-b border-stone-800">
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">{c.flag || '\uD83C\uDF10'}</span>
+                  <span className="text-lg">{c.flag || '🌐'}</span>
                   <div>
                     <p className="text-sm font-semibold text-stone-100">{c.name}</p>
-                    <p className="text-xs text-stone-400">{c.producers || 0} productores \u00B7 {c.users || 0} usuarios</p>
+                    <p className="text-xs text-stone-400">{c.producers || 0} productores · {c.users || 0} usuarios</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -287,7 +287,7 @@ export default function SuperAdminOverview() {
 
       {/* Plan distribution */}
       <SACard className="mb-5">
-        <h3 className="text-sm font-bold mb-3 text-stone-100">Distribuci\u00F3n de planes</h3>
+        <h3 className="text-sm font-bold mb-3 text-stone-100">Distribución de planes</h3>
         <div className="space-y-3">
           {[
             { label: 'FREE', count: planDist.FREE || 0, barClass: 'bg-stone-500' },
@@ -311,12 +311,12 @@ export default function SuperAdminOverview() {
       {gdprAlerts.length > 0 && (
         <SACard className="mb-5 !border-stone-600">
           <h3 className="text-sm font-bold mb-3 flex items-center gap-2 text-stone-100">
-            <span>{'\u26A0\uFE0F'}</span> Alertas GDPR
+            <span>{'⚠️'}</span> Alertas GDPR
           </h3>
           <div className="space-y-2">
             {gdprAlerts.map((alert, i) => (
               <div key={i} className="flex items-start gap-2 text-sm text-stone-400">
-                <span>{'\u26A0\uFE0F'}</span>
+                <span>{'⚠️'}</span>
                 <p className="flex-1">{alert.message || alert}</p>
                 <Link
                   to="/super-admin/gdpr"
@@ -353,7 +353,7 @@ export default function SuperAdminOverview() {
             </div>
             <div className="rounded-2xl p-3 text-center bg-stone-800/60">
               <p className="text-xl font-extrabold text-stone-100">{visits.last_7d || 0}</p>
-              <p className="text-[10px] text-stone-500">\u00DAltimos 7d</p>
+              <p className="text-[10px] text-stone-500">Últimos 7d</p>
             </div>
           </div>
           {(visits.by_country || []).slice(0, 5).map((v, i) => (
@@ -381,7 +381,7 @@ export default function SuperAdminOverview() {
                 <span className="text-sm font-semibold text-stone-100">{seller.name}</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-bold text-stone-100">{seller.revenue?.toFixed(0)}\u20AC</span>
+                <span className="text-sm font-bold text-stone-100">{seller.revenue?.toFixed(0)}€</span>
                 <span className="text-[10px] ml-2 text-stone-500">{seller.orders} pedidos</span>
               </div>
             </div>
@@ -407,7 +407,7 @@ export default function SuperAdminOverview() {
               <p className="text-[11px] text-stone-400">{order.user_name || 'Usuario'}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-bold text-stone-100">{Number(order.total_amount || 0).toFixed(2)}\u20AC</p>
+              <p className="text-sm font-bold text-stone-100">{Number(order.total_amount || 0).toFixed(2)}€</p>
               <p className="text-[11px] capitalize text-stone-400">{order.status}</p>
             </div>
           </div>
@@ -420,7 +420,7 @@ export default function SuperAdminOverview() {
       {/* Quick links */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-5">
         {[
-          { label: 'Pa\u00EDses', to: '/super-admin/markets' },
+          { label: 'Países', to: '/super-admin/markets' },
           { label: 'Admins', to: '/super-admin/admins' },
           { label: 'Finanzas', to: '/super-admin/finance' },
           { label: 'GDPR', to: '/super-admin/gdpr' },

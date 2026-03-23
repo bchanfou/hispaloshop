@@ -558,7 +558,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
   const { user } = useAuth();
   const [liked, setLiked] = useState(post.is_liked);
   const [likes, setLikes] = useState(post.likes_count || 0);
-  const isOwn = user?.id === post.author_id;
+  const isOwn = (user?.user_id || user?.id) === post.author_id;
   const postId = post.id || post._id;
 
   const toggleLike = async () => {
@@ -603,8 +603,9 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
         <Link to={`/${post.author_username}`}
           className="flex gap-2.5 items-center no-underline text-inherit">
           <img
-            src={post.author_avatar || `https://ui-avatars.com/api/?name=${post.author_username}&size=36`}
-            className="w-9 h-9 rounded-full shrink-0"
+            src={post.author_avatar || post.author_profile_image || post.author_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_username || 'U')}&size=36&background=e7e5e4&color=78716c`}
+            onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_username || 'U')}&size=36&background=e7e5e4&color=78716c`; }}
+            className="w-9 h-9 rounded-full shrink-0 object-cover bg-stone-100"
             alt="" />
           <div>
             <p className="text-sm font-semibold m-0 text-stone-950">

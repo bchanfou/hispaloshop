@@ -68,7 +68,7 @@ function AddButton({ onAdd, isDisabled, testId }) {
   );
 }
 
-function ProductCard({ product, variant = 'default' }) {
+function ProductCard({ product, variant = 'default', showAddButton = true }) {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice, t } = useLocale();
@@ -258,11 +258,13 @@ function ProductCard({ product, variant = 'default' }) {
               <span className="text-[10px] text-stone-400 line-through">{formattedOriginalPrice}</span>
             )}
           </div>
-          <AddButton
-            onAdd={handleAddToCart}
-            isDisabled={isBlocked}
-            testId={`add-to-cart-${productId}`}
-          />
+          {showAddButton && (
+            <AddButton
+              onAdd={handleAddToCart}
+              isDisabled={isBlocked}
+              testId={`add-to-cart-${productId}`}
+            />
+          )}
         </div>
       </div>
     </Link>
@@ -292,7 +294,8 @@ const areProductPropsEqual = (prev, next) => {
     p?.is_vegan === n?.is_vegan &&
     p?.is_gluten_free === n?.is_gluten_free &&
     p?.is_halal === n?.is_halal &&
-    prev.variant === next.variant
+    prev.variant === next.variant &&
+    prev.showAddButton === next.showAddButton
   );
 };
 

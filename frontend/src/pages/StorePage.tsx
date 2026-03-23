@@ -213,21 +213,20 @@ export default function StorePage() {
         }]}
       />
 
-      {/* ── TopBar (over hero) ── */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-[52px] pt-[env(safe-area-inset-top,0px)]">
-        <button type="button" onClick={() => navigate(-1)} className="w-11 h-11 rounded-full bg-black/35 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center" aria-label="Volver">
-          <ChevronLeft size={20} strokeWidth={2} className="text-white" />
-        </button>
-        <span className="text-[15px] font-semibold text-white drop-shadow-md">
-          {store.name}
-        </span>
-        <button type="button" onClick={handleShare} className="w-11 h-11 rounded-full bg-black/35 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center" aria-label="Compartir">
-          <Send size={18} strokeWidth={1.8} className="text-white" />
-        </button>
-      </div>
-
-      {/* ── Hero Banner 3:1 ── */}
+      {/* ── Hero Banner 3:1 with overlaid TopBar ── */}
       <div className="relative w-full aspect-[3/1] bg-gradient-to-br from-stone-900 to-stone-950">
+        {/* TopBar (absolute over hero — scrolls away with it) */}
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 h-[52px] pt-[env(safe-area-inset-top,0px)]">
+          <button type="button" onClick={() => navigate(-1)} className="w-11 h-11 rounded-full bg-black/35 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center" aria-label="Volver">
+            <ChevronLeft size={20} strokeWidth={2} className="text-white" />
+          </button>
+          <span className="text-[15px] font-semibold text-white drop-shadow-md">
+            {store.name}
+          </span>
+          <button type="button" onClick={handleShare} className="w-11 h-11 rounded-full bg-black/35 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center" aria-label="Compartir">
+            <Send size={18} strokeWidth={1.8} className="text-white" />
+          </button>
+        </div>
         {store.hero_image && (
           <img src={store.hero_image} alt={`Banner de ${store.name}`} loading="eager" className="w-full h-full object-cover" />
         )}
@@ -389,7 +388,7 @@ export default function StorePage() {
             ) : filteredProducts.length > 0 ? (
               <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                 {filteredProducts.map(product => (
-                  <ProductCard key={product.product_id || product.id} product={product} />
+                  <ProductCard key={product.product_id || product.id} product={product} showAddButton={false} />
                 ))}
               </div>
             ) : (

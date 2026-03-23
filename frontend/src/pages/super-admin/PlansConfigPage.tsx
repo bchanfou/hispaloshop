@@ -21,7 +21,7 @@ const INFLUENCER_TIERS = [
 
 function SACard({ children, className = '' }) {
   return (
-    <div className={`bg-[#ffffff] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
+    <div className={`bg-stone-900 rounded-[14px] border border-stone-800 p-5 hover:border-stone-700 transition-colors ${className}`}>
       {children}
     </div>
   );
@@ -32,9 +32,9 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div className="bg-[#ffffff] border border-[#dc2626]/40 rounded-2xl p-6 w-full max-w-[400px] mx-4" onClick={e => e.stopPropagation()}>
-        <h3 className="text-base font-bold text-white mb-2">Confirmar cambio de plan</h3>
-        <p className="text-sm text-white/40 mb-4">
+      <div className="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-[400px] mx-4" onClick={e => e.stopPropagation()}>
+        <h3 className="text-base font-bold text-stone-100 mb-2">Confirmar cambio de plan</h3>
+        <p className="text-sm text-stone-400 mb-4">
           Introduce tu contraseña de superadmin para aplicar este cambio en producción.
         </p>
         <input
@@ -44,16 +44,16 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
           onKeyDown={e => e.key === 'Enter' && onConfirm(password)}
           placeholder="Contraseña superadmin"
           autoFocus
-          className="w-full px-3.5 py-2.5 bg-[#1c1917] border border-[#dc2626]/40 rounded-2xl text-white text-sm outline-none mb-3"
+          className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-700 rounded-2xl text-stone-100 text-sm outline-none focus:border-stone-500 mb-3"
         />
         <div className="flex gap-2">
-          <button onClick={onClose} className="flex-1 py-2.5 bg-white/[0.08] rounded-2xl text-white text-sm">
+          <button onClick={onClose} className="flex-1 py-2.5 bg-stone-800 rounded-2xl text-stone-100 text-sm">
             Cancelar
           </button>
           <button
             onClick={() => onConfirm(password)}
             disabled={isSaving}
-            className="flex-1 py-2.5 bg-[#dc2626] rounded-2xl text-white text-sm font-bold disabled:opacity-50"
+            className="flex-1 py-2.5 bg-[#dc2626] rounded-2xl text-stone-100 text-sm font-bold disabled:opacity-50"
           >
             {isSaving ? '...' : 'Confirmar'}
           </button>
@@ -98,59 +98,59 @@ export default function PlansConfigPage() {
   return (
     <div className="max-w-[700px] mx-auto pb-16">
       <div className="mb-7">
-        <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">
+        <h1 className="text-2xl font-extrabold tracking-tight text-stone-100 mb-1">
           Configuración de planes
         </h1>
-        <p className="text-sm text-white/40">
+        <p className="text-sm text-stone-400">
           Los cambios se aplican automáticamente en Stripe. Se requiere contraseña del superadmin para confirmar.
         </p>
       </div>
 
       {/* Influencer tiers */}
       <SACard className="mb-4">
-        <h3 className="text-[15px] font-bold text-white mb-4">Tiers de influencers</h3>
+        <h3 className="text-[15px] font-bold text-stone-100 mb-4">Comisiones Influencer</h3>
         {INFLUENCER_TIERS.map((t, i) => (
           <div
             key={t.tier}
-            className={`flex items-center gap-3 py-2.5 ${i < INFLUENCER_TIERS.length - 1 ? 'border-b border-white/[0.06]' : ''}`}
+            className={`flex items-center gap-3 py-2.5 ${i < INFLUENCER_TIERS.length - 1 ? 'border-b border-stone-800' : ''}`}
           >
-            <span className="text-sm font-semibold text-white w-28">{t.label}</span>
+            <span className="text-sm font-semibold text-stone-100 w-28">{t.label}</span>
             <span className="text-2xl font-extrabold text-[#78716c]">{t.rate}%</span>
-            <span className="text-xs text-white/30 flex-1">
+            <span className="text-xs text-stone-500 flex-1">
               {t.threshold > 0 ? `desde ${t.threshold.toLocaleString()}€ GMV/mes` : 'nivel base'}
             </span>
           </div>
         ))}
-        <p className="text-[11px] text-white/25 mt-3">
+        <p className="text-[11px] text-stone-500 mt-3">
           Comisión sobre el total de venta (después de envío e IVA). Sale del margen de la plataforma.
         </p>
       </SACard>
 
       {/* Seller plans */}
       <SACard>
-        <h3 className="text-[15px] font-bold text-white mb-4">Planes de vendedores</h3>
+        <h3 className="text-[15px] font-bold text-stone-100 mb-4">Comisiones Productor</h3>
         {plans.map((plan, i) => (
           <div
             key={plan.id}
-            className={`flex items-center gap-3.5 py-2.5 ${i < plans.length - 1 ? 'border-b border-white/[0.06]' : ''}`}
+            className={`flex items-center gap-3.5 py-2.5 ${i < plans.length - 1 ? 'border-b border-stone-800' : ''}`}
           >
-            <span className="text-[13px] font-semibold text-white w-40 shrink-0">{plan.name}</span>
+            <span className="text-[13px] font-semibold text-stone-100 w-40 shrink-0">{plan.name}</span>
             <div className="flex gap-3 flex-1">
               <div>
-                <p className="text-[10px] text-white/30 mb-0.5">Precio/mes</p>
-                <p className="text-base font-extrabold text-[#ffffff]">
+                <p className="text-[10px] text-stone-500 mb-0.5">Precio/mes</p>
+                <p className="text-base font-extrabold text-stone-100">
                   {plan.price === 0 ? 'Gratis' : `${plan.price}€`}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-white/30 mb-0.5">Comisión</p>
+                <p className="text-[10px] text-stone-500 mb-0.5">Comisión</p>
                 <p className="text-base font-extrabold text-[#78716c]">{plan.commission_pct}%</p>
               </div>
             </div>
             {plan.price > 0 && (
               <button
                 onClick={() => setShowConfirm(true)}
-                className="bg-white/[0.06] rounded-2xl px-3 py-1.5 text-[11px] text-white/40 hover:bg-white/10 transition-colors"
+                className="bg-stone-800 rounded-2xl px-3 py-1.5 text-[11px] text-stone-400 hover:bg-stone-700 transition-colors"
               >
                 Editar
               </button>

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const ROLE_PILLS = [
   { id: 'info', label: 'Que es esto?', to: '/about' },
   { id: 'influencer', label: 'Soy Influencer', to: '/influencer' },
-  { id: 'producer', label: 'Soy Productor', to: '/info/productor' },
+  { id: 'producer', label: 'Soy Productor', to: '/productor' },
   { id: 'importer', label: 'Soy Importador', to: '/importador' },
 ];
 
