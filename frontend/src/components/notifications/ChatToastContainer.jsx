@@ -7,12 +7,23 @@ import { requestNotificationPermission, showBrowserNotification } from '../../se
 const MAX_TOASTS = 3;
 const AUTO_DISMISS_MS = 4000;
 
+export function getToastConversationId(notification) {
+  return notification?.conversationId || notification?.conversation_id || null;
+}
+
+export function getToastConversationTarget(notification) {
+  const conversationId = getToastConversationId(notification);
+  return conversationId ? `/messages/${conversationId}` : '/messages';
+}
+
 export default function ChatToastContainer() {
   const [toasts, setToasts] = useState([]);
   const navigate = useNavigate();
   const permissionRequested = useRef(false);
 
   const addToast = useCallback((notification) => {
+    const conversationId = getToastConversationId(notification);
+
     // Request notification permission on first message (lazy, high relevance)
     if (!permissionRequested.current) {
       permissionRequested.current = true;
@@ -21,10 +32,10 @@ export default function ChatToastContainer() {
 
     // Show browser notification if app not focused
     showBrowserNotification(notification.senderName, notification.preview, {
-      tag: `chat-${notification.conversationId}`,
+      tag: `chat-${conversationId || 'inbox'}`,
       onClick: () => {
         window.focus();
-        navigate(`/messages/${notification.conversationId}`);
+        navigate(getToastConversationTarget(notification));
       },
     });
 
@@ -38,8 +49,8 @@ export default function ChatToastContainer() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const handleOpen = useCallback((conversationId) => {
-    navigate(`/messages/${conversationId}`);
+  const handleOpen = useCallback((notification) => {
+    navigate(getToastConversationTarget(notification));
     setToasts([]); // Clear all toasts
   }, [navigate]);
 

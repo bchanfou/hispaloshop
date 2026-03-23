@@ -772,17 +772,20 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
         <motion.button
           whileTap={{ scale: 0.85 }}
-          animate={effectiveSaved ? { scale: [1, 1.3, 1] } : { scale: 1 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 15, duration: 0.4 }}
           className="ml-auto flex min-h-[44px] items-center bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
           onClick={handleSave}
           aria-label={effectiveSaved ? 'Quitar guardado' : 'Guardar'}
         >
-          <Bookmark
-            size={24}
-            fill={effectiveSaved ? 'currentColor' : 'none'}
-            color="currentColor"
-          />
+          <motion.div
+            animate={{ scale: effectiveSaved ? [1, 1.3, 1] : 1 }}
+            transition={{ duration: 0.3, type: 'spring', stiffness: 500 }}
+          >
+            <Bookmark
+              size={22}
+              fill={effectiveSaved ? 'currentColor' : 'none'}
+              className="transition-colors duration-200"
+            />
+          </motion.div>
         </motion.button>
       </div>
 

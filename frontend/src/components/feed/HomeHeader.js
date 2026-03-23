@@ -15,10 +15,11 @@ export default function HomeHeader({ activeTab = 'foryou', onTabChange }) {
           { key: 'foryou', label: 'Para ti' },
           { key: 'following', label: 'Siguiendo' },
         ].map(({ key, label }) => (
-          <button
+          <motion.button
             key={key}
             type="button"
             onClick={() => onTabChange(key)}
+            whileHover={{ scale: 1.05 }}
             className={`relative rounded-full px-5 py-1.5 text-[13px] font-semibold transition-colors ${
               activeTab === key ? 'text-white' : 'text-stone-500 bg-transparent'
             }`}
@@ -32,7 +33,7 @@ export default function HomeHeader({ activeTab = 'foryou', onTabChange }) {
               />
             )}
             <span className="relative z-10">{label}</span>
-          </button>
+          </motion.button>
         ))}
       </div>
     </div>

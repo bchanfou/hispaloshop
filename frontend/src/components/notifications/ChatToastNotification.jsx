@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { getToastConversationId } from './ChatToastContainer';
 
 const TYPE_BADGES = {
   b2c: {
@@ -55,6 +56,7 @@ function Avatar({ src, name }) {
 
 export default function ChatToastNotification({ notification, onClose, onOpen }) {
   const badge = TYPE_BADGES[notification.type];
+  const conversationId = getToastConversationId(notification);
 
   return (
     <motion.div
@@ -84,9 +86,10 @@ export default function ChatToastNotification({ notification, onClose, onOpen })
         {/* Clickable area: avatar + text */}
         <button
           type="button"
-          onClick={() => onOpen(notification.conversationId)}
+          onClick={() => onOpen(notification)}
           className="flex min-w-0 flex-1 items-center gap-3 text-left"
           aria-label={`Abrir chat con ${notification.senderName}`}
+          disabled={!conversationId}
         >
           <Avatar src={notification.avatar} name={notification.senderName} />
 

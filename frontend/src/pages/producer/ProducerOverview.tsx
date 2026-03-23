@@ -1106,10 +1106,11 @@ export default function ProducerOverview() {
                 sample_received: { label: 'Muestra recibida', tw: 'bg-stone-100 text-stone-950' },
               };
               const badge = statusStyles[c.status] || statusStyles.proposed;
+              const conversationId = c.conversation_id || c.id;
               return (
                 <Link
                   key={c.collab_id}
-                  to={`/messages/${c.conversation_id}`}
+                  to={conversationId ? `/messages/${conversationId}` : '/messages'}
                   className="flex items-center gap-3 p-3 transition-colors rounded-xl shadow-sm"
                 >
                   {proposal.product_image_url && (

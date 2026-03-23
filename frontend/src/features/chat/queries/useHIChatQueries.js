@@ -8,6 +8,18 @@ export const hiChatKeys = {
   insights: ['hi', 'insights'],
 };
 
+export function normalizeHIConversation(conversation) {
+  if (!conversation || typeof conversation !== 'object') return conversation;
+
+  const normalizedId = conversation.id || conversation.conversation_id || null;
+
+  return {
+    ...conversation,
+    id: normalizedId,
+    conversation_id: conversation.conversation_id || normalizedId,
+  };
+}
+
 function getNextCursor(page) {
   return page?.nextCursor ?? page?.next_cursor ?? null;
 }
@@ -16,6 +28,7 @@ export function useHIConversations() {
   return useQuery({
     queryKey: hiChatKeys.conversations,
     queryFn: () => apiClient.get('/chat/conversations'),
+    select: (data) => (Array.isArray(data) ? data : []).map(normalizeHIConversation),
     staleTime: 60 * 1000,
   });
 }
@@ -116,7 +129,10 @@ export function useHICreateConversation() {
       if (!otherUserId) {
         return Promise.resolve({ success: false, reason: 'missing_other_user_id' });
       }
-      return apiClient.post('/chat/conversations', { other_user_id: otherUserId }).catch(() => ({ success: false }));
+      return apiClient
+        .post('/chat/conversations', { other_user_id: otherUserId })
+        .then(normalizeHIConversation)
+        .catch(() => ({ success: false }));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: hiChatKeys.conversations });

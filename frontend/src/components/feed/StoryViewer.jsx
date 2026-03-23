@@ -20,9 +20,9 @@ const EmojiBurst = ({ emoji, id, onComplete }) => (
     key={id}
     initial={{ y: 0, scale: 1, opacity: 1 }}
     animate={{ y: -60, scale: [1, 1.5, 0], opacity: [1, 1, 0] }}
-    transition={{ duration: 0.6, ease: 'easeOut' }}
+    transition={{ duration: 0.8, ease: 'easeOut' }}
     onAnimationComplete={onComplete}
-    className="absolute bottom-0 left-1/2 -translate-x-1/2 text-2xl pointer-events-none"
+    className="absolute bottom-0 left-1/2 -translate-x-1/2 text-3xl pointer-events-none"
   >
     {emoji}
   </motion.span>
@@ -68,6 +68,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [showSeenBy, setShowSeenBy] = useState(false);
   const [viewers, setViewers] = useState([]);
   const [viewersLoading, setViewersLoading] = useState(false);
+  const [swipeDownY, setSwipeDownY] = useState(0);
+  const swipingDown = useRef(false);
   const [tapHintShown, setTapHintShown] = useState(() => {
     try { return localStorage.getItem('hsp_story_tap_hint') === '1'; } catch (err) { /* storage unavailable */ return false; }
   });
@@ -286,10 +288,25 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     }, 120);
   };
 
+  const handlePointerMove = (e) => {
+    if (pointerStartY.current === null) return;
+    const deltaY = e.clientY - pointerStartY.current;
+    if (deltaY > 10 && Math.abs(e.clientX - pointerStartX.current) < 40) {
+      swipingDown.current = true;
+      setSwipeDownY(Math.max(0, deltaY));
+    } else if (!swipingDown.current) {
+      setSwipeDownY(0);
+    }
+  };
+
   const handlePointerUp = (e) => {
     clearTimeout(longPressRef.current);
     isPaused.current = false;
     setPaused(false);
+
+    const wasSwipingDown = swipingDown.current;
+    swipingDown.current = false;
+    setSwipeDownY(0);
 
     if (pointerStartX.current === null) return;
 
@@ -300,6 +317,13 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     // Swipe down to close
     if (deltaY > 100 && Math.abs(deltaX) < 80) {
       onClose();
+      pointerStartX.current = null;
+      pointerStartY.current = null;
+      return;
+    }
+
+    // If was swiping down but not enough to close, already reset above
+    if (wasSwipingDown) {
       pointerStartX.current = null;
       pointerStartY.current = null;
       return;
@@ -486,11 +510,20 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const isOwnStory = currentStory.user_id === currentUser?.id || currentStory.user?.id === currentUser?.id;
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 z-[9999] flex flex-col bg-black"
       role="dialog"
       aria-label={`Historia de ${user?.name || user?.username || 'usuario'}`}
       aria-modal="true"
+      initial={{ scale: 0.85, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.85, opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      style={swipeDownY > 0 ? {
+        transform: `translateY(${swipeDownY}px) scale(${1 - Math.abs(swipeDownY) / 2000})`,
+        borderRadius: `${Math.min(Math.abs(swipeDownY) / 5, 20)}px`,
+        overflow: 'hidden',
+      } : undefined}
     >
       {/* Progress bars */}
       <div
@@ -567,6 +600,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       <div
         className="flex-1 relative flex items-center justify-center overflow-hidden"
         onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
         {/* Bottom gradient for text legibility */}
@@ -1001,6 +1035,6 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

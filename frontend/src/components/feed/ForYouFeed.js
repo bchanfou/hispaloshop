@@ -13,6 +13,7 @@ import SuggestedUsersCard from './SuggestedUsersCard';
 import SponsoredProductCard from './SponsoredProductCard';
 import FeedRecipeCard from './FeedRecipeCard';
 import { useForYouFeed, useLikePost, feedKeys } from '../../features/feed/queries';
+import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
 import { useSponsoredContent } from '../../hooks/useSponsoredContent';
@@ -23,6 +24,7 @@ export default function ForYouFeed() {
   const queryClient = useQueryClient();
   const feedQuery = useForYouFeed();
   const likeMutation = useLikePost();
+  const { trigger } = useHaptics();
   const allPosts = useMemo(() => {
     const raw = (feedQuery.data?.pages || []).flatMap((page) => page?.items || []).filter((p) => p?.id);
     const seen = new Set();
@@ -122,9 +124,10 @@ export default function ForYouFeed() {
   const showNewContentPill = feedQuery.isFetching && !feedQuery.isFetchingNextPage && allPosts.length > 0;
 
   const handleNewContentClick = useCallback(() => {
+    trigger('light');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     queryClient.invalidateQueries({ queryKey: feedKeys.forYou });
-  }, [queryClient]);
+  }, [queryClient, trigger]);
 
   return (
     <motion.div

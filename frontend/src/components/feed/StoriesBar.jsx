@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { RefreshCw, Plus } from 'lucide-react';
 import StoryRing from './StoryRing';
 import apiClient from '../../services/api/client';
@@ -117,9 +118,13 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
           />
           {/* + overlay when user has no active story */}
           {!hasActiveStory && (
-            <div className="absolute bottom-0 right-0 w-5 h-5 bg-stone-950 rounded-full flex items-center justify-center pointer-events-none">
+            <motion.div
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute bottom-0 right-0 w-5 h-5 bg-stone-950 rounded-full flex items-center justify-center pointer-events-none"
+            >
               <Plus size={10} color="white" />
-            </div>
+            </motion.div>
           )}
         </div>
       )}

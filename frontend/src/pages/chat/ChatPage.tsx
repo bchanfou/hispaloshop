@@ -84,6 +84,18 @@ function formatConversationListTimestamp(ts) {
   return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
+function getConversationKey(conversation) {
+  return conversation?.id || conversation?.conversation_id || null;
+}
+
+export function getChatMessageId(message) {
+  return message?.message_id || message?.id || null;
+}
+
+export function isChatMessageRead(message) {
+  return Boolean(message?.read) || String(message?.status || '').toLowerCase() === 'read';
+}
+
 /* ================================================================
    ChatHeader
    ================================================================ */
@@ -1087,7 +1099,7 @@ export default function ChatPage() {
   const prevScrollHeightRef = useRef(0);
 
   const conversation = useMemo(
-    () => conversations.find((c) => String(c.id || c.conversation_id) === String(conversationId)),
+    () => conversations.find((c) => String(getConversationKey(c)) === String(conversationId)),
     [conversations, conversationId],
   );
 
@@ -1141,8 +1153,9 @@ export default function ChatPage() {
   useEffect(() => {
     if (!user || !conversationId) return;
     const unread = localMessages
-      .filter((m) => !m.read && String(m.sender_id || m.user_id) !== String(user.user_id || user.id))
-      .map((m) => m.message_id || m.id);
+      .filter((m) => !isChatMessageRead(m) && String(m.sender_id || m.user_id) !== String(user.user_id || user.id))
+      .map((m) => getChatMessageId(m))
+      .filter(Boolean);
     if (unread.length > 0) markAsRead(conversationId, unread);
   }, [localMessages, user, conversationId, markAsRead]);
 
@@ -1151,9 +1164,9 @@ export default function ChatPage() {
     const tempId = `temp-${Date.now()}`;
     const extra = {};
     if (replyTo) {
-      extra.reply_to_id = replyTo.message_id || replyTo.id;
+      extra.reply_to_id = getChatMessageId(replyTo);
       extra.reply_to_preview = {
-        id: replyTo.message_id || replyTo.id,
+        id: getChatMessageId(replyTo),
         content: (replyTo.content || '').slice(0, 100),
         sender_name: replyTo.sender_name || '',
         sender_id: replyTo.sender_id || '',
@@ -1226,10 +1239,12 @@ export default function ChatPage() {
 
   // Handle reaction (Q1)
   const handleReact = useCallback((message, emoji) => {
-    sendReaction(conversationId, message.message_id || message.id, emoji);
+    const targetMessageId = getChatMessageId(message);
+    if (!targetMessageId) return;
+    sendReaction(conversationId, targetMessageId, emoji);
     // Optimistic update
     setLocalMessages((prev) => prev.map(m => {
-      if ((m.message_id || m.id) !== (message.message_id || message.id)) return m;
+      if (getChatMessageId(m) !== targetMessageId) return m;
       const currentUserId = user?.user_id || user?.id;
       const reactions = (m.reactions || []).filter(r => r.user_id !== currentUserId);
       const alreadyHas = (m.reactions || []).some(r => r.user_id === currentUserId && r.emoji === emoji);
@@ -1256,8 +1271,9 @@ export default function ChatPage() {
 
   // Handle message delete (optimistic + API)
   const handleDeleteMessage = useCallback(async (message) => {
-    const msgId = message.message_id || message.id;
-    setLocalMessages((prev) => prev.filter((m) => (m.message_id || m.id) !== msgId));
+    const msgId = getChatMessageId(message);
+    if (!msgId) return;
+    setLocalMessages((prev) => prev.filter((m) => getChatMessageId(m) !== msgId));
     try {
       await apiClient.delete(`/chat/messages/${msgId}`);
     } catch {
@@ -1301,7 +1317,7 @@ export default function ChatPage() {
         isFirstInGroup: !withinGroup,
         isLastInGroup: !nextWithinGroup,
         isMiddleInGroup: withinGroup && nextWithinGroup,
-        key: msg.message_id || msg.id || `msg-${i}`,
+        key: getChatMessageId(msg) || `msg-${i}`,
       });
 
       lastDate = msgDate;
@@ -1348,7 +1364,7 @@ export default function ChatPage() {
 
           {groupedMessages.map((item) => {
             if (item.type === 'date') return <DateSeparator key={item.key} date={item.date} compact={compact} />;
-            const isNewlySent = item.message?.status === 'sending' || String(item.message?.id || '').startsWith('temp-');
+            const isNewlySent = item.message?.status === 'sending' || String(getChatMessageId(item.message) || '').startsWith('temp-');
             const bubble = (
               <MessageBubble
                 key={item.key}
@@ -1447,12 +1463,15 @@ export default function ChatPage() {
                 </div>
               ) : (
                 filteredDesktopConversations.map((conv) => {
-                  const isActive = String(conv.id || conv.conversation_id) === String(conversationId);
+                  const convKey = getConversationKey(conv);
+                  const isActive = String(convKey) === String(conversationId);
                   const isUnread = (conv.unread_count || 0) > 0;
                   return (
                     <button
-                      key={conv.id || conv.conversation_id}
-                      onClick={() => navigate(`/messages/${conv.id || conv.conversation_id}`)}
+                      key={convKey}
+                      onClick={() => {
+                        if (convKey) navigate(`/messages/${convKey}`);
+                      }}
                       className={`flex h-[72px] w-full items-center gap-3 border-none px-4 text-left transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300 ${isActive ? 'bg-stone-50' : 'bg-white hover:bg-stone-50'}`}
                     >
                       {conv.avatar_url ? (

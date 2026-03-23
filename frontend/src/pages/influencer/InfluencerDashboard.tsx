@@ -1198,10 +1198,11 @@ export default function InfluencerDashboard() {
                   sample_received: { label: 'Muestra recibida', tw: 'bg-stone-100 text-stone-950' },
                 };
                 const badge = statusMap[c.status] || statusMap.proposed;
+                const conversationId = c.conversation_id || c.id;
                 return (
                   <Link
                     key={c.collab_id}
-                    to={`/messages/${c.conversation_id}`}
+                    to={conversationId ? `/messages/${conversationId}` : '/messages'}
                     className="flex items-center gap-3 p-3 transition-colors bg-white shadow-sm rounded-2xl"
                   >
                     {proposal.product_image_url && (

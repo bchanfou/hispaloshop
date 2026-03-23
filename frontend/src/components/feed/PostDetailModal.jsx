@@ -727,10 +727,10 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
         <motion.div
           className="md:hidden relative z-[101] flex flex-col bg-white w-full h-full"
           style={{ transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined, opacity: swipeY > 0 ? Math.max(0.5, 1 - swipeY / 300) : 1 }}
-          initial={{ y: '100%', opacity: 0 }}
+          initial={{ y: '100%', opacity: 0.5 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: '100%', opacity: 0 }}
-          transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           onClick={(e) => e.stopPropagation()}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -834,10 +834,10 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
         <motion.div
           className="hidden md:flex relative z-[101] bg-white rounded-2xl overflow-hidden shadow-modal w-full"
           style={{ maxWidth: 'min(960px, 90vw)', maxHeight: '85vh', height: '85vh' }}
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          initial={{ y: '100%', opacity: 0.5 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '100%', opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* I1 Left pane: media, black bg, object-contain, ~55% */}

@@ -688,11 +688,17 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         className={`absolute right-4 z-10 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center ${embedded ? 'bottom-14' : 'bottom-[180px]'}`}
         aria-label={muted ? 'Activar sonido' : 'Silenciar'}
       >
-        {muted ? (
-          <VolumeX className="w-4 h-4 text-white" />
-        ) : (
-          <Volume2 className="w-4 h-4 text-white" />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={muted ? 'muted' : 'unmuted'}
+            initial={{ rotate: -90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            exit={{ rotate: 90, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            {muted ? <VolumeX size={18} className="text-white" /> : <Volume2 size={18} className="text-white" />}
+          </motion.div>
+        </AnimatePresence>
       </button>
 
       {/* Actions column */}
@@ -1189,7 +1195,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
 
       {/* Progress bar — thin Instagram-style with touch scrubbing */}
       <div
-        className={`absolute bottom-0 left-0 right-0 bg-white/20 z-[3] cursor-pointer transition-[height] duration-150 ${scrubbing ? 'h-[6px]' : 'h-[3px]'}`}
+        className={`group absolute bottom-0 left-0 right-0 bg-white/20 z-[3] cursor-pointer transition-[height] duration-150 ${scrubbing ? 'h-[6px]' : 'h-[3px]'}`}
         onClick={(e) => {
           const video = videoRef.current;
           if (!video || !video.duration) return;
@@ -1225,6 +1231,13 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         <div
           className="h-full w-full bg-white/90 origin-left"
           style={{ transform: `scaleX(${progress})` }}
+        />
+        {/* Progress thumb — shows on interaction */}
+        <div
+          className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-sm transition-opacity ${
+            scrubbing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          }`}
+          style={{ left: `${progress * 100}%` }}
         />
       </div>
     </div>
