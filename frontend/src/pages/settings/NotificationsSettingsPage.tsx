@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
@@ -23,9 +24,14 @@ function ToggleSwitch({ value, onChange, disabled }) {
   );
 }
 
-function ToggleRow({ label, sublabel, value, onChange, disabled, locked }) {
+function ToggleRow({ label, sublabel, value, onChange, disabled, locked, index = 0 }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3.5 border-b border-stone-200">
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.25, delay: index * 0.04 }}
+      className="flex items-center gap-3 px-4 py-3.5 border-b border-stone-200"
+    >
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-stone-950">
           {label}
@@ -41,7 +47,7 @@ function ToggleRow({ label, sublabel, value, onChange, disabled, locked }) {
       ) : (
         <ToggleSwitch value={value} onChange={onChange} disabled={disabled} />
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -120,25 +126,25 @@ export default function NotificationsSettingsPage() {
           {/* ACTIVIDAD SOCIAL */}
           <SectionLabel>Actividad social</SectionLabel>
           <div className="bg-white border-t border-stone-200">
-            <ToggleRow label="Nuevos seguidores" sublabel="Cuando alguien te sigue"
+            <ToggleRow index={0} label="Nuevos seguidores" sublabel="Cuando alguien te sigue"
               value={prefs.new_followers} onChange={v => handleToggle('new_followers', v)} />
-            <ToggleRow label="Me gusta en posts" sublabel="Cuando alguien da like a tu contenido"
+            <ToggleRow index={1} label="Me gusta en posts" sublabel="Cuando alguien da like a tu contenido"
               value={prefs.likes} onChange={v => handleToggle('likes', v)} />
-            <ToggleRow label="Comentarios" sublabel="Cuando alguien comenta"
+            <ToggleRow index={2} label="Comentarios" sublabel="Cuando alguien comenta"
               value={prefs.comments} onChange={v => handleToggle('comments', v)} />
-            <ToggleRow label="Menciones" sublabel="Cuando alguien te menciona"
+            <ToggleRow index={3} label="Menciones" sublabel="Cuando alguien te menciona"
               value={prefs.mentions} onChange={v => handleToggle('mentions', v)} />
           </div>
 
           {/* PEDIDOS */}
           <SectionLabel>Pedidos</SectionLabel>
           <div className="bg-white border-t border-stone-200">
-            <ToggleRow label="Confirmacion de pedido" value={true} locked disabled />
-            <ToggleRow label="Actualizaciones de envio" sublabel="Cuando tu pedido este en camino"
+            <ToggleRow index={4} label="Confirmacion de pedido" value={true} locked disabled />
+            <ToggleRow index={5} label="Actualizaciones de envio" sublabel="Cuando tu pedido este en camino"
               value={prefs.shipping_updates} onChange={v => handleToggle('shipping_updates', v)} />
-            <ToggleRow label="Pedido entregado"
+            <ToggleRow index={6} label="Pedido entregado"
               value={prefs.order_delivered} onChange={v => handleToggle('order_delivered', v)} />
-            <ToggleRow label="Solicitudes de resena"
+            <ToggleRow index={7} label="Solicitudes de resena"
               value={prefs.review_requests} onChange={v => handleToggle('review_requests', v)} />
           </div>
 
@@ -147,11 +153,11 @@ export default function NotificationsSettingsPage() {
             <>
               <SectionLabel>B2B</SectionLabel>
               <div className="bg-white border-t border-stone-200">
-                <ToggleRow label="Nuevas ofertas B2B"
+                <ToggleRow index={8} label="Nuevas ofertas B2B"
                   value={prefs.b2b_offers} onChange={v => handleToggle('b2b_offers', v)} />
-                <ToggleRow label="Actualizaciones de contratos"
+                <ToggleRow index={9} label="Actualizaciones de contratos"
                   value={prefs.b2b_contracts} onChange={v => handleToggle('b2b_contracts', v)} />
-                <ToggleRow label="Pagos recibidos"
+                <ToggleRow index={10} label="Pagos recibidos"
                   value={prefs.b2b_payments} onChange={v => handleToggle('b2b_payments', v)} />
               </div>
             </>
@@ -160,9 +166,9 @@ export default function NotificationsSettingsPage() {
           {/* PLATAFORMA */}
           <SectionLabel>Plataforma</SectionLabel>
           <div className="bg-white border-t border-stone-200">
-            <ToggleRow label="Novedades de Hispaloshop" sublabel="Nuevas funcionalidades y anuncios"
+            <ToggleRow index={11} label="Novedades de Hispaloshop" sublabel="Nuevas funcionalidades y anuncios"
               value={prefs.platform_news} onChange={v => handleToggle('platform_news', v)} />
-            <ToggleRow label="Emails de marketing" sublabel="Ofertas y descuentos especiales"
+            <ToggleRow index={12} label="Emails de marketing" sublabel="Ofertas y descuentos especiales"
               value={prefs.marketing_emails} onChange={v => handleToggle('marketing_emails', v)} />
           </div>
         </div>

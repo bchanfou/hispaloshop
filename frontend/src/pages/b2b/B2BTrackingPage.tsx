@@ -19,6 +19,7 @@ import {
   Shield,
   PackageCheck,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
@@ -283,7 +284,7 @@ export default function B2BTrackingPage() {
                     <div className="flex flex-col items-center min-w-[36px]">
                       {/* circle */}
                       <div
-                        className={`flex items-center justify-center w-7 h-7 rounded-full ${
+                        className={`relative flex items-center justify-center w-7 h-7 rounded-full ${
                           completed
                             ? 'bg-stone-950'
                             : active
@@ -291,6 +292,13 @@ export default function B2BTrackingPage() {
                               : 'bg-transparent border-[1.5px] border-stone-500'
                         }${active ? ' step-active' : ''}`}
                       >
+                        {active && (
+                          <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                            className="absolute inset-0 rounded-full bg-stone-950/20"
+                          />
+                        )}
                         {completed ? (
                           <Check size={14} className="text-white" strokeWidth={2.5} />
                         ) : (

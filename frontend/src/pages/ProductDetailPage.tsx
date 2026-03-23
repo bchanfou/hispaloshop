@@ -235,7 +235,10 @@ export default function ProductDetailPage() {
   const handleAskProducer = async () => {
     try {
       const conv = await openConversation(product.producer_id, 'b2c');
-      if (conv?.id) navigate(`/messages/${conv.id}?prefill=${encodeURIComponent(`Hola, tengo una pregunta sobre ${product.name}`)}`);
+      const conversationId = conv?.id || conv?.conversation_id;
+      if (conversationId) {
+        navigate(`/messages/${conversationId}?prefill=${encodeURIComponent(`Hola, tengo una pregunta sobre ${product.name}`)}`);
+      }
     } catch {
       toast.error('No se pudo abrir el chat');
     }

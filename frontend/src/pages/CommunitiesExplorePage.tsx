@@ -129,7 +129,7 @@ export default function CommunitiesExplorePage() {
               onClick={() => setFilter(f.id)}
               aria-label={`Filtrar: ${f.label}`}
               aria-pressed={active}
-              className={`shrink-0 cursor-pointer whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors ${
+              className={`shrink-0 cursor-pointer whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors active:scale-95 ${
                 active
                   ? 'border-stone-950 bg-stone-950 text-white'
                   : 'border-stone-200 bg-white text-stone-950'
@@ -401,7 +401,7 @@ const CommunityCard = React.memo(({ community, onToggled }) => {
 
   return (
     <Link to={`/communities/${community.slug || community.id || community._id}`} className="block no-underline">
-      <div className="overflow-hidden rounded-2xl shadow-sm bg-white transition-colors">
+      <div className="overflow-hidden rounded-2xl shadow-sm bg-white transition-transform duration-200 hover:scale-[1.02]">
         {/* Cover */}
         <div className="relative aspect-[16/7] overflow-hidden">
           {community.cover_image ? (

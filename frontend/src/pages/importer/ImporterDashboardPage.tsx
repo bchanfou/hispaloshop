@@ -200,7 +200,8 @@ export default function ImporterDashboardPage() {
   const handleB2BChat = async (producerId) => {
     try {
       const conv = await openConversation(producerId, 'b2b');
-      if (conv?.id) navigate(`/messages/${conv.id}`);
+      const conversationId = conv?.id || conv?.conversation_id;
+      if (conversationId) navigate(`/messages/${conversationId}`);
     } catch {
       toast.error('No se pudo abrir el chat');
     }

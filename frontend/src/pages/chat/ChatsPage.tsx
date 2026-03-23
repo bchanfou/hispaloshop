@@ -43,6 +43,10 @@ function formatTimestamp(ts) {
   return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
+function getConversationId(conversation) {
+  return conversation?.id || conversation?.conversation_id || null;
+}
+
 function ConversationItem({ conversation, index, onClick, onDelete, isTyping, isActive = false }) {
   const {
     name,
@@ -262,10 +266,13 @@ export default function ChatsPage() {
               <div className="scrollbar-hide flex gap-4 overflow-x-auto px-4">
                 {onlineConversations.map((conv) => {
                   const isStore = conv.type === 'b2c' || conv.type === 'b2b';
+                  const convId = getConversationId(conv);
                   return (
                     <button
-                      key={conv.id}
-                      onClick={() => navigate(`/messages/${conv.id}`)}
+                      key={convId || `${conv.name || 'conversation'}-${conv.last_message_at || i}`}
+                      onClick={() => {
+                        if (convId) navigate(`/messages/${convId}`);
+                      }}
                       className="flex w-[58px] shrink-0 flex-col items-center gap-1"
                     >
                       <div className="relative">
@@ -359,21 +366,28 @@ export default function ChatsPage() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.15 }}
                 >
-                  {filteredConversations.map((conv, i) => (
-                    <React.Fragment key={conv.id}>
+                  {filteredConversations.map((conv, i) => {
+                    const convId = getConversationId(conv);
+                    return (
+                    <React.Fragment key={convId || `${conv.name}-${i}`}>
                       <ConversationItem
                         conversation={conv}
                         index={i}
-                        onClick={() => navigate(`/messages/${conv.id}`)}
-                        onDelete={() => deleteConversation(conv.id)}
-                        isTyping={!!typingUsers[conv.id]}
+                        onClick={() => {
+                          if (convId) navigate(`/messages/${convId}`);
+                        }}
+                        onDelete={() => {
+                          if (convId) deleteConversation(convId);
+                        }}
+                        isTyping={convId ? !!typingUsers[convId] : false}
                         isActive={false}
                       />
                       {i < filteredConversations.length - 1 && (
                         <div className="ml-[76px] mr-4 h-px bg-stone-100/80" />
                       )}
                     </React.Fragment>
-                  ))}
+                    );
+                  })}
                 </motion.div>
               )}
             </AnimatePresence>

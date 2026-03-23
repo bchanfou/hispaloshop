@@ -326,7 +326,7 @@ export default function OrderDetailPage() {
               </span>
               <button
                 onClick={() => {
-                  if (order.producer_id) navigate(`/messages?to=${order.producer_id}`);
+                  if (order.producer_id) navigate(`/messages/new?to=${order.producer_id}`);
                 }}
                 className="flex items-center gap-1 px-3.5 py-1.5 bg-white border border-stone-200 rounded-xl text-[13px] font-semibold text-stone-950 cursor-pointer"
               >

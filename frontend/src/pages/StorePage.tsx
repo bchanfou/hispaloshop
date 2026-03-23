@@ -114,7 +114,8 @@ export default function StorePage() {
     try {
       const storeUserId = store.user_id || store.producer_id;
       const conv = await openConversation(storeUserId, 'b2c');
-      if (conv?.id) navigate(`/messages/${conv.id}`);
+      const conversationId = conv?.id || conv?.conversation_id;
+      if (conversationId) navigate(`/messages/${conversationId}`);
     } catch { toast.error('No se pudo abrir el chat'); }
   };
 

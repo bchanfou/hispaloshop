@@ -50,6 +50,20 @@ export function resolveChatToastTarget(messageToast) {
   return '/messages';
 }
 
+export function resolveOpenChatTarget(detail) {
+  const conversationId = detail?.conversationId || detail?.conversation_id;
+  if (conversationId) {
+    return `/messages/${conversationId}`;
+  }
+
+  const targetUserId = detail?.userId || detail?.user_id || detail?.to;
+  if (targetUserId) {
+    return `/messages/new?to=${encodeURIComponent(targetUserId)}`;
+  }
+
+  return '/messages';
+}
+
 
 export default function BottomNavBar() {
   const { user } = useAuth();
@@ -93,12 +107,12 @@ export default function BottomNavBar() {
   }, [dismissMessageToast, messageToast, navigate]);
 
   useEffect(() => {
-    const handleOpenChat = () => {
-      navigate('/messages');
+    const handleOpenChat = (event) => {
+      navigate(resolveOpenChatTarget(event?.detail));
     };
 
-    const handleToggleChat = () => {
-      navigate('/messages');
+    const handleToggleChat = (event) => {
+      navigate(resolveOpenChatTarget(event?.detail));
     };
 
     // Lanzado desde HomeHeader (botón ✏) y FeedContainer (historias)

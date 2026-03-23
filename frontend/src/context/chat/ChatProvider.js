@@ -7,6 +7,18 @@ import { toast } from 'sonner';
 
 const ChatContext = createContext(null);
 
+export function normalizeChatConversation(conversation) {
+  if (!conversation || typeof conversation !== 'object') return conversation;
+
+  const normalizedId = conversation.id || conversation.conversation_id || null;
+
+  return {
+    ...conversation,
+    id: normalizedId,
+    conversation_id: conversation.conversation_id || normalizedId,
+  };
+}
+
 export function ChatProvider({ children }) {
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
@@ -32,8 +44,9 @@ export function ChatProvider({ children }) {
     if (!isAuthenticated) return;
     try {
       const convs = await apiClient.get(`/chat/conversations`) || [];
-      setConversations(convs);
-      setUnreadTotal(convs.reduce((sum, conv) => sum + (conv.unread_count || 0), 0));
+      const normalizedConversations = (Array.isArray(convs) ? convs : []).map(normalizeChatConversation);
+      setConversations(normalizedConversations);
+      setUnreadTotal(normalizedConversations.reduce((sum, conv) => sum + (conv.unread_count || 0), 0));
     } catch (e) {
       // silently handled
     }
@@ -135,7 +148,7 @@ export function ChatProvider({ children }) {
     try {
       const data = await apiClient.post(`/chat/conversations`, { other_user_id: otherUserId });
       await loadConversations();
-      return data;
+      return normalizeChatConversation(data);
     } catch (e) {
       return null;
     }
@@ -147,7 +160,7 @@ export function ChatProvider({ children }) {
     try {
       const data = await apiClient.post(`/chat/conversations`, { other_user_id: userId, type });
       await loadConversations();
-      return data;
+      return normalizeChatConversation(data);
     } catch (e) {
       return null;
     }
@@ -221,7 +234,7 @@ export function ChatProvider({ children }) {
     if (!isAuthenticated) return false;
     try {
       await apiClient.delete(`/chat/conversations/${conversationId}`);
-      setConversations(prev => prev.filter(c => (c.id || c.conversation_id) !== conversationId));
+      setConversations(prev => prev.filter(c => String(c.id || c.conversation_id) !== String(conversationId)));
       return true;
     } catch (e) {
       return false;
@@ -420,8 +433,12 @@ export function ChatProvider({ children }) {
             case 'read_receipt':
               // Update read status in messages
               if (payload.conversation_id === currentConversation) {
+                const readIds = Array.isArray(payload.message_ids)
+                  ? payload.message_ids
+                  : (payload.message_id ? [payload.message_id] : []);
+
                 setMessages(prev => prev.map(msg => 
-                  payload.message_ids.includes(msg.message_id)
+                  readIds.includes(msg.message_id || msg.id)
                     ? { ...msg, read: true }
                     : msg
                 ));

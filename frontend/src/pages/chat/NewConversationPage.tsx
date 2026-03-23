@@ -32,6 +32,10 @@ function getInitial(name) {
   return (name || '?').charAt(0).toUpperCase();
 }
 
+function getConversationId(conversation) {
+  return conversation?.id || conversation?.conversation_id || null;
+}
+
 function AvatarFallback({ name, size = 'h-11 w-11', rounded = 'rounded-full' }) {
   return (
     <div className={`${size} ${rounded} flex shrink-0 items-center justify-center bg-stone-200 text-sm font-semibold text-stone-700`}>
@@ -130,9 +134,10 @@ export default function NewConversationPage() {
       const other = c.other_user || c.otherUser;
       return other && (other.id === targetId || other.user_id === targetId);
     });
+    const existingConversationId = getConversationId(existing);
 
-    if (existing) {
-      navigate(`/messages/${existing.id}`);
+    if (existingConversationId) {
+      navigate(`/messages/${existingConversationId}`);
       setSelecting(false);
       return;
     }
@@ -140,8 +145,9 @@ export default function NewConversationPage() {
     const chatType = getChatType(user, targetUser);
     try {
       const newConv = await openConversation(targetId, chatType);
-      if (newConv && newConv.id) {
-        navigate(`/messages/${newConv.id}`);
+      const newConversationId = getConversationId(newConv);
+      if (newConversationId) {
+        navigate(`/messages/${newConversationId}`);
       }
     } finally {
       setSelecting(false);
@@ -159,17 +165,19 @@ export default function NewConversationPage() {
       const other = c.other_user || c.otherUser;
       return other && String(other.id || other.user_id) === String(toUserId);
     });
+    const existingConversationId = getConversationId(existing);
 
-    if (existing?.id) {
-      navigate(`/messages/${existing.id}`, { replace: true });
+    if (existingConversationId) {
+      navigate(`/messages/${existingConversationId}`, { replace: true });
       return;
     }
 
     (async () => {
       try {
         const newConv = await openConversation(toUserId, 'c2c');
-        if (newConv?.id) {
-          navigate(`/messages/${newConv.id}`, { replace: true });
+        const newConversationId = getConversationId(newConv);
+        if (newConversationId) {
+          navigate(`/messages/${newConversationId}`, { replace: true });
         }
       } catch {
         // best effort — user can still pick manually in the UI

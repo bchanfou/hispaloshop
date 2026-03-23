@@ -299,10 +299,10 @@ export default function CommunityPage() {
       <AnimatePresence>
         {showNewPostsPill && tab === 'feed' && (
           <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             className="fixed top-[110px] left-1/2 -translate-x-1/2 z-50"
           >
             <button

@@ -139,7 +139,7 @@ export default function ChangePasswordPage() {
                 {[0, 1, 2, 3].map(i => (
                   <div
                     key={i}
-                    className={`flex-1 h-[3px] rounded-sm transition-colors duration-200 ${
+                    className={`flex-1 h-[3px] rounded-sm transition-all duration-300 ease-out ${
                       i <= strength.level
                         ? strength.weak ? 'bg-stone-500' : 'bg-stone-950'
                         : 'bg-stone-200'
