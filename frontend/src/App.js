@@ -376,13 +376,13 @@ function AppRouter() {
               <Route path="/signup" element={<AuthRedirect><AuthLayout><RegisterPage /></AuthLayout></AuthRedirect>} />
               <Route path="/recipes" element={<RecipesPage />} />
               <Route path="/recipes/create" element={<CreateRecipePage />} />
-              <Route path="/create/post" element={<CreatePostPage />} />
-              <Route path="/create/reel" element={<CreateReelPage />} />
-              <Route path="/create/story" element={<CreateStoryPage />} />
-              <Route path="/create/text" element={<CreatePostPage />} />
-              <Route path="/create/recipe" element={<CreateRecipePage />} />
-              <Route path="/drafts" element={<DraftsPage />} />
-              <Route path="/saved" element={<SavedPage />} />
+              <Route path="/create/post" element={<ProtectedRoute><CreatePostPage /></ProtectedRoute>} />
+              <Route path="/create/reel" element={<ProtectedRoute><CreateReelPage /></ProtectedRoute>} />
+              <Route path="/create/story" element={<ProtectedRoute><CreateStoryPage /></ProtectedRoute>} />
+              <Route path="/create/text" element={<ProtectedRoute><CreatePostPage /></ProtectedRoute>} />
+              <Route path="/create/recipe" element={<ProtectedRoute><CreateRecipePage /></ProtectedRoute>} />
+              <Route path="/drafts" element={<ProtectedRoute><DraftsPage /></ProtectedRoute>} />
+              <Route path="/saved" element={<ProtectedRoute><SavedPage /></ProtectedRoute>} />
               <Route path="/guardados" element={<Navigate to="/saved" replace />} />
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
