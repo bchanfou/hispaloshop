@@ -1,265 +1,155 @@
 // @ts-nocheck
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import SEO from '../../components/SEO';
 
-const Section = ({ dark, children, className = '' }: { dark: boolean; children: React.ReactNode; className?: string }) => (
-  <section className={`${dark ? 'bg-[#0A0A0A]' : 'bg-stone-50'} py-20 px-4 ${className}`}>
-    <div className="max-w-[1200px] mx-auto">{children}</div>
-  </section>
-);
-
 export default function ForProducers() {
-  const navigate = useNavigate();
   useScrollReveal();
-  usePageTitle();
+  usePageTitle('Soy Productor - Hispaloshop');
 
   return (
     <div>
-      <SEO title="Soy Productor \u2014 HispaloShop" description="Vende tus productos artesanales directamente al consumidor. Planes desde 0\u20ac. Sin comisiones abusivas. M\u00e1s de 65 pa\u00edses destino." />
-      {/* ══════ SECCIÓN 1 — HERO ══════ */}
-      <section className="min-h-screen bg-[#0A0A0A] flex items-start pt-[120px] pb-20 px-4">
-        <div className="max-w-[1200px] mx-auto w-full">
-          <div className="max-w-[820px]">
-            <p className="info-eyebrow hero-animate-in text-stone-500 mb-4">
-              PARA PRODUCTORES ARTESANALES
-            </p>
+      <SEO title="Soy Productor — Hispaloshop" description="Conecta tu producción con importadores y clientes de todo el mundo. Expande tu alcance, digitaliza tu catálogo y accede a nuevas oportunidades comerciales." />
 
-            <h1 className="info-h1 hero-animate-in-delay-1 text-white whitespace-pre-line mb-6">
-              {'Tienes un producto increíble.\nYa es hora de que\nel país lo sepa.'}
-            </h1>
+      {/* HERO + CTA */}
+      <section className="info-hero bg-[#0A0A0A] min-h-[60vh] flex items-center pt-[120px] pb-12 px-4">
+        <div className="max-w-[900px] mx-auto w-full text-center">
+          <h1 className="text-white text-4xl md:text-5xl font-bold mb-6">¿Eres Productor? Haz crecer tu negocio con Hispaloshop</h1>
+          <p className="text-white/80 text-lg md:text-xl mb-8">Únete a la plataforma que conecta productores con importadores y clientes de todo el mundo. Digitaliza tu catálogo y accede a nuevas oportunidades comerciales.</p>
+          <a className="cta-btn bg-stone-950 text-white px-8 py-3 rounded-full font-semibold text-lg" href="/registro">Crear cuenta de productor</a>
+        </div>
+      </section>
 
-            <p className="info-lead hero-animate-in-delay-2 text-white/65 max-w-[620px] mb-10">
-              He recorrido España de pueblo en pueblo buscando productores
-              como tú. Os he visto trabajar con una dedicación que ninguna
-              multinacional puede replicar. El problema nunca fue vuestro
-              producto. El problema era que no había una plataforma
-              a vuestra medida.
-            </p>
+      {/* VIDEO INSTITUCIONAL */}
+      <section className="info-video bg-stone-50 py-16 px-4">
+        <div className="max-w-[900px] mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6">¿Por qué elegir Hispaloshop?</h2>
+          <div className="video-wrapper flex justify-center mb-6">
+            <iframe
+              width="560"
+              height="315"
+              src="https://www.youtube.com/embed/2g811Eo7K8U"
+              title="Video institucional Hispaloshop"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+          <p className="text-stone-600 text-lg">Accede a una red global, destaca tu marca y gestiona tus oportunidades desde un solo lugar.</p>
+        </div>
+      </section>
 
-            <div className="hero-animate-in-delay-3 flex gap-3 flex-wrap">
-              <button
-                onClick={() => navigate('/registro')}
-                className="h-[46px] px-7 rounded-full bg-stone-950 text-white text-sm font-semibold border-none cursor-pointer"
-              >
-                Empezar gratis →
-              </button>
-              <button
-                onClick={() => document.querySelector('#como-funciona')?.scrollIntoView({ behavior: 'smooth' })}
-                className="h-[46px] px-7 rounded-full bg-transparent text-white text-sm font-semibold border border-white/25 cursor-pointer"
-              >
-                Ver cómo funciona
-              </button>
+      {/* PASOS SIMPLIFICADOS */}
+      <section className="info-steps bg-white py-16 px-4">
+        <div className="max-w-[900px] mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">¿Cómo funciona?</h2>
+          <ol className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <li className="bg-stone-50 rounded-2xl p-6 text-center">
+              <span className="block text-3xl mb-2">1</span>
+              <b>Regístrate gratis</b> y crea tu perfil de productor.
+            </li>
+            <li className="bg-stone-50 rounded-2xl p-6 text-center">
+              <span className="block text-3xl mb-2">2</span>
+              <b>Publica tu catálogo</b> con fotos y descripciones.
+            </li>
+            <li className="bg-stone-50 rounded-2xl p-6 text-center">
+              <span className="block text-3xl mb-2">3</span>
+              <b>Conecta</b> con importadores y clientes interesados.
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      {/* BENEFICIOS REALES */}
+      <section className="info-benefits bg-stone-50 py-16 px-4">
+        <div className="max-w-[900px] mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Ventajas reales para productores</h2>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-6 text-lg text-stone-700">
+            <li>Acceso inmediato a una red global de importadores verificados.</li>
+            <li>Herramientas para destacar tu marca y productos.</li>
+            <li>Visibilidad internacional y posicionamiento en buscadores.</li>
+            <li>Soporte personalizado y recursos educativos.</li>
+            <li>Opciones de promoción premium según tu plan.</li>
+            <li>Gestión eficiente de contactos y oportunidades.</li>
+            <li>Participación en eventos y ferias virtuales.</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* PLANES SIMPLIFICADOS */}
+      <section className="info-plans bg-white py-16 px-4">
+        <div className="max-w-[900px] mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Planes para cada etapa</h2>
+          <div className="flex flex-col md:flex-row gap-6 justify-center">
+            <div className="bg-stone-50 rounded-2xl p-8 text-center flex-1">
+              <p className="font-bold text-stone-950 mb-2 uppercase tracking-wider">Free</p>
+              <p className="text-2xl font-bold text-stone-950 mb-2">0€/mes</p>
+              <p className="text-stone-600 mb-2">20% comisión</p>
+              <p className="text-stone-500 text-sm">Empieza sin compromiso</p>
             </div>
+            <div className="bg-stone-50 rounded-2xl p-8 text-center flex-1">
+              <p className="font-bold text-stone-950 mb-2 uppercase tracking-wider">Pro</p>
+              <p className="text-2xl font-bold text-stone-950 mb-2">79€/mes</p>
+              <p className="text-stone-600 mb-2">18% comisión · Envío gratis desde 30€</p>
+              <p className="text-stone-500 text-sm">Para productores en crecimiento</p>
+            </div>
+            <div className="bg-stone-50 rounded-2xl p-8 text-center flex-1">
+              <p className="font-bold text-stone-950 mb-2 uppercase tracking-wider">Elite</p>
+              <p className="text-2xl font-bold text-stone-950 mb-2">249€/mes</p>
+              <p className="text-stone-600 mb-2">15% comisión · Envío gratis desde 20€</p>
+              <p className="text-stone-500 text-sm">Máxima visibilidad y ventajas</p>
+            </div>
+          </div>
+          <p className="text-center text-sm text-stone-500 mt-6">Sin tarjeta de crédito para empezar</p>
+        </div>
+      </section>
+
+      {/* FAQ AMPLIADO */}
+      <section className="info-faq bg-stone-50 py-16 px-4">
+        <div className="max-w-[900px] mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Preguntas frecuentes</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <details>
+              <summary className="font-semibold text-stone-800 cursor-pointer">¿Cuánto cuesta registrarse?</summary>
+              <p className="text-stone-600 mt-2">El registro es gratuito. Puedes acceder a funciones avanzadas con planes premium.</p>
+            </details>
+            <details>
+              <summary className="font-semibold text-stone-800 cursor-pointer">¿Qué tipo de productos puedo publicar?</summary>
+              <p className="text-stone-600 mt-2">Puedes publicar cualquier producto que cumpla con nuestras políticas y estándares de calidad.</p>
+            </details>
+            <details>
+              <summary className="font-semibold text-stone-800 cursor-pointer">¿Cómo contacto a los importadores?</summary>
+              <p className="text-stone-600 mt-2">Una vez registrado, podrás contactar importadores directamente desde la plataforma.</p>
+            </details>
+            <details>
+              <summary className="font-semibold text-stone-800 cursor-pointer">¿Qué beneficios obtengo con un plan premium?</summary>
+              <p className="text-stone-600 mt-2">Mayor visibilidad, acceso prioritario a oportunidades y herramientas exclusivas para potenciar tu negocio.</p>
+            </details>
+            <details>
+              <summary className="font-semibold text-stone-800 cursor-pointer">¿Puedo vender tanto a particulares como a empresas?</summary>
+              <p className="text-stone-600 mt-2">Sí, puedes vender tanto a consumidores finales como a importadores y empresas.</p>
+            </details>
+            <details>
+              <summary className="font-semibold text-stone-800 cursor-pointer">¿Qué soporte ofrece Hispaloshop?</summary>
+              <p className="text-stone-600 mt-2">Soporte personalizado, recursos educativos y asesoría en comercio internacional.</p>
+            </details>
           </div>
         </div>
       </section>
 
-      {/* ══════ SECCIÓN 2 — EL PROBLEMA (crema) ══════ */}
-      <Section dark={false}>
-        <div className="reveal">
-          <p className="uppercase-label mb-4">EL PROBLEMA</p>
-          <h2 className="info-h2 whitespace-pre-line mb-4">
-            {'Te han cobrado demasiado\ndurante demasiado tiempo.'}
-          </h2>
-          <p className="info-lead text-stone-500 max-w-[600px] mb-12">
-            Amazon cobra entre el 15% y el 40%. Las marketplaces
-            genéricas no entienden tu producto. Las redes sociales te
-            dan visibilidad pero no ventas. Y los importadores te dicen
-            que eres demasiado pequeño.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
-            {[
-              { emoji: '💸', title: 'Comisiones abusivas', body: 'Pagar el 30% de cada venta a una plataforma que no conoce tu historia ni tu producto.' },
-              { emoji: '👻', title: 'Invisibilidad', body: 'Tu aceite gana premios internacionales y apenas lo conocen fuera de tu provincia.' },
-              { emoji: '🔗', title: 'Dependencia', body: 'Si mañana Amazon decide cambiar sus algoritmos, tus ventas desaparecen de un día para otro.' },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className={`bg-white shadow-sm rounded-2xl p-8 transition-[transform,box-shadow] duration-200 reveal [transition-delay:${i * 100}ms]`}
-              >
-                <span className="text-[32px] block mb-3">{card.emoji}</span>
-                <h4 className="info-h4 mb-2">{card.title}</h4>
-                <p className="text-[15px] text-stone-500 m-0 leading-relaxed">{card.body}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="h-px bg-stone-200 my-12" />
-
-          <h3 className="info-h3 mb-4">En Hispaloshop, tú tienes el control.</h3>
-          <p className="info-body text-stone-500 max-w-[600px]">
-            Sin exclusividades. Sin letra pequeña. Sin comisiones que
-            se coman tu margen. Solo tu producto, tu historia y tus clientes.
-          </p>
-        </div>
-      </Section>
-
-      {/* ══════ SECCIÓN 3 — CÓMO FUNCIONA (negro) ══════ */}
-      <Section dark={true}>
-        <div className="reveal" id="como-funciona">
-          <p className="info-eyebrow text-stone-500 mb-4">CÓMO FUNCIONA</p>
-          <h2 className="info-h2 text-white whitespace-pre-line mb-12">
-            {'Publicar tu primer producto\ntarda menos de 60 segundos.'}
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-8">
-            {[
-              { num: 1, day: 'Día 1', title: 'Regístrate y verifica tu cuenta', body: 'Sube tu CIF, una foto de tu instalación y tus certificados. La IA lo revisa en minutos.' },
-              { num: 2, day: 'Día 1', title: 'Publica tus productos', body: 'Añade fotos, descripción, precio y stock. O graba un reel directo desde tu obrador.' },
-              { num: 3, day: 'Cuando llegan pedidos', title: 'Gestiona y envía', body: 'Recibes el pedido, preparas el envío, confirmas el tracking. Todo desde tu móvil.' },
-              { num: 4, day: 'Cada 15 días', title: 'Cobras sin condiciones', body: 'Transferencia directa a tu cuenta. Sin esperar 60 días. Sin sorpresas.' },
-            ].map((step, i) => (
-              <div key={i} className={`reveal [transition-delay:${i * 100}ms]`}>
-                <div className="w-9 h-9 rounded-full bg-stone-950 flex items-center justify-center text-[15px] font-bold text-white mb-3">
-                  {step.num}
-                </div>
-                <p className="info-eyebrow text-white/50 mb-2">
-                  {step.day}
-                </p>
-                <h4 className="info-h4 text-white mb-2">{step.title}</h4>
-                <p className="text-[15px] text-white/65 m-0 leading-relaxed">
-                  {step.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ══════ SECCIÓN 4 — PLANES (crema) ══════ */}
-      <Section dark={false}>
-        <div className="reveal">
-          <p className="uppercase-label mb-4">LO QUE CUESTA</p>
-          <h2 className="info-h2 mb-12">Empieza gratis. Crece cuando quieras.</h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
-            {[
-              { name: 'Free', price: '0€/mes', desc: '20% comisión' },
-              { name: 'Pro', price: '79€/mes', desc: '18% comisión · Envío gratis desde 30€' },
-              { name: 'Elite', price: '249€/mes', desc: '15% comisión · Envío gratis desde 20€' },
-            ].map((plan, i) => (
-              <div
-                key={i}
-                className={`bg-white shadow-sm rounded-2xl p-8 text-center reveal [transition-delay:${i * 100}ms]`}
-              >
-                <p className="text-sm font-bold text-stone-950 mb-2 uppercase tracking-wider">
-                  {plan.name}
-                </p>
-                <p className="text-2xl font-bold text-stone-950 mb-2">
-                  {plan.price}
-                </p>
-                <p className="text-sm text-stone-500 m-0">
-                  {plan.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <p className="info-body text-stone-500 mt-6 mb-3">
-            ¿Por qué cobramos comisión? Porque solo ganamos cuando
-            tú ganas. Si no vendes, no pagamos nada. Si vendes mucho,
-            pagamos menos.
-          </p>
-
-          <Link to="/productor" className="text-sm font-semibold text-stone-950 no-underline">
-            Ver comparativa completa →
-          </Link>
-
-          {/* ── Detailed comparison table ── */}
-          <div className="mt-12 rounded-2xl shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-stone-950 text-white">
-                  <th className="text-left py-3 px-4 font-semibold">Característica</th>
-                  <th className="text-center py-3 px-4 font-semibold">FREE</th>
-                  <th className="text-center py-3 px-4 font-semibold">PRO</th>
-                  <th className="text-center py-3 px-4 font-semibold">ELITE</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { feature: 'Comisión', free: '20%', pro: '18%', elite: '15%' },
-                  { feature: 'Precio mensual', free: '0€', pro: '79€', elite: '249€' },
-                  { feature: 'Productos', free: '10', pro: '50', elite: 'Ilimitados' },
-                  { feature: 'Analytics', free: 'Básico', pro: 'Avanzado', elite: 'Completo' },
-                  { feature: 'Certificados', free: '1', pro: '5', elite: 'Ilimitados' },
-                  { feature: 'Envío gratis desde', free: '—', pro: '30€', elite: '20€' },
-                  { feature: 'Soporte', free: 'Email', pro: 'Prioritario', elite: 'Dedicado' },
-                  { feature: 'B2B', free: '—', pro: '✓', elite: '✓ + IA' },
-                ].map((row, i) => (
-                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-stone-50'}>
-                    <td className="py-3 px-4 font-medium text-stone-950">{row.feature}</td>
-                    <td className="py-3 px-4 text-center text-stone-600">{row.free}</td>
-                    <td className="py-3 px-4 text-center text-stone-600">{row.pro}</td>
-                    <td className="py-3 px-4 text-center text-stone-950 font-semibold">{row.elite}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <p className="text-center text-sm text-stone-500 mt-6">
-            Sin tarjeta de crédito para empezar
-          </p>
-        </div>
-      </Section>
-
-      {/* ══════ SECCIÓN 5 — B2B (negro) ══════ */}
-      <Section dark={true}>
-        <div className="reveal">
-          <p className="info-eyebrow text-stone-500 mb-4">MÁS QUE B2C</p>
-          <h2 className="info-h2 text-white whitespace-pre-line mb-4">
-            {'Vende también a importadores\nde todo el mundo.'}
-          </h2>
-          <p className="text-[15px] text-white/65 max-w-[600px] leading-[1.7] mb-8">
-            He tocado puertas de importadoras en Corea, Japón y China.
-            Sé exactamente qué buscan y qué les frena. En Hispaloshop,
-            los importadores llegan a ti. Tú pones las condiciones.
-          </p>
-
-          <div className="flex flex-col gap-4">
-            {[
-              'Ofertas formales con Incoterms integrados',
-              'Contratos digitales con firma electrónica',
-              'Documentación aduanera generada por IA',
-              'Pagos seguros con retención de fondos',
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Check size={18} className="text-white/80" strokeWidth={2.5} />
-                <span className="text-[15px] text-white/80">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ══════ SECCIÓN 6 — CTA (negro) ══════ */}
-      <Section dark={true} className="!py-[100px]">
-        <div className="text-center reveal">
-          <h2 className="info-h2 text-white mb-4">
-            Tu producto merece llegar más lejos.
-          </h2>
-          <p className="info-lead text-white/55 max-w-[500px] mx-auto mb-8">
-            Únete a más de 1.200 productores que ya venden.
-          </p>
-          <button
-            onClick={() => navigate('/registro')}
-            className="h-14 px-10 rounded-full bg-stone-950 text-white text-base font-semibold border-none cursor-pointer"
-          >
-            Publicar mis primeros productos →
-          </button>
+      {/* CTA FINAL */}
+      <section className="info-cta bg-[#0A0A0A] py-16 px-4 text-center">
+        <div className="max-w-[900px] mx-auto">
+          <h2 className="text-white text-3xl font-bold mb-4">¿Listo para vender más lejos?</h2>
+          <p className="text-white/70 text-lg mb-8">Únete a cientos de productores que ya están creciendo con Hispaloshop.</p>
+          <a className="cta-btn bg-stone-950 text-white px-10 py-4 rounded-full font-semibold text-lg" href="/registro">Crear cuenta de productor</a>
           <div className="mt-4">
-            <Link to="/contacto" className="text-sm text-white/35 no-underline">
-              Tengo preguntas · Contactar
-            </Link>
+            <Link to="/contacto" className="text-sm text-white/50 underline">Tengo preguntas · Contactar</Link>
           </div>
         </div>
-      </Section>
+      </section>
     </div>
   );
 }

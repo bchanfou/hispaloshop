@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List, Globe, Check, AlertTriangle, Package } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
-import CategoryNav from '../components/CategoryNav';
+import { CATEGORY_GROUPS, getCategoriesByGroup } from '../constants/categories';
 import ProductCard from '../components/ProductCard';
 import { getCategoryLabel, productMatchesCategory } from '../config/categories';
 import { useLocale } from '../context/LocaleContext';
@@ -72,6 +72,7 @@ export default function ProductsPage() {
 
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || searchParams.get('categoria') || '',
+    subcategory: '',
     certifications: [],
     origin_country: '',
     minPrice: '',
@@ -80,6 +81,8 @@ export default function ProductsPage() {
     sort: searchParams.get('sort') || 'relevance',
     freeShipping: false,
   });
+
+  const getSubcategories = (groupSlug) => getCategoriesByGroup(groupSlug);
 
   useEffect(() => {
     setFilters((prev) => ({
@@ -148,12 +151,19 @@ export default function ProductsPage() {
   const catalogQuery = useCatalog(queryFilters);
   const rawProducts = useMemo(() => flattenCatalogPages(catalogQuery.data?.pages), [catalogQuery.data?.pages]);
   const products = useMemo(() => {
-    if (!filters.category) return rawProducts;
-    return rawProducts.filter((product) => productMatchesCategory(product, filters.category));
-  }, [filters.category, rawProducts]);
+    let filtered = rawProducts;
+    if (filters.category) {
+      filtered = filtered.filter((product) => productMatchesCategory(product, filters.category));
+    }
+    if (filters.subcategory) {
+      filtered = filtered.filter((product) => productMatchesCategory(product, filters.subcategory));
+    }
+    return filtered;
+  }, [filters.category, filters.subcategory, rawProducts]);
 
   const hasActiveFilters = Boolean(
     filters.category ||
+      filters.subcategory ||
       filters.certifications.length > 0 ||
       filters.origin_country ||
       filters.minPrice ||
@@ -181,6 +191,7 @@ export default function ProductsPage() {
   const clearFilters = () => {
     setFilters({
       category: '',
+      subcategory: '',
       certifications: [],
       origin_country: '',
       minPrice: '',
@@ -194,7 +205,7 @@ export default function ProductsPage() {
 
   const setCategoryFilter = (categorySlug) => {
     const nextCategory = filters.category === categorySlug ? '' : categorySlug;
-    setFilters((prev) => ({ ...prev, category: nextCategory }));
+    setFilters((prev) => ({ ...prev, category: nextCategory, subcategory: '' }));
     const nextParams = new URLSearchParams(searchParams);
     if (nextCategory) nextParams.set('category', nextCategory);
     else nextParams.delete('category');
@@ -279,98 +290,121 @@ export default function ProductsPage() {
       <div className="mx-auto max-w-[1100px] px-4 py-6 sm:px-6">
         <Breadcrumbs className="mb-4" />
 
-        <section className="mb-8 rounded-[28px] border border-stone-100 bg-white px-5 py-5 shadow-sm md:px-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">Catálogo</p>
-              <h1 className="text-3xl font-semibold tracking-tight text-stone-950" data-testid="products-page-title">
-                {t('products.title', 'Productos')}
-              </h1>
-              <p className="mt-2 text-sm text-stone-500">
-                {t('products.subtitle', 'Alimentación saludable y local de productores verificados.')}
-              </p>
+        {/* Sticky header: search + controls */}
+        <div className="sticky top-[52px] z-30 -mx-4 bg-stone-50 px-4 pb-1 pt-2 sm:-mx-6 sm:px-6">
+          <div className="flex items-center gap-3">
+            <h1 className="shrink-0 text-lg font-semibold tracking-tight text-stone-950" data-testid="products-page-title">
+              {t('products.title', 'Productos')}
+            </h1>
+
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <input
+                type="text"
+                placeholder={t('products.searchPlaceholder', 'Buscar productos')}
+                value={filters.search}
+                onChange={(event) => {
+                  const nextValue = event.target.value;
+                  setFilters((prev) => ({ ...prev, search: nextValue }));
+                }}
+                className="h-10 w-full rounded-full border border-stone-200 bg-white pl-9 text-sm placeholder:text-stone-400 focus:outline-none focus:border-stone-950 focus:ring-1 focus:ring-stone-300"
+                aria-label={t('products.searchPlaceholder', 'Buscar productos')}
+              />
             </div>
 
-            <div className="flex flex-col gap-3 md:w-[520px] md:items-end">
-              <div className="flex w-full items-center gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                  <input
-                    type="text"
-                    placeholder={t('products.searchPlaceholder', 'Buscar productos')}
-                    value={filters.search}
-                    onChange={(event) => {
-                      const nextValue = event.target.value;
-                      setFilters((prev) => ({ ...prev, search: nextValue }));
-                    }}
-                    className="h-11 rounded-full border border-stone-200 bg-stone-50 pl-9 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 focus:ring-1 focus:ring-stone-300 w-full"
-                    aria-label={t('products.searchPlaceholder', 'Buscar productos')}
-                  />
-                </div>
-
-                <div className="relative hidden md:block">
-                  <select
-                    value={filters.sort}
-                    onChange={(event) => {
-                      const nextValue = event.target.value;
-                      setFilters((prev) => ({ ...prev, sort: nextValue }));
-                      updateSearchParams({ sort: nextValue === 'relevance' ? '' : nextValue });
-                    }}
-                    className="h-11 appearance-none rounded-full border border-stone-200 bg-white px-4 py-2.5 pr-9 text-sm outline-none focus:border-stone-950 focus:ring-1 focus:ring-stone-300"
-                    aria-label={t('products.sortLabel', 'Ordenar productos')}
-                  >
-                    {SORT_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {t(`products.sort.${option.value}`, option.label)}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                </div>
-
-                {/* View mode toggle */}
-                <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-white p-1">
-                  <button
-                    type="button"
-                    onClick={() => { setViewMode('grid'); localStorage.setItem('products_view_mode', 'grid'); }}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${viewMode === 'grid' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'}`}
-                    aria-label="Vista cuadrícula"
-                    aria-pressed={viewMode === 'grid'}
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setViewMode('list'); localStorage.setItem('products_view_mode', 'list'); }}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${viewMode === 'list' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'}`}
-                    aria-label="Vista lista"
-                    aria-pressed={viewMode === 'list'}
-                  >
-                    <List className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  className="flex h-11 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 lg:hidden"
-                  onClick={() => setShowMobileFilters(true)}
-                  aria-label={t('products.filters', 'Filtros')}
-                >
-                  <SlidersHorizontal className="h-4 w-4" />
-                  <span className="hidden sm:inline">{t('products.filters', 'Filtros')}</span>
-                </button>
-              </div>
+            <div className="relative hidden md:block">
+              <select
+                value={filters.sort}
+                onChange={(event) => {
+                  const nextValue = event.target.value;
+                  setFilters((prev) => ({ ...prev, sort: nextValue }));
+                  updateSearchParams({ sort: nextValue === 'relevance' ? '' : nextValue });
+                }}
+                className="h-10 appearance-none rounded-full border border-stone-200 bg-white px-4 py-2 pr-9 text-sm outline-none focus:border-stone-950 focus:ring-1 focus:ring-stone-300"
+                aria-label={t('products.sortLabel', 'Ordenar productos')}
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {t(`products.sort.${option.value}`, option.label)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
             </div>
+
+            {/* View mode toggle */}
+            <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-white p-1">
+              <button
+                type="button"
+                onClick={() => { setViewMode('grid'); localStorage.setItem('products_view_mode', 'grid'); }}
+                className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${viewMode === 'grid' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'}`}
+                aria-label="Vista cuadrícula"
+                aria-pressed={viewMode === 'grid'}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => { setViewMode('list'); localStorage.setItem('products_view_mode', 'list'); }}
+                className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${viewMode === 'list' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'}`}
+                aria-label="Vista lista"
+                aria-pressed={viewMode === 'list'}
+              >
+                <List className="h-4 w-4" />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className="flex h-10 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 lg:hidden"
+              onClick={() => setShowMobileFilters(true)}
+              aria-label={t('products.filters', 'Filtros')}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('products.filters', 'Filtros')}</span>
+            </button>
           </div>
-        </section>
 
-        <CategoryNav
-          products={rawProducts}
-          activeCategory={filters.category}
-          onSelectCategory={setCategoryFilter}
-          title="Descubre por categoría"
-          variant="catalog"
-        />
+          {/* Category pills — compact horizontal scroll */}
+          <div className="mt-2 mb-1 scrollbar-hide flex gap-2 overflow-x-auto py-1">
+            <button
+              onClick={() => setCategoryFilter('')}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-medium whitespace-nowrap transition-colors ${
+                !filters.category ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'
+              }`}
+            >
+              Todos
+            </button>
+            {CATEGORY_GROUPS.map(cat => (
+              <button
+                key={cat.slug}
+                onClick={() => setCategoryFilter(cat.slug === filters.category ? '' : cat.slug)}
+                className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-medium whitespace-nowrap transition-colors ${
+                  filters.category === cat.slug ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Subcategory pills */}
+          {filters.category && (
+            <div className="mb-1 scrollbar-hide flex gap-1.5 overflow-x-auto pb-1">
+              {getSubcategories(filters.category).map(sub => (
+                <button
+                  key={sub.slug}
+                  onClick={() => setFilters(prev => ({ ...prev, subcategory: prev.subcategory === sub.slug ? '' : sub.slug }))}
+                  className={`flex shrink-0 rounded-full px-3 py-1.5 text-[12px] font-medium whitespace-nowrap transition-colors ${
+                    filters.subcategory === sub.slug ? 'bg-stone-700 text-white' : 'bg-stone-50 text-stone-500 border border-stone-200'
+                  }`}
+                >
+                  {sub.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         <section className="mb-6 hidden rounded-[28px] border border-stone-100 bg-white p-4 shadow-sm lg:block">
           <div className="flex flex-wrap items-center gap-3">
