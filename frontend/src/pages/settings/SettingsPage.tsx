@@ -349,7 +349,7 @@ export default function SettingsPage() {
           </button>
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="w-full py-3 text-[14px] font-medium text-stone-400 hover:text-stone-600 transition-colors"
+            className="w-full py-3 text-[14px] font-medium text-stone-500 hover:text-stone-950 transition-colors"
           >
             Eliminar cuenta
           </button>

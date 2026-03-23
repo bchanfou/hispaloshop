@@ -103,9 +103,13 @@ async def get_stories(request: Request):
         followed_ids = {f["following_id"] for f in follows}
 
     # ── 1. Collect users who have real active hispalostories ─────────────────
+    # Exclude current user's stories (self-ring is shown separately by the frontend)
+    story_query = {"expires_at": {"$gt": now}, "image_url": {"$ne": None}}
+    if current_user:
+        story_query["user_id"] = {"$ne": current_user.user_id}
     try:
         active_ephemeral = await db.hispalostories.find(
-            {"expires_at": {"$gt": now}, "image_url": {"$ne": None}},
+            story_query,
             {"_id": 0, "user_id": 1, "image_url": 1, "caption": 1, "created_at": 1, "views": 1},
         ).sort("created_at", -1).to_list(300)
     except Exception as exc:
@@ -168,10 +172,13 @@ async def get_stories(request: Request):
     # ── 2. Fill remaining slots with seller profile stories ──────────────────
     slots_remaining = max(0, 15 - len(result))
     if slots_remaining > 0:
+        excluded_user_ids = list(seen_user_ids)
+        if current_user and current_user.user_id not in seen_user_ids:
+            excluded_user_ids.append(current_user.user_id)
         seller_query = {
             "role": {"$in": ["producer", "importer"]},
             "status": {"$ne": "banned"},
-            "user_id": {"$nin": list(seen_user_ids)},
+            "user_id": {"$nin": excluded_user_ids},
         }
         # Prefer followed sellers, then any seller
         followed_seller_list = await db.users.find(
@@ -476,50 +483,55 @@ async def feed_following(request: Request, limit: int = 20, cursor: Optional[str
         current_user = await get_optional_user(request)
     except Exception:
         current_user = None
-    offset = int(cursor) if cursor else skip
-    following_ids = []
-    if current_user:
-        follows = await db.user_follows.find(
-            {"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}
-        ).to_list(500)
-        following_ids = [f["following_id"] for f in follows]
 
-    # If not authenticated or not following anyone, return empty feed
-    if not following_ids:
+    try:
+        offset = int(cursor) if cursor else skip
+        following_ids = []
+        if current_user:
+            follows = await db.user_follows.find(
+                {"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}
+            ).to_list(500)
+            following_ids = [f["following_id"] for f in follows]
+
+        # If not authenticated or not following anyone, return empty feed
+        if not following_ids:
+            return {"posts": [], "items": [], "total": 0, "has_more": False}
+
+        query = {"user_id": {"$in": following_ids}}
+        posts = await db.user_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+        for p in posts:
+            p.setdefault("type", "post")
+            p.setdefault("id", p.get("post_id") or p.get("id"))
+
+        # Mix in reels from followed users
+        reel_query = {"user_id": {"$in": following_ids}} if following_ids else {}
+        reels = await db.reels.find(reel_query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+        for r in reels:
+            r["type"] = "reel"
+            r.setdefault("id", r.get("reel_id") or r.get("id"))
+            r.setdefault("video_url", r.get("video_url") or r.get("url"))
+
+        # Merge, deduplicate, and sort by created_at DESC
+        combined = posts + reels
+        combined.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        seen_ids = set()
+        deduped = []
+        for item in combined:
+            item_id = item.get("id") or item.get("post_id") or item.get("reel_id")
+            if item_id and item_id in seen_ids:
+                continue
+            if item_id:
+                seen_ids.add(item_id)
+            deduped.append(item)
+            if len(deduped) >= limit:
+                break
+        result = deduped
+
+        # Hydrate user info
+        result = await _hydrate_feed_users(result, current_user, set(following_ids))
+
+        return {"posts": result, "items": result, "total": len(result), "has_more": len(result) == limit}
+    except Exception as e:
+        logger.error(f"Following feed error: {e}")
         return {"posts": [], "items": [], "total": 0, "has_more": False}
-
-    query = {"user_id": {"$in": following_ids}}
-    posts = await db.user_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
-    for p in posts:
-        p.setdefault("type", "post")
-        p.setdefault("id", p.get("post_id") or p.get("id"))
-
-    # Mix in reels from followed users
-    reel_query = {"user_id": {"$in": following_ids}} if following_ids else {}
-    reels = await db.reels.find(reel_query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
-    for r in reels:
-        r["type"] = "reel"
-        r.setdefault("id", r.get("reel_id") or r.get("id"))
-        r.setdefault("video_url", r.get("video_url") or r.get("url"))
-
-    # Merge, deduplicate, and sort by created_at DESC
-    combined = posts + reels
-    combined.sort(key=lambda x: x.get("created_at", ""), reverse=True)
-    seen_ids = set()
-    deduped = []
-    for item in combined:
-        item_id = item.get("id") or item.get("post_id") or item.get("reel_id")
-        if item_id and item_id in seen_ids:
-            continue
-        if item_id:
-            seen_ids.add(item_id)
-        deduped.append(item)
-        if len(deduped) >= limit:
-            break
-    result = deduped
-
-    # Hydrate user info
-    result = await _hydrate_feed_users(result, current_user, set(following_ids))
-
-    return {"posts": result, "items": result, "total": len(result), "has_more": len(result) == limit}
 
