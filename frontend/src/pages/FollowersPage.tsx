@@ -193,7 +193,7 @@ export default function FollowersPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* ── Topbar ── */}
-      <div className="sticky top-0 z-40 border-b border-stone-200 bg-white">
+      <div className="sticky top-[52px] lg:top-0 z-30 border-b border-stone-200 bg-white/90 backdrop-blur-xl">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             onClick={() => navigate(-1)}
@@ -275,9 +275,17 @@ export default function FollowersPage() {
             <p className="text-[15px] font-semibold text-stone-950">
               {search ? 'Sin resultados' : tab === 'followers' ? 'Sin seguidores' : 'No sigue a nadie'}
             </p>
-            <p className="mt-1 text-[13px] text-stone-500">
+            <p className="mt-1 text-[13px] text-stone-400">
               {search ? 'Prueba con otro término' : tab === 'followers' ? 'Aún no tiene seguidores' : 'Aún no sigue a nadie'}
             </p>
+            {!search && (
+              <button
+                onClick={() => navigate('/discover/people')}
+                className="mt-4 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white"
+              >
+                Descubrir personas
+              </button>
+            )}
           </div>
         ) : (
           <>

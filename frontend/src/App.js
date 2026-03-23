@@ -358,6 +358,9 @@ function AppRouter() {
               <Route path="/pricing" element={<Navigate to="/que-es" replace />} />
               <Route path="/vender" element={<Navigate to="/productor" replace />} />
               <Route path="/productor" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
+              <Route path="/informativas/ForProducers" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
+              <Route path="/informativas/productor" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
+              <Route path="/informativas/soy-productor" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
               <Route path="/productor/registro" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
               <Route path="/info/productor" element={<Navigate to="/productor" replace />} />
               <Route path="/registro/productor" element={<Navigate to="/productor/registro" replace />} />
