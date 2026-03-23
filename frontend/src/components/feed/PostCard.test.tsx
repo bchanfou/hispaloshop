@@ -21,6 +21,21 @@ vi.mock('../../utils/time', () => ({
 vi.mock('sonner', () => ({
   toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }),
 }));
+vi.mock('../../context/CartContext', () => ({
+  useCart: () => ({ cartItems: [], addToCart: vi.fn() }),
+}));
+vi.mock('../../context/LocaleContext', () => ({
+  useLocale: () => ({ convertAndFormatPrice: (p) => `€${p}`, t: (k, f) => f }),
+}));
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (k, f) => f || k }),
+}));
+vi.mock('framer-motion', () => ({
+  motion: new Proxy({}, { get: (_, tag) => tag === '__esModule' ? false : (props) => React.createElement(tag, props) }),
+  AnimatePresence: ({ children }) => children,
+  useMotionValue: () => ({ set: vi.fn(), get: () => 0 }),
+  useTransform: () => 0,
+}));
 
 import PostCard from './PostCard.jsx';
 

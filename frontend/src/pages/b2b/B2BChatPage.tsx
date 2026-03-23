@@ -10,6 +10,10 @@ import {
   useCreateB2BConversation,
 } from '../../features/b2b/queries';
 
+export function getB2BConversationId(conversation) {
+  return conversation?.conversation_id || conversation?.id || null;
+}
+
 function Avatar({ name, size = 'md' }) {
   const cls = size === 'sm' ? 'w-8 h-8 text-sm' : 'w-10 h-10 text-base';
   return (
@@ -189,7 +193,7 @@ export default function B2BChatPage() {
       (c) => c.producer_id === targetProducerId || c.importer_id === targetProducerId
     );
     if (existing) {
-      const nextId = existing.conversation_id;
+      const nextId = getB2BConversationId(existing);
       setActiveConvId(nextId);
       setSearchParams((prev) => {
         const params = new URLSearchParams(prev);
@@ -202,7 +206,7 @@ export default function B2BChatPage() {
         { producerId: targetProducerId },
         {
           onSuccess: (res) => {
-            const newId = res?.conversation_id || res?.data?.conversation_id;
+            const newId = getB2BConversationId(res) || getB2BConversationId(res?.data);
             if (newId) {
               setActiveConvId(newId);
               setSearchParams((prev) => {
@@ -219,7 +223,7 @@ export default function B2BChatPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetProducerId, conversations]);
 
-  const activeConv = conversations.find((c) => c.conversation_id === activeConvId);
+  const activeConv = conversations.find((c) => getB2BConversationId(c) === activeConvId);
   const otherName = activeConv?.other_participant?.company || activeConv?.other_participant?.name || '';
   const currentOpId = activeConv?.operation_id || activeConv?.b2b_operation_id || null;
 
@@ -229,7 +233,8 @@ export default function B2BChatPage() {
   const [threadSearchQuery, setThreadSearchQuery] = useState('');
 
   const handleSelectConv = (conv) => {
-    const nextId = conv.conversation_id;
+    const nextId = getB2BConversationId(conv);
+    if (!nextId) return;
     setActiveConvId(nextId);
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
@@ -268,9 +273,9 @@ export default function B2BChatPage() {
         <div className="flex-1 overflow-y-auto">
           {conversations.map((conv) => (
             <ConvRow
-              key={conv.conversation_id}
+              key={getB2BConversationId(conv) || conv.producer_id || conv.importer_id}
               conv={conv}
-              active={conv.conversation_id === activeConvId}
+              active={getB2BConversationId(conv) === activeConvId}
               onClick={() => handleSelectConv(conv)}
             />
           ))}

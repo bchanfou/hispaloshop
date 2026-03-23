@@ -9,7 +9,7 @@ import uuid
 import logging
 import json
 import re
-import cloudinary
+import importlib
 
 try:
     from sqlalchemy import select, desc
@@ -43,6 +43,14 @@ def _public_product_filter() -> dict:
     }
 
 
+def _safe_string(value: object) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value.strip()
+    return str(value).strip()
+
+
 def _normalize_tagged_products(raw_value) -> List[Dict[str, object]]:
     if not raw_value:
         return []
@@ -61,14 +69,14 @@ def _normalize_tagged_products(raw_value) -> List[Dict[str, object]]:
     for item in parsed:
         if not isinstance(item, dict):
             continue
-        product_id = (item.get("product_id") or item.get("productId") or item.get("id") or "").strip()
+        product_id = _safe_string(item.get("product_id") or item.get("productId") or item.get("id"))
         if not product_id:
             continue
         normalized.append(
             {
                 "product_id": product_id,
-                "x": float(item.get("x", item.get("position_x", 50)) or 50),
-                "y": float(item.get("y", item.get("position_y", 50)) or 50),
+                "x": _safe_float(item.get("x", item.get("position_x", 50)), 50),
+                "y": _safe_float(item.get("y", item.get("position_y", 50)), 50),
             }
         )
     return normalized[:5]
@@ -101,8 +109,8 @@ async def _hydrate_tagged_products(tag_refs: List[Dict[str, object]]) -> List[Di
                 "producer_id": product.get("producer_id"),
                 "store_id": product.get("store_id"),
                 "position": {
-                    "x": max(4, min(96, float(ref.get("x", 50) or 50))),
-                    "y": max(4, min(96, float(ref.get("y", 50) or 50))),
+                    "x": max(4, min(96, _safe_float(ref.get("x", 50), 50))),
+                    "y": max(4, min(96, _safe_float(ref.get("y", 50), 50))),
                 },
             }
         )
@@ -124,11 +132,21 @@ async def _record_intelligence_signal(event_type: str, payload: Dict[str, object
 
 
 def _normalize_post_media(post: Dict[str, object]) -> Dict[str, object]:
-    media = post.get("media") or []
+    raw_media = post.get("media")
+    media: List[Dict[str, object]] = []
+
+    if isinstance(raw_media, list):
+        media = [item for item in raw_media if isinstance(item, dict) and item.get("url")]
+    elif isinstance(raw_media, dict) and raw_media.get("url"):
+        media = [raw_media]
+
     if not media and post.get("image_url"):
         media = [{"url": post.get("image_url"), "type": "image", "order": 0, "ratio": "1:1"}]
+
     post["media"] = media
-    post["image_url"] = (media[0] or {}).get("url") if media else post.get("image_url")
+    first_media = media[0] if media else {}
+    post["image_url"] = first_media.get("url") or post.get("image_url")
+
     if len(media) > 1:
         post["type"] = "carousel"
         post["post_type"] = "carousel"
@@ -173,6 +191,30 @@ def _extract_keywords(*values: object) -> List[str]:
             seen.add(term)
             deduped.append(term)
     return deduped[:12]
+
+
+def _normalize_story_ids(raw_value: object, limit: int = 50) -> List[str]:
+    if not isinstance(raw_value, list):
+        return []
+
+    normalized: List[str] = []
+    seen: set[str] = set()
+    for item in raw_value:
+        story_id = _safe_string(item)
+        if not story_id or story_id in seen:
+            continue
+        seen.add(story_id)
+        normalized.append(story_id)
+        if len(normalized) >= limit:
+            break
+    return normalized
+
+
+def _parse_highlight_order(value: object) -> int:
+    try:
+        return max(0, int(value))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Order must be a non-negative integer")
 
 
 async def _get_contextual_products(*, product_ids: Optional[List[str]] = None, keywords: Optional[List[str]] = None, limit: int = 5):
@@ -385,7 +427,7 @@ async def create_reel(
     duration_seconds = _safe_float(result.get("duration"), 0.0)
 
     safe_trim_start = max(0.0, _safe_float(trim_start_seconds, 0.0))
-    requested_trim_end = _safe_float(trim_end_seconds, 0.0)
+    requested_trim_end = max(0.0, _safe_float(trim_end_seconds, 0.0))
     if duration_seconds > 0:
         safe_trim_end = min(duration_seconds, requested_trim_end) if requested_trim_end > 0 else duration_seconds
     else:
@@ -408,7 +450,14 @@ async def create_reel(
         safe_slow_motion_end = safe_slow_motion_start
 
     video_url = original_video_url
+    cloudinary_module = None
     if video_public_id and (safe_trim_start > 0 or safe_trim_end > 0 or is_muted):
+        try:
+            cloudinary_module = importlib.import_module("cloudinary")
+        except Exception:
+            cloudinary_module = None
+
+    if cloudinary_module and video_public_id and (safe_trim_start > 0 or safe_trim_end > 0 or is_muted):
         transformation = []
         trim_step: Dict[str, object] = {}
         if safe_trim_start > 0:
@@ -420,7 +469,7 @@ async def create_reel(
         if is_muted:
             transformation.append({"effect": "volume:-100"})
         try:
-            video_url = cloudinary.CloudinaryVideo(video_public_id).build_url(
+            video_url = cloudinary_module.CloudinaryVideo(video_public_id).build_url(
                 resource_type="video",
                 secure=True,
                 transformation=transformation,
@@ -1197,7 +1246,7 @@ async def get_highlight_detail(user_id: str, highlight_id: str):
         raise HTTPException(status_code=404, detail="Highlight not found")
 
     # Fetch story items from archive (include expired stories for highlights)
-    story_ids = highlight.get("story_ids", [])
+    story_ids = _normalize_story_ids(highlight.get("story_ids", []))
     stories = []
     if story_ids:
         raw_stories = await db.hispalostories.find(
@@ -1232,9 +1281,7 @@ async def create_highlight(request: Request, user: User = Depends(get_current_us
         raise HTTPException(status_code=400, detail="Title required (max 30 chars)")
 
     cover_url = body.get("cover_url", "")
-    story_ids = body.get("story_ids", [])
-    if not isinstance(story_ids, list):
-        story_ids = []
+    story_ids = _normalize_story_ids(body.get("story_ids", []))
 
     existing = await db.story_highlights.count_documents({"user_id": user.user_id})
     if existing >= 20:
@@ -1246,7 +1293,7 @@ async def create_highlight(request: Request, user: User = Depends(get_current_us
         "user_id": user.user_id,
         "title": title[:30],
         "cover_url": cover_url,
-        "story_ids": story_ids[:50],
+        "story_ids": story_ids,
         "order": existing,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
@@ -1269,10 +1316,9 @@ async def update_highlight(highlight_id: str, request: Request, user: User = Dep
     if "cover_url" in body:
         update["cover_url"] = body["cover_url"]
     if "story_ids" in body:
-        if isinstance(body["story_ids"], list):
-            update["story_ids"] = body["story_ids"][:50]
+        update["story_ids"] = _normalize_story_ids(body["story_ids"])
     if "order" in body:
-        update["order"] = int(body["order"])
+        update["order"] = _parse_highlight_order(body["order"])
 
     result = await db.story_highlights.update_one(
         {"highlight_id": highlight_id, "user_id": user.user_id},
@@ -1547,16 +1593,36 @@ async def delete_comment(comment_id: str, user: User = Depends(get_current_user)
 @router.get("/users/by-username/{username}")
 async def get_user_by_username(username: str):
     """Get public user by username — only public-safe fields returned."""
+    clean_username = username.strip().lower().replace(" ", "_")
     user = await db.users.find_one(
-        {"username": username},
+        {"username": clean_username},
         {"_id": 0, "user_id": 1, "name": 1, "username": 1, "role": 1, "bio": 1,
          "profile_image": 1, "picture": 1, "country": 1, "company_name": 1,
          "followers_count": 1, "following_count": 1, "posts_count": 1,
-         "interests": 1, "created_at": 1, "niche": 1, "social_links": 1}
+         "interests": 1, "created_at": 1, "niche": 1, "social_links": 1,
+         "verified": 1, "approved": 1}
     )
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return {
+        "user_id": user.get("user_id"),
+        "name": user.get("name"),
+        "username": user.get("username"),
+        "role": user.get("role"),
+        "bio": user.get("bio", ""),
+        "profile_image": user.get("profile_image") or user.get("picture"),
+        "picture": user.get("picture"),
+        "country": user.get("country"),
+        "company_name": user.get("company_name"),
+        "followers_count": user.get("followers_count", 0),
+        "following_count": user.get("following_count", 0),
+        "posts_count": user.get("posts_count", 0),
+        "interests": user.get("interests", []),
+        "created_at": user.get("created_at"),
+        "niche": user.get("niche"),
+        "social_links": user.get("social_links", {}),
+        "is_verified": bool(user.get("verified") or user.get("approved")),
+    }
 
 
 @router.get("/users/check-username/{username}")

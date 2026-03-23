@@ -14,6 +14,10 @@ import { Send, ShieldAlert, Lock, RefreshCw, User, ChevronLeft } from 'lucide-re
 
 // WS_URL derived from centralized getWSUrl helper
 
+export function getEscalationConversationId(conversation) {
+  return conversation?.conversation_id || conversation?.id || null;
+}
+
 export default function EscalationChat() {
   const { user } = useAuth();
   const isSuperAdmin = user?.role === 'super_admin';
@@ -35,7 +39,7 @@ export default function EscalationChat() {
       setEscalations(data);
       // Admins auto-select their single conversation if it exists
       if (!isSuperAdmin && data.length > 0) {
-        setActiveConvId(data[0].conversation_id);
+        setActiveConvId(getEscalationConversationId(data[0]));
       }
     } catch {
       // no escalation yet for this admin — that's fine
@@ -97,7 +101,7 @@ export default function EscalationChat() {
         { message: initialMessage }
       );
       setInitialMessage('');
-      setActiveConvId(data.conversation_id);
+      setActiveConvId(getEscalationConversationId(data));
       fetchEscalations();
       toast.success('Canal de escalación abierto. Un superadmin recibirá tu mensaje.');
     } catch (err) {
@@ -171,11 +175,12 @@ export default function EscalationChat() {
               <p className="p-6 text-sm text-stone-500 text-center">Sin escalaciones activas</p>
             ) : escalations.map(conv => {
               const other = conv.participants?.find(p => p.role !== 'super_admin') || conv.participants?.[0];
+              const conversationId = getEscalationConversationId(conv);
               return (
                 <button
-                  key={conv.conversation_id}
-                  onClick={() => setActiveConvId(conv.conversation_id)}
-                  className={`w-full text-left px-4 py-3 hover:bg-stone-50 transition-colors ${activeConvId === conv.conversation_id ? 'bg-stone-100 border-l-2 border-stone-950' : ''}`}
+                  key={conversationId || other?.user_id || other?.name}
+                  onClick={() => setActiveConvId(conversationId)}
+                  className={`w-full text-left px-4 py-3 hover:bg-stone-50 transition-colors ${activeConvId === conversationId ? 'bg-stone-100 border-l-2 border-stone-950' : ''}`}
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center shrink-0">
