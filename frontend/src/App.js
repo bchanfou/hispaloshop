@@ -439,6 +439,9 @@ function AppRouter() {
               <Route path="/affiliate-program" element={<Navigate to="/influencer" replace />} />
               <Route path="/ser-productor" element={<Navigate to="/productor" replace />} />
               <Route path="/importador" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
+              <Route path="/informativas/ForImporters" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
+              <Route path="/informativas/importador" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
+              <Route path="/informativas/soy-importador" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
               <Route path="/importer" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
               <Route path="/importador/onboarding" element={<Navigate to="/importador?onboarding=1&plan=free" replace />} />
               <Route path="/importer/onboarding" element={<Navigate to="/importer?onboarding=1&plan=free" replace />} />

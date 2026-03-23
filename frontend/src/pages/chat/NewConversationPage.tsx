@@ -5,6 +5,7 @@ import { ArrowLeft, Search } from 'lucide-react';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import { toast } from 'sonner';
 
 const ROLE_LABELS = {
   producer: 'Productor',
@@ -126,9 +127,17 @@ export default function NewConversationPage() {
 
   const handleSelect = useCallback(async (targetUser) => {
     if (selecting || !user) return;
-    setSelecting(true);
 
     const targetId = targetUser.id || targetUser.user_id;
+    const currentUserId = user.user_id || user.id;
+
+    // Prevent self-conversation
+    if (targetId === currentUserId || String(targetId) === String(currentUserId)) {
+      toast.error('No puedes enviarte mensajes a ti mismo');
+      return;
+    }
+
+    setSelecting(true);
 
     const existing = conversations.find((c) => {
       const other = c.other_user || c.otherUser;
@@ -160,6 +169,13 @@ export default function NewConversationPage() {
     if (!toUserId || !user || !conversations) return;
 
     handledPrefillRef.current = true;
+
+    // Prevent self-conversation via URL param
+    const currentUserId = String(user.user_id || user.id);
+    if (String(toUserId) === currentUserId) {
+      toast.error('No puedes enviarte mensajes a ti mismo');
+      return;
+    }
 
     const existing = conversations.find((c) => {
       const other = c.other_user || c.otherUser;

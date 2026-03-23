@@ -145,6 +145,11 @@ export function ChatProvider({ children }) {
   // Create new conversation
   const createConversation = useCallback(async (otherUserId) => {
     if (!isAuthenticated) return null;
+    const currentUserId = user?.user_id || user?.id;
+    if (currentUserId && String(otherUserId) === String(currentUserId)) {
+      toast.error('No puedes enviarte mensajes a ti mismo');
+      return null;
+    }
     try {
       const data = await apiClient.post(`/chat/conversations`, { other_user_id: otherUserId });
       await loadConversations();
@@ -152,11 +157,16 @@ export function ChatProvider({ children }) {
     } catch (e) {
       return null;
     }
-  }, [isAuthenticated, loadConversations]);
+  }, [isAuthenticated, loadConversations, user]);
 
   // Open or find existing conversation with a user of a given type
   const openConversation = useCallback(async (userId, type) => {
     if (!isAuthenticated) return null;
+    const currentUserId = user?.user_id || user?.id;
+    if (currentUserId && String(userId) === String(currentUserId)) {
+      toast.error('No puedes enviarte mensajes a ti mismo');
+      return null;
+    }
     try {
       const data = await apiClient.post(`/chat/conversations`, { other_user_id: userId, type });
       await loadConversations();
@@ -164,7 +174,7 @@ export function ChatProvider({ children }) {
     } catch (e) {
       return null;
     }
-  }, [isAuthenticated, loadConversations]);
+  }, [isAuthenticated, loadConversations, user]);
 
   // Send a product card message via WebSocket
   const attachProduct = useCallback((conversationId, productId) => {

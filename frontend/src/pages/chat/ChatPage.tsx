@@ -32,6 +32,7 @@ import AffiliateLinkCard from '../../components/chat/collab/AffiliateLinkCard';
 import ProductCardMessage from '../../components/chat/ProductCardMessage';
 import SampleShipmentCard from '../../components/chat/collab/SampleShipmentCard';
 import { useHaptics } from '../../hooks/useHaptics';
+import { toast } from 'sonner';
 
 /* ────────── Date helpers ────────── */
 function isSameDay(a, b) {
@@ -908,9 +909,14 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
 
   // Voice recording
   const startRecording = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error('Tu navegador no soporta grabación de audio. Usa HTTPS o un navegador compatible.');
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+      const mr = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       mediaRecorderRef.current = mr;
       chunksRef.current = [];
       setRecordingSecs(0);
@@ -918,7 +924,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
       mr.ondataavailable = (e) => { if (e.data.size) chunksRef.current.push(e.data); };
       mr.onstop = () => {
         stream.getTracks().forEach(t => t.stop());
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const blob = new Blob(chunksRef.current, { type: mr.mimeType || 'audio/webm' });
         if (blob.size > 0) onVoiceSend?.(blob, recordingSecsRef.current);
         setIsRecording(false);
         setRecordingSecs(0);
@@ -931,8 +937,8 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
         recordingSecsRef.current += 1;
         setRecordingSecs(recordingSecsRef.current);
       }, 1000);
-    } catch {
-      // Mic not available
+    } catch (err) {
+      toast.error('No se pudo acceder al micrófono. Comprueba los permisos de tu navegador.');
     }
   };
 

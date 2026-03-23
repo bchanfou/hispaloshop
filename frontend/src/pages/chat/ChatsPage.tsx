@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Search, MessageCircle, PenSquare, Trash2, ArrowLeft } from 'lucide-react';
 import { useChatContext } from '../../context/chat/ChatProvider';
+import { useAuth } from '../../context/AuthContext';
 
 const SWIPE_HINT_KEY = 'chat_swipe_hint_shown';
 
@@ -164,6 +165,7 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping, is
 export default function ChatsPage() {
   const navigate = useNavigate();
   const { conversations, reloadConversations, deleteConversation, typingUsers } = useChatContext();
+  const { user: currentUser } = useAuth();
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -202,6 +204,16 @@ export default function ChatsPage() {
   const filteredConversations = useMemo(() => {
     let result = conversations || [];
 
+    // Filter out self-conversations
+    const currentUserId = currentUser?.user_id || currentUser?.id;
+    if (currentUserId) {
+      result = result.filter((c) => {
+        const other = c.other_user || c.otherUser;
+        const otherId = other?.id || other?.user_id || c.other_user_id || c.user2_id;
+        return otherId && String(otherId) !== String(currentUserId);
+      });
+    }
+
     if (activeFilter !== 'all') {
       result = result.filter((c) => c.type === activeFilter);
     }
@@ -214,7 +226,7 @@ export default function ChatsPage() {
     }
 
     return result;
-  }, [conversations, activeFilter, debouncedQuery]);
+  }, [conversations, activeFilter, debouncedQuery, currentUser]);
 
   const onlineConversations = useMemo(() =>
     (conversations || []).filter((c) => c.online),
@@ -227,7 +239,7 @@ export default function ChatsPage() {
       <div className="flex min-h-screen flex-col bg-white md:min-h-0 md:h-[calc(100vh-88px)] md:grid md:grid-cols-[410px_1fr] md:overflow-hidden md:rounded-xl md:border md:border-stone-200/90">
         <section className="flex min-h-0 flex-col bg-white md:border-r md:border-stone-200">
           {/* TopBar — Instagram style */}
-          <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl md:static md:pt-4">
+          <div className="sticky top-[52px] z-30 flex items-center gap-3 border-b border-stone-100 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-xl md:static md:pt-4">
             <button
               onClick={() => navigate(-1)}
               className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100 md:hidden"
