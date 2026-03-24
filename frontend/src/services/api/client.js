@@ -56,29 +56,35 @@ const httpClient = axios.create({
   },
 });
 
-let refreshPromise = null;
+// --- Refresh queue: ensures only ONE refresh runs at a time ---
+let isRefreshing = false;
+let failedQueue = []; // { resolve, reject } entries waiting for refresh
+
+function processQueue(error, token = null) {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else prom.resolve(token);
+  });
+  failedQueue = [];
+}
 
 async function refreshSession() {
   // Backend uses httpOnly session_token cookie for refresh (not body token).
   // The cookie is sent automatically via withCredentials: true.
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/auth/refresh`,
-      {},
-      { withCredentials: true },
-    );
+  const response = await axios.post(
+    `${API_BASE_URL}/auth/refresh`,
+    {},
+    { withCredentials: true },
+  );
 
-    // Backend returns new session_token in both cookie and body
-    const data = response?.data;
-    if (data?.session_token || data?.access_token) {
-      setToken(data.session_token || data.access_token, data.refresh_token);
-      return true;
-    }
-
-    return false;
-  } catch {
-    return false;
+  const data = response?.data;
+  const newToken = data?.session_token || data?.access_token || null;
+  if (newToken) {
+    setToken(newToken, data.refresh_token);
+    return newToken;
   }
+
+  throw new Error('Refresh returned no token');
 }
 
 function getCsrfToken() {
@@ -139,38 +145,44 @@ httpClient.interceptors.response.use(
       } catch { /* sonner not loaded */ }
     }
 
-    if (error?.response?.status === 401 && originalRequest && !originalRequest.__isRetryRequest) {
-      originalRequest.__isRetryRequest = true;
-
-      if (!refreshPromise) {
-        refreshPromise = refreshSession().finally(() => {
-          refreshPromise = null;
-        });
-      }
-
-      const refreshed = await refreshPromise;
-      if (refreshed) {
-        const token = getToken();
-        if (token) {
+    if (status === 401 && originalRequest && !originalRequest._retry) {
+      // If a refresh is already in flight, queue this request to retry later
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
           originalRequest.headers = {
             ...(originalRequest.headers || {}),
             Authorization: `Bearer ${token}`,
           };
-        }
-
-        return httpClient(originalRequest);
+          return httpClient(originalRequest);
+        });
       }
 
-      // Clear all stale auth tokens
-      removeToken();
-      localStorage.removeItem('hispalo_access_token');
-      localStorage.removeItem('hsp_token');
+      originalRequest._retry = true;
+      isRefreshing = true;
 
-      // Redirect to login with return URL so the user can resume after re-auth
-      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-        window.location.href = `/login?redirect=${returnUrl}&expired=true`;
-        return Promise.reject(error);
+      try {
+        const newToken = await refreshSession();
+        // Refresh succeeded — retry this request + flush the queue
+        processQueue(null, newToken);
+        originalRequest.headers = {
+          ...(originalRequest.headers || {}),
+          Authorization: `Bearer ${newToken}`,
+        };
+        return httpClient(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed — reject all queued requests, logout once
+        processQueue(refreshError, null);
+        removeToken();
+
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.href = `/login?redirect=${returnUrl}&expired=true`;
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 

@@ -77,22 +77,29 @@ function FollowingFeed() {
   const handleCloseModal = useCallback(() => setModalPost(null), []);
 
   const { refreshing, progress, handlers } = usePullToRefresh(
-    async () => { await queryClient.resetQueries({ queryKey: feedKeys.following }); }
+    async () => { await queryClient.refetchQueries({ queryKey: feedKeys.following, type: 'active' }); }
   );
 
   const handleLike = useCallback(async (postId) => {
-    const targetPost = allPosts.find((post) => post.id === postId);
-    if (!targetPost) return;
+    // Read current liked state from React Query cache (not stale closure)
+    const pages = queryClient.getQueryData(feedKeys.following)?.pages || [];
+    let currentLiked = false;
+    for (const page of pages) {
+      const found = (page?.items || []).find(
+        (p) => String(p.id) === String(postId) || String(p.post_id) === String(postId)
+      );
+      if (found) {
+        currentLiked = Boolean(found.is_liked || found.liked);
+        break;
+      }
+    }
 
     try {
-      await likeMutation.mutateAsync({
-        postId,
-        liked: Boolean(targetPost.is_liked || targetPost.liked),
-      });
+      await likeMutation.mutateAsync({ postId, liked: currentLiked });
     } catch {
       // Query layer handles rollback and error state.
     }
-  }, [allPosts, likeMutation]);
+  }, [likeMutation, queryClient]);
 
   const handleComment = useCallback((postId) => {
     const post = allPosts.find((p) => p.id === postId);

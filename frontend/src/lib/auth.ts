@@ -9,22 +9,42 @@ interface JWTPayload {
   [key: string]: any;
 }
 
-const TOKEN_KEY = 'hispalo_access_token';
-const REFRESH_TOKEN_KEY = 'hispalo_refresh_token';
+export const TOKEN_KEY = 'hsp_token';
+export const REFRESH_TOKEN_KEY = 'hsp_refresh';
+const LEGACY_TOKEN_KEY = 'hispalo_access_token';
+const LEGACY_REFRESH_KEY = 'hispalo_refresh_token';
 const USER_KEY = 'hispalo_user';
 
 /**
  * Obtener token de acceso
  */
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY) || localStorage.getItem('hsp_token');
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) return token;
+  // Migrate from legacy key if present
+  const legacy = localStorage.getItem(LEGACY_TOKEN_KEY);
+  if (legacy) {
+    localStorage.setItem(TOKEN_KEY, legacy);
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+    return legacy;
+  }
+  return null;
 }
 
 /**
  * Obtener refresh token
  */
 export function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
+  const token = localStorage.getItem(REFRESH_TOKEN_KEY);
+  if (token) return token;
+  // Migrate from legacy key if present
+  const legacy = localStorage.getItem(LEGACY_REFRESH_KEY);
+  if (legacy) {
+    localStorage.setItem(REFRESH_TOKEN_KEY, legacy);
+    localStorage.removeItem(LEGACY_REFRESH_KEY);
+    return legacy;
+  }
+  return null;
 }
 
 /**
@@ -33,9 +53,11 @@ export function getRefreshToken(): string | null {
 export function setToken(accessToken?: string | null, refreshToken?: string | null): void {
   if (accessToken && typeof accessToken === 'string') {
     localStorage.setItem(TOKEN_KEY, accessToken);
+    localStorage.removeItem(LEGACY_TOKEN_KEY); // clean legacy
   }
   if (refreshToken && typeof refreshToken === 'string') {
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    localStorage.removeItem(LEGACY_REFRESH_KEY); // clean legacy
   }
 }
 
@@ -46,8 +68,9 @@ export function removeToken(): void {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
-  // Legacy key used by some components
-  localStorage.removeItem('hsp_token');
+  // Clean legacy keys
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
+  localStorage.removeItem(LEGACY_REFRESH_KEY);
 }
 
 /**

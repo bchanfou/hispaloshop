@@ -31,6 +31,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import AnimatedNumber from '../motion/AnimatedNumber';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
+import { getToken } from '../../lib/auth';
 import { useHaptics } from '../../hooks/useHaptics';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
@@ -202,7 +203,7 @@ export default function ProfileHeader({
 
   const accounts = useMemo(() => {
     const currentAccObj = {
-      token: localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '',
+      token: getToken() || '',
       user_id: user?.user_id || user?.id,
       username: user?.username,
       name: user?.name || user?.full_name || user?.display_name || user?.username,
@@ -573,7 +574,7 @@ export default function ProfileHeader({
               <button
                 onClick={() => {
                   // Save current account before adding new one
-                  const currentToken = localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
+                  const currentToken = getToken() || '';
                   if (currentToken && user) {
                     let existingAccounts = [];
                     try { existingAccounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { existingAccounts = []; }

@@ -193,6 +193,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const heartTimerRef = useRef(null);
   const scrollRef = useRef(null);
   const undoTimerRef = useRef(null);
+  const deleteTimerRef = useRef(null);
   const captionRef = useRef(null); // ref for fresh caption in share handler
 
   const isOwner = (currentUser?.user_id || currentUser?.id) && ((currentUser.user_id || currentUser.id) === (post.user?.id || post.user_id));
@@ -203,6 +204,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       clearTimeout(heartTimerRef.current);
       clearTimeout(undoTimerRef.current);
       clearTimeout(longPressRef.current);
+      clearTimeout(deleteTimerRef.current);
     };
   }, []);
 
@@ -337,13 +339,13 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       action: {
         label: 'Deshacer',
         onClick: () => {
-          clearTimeout(undoTimerRef.current);
+          clearTimeout(deleteTimerRef.current);
           setDeleted(false);
         },
       },
       duration: 5000,
     });
-    undoTimerRef.current = setTimeout(async () => {
+    deleteTimerRef.current = setTimeout(async () => {
       try {
         await apiClient.delete(`/posts/${post.id}`);
         onDelete?.(post.id);

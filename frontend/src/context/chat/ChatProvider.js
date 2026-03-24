@@ -38,6 +38,11 @@ export function ChatProvider({ children }) {
   const [typingUsers, setTypingUsers] = useState({});
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [polling, setPolling] = useState(false);
+  const pollingRef = useRef(null);
+  const wsFailCountRef = useRef(0);
+  const POLLING_INTERVAL = 5000;
+  const MAX_WS_RETRIES = 3;
 
   // Load conversations from API
   const loadConversations = useCallback(async () => {
@@ -94,19 +99,61 @@ export function ChatProvider({ children }) {
     setLoadingMore(false);
   }, [isAuthenticated, loadingMore, hasMoreMessages, messages]);
 
-  // Send message via WebSocket
-  const sendMessage = useCallback((conversationId, content, extra = {}) => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+  // --- HTTP polling fallback when WebSocket is unavailable ---
+  const startPolling = useCallback(() => {
+    if (pollingRef.current) return;
+    setPolling(true);
+
+    pollingRef.current = setInterval(async () => {
+      if (!currentConversation || !isAuthenticated) return;
+      try {
+        const data = await apiClient.get(`/chat/conversations/${currentConversation}/messages`);
+        const msgs = data?.messages ?? (Array.isArray(data) ? data : []);
+        if (msgs.length > 0) {
+          setMessages(msgs);
+        }
+      } catch {
+        // polling error — will retry next interval
+      }
+      // Also refresh conversation list for unread badges
+      loadConversations().catch(() => {});
+    }, POLLING_INTERVAL);
+  }, [currentConversation, isAuthenticated, loadConversations]);
+
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+    setPolling(false);
+  }, []);
+
+  // Send message via WebSocket, with HTTP fallback
+  const sendMessage = useCallback(async (conversationId, content, extra = {}) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'message',
+        conversation_id: conversationId,
+        content: content,
+        ...extra,
+      }));
+      return true;
+    }
+
+    // HTTP fallback when WS is down
+    try {
+      const data = await apiClient.post(`/chat/conversations/${conversationId}/messages`, {
+        content,
+        ...extra,
+      });
+      // Add to local messages immediately
+      if (data) {
+        setMessages(prev => [...prev, data]);
+      }
+      return true;
+    } catch {
       return false;
     }
-    
-    wsRef.current.send(JSON.stringify({
-      type: 'message',
-      conversation_id: conversationId,
-      content: content,
-      ...extra,
-    }));
-    return true;
   }, []);
 
   // Send typing indicator
@@ -361,6 +408,8 @@ export function ChatProvider({ children }) {
       ws.onopen = () => {
         setConnected(true);
         reconnectDelayRef.current = 1000; // Reset backoff on successful connection
+        wsFailCountRef.current = 0;
+        stopPolling(); // WS recovered — stop HTTP polling
         loadConversations();
         
         // Send ping every 30s to keep connection alive
@@ -373,13 +422,22 @@ export function ChatProvider({ children }) {
         }, 30000);
       };
 
-      ws.onclose = (event) => {
+      ws.onclose = () => {
         clearInterval(pingIntervalRef.current);
         setConnected(false);
-        // Exponential backoff reconnection: 1s → 2s → 4s → … → 30s max
-        const delay = reconnectDelayRef.current;
-        reconnectRef.current = setTimeout(connect, delay);
-        reconnectDelayRef.current = Math.min(delay * 2, 30000);
+        wsFailCountRef.current += 1;
+
+        if (wsFailCountRef.current >= MAX_WS_RETRIES) {
+          // After repeated failures, fall back to HTTP polling
+          startPolling();
+          // Keep trying to reconnect in background at slow rate
+          reconnectRef.current = setTimeout(connect, 30000);
+        } else {
+          // Exponential backoff reconnection: 1s → 2s → 4s → … → 30s max
+          const delay = reconnectDelayRef.current;
+          reconnectRef.current = setTimeout(connect, delay);
+          reconnectDelayRef.current = Math.min(delay * 2, 30000);
+        }
       };
 
       ws.onerror = () => {
@@ -482,13 +540,19 @@ export function ChatProvider({ children }) {
           // silently handled
         }
       };
-    } catch (error) {
-      // TODO: Implement HTTP polling fallback when WebSocket is unavailable
-      const delay = reconnectDelayRef.current;
-      reconnectRef.current = setTimeout(connect, delay);
-      reconnectDelayRef.current = Math.min(delay * 2, 30000);
+    } catch {
+      // WebSocket constructor failed (e.g. blocked by network/firewall)
+      wsFailCountRef.current += 1;
+      if (wsFailCountRef.current >= MAX_WS_RETRIES) {
+        startPolling();
+        reconnectRef.current = setTimeout(connect, 30000);
+      } else {
+        const delay = reconnectDelayRef.current;
+        reconnectRef.current = setTimeout(connect, delay);
+        reconnectDelayRef.current = Math.min(delay * 2, 30000);
+      }
     }
-  }, [isAuthenticated, user, currentConversation, loadConversations, markAsRead]);
+  }, [isAuthenticated, user, currentConversation, loadConversations, markAsRead, startPolling, stopPolling]);
 
   // Connect when authenticated
   useEffect(() => {
@@ -508,6 +572,7 @@ export function ChatProvider({ children }) {
 
     return () => {
       clearInterval(pingIntervalRef.current);
+      stopPolling();
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       if (notifReconnectRef.current) clearTimeout(notifReconnectRef.current);
       if (wsRef.current) wsRef.current.close();
@@ -553,6 +618,9 @@ export function ChatProvider({ children }) {
     notifUnreadCount,
     clearNotifUnreadCount,
 
+    // Connection mode
+    polling,
+
     // WebSocket reference for advanced usage
     ws: wsRef.current
   }), [
@@ -580,7 +648,8 @@ export function ChatProvider({ children }) {
     typingUsers,
     notifConnected,
     notifUnreadCount,
-    clearNotifUnreadCount
+    clearNotifUnreadCount,
+    polling
   ]);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

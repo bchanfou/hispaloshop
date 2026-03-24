@@ -179,6 +179,8 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const viewTrackedRef = useRef(false);
 
   // IntersectionObserver auto play/pause
+  const isVisibleRef = useRef(false);
+
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
@@ -186,7 +188,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
+        isVisibleRef.current = visible;
+
+        if (visible && !document.hidden) {
           video.play().catch(() => { setPlaying(false); });
           setPlaying(true);
           // Track view once when reel becomes visible
@@ -200,14 +205,17 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           setPlaying(false);
         }
       },
-      { threshold: 0.5 }
+      { threshold: [0, 0.5, 1.0] }
     );
 
     observer.observe(container);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      video.pause();
+    };
   }, [reel.id, reel.reel_id, reel.post_id]);
 
-  // Pause on tab switch (visibilitychange)
+  // Pause on tab switch (visibilitychange) — resume only if in viewport
   useEffect(() => {
     const handleVisibility = () => {
       const video = videoRef.current;
@@ -215,7 +223,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       if (document.hidden) {
         video.pause();
         setPlaying(false);
-      } else if (isActive) {
+      } else if (isVisibleRef.current || isActive) {
         video.play().catch(() => { setPlaying(false); });
         setPlaying(true);
       }

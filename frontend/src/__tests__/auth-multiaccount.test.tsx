@@ -22,11 +22,12 @@ vi.mock('../lib/sentry', () => ({
 }));
 
 vi.mock('../lib/auth', () => ({
-  getToken: vi.fn(() => localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token')),
+  TOKEN_KEY: 'hsp_token',
+  getToken: vi.fn(() => localStorage.getItem('hsp_token')),
   removeToken: vi.fn(() => {
-    localStorage.removeItem('hispalo_access_token');
     localStorage.removeItem('hsp_token');
-    localStorage.removeItem('hispalo_refresh_token');
+    localStorage.removeItem('hsp_refresh');
+    localStorage.removeItem('hispalo_access_token');
     localStorage.removeItem('hispalo_user');
   }),
 }));
@@ -63,7 +64,6 @@ describe('AuthProvider multi-account', () => {
   });
 
   it('logout removes the active account from saved accounts', async () => {
-    localStorage.setItem('hispalo_access_token', 'token-1');
     localStorage.setItem('hsp_token', 'token-1');
     localStorage.setItem('hsp_accounts', JSON.stringify([
       { user_id: 'u1', username: 'alice', token: 'token-1' },
@@ -91,12 +91,10 @@ describe('AuthProvider multi-account', () => {
       ]);
     });
 
-    expect(localStorage.getItem('hispalo_access_token')).toBeNull();
     expect(localStorage.getItem('hsp_token')).toBeNull();
   });
 
   it('invalid saved account is removed and current session is restored on switch failure', async () => {
-    localStorage.setItem('hispalo_access_token', 'token-1');
     localStorage.setItem('hsp_token', 'token-1');
     localStorage.setItem('hsp_accounts', JSON.stringify([
       { user_id: 'u1', username: 'alice', token: 'token-1' },
@@ -123,7 +121,6 @@ describe('AuthProvider multi-account', () => {
       expect(screen.getByTestId('username')).toHaveTextContent('alice');
     });
 
-    expect(localStorage.getItem('hispalo_access_token')).toBe('token-1');
     expect(localStorage.getItem('hsp_token')).toBe('token-1');
     expect(JSON.parse(localStorage.getItem('hsp_accounts') || '[]')).toEqual([
       expect.objectContaining({ user_id: 'u1', username: 'alice', token: 'token-1' }),
@@ -131,7 +128,6 @@ describe('AuthProvider multi-account', () => {
   });
 
   it('logout of active account switches to another valid saved account', async () => {
-    localStorage.setItem('hispalo_access_token', 'token-1');
     localStorage.setItem('hsp_token', 'token-1');
     localStorage.setItem('hsp_accounts', JSON.stringify([
       { user_id: 'u1', username: 'alice', token: 'token-1' },
@@ -159,7 +155,6 @@ describe('AuthProvider multi-account', () => {
       expect(screen.getByTestId('username')).toHaveTextContent('bob');
     });
 
-    expect(localStorage.getItem('hispalo_access_token')).toBe('token-2');
     expect(localStorage.getItem('hsp_token')).toBe('token-2');
     expect(JSON.parse(localStorage.getItem('hsp_accounts') || '[]')).toEqual([
       expect.objectContaining({ user_id: 'u2', username: 'bob', token: 'token-2' }),

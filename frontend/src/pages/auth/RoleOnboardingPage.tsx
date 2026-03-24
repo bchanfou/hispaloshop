@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 
 const DESTINATIONS = {
-  customer:   '/feed',
+  customer:   '/',
   producer:   '/producer',
   importer:   '/importer/dashboard',
   influencer: '/influencer/dashboard',

@@ -96,9 +96,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const prefersReducedMotion = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-  // Determine effective duration: video real duration or default 5s for images
+  // Determine effective duration: video real duration (capped at 30s) or default 5s for images
+  const MAX_VIDEO_DURATION = 30000;
   const effectiveDuration = currentItem?.video_url
-    ? (videoDuration || STORY_DURATION)
+    ? (videoDuration && isFinite(videoDuration) ? Math.min(videoDuration, MAX_VIDEO_DURATION) : STORY_DURATION)
     : STORY_DURATION;
 
   // 4.1: Transition context read from refs during render
@@ -205,7 +206,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     const storyId = item?.story_id || item?.id;
     if (storyId && !viewedRef.current.has(storyId)) {
       viewedRef.current.add(storyId);
-      apiClient.post(`/stories/${storyId}/view`).catch(() => {});
+      apiClient.post(`/stories/${storyId}/view`).catch(() => {
+        // Remove from Set so it retries on next visit
+        viewedRef.current.delete(storyId);
+      });
     }
   }, [currentStory, currentItemIndex]);
 

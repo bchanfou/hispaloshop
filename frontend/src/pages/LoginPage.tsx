@@ -72,7 +72,7 @@ export default function LoginPage() {
           let accounts = [];
           try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
           const userId = data.user.user_id || data.user.id;
-          const newToken = data.session_token || data.access_token || localStorage.getItem('hispalo_access_token') || '';
+          const newToken = data.session_token || data.access_token || localStorage.getItem('hsp_token') || '';
           const idx = accounts.findIndex(a => String(a.user_id) === String(userId));
           const accObj = {
             token: newToken,

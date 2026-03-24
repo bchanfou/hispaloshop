@@ -23,8 +23,20 @@ export function usePushNotifications(user) {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') return;
 
-        const vapidKey = process.env.REACT_APP_VAPID_PUBLIC_KEY;
-        if (!vapidKey) return;
+        // Try env var first, fall back to backend API
+        let vapidKey = process.env.REACT_APP_VAPID_PUBLIC_KEY;
+        if (!vapidKey) {
+          try {
+            const data = await apiClient.get('/push/vapid-key');
+            vapidKey = data?.publicKey;
+          } catch {
+            // backend unreachable or endpoint missing
+          }
+        }
+        if (!vapidKey) {
+          console.warn('[Push] VAPID public key not configured — push notifications disabled');
+          return;
+        }
 
         const existing = await reg.pushManager.getSubscription();
         if (existing) {

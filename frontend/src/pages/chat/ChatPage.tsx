@@ -1085,7 +1085,7 @@ export default function ChatPage() {
     messages, loadMessages, sendMessage, sendTyping, markAsRead,
     typingUsers, conversations, sendReaction,
     loadOlderMessages, hasMoreMessages, loadingMore,
-    deleteConversation,
+    deleteConversation, polling,
   } = useChatContext();
 
   const [localMessages, setLocalMessages] = useState([]);
@@ -1354,6 +1354,13 @@ export default function ChatPage() {
         showBackButton={showBackButton}
       />
       <ContextBanner orderId={conversation?.order_id} navigate={navigate} />
+
+      {polling && (
+        <div className="flex items-center justify-center gap-1.5 bg-stone-100 px-3 py-1.5 text-xs text-stone-500">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+          Conexión inestable — actualizando cada 5s
+        </div>
+      )}
 
       <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-white scroll-smooth" role="log" aria-live="polite" aria-label="Mensajes">
         <div className={compact ? 'pb-3 pt-1.5' : 'pb-4 pt-2'}>

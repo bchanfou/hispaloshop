@@ -188,13 +188,12 @@ export default function OnboardingPage() {
       await saveProgress({ step: 4, completed: true });
       await checkAuth();
 
-      if (selectedRole === 'producer') {
-        navigate('/producer/verification', { replace: true });
-      } else if (selectedRole === 'influencer') {
-        navigate('/influencer/fiscal-setup', { replace: true });
-      } else {
-        navigate('/', { replace: true });
-      }
+      const roleDestinations = {
+        producer:   '/producer/verification',
+        influencer: '/influencer/fiscal-setup',
+        importer:   '/importer/dashboard',
+      };
+      navigate(roleDestinations[selectedRole] || '/', { replace: true });
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Error al guardar tu perfil. Inténtalo de nuevo.');
       navigate('/', { replace: true });

@@ -7,6 +7,7 @@ import {
   Link2, Receipt, CreditCard, Store, Globe, Check,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { removeToken } from '../../lib/auth';
 
 /* ── Section header ── */
 function SectionLabel({ children }) {
@@ -134,7 +135,7 @@ export default function SettingsPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('hsp_token');
+    removeToken();
     localStorage.removeItem('hsp_accounts');
     logout();
     navigate('/login', { replace: true });
@@ -146,7 +147,7 @@ export default function SettingsPage() {
     try {
       const apiClient = (await import('../../services/api/client')).default;
       await apiClient.delete('/account/delete', { data: { email_confirmation: deleteEmail } });
-      localStorage.removeItem('hsp_token');
+      removeToken();
       localStorage.removeItem('hsp_accounts');
       logout();
       navigate('/login', { replace: true });

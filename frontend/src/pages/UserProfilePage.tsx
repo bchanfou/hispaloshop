@@ -108,16 +108,18 @@ export default function UserProfilePage() {
 
   /* ── View own stories ─────────────────────────────────────────── */
   const handleViewOwnStory = useCallback(async () => {
+    const ownId = user?.user_id ?? profileLookupKey;
+    if (!ownId) return;
     try {
-      const data = await apiClient.get(`/stories/${user?.user_id || userId}`);
+      const data = await apiClient.get(`/stories/${ownId}`);
       const items = Array.isArray(data) ? data : data?.items || data?.stories || [];
       if (items.length === 0) {
         toast('No tienes stories activos');
         return;
       }
       setOwnStories([{
-        user_id: user?.user_id,
-        user: { id: user?.user_id, name: user?.name, avatar_url: user?.profile_image, profile_image: user?.profile_image },
+        user_id: ownId,
+        user: { id: ownId, name: user?.name, avatar_url: user?.profile_image, profile_image: user?.profile_image },
         items: items.map(s => ({
           id: s.id || s.story_id,
           story_id: s.id || s.story_id,
@@ -132,7 +134,7 @@ export default function UserProfilePage() {
     } catch {
       toast.error('Error al cargar tus stories');
     }
-  }, [user, profileLookupKey]);
+  }, [user?.user_id, user?.name, user?.profile_image, profileLookupKey]);
 
   /* ── View a highlight ─────────────────────────────────────────── */
   const handleViewHighlight = useCallback(async (highlight) => {

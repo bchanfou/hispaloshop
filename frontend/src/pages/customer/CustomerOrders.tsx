@@ -246,12 +246,27 @@ export default function CustomerOrders() {
                   {/* Status timeline */}
                   {!isCancelled && <OrderTimeline status={order.status} />}
 
-                  {/* Cancelled badge */}
+                  {/* Terminal status badge (cancelled / refunded) */}
                   {isCancelled && (
-                    <div className="mt-2 ml-14">
-                      <span className="inline-block rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
+                    <div className="mt-2 ml-14 flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
+                        order.status === 'refunded'
+                          ? 'bg-stone-100 text-stone-700'
+                          : 'bg-stone-100 text-stone-500'
+                      }`}>
+                        {order.status === 'refunded' ? <RotateCcw size={12} /> : <Clock size={12} />}
                         {order.status === 'cancelled' ? 'Cancelado' : 'Reembolsado'}
                       </span>
+                      {order.status === 'refunded' && order.refund_amount_cents != null && (
+                        <span className="text-xs text-stone-500">
+                          {convertAndFormatPrice(order.refund_amount_cents)}
+                        </span>
+                      )}
+                      {order.cancelled_at && (
+                        <span className="text-[10px] text-stone-400">
+                          {new Date(order.cancelled_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                        </span>
+                      )}
                     </div>
                   )}
 

@@ -8,6 +8,17 @@ const CartContext = createContext();
 
 const GUEST_CART_KEY = 'hsp_cart_guest';
 
+/** Normalize null/undefined/'' to empty string, then build a stable cart key */
+function cartKey(productId, variantId, packId) {
+  const v = variantId != null && variantId !== '' ? String(variantId) : '';
+  const p = packId != null && packId !== '' ? String(packId) : '';
+  return p ? `${productId}-${v}-${p}` : v ? `${productId}-${v}` : String(productId);
+}
+
+function itemKey(item) {
+  return cartKey(item.product_id, item.variant_id, item.pack_id);
+}
+
 function readGuestCart() {
   try {
     return JSON.parse(localStorage.getItem(GUEST_CART_KEY)) || [];
@@ -56,18 +67,27 @@ export function CartProvider({ children }) {
     }
   }, []);
 
-  // Merge guest cart into server cart
+  // Merge guest cart into server cart — skip items that already exist
   const mergeGuestCart = useCallback(async () => {
     const guestItems = readGuestCart();
     if (guestItems.length === 0) return;
 
     try {
+      // Fetch current server cart to detect duplicates
+      let serverKeys = new Set();
+      try {
+        const res = await apiClient.get('/cart');
+        const serverItems = (res.data || res)?.items || [];
+        serverKeys = new Set(serverItems.map(itemKey));
+      } catch { /* if fetch fails, merge everything */ }
+
       for (const item of guestItems) {
+        if (serverKeys.has(itemKey(item))) continue; // already in server cart
         await apiClient.post('/cart/items', {
           product_id: item.product_id,
           quantity: item.quantity,
-          ...(item.variant_id && { variant_id: item.variant_id }),
-          ...(item.pack_id && { pack_id: item.pack_id }),
+          ...(item.variant_id != null && item.variant_id !== '' && { variant_id: item.variant_id }),
+          ...(item.pack_id != null && item.pack_id !== '' && { pack_id: item.pack_id }),
         });
       }
     } catch (error) {
@@ -114,10 +134,8 @@ export function CartProvider({ children }) {
     if (!user) {
       // Guest cart — localStorage
       const guest = readGuestCart();
-      const key = `${productId}-${variantId || ''}-${packId || ''}`;
-      const idx = guest.findIndex(
-        (i) => `${i.product_id}-${i.variant_id || ''}-${i.pack_id || ''}` === key
-      );
+      const key = cartKey(productId, variantId, packId);
+      const idx = guest.findIndex((i) => itemKey(i) === key);
       if (idx >= 0) {
         guest[idx].quantity += quantity;
       } else {
@@ -154,10 +172,8 @@ export function CartProvider({ children }) {
   const removeFromCart = useCallback(async (productId, variantId = null, packId = null) => {
     if (!user) {
       const guest = readGuestCart();
-      const key = `${productId}-${variantId || ''}-${packId || ''}`;
-      const filtered = guest.filter(
-        (i) => `${i.product_id}-${i.variant_id || ''}-${i.pack_id || ''}` !== key
-      );
+      const key = cartKey(productId, variantId, packId);
+      const filtered = guest.filter((i) => itemKey(i) !== key);
       writeGuestCart(filtered);
       setCartItems(filtered);
       return;
@@ -165,10 +181,8 @@ export function CartProvider({ children }) {
 
     // Optimistic remove — hide item immediately, revert on error
     const previousItems = cartItems;
-    const key = `${productId}-${variantId || ''}-${packId || ''}`;
-    setCartItems(prev =>
-      prev.filter(item => `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}` !== key)
-    );
+    const key = cartKey(productId, variantId, packId);
+    setCartItems(prev => prev.filter(item => itemKey(item) !== key));
 
     try {
       let path = `/cart/items/${productId}`;
@@ -194,10 +208,8 @@ export function CartProvider({ children }) {
 
     if (!user) {
       const guest = readGuestCart();
-      const key = `${productId}-${variantId || ''}-${packId || ''}`;
-      const idx = guest.findIndex(
-        (i) => `${i.product_id}-${i.variant_id || ''}-${i.pack_id || ''}` === key
-      );
+      const key = cartKey(productId, variantId, packId);
+      const idx = guest.findIndex((i) => itemKey(i) === key);
       if (idx >= 0) {
         guest[idx].quantity = newQuantity;
         writeGuestCart(guest);
@@ -208,12 +220,9 @@ export function CartProvider({ children }) {
 
     // Optimistic update — update UI immediately, revert on error
     const previousItems = cartItems;
-    const key = `${productId}-${variantId || ''}-${packId || ''}`;
+    const key = cartKey(productId, variantId, packId);
     setCartItems(prev =>
-      prev.map(item => {
-        const itemKey = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
-        return itemKey === key ? { ...item, quantity: newQuantity } : item;
-      })
+      prev.map(item => itemKey(item) === key ? { ...item, quantity: newQuantity } : item)
     );
 
     try {

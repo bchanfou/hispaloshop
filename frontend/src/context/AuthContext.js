@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { authApi } from '../lib/authApi';
-import { getToken, removeToken } from '../lib/auth';
+import { getToken, removeToken, TOKEN_KEY } from '../lib/auth';
 import { setUser as setSentryUser } from '../lib/sentry';
 
 const AuthContext = createContext(null);
@@ -184,7 +184,7 @@ export function AuthProvider({ children }) {
       if (normalizedUser) {
         setSentryUser({ id: normalizedUser.user_id, username: normalizedUser.username, email: normalizedUser.email });
 
-        const token = data?.session_token || data?.access_token || localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
+        const token = data?.session_token || data?.access_token || getToken() || '';
         upsertStoredAccount(toAccountObject(normalizedUser, token));
       }
 
@@ -218,7 +218,7 @@ export function AuthProvider({ children }) {
       }
 
       if (normalizedUser) {
-        const token = data?.session_token || data?.access_token || localStorage.getItem('hispalo_access_token') || localStorage.getItem('hsp_token') || '';
+        const token = data?.session_token || data?.access_token || getToken() || '';
         upsertStoredAccount(toAccountObject(normalizedUser, token));
       }
 
@@ -288,8 +288,7 @@ export function AuthProvider({ children }) {
       }
 
       // Set new account token
-      localStorage.setItem('hispalo_access_token', account.token);
-      localStorage.setItem('hsp_token', account.token);
+      localStorage.setItem(TOKEN_KEY, account.token);
 
       // Re-authenticate deterministically with the new token
       const newUser = await resolveUserFromActiveToken();
@@ -327,8 +326,7 @@ export function AuthProvider({ children }) {
 
       // Try to restore previous account token
       if (prevToken) {
-        localStorage.setItem('hispalo_access_token', prevToken);
-        localStorage.setItem('hsp_token', prevToken);
+        localStorage.setItem(TOKEN_KEY, prevToken);
         if (prevUser) {
           setUser(prevUser);
           setSentryUser({ id: prevUser.user_id, username: prevUser.username, email: prevUser.email });
@@ -363,8 +361,7 @@ export function AuthProvider({ children }) {
       const remaining = readStoredAccounts().filter((a) => a?.token);
 
       for (const fallback of remaining) {
-        localStorage.setItem('hispalo_access_token', fallback.token);
-        localStorage.setItem('hsp_token', fallback.token);
+        localStorage.setItem(TOKEN_KEY, fallback.token);
         authDebug('logout-account:fallback-attempt', {
           fallbackId: accountId(fallback),
           fallbackUsername: fallback?.username || null,
