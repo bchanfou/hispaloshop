@@ -304,12 +304,20 @@ async def validate_cart_country(request: Request, current_user = Depends(get_cur
     if not cart:
         return {"unavailable_count": 0, "unavailable_items": []}
 
+    # Batch fetch all products in 1 query (avoids N+1)
+    cart_items = cart.get("items", [])
+    product_ids = [item["product_id"] for item in cart_items if item.get("product_id")]
+    products_list = await db.products.find(
+        {"product_id": {"$in": product_ids}}, {"_id": 0}
+    ).to_list(len(product_ids)) if product_ids else []
+    products_map = {p["product_id"]: p for p in products_list}
+
     unavailable_items = []
-    for item in cart.get("items", []):
+    for item in cart_items:
         pid = item.get("product_id")
         if not pid:
             continue
-        product = await db.products.find_one({"product_id": pid}, {"_id": 0})
+        product = products_map.get(pid)
 
         if not product or not is_product_available_in_country(product, country):
             unavailable_items.append({
@@ -337,16 +345,24 @@ async def apply_country_change(request: Request, current_user = Depends(get_curr
     if not cart:
         return {"removed_count": 0, "updated_count": 0, "items": []}
 
+    # Batch fetch all products in 1 query (avoids N+1)
+    all_items = cart.get("items", [])
+    all_pids = [item["product_id"] for item in all_items if item.get("product_id")]
+    all_products = await db.products.find(
+        {"product_id": {"$in": all_pids}}, {"_id": 0}
+    ).to_list(len(all_pids)) if all_pids else []
+    pmap = {p["product_id"]: p for p in all_products}
+
     next_items = []
     removed_count = 0
     updated_count = 0
 
-    for item in cart.get("items", []):
+    for item in all_items:
         pid = item.get("product_id")
         if not pid:
             removed_count += 1
             continue
-        product = await db.products.find_one({"product_id": pid}, {"_id": 0})
+        product = pmap.get(pid)
 
         if not product or not is_product_available_in_country(product, country):
             removed_count += 1

@@ -41,6 +41,7 @@ export function ChatProvider({ children }) {
   const [polling, setPolling] = useState(false);
   const pollingRef = useRef(null);
   const wsFailCountRef = useRef(0);
+  const typingTimersRef = useRef({});
   const POLLING_INTERVAL = 5000;
   const MAX_WS_RETRIES = 3;
 
@@ -481,18 +482,23 @@ export function ChatProvider({ children }) {
             case 'typing':
               // Update typing status
               if (payload.conversation_id) {
+                const convKey = payload.conversation_id;
                 setTypingUsers(prev => ({
                   ...prev,
-                  [payload.conversation_id]: payload.is_typing ? payload.user_id : null
+                  [convKey]: payload.is_typing ? payload.user_id : null
                 }));
-                
-                // Clear typing after 3 seconds
+
+                // Cancel previous timer for this conversation
+                if (typingTimersRef.current[convKey]) {
+                  clearTimeout(typingTimersRef.current[convKey]);
+                  delete typingTimersRef.current[convKey];
+                }
+
+                // Auto-clear typing after 3 seconds
                 if (payload.is_typing) {
-                  setTimeout(() => {
-                    setTypingUsers(prev => ({
-                      ...prev,
-                      [payload.conversation_id]: null
-                    }));
+                  typingTimersRef.current[convKey] = setTimeout(() => {
+                    setTypingUsers(prev => ({ ...prev, [convKey]: null }));
+                    delete typingTimersRef.current[convKey];
                   }, 3000);
                 }
               }
@@ -573,6 +579,9 @@ export function ChatProvider({ children }) {
     return () => {
       clearInterval(pingIntervalRef.current);
       stopPolling();
+      // Clear all typing indicator timers
+      Object.values(typingTimersRef.current).forEach(clearTimeout);
+      typingTimersRef.current = {};
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       if (notifReconnectRef.current) clearTimeout(notifReconnectRef.current);
       if (wsRef.current) wsRef.current.close();

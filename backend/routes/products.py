@@ -877,7 +877,7 @@ async def delete_product_variant(
 async def delete_product(product_id: str, user: User = Depends(get_current_user)):
     """Delete a product by ID."""
     await require_role(user, ["admin", "super_admin", "producer", "importer"])
-    product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "producer_id": 1})
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "producer_id": 1, "images": 1})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
@@ -886,6 +886,13 @@ async def delete_product(product_id: str, user: User = Depends(get_current_user)
     # Clean up orphaned references
     await db.cart_items.delete_many({"product_id": product_id})
     await db.stock_holds.delete_many({"product_id": product_id})
+
+    # Clean Cloudinary product images
+    try:
+        from services.cloudinary_storage import cleanup_urls
+        await cleanup_urls(product.get("images") or [], "image")
+    except Exception as e:
+        logger.warning(f"[PRODUCT_DELETE] Cloudinary cleanup failed for {product_id}: {e}")
 
     # Delete product and ALL related data (zero residue)
     await db.products.delete_one({"product_id": product_id})

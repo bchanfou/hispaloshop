@@ -6,6 +6,7 @@ import asyncio
 import cloudinary
 import cloudinary.uploader
 import os
+import re
 import uuid
 import logging
 from functools import partial
@@ -189,3 +190,19 @@ async def delete_media(public_id: str, resource_type: str = "image"):
 # Keep legacy alias
 async def delete_image(public_id: str):
     return await delete_media(public_id, resource_type="image")
+
+
+def extract_public_id(url: str) -> str | None:
+    """Extract Cloudinary public_id from a full URL."""
+    if not url or "cloudinary.com" not in str(url):
+        return None
+    match = re.search(r"/upload/(?:v\d+/)?(.+?)(?:\.\w{3,4})?$", url)
+    return match.group(1) if match else None
+
+
+async def cleanup_urls(urls: list, resource_type: str = "image") -> None:
+    """Delete multiple Cloudinary assets by URL. Silent on errors."""
+    for url in (urls or []):
+        pid = extract_public_id(url if isinstance(url, str) else (url or {}).get("url", ""))
+        if pid:
+            await delete_media(pid, resource_type)

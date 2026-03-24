@@ -91,7 +91,7 @@ async def update_producer_status(producer_id: str, status: str, user: User = Dep
         raise HTTPException(status_code=404, detail="Seller not found")
 
     update_data = {"status": status, "approved": status == "approved"}
-    await db.users.update_one({"user_id": producer_id}, {"$set": update_data})
+    await db.users.update_one(scope_query, {"$set": update_data})
     await log_admin_action(
         admin_id=user.user_id,
         admin_role=user.role,
@@ -115,7 +115,7 @@ async def update_producer(producer_id: str, data: dict, user: User = Depends(get
         target = await db.users.find_one(scope_query, {"_id": 0, "user_id": 1})
         if not target:
             raise HTTPException(status_code=404, detail="Seller not found")
-        await db.users.update_one({"user_id": producer_id}, {"$set": update_data})
+        await db.users.update_one(scope_query, {"$set": update_data})
     return {"message": "Seller updated"}
 
 # Admin - Product Management (enhanced)

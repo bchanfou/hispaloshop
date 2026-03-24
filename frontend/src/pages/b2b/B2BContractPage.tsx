@@ -75,22 +75,29 @@ export default function B2BContractPage() {
   useEffect(() => {
     if (!operation) return;
     const shouldPoll = operation.status === 'offer_accepted' || operation.status === 'contract_pending';
+    let cancelled = false;
     if (shouldPoll) {
       pollAttemptsRef.current = 0;
       pollRef.current = setInterval(async () => {
         pollAttemptsRef.current += 1;
         if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
           clearInterval(pollRef.current);
-          setPollTimedOut(true);
+          if (!cancelled) setPollTimedOut(true);
           return;
         }
-        const fresh = await fetchOperation();
-        if (fresh && fresh.status !== 'offer_accepted' && fresh.status !== 'contract_pending') {
-          clearInterval(pollRef.current);
+        try {
+          const fresh = await fetchOperation();
+          if (cancelled) return;
+          if (fresh && fresh.status !== 'offer_accepted' && fresh.status !== 'contract_pending') {
+            clearInterval(pollRef.current);
+          }
+        } catch {
+          // retry on next interval
         }
       }, 5000);
     }
     return () => {
+      cancelled = true;
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [operation?.status, fetchOperation]);

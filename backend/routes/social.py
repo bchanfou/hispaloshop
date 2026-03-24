@@ -752,8 +752,15 @@ async def delete_reel(reel_id: str, user: User = Depends(get_current_user)):
     reel = await db.reels.find_one(filter_q)
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found or not owned")
+    # Clean Cloudinary assets
+    try:
+        from services.cloudinary_storage import cleanup_urls
+        urls = [reel.get("video_url"), reel.get("thumbnail_url"), reel.get("media_url")]
+        await cleanup_urls([u for u in urls if u], "video")
+    except Exception as e:
+        logger.warning(f"[REEL_DELETE] Cloudinary cleanup failed for {reel_id}: {e}")
+
     await db.reels.delete_one(filter_q)
-    # Clean up associated data
     await db.reel_likes.delete_many({"reel_id": reel_id})
     await db.reel_comments.delete_many({"reel_id": reel_id})
     return {"status": "deleted"}
@@ -1812,11 +1819,24 @@ async def update_post(post_id: str, request: Request, user: User = Depends(get_c
 
 @router.delete("/posts/{post_id}")
 async def delete_post(post_id: str, user: User = Depends(get_current_user)):
-    post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1})
+    post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1, "media": 1, "image_url": 1, "video_url": 1, "images": 1})
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     if post["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
         raise HTTPException(status_code=403, detail="Not authorized")
+    # Clean Cloudinary assets before deleting document
+    try:
+        from services.cloudinary_storage import cleanup_urls
+        media_urls = [m.get("url") if isinstance(m, dict) else m for m in (post.get("media") or post.get("images") or [])]
+        if post.get("image_url"):
+            media_urls.append(post["image_url"])
+        rtype = "video" if post.get("video_url") else "image"
+        if post.get("video_url"):
+            media_urls.append(post["video_url"])
+        await cleanup_urls(media_urls, rtype)
+    except Exception as e:
+        logger.warning(f"[POST_DELETE] Cloudinary cleanup failed for {post_id}: {e}")
+
     await db.user_posts.delete_one({"post_id": post_id})
     await db.post_likes.delete_many({"post_id": post_id})
     await db.post_comments.delete_many({"post_id": post_id})

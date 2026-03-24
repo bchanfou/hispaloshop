@@ -492,9 +492,12 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
                 result = await db.products.update_one(
                     {"product_id": item_product_id, "variants.variant_id": variant_id, "variants.packs.pack_id": pack_id},
                     {"$inc": {"variants.$[v].packs.$[p].stock": -item_qty}},
-                    array_filters=[{"v.variant_id": variant_id}, {"p.pack_id": pack_id}]
+                    array_filters=[
+                        {"v.variant_id": variant_id},
+                        {"p.pack_id": pack_id, "p.stock": {"$gte": item_qty}},
+                    ]
                 )
-                if result.matched_count == 0:
+                if result.matched_count == 0 or result.modified_count == 0:
                     stock_issues.append(item.get("product_name", item_product_id))
             else:
                 result = await db.products.update_one(

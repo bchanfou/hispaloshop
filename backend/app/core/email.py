@@ -1,6 +1,7 @@
 """
 Email service using Resend.
 """
+import time
 import resend
 from fastapi import HTTPException
 from ..core.config import RESEND_API_KEY, EMAIL_FROM, logger
@@ -26,19 +27,28 @@ def send_email(to: str, subject: str, html: str):
             detail="Email service not configured. Please contact support."
         )
     
-    try:
-        params = {
-            "from": EMAIL_FROM,
-            "to": [to],
-            "subject": subject,
-            "html": html
-        }
-        response = resend.Emails.send(params)
-        logger.info(f"[EMAIL] Successfully sent '{subject}' to {to}")
-        return response
-    except Exception as e:
-        logger.error(f"[EMAIL] Failed to send email to {to}: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to send email: {str(e)}"
-        )
+    max_retries = 3
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            params = {
+                "from": EMAIL_FROM,
+                "to": [to],
+                "subject": subject,
+                "html": html
+            }
+            response = resend.Emails.send(params)
+            logger.info(f"[EMAIL] Successfully sent '{subject}' to {to}")
+            return response
+        except Exception as e:
+            last_error = e
+            if attempt < max_retries - 1:
+                wait = 2 ** attempt  # 1s, 2s
+                logger.warning(f"[EMAIL] Attempt {attempt + 1} failed for {to}, retrying in {wait}s: {e}")
+                time.sleep(wait)
+            else:
+                logger.error(f"[EMAIL] Failed to send email to {to} after {max_retries} attempts: {e}")
+    raise HTTPException(
+        status_code=500,
+        detail=f"Failed to send email after {max_retries} attempts: {str(last_error)}"
+    )
