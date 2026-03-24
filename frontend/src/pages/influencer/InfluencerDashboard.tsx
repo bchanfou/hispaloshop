@@ -636,9 +636,9 @@ export default function InfluencerDashboard() {
                   <p className="mt-1 text-xs capitalize text-stone-500">{item.content_type}</p>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-right text-xs text-stone-500">
-                  <div><p className="font-semibold text-stone-950">{item.views}</p><p>Views</p></div>
-                  <div><p className="font-semibold text-stone-950">{item.clicks}</p><p>Clicks</p></div>
-                  <div><p className="font-semibold text-stone-950">{item.sales}</p><p>Sales</p></div>
+                  <div><p className="font-semibold text-stone-950">{item.views}</p><p>Vistas</p></div>
+                  <div><p className="font-semibold text-stone-950">{item.clicks}</p><p>Clics</p></div>
+                  <div><p className="font-semibold text-stone-950">{item.sales}</p><p>Ventas</p></div>
                 </div>
               </div>
             )) : <p className="text-sm text-stone-500">Publica contenido con productos vinculados para empezar a ver rendimiento.</p>}

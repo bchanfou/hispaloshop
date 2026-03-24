@@ -13,13 +13,13 @@ const FILTERS = [
   { key: 'b2c',    label: 'Tiendas' },
   { key: 'b2b',    label: 'B2B' },
   { key: 'c2c',    label: 'Personas' },
-  { key: 'collab', label: 'Collab' },
+  { key: 'collab', label: 'Colaboración' },
 ];
 
 const TYPE_BADGES = {
   b2c:    { label: 'Tienda', classes: 'bg-stone-100 text-stone-500' },
   b2b:    { label: 'B2B',    classes: 'bg-stone-100 text-stone-500' },
-  collab: { label: 'Collab', classes: 'bg-stone-100 text-stone-950' },
+  collab: { label: 'Colaboración', classes: 'bg-stone-100 text-stone-950' },
   c2c:    null,
 };
 

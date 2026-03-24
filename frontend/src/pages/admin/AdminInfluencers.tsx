@@ -36,7 +36,7 @@ export default function AdminInfluencers() {
       const data = await apiClient.get('/admin/influencers');
       setInfluencers(data);
     } catch (err) {
-      toast.error('Error loading influencers');
+      toast.error('Error al cargar influencers');
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ export default function AdminInfluencers() {
   const createInfluencer = async () => {
     try {
       const data = await apiClient.post('/admin/influencers', newInfluencer);
-      toast.success(`Influencer created! Code: ${data.discount_code}`);
+      toast.success(`¡Influencer creado! Código: ${data.discount_code}`);
       setShowCreateDialog(false);
       setNewInfluencer({
         full_name: '',
@@ -67,17 +67,17 @@ export default function AdminInfluencers() {
       fetchInfluencers();
       fetchStats();
     } catch (err) {
-      toast.error(err.message || 'Error creating influencer');
+      toast.error(err.message || 'Error al crear influencer');
     }
   };
 
   const updateStatus = async (influencerId, status) => {
     try {
       await apiClient.put(`/admin/influencers/${influencerId}/status?status=${status}`, {});
-      toast.success(`Influencer ${status === 'active' ? 'activated' : 'suspended'}`);
+      toast.success(`Influencer ${status === 'active' ? 'activado' : 'suspendido'}`);
       fetchInfluencers();
     } catch (err) {
-      toast.error('Error updating status');
+      toast.error('Error al actualizar estado');
     }
   };
 
@@ -97,7 +97,7 @@ export default function AdminInfluencers() {
       const data = await apiClient.get(`/admin/influencers/${influencerId}`);
       setSelectedInfluencer(data);
     } catch (err) {
-      toast.error('Error loading influencer details');
+      toast.error('Error al cargar detalles del influencer');
     }
   };
 
@@ -131,7 +131,7 @@ export default function AdminInfluencers() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-semibold">Influencers</h1>
-          <p className="text-stone-500">Manage influencer commissions and payouts</p>
+          <p className="text-stone-500">Gestionar comisiones y pagos de influencers</p>
         </div>
         <button
           type="button"
@@ -139,7 +139,7 @@ export default function AdminInfluencers() {
           className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Influencer
+          Añadir influencer
         </button>
       </div>
 
@@ -147,20 +147,20 @@ export default function AdminInfluencers() {
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl border border-stone-200 p-4">
-            <p className="text-sm text-stone-500">Total Influencers</p>
+            <p className="text-sm text-stone-500">Total influencers</p>
             <p className="text-2xl font-semibold">{stats.total_influencers}</p>
             <p className="text-xs text-stone-700">{stats.active_influencers} active</p>
           </div>
           <div className="bg-white rounded-2xl border border-stone-200 p-4">
-            <p className="text-sm text-stone-500">Total Sales</p>
+            <p className="text-sm text-stone-500">Ventas totales</p>
             <p className="text-2xl font-semibold">€{(stats.total_sales_generated || 0).toFixed(2)}</p>
           </div>
           <div className="bg-white rounded-2xl border border-stone-200 p-4">
-            <p className="text-sm text-stone-500">Total Commissions</p>
+            <p className="text-sm text-stone-500">Comisiones totales</p>
             <p className="text-2xl font-semibold">€{(stats.total_commissions_earned || 0).toFixed(2)}</p>
           </div>
           <div className="bg-white rounded-2xl border border-stone-200 p-4">
-            <p className="text-sm text-stone-500">Pending Payouts</p>
+            <p className="text-sm text-stone-500">Pagos pendientes</p>
             <p className="text-2xl font-semibold text-stone-700">€{(stats.total_pending_payouts || 0).toFixed(2)}</p>
           </div>
         </div>
@@ -175,14 +175,14 @@ export default function AdminInfluencers() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-stone-200">
-                <th className="text-left py-3 px-4 font-medium text-stone-500">Name</th>
-                <th className="text-left py-3 px-4 font-medium text-stone-500">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-stone-500">Commission</th>
-                <th className="text-left py-3 px-4 font-medium text-stone-500">Sales</th>
-                <th className="text-left py-3 px-4 font-medium text-stone-500">Earned</th>
-                <th className="text-left py-3 px-4 font-medium text-stone-500">Balance</th>
+                <th className="text-left py-3 px-4 font-medium text-stone-500">Nombre</th>
+                <th className="text-left py-3 px-4 font-medium text-stone-500">Estado</th>
+                <th className="text-left py-3 px-4 font-medium text-stone-500">Comisión</th>
+                <th className="text-left py-3 px-4 font-medium text-stone-500">Ventas</th>
+                <th className="text-left py-3 px-4 font-medium text-stone-500">Ganado</th>
+                <th className="text-left py-3 px-4 font-medium text-stone-500">Saldo</th>
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Stripe</th>
-                <th className="text-left py-3 px-4 font-medium text-stone-500">Actions</th>
+                <th className="text-left py-3 px-4 font-medium text-stone-500">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -209,11 +209,11 @@ export default function AdminInfluencers() {
                   </td>
                   <td className="py-3 px-4">
                     {inf.stripe_onboarding_complete ? (
-                      <span className="text-stone-700 text-sm">Connected</span>
+                      <span className="text-stone-700 text-sm">Conectado</span>
                     ) : inf.stripe_account_id ? (
-                      <span className="text-stone-600 text-sm">Pending</span>
+                      <span className="text-stone-600 text-sm">Pendiente</span>
                     ) : (
-                      <span className="text-stone-500 text-sm">Not connected</span>
+                      <span className="text-stone-500 text-sm">No conectado</span>
                     )}
                   </td>
                   <td className="py-3 px-4">
@@ -314,7 +314,7 @@ export default function AdminInfluencers() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-stone-500">Name</p>
+                  <p className="text-sm text-stone-500">Nombre</p>
                   <p className="font-medium">{selectedInfluencer.full_name}</p>
                 </div>
                 <div>
@@ -322,26 +322,26 @@ export default function AdminInfluencers() {
                   <p className="font-medium">{selectedInfluencer.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-stone-500">Discount Code</p>
+                  <p className="text-sm text-stone-500">Código de descuento</p>
                   <p className="font-mono font-bold">{selectedInfluencer.discount_code_info?.code || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-stone-500">Customer Discount</p>
+                  <p className="text-sm text-stone-500">Descuento del cliente</p>
                   <p className="font-medium">{selectedInfluencer.discount_code_info?.value}%</p>
                 </div>
               </div>
 
               {selectedInfluencer.recent_commissions?.length > 0 && (
                 <div>
-                  <h4 className="font-medium mb-2">Recent Commissions</h4>
+                  <h4 className="font-medium mb-2">Comisiones recientes</h4>
                   <div className="max-h-48 overflow-y-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2">Order</th>
+                          <th className="text-left py-2">Pedido</th>
                           <th className="text-left py-2">Total</th>
-                          <th className="text-left py-2">Commission</th>
-                          <th className="text-left py-2">Status</th>
+                          <th className="text-left py-2">Comisión</th>
+                          <th className="text-left py-2">Estado</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -444,7 +444,7 @@ export default function AdminInfluencers() {
                 </div>
               </div>
               <button type="button" onClick={createInfluencer} className="w-full py-2.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors">
-                Create Influencer
+                Crear influencer
               </button>
             </div>
           </div>

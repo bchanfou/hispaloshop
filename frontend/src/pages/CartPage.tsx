@@ -847,9 +847,9 @@ export default function CartPage() {
 
               {(getSelectedAddress() || showNewAddressForm) && (
                 <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-stone-50 rounded-2xl">
-                  <p className="text-[10px] md:text-xs text-stone-500 mb-0.5 md:mb-1">{t('checkout.shippingTo') || 'Shipping to'}:</p>
+                  <p className="text-[10px] md:text-xs text-stone-500 mb-0.5 md:mb-1">{t('checkout.shippingTo') || 'Enviando a'}:</p>
                   {showNewAddressForm ? (
-                    <p className="text-xs md:text-sm text-stone-950">{t('checkout.newAddressForm') || 'New address (fill form below)'}</p>
+                    <p className="text-xs md:text-sm text-stone-950">{t('checkout.newAddressForm') || 'Nueva dirección (completa abajo)'}</p>
                   ) : (
                     <p className="text-xs md:text-sm text-stone-950">{getSelectedAddress()?.full_name}, {getSelectedAddress()?.city}</p>
                   )}

@@ -23,7 +23,7 @@ export default function AdminReviews() {
       const data = await apiClient.get('/admin/reviews');
       setReviews(data);
     } catch (error) {
-      toast.error('Failed to load reviews');
+      toast.error('Error al cargar reseñas');
     } finally {
       setLoading(false);
     }
@@ -36,24 +36,24 @@ export default function AdminReviews() {
         : `/admin/reviews/${review.review_id}/show`;
 
       await apiClient.put(endpoint, {});
-      toast.success(review.visible ? 'Review hidden' : 'Review visible');
+      toast.success(review.visible ? 'Reseña oculta' : 'Reseña visible');
       fetchReviews();
     } catch (error) {
-      toast.error('Failed to update review visibility');
+      toast.error('Error al actualizar visibilidad');
     }
   };
 
   const handleDelete = async (reviewId) => {
-    if (!window.confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar esta reseña? Esta acción no se puede deshacer.')) {
       return;
     }
 
     try {
       await apiClient.delete(`/admin/reviews/${reviewId}`);
-      toast.success('Review deleted');
+      toast.success('Reseña eliminada');
       fetchReviews();
     } catch (error) {
-      toast.error('Failed to delete review');
+      toast.error('Error al eliminar reseña');
     }
   };
 
@@ -99,8 +99,8 @@ export default function AdminReviews() {
     <div className="space-y-6" data-testid="admin-reviews">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-stone-950">Reviews</h1>
-        <p className="text-stone-500 text-sm mt-1">Moderate customer reviews</p>
+        <h1 className="text-2xl font-semibold text-stone-950">Reseñas</h1>
+        <p className="text-stone-500 text-sm mt-1">Moderar reseñas de clientes</p>
       </div>
 
       {/* Stats */}
@@ -111,7 +111,7 @@ export default function AdminReviews() {
               <Star className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <p className="text-xs text-stone-500 uppercase tracking-wider">Total Reviews</p>
+              <p className="text-xs text-stone-500 uppercase tracking-wider">Total de reseñas</p>
               <p className="text-xl font-semibold text-stone-950">{reviews.length}</p>
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function AdminReviews() {
               <Star className="w-5 h-5 text-stone-500 fill-stone-400" />
             </div>
             <div>
-              <p className="text-xs text-stone-500 uppercase tracking-wider">Average Rating</p>
+              <p className="text-xs text-stone-500 uppercase tracking-wider">Calificación promedio</p>
               <p className="text-xl font-semibold text-stone-950">
                 {reviews.length > 0
                   ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
@@ -151,7 +151,7 @@ export default function AdminReviews() {
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
         <input
-          placeholder="Search reviews..."
+          placeholder="Buscar reseñas..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
@@ -165,20 +165,20 @@ export default function AdminReviews() {
         <table className="w-full min-w-[800px]">
           <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Product</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">User</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Rating</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Comment</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Date</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Visibility</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Actions</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Producto</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Usuario</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Calificación</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Comentario</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Fecha</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Visibilidad</th>
+              <th className="text-right px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200">
             {filteredReviews.length === 0 ? (
               <tr>
                 <td colSpan="7" className="px-6 py-12 text-center text-stone-500">
-                  {searchTerm ? 'No reviews found' : 'No reviews yet'}
+                  {searchTerm ? 'No se encontraron reseñas' : 'Aún no hay reseñas'}
                 </td>
               </tr>
             ) : (

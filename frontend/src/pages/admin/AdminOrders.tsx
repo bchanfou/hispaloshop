@@ -47,14 +47,14 @@ export default function AdminOrders() {
   );
 
   const exportCSV = () => {
-    const headers = ['Order ID', 'Customer', 'Items', 'Total', 'Status', 'Date'];
+    const headers = ['ID Pedido', 'Cliente', 'Artículos', 'Total', 'Estado', 'Fecha'];
     const rows = filteredOrders.map(o => [
       o.order_id,
       `${o.user_name || ''} <${o.user_email || ''}>`,
       o.line_items?.length || 0,
       fmtPrice(o.total_amount),
       o.status,
-      o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A',
+      o.created_at ? new Date(o.created_at).toLocaleDateString('es-ES') : 'N/D',
     ]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

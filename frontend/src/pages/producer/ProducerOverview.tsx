@@ -278,7 +278,7 @@ function HealthScoreCard() {
               <Star className="w-4 h-4 text-stone-500" />
               <span className="text-xl font-bold text-stone-950">{healthData.metrics.avg_rating || '-'}</span>
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-stone-500">{healthData.metrics.review_count} Reviews</div>
+            <div className="text-[10px] uppercase tracking-wider text-stone-500">{healthData.metrics.review_count} Reseñas</div>
           </div>
         </div>
       </div>
@@ -909,7 +909,7 @@ export default function ProducerOverview() {
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
           <div className="p-4 rounded-2xl shadow-sm bg-stone-100">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Trending ingredients</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Ingredientes en tendencia</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.trending_ingredients || []).slice(0, 4).map((item) => (
                 <div key={item.name} className="flex items-center justify-between text-sm text-stone-950">
@@ -921,7 +921,7 @@ export default function ProducerOverview() {
             </div>
           </div>
           <div className="p-4 rounded-2xl shadow-sm bg-stone-100">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Most tagged products</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Productos más etiquetados</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.most_tagged_products || []).slice(0, 4).map((item) => (
                 <div key={item.product_id} className="flex items-center justify-between gap-3 text-sm text-stone-950">
@@ -933,7 +933,7 @@ export default function ProducerOverview() {
             </div>
           </div>
           <div className="p-4 rounded-2xl shadow-sm bg-stone-100">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Content driving sales</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Contenido que impulsa ventas</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.content_driving_sales || []).slice(0, 4).map((item) => (
                 <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between text-sm text-stone-950">

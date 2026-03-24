@@ -392,7 +392,7 @@ export default function PayoutsPage() {
                   <p className="text-xs text-stone-500">
                     {payout.commission_count} ventas
                     {payout.stripe_transfer_id && (
-                      <> · Transfer #{payout.stripe_transfer_id.slice(-8)}</>
+                      <> · Transferencia #{payout.stripe_transfer_id.slice(-8)}</>
                     )}
                   </p>
                   {/* Fees breakdown */}

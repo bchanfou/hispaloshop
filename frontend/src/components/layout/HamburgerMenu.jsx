@@ -135,7 +135,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   hispaloshop
                 </span>
               </div>
-              <button onClick={onClose} className="flex items-center justify-center w-8 h-8 rounded-full border-none bg-stone-100 cursor-pointer">
+              <button onClick={onClose} aria-label="Cerrar menú" className="flex items-center justify-center w-8 h-8 rounded-full border-none bg-stone-100 cursor-pointer">
                 <X size={18} className="text-stone-950" strokeWidth={2} />
               </button>
             </div>

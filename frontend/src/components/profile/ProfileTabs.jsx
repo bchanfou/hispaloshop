@@ -30,7 +30,7 @@ import SlideTabIndicator from '../motion/SlideTabIndicator';
 import apiClient from '../../services/api/client';
 
 const ALL_TABS = [
-  { id: 'posts', icon: Grid3X3, label: 'Posts' },
+  { id: 'posts', icon: Grid3X3, label: 'Publicaciones' },
   { id: 'reels', icon: PlaySquare, label: 'Reels' },
   { id: 'products', icon: Package, label: 'Productos' },
   { id: 'recipes', icon: BookOpen, label: 'Recetas' },

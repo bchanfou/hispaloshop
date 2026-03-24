@@ -91,37 +91,37 @@ export default function AdminDiscountCodes() {
     try {
       if (editingCode) {
         await apiClient.put(`/admin/discount-codes/${editingCode.code_id}`, payload);
-        toast.success('Discount code updated');
+        toast.success('Código de descuento actualizado');
       } else {
         await apiClient.post('/admin/discount-codes', payload);
-        toast.success('Discount code created');
+        toast.success('Código de descuento creado');
       }
       resetForm();
       fetchDiscountCodes();
     } catch (error) {
-      toast.error(error.message || 'Failed to save discount code');
+      toast.error(error.message || 'Error al guardar código de descuento');
     }
   };
 
   const handleDelete = async (codeId) => {
-    if (!window.confirm('Are you sure you want to delete this discount code?')) return;
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este código?')) return;
 
     try {
       await apiClient.delete(`/admin/discount-codes/${codeId}`);
-      toast.success('Discount code deleted');
+      toast.success('Código de descuento eliminado');
       fetchDiscountCodes();
     } catch (error) {
-      toast.error('Failed to delete discount code');
+      toast.error('Error al eliminar código de descuento');
     }
   };
 
   const handleToggleActive = async (code) => {
     try {
       await apiClient.put(`/admin/discount-codes/${code.code_id}/toggle`, {});
-      toast.success(`Discount code ${code.active ? 'deactivated' : 'activated'}`);
+      toast.success(`Código ${code.active ? 'desactivado' : 'activado'}`);
       fetchDiscountCodes();
     } catch (error) {
-      toast.error('Failed to toggle discount code');
+      toast.error('Error al cambiar estado del código');
     }
   };
 
@@ -168,9 +168,9 @@ export default function AdminDiscountCodes() {
 
   const getTypeLabel = (type) => {
     switch (type) {
-      case 'percentage': return 'Percentage';
-      case 'fixed': return 'Fixed Amount';
-      case 'free_shipping': return 'Free Shipping';
+      case 'percentage': return 'Porcentaje';
+      case 'fixed': return 'Importe fijo';
+      case 'free_shipping': return 'Envío gratis';
       default: return type;
     }
   };
@@ -178,7 +178,7 @@ export default function AdminDiscountCodes() {
   const formatValue = (code) => {
     if (code.type === 'percentage') return `${code.value}%`;
     if (code.type === 'fixed') return `${code.value.toFixed(2)} €`;
-    return 'Free Shipping';
+    return 'Envío gratis';
   };
 
   const filteredCodes = discountCodes.filter(code =>
@@ -278,7 +278,7 @@ export default function AdminDiscountCodes() {
       {showCreateForm && (
         <div className="bg-white border border-stone-200 rounded-2xl p-6" data-testid="discount-form">
           <h2 className="text-lg font-semibold text-stone-950 mb-4">
-            {editingCode ? 'Edit Discount Code' : 'Create New Discount Code'}
+            {editingCode ? 'Editar código de descuento' : 'Crear código de descuento'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -343,7 +343,7 @@ export default function AdminDiscountCodes() {
               {/* Minimum Cart Amount */}
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">
-                  Minimum Cart Amount
+                  Importe mínimo del carrito
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500">$</span>
@@ -363,14 +363,14 @@ export default function AdminDiscountCodes() {
               {/* Usage Limit */}
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">
-                  Usage Limit
+                  Límite de uso
                 </label>
                 <input
                   type="number"
                   min="1"
                   value={formData.usage_limit}
                   onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
-                  placeholder="Unlimited"
+                  placeholder="Ilimitado"
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-usage-limit-input"
                 />
@@ -379,7 +379,7 @@ export default function AdminDiscountCodes() {
               {/* Start Date */}
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">
-                  Start Date
+                  Fecha de inicio
                 </label>
                 <input
                   type="datetime-local"
@@ -393,7 +393,7 @@ export default function AdminDiscountCodes() {
               {/* End Date */}
               <div>
                 <label className="block text-sm font-medium text-stone-600 mb-1">
-                  End Date
+                  Fecha de fin
                 </label>
                 <input
                   type="datetime-local"
@@ -423,7 +423,7 @@ export default function AdminDiscountCodes() {
             {/* Form Actions */}
             <div className="flex gap-3 pt-4 border-t border-stone-200">
               <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors" data-testid="save-discount-btn">
-                {editingCode ? 'Update Code' : 'Create Code'}
+                {editingCode ? 'Actualizar código' : 'Crear código'}
               </button>
               <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" data-testid="cancel-discount-btn">
                 Cancel
@@ -437,7 +437,7 @@ export default function AdminDiscountCodes() {
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
         <input
-          placeholder="Search discount codes..."
+          placeholder="Buscar códigos de descuento..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
@@ -450,19 +450,19 @@ export default function AdminDiscountCodes() {
         <table className="w-full">
           <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Code</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Type</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Value</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Usage</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Status</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Actions</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Código</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Tipo</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Valor</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Uso</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Estado</th>
+              <th className="text-right px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200">
             {filteredCodes.length === 0 ? (
               <tr>
                 <td colSpan="6" className="px-6 py-12 text-center text-stone-500">
-                  {searchTerm ? 'No discount codes found' : 'No discount codes yet. Create one to get started.'}
+                  {searchTerm ? 'No se encontraron códigos' : 'Aún no hay códigos de descuento. Crea uno para empezar.'}
                 </td>
               </tr>
             ) : (
@@ -549,7 +549,7 @@ export default function AdminDiscountCodes() {
                 <Check className="w-5 h-5 text-stone-700" />
               </div>
               <div>
-                <p className="text-xs text-stone-500 uppercase tracking-wider">Active Codes</p>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Códigos activos</p>
                 <p className="text-xl font-semibold text-stone-950">
                   {discountCodes.filter(c => c.active).length}
                 </p>
@@ -562,7 +562,7 @@ export default function AdminDiscountCodes() {
                 <Users className="w-5 h-5 text-stone-700" />
               </div>
               <div>
-                <p className="text-xs text-stone-500 uppercase tracking-wider">Total Uses</p>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Usos totales</p>
                 <p className="text-xl font-semibold text-stone-950">
                   {discountCodes.reduce((sum, c) => sum + (c.usage_count || 0), 0)}
                 </p>
@@ -575,7 +575,7 @@ export default function AdminDiscountCodes() {
                 <Tag className="w-5 h-5 text-stone-700" />
               </div>
               <div>
-                <p className="text-xs text-stone-500 uppercase tracking-wider">Total Codes</p>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Total de códigos</p>
                 <p className="text-xl font-semibold text-stone-950">
                   {discountCodes.length}
                 </p>

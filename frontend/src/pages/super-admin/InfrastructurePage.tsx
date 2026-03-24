@@ -10,7 +10,7 @@ const SERVICES = [
   { key: 'database', name: 'MongoDB Atlas', description: 'Base de datos principal' },
   { key: 'stripe', name: 'Stripe', description: 'Pasarela de pagos' },
   { key: 'cloudinary', name: 'Cloudinary', description: 'Almacenamiento de imágenes' },
-  { key: 'sentry', name: 'Sentry', description: 'Error tracking' },
+  { key: 'sentry', name: 'Sentry', description: 'Rastreo de errores' },
 ];
 
 const ENV_VARS = [
@@ -117,7 +117,7 @@ export default function InfrastructurePage() {
           className="px-4 py-2 bg-white/[0.08] rounded-2xl text-sm text-white/60 hover:bg-white/[0.12] transition-colors flex items-center gap-1.5 disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
+          Actualizar
         </button>
       </div>
 
@@ -179,7 +179,7 @@ export default function InfrastructurePage() {
                 <p className="text-[10px] text-white/25">{v.label}</p>
               </div>
               <span className="text-xs text-white/20 font-mono">
-                {v.masked ? '••••••••••••' : 'Not set'}
+                {v.masked ? '••••••••••••' : 'No configurada'}
               </span>
             </div>
           ))}
