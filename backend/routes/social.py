@@ -775,6 +775,7 @@ async def get_user_profile(user_id: str, request: Request):
     followers_count = await db.user_follows.count_documents({"following_id": actual_user_id})
     following_count = await db.user_follows.count_documents({"follower_id": actual_user_id})
     posts_count = await db.user_posts.count_documents({"user_id": actual_user_id})
+    reels_count = await db.user_posts.count_documents({"user_id": actual_user_id, "$or": [{"type": "reel"}, {"is_reel": True}]})
 
     is_following = False
     current_user = await get_optional_user(request)
@@ -833,6 +834,7 @@ async def get_user_profile(user_id: str, request: Request):
         "followers_count": followers_count,
         "following_count": following_count,
         "posts_count": posts_count,
+        "reels_count": reels_count,
         "is_following": is_following,
         "is_private": is_private,
         "follow_request_pending": follow_request_pending,

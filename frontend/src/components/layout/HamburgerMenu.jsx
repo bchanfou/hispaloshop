@@ -6,7 +6,7 @@ import {
   X, Bookmark, Activity, Package,
   HelpCircle, FileText, Globe as GlobeIcon,
   LayoutDashboard, Settings, LogOut, ChevronDown, Check,
-  User, Store, Users, ChefHat, MessageCircle, Info, Megaphone, Truck, Globe2,
+  User, Store, Users, ChefHat, MessageCircle, Info, Megaphone, Truck, Globe2, ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
@@ -324,6 +324,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               {/* ── HISPALOSHOP ── */}
               <SectionLabel>HISPALOSHOP</SectionLabel>
               <MenuItem to="/que-es" icon={<Info size={20} />} label="¿Qué es HispaloShop?" onClose={onClose} />
+              <MenuItem to="/certificates" icon={<ShieldCheck size={20} />} label="Certificados" onClose={onClose} />
               <MenuItem to="/influencer/aplicar" icon={<Megaphone size={20} />} label="Soy Influencer" onClose={onClose} />
               <MenuItem to="/informativas/soy-productor" icon={<Truck size={20} />} label="Soy Productor" onClose={onClose} />
               <MenuItem to="/informativas/soy-importador" icon={<Globe2 size={20} />} label="Soy Importador" onClose={onClose} />
