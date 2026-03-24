@@ -92,6 +92,7 @@ export function CartProvider({ children }) {
       }
     } catch (error) {
       console.error('[CartContext] Error merging guest cart:', error);
+      try { toast.error('Algunos items del carrito no se pudieron recuperar'); } catch { /* toast not ready */ }
     }
     clearGuestCart();
   }, []);
