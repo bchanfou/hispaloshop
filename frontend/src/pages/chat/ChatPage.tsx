@@ -1239,7 +1239,7 @@ export default function ChatPage() {
         requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }));
       }
     } catch {
-      // Upload failed
+      toast.error('No se pudo enviar el audio');
     }
   }, [conversationId, sendMessage, user]);
 
