@@ -247,6 +247,8 @@ export function AuthProvider({ children }) {
       if (currentId) {
         removeStoredAccountById(currentId);
       }
+      // Clear all cached data from previous session
+      queryClient.clear();
       // Clear localStorage tokens so subsequent API calls don't send stale Bearer headers
       removeToken();
       if (mountedRef.current) {

@@ -324,6 +324,8 @@ export function useToggleStoreFollow() {
         queryKey: productKeys.storeFollow(variables.storeSlug),
       });
       queryClient.invalidateQueries({ queryKey: ['store'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['stores'] });
     },
   });
 }

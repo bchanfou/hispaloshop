@@ -41,6 +41,10 @@ export function useInternalChatProducers(enabled = true) {
   });
 }
 
+// DEAD CODE: These 3 hooks use useMutation for GET operations and are never imported.
+// Actual data loading is done via useInternalChatData hook and direct apiClient calls.
+// Kept for reference; safe to delete.
+
 export function useInternalChatInfluencerProfile() {
   return useMutation({
     mutationFn: (influencerId) => apiClient.get(`/directory/influencers/${influencerId}`),
