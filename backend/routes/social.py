@@ -306,26 +306,41 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
         following_ids = [f["following_id"] async for f in db.user_follows.find({"follower_id": current_user.user_id}, {"following_id": 1})]
         query["user_id"] = {"$in": following_ids}
 
+    # Fetch from BOTH collections and merge (reels can be in either)
     try:
-        reels = await db.reels.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
+        reels_primary = await db.reels.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
     except Exception as e:
         logger.warning(f"Failed to fetch reels: {e}")
-        reels = []
+        reels_primary = []
 
-    if not reels:
-        fallback_query = {
-            "$or": [
-                {"is_reel": True},
-                {"media_type": "video"},
-                {"video_url": {"$exists": True}},
-            ]
-        }
-        if "user_id" in query:
-            fallback_query["user_id"] = query["user_id"]
-        reels = await db.user_posts.find(
-            fallback_query,
-            {"_id": 0},
+    # Also search user_posts for reels (many reels are stored here)
+    fallback_query = {
+        "$or": [
+            {"is_reel": True},
+            {"type": "reel"},
+            {"media_type": "video"},
+        ]
+    }
+    if "user_id" in query:
+        fallback_query["user_id"] = query["user_id"]
+    try:
+        reels_from_posts = await db.user_posts.find(
+            fallback_query, {"_id": 0},
         ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    except Exception:
+        reels_from_posts = []
+
+    # Merge and deduplicate by id
+    seen_ids = set()
+    reels = []
+    for r in reels_primary + reels_from_posts:
+        rid = r.get("id") or r.get("reel_id") or r.get("post_id")
+        if rid and rid not in seen_ids:
+            seen_ids.add(rid)
+            reels.append(r)
+    # Sort merged results by created_at DESC
+    reels.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    reels = reels[:limit + 1]
 
     # Batch fetch users and follow status to eliminate N+1
     reel_uids = list({r.get("user_id") for r in reels if r.get("user_id")})
@@ -781,8 +796,16 @@ async def get_user_profile(user_id: str, request: Request):
 
     followers_count = await db.user_follows.count_documents({"following_id": actual_user_id})
     following_count = await db.user_follows.count_documents({"follower_id": actual_user_id})
-    posts_count = await db.user_posts.count_documents({"user_id": actual_user_id})
-    reels_count = await db.user_posts.count_documents({"user_id": actual_user_id, "$or": [{"type": "reel"}, {"is_reel": True}]})
+    # Count posts in user_posts collection (includes posts AND some reels)
+    user_posts_count = await db.user_posts.count_documents({"user_id": actual_user_id})
+    # Count reels in dedicated reels collection (may not be in user_posts)
+    reels_only_count = await db.reels.count_documents({"user_id": actual_user_id})
+    # Count reels that are also in user_posts (to avoid double counting)
+    reels_in_user_posts = await db.user_posts.count_documents({"user_id": actual_user_id, "$or": [{"type": "reel"}, {"is_reel": True}]})
+    # Total = user_posts + reels that are ONLY in db.reels (not in user_posts)
+    reels_exclusive = max(0, reels_only_count - reels_in_user_posts)
+    posts_count = user_posts_count + reels_exclusive
+    reels_count = reels_in_user_posts + reels_exclusive
 
     is_following = False
     current_user = await get_optional_user(request)

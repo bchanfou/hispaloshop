@@ -69,7 +69,7 @@ export default function UserProfilePage() {
     is_verified: profile.is_verified,
     followers_count: profile.followers_count || 0,
     following_count: profile.following_count || 0,
-    posts_count: (profile.posts_count || 0) + (profile.reels_count || 0),
+    posts_count: profile.posts_count || 0,
     is_following: profile.is_following,
     is_private: profile.is_private,
     follow_request_pending: profile.follow_request_pending,
@@ -393,7 +393,7 @@ export default function UserProfilePage() {
         <StoryViewer
           stories={ownStories}
           initialIndex={0}
-          onClose={() => { setShowOwnStory(false); setOwnStories(null); }}
+          onClose={() => { setShowOwnStory(false); setOwnStories(null); queryClient.refetchQueries({ queryKey: ['feed-stories'] }); }}
         />
       )}
 

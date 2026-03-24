@@ -130,6 +130,14 @@ function FollowingFeed() {
     }
   }, [t]);
 
+  // "New content" pill (must be before early returns to satisfy hooks rules)
+  const showNewContentPill = feedQuery.isFetching && !feedQuery.isFetchingNextPage && allPosts.length > 0;
+
+  const handleNewContentClick = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    queryClient.invalidateQueries({ queryKey: feedKeys.following });
+  }, [queryClient]);
+
   if (error) {
     return (
       <div className="flex flex-col items-center px-6 py-16 text-center">
@@ -154,15 +162,6 @@ function FollowingFeed() {
   if (!feedQuery.isLoading && allPosts.length === 0) {
     return <EmptyFollowing />;
   }
-
-  // Show "new content" pill when a background refetch is in progress (not pagination)
-  // and there is already data loaded so the user can act on it.
-  const showNewContentPill = feedQuery.isFetching && !feedQuery.isFetchingNextPage && allPosts.length > 0;
-
-  const handleNewContentClick = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    queryClient.invalidateQueries({ queryKey: feedKeys.following });
-  }, [queryClient]);
 
   return (
     <motion.div

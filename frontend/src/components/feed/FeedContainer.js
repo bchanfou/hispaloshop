@@ -52,7 +52,8 @@ function FeedContainer() {
 
   const handleCloseStoryViewer = useCallback(() => {
     setStoryViewer(null);
-    queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+    // Force immediate refetch (not just invalidate) so story rings update
+    queryClient.refetchQueries({ queryKey: ['feed-stories'] });
   }, [queryClient]);
 
   return (
