@@ -68,10 +68,11 @@ function renderCaption(text, navigate) {
   if (!text) return null;
   const parts = text.split(/(#\w+|@\w+)/g);
   return parts.map((part, i) => {
+    const key = `${i}-${part.slice(0, 20)}`;
     if (part.startsWith('#')) {
       return (
         <span
-          key={i}
+          key={key}
           className="text-stone-500 font-medium cursor-pointer hover:underline"
           role="link"
           onClick={(e) => { e.stopPropagation(); navigate?.(`/hashtag/${encodeURIComponent(part.slice(1))}`); }}
@@ -83,7 +84,7 @@ function renderCaption(text, navigate) {
     if (part.startsWith('@')) {
       return (
         <span
-          key={i}
+          key={key}
           className="text-stone-500 font-medium cursor-pointer hover:underline"
           role="link"
           onClick={(e) => { e.stopPropagation(); navigate?.(`/${part.slice(1)}`); }}
@@ -92,7 +93,7 @@ function renderCaption(text, navigate) {
         </span>
       );
     }
-    return <React.Fragment key={i}>{part}</React.Fragment>;
+    return <React.Fragment key={key}>{part}</React.Fragment>;
   });
 }
 

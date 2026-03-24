@@ -76,21 +76,22 @@ function renderCaption(text, navigate, onClose) {
   if (!text) return null;
   const parts = text.split(/(#\w+|@\w+)/g);
   return parts.map((part, i) => {
+    const key = `${i}-${part.slice(0, 20)}`;
     if (part.startsWith('#')) {
       return (
-        <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline"
+        <span key={key} className="text-stone-500 font-medium cursor-pointer hover:underline"
           onClick={() => { onClose?.(); navigate?.(`/explore?tag=${encodeURIComponent(part.slice(1))}`); }}
         >{part}</span>
       );
     }
     if (part.startsWith('@')) {
       return (
-        <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline"
+        <span key={key} className="text-stone-500 font-medium cursor-pointer hover:underline"
           onClick={() => { onClose?.(); navigate?.(`/${part.slice(1)}`); }}
         >{part}</span>
       );
     }
-    return <React.Fragment key={i}>{part}</React.Fragment>;
+    return <React.Fragment key={key}>{part}</React.Fragment>;
   });
 }
 
@@ -738,11 +739,11 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
         >
           {/* Top bar */}
           <div className="flex items-center justify-between px-4 shrink-0 border-b border-stone-100 h-12" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-            <button onClick={onClose} className="bg-transparent border-none cursor-pointer p-1 flex items-center -ml-1" aria-label="Volver">
+            <button onClick={onClose} className="bg-transparent border-none cursor-pointer p-2 flex items-center -ml-2" aria-label="Volver">
               <ChevronLeft size={24} className="text-stone-950" />
             </button>
             <span className="text-[15px] font-semibold text-stone-950 tracking-tight">Publicación</span>
-            <button className="bg-transparent border-none cursor-pointer p-1 -mr-1" aria-label="Más opciones">
+            <button className="bg-transparent border-none cursor-pointer p-2 -mr-2" aria-label="Más opciones">
               <MoreHorizontal size={22} className="text-stone-950" />
             </button>
           </div>
@@ -789,17 +790,17 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             {/* Actions row */}
             <div className="flex items-center px-3 py-2">
               <div className="flex items-center gap-3">
-                <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label="Me gusta">
+                <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label="Me gusta">
                   <Heart size={24} fill={liked ? 'currentColor' : 'none'} />
                 </button>
-                <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Comentar">
+                <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-2.5 text-stone-950" aria-label="Comentar">
                   <MessageCircle size={24} />
                 </button>
-                <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Compartir">
+                <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2.5 text-stone-950" aria-label="Compartir">
                   <Send size={24} />
                 </button>
               </div>
-              <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label={saved ? 'Quitar guardado' : 'Guardar'}>
+              <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-2.5 text-stone-950" aria-label={saved ? 'Quitar guardado' : 'Guardar'}>
                 <Bookmark size={24} fill={saved ? 'currentColor' : 'none'} />
               </button>
             </div>
@@ -866,7 +867,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 </Link>
                 {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
               </div>
-              <button className="bg-transparent border-none cursor-pointer p-1" aria-label="Más opciones">
+              <button className="bg-transparent border-none cursor-pointer p-2" aria-label="Más opciones">
                 <MoreHorizontal size={20} className="text-stone-950" />
               </button>
             </div>
@@ -886,17 +887,17 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             <div className="border-t border-stone-100 shrink-0">
               <div className="flex items-center px-3 py-2">
                 <div className="flex items-center gap-3">
-                  <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`}>
+                  <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`}>
                     <Heart size={22} fill={liked ? 'currentColor' : 'none'} />
                   </button>
-                  <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950">
+                  <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-2.5 text-stone-950">
                     <MessageCircle size={22} />
                   </button>
-                  <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950">
+                  <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2.5 text-stone-950">
                     <Send size={22} />
                   </button>
                 </div>
-                <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-1.5 text-stone-950">
+                <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-2.5 text-stone-950">
                   <Bookmark size={22} fill={saved ? 'currentColor' : 'none'} />
                 </button>
               </div>
