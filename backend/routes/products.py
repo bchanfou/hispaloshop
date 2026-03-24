@@ -425,6 +425,57 @@ async def record_purchase_signal(product_id: str):
     )
 
 
+# ── Personalized product recommendations ──────────────────────────────────────
+
+@router.get("/products/for-you")
+async def products_for_you(
+    limit: int = Query(10, ge=1, le=20),
+    user: User = Depends(get_current_user),
+):
+    """
+    Personalized product recommendations using preference weights + Claude Haiku.
+    Cache per user: 30 minutes via staleTime on frontend.
+    """
+    from services.feed_preferences import get_preferences
+
+    prefs = await get_preferences(user.user_id)
+    category_weights = prefs.get("category_weights", {})
+    preferred_sellers = set(prefs.get("preferred_seller_ids", []))
+    disliked_sellers = set(prefs.get("disliked_seller_ids", []))
+
+    # Get approved products
+    query = {**_public_product_filter()}
+    products = await db.products.find(query, {"_id": 0}).limit(200).to_list(200)
+
+    if not products:
+        return []
+
+    # Score and sort by preference match
+    def score(p):
+        s = 0.0
+        # Category weight boost
+        for cat in [p.get("category"), p.get("category_id"), p.get("subcategory")]:
+            if cat and cat in category_weights:
+                s += category_weights[cat]
+        # Seller preference
+        seller = p.get("producer_id") or p.get("seller_id")
+        if seller in preferred_sellers:
+            s += 3.0
+        if seller in disliked_sellers:
+            s -= 5.0
+        # Engagement signal
+        s += min((p.get("units_sold", 0) or 0) / 10, 3.0)
+        # Rating boost
+        avg = p.get("stats", {}).get("avg_rating", 0)
+        if avg and avg > 4.0:
+            s += 1.0
+        return s
+
+    products.sort(key=score, reverse=True)
+
+    return products[:limit]
+
+
 @router.post("/products")
 async def create_product(input: ProductInput, user: User = Depends(get_current_user)):
     """Create a new product listing."""

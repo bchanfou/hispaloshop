@@ -1419,7 +1419,7 @@ export default function CreateStoryPage() {
           </div>
           {/* Colors */}
           <div className="flex gap-2">
-            {['#0c0a09', '#ffffff', '#dc2626', '#2563eb', '#16a34a', '#eab308', '#f97316', '#ec4899'].map(c => (
+            {['#1D1D1F', '#FFFFFF', '#1B6B40', '#FF3B30', '#FF9500', '#007AFF', '#AF52DE', '#FFD60A'].map(c => (
               <button key={c} onClick={() => setDrawColor(c)} className={`w-8 h-8 rounded-full border-2 cursor-pointer p-0 shrink-0 ${drawColor === c ? 'border-white ring-2 ring-white/50' : 'border-white/30'}`} style={{ background: c }} aria-label={`Color ${c}`} />
             ))}
           </div>

@@ -374,7 +374,7 @@ export function ChatProvider({ children }) {
               break;
             case 'auth_failed':
             case 'auth_error':
-              console.warn('[ChatProvider] Notification WebSocket auth failed');
+              // Auth failed — close silently
               ws.close();
               break;
             default:
@@ -526,7 +526,7 @@ export function ChatProvider({ children }) {
               
             case 'auth_failed':
             case 'auth_error':
-              console.warn('[ChatProvider] WebSocket auth failed');
+              // Auth failed — close silently
               ws.close();
               break;
 

@@ -589,8 +589,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
     setLiked(!wasLiked);
     setLikesCount((c) => wasLiked ? Math.max(0, c - 1) : c + 1);
     try {
-      if (wasLiked) await apiClient.delete(`/reels/${reelId}/like`);
-      else await apiClient.post(`/reels/${reelId}/like`);
+      await apiClient.post(`/reels/${reelId}/like`); // backend toggles
     } catch {
       setLiked(wasLiked);
       setLikesCount((c) => wasLiked ? c + 1 : Math.max(0, c - 1));

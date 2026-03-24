@@ -476,15 +476,15 @@ export default function NotificationsPage() {
   // Group notifications
   const groupedItems = groupNotifications(tabFiltered);
 
-  // "Limpiar todo" handler
+  // Mark all as read (the backend has no "delete all" endpoint)
   const handleClearAll = async () => {
     try {
-      // TODO: replace with DELETE /notifications/all when endpoint is available
-      await apiClient.delete('/notifications/all');
-      refetch();
-    } catch {
-      // Fallback: mark all as read
       markAll();
+      const { toast } = await import('sonner');
+      toast.success('Todas las notificaciones marcadas como leídas');
+    } catch {
+      const { toast } = await import('sonner');
+      toast.error('No se pudieron marcar las notificaciones');
     }
   };
 

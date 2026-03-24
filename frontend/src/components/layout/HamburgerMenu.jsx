@@ -324,9 +324,9 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               {/* ── HISPALOSHOP ── */}
               <SectionLabel>HISPALOSHOP</SectionLabel>
               <MenuItem to="/que-es" icon={<Info size={20} />} label="¿Qué es HispaloShop?" onClose={onClose} />
-              <MenuItem to="/soy-influencer" icon={<Megaphone size={20} />} label="Soy Influencer" onClose={onClose} />
-              <MenuItem to="/soy-productor" icon={<Truck size={20} />} label="Soy Productor" onClose={onClose} />
-              <MenuItem to="/soy-importador" icon={<Globe2 size={20} />} label="Soy Importador" onClose={onClose} />
+              <MenuItem to="/influencer/aplicar" icon={<Megaphone size={20} />} label="Soy Influencer" onClose={onClose} />
+              <MenuItem to="/informativas/soy-productor" icon={<Truck size={20} />} label="Soy Productor" onClose={onClose} />
+              <MenuItem to="/informativas/soy-importador" icon={<Globe2 size={20} />} label="Soy Importador" onClose={onClose} />
 
               {user && (
                 <>

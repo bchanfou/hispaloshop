@@ -34,7 +34,7 @@ export function usePushNotifications(user) {
           }
         }
         if (!vapidKey) {
-          console.warn('[Push] VAPID public key not configured — push notifications disabled');
+          // VAPID not configured — push disabled silently
           return;
         }
 
@@ -53,7 +53,7 @@ export function usePushNotifications(user) {
         await apiClient.post(`/push/subscribe`, { subscription: subscription.toJSON() });
         subscribedRef.current = true;
       } catch (err) {
-        console.warn('[Push] Setup failed:', err.message);
+        // Push setup failed — silent in production
       }
     };
 

@@ -7,6 +7,7 @@ import HomeHeader from './HomeHeader';
 import StoriesBar from './StoriesBar';
 import StoryViewer from './StoryViewer';
 import WeeklyGoalBar from '../gamification/WeeklyGoalBar';
+import ProductCard from '../ProductCard';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 
@@ -24,6 +25,15 @@ function FeedContainer() {
     queryFn: () => apiClient.get('/gamification/profile'),
     enabled: !!user,
     staleTime: 60_000,
+  });
+
+  // Personalized product recommendations (graceful — hidden on error)
+  const { data: forYouProducts } = useQuery({
+    queryKey: ['products-for-you'],
+    queryFn: () => apiClient.get('/products/for-you?limit=10'),
+    enabled: !!user,
+    staleTime: 30 * 60_000,
+    retry: 1,
   });
 
   // Story viewer state
@@ -56,6 +66,25 @@ function FeedContainer() {
       {/* Weekly healthy goal */}
       {gamifProfile && gamifProfile.weekly_goal_cents > 0 && (
         <WeeklyGoalBar spent={gamifProfile.weekly_spent_cents} goal={gamifProfile.weekly_goal_cents} />
+      )}
+
+      {/* Personalized product carousel — invisible magic, no "AI" label */}
+      {Array.isArray(forYouProducts) && forYouProducts.length > 0 && (
+        <div className="pb-2">
+          <div className="flex items-center justify-between px-4 mb-2">
+            <span className="text-sm font-semibold text-stone-950">Para ti</span>
+          </div>
+          <div
+            className="flex gap-3 overflow-x-auto px-4 pb-1"
+            style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+          >
+            {forYouProducts.map((product) => (
+              <div key={product.product_id || product.id} className="shrink-0 w-[140px]" style={{ scrollSnapAlign: 'start' }}>
+                <ProductCard product={product} variant="compact" />
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Tabbed Feed — centered on tablet to prevent full-width stretch */}

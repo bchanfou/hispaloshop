@@ -89,6 +89,7 @@ const ContactPage = lazy(() => import('./pages/informativas/ContactPage'));
 const LegalPage = lazy(() => import('./pages/informativas/LegalPage'));
 const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'));
+const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'));
 const EditProfilePage = lazy(() => import('./pages/settings/EditProfilePage'));
 const ChangePasswordPage = lazy(() => import('./pages/settings/ChangePasswordPage'));
 const FollowRequestsPage = lazy(() => import('./pages/settings/FollowRequestsPage'));
@@ -411,6 +412,7 @@ function AppRouter() {
               <Route path="/settings/plan" element={<PlanPage />} />
               <Route path="/settings/payout" element={<PayoutSettingsPage />} />
               <Route path="/settings/locale" element={<LocaleSettingsPage />} />
+              <Route path="/loyalty" element={<ProtectedRoute><LoyaltyPage /></ProtectedRoute>} />
               <Route path="/configuracion/idioma" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/configuracion/pais" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/configuracion/moneda" element={<Navigate to="/settings/locale" replace />} />

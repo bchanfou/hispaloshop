@@ -523,6 +523,18 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     except Exception as e:
         logger.warning(f"[PAYMENT] Failed to record purchase signals for order {order_id}: {e}")
 
+    # 2b2. Update feed preferences from purchase
+    try:
+        from services.feed_preferences import update_preferences
+        buyer_id = order.get("user_id")
+        if buyer_id:
+            for item in order.get("line_items", []):
+                cats = [item.get("category"), item.get("category_id")]
+                seller = item.get("producer_id") or item.get("seller_id")
+                await update_preferences(buyer_id, "purchase", [c for c in cats if c], seller)
+    except Exception as e:
+        logger.warning(f"[PAYMENT] Failed to update feed preferences for order {order_id}: {e}")
+
     # 2c. Notify producers about new order (C-02)
     try:
         producer_ids_seen = set()

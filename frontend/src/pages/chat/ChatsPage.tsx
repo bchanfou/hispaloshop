@@ -276,12 +276,12 @@ export default function ChatsPage() {
           {onlineConversations.length > 0 && (
             <div className="border-b border-stone-100 pb-3 pt-1 md:hidden">
               <div className="scrollbar-hide flex gap-4 overflow-x-auto px-4">
-                {onlineConversations.map((conv) => {
+                {onlineConversations.map((conv, idx) => {
                   const isStore = conv.type === 'b2c' || conv.type === 'b2b';
                   const convId = getConversationId(conv);
                   return (
                     <button
-                      key={convId || `${conv.name || 'conversation'}-${conv.last_message_at || i}`}
+                      key={convId || `online-${idx}`}
                       onClick={() => {
                         if (convId) navigate(`/messages/${convId}`);
                       }}

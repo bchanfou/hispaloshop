@@ -1514,6 +1514,14 @@ async def like_post(post_id: str, user: User = Depends(get_current_user)):
     )
     await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"likes_count": 1}})
     await _record_intelligence_signal("content_engagement", {"content_type": "post", "content_id": post_id, "action": "like"}, user.user_id)
+    # Update feed preferences (fire-and-forget)
+    try:
+        from services.feed_preferences import update_preferences
+        cats = [post.get("category"), post.get("category_id")]
+        seller = post.get("author_id") or post.get("user_id")
+        await update_preferences(user.user_id, "like", [c for c in cats if c], seller)
+    except Exception:
+        pass
     return {"liked": True}
 
 
@@ -1736,6 +1744,14 @@ async def toggle_bookmark(post_id: str, user: User = Depends(get_current_user)):
         return {"bookmarked": False}
     await db.post_bookmarks.insert_one({"post_id": post_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()})
     await _record_intelligence_signal("recipe_save", {"content_type": "post", "content_id": post_id}, user.user_id)
+    # Update feed preferences
+    try:
+        from services.feed_preferences import update_preferences
+        cats = [post.get("category"), post.get("category_id")]
+        seller = post.get("author_id") or post.get("user_id")
+        await update_preferences(user.user_id, "save", [c for c in cats if c], seller)
+    except Exception:
+        pass
     return {"bookmarked": True}
 
 

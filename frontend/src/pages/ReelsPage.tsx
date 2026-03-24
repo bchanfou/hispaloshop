@@ -50,8 +50,7 @@ export default function ReelsPage() {
           (item) =>
             item.type === 'reel' ||
             item.is_reel === true ||
-            item.media_type === 'video' ||
-            item.video_url
+            (item.media_type === 'video' && item.video_url)
         ).slice(0, 10);
 
         if (activeTab === 'following') {
