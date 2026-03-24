@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { authApi } from '../lib/authApi';
 import { getToken, removeToken, TOKEN_KEY } from '../lib/auth';
 import { setUser as setSentryUser } from '../lib/sentry';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AuthContext = createContext(null);
 const ACCOUNTS_KEY = 'hsp_accounts';
@@ -89,6 +90,7 @@ function toAccountObject(user, token) {
 }
 
 export function AuthProvider({ children }) {
+  const queryClient = useQueryClient();
   const [user, setUserState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
@@ -289,6 +291,9 @@ export function AuthProvider({ children }) {
 
       // Set new account token
       localStorage.setItem(TOKEN_KEY, account.token);
+
+      // Clear all cached data from previous account
+      queryClient.clear();
 
       // Re-authenticate deterministically with the new token
       const newUser = await resolveUserFromActiveToken();

@@ -192,6 +192,7 @@ export default function OnboardingPage() {
         producer:   '/producer/verification',
         influencer: '/influencer/fiscal-setup',
         importer:   '/importer/dashboard',
+        customer:   '/discover',
       };
       navigate(roleDestinations[selectedRole] || '/', { replace: true });
     } catch (err) {

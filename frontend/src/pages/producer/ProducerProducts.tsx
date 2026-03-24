@@ -482,10 +482,10 @@ export default function ProducerProducts() {
       
       // Process packs - calculate discount percentages
       const packsData = formData.packs.filter(p => p.quantity && p.price).map(pack => ({
-        quantity: parseInt(pack.quantity),
-        price: parseFloat(pack.price),
+        quantity: Math.max(1, parseInt(pack.quantity, 10) || 1),
+        price: Math.max(0, parseFloat(pack.price) || 0),
         label: pack.label || `Pack de ${pack.quantity}`
-      }));
+      })).filter(p => p.price > 0);
       
       const data = {
         name: formData.name,

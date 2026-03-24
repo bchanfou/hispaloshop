@@ -247,7 +247,11 @@ function HealthScoreCard() {
     );
   }
 
-  if (!healthData) return null;
+  if (!healthData) return (
+    <div className="rounded-2xl bg-stone-100 p-6 text-center">
+      <p className="text-sm text-stone-500">No hay datos suficientes todavía</p>
+    </div>
+  );
 
   return (
     <div data-testid="health-score-section">

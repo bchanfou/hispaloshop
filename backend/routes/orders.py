@@ -535,6 +535,26 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     except Exception as e:
         logger.warning(f"[PAYMENT] Failed to update feed preferences for order {order_id}: {e}")
 
+    # 2b3. Award gamification XP for purchase
+    try:
+        from services.gamification import GamificationService
+        gamif_svc = GamificationService(db)
+        buyer_id = order.get("user_id")
+        if buyer_id:
+            order_total_cents = order.get("total_cents", 0)
+            extra_xp = order_total_cents // 100  # 1 XP per euro spent
+            await gamif_svc.award_xp(buyer_id, "purchase", extra=extra_xp)
+            await gamif_svc.check_streak(buyer_id)
+            # First purchase bonus
+            buyer_orders = await db.orders.count_documents({
+                "user_id": buyer_id,
+                "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]},
+            })
+            if buyer_orders <= 1:
+                await gamif_svc.award_xp(buyer_id, "first_purchase")
+    except Exception as e:
+        logger.warning(f"[PAYMENT] Gamification award failed for order {order_id}: {e}")
+
     # 2c. Notify producers about new order (C-02)
     try:
         producer_ids_seen = set()

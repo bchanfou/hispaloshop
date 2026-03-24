@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import {
@@ -59,13 +59,16 @@ export default function AdminOverview() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fiscalStats, setFiscalStats] = useState(null);
+  const [statsError, setStatsError] = useState(false);
 
-  useEffect(() => {
+  const fetchStats = useCallback(() => {
+    setLoading(true);
+    setStatsError(false);
     let active = true;
     apiClient.get('/admin/stats').then(data => {
       if (active) setStats(data || {});
     }).catch(() => {
-      if (active) setStats({});
+      if (active) { setStats({}); setStatsError(true); }
     }).finally(() => {
       if (active) setLoading(false);
     });
@@ -76,6 +79,8 @@ export default function AdminOverview() {
     });
     return () => { active = false; };
   }, []);
+
+  useEffect(() => { fetchStats(); }, [fetchStats]);
 
   if (loading) {
     return (
@@ -112,6 +117,12 @@ export default function AdminOverview() {
 
   return (
     <div className="bg-stone-50 min-h-full">
+      {statsError && (
+        <div className="mx-6 mt-4 flex items-center justify-between rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3">
+          <span className="text-sm text-amber-800">No se pudieron cargar las estadísticas</span>
+          <button onClick={fetchStats} className="text-sm font-semibold text-amber-800 hover:underline">Reintentar</button>
+        </div>
+      )}
      <div className="max-w-[975px] mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">

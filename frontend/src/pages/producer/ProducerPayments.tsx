@@ -129,7 +129,7 @@ function OrderRow({ order, expanded, onToggle }) {
               </div>
             ))}
             <div className="pt-1.5 mt-1.5 border-t border-stone-200 flex justify-between text-xs">
-              <span className="text-stone-500">Comisión plataforma ({(order.gross_amount ?? 0) > 0 ? ((order.platform_fee ?? 0) / order.gross_amount * 100).toFixed(0) : 0}%)</span>
+              <span className="text-stone-500">Comisión plataforma ({(order.gross_amount ?? 0) > 0 ? ((order.platform_fee ?? 0) / (order.gross_amount || 1) * 100).toFixed(0) : 0}%)</span>
               <span className="text-stone-600">-{(order.platform_fee ?? 0).toFixed(2)}€</span>
             </div>
           </div>

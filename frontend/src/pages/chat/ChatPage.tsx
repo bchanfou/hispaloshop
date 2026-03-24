@@ -494,7 +494,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
       <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
         <div className="min-w-0 max-w-[80%]">
           <div
-            className={`min-w-[200px] break-words font-apple ${compact ? 'px-3 py-2' : 'px-3.5 py-2.5'} ${
+            className={`min-w-[min(200px,calc(100vw-96px))] break-words font-apple ${compact ? 'px-3 py-2' : 'px-3.5 py-2.5'} ${
               isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
             }`}
             style={{ borderRadius: bubbleRadius, overflowWrap: 'anywhere' }}

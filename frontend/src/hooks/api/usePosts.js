@@ -214,9 +214,10 @@ export function useCreateStory() {
   
   return useMutation({
     mutationFn: (formData) => apiClient.post('/stories', formData),
-    
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POST_KEYS.stories });
+      queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
     },
   });
 }
