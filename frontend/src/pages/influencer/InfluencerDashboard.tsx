@@ -531,7 +531,7 @@ export default function InfluencerDashboard() {
 
           {(dashboard.available_balance || 0) >= MINIMUM_WITHDRAWAL && (
             <button
-              onClick={() => navigate('/influencer/withdrawal')}
+              onClick={() => navigate('/influencer/withdraw')}
               className="mt-3 text-xs bg-white text-stone-950 px-4 py-1.5 rounded-full font-medium"
             >
               Retirar fondos

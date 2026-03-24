@@ -655,7 +655,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
               <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
               <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-2xl bg-white shadow-lg border border-stone-100 overflow-hidden">
                 <button
-                  onClick={() => { onClose(); navigate(`/reels/${reelId}/edit`); }}
+                  onClick={() => { onClose(); toast?.('Edición de reels no disponible aún'); }}
                   className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-50"
                 >
                   <Pencil size={16} /> Editar

@@ -230,7 +230,7 @@ export default function InfluencerInsights() {
               {topProducts.map((p, i) => (
                 <div
                   key={p.product_id}
-                  onClick={() => navigate(`/influencer/affiliate-links?product=${p.product_id}`)}
+                  onClick={() => navigate(`/influencer/links?product=${p.product_id}`)}
                   className="flex items-center gap-4 rounded-2xl shadow-sm bg-white p-4 cursor-pointer hover:shadow-md transition-shadow"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xs font-semibold text-stone-600">

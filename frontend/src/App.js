@@ -432,8 +432,8 @@ function AppRouter() {
               <Route path="/communities" element={<FeedLayout><CommunitiesExplorePage /></FeedLayout>} />
               <Route path="/communities/new" element={<CreateCommunityPage />} />
               <Route path="/communities/:slug" element={<CommunityPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/activity" element={<ActivityPage />} />
+              <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+              <Route path="/activity" element={<ProtectedRoute><ActivityPage /></ProtectedRoute>} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               {/* Public certificate pages — no auth required */}
@@ -754,17 +754,17 @@ function AppRouter() {
               <Route path="/chat/:conversationId" element={<Navigate to="/messages" replace />} />
                             <Route path="/chat/:conversationId" element={<LegacyChatConversationRedirect />} />
               <Route path="/ai/chat" element={<ChatContainer />} />
-              <Route path="/messages" element={<ChatsPage />} />
-              <Route path="/messages/new" element={<NewConversationPage />} />
-              <Route path="/messages/:conversationId" element={<ChatPage />} />
+              <Route path="/messages" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
+              <Route path="/messages/new" element={<ProtectedRoute><NewConversationPage /></ProtectedRoute>} />
+              <Route path="/messages/:conversationId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
               <Route path="/collab/new" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><CollabProposalPage /></ProtectedRoute>} />
               <Route path="/documents" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><SignedDocumentsPage /></ProtectedRoute>} />
-              <Route path="/b2b/offer/new" element={<B2BOfferPage />} />
-              <Route path="/b2b/contract/:operationId" element={<B2BContractPage />} />
-              <Route path="/b2b/payment/:operationId" element={<B2BPaymentPage />} />
-              <Route path="/b2b/tracking/:operationId" element={<B2BTrackingPage />} />
-              <Route path="/b2b/operations" element={<B2BOperationsDashboard />} />
-              <Route path="/b2b/dispute/:operationId" element={<B2BDisputePage />} />
+              <Route path="/b2b/offer/new" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BOfferPage /></ProtectedRoute>} />
+              <Route path="/b2b/contract/:operationId" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BContractPage /></ProtectedRoute>} />
+              <Route path="/b2b/payment/:operationId" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BPaymentPage /></ProtectedRoute>} />
+              <Route path="/b2b/tracking/:operationId" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BTrackingPage /></ProtectedRoute>} />
+              <Route path="/b2b/operations" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BOperationsDashboard /></ProtectedRoute>} />
+              <Route path="/b2b/dispute/:operationId" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><B2BDisputePage /></ProtectedRoute>} />
               <Route path="/settings/signature" element={<SignatureSettingsPage />} />
               <Route path="/profile/:userId" element={<UserProfilePage />} />
               <Route path="/dashboard/new" element={<DashboardPage />} />

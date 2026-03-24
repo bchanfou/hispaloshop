@@ -595,7 +595,7 @@ export default function FiscalSetupPage() {
                     } catch {
                       // If no specific endpoint, just proceed with save
                       toast.success('Configuración fiscal guardada. Afiliados activados.');
-                      navigate('/influencer/affiliate-links');
+                      navigate('/influencer/links');
                     }
                   }}
                   className="mt-3 px-4 py-2 text-sm font-semibold bg-stone-950 text-white rounded-full border-none cursor-pointer transition-colors hover:bg-stone-800"
@@ -623,7 +623,7 @@ export default function FiscalSetupPage() {
       <button
         onClick={() => {
           toast.success('Configuración fiscal guardada. Afiliados activados.');
-          navigate('/influencer/affiliate-links');
+          navigate('/influencer/links');
         }}
         disabled={!canSave}
         className={`w-full py-3.5 text-sm font-semibold rounded-full border-none transition-colors mb-8 ${
