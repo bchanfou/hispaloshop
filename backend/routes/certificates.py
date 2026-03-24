@@ -398,8 +398,10 @@ async def translate_certificate_to_all(certificate_id: str, source_lang: str):
 # =============================================================================
 
 
+# NOTE: Translate endpoints not called from frontend (as of 2026-03-24).
+# Protected with auth to prevent abuse.
 @router.post("/translate/product")
-async def translate_product(input: TranslateProductInput):
+async def translate_product(input: TranslateProductInput, user: User = Depends(get_current_user)):
     """
     Trigger translation of a product to a specific language.
     Returns the translated product and caches the result.
@@ -414,7 +416,7 @@ async def translate_product(input: TranslateProductInput):
     return product
 
 @router.post("/translate/certificate")
-async def translate_certificate(input: TranslateCertificateInput):
+async def translate_certificate(input: TranslateCertificateInput, user: User = Depends(get_current_user)):
     """
     Trigger translation of a certificate to a specific language.
     Returns the translated certificate and caches the result.
@@ -549,7 +551,7 @@ async def get_batch_translation_status(job_id: str):
     return translation_jobs[job_id]
 
 @router.post("/translate/product-all/{product_id}")
-async def translate_product_to_all_languages(product_id: str):
+async def translate_product_to_all_languages(product_id: str, user: User = Depends(get_current_user)):
     """Translate a single product to all supported languages"""
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:

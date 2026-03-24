@@ -178,11 +178,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
     setLiked(!wasLiked);
     setLocalLikesCount((c) => wasLiked ? Math.max(0, c - 1) : c + 1);
     try {
-      if (wasLiked) {
-        await apiClient.delete(`/posts/${postId}/like`);
-      } else {
-        await apiClient.post(`/posts/${postId}/like`);
-      }
+      await apiClient.post(`/posts/${postId}/like`); // backend toggles
       onLike?.(postId);
     } catch {
       setLiked(wasLiked);
@@ -194,11 +190,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
     const wasSaved = saved;
     setSaved(!wasSaved);
     try {
-      if (wasSaved) {
-        await apiClient.delete(`/posts/${postId}/save`);
-      } else {
-        await apiClient.post(`/posts/${postId}/save`);
-      }
+      await apiClient.post(`/posts/${postId}/save`); // backend toggles
     } catch {
       setSaved(wasSaved);
     }
