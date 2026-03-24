@@ -144,7 +144,7 @@ export default function CollabProposalPage() {
               </button>
             </div>
           ) : loadingProducts ? (
-            <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-stone-500" /></div>
+            <div className="space-y-2 py-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton-shimmer rounded-xl h-12" />)}</div>
           ) : (
             <div className="max-h-[240px] space-y-1.5 overflow-y-auto rounded-xl border border-stone-200 bg-white">
               {products.map(p => (

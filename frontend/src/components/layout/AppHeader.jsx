@@ -19,6 +19,7 @@ export default function AppHeader() {
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartBounce, setCartBounce] = useState(false);
 
   const isAuthenticated = !!user;
 
@@ -33,6 +34,17 @@ export default function AppHeader() {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Cart bounce animation on add-to-cart
+  useEffect(() => {
+    const handleCartAdded = () => {
+      setCartBounce(true);
+      if (navigator.vibrate) navigator.vibrate([5, 30, 5]);
+      setTimeout(() => setCartBounce(false), 500);
+    };
+    window.addEventListener('cart-added', handleCartAdded);
+    return () => window.removeEventListener('cart-added', handleCartAdded);
   }, []);
 
   return (
@@ -98,7 +110,7 @@ export default function AppHeader() {
           >
             <ShoppingCart size={20} className="text-stone-950" strokeWidth={1.8} />
             {totalCartItems > 0 && (
-              <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-stone-950 text-white text-[9px] font-extrabold px-1 leading-none">
+              <span className={`absolute top-0.5 right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-stone-950 text-white text-[9px] font-extrabold px-1 leading-none cart-badge ${cartBounce ? 'bouncing' : ''}`}>
                 {totalCartItems > 9 ? '9+' : totalCartItems}
               </span>
             )}

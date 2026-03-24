@@ -175,8 +175,10 @@ export default function CategoriesPage() {
       {/* Table */}
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
-          <div className="p-12 flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-stone-950" />
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="skeleton-shimmer rounded-xl h-12" />
+            ))}
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">

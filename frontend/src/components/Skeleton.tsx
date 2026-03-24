@@ -106,4 +106,87 @@ export function StoreCardSkeleton() {
   );
 }
 
+export function StoriesBarSkeleton() {
+  return (
+    <div className="flex gap-3 px-4 py-3 overflow-hidden" aria-hidden="true">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="flex flex-col items-center gap-1 shrink-0">
+          <Skeleton className="w-[60px] h-[60px] rounded-full" />
+          <Skeleton className="w-12 h-2.5 rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function ProfileSkeleton() {
+  return (
+    <div aria-hidden="true">
+      {/* Cover */}
+      <Skeleton className="w-full h-[140px] rounded-none" />
+      <div className="px-4">
+        {/* Avatar overlapping cover */}
+        <Skeleton className="w-20 h-20 rounded-full -mt-10 mb-3 border-[3px] border-white" />
+        <Skeleton className="h-5 w-[50%] mb-2" />
+        <Skeleton className="h-3.5 w-[30%] mb-4" />
+        {/* Stats row */}
+        <div className="flex gap-6 mb-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-1">
+              <Skeleton className="w-10 h-[18px]" />
+              <Skeleton className="w-[60px] h-3" />
+            </div>
+          ))}
+        </div>
+        {/* Grid 3x3 */}
+        <div className="grid grid-cols-3 gap-0.5">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <Skeleton key={i} className="w-full aspect-square rounded-none" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function NotificationSkeleton() {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3" aria-hidden="true">
+      <Skeleton className="w-11 h-11 rounded-full shrink-0" />
+      <div className="flex-1 flex flex-col gap-2">
+        <Skeleton className="h-3.5 w-[80%]" />
+        <Skeleton className="h-3 w-[50%]" />
+      </div>
+      <Skeleton className="w-10 h-3 shrink-0" />
+    </div>
+  );
+}
+
+export function NotificationListSkeleton({ count = 5 }: { count?: number }) {
+  return (
+    <div>
+      {Array.from({ length: count }).map((_, i) => (
+        <NotificationSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+export function ChatListSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 px-4 py-3" aria-hidden="true">
+          <Skeleton className="w-12 h-12 rounded-full shrink-0" />
+          <div className="flex-1 flex flex-col gap-2">
+            <Skeleton className="h-4 w-[45%]" />
+            <Skeleton className="h-3 w-[70%]" />
+          </div>
+          <Skeleton className="w-8 h-3 shrink-0" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default Skeleton;

@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 const ringClasses = {
   placeholder: 'border-2 border-dashed border-stone-200 bg-stone-50',
   seen: 'bg-stone-300',
+  unseen: 'story-ring--unseen',
 };
 
 function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
@@ -31,9 +32,7 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
       ) : (
         <div
           className={`w-[58px] h-[58px] rounded-full p-[2.5px] ${
-            isUnseen
-              ? 'bg-gradient-to-br from-stone-950 via-stone-600 to-stone-400 animate-story-pulse'
-              : ringClasses.seen
+            isUnseen ? ringClasses.unseen : ringClasses.seen
           }`}
         >
           <div className="w-full h-full rounded-full bg-white p-[2px]">

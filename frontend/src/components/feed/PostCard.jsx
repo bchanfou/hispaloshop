@@ -258,12 +258,13 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       if (!liked) {
         onLike?.(post.id);
       }
+      trigger('medium');
       setShowHeartAnim(true);
       clearTimeout(heartTimerRef.current);
       heartTimerRef.current = setTimeout(() => setShowHeartAnim(false), 1000);
     }
     lastTapRef.current = now;
-  }, [liked, onLike, post.id]);
+  }, [liked, onLike, post.id, trigger]);
 
   // Save — calls API directly with local optimistic override
   const handleSave = useCallback(async () => {
@@ -362,6 +363,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
     try {
       await addToCart(product.id || product.product_id, 1);
       trigger('medium');
+      window.dispatchEvent(new CustomEvent('cart-added'));
       toast.success('Añadido al carrito');
     } catch (err) {
       toast.error('Error al añadir al carrito');
@@ -524,7 +526,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         <div
           onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
           className={`flex shrink-0 items-center justify-center rounded-full cursor-pointer ${
-            hasStory ? 'h-9 w-9 bg-stone-950 p-[2px]' : 'h-9 w-9'
+            hasStory ? 'h-9 w-9 story-ring--unseen p-[2px]' : 'h-9 w-9'
           }`}
           role="link"
           aria-label={`Ver perfil de ${user.name}`}

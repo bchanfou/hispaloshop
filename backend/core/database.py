@@ -109,7 +109,11 @@ async def _create_indexes():
     # Text search
     await db.products.create_index([("name", "text"), ("description", "text")])
     logger.info("  OK: products indexes")
-    
+
+    # Product signals - social proof (daily reset via cron, not TTL)
+    await _safe_create_index(db.product_signals, "product_id", unique=True)
+    logger.info("  OK: product_signals indexes")
+
     # Orders - índices para consultas por usuario y estado
     await db.orders.create_index("order_id", unique=True, sparse=True)
     await db.orders.create_index("user_id")

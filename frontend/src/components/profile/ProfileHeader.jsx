@@ -105,9 +105,9 @@ function SocialIcon({ href, label, children }) {
   );
 }
 
-/* ── Instagram‑style story ring gradient ─────────────────────────── */
+/* ── Green premium story ring gradient ────────────────────────────── */
 
-const STORY_RING_GRADIENT = 'linear-gradient(135deg, #0c0a09 0%, #78716c 50%, #d6d3d1 100%)';
+const STORY_RING_GRADIENT = 'conic-gradient(#1B6B40 0deg, #4ADE80 90deg, #2ECC71 180deg, #1B6B40 270deg, #155534 360deg)';
 
 /* ── verified badge SVG ──────────────────────────────────────────── */
 

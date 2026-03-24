@@ -247,8 +247,16 @@ const CategoryPage = () => {
       {/* Products */}
       <div className="p-4">
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-7 w-7 animate-spin text-stone-400" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden">
+                <div className="skeleton-shimmer w-full h-48" />
+                <div className="p-3 space-y-2">
+                  <div className="skeleton-shimmer h-4 w-3/4 rounded" />
+                  <div className="skeleton-shimmer h-3 w-1/2 rounded" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">

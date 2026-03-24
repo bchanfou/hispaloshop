@@ -453,8 +453,10 @@ export default function AdminVerificationPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
+        <div className="space-y-3 p-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton-shimmer rounded-2xl h-24" />
+          ))}
         </div>
       ) : queue.length === 0 ? (
         <div className="text-center py-16">

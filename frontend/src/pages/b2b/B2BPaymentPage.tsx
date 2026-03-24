@@ -179,8 +179,11 @@ export default function B2BPaymentPage() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white">
-        <Loader2 size={32} className="animate-spin text-stone-500" />
+      <div className="fixed inset-0 bg-white p-6 space-y-4">
+        <div className="skeleton-shimmer rounded-2xl h-10 w-48" />
+        <div className="skeleton-shimmer rounded-2xl h-32" />
+        <div className="skeleton-shimmer rounded-2xl h-48" />
+        <div className="skeleton-shimmer rounded-full h-12 w-full" />
       </div>
     );
   }

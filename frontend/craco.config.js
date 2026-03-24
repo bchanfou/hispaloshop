@@ -92,7 +92,7 @@ const webpackConfig = {
               framer: {
                 test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
                 name: "vendor-framer",
-                chunks: "async",
+                chunks: "all",
                 priority: 20,
               },
               recharts: {
@@ -113,11 +113,24 @@ const webpackConfig = {
                 chunks: "all",
                 priority: 20,
               },
+              i18n: {
+                test: /[\\/]node_modules[\\/](i18next|react-i18next)[\\/]/,
+                name: "vendor-i18n",
+                chunks: "all",
+                priority: 20,
+              },
+              virtuoso: {
+                test: /[\\/]node_modules[\\/]react-virtuoso[\\/]/,
+                name: "vendor-virtuoso",
+                chunks: "async",
+                priority: 20,
+              },
               vendor: {
                 test: /[\\/]node_modules[\\/]/,
                 name: "vendor",
                 chunks: "all",
                 priority: 10,
+                maxSize: 250000,
               },
             },
           },

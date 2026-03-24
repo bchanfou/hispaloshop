@@ -200,15 +200,21 @@ const ImporterOrdersPage = lazy(() => import('./pages/importer/ImporterOrdersPag
 const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
 
 function RouteLoader() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setShow(true), 300);
-    return () => clearTimeout(timer);
-  }, []);
-  if (!show) return null;
   return (
-    <div className="min-h-[40vh] flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-2 border-stone-200 border-t-stone-700 animate-spin" />
+    <div className="min-h-[40vh] px-4 pt-4 space-y-3" aria-busy="true">
+      <div className="skeleton-shimmer rounded-2xl h-8 w-48" />
+      <div className="skeleton-shimmer rounded-2xl h-4 w-32" />
+      <div className="grid grid-cols-2 gap-3 mt-4">
+        {[1,2,3,4].map(i => (
+          <div key={i} className="rounded-2xl overflow-hidden">
+            <div className="skeleton-shimmer w-full h-40" />
+            <div className="p-2 space-y-2">
+              <div className="skeleton-shimmer h-3 w-3/4 rounded" />
+              <div className="skeleton-shimmer h-3 w-1/2 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -346,10 +352,10 @@ function AppRouter() {
           <motion.div
             id="main-content"
             key={location.pathname}
-            initial={{ opacity: 0, x: isForward ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: isForward ? -20 : 20 }}
-            transition={{ type: 'tween', duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
           >
           <LayoutGroup>
             <Routes location={location}>

@@ -14,6 +14,7 @@ import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import SEO from '../components/SEO';
+import SocialProofBar from '../components/product/SocialProofBar';
 import ProductImage from '../components/ui/ProductImage.tsx';
 import {
   useProductDetail,
@@ -479,12 +480,8 @@ export default function ProductDetailPage() {
           </div>
         )}
 
-        {/* Social proof — orders this month */}
-        {product.stats?.orders_count > 0 && (
-          <p className="mt-1.5 flex items-center gap-1 text-xs text-stone-500">
-            <Users size={12} /> {product.stats.orders_count} personas compraron este mes
-          </p>
-        )}
+        {/* Social proof — real-time signals */}
+        <SocialProofBar productId={product.product_id || product.id} />
 
         {/* Rating */}
         <div className="mt-2 flex items-center gap-2">

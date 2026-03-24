@@ -511,7 +511,19 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
                       "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
     
-    # 2b. Notify producers about new order (C-02)
+    # 2b. Record purchase signals for social proof
+    try:
+        from routes.products import record_purchase_signal
+        seen_products = set()
+        for item in order.get("line_items", []):
+            pid = item.get("product_id")
+            if pid and pid not in seen_products:
+                seen_products.add(pid)
+                await record_purchase_signal(pid)
+    except Exception as e:
+        logger.warning(f"[PAYMENT] Failed to record purchase signals for order {order_id}: {e}")
+
+    # 2c. Notify producers about new order (C-02)
     try:
         producer_ids_seen = set()
         for item in order.get("line_items", []):

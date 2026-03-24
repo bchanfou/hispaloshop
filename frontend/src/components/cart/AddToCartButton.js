@@ -46,6 +46,7 @@ const AddToCartButton = ({
       await addToCart(productId, quantity, variantId, packId);
       trigger('success');
       setState('success');
+      window.dispatchEvent(new CustomEvent('cart-added'));
       if (onAdd) onAdd(product);
       const totalInCart = inCartQuantity + quantity;
       toast.success(`✓ Añadido · ${totalInCart} en carrito`, {

@@ -136,6 +136,11 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
               Agotado
             </span>
           )}
+          {product.units_sold > 0 && !isOutOfStock && (
+            <span className="absolute top-1.5 right-1.5 bg-black/70 backdrop-blur-sm rounded-full px-2 py-0.5 text-[9px] font-semibold text-white z-[2]">
+              🔥 {product.units_sold} vendidos
+            </span>
+          )}
           {product.free_shipping && !isOutOfStock && (
             <span className="absolute top-1.5 left-1.5 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-semibold text-stone-950">
               Envío gratis

@@ -8,7 +8,7 @@ import asyncio
 import io
 import base64
 from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Request, Query
 from fastapi.responses import JSONResponse
 import qrcode
@@ -340,6 +340,90 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
         product["available_in_country"] = True
 
     return product
+
+
+# ── Product Signals (social proof) ────────────────────────────────────────
+
+async def _track_product_view(product_id: str, viewer_id: str = None):
+    """Increment view count and register active viewer."""
+    now = datetime.now(timezone.utc)
+    update = {
+        "$inc": {"views_today": 1},
+        "$set": {"updated_at": now},
+    }
+    if viewer_id:
+        # Remove expired viewer entries first, then add current
+        await db.product_signals.update_one(
+            {"product_id": product_id},
+            {"$pull": {"active_viewers": {"expires_at": {"$lt": now}}}},
+        )
+        update["$addToSet"] = {
+            "active_viewers": {
+                "user_id": viewer_id,
+                "expires_at": now + timedelta(minutes=5),
+            }
+        }
+    await db.product_signals.update_one(
+        {"product_id": product_id},
+        update,
+        upsert=True,
+    )
+
+
+@router.get("/products/{product_id}/signals")
+async def get_product_signals(product_id: str):
+    """Real-time social proof signals for a product. All data from MongoDB."""
+    now = datetime.now(timezone.utc)
+
+    # Get signal doc
+    doc = await db.product_signals.find_one(
+        {"product_id": product_id}, {"_id": 0}
+    )
+
+    # Count active (non-expired) viewers
+    viewers_now = 0
+    if doc and doc.get("active_viewers"):
+        viewers_now = sum(
+            1 for v in doc["active_viewers"]
+            if v.get("expires_at") and v["expires_at"] > now
+        )
+
+    # Get stock from product
+    product = await db.products.find_one(
+        {"product_id": product_id},
+        {"_id": 0, "stock": 1, "market_stock": 1, "track_stock": 1},
+    )
+    stock_units = (product or {}).get("market_stock") or (product or {}).get("stock")
+    if stock_units is None:
+        stock_units = 100  # default = unlimited
+
+    # Last purchase time
+    last_purchase_minutes = None
+    if doc and doc.get("last_purchase_at"):
+        delta = now - doc["last_purchase_at"]
+        last_purchase_minutes = int(delta.total_seconds() / 60)
+
+    return {
+        "purchases_today": (doc or {}).get("purchases_today", 0),
+        "viewers_now": viewers_now,
+        "last_purchase_minutes": last_purchase_minutes,
+        "stock_units": stock_units,
+        "is_low_stock": isinstance(stock_units, (int, float)) and stock_units <= 10 and stock_units > 0,
+    }
+
+
+async def record_purchase_signal(product_id: str):
+    """Called from orders.py when a purchase is confirmed."""
+    now = datetime.now(timezone.utc)
+    await db.product_signals.update_one(
+        {"product_id": product_id},
+        {
+            "$inc": {"purchases_today": 1},
+            "$set": {"last_purchase_at": now, "updated_at": now},
+        },
+        upsert=True,
+    )
+
 
 @router.post("/products")
 async def create_product(input: ProductInput, user: User = Depends(get_current_user)):

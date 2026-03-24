@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
+import { DashboardStatsSkeleton } from '../../components/Skeleton';
 
 const COUNTRIES = {
   ES: { name: 'España', currency: 'EUR' },
@@ -194,7 +195,7 @@ export default function ProductCountryManagement() {
   const usedCodes = new Set(markets.map(m => m.country_code));
   const availableCodes = Object.keys(COUNTRIES).filter(c => !usedCodes.has(c));
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-stone-500" /></div>;
+  if (loading) return <div className="p-4"><DashboardStatsSkeleton /></div>;
 
   return (
     <div className="space-y-5" data-testid="market-management-page">

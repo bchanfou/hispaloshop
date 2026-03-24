@@ -260,6 +260,40 @@ BADGE_DEFINITIONS = [
         "threshold": 1,
         "counter": "communities_created",
     },
+    # Health-focused badges
+    {
+        "badge_id": "local_hero",
+        "name_key": "badges.localHero",
+        "name_default": "Héroe local",
+        "description_key": "badges.localHeroDesc",
+        "description_default": "10+ compras de productores locales",
+        "icon": "home",
+        "category": "shopping",
+        "threshold": 10,
+        "counter": "local_purchases",
+    },
+    {
+        "badge_id": "weekly_champion",
+        "name_key": "badges.weeklyChampion",
+        "name_default": "Campeón semanal",
+        "description_key": "badges.weeklyChampionDesc",
+        "description_default": "Cumpliste tu objetivo semanal 4 veces",
+        "icon": "trophy",
+        "category": "shopping",
+        "threshold": 4,
+        "counter": "weekly_goals_met",
+    },
+    {
+        "badge_id": "level_forest",
+        "name_key": "badges.levelForest",
+        "name_default": "Nivel Bosque",
+        "description_key": "badges.levelForestDesc",
+        "description_default": "Alcanzaste el nivel máximo",
+        "icon": "globe",
+        "category": "engagement",
+        "threshold": 5,
+        "counter": "current_level",
+    },
 ]
 
 BADGE_MAP = {b["badge_id"]: b for b in BADGE_DEFINITIONS}
@@ -316,6 +350,24 @@ async def _get_user_counters(user_id: str) -> dict:
     # Communities created
     communities_created = await db.communities.count_documents({"created_by": user_id})
 
+    # Local purchases (km0 or local producers)
+    local_purchases = await db.orders.count_documents({
+        "user_id": user_id,
+        "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]},
+        "$or": [{"items.km0": True}, {"items.certifications": "km0"}],
+    })
+
+    # Weekly goals met (stored on user doc)
+    weekly_goals_met = user_doc.get("weekly_goals_met", 0) if user_doc else 0
+
+    # Current level (from xp)
+    from services.gamification import LEVELS
+    user_xp = user_doc.get("xp", 0) if user_doc else 0
+    current_level = 1
+    for lvl in LEVELS:
+        if user_xp >= lvl["min_xp"]:
+            current_level = lvl["level"]
+
     return {
         "orders_count": orders_count,
         "posts_count": posts_count,
@@ -332,6 +384,9 @@ async def _get_user_counters(user_id: str) -> dict:
         "eco_purchases": eco_purchases,
         "reels_count": reels_count,
         "communities_created": communities_created,
+        "local_purchases": local_purchases,
+        "weekly_goals_met": weekly_goals_met,
+        "current_level": current_level,
     }
 
 

@@ -273,8 +273,10 @@ export default function B2BQuotesHistoryPage() {
         </div>
 
         {activeQuery.isLoading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="w-8 h-8 animate-spin text-stone-400" />
+          <div className="space-y-3 py-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="skeleton-shimmer rounded-2xl h-24" />
+            ))}
           </div>
         ) : activeQuery.isError ? (
           <div className="text-center py-16 text-stone-500">

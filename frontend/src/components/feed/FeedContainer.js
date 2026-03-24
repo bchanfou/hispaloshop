@@ -1,18 +1,30 @@
 import React, { useCallback, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import ForYouFeed from './ForYouFeed';
 import FollowingFeed from './FollowingFeed';
 import HomeHeader from './HomeHeader';
 import StoriesBar from './StoriesBar';
 import StoryViewer from './StoryViewer';
+import WeeklyGoalBar from '../gamification/WeeklyGoalBar';
+import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../services/api/client';
 
 /**
  * FeedContainer — "Para ti" / "Siguiendo" tabbed feed with stories bar
  */
 function FeedContainer() {
+  const { user } = useAuth();
   // Feed tab state
   const [feedTab, setFeedTab] = useState('foryou');
+
+  // Gamification profile for weekly goal
+  const { data: gamifProfile } = useQuery({
+    queryKey: ['gamification', 'profile'],
+    queryFn: () => apiClient.get('/gamification/profile'),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
 
   // Story viewer state
   const [storyViewer, setStoryViewer] = useState(null);
@@ -40,6 +52,11 @@ function FeedContainer() {
 
       {/* Stories */}
       <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleStoryClick} />
+
+      {/* Weekly healthy goal */}
+      {gamifProfile && gamifProfile.weekly_goal_cents > 0 && (
+        <WeeklyGoalBar spent={gamifProfile.weekly_spent_cents} goal={gamifProfile.weekly_goal_cents} />
+      )}
 
       {/* Tabbed Feed — centered on tablet to prevent full-width stretch */}
       <div className="md:max-w-[500px] md:mx-auto lg:max-w-[470px]">

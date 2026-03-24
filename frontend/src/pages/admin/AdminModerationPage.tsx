@@ -245,8 +245,10 @@ export default function AdminModerationPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+      <div className="space-y-3 p-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="skeleton-shimmer rounded-2xl h-20" />
+        ))}
       </div>
     );
   }
