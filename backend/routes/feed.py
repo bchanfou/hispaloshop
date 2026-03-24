@@ -166,8 +166,8 @@ async def get_stories(request: Request):
             "has_unseen": has_unseen,
         })
 
-    # Sort: followed users first, then others
-    result.sort(key=lambda x: (not x["is_followed"], x["user_id"]))
+    # Sort: unseen first, then followed, then by user_id
+    result.sort(key=lambda x: (not x["has_unseen"], not x["is_followed"], x["user_id"]))
 
     # ── 2. Fill remaining slots with seller profile stories ──────────────────
     slots_remaining = max(0, 15 - len(result))

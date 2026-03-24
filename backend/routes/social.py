@@ -1669,8 +1669,15 @@ async def get_user_by_username(username: str):
     )
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    # Compute posts_count live (includes reels) instead of stale stored value
+    uid = user.get("user_id", "")
+    user_posts_count = await db.user_posts.count_documents({"user_id": uid})
+    reels_only_count = await db.reels.count_documents({"user_id": uid})
+    reels_in_user_posts = await db.user_posts.count_documents({"user_id": uid, "$or": [{"type": "reel"}, {"is_reel": True}]})
+    reels_exclusive = max(0, reels_only_count - reels_in_user_posts)
+    live_posts_count = user_posts_count + reels_exclusive
     return {
-        "user_id": user.get("user_id"),
+        "user_id": uid,
         "name": user.get("name"),
         "username": user.get("username"),
         "role": user.get("role"),
@@ -1681,7 +1688,7 @@ async def get_user_by_username(username: str):
         "company_name": user.get("company_name"),
         "followers_count": user.get("followers_count", 0),
         "following_count": user.get("following_count", 0),
-        "posts_count": user.get("posts_count", 0),
+        "posts_count": live_posts_count,
         "interests": user.get("interests", []),
         "created_at": user.get("created_at"),
         "niche": user.get("niche"),
@@ -2214,9 +2221,21 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
         {"$group": {"_id": "$following_id", "count": {"$sum": 1}}}
     ]).to_list(len(user_ids))}
 
-    # Batch posts count
+    # Batch posts count (user_posts collection)
     posts_counts = {r["_id"]: r["count"] for r in await db.user_posts.aggregate([
         {"$match": {"user_id": {"$in": user_ids}}},
+        {"$group": {"_id": "$user_id", "count": {"$sum": 1}}}
+    ]).to_list(len(user_ids))}
+
+    # Batch reels count (reels collection) — reels are stored separately
+    reels_counts = {r["_id"]: r["count"] for r in await db.reels.aggregate([
+        {"$match": {"user_id": {"$in": user_ids}}},
+        {"$group": {"_id": "$user_id", "count": {"$sum": 1}}}
+    ]).to_list(len(user_ids))}
+
+    # Batch reels already in user_posts (to avoid double counting)
+    reels_in_posts_counts = {r["_id"]: r["count"] for r in await db.user_posts.aggregate([
+        {"$match": {"user_id": {"$in": user_ids}, "$or": [{"type": "reel"}, {"is_reel": True}]}},
         {"$group": {"_id": "$user_id", "count": {"$sum": 1}}}
     ]).to_list(len(user_ids))}
 
@@ -2246,7 +2265,9 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
     for u in users:
         uid = u.get("user_id", "")
         fc = followers_counts.get(uid, 0)
-        pc = posts_counts.get(uid, 0)
+        # Total publications = user_posts + reels exclusive to db.reels (not already in user_posts)
+        reels_exclusive = max(0, reels_counts.get(uid, 0) - reels_in_posts_counts.get(uid, 0))
+        pc = posts_counts.get(uid, 0) + reels_exclusive
         is_following = is_following_map.get(uid, False)
         extra = {}
         if u.get("role") == "influencer":

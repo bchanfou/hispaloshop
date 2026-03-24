@@ -38,40 +38,45 @@ export default function ReelsPage() {
       // Primary: dedicated /reels endpoint
       let items = [];
       try {
-        const data = await apiClient.get(`/reels?skip=${(p - 1) * 10}&limit=10&tab=${activeTab}`);
-        items = data?.reels || data?.items || data || [];
-      } catch {
-        // Fallback: use /feed/foryou and filter for reel-type items
-        const feedData = await apiClient.get('/feed/foryou', {
-          params: { limit: 40, cursor: ((p - 1) * 10) || undefined },
+        const data = await apiClient.get(`/reels`, {
+          params: { skip: (p - 1) * 10, limit: 10, tab: activeTab },
         });
-        const feedItems = feedData?.items || feedData?.posts || feedData || [];
-        items = feedItems.filter(
-          (item) =>
-            item.type === 'reel' ||
-            item.is_reel === true ||
-            (item.media_type === 'video' && item.video_url)
-        ).slice(0, 10);
-
-        if (activeTab === 'following') {
-          // For the following tab, fall back to /feed/following
-          try {
-            const followData = await apiClient.get('/feed/following', {
-              params: { limit: 40, cursor: ((p - 1) * 10) || undefined },
-            });
-            const followItems = followData?.items || followData?.posts || followData || [];
-            items = followItems.filter(
-              (item) =>
-                item.type === 'reel' ||
-                item.is_reel === true ||
-                item.media_type === 'video' ||
-                item.video_url
-            ).slice(0, 10);
-          } catch {
-            // Keep whatever we got from foryou
-          }
+        // Backend returns { items: [...], has_more: bool }
+        // Robustly extract the array regardless of wrapper shape
+        const extracted = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.items)
+            ? data.items
+            : Array.isArray(data?.reels)
+              ? data.reels
+              : [];
+        items = extracted;
+      } catch (err) {
+        // Fallback: use /feed/foryou and filter for reel-type items
+        console.warn('[ReelsPage] /reels failed, trying feed fallback', err?.message || err);
+        try {
+          const feedUrl = activeTab === 'following' ? '/feed/following' : '/feed/foryou';
+          const feedData = await apiClient.get(feedUrl, {
+            params: { limit: 40, cursor: ((p - 1) * 10) || undefined },
+          });
+          const feedItems = Array.isArray(feedData)
+            ? feedData
+            : Array.isArray(feedData?.items)
+              ? feedData.items
+              : Array.isArray(feedData?.posts)
+                ? feedData.posts
+                : [];
+          items = feedItems.filter(
+            (item) =>
+              item.type === 'reel' ||
+              item.is_reel === true ||
+              (item.media_type === 'video' && item.video_url)
+          ).slice(0, 10);
+        } catch (feedErr) {
+          console.warn('[ReelsPage] Feed fallback also failed', feedErr?.message || feedErr);
         }
       }
+      if (!Array.isArray(items)) items = [];
       if (items.length < 10) setHasMore(false);
       setReels((prev) => (p === 1 ? items : [...prev, ...items]));
     } catch {
@@ -90,6 +95,8 @@ export default function ReelsPage() {
     setHasMore(true);
     setLoading(true);
     setActiveIndex(0);
+    // Reset guard so StrictMode re-mount can still fetch
+    fetchingRef.current = false;
     fetchReels(1);
   }, [fetchReels]);
 
@@ -194,7 +201,7 @@ export default function ReelsPage() {
           Crear Reel
         </button>
         <button
-          onClick={() => { setLoading(true); setPage(1); setHasMore(true); fetchReels(1); }}
+          onClick={() => { setLoading(true); setPage(1); setHasMore(true); fetchingRef.current = false; fetchReels(1); }}
           className="text-white/50 text-xs font-sans bg-transparent border-none cursor-pointer hover:text-white/80 transition-colors"
         >
           Reintentar

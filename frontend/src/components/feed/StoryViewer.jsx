@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX, ExternalLink, ChevronLeft, ChevronRight, Check, Search } from 'lucide-react';
 import { toast } from 'sonner';
@@ -48,6 +49,7 @@ const storyVariants = {
 
 export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
   const [currentUserIndex, setCurrentUserIndex] = useState(initialIndex);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
@@ -88,6 +90,14 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
   const viewedRef = useRef(new Set());
 
+  // Invalidate stories query on close so ring colors refresh with updated has_unseen
+  const handleClose = useCallback(() => {
+    if (viewedRef.current.size > 0) {
+      queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+    }
+    onClose();
+  }, [onClose, queryClient]);
+
   const currentStory = stories[currentUserIndex];
   const items = currentStory?.items || [];
   const currentItem = items[currentItemIndex];
@@ -119,9 +129,9 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       setProgress(0);
       setVideoDuration(null);
     } else {
-      onClose();
+      handleClose();
     }
-  }, [currentItemIndex, items.length, currentUserIndex, stories.length, onClose]);
+  }, [currentItemIndex, items.length, currentUserIndex, stories.length, handleClose]);
 
   const goPrev = useCallback(() => {
     directionRef.current = -1;
@@ -150,9 +160,9 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       setProgress(0);
       setVideoDuration(null);
     } else {
-      onClose();
+      handleClose();
     }
-  }, [currentUserIndex, stories.length, onClose]);
+  }, [currentUserIndex, stories.length, handleClose]);
 
   const goPrevUser = useCallback(() => {
     directionRef.current = -1;
@@ -234,7 +244,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   // Keyboard: Escape to close, Arrow keys to navigate
   useEffect(() => {
     const handleKey = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
       else if (e.key === 'ArrowRight') goNext();
       else if (e.key === 'ArrowLeft') goPrev();
       else if (e.key === ' ') {
@@ -244,7 +254,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [onClose, goNext, goPrev]);
+  }, [handleClose, goNext, goPrev]);
 
   // Preload next story image
   useEffect(() => {
@@ -320,7 +330,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
     // Swipe down to close
     if (deltaY > 100 && Math.abs(deltaX) < 80) {
-      onClose();
+      handleClose();
       pointerStartX.current = null;
       pointerStartY.current = null;
       return;
@@ -381,7 +391,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       const conversationId = res?.conversation_id || res?.id || res?._id;
       if (conversationId) {
         setTimeout(() => {
-          onClose();
+          handleClose();
           navigate(`/messages/${conversationId}`);
         }, 250);
       }
@@ -397,7 +407,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     } finally {
       setSendingReply(false);
     }
-  }, [replyText, sendingReply, currentStory, currentItem, navigate, onClose]);
+  }, [replyText, sendingReply, currentStory, currentItem, navigate, handleClose]);
 
   // A-1: Quick reaction with burst animation + API call simultaneously
   const handleQuickReaction = useCallback(async (emoji) => {
@@ -563,7 +573,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2">
         <div
-          onClick={(e) => { e.stopPropagation(); onClose(); navigate(`/${user?.username || user?.id || user?.user_id}`); }}
+          onClick={(e) => { e.stopPropagation(); handleClose(); navigate(`/${user?.username || user?.id || user?.user_id}`); }}
           className="flex items-center gap-2 cursor-pointer"
           role="link"
           aria-label={`Ver perfil de ${user?.name || user?.username}`}
@@ -592,7 +602,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           <span className="text-[10px] text-white/40 font-sans mr-1">En pausa</span>
         )}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="w-11 h-11 bg-transparent border-none cursor-pointer flex items-center justify-center"
           aria-label="Cerrar historia"
         >
@@ -745,7 +755,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     key={product.id || product.product_id || idx}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onClose();
+                      handleClose();
                       const pid = product?.product_id || product?.id || product?.slug;
                       if (pid) navigate(`/products/${pid}`);
                     }}
@@ -753,7 +763,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         e.stopPropagation();
-                        onClose();
+                        handleClose();
                         const pid = product?.product_id || product?.id || product?.slug;
                         if (pid) navigate(`/products/${pid}`);
                       }
@@ -793,7 +803,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                       e.stopPropagation();
                       if (!link?.url) return;
                       if (isInternalUrl(link.url)) {
-                        onClose();
+                        handleClose();
                         try {
                           const u = new URL(link.url, window.location.origin);
                           navigate(u.pathname + u.search);
@@ -810,7 +820,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                         e.stopPropagation();
                         if (!link?.url) return;
                         if (isInternalUrl(link.url)) {
-                          onClose();
+                          handleClose();
                           try {
                             const u = new URL(link.url, window.location.origin);
                             navigate(u.pathname + u.search);

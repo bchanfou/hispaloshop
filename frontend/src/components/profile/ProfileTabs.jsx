@@ -692,7 +692,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           <span className="text-[11px] text-white font-medium">{likesCount}</span>
         </button>
         <button
-          onClick={() => navigate(`/reels/${reelId}`)}
+          onClick={() => navigate(`/posts/${reelId}`)}
           className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer"
         >
           <MessageCircle size={26} className="text-white" />

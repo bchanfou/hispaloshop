@@ -240,28 +240,32 @@ export function useLikePost() {
       const previousFollowing = queryClient.getQueryData(feedKeys.following);
 
       const applyLikeUpdate = (old: any) => {
-        if (!old) return old;
+        if (!old || !Array.isArray(old?.pages)) return old;
         return {
           ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            items: page.items.map((item: any) => {
-              if (
-                String(item.id) === String(postId)
-                || String(item.post_id) === String(postId)
-                || String(item.postId) === String(postId)
-              ) {
-                return {
-                  ...item,
-                  liked: !liked,
-                  is_liked: !liked,
-                  likes: (item.likes || 0) + (liked ? -1 : 1),
-                  likes_count: (item.likes_count || 0) + (liked ? -1 : 1),
-                };
-              }
-              return item;
-            }),
-          })),
+          pages: old.pages.map((page: any) => {
+            if (!page || !Array.isArray(page?.items)) return page;
+            return {
+              ...page,
+              items: page.items.map((item: any) => {
+                if (!item) return item;
+                if (
+                  String(item.id) === String(postId)
+                  || String(item.post_id) === String(postId)
+                  || String(item.postId) === String(postId)
+                ) {
+                  return {
+                    ...item,
+                    liked: !liked,
+                    is_liked: !liked,
+                    likes: (item.likes || 0) + (liked ? -1 : 1),
+                    likes_count: (item.likes_count || 0) + (liked ? -1 : 1),
+                  };
+                }
+                return item;
+              }),
+            };
+          }),
         };
       };
 
@@ -299,22 +303,26 @@ export function useSavePost() {
       const previousFollowing = queryClient.getQueryData(feedKeys.following);
 
       const applySaveUpdate = (old: any) => {
-        if (!old) return old;
+        if (!old || !Array.isArray(old?.pages)) return old;
         return {
           ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            items: page.items.map((item: any) => {
-              if (
-                String(item.id) === String(postId)
-                || String(item.post_id) === String(postId)
-                || String(item.postId) === String(postId)
-              ) {
-                return { ...item, saved: !saved };
-              }
-              return item;
-            }),
-          })),
+          pages: old.pages.map((page: any) => {
+            if (!page || !Array.isArray(page?.items)) return page;
+            return {
+              ...page,
+              items: page.items.map((item: any) => {
+                if (!item) return item;
+                if (
+                  String(item.id) === String(postId)
+                  || String(item.post_id) === String(postId)
+                  || String(item.postId) === String(postId)
+                ) {
+                  return { ...item, saved: !saved };
+                }
+                return item;
+              }),
+            };
+          }),
         };
       };
 

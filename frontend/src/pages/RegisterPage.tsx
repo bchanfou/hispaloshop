@@ -112,8 +112,10 @@ export default function RegisterPage() {
         username: form.username.trim().toLowerCase().replace(/[^a-z0-9_]/g, ''),
         password: form.password,
         birth_date: birthDate,
+        role: 'customer',
+        country: 'ES',
         analytics_consent: true,
-        consent_version: 1,
+        consent_version: '1.0',
       });
 
       if (data?.user) {
@@ -410,6 +412,45 @@ export default function RegisterPage() {
           Entrar
         </Link>
       </p>
+
+      {/* Role-specific registration links */}
+      <div className="mt-8 pt-6 border-t border-stone-200">
+        <p className="text-center text-sm text-stone-500 mb-4">
+          ¿Quieres vender o colaborar?
+        </p>
+        <div className="flex flex-col gap-3">
+          <Link
+            to="/productor/registro"
+            className="flex items-center justify-between px-4 py-3 rounded-xl border border-stone-200 hover:border-stone-400 transition-colors no-underline"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🧑‍🌾</span>
+              <span className="text-sm font-semibold text-stone-950">Crear cuenta como Productor</span>
+            </div>
+            <span className="text-stone-400 text-sm">→</span>
+          </Link>
+          <Link
+            to="/influencer/aplicar"
+            className="flex items-center justify-between px-4 py-3 rounded-xl border border-stone-200 hover:border-stone-400 transition-colors no-underline"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">📸</span>
+              <span className="text-sm font-semibold text-stone-950">Crear cuenta como Influencer</span>
+            </div>
+            <span className="text-stone-400 text-sm">→</span>
+          </Link>
+          <Link
+            to="/importer/onboarding"
+            className="flex items-center justify-between px-4 py-3 rounded-xl border border-stone-200 hover:border-stone-400 transition-colors no-underline"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🌍</span>
+              <span className="text-sm font-semibold text-stone-950">Crear cuenta como Importador</span>
+            </div>
+            <span className="text-stone-400 text-sm">→</span>
+          </Link>
+        </div>
+      </div>
     </>
   );
 }
