@@ -275,12 +275,28 @@ async def add_to_cart(
                 {
                     "$inc": {f"items.{existing_idx}.quantity": quantity},
                     "$set": {
-                        f"items.{existing_idx}.total_price_cents": (existing_qty + quantity) * unit_price_cents,
                         "updated_at": datetime.now(timezone.utc),
                         "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
                     }
                 }
             )
+
+            # Re-read actual quantity after $inc and set total_price_cents to avoid race
+            updated = await db.carts.find_one({"_id": cart["_id"]}, {"items": 1})
+            for item in updated.get("items", []):
+                if (item["product_id"] == product_id and
+                        item.get("variant_id") == variant_id and
+                        item.get("pack_id") == pack_id):
+                    actual_qty = item["quantity"]
+                    await db.carts.update_one(
+                        {"_id": cart["_id"], "items": {"$elemMatch": {
+                            "product_id": product_id,
+                            "variant_id": variant_id,
+                            "pack_id": pack_id,
+                        }}},
+                        {"$set": {"items.$.total_price_cents": actual_qty * unit_price_cents}}
+                    )
+                    break
 
             # Verify stock AFTER the increment to handle concurrent adds
             if stock is not None:
@@ -573,7 +589,7 @@ async def apply_coupon(
     
     # Validar código
     coupon = await db.discount_codes.find_one({
-        "code": code.upper(),
+        "code": code.strip().upper(),
         "active": True,
         "$or": [
             {"end_date": None},

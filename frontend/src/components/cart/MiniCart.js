@@ -51,8 +51,11 @@ const MiniCart = ({ isOpen, onClose }) => {
   const shippingKnown = shippingData?.total_shipping_cents != null;
   const shippingCents = shippingData?.total_shipping_cents ?? 0;
   const shipping = shippingCents / 100;
-  const freeShippingThreshold = shippingData?.stores?.[0]?.free_threshold_cents
-    ? shippingData.stores[0].free_threshold_cents / 100
+  const stores = shippingData?.stores || [];
+  const hasMultipleStores = stores.length > 1;
+  // Use minimum threshold across all stores
+  const freeShippingThreshold = stores.length > 0
+    ? Math.min(...stores.map(s => (s.free_threshold_cents || 3000))) / 100
     : 30;
   const discountEur = appliedDiscount?.discount_cents ? appliedDiscount.discount_cents / 100 : 0;
   const total = Math.max(0, subtotal + shipping - discountEur);
@@ -242,7 +245,12 @@ const MiniCart = ({ isOpen, onClose }) => {
             {!loading && cartItems.length > 0 && (
               <div className="border-t border-stone-200 p-4 space-y-4">
                 {/* Shipping progress */}
-                {subtotal < freeShippingThreshold && (
+                {hasMultipleStores ? (
+                  <div className="bg-stone-100 rounded-2xl p-3 text-sm">
+                    <p className="text-stone-950 font-medium">Envío calculado por tienda</p>
+                    <p className="text-stone-500 text-xs mt-0.5">Revisa el detalle en el carrito</p>
+                  </div>
+                ) : subtotal < freeShippingThreshold ? (
                   <div className="bg-stone-100 rounded-2xl p-3 text-sm">
                     <p className="text-stone-950">
                       Añade <span className="font-semibold text-stone-950">{fmtEur(freeShippingThreshold - subtotal)}</span> más para envío gratis
@@ -254,7 +262,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                       />
                     </div>
                   </div>
-                )}
+                ) : null}
 
                 {/* Summary with shipping estimate */}
                 <div className="space-y-2 text-sm">
@@ -276,7 +284,10 @@ const MiniCart = ({ isOpen, onClose }) => {
                     </div>
                   )}
                   <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t border-stone-200">
-                    <span>Total</span>
+                    <div className="flex flex-col">
+                      <span>Total</span>
+                      <span className="text-[11px] text-stone-400 font-normal">Precio estimado</span>
+                    </div>
                     <span>{fmtEur(total)}</span>
                   </div>
                 </div>

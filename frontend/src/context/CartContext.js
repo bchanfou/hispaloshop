@@ -81,10 +81,10 @@ export function CartProvider({ children }) {
         serverKeys = new Set(serverItems.map(itemKey));
       } catch { /* if fetch fails, merge everything */ }
 
-      const mergedIds = [];
+      const mergedKeys = new Set();
       for (const item of guestItems) {
         if (serverKeys.has(itemKey(item))) {
-          mergedIds.push(item.product_id);
+          mergedKeys.add(itemKey(item));
           continue; // already in server cart
         }
         try {
@@ -94,16 +94,16 @@ export function CartProvider({ children }) {
             ...(item.variant_id != null && item.variant_id !== '' && { variant_id: item.variant_id }),
             ...(item.pack_id != null && item.pack_id !== '' && { pack_id: item.pack_id }),
           });
-          mergedIds.push(item.product_id);
+          mergedKeys.add(itemKey(item));
         } catch (e) {
           if (process.env.NODE_ENV === 'development') console.error('Merge failed for', item.product_id, e);
         }
       }
       // Clear only merged items, keep failed ones
-      if (mergedIds.length === guestItems.length) {
+      if (mergedKeys.size === guestItems.length) {
         clearGuestCart();
       } else {
-        const remaining = guestItems.filter(i => !mergedIds.includes(i.product_id));
+        const remaining = guestItems.filter(i => !mergedKeys.has(itemKey(i)));
         localStorage.setItem(GUEST_CART_KEY, JSON.stringify(remaining));
       }
     } catch (error) {
@@ -251,11 +251,12 @@ export function CartProvider({ children }) {
 
     // Optimistic update — update UI immediately, revert on error
     const key = cartKey(productId, variantId, packId);
-    const origItem = cartItems.find(i => itemKey(i) === key);
-    const origQty = origItem?.quantity;
-    setCartItems(prev =>
-      prev.map(item => itemKey(item) === key ? { ...item, quantity: newQuantity } : item)
-    );
+    let origQty;
+    setCartItems(prev => {
+      const found = prev.find(i => itemKey(i) === key);
+      origQty = found?.quantity;
+      return prev.map(item => itemKey(item) === key ? { ...item, quantity: newQuantity } : item);
+    });
 
     try {
       await apiClient.patch(`/cart/items/${productId}`, {

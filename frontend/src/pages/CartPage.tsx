@@ -222,13 +222,14 @@ export default function CartPage() {
   };
 
   const handleApplyDiscount = async () => {
-    if (!discountCode.trim()) {
-      toast.error(t('errors.generic'));
+    const trimmedCode = discountCode.trim().toUpperCase();
+    if (!trimmedCode) {
+      toast.error('Introduce un código de descuento');
       return;
     }
     setDiscountLoading(true);
     try {
-      const result = await applyDiscount(discountCode.toUpperCase());
+      const result = await applyDiscount(trimmedCode);
       if (!result?.success) {
         throw new Error(result?.error || t('errors.generic'));
       }
@@ -625,7 +626,7 @@ export default function CartPage() {
                             {hasStockIssue && (
                               <div className="mt-1 flex items-center gap-1 text-xs text-stone-700">
                                 <AlertCircle className="w-3 h-3" />
-                                <span>{stockIssues?.find((issue) => issue.product_id === item.product_id)?.message}</span>
+                                <span>{stockIssues?.find((issue) => issue.product_id === item.product_id)?.stock_message}</span>
                               </div>
                             )}
                           </div>
