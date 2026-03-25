@@ -140,6 +140,15 @@ export default function CartPage() {
   const { savedAddresses, defaultAddressId, createAddress, savingAddress, isLoading: addressesLoading } = useCartAddresses();
   const { cartSummary, stockIssues, refetch: refetchPricing } = useCartPricing(cartItems, appliedDiscount);
   const { checkoutLoading, createCheckout } = useCartCheckout();
+
+  // Guest pricing fallback — server pricing requires auth, so compute from cartItems directly
+  const guestSubtotal = useMemo(() => {
+    if (user) return null; // logged-in users use server pricing
+    return cartItems.reduce((sum, item) => sum + (item.unit_price_cents || 0) * (item.quantity || 1), 0);
+  }, [user, cartItems]);
+
+  const displaySubtotal = user ? (cartSummary.subtotal_cents ?? 0) : (guestSubtotal ?? 0);
+  const displayTotal = user ? (cartSummary.total_cents ?? 0) : (guestSubtotal ?? 0); // guests don't have shipping/discount yet
   const {
     register: registerAddr,
     handleSubmit: handleAddrSubmit,
@@ -318,7 +327,6 @@ export default function CartPage() {
   const handleUpdateQuantity = async (item, newQuantity) => {
     try {
       await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
-      await refetchPricing();
     } catch (error) {
       toast.error(error?.message || 'No se pudo actualizar la cantidad');
     }
@@ -327,7 +335,6 @@ export default function CartPage() {
   const handleRemoveItem = async (item) => {
     try {
       await removeFromCart(item.product_id, item.variant_id, item.pack_id);
-      await refetchPricing();
     } catch (error) {
       toast.error(error?.message || 'No se pudo eliminar el producto');
     }
@@ -361,10 +368,6 @@ export default function CartPage() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-stone-50">
       <div className="max-w-[600px] lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12 pb-32 md:pb-12">
@@ -378,7 +381,7 @@ export default function CartPage() {
           {t('cart.title')}
         </h1>
 
-        {emailVerified === false && (
+        {user && emailVerified === false && (
           <div className="mb-8 rounded-2xl shadow-sm bg-white p-6" data-testid="verification-banner">
             <div className="flex items-start gap-4">
               <AlertTriangle className="mt-0.5 h-6 w-6 text-stone-700" />
@@ -415,7 +418,7 @@ export default function CartPage() {
           </div>
         )}
 
-        {emailVerified === true && (
+        {user && emailVerified === true && (
           <div className="mb-6 inline-flex items-center gap-2 rounded-2xl shadow-sm bg-white px-4 py-3" data-testid="verified-badge">
             <CheckCircle className="h-5 w-5 text-stone-950" />
             <span className="font-medium text-stone-950">{t('checkout.emailVerified', 'Email verificado')}</span>
@@ -429,7 +432,7 @@ export default function CartPage() {
             <Package size={48} className="text-stone-300 mb-4" />
             <p className="text-lg font-semibold text-stone-950 mb-1">Tu carrito esta vacio</p>
             <p className="text-sm text-stone-500 mb-6">Descubre productos increibles de productores locales</p>
-            <motion.button whileTap={{ scale: 0.96 }} onClick={() => navigate('/explore')} className="bg-stone-950 text-white rounded-full px-8 py-3 text-sm font-semibold hover:bg-stone-800 transition-colors">
+            <motion.button whileTap={{ scale: 0.96 }} onClick={() => navigate('/discover')} className="bg-stone-950 text-white rounded-full px-8 py-3 text-sm font-semibold hover:bg-stone-800 transition-colors">
               Explorar productos
             </motion.button>
           </div>
@@ -780,11 +783,11 @@ export default function CartPage() {
                 {/* Subtotal */}
                 <div className="flex justify-between text-sm">
                   <span className="text-stone-500">{t('cart.subtotal')}</span>
-                  <span className="text-stone-950 font-medium">{formatCurrency(cartSummary.subtotal_cents ?? getTotalPrice())}</span>
+                  <span className="text-stone-950 font-medium">{formatCurrency(displaySubtotal)}</span>
                 </div>
 
                 {/* Per-store shipping lines */}
-                {shippingBreakdown.length > 0 ? (
+                {user && shippingBreakdown.length > 0 ? (
                   shippingBreakdown.map(store => (
                     <div key={store.seller_id} className="flex justify-between text-sm">
                       <span className="text-stone-500">Envio {store.seller_name}</span>
@@ -795,7 +798,7 @@ export default function CartPage() {
                       )}
                     </div>
                   ))
-                ) : (
+                ) : user ? (
                   <div className="flex justify-between text-sm">
                     <span className="text-stone-500">{t('checkout.shipping')}</span>
                     <span className="text-stone-950 font-medium">
@@ -804,6 +807,8 @@ export default function CartPage() {
                         : <span className="text-stone-700">{t('common.free')}</span>}
                     </span>
                   </div>
+                ) : (
+                  <p className="text-xs text-stone-400">Inicia sesión para ver el coste de envío</p>
                 )}
 
                 {/* Discount */}
@@ -820,7 +825,7 @@ export default function CartPage() {
                 {/* Total */}
                 <div className="flex justify-between">
                   <span className="text-base font-bold text-stone-950">{t('cart.total')}</span>
-                  <span className="text-base font-bold text-stone-950">{formatCurrency(cartSummary.total_cents ?? 0)}</span>
+                  <span className="text-base font-bold text-stone-950">{formatCurrency(displayTotal)}</span>
                 </div>
 
                 {/* IVA included note */}
@@ -892,7 +897,7 @@ export default function CartPage() {
               <span className="text-sm text-stone-500">{t('cart.total')}</span>
               <span className="text-[10px] text-stone-400">IVA incluido</span>
             </div>
-            <span className="text-lg font-bold text-stone-950">{formatCurrency(cartSummary.total_cents ?? 0)}</span>
+            <span className="text-lg font-bold text-stone-950">{formatCurrency(displayTotal)}</span>
           </div>
           <motion.button
             whileTap={{ scale: 0.96 }}

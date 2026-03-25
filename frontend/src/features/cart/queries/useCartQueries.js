@@ -35,6 +35,7 @@ export function useAddToCart() {
 export function useCartPricing(options = {}) {
   return useQuery({
     queryKey: cartKeys.pricing,
+    staleTime: 10000, // 10s — avoid duplicate GET /cart when CartContext just fetched
     queryFn: async () => {
       const res = await apiClient.get('/cart');
       const cart = res?.data || res || {};

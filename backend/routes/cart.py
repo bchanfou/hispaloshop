@@ -208,15 +208,11 @@ async def add_to_cart(
     if unit_price_cents == 0 and product.get("price"):
         unit_price_cents = price_to_cents(product["price"])
     
-    # Obtener o crear carrito — only match non-expired carts
+    # Obtener o crear carrito — use same expiry filter as GET /cart
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
         "status": "active",
-        "$or": [
-            {"expires_at": {"$gte": datetime.now(timezone.utc)}},
-            {"expires_at": None},
-            {"expires_at": {"$exists": False}},
-        ]
+        "expires_at": {"$gte": datetime.now(timezone.utc)}
     })
     
     cart_item = {
@@ -332,15 +328,21 @@ async def update_cart_item(
         raise HTTPException(status_code=404, detail="Item not found in cart")
     
     if quantity <= 0:
-        # Eliminar item atomically with $pull
+        # Eliminar item atomically with $pull — robust null matching
+        pull_filter = {"product_id": product_id}
+        if variant_id:
+            pull_filter["variant_id"] = variant_id
+        else:
+            pull_filter["variant_id"] = {"$in": [None, ""]}
+        if pack_id:
+            pull_filter["pack_id"] = pack_id
+        else:
+            pull_filter["pack_id"] = {"$in": [None, ""]}
+
         await db.carts.update_one(
             {"_id": cart["_id"], "user_id": current_user.user_id},
             {
-                "$pull": {"items": {
-                    "product_id": product_id,
-                    "variant_id": variant_id,
-                    "pack_id": pack_id,
-                }},
+                "$pull": {"items": pull_filter},
                 "$set": {
                     "updated_at": datetime.now(timezone.utc),
                     "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
@@ -355,19 +357,16 @@ async def update_cart_item(
         if stock is not None and quantity > stock:
             raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
 
-        # Atomic positional update — match the item by product_id in the query
+        # Index-based update — avoids positional $ operator mismatch with multiple conditions
         unit_price = items[item_idx]["unit_price_cents"]
         await db.carts.update_one(
             {
                 "_id": cart["_id"],
                 "user_id": current_user.user_id,
-                "items.product_id": product_id,
-                "items.variant_id": variant_id,
-                "items.pack_id": pack_id,
             },
             {"$set": {
-                "items.$.quantity": quantity,
-                "items.$.total_price_cents": unit_price * quantity,
+                f"items.{item_idx}.quantity": quantity,
+                f"items.{item_idx}.total_price_cents": unit_price * quantity,
                 "updated_at": datetime.now(timezone.utc),
                 "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
             }}
@@ -394,15 +393,21 @@ async def remove_from_cart(
     if not cart:
         raise HTTPException(status_code=404, detail="Cart not found")
 
-    # Atomic $pull — remove matching item without replacing the whole array
+    # Build robust $pull filter — null variant_id/pack_id must match None or missing
+    pull_filter = {"product_id": product_id}
+    if variant_id:
+        pull_filter["variant_id"] = variant_id
+    else:
+        pull_filter["variant_id"] = {"$in": [None, ""]}
+    if pack_id:
+        pull_filter["pack_id"] = pack_id
+    else:
+        pull_filter["pack_id"] = {"$in": [None, ""]}
+
     await db.carts.update_one(
         {"_id": cart["_id"], "user_id": current_user.user_id},
         {
-            "$pull": {"items": {
-                "product_id": product_id,
-                "variant_id": variant_id,
-                "pack_id": pack_id,
-            }},
+            "$pull": {"items": pull_filter},
             "$set": {
                 "updated_at": datetime.now(timezone.utc),
                 "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
