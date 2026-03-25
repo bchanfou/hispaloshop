@@ -39,7 +39,7 @@ export function useCartPricing(cartItems, appliedDiscount) {
       shipping_cents: shippingCents,
       tax_cents: taxCents,
       tax_rate_bp: taxRateBp,
-      total_cents: Math.max(0, subtotalCents - discountAmountCents + shippingCents),
+      total_cents: pricing?.totalCents ?? Math.max(0, subtotalCents - discountAmountCents + shippingCents),
       shipping_breakdown: shippingBreakdown,
     },
     stockIssues: pricing?.stockIssues || [],

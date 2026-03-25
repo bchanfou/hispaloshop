@@ -180,12 +180,12 @@ const MiniCart = ({ isOpen, onClose }) => {
                               className="flex gap-3 bg-stone-50 rounded-2xl p-3"
                             >
                               <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 overflow-hidden flex items-center justify-center">
-                                {(item.product_image || item.image || item.product?.image) && !imgErrors[item.product_id] ? (
+                                {(item.product_image || item.image || item.product?.image) && !imgErrors[`${item.product_id}-${item.variant_id||''}-${item.pack_id||''}`] ? (
                                   <img
                                     src={item.product_image || item.image || item.product?.image}
                                     alt={item.product_name || item.name || item.product?.name || ''}
                                     className="w-full h-full object-cover"
-                                    onError={() => setImgErrors(prev => ({ ...prev, [item.product_id]: true }))}
+                                    onError={() => { const k = `${item.product_id}-${item.variant_id||''}-${item.pack_id||''}`; setImgErrors(prev => ({ ...prev, [k]: true })); }}
                                   />
                                 ) : (
                                   <ShoppingBag className="w-6 h-6 text-stone-400" />

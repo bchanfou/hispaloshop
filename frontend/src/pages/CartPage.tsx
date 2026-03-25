@@ -123,7 +123,6 @@ export default function CartPage() {
     cartItems,
     removeFromCart,
     updateQuantity,
-    getTotalPrice,
     loading: cartLoading,
     appliedDiscount,
     applyDiscount,
@@ -259,29 +258,18 @@ export default function CartPage() {
     }
   };
 
-  const getEstimatedDelivery = () => {
-    // Calculate today + 3-5 business days (skip weekends)
-    const minDays = 3;
-    const maxDays = 5;
+  const estimatedDelivery = useMemo(() => {
+    // Calculate today + 3-5 business days (skip weekends) — memoized, computed once
     const addBusinessDays = (date, days) => {
       let d = new Date(date);
       let added = 0;
-      while (added < days) {
-        d.setDate(d.getDate() + 1);
-        const dow = d.getDay();
-        if (dow !== 0 && dow !== 6) added++;
-      }
+      while (added < days) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) added++; }
       return d;
     };
     const today = new Date();
-    const minDate = addBusinessDays(today, minDays);
-    const maxDate = addBusinessDays(today, maxDays);
     const fmt = (d) => d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-    // If same week range collapse to "lunes — miércoles DD de mes"
-    const minStr = fmt(minDate);
-    const maxStr = fmt(maxDate);
-    return `${minStr} — ${maxStr}`;
-  };
+    return `${fmt(addBusinessDays(today, 3))} — ${fmt(addBusinessDays(today, 5))}`;
+  }, []);
 
   // getDiscountedTotal is no longer needed — cartSummary.totalCents is the source of truth
 
@@ -436,7 +424,7 @@ export default function CartPage() {
                     type="button"
                     onClick={handleResendVerification}
                     disabled={resending}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 px-4 py-2.5 min-h-[44px] text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 disabled:opacity-50"
                     data-testid="resend-button"
                   >
                     <Mail className="w-4 h-4" />
@@ -622,7 +610,7 @@ export default function CartPage() {
                             {/* Delivery estimate per item */}
                             <p className="text-[11px] text-stone-400 mt-1">
                               <Calendar className="w-3 h-3 inline mr-0.5 -mt-px" />
-                              Entrega estimada: {getEstimatedDelivery()}
+                              Entrega estimada: {estimatedDelivery}
                             </p>
                             {/* Stock hold timer */}
                             <StockHoldTimer expiresAt={item.hold_expires_at} />
@@ -889,7 +877,7 @@ export default function CartPage() {
                 {/* Delivery estimate */}
                 <div className="flex items-center gap-1.5 text-sm text-stone-600 pt-1">
                   <Truck className="w-4 h-4 flex-shrink-0 text-stone-400" />
-                  <span>Entrega estimada: <span className="font-medium text-stone-700">{getEstimatedDelivery()}</span></span>
+                  <span>Entrega estimada: <span className="font-medium text-stone-700">{estimatedDelivery}</span></span>
                 </div>
 
                 {currency !== (countries[country]?.currency || 'EUR') && (
@@ -934,7 +922,7 @@ export default function CartPage() {
                           : t('cart.checkout')}
               </button>
 
-              {!emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Debes verificar tu correo electrónico'}</p>}
+              {user && !emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Debes verificar tu correo electrónico'}</p>}
               {stockIssues.length > 0 && <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.stockIssues') || 'Algunos productos no tienen stock suficiente'}</p>}
               {!getSelectedAddress() && !showNewAddressForm && emailVerified && stockIssues.length === 0 && (
                 <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.pleaseSelectAddress') || 'Selecciona o añade una dirección de envío'}</p>
