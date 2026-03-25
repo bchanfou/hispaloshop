@@ -50,7 +50,7 @@ function ShippingProgressBar({ store }) {
           <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
         </div>
         {store.is_free ? (
-          <span className="text-xs font-bold text-stone-950 flex-shrink-0">Envio gratis</span>
+          <span className="text-xs font-bold text-stone-950 flex-shrink-0">Envío gratis</span>
         ) : (
           <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toFixed(2)} €</span>
         )}
@@ -60,7 +60,7 @@ function ShippingProgressBar({ store }) {
       </div>
       {!store.is_free && store.remaining_cents > 0 && (
         <p className="text-[11px] text-stone-500 mt-0.5">
-          Faltan {(store.remaining_cents / 100).toFixed(2)} € para envio gratis
+          Faltan {(store.remaining_cents / 100).toFixed(2)} € para envío gratis
         </p>
       )}
     </div>
@@ -364,9 +364,24 @@ export default function CartPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <p className="text-stone-500">{t('common.loading')}</p>
+      <div className="min-h-screen bg-stone-50 pt-14">
+        <div className="max-w-[600px] mx-auto px-4 py-6 flex flex-col gap-4">
+          {[1,2,3].map(i => (
+            <div key={i} className="bg-white rounded-2xl p-4 flex gap-3 animate-pulse">
+              <div className="w-16 h-16 bg-stone-200 rounded-xl flex-shrink-0" />
+              <div className="flex-1 flex flex-col gap-2">
+                <div className="h-4 bg-stone-200 rounded w-3/4" />
+                <div className="h-3 bg-stone-100 rounded w-1/2" />
+                <div className="h-4 bg-stone-200 rounded w-1/4 mt-1" />
+              </div>
+            </div>
+          ))}
+          <div className="bg-white rounded-2xl p-4 animate-pulse">
+            <div className="h-4 bg-stone-200 rounded w-1/3 mb-3" />
+            <div className="h-3 bg-stone-100 rounded w-full mb-2" />
+            <div className="h-3 bg-stone-100 rounded w-2/3 mb-4" />
+            <div className="h-12 bg-stone-200 rounded-full" />
+          </div>
         </div>
       </div>
     );
@@ -430,12 +445,29 @@ export default function CartPage() {
         )}
 
         {cartLoading ? (
-          <p className="text-stone-500 text-center py-12">{t('common.loading')}</p>
+          <div className="max-w-[600px] mx-auto flex flex-col gap-4">
+            {[1,2,3].map(i => (
+              <div key={i} className="bg-white rounded-2xl p-4 flex gap-3 animate-pulse">
+                <div className="w-16 h-16 bg-stone-200 rounded-xl flex-shrink-0" />
+                <div className="flex-1 flex flex-col gap-2">
+                  <div className="h-4 bg-stone-200 rounded w-3/4" />
+                  <div className="h-3 bg-stone-100 rounded w-1/2" />
+                  <div className="h-4 bg-stone-200 rounded w-1/4 mt-1" />
+                </div>
+              </div>
+            ))}
+            <div className="bg-white rounded-2xl p-4 animate-pulse">
+              <div className="h-4 bg-stone-200 rounded w-1/3 mb-3" />
+              <div className="h-3 bg-stone-100 rounded w-full mb-2" />
+              <div className="h-3 bg-stone-100 rounded w-2/3 mb-4" />
+              <div className="h-12 bg-stone-200 rounded-full" />
+            </div>
+          </div>
         ) : cartItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Package size={48} className="text-stone-300 mb-4" />
-            <p className="text-lg font-semibold text-stone-950 mb-1">Tu carrito esta vacio</p>
-            <p className="text-sm text-stone-500 mb-6">Descubre productos increibles de productores locales</p>
+            <p className="text-lg font-semibold text-stone-950 mb-1">Tu carrito está vacío</p>
+            <p className="text-sm text-stone-500 mb-6">Descubre productos increíbles de productores locales</p>
             <motion.button whileTap={{ scale: 0.96 }} onClick={() => navigate('/discover')} className="bg-stone-950 text-white rounded-full px-8 py-3 text-sm font-semibold hover:bg-stone-800 transition-colors">
               Explorar productos
             </motion.button>
@@ -445,7 +477,7 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-4">
               {/* Reservation expired banner */}
               {cartItems.some(i => i.hold_expires_at && new Date(i.hold_expires_at).getTime() < Date.now()) && (
-                <div className="flex items-center justify-between gap-3 rounded-2xl shadow-sm bg-stone-50 p-3">
+                <div className="flex items-center justify-between gap-3 rounded-2xl shadow-sm bg-white border border-stone-200 p-3">
                   <div className="flex items-center gap-2 text-sm text-stone-700">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
                     <span>La reserva de algún producto expiró. Comprueba disponibilidad.</span>
@@ -479,12 +511,12 @@ export default function CartPage() {
                           {breakdown.is_free_shipping ? (
                             <div className="flex items-center gap-1.5">
                               <Check className="w-3.5 h-3.5 text-stone-950 flex-shrink-0" />
-                              <span className="text-xs font-semibold text-stone-950">Envio gratis</span>
+                              <span className="text-xs font-semibold text-stone-950">Envío gratis</span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5 text-xs text-stone-600">
                               <Truck className="w-3.5 h-3.5 flex-shrink-0" />
-                              <span>Te faltan {formatCurrency(breakdown.remaining_for_free_cents)} para envio gratis</span>
+                              <span>Te faltan {formatCurrency(breakdown.remaining_for_free_cents)} para envío gratis</span>
                             </div>
                           )}
                           <div className="h-1.5 w-full rounded-full bg-stone-200 overflow-hidden mt-1.5">
@@ -497,7 +529,7 @@ export default function CartPage() {
                       ) : (
                         <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
                           <Truck className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span>Calculando envio...</span>
+                          <span>Calculando envío...</span>
                         </div>
                       )}
                     </div>
@@ -609,7 +641,7 @@ export default function CartPage() {
                 <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-progress-section">
                   <h3 className="text-base font-semibold text-stone-950 mb-3 flex items-center gap-2">
                     <Truck className="w-4 h-4" />
-                    Envio por tienda
+                    Envío por tienda
                   </h3>
                   <div className="space-y-3">
                     {shippingBreakdown.map((store) => (
@@ -794,7 +826,7 @@ export default function CartPage() {
                 {user && shippingBreakdown.length > 0 ? (
                   shippingBreakdown.map(store => (
                     <div key={store.seller_id} className="flex justify-between text-sm">
-                      <span className="text-stone-500">Envio {store.seller_name}</span>
+                      <span className="text-stone-500">Envío {store.seller_name}</span>
                       {store.is_free_shipping ? (
                         <span className="text-stone-950 font-medium">Gratis</span>
                       ) : (
@@ -833,7 +865,11 @@ export default function CartPage() {
                 </div>
 
                 {/* IVA included note */}
-                <p className="text-[11px] text-stone-400 text-right">IVA incluido ({cartSummary.tax_cents > 0 ? formatCurrency(cartSummary.tax_cents) : '0,00 \u20ac'} IVA)</p>
+                {user ? (
+                  <p className="text-[11px] text-stone-400 text-right">IVA incluido ({formatCurrency(cartSummary.tax_cents ?? 0)} IVA)</p>
+                ) : (
+                  <p className="text-[11px] text-stone-400 text-right">IVA incluido</p>
+                )}
 
                 {/* Delivery estimate */}
                 <div className="flex items-center gap-1.5 text-sm text-stone-600 pt-1">

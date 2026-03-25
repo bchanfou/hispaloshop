@@ -5,6 +5,9 @@ import FocusTrap from 'focus-trap-react';
 import { X, Plus, Minus, Trash2, ShoppingBag, Truck, ArrowRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
+const fmt = (cents) => (cents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+const fmtEur = (eur) => eur.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+
 const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading } = useCart();
@@ -65,12 +68,12 @@ const MiniCart = ({ isOpen, onClose }) => {
   }, [cartItems]);
 
   const handleDirectCheckout = () => {
-    onClose();
-    navigate('/cart');
+    onClose?.();
+    navigate('/checkout');
   };
 
   const handleViewCart = () => {
-    onClose();
+    onClose?.();
     navigate('/cart');
   };
 
@@ -115,7 +118,7 @@ const MiniCart = ({ isOpen, onClose }) => {
             <div className="flex items-center justify-between p-4 border-b border-stone-200">
               <div>
                 <h2 id="minicart-title" className="text-lg font-bold text-stone-950">Tu cesta</h2>
-                <p className="text-sm text-stone-500">{totalItems} artículos</p>
+                <p className="text-sm text-stone-500">{totalItems > 0 ? `${totalItems} ${totalItems === 1 ? 'artículo' : 'artículos'}` : 'Carrito'}</p>
               </div>
               <button
                 onClick={onClose}
@@ -189,7 +192,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   </h4>
                                   <button
                                     onClick={() => handleRemove(item)}
-                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-50 rounded-full transition-colors"
+                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-full transition-colors"
                                     aria-label={`Eliminar ${item.product_name || item.name || item.product?.name}`}
                                   >
                                     <Trash2 className="w-4 h-4 text-stone-400 hover:text-stone-950 transition-colors" />
@@ -201,7 +204,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                     <motion.button
                                       whileTap={{ scale: 0.88 }}
                                       onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                      className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
+                                      className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
                                       aria-label={`Disminuir cantidad de ${item.product_name || item.name || item.product?.name}`}
                                     >
                                       <Minus className="w-3.5 h-3.5 text-stone-950" />
@@ -212,14 +215,14 @@ const MiniCart = ({ isOpen, onClose }) => {
                                     <motion.button
                                       whileTap={{ scale: 0.88 }}
                                       onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                      className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
+                                      className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
                                       aria-label={`Aumentar cantidad de ${item.product_name || item.name || item.product?.name}`}
                                     >
                                       <Plus className="w-3.5 h-3.5 text-stone-950" />
                                     </motion.button>
                                   </div>
                                   <span className="font-semibold text-stone-950">
-                                    €{(((item.unit_price_cents || 0) / 100) * item.quantity).toFixed(2)}
+                                    {fmt((item.unit_price_cents || 0) * item.quantity)}
                                   </span>
                                 </div>
                               </div>
@@ -241,7 +244,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 {subtotal < freeShippingThreshold && (
                   <div className="bg-stone-100 rounded-2xl p-3 text-sm">
                     <p className="text-stone-950">
-                      Añade <span className="font-semibold text-stone-950">€{(freeShippingThreshold - subtotal).toFixed(2)}</span> más para envío gratis
+                      Añade <span className="font-semibold text-stone-950">{fmtEur(freeShippingThreshold - subtotal)}</span> más para envío gratis
                     </p>
                     <div className="mt-2 h-2 bg-white rounded-full overflow-hidden">
                       <div
@@ -256,18 +259,18 @@ const MiniCart = ({ isOpen, onClose }) => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-stone-500">
                     <span>Subtotal</span>
-                    <span>€{subtotal.toFixed(2)}</span>
+                    <span>{fmtEur(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-stone-500">
                     <span className="flex items-center gap-1">
                       <Truck className="w-4 h-4" />
                       Envío estimado
                     </span>
-                    <span>{!shippingKnown ? 'Calculando...' : shipping === 0 ? 'GRATIS' : `€${shipping.toFixed(2)}`}</span>
+                    <span>{!shippingKnown ? 'Calculando...' : shipping === 0 ? 'GRATIS' : fmtEur(shipping)}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t border-stone-200">
                     <span>Total</span>
-                    <span>€{total.toFixed(2)}</span>
+                    <span>{fmtEur(total)}</span>
                   </div>
                 </div>
 
