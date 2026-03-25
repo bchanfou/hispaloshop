@@ -1168,6 +1168,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "customer_email": user.email,
         "payment_intent_data": {
             "transfer_group": order_id,
+            "metadata": {"order_id": order_id, "user_id": user.user_id},
         },
         "metadata": {
             "order_id": order_id,
@@ -1432,6 +1433,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "customer_email": user.email,
         "payment_intent_data": {
             "transfer_group": order_id,
+            "metadata": {"order_id": order_id, "user_id": user.user_id},
         },
         "metadata": {
             "order_id": order_id,
@@ -1504,6 +1506,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "influencer_discount_code": influencer_context["discount_code"] if influencer_context else None,
         "influencer_commission_amount": _round_money(commission_data.get("total_influencer_cut", 0)) if influencer_context else None,
         "influencer_commission_status": "pending" if influencer_context and commission_data.get("total_influencer_cut", 0) > 0 else None,
+        "shipping_address": input.shipping_address or {},
         "status": "pending_payment",
         "buy_now": True,
         "created_at": datetime.now(timezone.utc).isoformat()

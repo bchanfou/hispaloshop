@@ -92,8 +92,8 @@ async def get_cart(current_user = Depends(get_current_user)):
 
     # IVA calculation (Spain 21%) — informational only, prices already include IVA
     TAX_RATE_BP = 2100  # 21% in basis points
-    # IVA is included in subtotal: tax = subtotal * 21 / 121
-    tax_cents = (subtotal_cents * TAX_RATE_BP) // (10000 + TAX_RATE_BP)
+    # IVA is included in subtotal: tax = subtotal * 21 / 121 (matches ShippingService)
+    tax_cents = int(round((subtotal_cents * TAX_RATE_BP) / (10000 + TAX_RATE_BP)))
 
     # Lookup seller names for all items in one batch query
     seller_ids = list(set(
@@ -127,6 +127,8 @@ async def get_cart(current_user = Depends(get_current_user)):
     shipping_breakdown = []
     total_shipping_cents = 0
 
+    from services.shipping_service import ShippingPolicy, ShippingService
+
     for seller_id, group_items in seller_groups.items():
         seller = seller_map.get(seller_id)
         seller_name = (
@@ -134,20 +136,30 @@ async def get_cart(current_user = Depends(get_current_user)):
             if seller else "Tienda"
         )
         seller_subtotal = sum(i.get("total_price_cents", 0) for i in group_items)
+        item_count = len(group_items)
 
-        # Seller shipping config with defaults
-        base_cost = (seller.get("shipping_base_cost_cents", 490)
-                     if seller else 490)  # 4.90 EUR default
-        free_threshold = (seller.get("shipping_free_threshold_cents", 3000)
-                          if seller else 3000)  # 30 EUR default
+        # Use ShippingService — same calculation as checkout
+        policy = ShippingPolicy(
+            enabled=bool(seller.get("shipping_policy_enabled", False)) if seller else False,
+            base_cost_cents=int(seller.get("shipping_base_cost_cents", 490) or 490) if seller else 490,
+            per_item_cents=int(seller.get("shipping_per_item_cents", 0) or 0) if seller else 0,
+            free_threshold_cents=(
+                int(seller.get("shipping_free_threshold_cents", 3000) or 3000)
+                if seller and seller.get("shipping_free_threshold_cents") is not None
+                else 3000
+            ),
+        )
+        # If policy not enabled, use default base cost (490 = 4.90 EUR)
+        if not policy.enabled:
+            policy = ShippingPolicy(enabled=True, base_cost_cents=490, per_item_cents=0, free_threshold_cents=3000)
 
-        is_free = (seller_subtotal >= free_threshold
-                   if free_threshold > 0 else False)
-        shipping_cost = 0 if is_free else base_cost
-        remaining_for_free = (max(0, free_threshold - seller_subtotal)
-                              if free_threshold > 0 else 0)
-        progress_pct = (min(100, (seller_subtotal * 100) // free_threshold)
-                        if free_threshold > 0 else 100)
+        shipping_cost = ShippingService.calculate_shipping_cents(
+            policy=policy, item_count=item_count, subtotal_cents=seller_subtotal,
+        )
+        free_threshold = policy.free_threshold_cents or 0
+        is_free = shipping_cost == 0 and seller_subtotal > 0
+        remaining_for_free = max(0, free_threshold - seller_subtotal) if free_threshold > 0 else 0
+        progress_pct = min(100, (seller_subtotal * 100) // free_threshold) if free_threshold > 0 else 100
 
         total_shipping_cents += shipping_cost
 
@@ -160,7 +172,7 @@ async def get_cart(current_user = Depends(get_current_user)):
             "remaining_for_free_cents": remaining_for_free,
             "progress_pct": progress_pct,
             "is_free_shipping": is_free,
-            "item_count": len(group_items),
+            "item_count": item_count,
         })
 
     cart["id"] = str(cart.pop("_id", ""))

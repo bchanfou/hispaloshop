@@ -628,6 +628,7 @@ class BuyNowInput(BaseModel):
     variant_id: Optional[str] = None
     pack_id: Optional[str] = None
     quantity: int = Field(default=1, ge=1)
+    shipping_address: Optional[dict] = None  # {full_name, street, city, postal_code, country, phone}
 
 
 class RFQCreateInput(BaseModel):
