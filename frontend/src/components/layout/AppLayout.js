@@ -1,13 +1,12 @@
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
 import AppHeader from './AppHeader';
 import SideNav from './SideNav';
 import PageTransition from '../motion/PageTransition';
 import { useAuth } from '../../context/AuthContext';
-import apiClient from '../../services/api/client';
 import { trackPageVisit } from '../../utils/analytics';
+import VerifyEmailWall from '../auth/VerifyEmailWall';
 import { useNavigationDirection } from '../../hooks/useNavigationDirection';
 import { useSwipeBack } from '../../hooks/useSwipeBack';
 import OfflineBanner from './OfflineBanner';
@@ -41,41 +40,10 @@ function shouldHideChrome(pathname) {
   );
 }
 
-function EmailVerificationBanner() {
-  const [sending, setSending] = useState(false);
-
-  const resend = useCallback(async () => {
-    setSending(true);
-    try {
-      await apiClient.post('/auth/resend-verification');
-      toast.success('Email de verificación enviado');
-    } catch {
-      toast.error('Error al enviar el email');
-    } finally {
-      setSending(false);
-    }
-  }, []);
-
-  return (
-    <div className="bg-stone-50 border-b border-stone-200 px-4 py-2.5 flex items-center justify-between gap-3 text-[13px]">
-      <span className="text-stone-950">
-        Verifica tu email para activar todas las funciones
-      </span>
-      <button
-        onClick={resend}
-        disabled={sending}
-        className="bg-transparent border-none cursor-pointer font-semibold text-stone-950 text-[13px] whitespace-nowrap disabled:opacity-50"
-      >
-        {sending ? 'Enviando...' : 'Reenviar →'}
-      </button>
-    </div>
-  );
-}
-
 export default function AppLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const hideChrome = useMemo(() => shouldHideChrome(location.pathname), [location.pathname]);
   const prevPathRef = useRef(location.pathname);
   const direction = useNavigationDirection();
@@ -139,15 +107,21 @@ export default function AppLayout({ children }) {
     return <>{children}</>;
   }
 
-  const showVerificationBanner = user && user.email_verified === false;
+  // Block access until email is verified (full-screen wall)
+  if (user && user.email_verified === false) {
+    return (
+      <VerifyEmailWall
+        email={user.email}
+        onVerified={() => refreshUser()}
+        onLogout={logout}
+      />
+    );
+  }
 
   return (
     <>
       {/* Offline detection banner */}
       <OfflineBanner />
-
-      {/* Email verification banner */}
-      {showVerificationBanner && <EmailVerificationBanner />}
 
       {/* Desktop: SideNav (lg+) */}
       <SideNav />

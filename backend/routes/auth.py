@@ -396,34 +396,34 @@ async def register(input: RegisterInput, request: Request):
     
     # Send verification email with 6-digit code in user's language
     email_html = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FFFFFF;">
         <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #1C1C1C; font-size: 24px; margin: 0;">Hispaloshop</h1>
+            <h1 style="color: #0c0a09; font-size: 24px; margin: 0;">Hispaloshop</h1>
         </div>
-        
-        <div style="background-color: #FAF7F2; border-radius: 12px; padding: 30px; text-align: center;">
-            <h2 style="color: #1C1C1C; margin: 0 0 15px 0;">{template['title']}</h2>
-            <p style="color: #4A4A4A; font-size: 16px; margin: 0 0 25px 0;">
+
+        <div style="background-color: #FFFFFF; border: 1px solid #e7e5e4; border-radius: 12px; padding: 30px; text-align: center;">
+            <h2 style="color: #0c0a09; margin: 0 0 15px 0;">{template['title']}</h2>
+            <p style="color: #78716c; font-size: 16px; margin: 0 0 25px 0;">
                 {template['body']}
             </p>
-            <div style="background-color: #1C1C1C; color: white; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 20px 30px; border-radius: 8px; display: inline-block;">
+            <div style="background-color: #0c0a09; color: white; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 20px 30px; border-radius: 8px; display: inline-block;">
                 {verification_code}
             </div>
             <div style="margin-top: 24px;">
-                <a href="{verification_link}" style="display: inline-block; padding: 12px 20px; background: #2D5A3D; color: white; text-decoration: none; border-radius: 999px; font-weight: 600;">
+                <a href="{verification_link}" style="display: inline-block; padding: 12px 20px; background: #0c0a09; color: white; text-decoration: none; border-radius: 999px; font-weight: 600;">
                     Verificar email
                 </a>
             </div>
-            <p style="color: #7A7A7A; font-size: 14px; margin-top: 20px; line-height: 1.5;">
+            <p style="color: #78716c; font-size: 14px; margin-top: 20px; line-height: 1.5;">
                 Tambien puedes abrir este enlace directamente:<br>
-                <a href="{verification_link}" style="color: #2D5A3D;">{verification_link}</a>
+                <a href="{verification_link}" style="color: #0c0a09;">{verification_link}</a>
             </p>
-            <p style="color: #7A7A7A; font-size: 14px; margin-top: 25px;">
+            <p style="color: #78716c; font-size: 14px; margin-top: 25px;">
                 {template['expires']}
             </p>
         </div>
-        
-        <p style="color: #7A7A7A; font-size: 12px; text-align: center; margin-top: 30px;">
+
+        <p style="color: #78716c; font-size: 12px; text-align: center; margin-top: 30px;">
             {template['ignore']}
         </p>
     </div>
@@ -508,7 +508,22 @@ async def resend_verification(request: Request, user: User = Depends(get_current
     """Resend verification email with 6-digit code"""
     if user.email_verified:
         return {"message": "Email already verified"}
-    
+
+    # Rate limit: max 3 resends per user per 24 hours
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    recent_resends = await db.email_resend_log.count_documents({
+        "user_id": user.user_id,
+        "created_at": {"$gt": cutoff}
+    })
+    if recent_resends >= 3:
+        raise HTTPException(status_code=429, detail="Maximo de reenvios alcanzado. Intentalo en 24 horas.")
+
+    # Log this resend for rate limiting
+    await db.email_resend_log.insert_one({
+        "user_id": user.user_id,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+
     # Delete old tokens
     await db.email_verifications.delete_many({"user_id": user.user_id})
     
@@ -526,30 +541,30 @@ async def resend_verification(request: Request, user: User = Depends(get_current
     
     # Send verification email with 6-digit code
     email_html = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FFFFFF;">
         <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #1C1C1C; font-size: 24px; margin: 0;">Hispaloshop</h1>
+            <h1 style="color: #0c0a09; font-size: 24px; margin: 0;">Hispaloshop</h1>
         </div>
-        
-        <div style="background-color: #FAF7F2; border-radius: 12px; padding: 30px; text-align: center;">
-            <h2 style="color: #1C1C1C; margin: 0 0 15px 0;">Verifica tu cuenta</h2>
-            <p style="color: #4A4A4A; font-size: 16px; margin: 0 0 25px 0;">
-                Introduce este código en tu panel para activar tu cuenta:
+
+        <div style="background-color: #FFFFFF; border: 1px solid #e7e5e4; border-radius: 12px; padding: 30px; text-align: center;">
+            <h2 style="color: #0c0a09; margin: 0 0 15px 0;">Verifica tu cuenta</h2>
+            <p style="color: #78716c; font-size: 16px; margin: 0 0 25px 0;">
+                Introduce este codigo en tu panel para activar tu cuenta:
             </p>
-            <div style="background-color: #1C1C1C; color: white; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 20px 30px; border-radius: 8px; display: inline-block;">
+            <div style="background-color: #0c0a09; color: white; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 20px 30px; border-radius: 8px; display: inline-block;">
                 {verification_code}
             </div>
             <div style="margin-top: 24px;">
-                <a href="{verification_link}" style="display: inline-block; padding: 12px 20px; background: #2D5A3D; color: white; text-decoration: none; border-radius: 999px; font-weight: 600;">
+                <a href="{verification_link}" style="display: inline-block; padding: 12px 20px; background: #0c0a09; color: white; text-decoration: none; border-radius: 999px; font-weight: 600;">
                     Verificar email
                 </a>
             </div>
-            <p style="color: #7A7A7A; font-size: 14px; margin-top: 20px; line-height: 1.5;">
-                También puedes abrir este enlace directamente:<br>
-                <a href="{verification_link}" style="color: #2D5A3D;">{verification_link}</a>
+            <p style="color: #78716c; font-size: 14px; margin-top: 20px; line-height: 1.5;">
+                Tambien puedes abrir este enlace directamente:<br>
+                <a href="{verification_link}" style="color: #0c0a09;">{verification_link}</a>
             </p>
-            <p style="color: #7A7A7A; font-size: 14px; margin-top: 25px;">
-                Este código expira en 24 horas.
+            <p style="color: #78716c; font-size: 14px; margin-top: 25px;">
+                Este codigo expira en 24 horas.
             </p>
         </div>
     </div>
