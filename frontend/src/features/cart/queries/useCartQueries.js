@@ -49,6 +49,10 @@ export function useCartPricing(options = {}) {
         shippingCents: data?.shipping_cents || 0,
         taxCents: data?.tax_cents || 0,
         taxRateBp: data?.tax_rate_bp || 2100,
+        taxRateDisplay: data?.tax_rate_display || '21%',
+        shippingBreakdown: data?.shipping_breakdown || [],
+        totalCents: data?.total_cents || 0,
+        discountCents: data?.discount_cents || 0,
         stockIssues: (data?.items || []).filter((item) => !item.stock_available),
       };
     },

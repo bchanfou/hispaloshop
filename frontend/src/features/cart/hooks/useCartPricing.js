@@ -19,7 +19,10 @@ export function useCartPricing(cartItems, appliedDiscount) {
   const taxCents = pricing?.taxCents || 0;
   const taxRateBp = pricing?.taxRateBp || 2100;
   const discountAmountCents = appliedDiscount?.discount_cents || 0;
+  const shippingBreakdown = pricing?.shippingBreakdown || [];
 
+  // Spain B2C: IVA is INCLUDED in prices, so total = subtotal + shipping - discount
+  // tax_cents is informational only (how much of the subtotal is IVA)
   return {
     cartSummary: {
       ...DEFAULT_SUMMARY,
@@ -27,7 +30,8 @@ export function useCartPricing(cartItems, appliedDiscount) {
       shipping_cents: shippingCents,
       tax_cents: taxCents,
       tax_rate_bp: taxRateBp,
-      total_cents: Math.max(0, subtotalCents - discountAmountCents + shippingCents + taxCents),
+      total_cents: Math.max(0, subtotalCents - discountAmountCents + shippingCents),
+      shipping_breakdown: shippingBreakdown,
     },
     stockIssues: pricing?.stockIssues || [],
     isLoading: pricingQuery.isLoading,

@@ -2,6 +2,7 @@
 Endpoints de carrito persistente y checkout completo.
 Fase 4: Checkout + B2B Importer
 """
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -33,40 +34,123 @@ def _extract_product_image(product: dict) -> str | None:
 async def get_cart(current_user = Depends(get_current_user)):
     """Obtener carrito activo del usuario"""
     db = get_db()
-    
+
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
         "status": "active",
         "expires_at": {"$gte": datetime.now(timezone.utc)}
     })
-    
+
     if not cart:
         return {
             "success": True,
             "data": {
                 "items": [],
                 "subtotal_cents": 0,
+                "tax_cents": 0,
+                "tax_rate_display": "21%",
+                "shipping_cents": 0,
+                "shipping_breakdown": [],
+                "discount_cents": 0,
+                "total_cents": 0,
                 "item_count": 0,
                 "is_empty": True
             }
         }
-    
+
     # Calcular totales
     items = cart.get("items", [])
     subtotal_cents = sum(item.get("total_price_cents", 0) for item in items)
-    
+
     # Aplicar descuento si hay coupon
     discount_cents = cart.get("discount_cents", 0)
-    
+
+    # IVA calculation (Spain 21%) — informational only, prices already include IVA
+    TAX_RATE_BP = 2100  # 21% in basis points
+    # IVA is included in subtotal: tax = subtotal * 21 / 121
+    tax_cents = (subtotal_cents * TAX_RATE_BP) // (10000 + TAX_RATE_BP)
+
+    # Lookup seller names for all items in one batch query
+    seller_ids = list(set(
+        item.get("seller_id") for item in items if item.get("seller_id")
+    ))
+    seller_map = {}
+    if seller_ids:
+        sellers = await db.users.find(
+            {"user_id": {"$in": seller_ids}},
+            {"user_id": 1, "name": 1, "company_name": 1,
+             "shipping_base_cost_cents": 1,
+             "shipping_free_threshold_cents": 1,
+             "shipping_policy_enabled": 1}
+        ).to_list(len(seller_ids))
+        seller_map = {s["user_id"]: s for s in sellers}
+
+    # Enrich each item with seller_name
+    for item in items:
+        sid = item.get("seller_id")
+        seller = seller_map.get(sid)
+        item["seller_name"] = (
+            (seller.get("company_name") or seller.get("name", "Tienda"))
+            if seller else "Tienda"
+        )
+
+    # Shipping calculation per seller
+    seller_groups = defaultdict(list)
+    for item in items:
+        seller_groups[item.get("seller_id", "unknown")].append(item)
+
+    shipping_breakdown = []
+    total_shipping_cents = 0
+
+    for seller_id, group_items in seller_groups.items():
+        seller = seller_map.get(seller_id)
+        seller_name = (
+            (seller.get("company_name") or seller.get("name", "Tienda"))
+            if seller else "Tienda"
+        )
+        seller_subtotal = sum(i.get("total_price_cents", 0) for i in group_items)
+
+        # Seller shipping config with defaults
+        base_cost = (seller.get("shipping_base_cost_cents", 490)
+                     if seller else 490)  # 4.90 EUR default
+        free_threshold = (seller.get("shipping_free_threshold_cents", 3000)
+                          if seller else 3000)  # 30 EUR default
+
+        is_free = (seller_subtotal >= free_threshold
+                   if free_threshold > 0 else False)
+        shipping_cost = 0 if is_free else base_cost
+        remaining_for_free = (max(0, free_threshold - seller_subtotal)
+                              if free_threshold > 0 else 0)
+        progress_pct = (min(100, (seller_subtotal * 100) // free_threshold)
+                        if free_threshold > 0 else 100)
+
+        total_shipping_cents += shipping_cost
+
+        shipping_breakdown.append({
+            "seller_id": seller_id,
+            "seller_name": seller_name,
+            "subtotal_cents": seller_subtotal,
+            "shipping_cents": shipping_cost,
+            "free_threshold_cents": free_threshold,
+            "remaining_for_free_cents": remaining_for_free,
+            "progress_pct": progress_pct,
+            "is_free_shipping": is_free,
+            "item_count": len(group_items),
+        })
+
     cart["id"] = str(cart.pop("_id", ""))
-    
+
     return {
         "success": True,
         "data": {
             **cart,
             "subtotal_cents": subtotal_cents,
+            "tax_cents": tax_cents,
+            "tax_rate_display": "21%",
+            "shipping_cents": total_shipping_cents,
+            "shipping_breakdown": shipping_breakdown,
             "discount_cents": discount_cents,
-            "total_cents": max(0, subtotal_cents - discount_cents),
+            "total_cents": max(0, subtotal_cents + total_shipping_cents - discount_cents),
             "item_count": sum(item.get("quantity", 0) for item in items),
             "is_empty": len(items) == 0
         }

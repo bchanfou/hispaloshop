@@ -135,7 +135,7 @@ export default function CartPage() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [discountLoading, setDiscountLoading] = useState(false);
-  const [shippingData, setShippingData] = useState(null);
+  // shippingData from separate API no longer needed — shipping_breakdown comes from GET /cart via cartSummary
   const { emailVerified, verifying, resending, verifyEmail, resendVerification, refetch: refetchVerification } = useCartVerification();
   const { savedAddresses, defaultAddressId, createAddress, savingAddress, isLoading: addressesLoading } = useCartAddresses();
   const { cartSummary, stockIssues, refetch: refetchPricing } = useCartPricing(cartItems, appliedDiscount);
@@ -156,16 +156,8 @@ export default function CartPage() {
     }
   }, [authLoading, navigate, user]);
 
-  // Fetch shipping preview when cart changes (debounced 500ms)
-  useEffect(() => {
-    if (!cartItems.length) { setShippingData(null); return; }
-    const timer = setTimeout(async () => {
-      const data = await getShippingPreview();
-      setShippingData(data);
-    }, 500);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cartItems]);
+  // Shipping data now comes from GET /cart response (cartSummary.shipping_breakdown)
+  // No separate shipping preview call needed
 
   useEffect(() => {
     if (!addressesLoading && savedAddresses.length === 0) {
@@ -350,15 +342,23 @@ export default function CartPage() {
     }
   };
 
+  const shippingBreakdown = cartSummary.shipping_breakdown || [];
+
   const groupedItems = useMemo(() => {
     const groups = {};
     cartItems.forEach(item => {
-      const producer = item.seller_name || item.producer || item.product?.producer?.name || 'Tienda';
-      if (!groups[producer]) groups[producer] = [];
-      groups[producer].push(item);
+      const key = item.seller_id || 'unknown';
+      const label = item.seller_name || item.producer || item.product?.producer?.name || 'Tienda';
+      if (!groups[key]) groups[key] = { label, items: [] };
+      groups[key].items.push(item);
     });
-    return Object.entries(groups);
+    return Object.entries(groups); // [[sellerId, { label, items }], ...]
   }, [cartItems]);
+
+  const formatCurrency = (cents) => {
+    if (cents == null || isNaN(cents)) return '0,00\u00a0\u20ac';
+    return (cents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+  };
 
   if (authLoading) {
     return (
@@ -462,63 +462,46 @@ export default function CartPage() {
                   </button>
                 </div>
               )}
-              {groupedItems.map(([producerName, items]) => {
-                  // Find matching store shipping data for this producer group
-                  const storeShipping = shippingData?.stores?.find(s =>
-                    s.seller_name === producerName || items.some(i => i.seller_id === s.seller_id)
-                  );
+              {groupedItems.map(([sellerId, group]) => {
+                  const producerName = group.label;
+                  const items = group.items;
+                  // Match shipping breakdown from backend by seller_id
+                  const breakdown = shippingBreakdown.find(b => b.seller_id === sellerId);
                   return (
-                  <div key={producerName} className="space-y-3">
+                  <div key={sellerId} className="space-y-3">
                     <div className="rounded-xl bg-white p-3 shadow-sm">
                       <div className="flex items-center gap-2">
-                        {storeShipping?.seller_avatar ? (
-                          <img loading="lazy" src={storeShipping.seller_avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
-                        ) : (
-                          <Package className="w-4 h-4 text-stone-400 flex-shrink-0" />
-                        )}
+                        <Package className="w-4 h-4 text-stone-400 flex-shrink-0" />
                         <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide flex-1 truncate">{producerName}</span>
-                        <span className="text-xs text-stone-400">· {items.length} {items.length === 1 ? 'producto' : 'productos'}</span>
+                        <span className="text-xs text-stone-400">{items.length} {items.length === 1 ? 'producto' : 'productos'}</span>
                       </div>
-                      {/* Per-producer shipping progress bar */}
-                      {(() => {
-                        const thresholdCents = storeShipping?.threshold_cents ?? storeShipping?.free_shipping_threshold_cents ?? 5000;
-                        const subtotalCents = items.reduce((sum, i) => sum + ((i.price_cents || Math.round((i.price || 0) * 100)) * (i.quantity || 1)), 0);
-                        const isFree = storeShipping?.is_free || subtotalCents >= thresholdCents;
-                        const pct = Math.min(100, Math.round((subtotalCents / thresholdCents) * 100));
-                        const remainingCents = Math.max(0, thresholdCents - subtotalCents);
-
-                        if (storeShipping?.threshold_cents == null && storeShipping?.free_shipping_threshold_cents == null && !storeShipping) {
-                          // No shipping data yet — show simple estimate
-                          return (
-                            <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
+                      {/* Per-producer shipping progress bar from backend */}
+                      {breakdown ? (
+                        <div className="mt-2">
+                          {breakdown.is_free_shipping ? (
+                            <div className="flex items-center gap-1.5">
+                              <Check className="w-3.5 h-3.5 text-stone-950 flex-shrink-0" />
+                              <span className="text-xs font-semibold text-stone-950">Envio gratis</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-xs text-stone-600">
                               <Truck className="w-3.5 h-3.5 flex-shrink-0" />
-                              <span>Calculando envío...</span>
+                              <span>Te faltan {formatCurrency(breakdown.remaining_for_free_cents)} para envio gratis</span>
                             </div>
-                          );
-                        }
-
-                        return (
-                          <div className="mt-2">
-                            {isFree ? (
-                              <div className="flex items-center gap-1.5">
-                                <Check className="w-3.5 h-3.5 text-stone-950 flex-shrink-0" />
-                                <span className="text-xs font-semibold text-stone-950">Envío gratis</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1.5 text-xs text-stone-600">
-                                <Truck className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span>Envío gratis a partir de {(thresholdCents / 100).toFixed(0)} € · Te faltan {(remainingCents / 100).toFixed(2)} €</span>
-                              </div>
-                            )}
-                            <div className="h-1.5 w-full rounded-full bg-stone-200 overflow-hidden mt-1.5">
-                              <div
-                                className={`h-full rounded-full transition-all duration-500 ${isFree ? 'bg-stone-950' : pct >= 60 ? 'bg-stone-700' : 'bg-stone-400'}`}
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
+                          )}
+                          <div className="h-1.5 w-full rounded-full bg-stone-200 overflow-hidden mt-1.5">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${breakdown.is_free_shipping ? 'bg-stone-950' : breakdown.progress_pct >= 60 ? 'bg-stone-700' : 'bg-stone-400'}`}
+                              style={{ width: `${breakdown.progress_pct}%` }}
+                            />
                           </div>
-                        );
-                      })()}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
+                          <Truck className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>Calculando envio...</span>
+                        </div>
+                      )}
                     </div>
                     <AnimatePresence>
                     {items.map((item, index) => {
@@ -623,25 +606,29 @@ export default function CartPage() {
                   );
                 })}
 
-              {/* Per-store shipping progress */}
-              {shippingData && shippingData.stores && shippingData.stores.length > 0 && (
+              {/* Per-store shipping summary */}
+              {shippingBreakdown.length > 0 && (
                 <div className="bg-white rounded-2xl shadow-sm p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-progress-section">
                   <h3 className="text-base font-semibold text-stone-950 mb-3 flex items-center gap-2">
                     <Truck className="w-4 h-4" />
                     Envio por tienda
                   </h3>
                   <div className="space-y-3">
-                    {shippingData.stores.map((store) => (
-                      <ShippingProgressBar key={store.seller_id} store={store} />
+                    {shippingBreakdown.map((store) => (
+                      <ShippingProgressBar
+                        key={store.seller_id}
+                        store={{
+                          seller_id: store.seller_id,
+                          seller_name: store.seller_name,
+                          shipping_cents: store.shipping_cents,
+                          threshold_cents: store.free_threshold_cents,
+                          is_free: store.is_free_shipping,
+                          progress_pct: store.progress_pct,
+                          remaining_cents: store.remaining_for_free_cents,
+                        }}
+                      />
                     ))}
                   </div>
-                  {shippingData.total_savings_cents > 0 && (
-                    <div className="mt-3 rounded-2xl bg-stone-50 p-2.5 text-center">
-                      <p className="text-xs text-stone-700 font-medium">
-                        Ahorras {(shippingData.total_savings_cents / 100).toFixed(2)} € en envio
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -802,38 +789,62 @@ export default function CartPage() {
                 )}
               </div>
 
-              <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
-                <div className="flex justify-between text-sm md:text-base">
+              <div className="flex flex-col gap-2.5 mb-4 md:mb-6">
+                {/* Subtotal */}
+                <div className="flex justify-between text-sm">
                   <span className="text-stone-500">{t('cart.subtotal')}</span>
-                  <span className="text-stone-950">{convertAndFormatPrice((cartSummary.subtotal_cents || getTotalPrice()) / 100, 'EUR')}</span>
+                  <span className="text-stone-950 font-medium">{formatCurrency(cartSummary.subtotal_cents || getTotalPrice())}</span>
                 </div>
-                {appliedDiscount && (appliedDiscount?.discount_cents || 0) > 0 && (
-                  <div className="flex justify-between text-sm text-stone-700 md:text-base">
-                    <span>{t('cart.discount')}</span>
-                    <span>-{convertAndFormatPrice((appliedDiscount?.discount_cents || 0) / 100, currency)}</span>
+
+                {/* Per-store shipping lines */}
+                {shippingBreakdown.length > 0 ? (
+                  shippingBreakdown.map(store => (
+                    <div key={store.seller_id} className="flex justify-between text-sm">
+                      <span className="text-stone-500">Envio {store.seller_name}</span>
+                      {store.is_free_shipping ? (
+                        <span className="text-stone-950 font-medium">Gratis</span>
+                      ) : (
+                        <span className="text-stone-950 font-medium">{formatCurrency(store.shipping_cents)}</span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-stone-500">{t('checkout.shipping')}</span>
+                    <span className="text-stone-950 font-medium">
+                      {cartSummary.shipping_cents > 0
+                        ? formatCurrency(cartSummary.shipping_cents)
+                        : <span className="text-stone-700">{t('common.free')}</span>}
+                    </span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm md:text-base">
-                  <span className="text-stone-500">{t('checkout.shipping')}</span>
-                  <span className="text-stone-950">
-                    {(() => {
-                      const sc = shippingData?.total_shipping_cents ?? cartSummary.shipping_cents ?? 0;
-                      return sc > 0 ? convertAndFormatPrice(sc / 100, 'EUR') : <span className="text-stone-700">{t('common.free')}</span>;
-                    })()}
-                  </span>
+
+                {/* Discount */}
+                {appliedDiscount && (appliedDiscount?.discount_cents || 0) > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-stone-500">{t('cart.discount')}</span>
+                    <span className="text-stone-950 font-medium">-{formatCurrency(appliedDiscount.discount_cents)}</span>
+                  </div>
+                )}
+
+                {/* Separator */}
+                <div className="h-px bg-stone-200 my-1" />
+
+                {/* Total */}
+                <div className="flex justify-between">
+                  <span className="text-base font-bold text-stone-950">{t('cart.total')}</span>
+                  <span className="text-base font-bold text-stone-950">{formatCurrency(cartSummary.total_cents || Math.round(getDiscountedTotal() * 100))}</span>
                 </div>
-                <div className="flex justify-between text-sm md:text-base">
-                  <span className="text-stone-500">IVA ({((cartSummary.tax_rate_bp || 2100) / 100).toFixed(0)}%)</span>
-                  <span className="text-stone-950">{convertAndFormatPrice((cartSummary.tax_cents || 0) / 100, 'EUR')}</span>
-                </div>
-                <div className="border-t border-stone-200 pt-2 md:pt-3 flex justify-between">
-                  <span className="font-semibold text-stone-950 text-sm md:text-base">{t('cart.total')}</span>
-                  <span className="text-lg font-bold text-stone-950 md:text-xl">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>
-                </div>
+
+                {/* IVA included note */}
+                <p className="text-[11px] text-stone-400 text-right">IVA incluido ({cartSummary.tax_cents > 0 ? formatCurrency(cartSummary.tax_cents) : '0,00 \u20ac'} IVA)</p>
+
+                {/* Delivery estimate */}
                 <div className="flex items-center gap-1.5 text-sm text-stone-600 pt-1">
                   <Truck className="w-4 h-4 flex-shrink-0 text-stone-400" />
                   <span>Entrega estimada: <span className="font-medium text-stone-700">{getEstimatedDelivery()}</span></span>
                 </div>
+
                 {currency !== (countries[country]?.currency || 'EUR') && (
                   <div className="text-xs text-stone-500 pt-2 border-t">
                     <p>{t('checkout.displayCurrency', { currency })}</p>
@@ -888,8 +899,11 @@ export default function CartPage() {
       {!cartLoading && cartItems.length > 0 && (
         <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-stone-200 px-4 pt-4 lg:hidden z-30" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-stone-500">{t('cart.total')}</span>
-            <span className="text-lg font-bold text-stone-950">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>
+            <div className="flex flex-col">
+              <span className="text-sm text-stone-500">{t('cart.total')}</span>
+              <span className="text-[10px] text-stone-400">IVA incluido</span>
+            </div>
+            <span className="text-lg font-bold text-stone-950">{formatCurrency(cartSummary.total_cents || Math.round(getDiscountedTotal() * 100))}</span>
           </div>
           <motion.button
             whileTap={{ scale: 0.96 }}
