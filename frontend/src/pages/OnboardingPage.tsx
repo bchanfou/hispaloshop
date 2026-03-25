@@ -60,7 +60,7 @@ const StepShell = ({ step, onBack, onSkip, children }) => (
           className="flex items-center gap-1 text-sm text-stone-500 bg-transparent border-none cursor-pointer p-0"
           style={{ fontFamily: 'inherit' }}
         >
-          <ArrowLeft size={18} /> Atr&aacute;s
+          <ArrowLeft size={18} /> Atrás
         </button>
       ) : <div />}
       {onSkip ? (
@@ -147,28 +147,16 @@ export default function OnboardingPage() {
         }
       }
 
-      // Save profile details + mark onboarding complete
-      const profileData = { onboarding_completed: true };
-      if (displayName.trim()) profileData.display_name = displayName.trim();
-      if (bio.trim()) profileData.bio = bio.trim();
-      if (location.trim()) profileData.location = location.trim();
-
-      try {
-        await apiClient.patch('/users/me', profileData);
-      } catch {
-        // non-blocking
-      }
-
-      // Save interests if any
+      // Save profile details + interests + mark onboarding complete (single call)
+      const patchData = { onboarding_completed: true };
+      if (displayName.trim()) patchData.display_name = displayName.trim();
+      if (bio.trim()) patchData.bio = bio.trim();
+      if (location.trim()) patchData.location = location.trim();
       if (selectedInterests.length > 0) {
-        try {
-          await apiClient.patch('/users/me', {
-            preferences: selectedInterests.map(i => i.toLowerCase().replace(/\//g, '-')),
-          });
-        } catch {
-          // non-blocking
-        }
+        patchData.food_preferences = selectedInterests.map(i => i.toLowerCase().replace(/\//g, '-'));
       }
+
+      await apiClient.patch('/users/me', patchData);
 
       await checkAuth();
 
@@ -210,7 +198,7 @@ export default function OnboardingPage() {
           Personaliza tu perfil
         </h2>
         <p className="text-sm text-stone-500 text-center mb-8">
-          Esto es lo que ver&aacute;n otros usuarios
+          Esto es lo que verán otros usuarios
         </p>
 
         {/* Avatar upload */}

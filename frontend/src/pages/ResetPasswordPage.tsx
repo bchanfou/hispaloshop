@@ -21,7 +21,7 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     if (!token) {
-      setError('Invalid reset link');
+      setError('Enlace de recuperación no válido');
     }
   }, [token]);
 

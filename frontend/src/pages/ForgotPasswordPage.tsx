@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,6 +10,7 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,20 +23,29 @@ export default function ForgotPasswordPage() {
     } finally {
       setLoading(false);
       setSent(true);
+      setCooldown(60);
     }
   };
 
   const handleResend = async () => {
+    if (cooldown > 0) return;
     setSending(true);
     try {
       await apiClient.post('/auth/forgot-password', { email });
       toast.success('Email reenviado');
+      setCooldown(60);
     } catch {
       toast.error('Error al reenviar');
     } finally {
       setSending(false);
     }
   };
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown(c => c <= 1 ? 0 : c - 1), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
 
   // Step 2: Confirmation
   if (sent) {
@@ -55,10 +65,10 @@ export default function ForgotPasswordPage() {
         <button
           type="button"
           onClick={handleResend}
-          disabled={sending}
+          disabled={cooldown > 0 || sending}
           className="w-full h-12 mt-6 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold hover:bg-stone-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {sending ? <Loader2 size={18} className="animate-spin" /> : 'Reenviar email'}
+          {sending ? <Loader2 size={18} className="animate-spin" /> : cooldown > 0 ? `Reenviar en ${cooldown}s` : 'Reenviar email'}
         </button>
 
         <p className="mt-5 text-sm">

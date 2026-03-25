@@ -255,7 +255,7 @@ async def register(input: RegisterInput, request: Request):
     username = input.username
     if username:
         username = username.strip().lower()
-        if not re.match(r"^[a-z0-9_]{3,20}$", username):
+        if not re.match(r"^[a-z0-9_.\-]{3,20}$", username):
             raise HTTPException(status_code=400, detail="Invalid username. Use 3-20 lowercase letters, numbers, or underscores.")
         existing_username = await db.users.find_one({"username": username}, {"_id": 0})
         if existing_username:
@@ -469,8 +469,9 @@ async def register(input: RegisterInput, request: Request):
 
 # Email verification endpoints
 @router.post("/auth/verify-email")
-async def verify_email(token: str = None, code: str = None):
+async def verify_email(request: Request, token: str = None, code: str = None):
     """Verify email using 6-digit code or legacy token"""
+    await rate_limiter.check(request, endpoint_type="verify_email")
     verification_key = code or token
     if not verification_key:
         raise HTTPException(status_code=400, detail="Verification code required")
@@ -619,9 +620,8 @@ async def login(input: LoginInput, request: Request):
     if not verify_password(input.password, user_doc["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    # Producer, importer and influencer accounts require admin approval before access.
-    if user_doc.get("role") in ["producer", "importer", "influencer"] and not user_doc.get("approved", False):
-        raise HTTPException(status_code=403, detail="Your account is pending admin approval")
+    # Note: approved status is included in the response for the frontend to handle via ProtectedRoute.
+    # We no longer block login for non-approved users.
     
     # Progressive rehash: SHA256 → bcrypt
     if needs_rehash(user_doc["password_hash"]):
@@ -642,10 +642,7 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
     user = await db.users.find_one({"email": normalized_email}, {"_id": 0})
     
     if not user:
-        return {
-            "message": "If that email exists, a password reset link has been sent.",
-            "email_delivery_available": _is_email_delivery_configured(),
-        }
+        return {"message": "Si el email existe, recibirás instrucciones."}
     
     await db.password_resets.delete_many({"user_id": user["user_id"]})
     
@@ -772,7 +769,7 @@ async def reset_password(input: ResetPasswordInput, request: Request):
     
     logger.info(f"[RESET_PASSWORD] Password reset successful for user {reset['user_id']}")
     
-    return {"message": "Password reset successfully. Please login with your new password."}
+    return {"message": "Contraseña restablecida correctamente. Inicia sesión con tu nueva contraseña."}
 
 @router.post("/auth/add-password")
 async def add_password_to_account(
@@ -1154,7 +1151,7 @@ async def google_auth_callback(
             "username": auto_username,
             "picture": google_user.get("picture"),
             "role": "customer",
-            "email_verified": google_user.get("verified_email", True),
+            "email_verified": google_user.get("verified_email", False),
             "approved": True,
             "auth_provider": "google",
             "onboarding_completed": False,
@@ -1163,10 +1160,13 @@ async def google_auth_callback(
             "following": [],
             "followers": [],
             "followers_count": 0,
+            # NOTE: Google OAuth users bypass age verification. Consider adding
+            # age check during onboarding for Google users.
+            "country": "ES",  # Default, user can change in settings
             "analytics_consent": {
-                "version": "1.0",
-                "granted": True,
-                "date": datetime.now(timezone.utc).isoformat()
+                "analytics_consent": True,
+                "consent_version": "1.0",
+                "consent_date": datetime.now(timezone.utc).isoformat()
             },
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": datetime.now(timezone.utc).isoformat()

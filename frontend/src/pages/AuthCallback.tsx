@@ -72,12 +72,12 @@ export default function AuthCallback() {
         {error ? (
           <div>
             <p className="text-stone-700 mb-2" data-testid="auth-error">{error}</p>
-            <p className="text-stone-500">Redirecting to login...</p>
+            <p className="text-stone-500">Redirigiendo...</p>
           </div>
         ) : (
           <div>
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stone-950 mx-auto mb-4" data-testid="auth-loading"></div>
-            <p className="text-stone-500">Completing sign in...</p>
+            <p className="text-stone-500">Completando inicio de sesión...</p>
           </div>
         )}
       </div>

@@ -34,11 +34,13 @@ export default function VerifyEmailPage() {
       toast.success('Email verificado. Ya puedes iniciar sesión.');
 
       setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+        const token = localStorage.getItem('hsp_token');
+        navigate(token ? '/' : '/login');
+      }, 2000);
     } catch (error) {
       setStatus('error');
-      setMessage(error.message || 'La verificación falló. El enlace puede haber expirado.');
+      const detail = error?.response?.data?.detail;
+      setMessage(typeof detail === 'string' ? detail : 'El código no es válido o ha expirado');
       toast.error('Error en la verificación');
     }
   };

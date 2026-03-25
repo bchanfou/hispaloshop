@@ -111,6 +111,8 @@ export default function AppLayout({ children }) {
     '/que-es', '/que-es-hispaloshop', '/contacto', '/help', '/blog', '/press', '/careers', '/contact',
     '/certificate', '/certificado'].some(p => location.pathname === p || location.pathname.startsWith(`${p}/`));
 
+  // Strict check: only blocks users explicitly marked as unverified.
+  // Legacy users without email_verified field are NOT blocked.
   if (user && user.email_verified === false && !isPublicPage) {
     return (
       <VerifyEmailWall

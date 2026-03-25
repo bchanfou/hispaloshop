@@ -327,7 +327,7 @@ export default function RegisterPage() {
     usernameStatus !== 'taken' && usernameStatus !== 'checking';
 
   const strength = getPasswordStrength(form.password);
-  const strengthWidth = `${((strength.level + 1) / 4) * 100}%`;
+  const strengthWidth = `${(strength.level / 3) * 100}%`;
 
   // Age-blocked screen
   if (ageBlocked) {
@@ -441,7 +441,7 @@ export default function RegisterPage() {
             <input
               value={form.username}
               onChange={e => {
-                const val = e.target.value.replace(/[^a-zA-Z0-9_.\-]/g, '').slice(0, 30);
+                const val = e.target.value.replace(/[^a-zA-Z0-9_.\-]/g, '').slice(0, 20);
                 updateForm('username', val);
               }}
               placeholder="tu_usuario"
