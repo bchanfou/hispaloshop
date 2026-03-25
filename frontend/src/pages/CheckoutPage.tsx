@@ -11,7 +11,7 @@ import { useCartAddresses, useCartCheckout, useCartPricing } from '../features/c
 
 /* ── Stepper ── */
 function Stepper({ current, onStepClick }) {
-  const steps = ['Dirección', 'Pago', 'Confirmar'];
+  const steps = ['Dirección', 'Pago'];
   return (
     <nav aria-label="Progreso del checkout" className="flex items-center justify-center gap-2 px-6 py-4 border-b border-stone-200 bg-white mb-0">
       {steps.map((label, i) => {
@@ -503,7 +503,7 @@ export default function CheckoutPage() {
                       value={discountCode}
                       onChange={e => { setDiscountCode(e.target.value); if (discountError) setDiscountError(''); }}
                       placeholder="CODIGO10"
-                      className={`flex-1 h-12 px-3.5 text-[13px] border rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200 ${discountError ? 'border-red-300' : 'border-stone-200'}`}
+                      className={`flex-1 h-12 px-3.5 text-[13px] border rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200 ${discountError ? 'border-stone-400' : 'border-stone-200'}`}
                       aria-label="Código de descuento"
                     />
                     <button
@@ -514,7 +514,7 @@ export default function CheckoutPage() {
                       Aplicar
                     </button>
                   </div>
-                  {discountError && <p className="text-xs text-red-600 mt-1.5">{discountError}</p>}
+                  {discountError && <p className="text-xs text-stone-700 mt-1.5">{discountError}</p>}
                 </div>
               )}
             </div>

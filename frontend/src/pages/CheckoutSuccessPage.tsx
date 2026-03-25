@@ -5,6 +5,8 @@ import { Check, Loader2, AlertCircle, Calendar, MessageCircle } from 'lucide-rea
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { captureException } from '../lib/sentry';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCart } from '../context/CartContext';
 
 function estimateDeliveryRange(createdAt) {
   const base = createdAt ? new Date(createdAt) : new Date();
@@ -28,6 +30,8 @@ export default function CheckoutSuccessPage() {
   const sessionId = searchParams.get('session_id');
   const [status, setStatus] = useState('checking'); // checking | success | error | timeout
   const [order, setOrder] = useState(null);
+  const queryClient = useQueryClient();
+  const { fetchCart } = useCart();
 
   const tempRef = useMemo(
     () => (sessionId ? `#HS-${sessionId.slice(-8).toUpperCase()}` : ''),
@@ -57,7 +61,12 @@ export default function CheckoutSuccessPage() {
               if (!cancelled) setOrder(orderData);
             } catch { /* ignore */ }
           }
-          if (!cancelled) setStatus('success');
+          if (!cancelled) {
+            queryClient.invalidateQueries({ queryKey: ['cart'] });
+            queryClient.invalidateQueries({ queryKey: ['cart-pricing'] });
+            fetchCart();
+            setStatus('success');
+          }
         } else if (!cancelled) {
           setTimeout(poll, getDelay(attempt));
         }

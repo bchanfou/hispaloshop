@@ -160,7 +160,7 @@ export default function OrderDetailPage() {
       {/* Topbar */}
       <div className="sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
         <button
-          onClick={() => navigate('/orders')}
+          onClick={() => navigate('/dashboard/orders')}
           className="bg-transparent border-none cursor-pointer p-1 flex"
         >
           <ArrowLeft size={22} className="text-stone-950" />

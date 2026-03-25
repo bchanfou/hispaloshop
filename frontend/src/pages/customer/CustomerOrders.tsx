@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { ShoppingBag, ChevronRight, Clock, Check, ExternalLink, RotateCcw } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+
 import { asNumber } from '../../utils/safe';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
@@ -80,6 +80,19 @@ function OrderTimeline({ status }: { status: string }) {
   );
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Pendiente',
+  paid: 'Pagado',
+  confirmed: 'Confirmado',
+  preparing: 'Preparando',
+  shipped: 'Enviado',
+  in_transit: 'Enviado',
+  delivered: 'Entregado',
+  completed: 'Entregado',
+  cancelled: 'Cancelado',
+  refunded: 'Reembolsado',
+};
+
 const FILTER_TABS = [
   { key: 'all', label: 'Todos' },
   { key: 'active', label: 'Activos', statuses: ['pending', 'confirmed', 'preparing', 'shipped', 'paid'] },
@@ -92,21 +105,23 @@ export default function CustomerOrders() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
-  const { t } = useTranslation();
+  const [page, setPage] = useState(1);
+  const LIMIT = 20;
   const navigate = useNavigate();
   const { convertAndFormatPrice, currency } = useLocale();
   const { addToCart } = useCart();
 
   const fetchOrders = useCallback(async () => {
     try {
-      const data = await apiClient.get('/customer/orders');
-      setOrders(Array.isArray(data) ? data : data?.orders || []);
+      const data = await apiClient.get(`/customer/orders?limit=${LIMIT}&skip=${(page - 1) * LIMIT}`);
+      const fetched = Array.isArray(data) ? data : data?.orders || [];
+      setOrders(prev => page === 1 ? fetched : [...prev, ...fetched]);
     } catch (error) {
-      toast.error(t('orders.loadError', 'Failed to load orders'));
+      toast.error('Error al cargar los pedidos');
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [page]);
 
   useEffect(() => {
     fetchOrders();
@@ -136,9 +151,9 @@ export default function CustomerOrders() {
       <PullIndicator progress={progress} isRefreshing={refreshing} />
       <div className="max-w-[975px] mx-auto">
       <h1 className="text-3xl font-semibold text-stone-950 mb-2">
-        {t('orders.title', 'My Orders')}
+        Mis pedidos
       </h1>
-      <p className="text-stone-500 mb-4">{t('orders.description', 'View and track your orders.')}</p>
+      <p className="text-stone-500 mb-4">Consulta y sigue tus pedidos</p>
 
       {/* Filter tabs + sort */}
       <div className="flex items-center gap-3 mb-4">
@@ -190,12 +205,12 @@ export default function CustomerOrders() {
             <ShoppingBag className="w-12 h-12 text-stone-300 mx-auto mb-4" />
             <p className="text-stone-500 mb-4">
               {activeFilter === 'all'
-                ? t('orders.noOrders', "You haven't placed any orders yet.")
+                ? 'Aún no tienes pedidos'
                 : 'No hay pedidos en esta categoría'}
             </p>
             {activeFilter === 'all' && (
               <a href="/products" className="text-stone-950 hover:underline font-medium">
-                {t('orders.startShopping', 'Start Shopping')} →
+                Empezar a comprar →
               </a>
             )}
           </div>
@@ -227,11 +242,11 @@ export default function CustomerOrders() {
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-stone-950">{convertAndFormatPrice(asNumber(order.total_amount), currency)}</span>
                         <span className="text-xs text-stone-500">·</span>
-                        <span className="text-xs text-stone-500">{order.line_items?.length || 0} items</span>
+                        <span className="text-xs text-stone-500">{order.line_items?.length || 0} {(order.line_items?.length || 0) === 1 ? 'artículo' : 'artículos'}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-xs font-medium capitalize text-stone-600">
-                          {t(`orders.status.${order.status}`, order.status)}
+                          {STATUS_LABELS[order.status] || order.status}
                         </span>
                         <span className="text-[10px] text-stone-500">
                           {new Date(order.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
@@ -259,7 +274,7 @@ export default function CustomerOrders() {
                       </span>
                       {order.status === 'refunded' && order.refund_amount_cents != null && (
                         <span className="text-xs text-stone-500">
-                          {convertAndFormatPrice(order.refund_amount_cents)}
+                          {convertAndFormatPrice((order.refund_amount_cents || 0) / 100)}
                         </span>
                       )}
                       {order.cancelled_at && (
@@ -313,6 +328,14 @@ export default function CustomerOrders() {
           </div>
         )}
       </div>
+      {orders.length >= page * LIMIT && (
+        <button
+          onClick={() => setPage(p => p + 1)}
+          className="w-full mt-4 py-3 text-sm font-semibold text-stone-700 bg-white rounded-2xl shadow-sm hover:bg-stone-50 transition-colors"
+        >
+          Cargar más pedidos
+        </button>
+      )}
       </div>
     </div>
   );

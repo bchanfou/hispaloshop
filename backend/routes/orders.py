@@ -550,7 +550,8 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         gamif_svc = GamificationService(db)
         buyer_id = order.get("user_id")
         if buyer_id:
-            order_total_cents = order.get("total_cents", 0)
+            order_total = order.get("total_amount", 0)
+            order_total_cents = int(round(float(order_total) * 100)) if order_total else 0
             extra_xp = order_total_cents // 100  # 1 XP per euro spent
             await gamif_svc.award_xp(buyer_id, "purchase", extra=extra_xp)
             await gamif_svc.check_streak(buyer_id)
@@ -1215,6 +1216,8 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "tax_amount": tax_amount,
         "tax_rate_bp": tax_rate_bp,
         "total_amount": round(total_amount, 2),
+        "total_cents": int(round(total_amount * 100)),
+        "subtotal_cents": int(round(subtotal * 100)),
         "status": "pending",
         "line_items": line_items,
         "split_details": split_details,
@@ -1476,6 +1479,8 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "tax_amount": tax_amount,
         "tax_rate_bp": buy_now_tax_rate_bp,
         "total_amount": total_amount,
+        "total_cents": int(round(total_amount * 100)),
+        "subtotal_cents": int(round(subtotal_amount * 100)),
         "currency": base_currency,
         "country": user_country,
         "discount_info": None,

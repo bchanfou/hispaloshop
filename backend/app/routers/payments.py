@@ -1,5 +1,8 @@
 """
-Payment routes: Stripe checkout, buy-now, status.
+DEPRECATED — DO NOT MOUNT THIS ROUTER.
+Active payment processing is in routes/orders.py -> /payments/create-checkout
+This file is kept for reference only. It has NO stock validation, NO shipping
+calculation, NO commission splits. Mounting it would bypass all protections.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
