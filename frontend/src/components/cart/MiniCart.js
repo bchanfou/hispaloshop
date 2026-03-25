@@ -59,7 +59,8 @@ const MiniCart = ({ isOpen, onClose }) => {
     ? Math.min(...stores.map(s => (s.free_threshold_cents || s.threshold_cents || 3000))) / 100
     : 30;
   const discountEur = appliedDiscount?.discount_cents ? appliedDiscount.discount_cents / 100 : 0;
-  const total = Math.max(0, subtotal + shipping - discountEur);
+  // MiniCart shows subtotal only — shipping is calculated on CartPage for accuracy
+  const total = Math.max(0, subtotal - discountEur);
 
   // Group items by producer
   const groupedItems = useMemo(() => {
@@ -276,9 +277,9 @@ const MiniCart = ({ isOpen, onClose }) => {
                   <div className="flex justify-between text-stone-500">
                     <span className="flex items-center gap-1">
                       <Truck className="w-4 h-4" />
-                      Envío estimado
+                      Envío
                     </span>
-                    <span>{!shippingKnown ? 'Calculando...' : shipping === 0 ? 'Gratis' : fmtEur(shipping)}</span>
+                    <span className="text-stone-400 text-xs">Calculado en el carrito</span>
                   </div>
                   {discountEur > 0 && (
                     <div className="flex justify-between text-stone-500">
@@ -288,8 +289,8 @@ const MiniCart = ({ isOpen, onClose }) => {
                   )}
                   <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t border-stone-200">
                     <div className="flex flex-col">
-                      <span>Total</span>
-                      <span className="text-[11px] text-stone-400 font-normal">Precio estimado</span>
+                      <span>Subtotal</span>
+                      <span className="text-[11px] text-stone-400 font-normal">Sin envío · Ver carrito para total</span>
                     </div>
                     <span>{fmtEur(total)}</span>
                   </div>

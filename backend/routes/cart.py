@@ -92,8 +92,29 @@ async def get_cart(current_user = Depends(get_current_user)):
         if item.get("stock_available", True) is not False
     )
 
-    # Aplicar descuento si hay coupon
+    # Recalculate discount dynamically for percentage coupons
     discount_cents = cart.get("discount_cents", 0)
+    coupon_code = cart.get("coupon_code")
+    if coupon_code and subtotal_cents > 0:
+        try:
+            coupon_doc = await db.discount_codes.find_one({"code": coupon_code}, {"_id": 0})
+            if coupon_doc and coupon_doc.get("active", True):
+                c_type = coupon_doc.get("type", "")
+                c_value = coupon_doc.get("value", 0)
+                if c_type == "percentage" and c_value > 0:
+                    discount_cents = (subtotal_cents * int(c_value)) // 100
+                elif c_type == "fixed" and c_value > 0:
+                    # Fixed discounts: stored value is in euros (float), convert to cents
+                    fixed_cents = int(round(float(c_value) * 100)) if c_value < 1000 else int(c_value)
+                    discount_cents = min(fixed_cents, subtotal_cents)
+                # Update stored discount_cents to reflect current subtotal
+                if discount_cents != cart.get("discount_cents", 0):
+                    await db.carts.update_one(
+                        {"_id": cart["_id"]},
+                        {"$set": {"discount_cents": discount_cents}}
+                    )
+        except Exception:
+            pass  # Keep the stored discount_cents on error
 
     # IVA calculation (Spain 21%) — informational only, prices already include IVA
     TAX_RATE_BP = 2100  # 21% in basis points
@@ -215,10 +236,13 @@ async def add_to_cart(
     quantity = body.quantity
     variant_id = body.variant_id
     pack_id = body.pack_id
+    MAX_ITEM_QTY = 99
     if quantity <= 0:
         raise HTTPException(status_code=400, detail="La cantidad debe ser al menos 1")
+    if quantity > MAX_ITEM_QTY:
+        raise HTTPException(status_code=400, detail=f"Cantidad máxima por artículo: {MAX_ITEM_QTY}")
     db = get_db()
-    
+
     # Validar producto — lookup by product_id string field (matches products collection schema)
     product = await db.products.find_one({
         "product_id": product_id,
@@ -398,6 +422,8 @@ async def update_cart_item(
     if item_idx is None:
         raise HTTPException(status_code=404, detail="Artículo no encontrado en el carrito")
     
+    if quantity > 99:
+        raise HTTPException(status_code=400, detail="Cantidad máxima por artículo: 99")
     if quantity <= 0:
         # Eliminar item atomically with $pull — robust null matching
         pull_filter = {"product_id": product_id}
