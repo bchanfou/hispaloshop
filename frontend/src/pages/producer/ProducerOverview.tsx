@@ -434,11 +434,11 @@ function FollowerGrowthChart() {
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorFollowers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8A8881" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#8A8881" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#78716c" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#78716c" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E2DA" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 10 }}
@@ -450,14 +450,14 @@ function FollowerGrowthChart() {
               />
               <YAxis tick={{ fontSize: 10 }} hide={window.innerWidth < 768} />
               <Tooltip
-                contentStyle={{ borderRadius: '12px', border: '1px solid #E5E2DA', fontSize: '12px' }}
-                labelFormatter={(val) => new Date(val).toLocaleDateString()}
+                contentStyle={{ borderRadius: '12px', border: '1px solid #e7e5e4', fontSize: '12px' }}
+                labelFormatter={(val) => new Date(val).toLocaleDateString('es-ES')}
                 formatter={(val, name) => [val, name === 'followers' ? 'Total' : 'Nuevos']}
               />
               <Area
                 type="monotone"
                 dataKey="followers"
-                stroke="#0A0A0A"
+                stroke="#0c0a09"
                 fillOpacity={1}
                 fill="url(#colorFollowers)"
                 strokeWidth={2}
@@ -1012,25 +1012,25 @@ export default function ProducerOverview() {
           <p className="text-sm font-bold mb-4 text-stone-950">Ventas — últimos 30 días</p>
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={salesChart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-              <CartesianGrid stroke="#E5E2DA" vertical={false} />
+              <CartesianGrid stroke="#e7e5e4" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fontSize: 10, fill: '#8A8881' }}
+                tick={{ fontSize: 10, fill: '#78716c' }}
                 tickLine={false} axisLine={false}
                 tickFormatter={d => new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).slice(0, 5)}
                 interval={4}
               />
               <YAxis
-                tick={{ fontSize: 10, fill: '#8A8881' }}
+                tick={{ fontSize: 10, fill: '#78716c' }}
                 tickLine={false} axisLine={false}
                 tickFormatter={v => `${v}€`}
               />
               <Tooltip
-                contentStyle={{ background: '#0A0A0A', border: 'none', borderRadius: 12, fontSize: 12, color: 'white' }}
+                contentStyle={{ background: '#0c0a09', border: 'none', borderRadius: 12, fontSize: 12, color: 'white' }}
                 formatter={(v) => [`${Number(v).toFixed(2)}€`, 'Ventas']}
                 labelFormatter={d => new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
               />
-              <Line type="monotone" dataKey="revenue" stroke="#0A0A0A" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="revenue" stroke="#0c0a09" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

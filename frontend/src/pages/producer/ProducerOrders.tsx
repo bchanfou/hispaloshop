@@ -470,7 +470,7 @@ export default function ProducerOrders() {
                         {t('orders.orderNumber')} #{order.order_id?.slice(0, 8)}
                       </p>
                       <p className="text-sm text-stone-500">
-                        {new Date(order.created_at).toLocaleDateString()}
+                        {new Date(order.created_at).toLocaleDateString('es-ES')}
                       </p>
                     </div>
                   </div>

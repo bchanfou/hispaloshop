@@ -239,7 +239,7 @@ export default function AdminManagement() {
                   </td>
                   <td className="px-3 py-3">{getStatusBadge(admin.status || 'active')}</td>
                   <td className="px-3 py-3 text-white/35 text-xs">
-                    {admin.created_at ? new Date(admin.created_at).toLocaleDateString() : '-'}
+                    {admin.created_at ? new Date(admin.created_at).toLocaleDateString('es-ES') : '-'}
                   </td>
                   <td className="px-5 py-3 text-right">
                     {admin.user_id !== user?.user_id && admin.role !== 'super_admin' && (

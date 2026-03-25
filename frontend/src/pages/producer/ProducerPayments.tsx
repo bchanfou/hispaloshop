@@ -82,7 +82,7 @@ function MonthlyChart({ data }) {
             contentStyle={{ borderRadius: '8px', border: '1px solid #e5e5e5', fontSize: '12px' }}
             formatter={(val, name) => [`${val.toFixed(2)}€`, name]}
           />
-          <Bar dataKey="Bruto" fill="#d4c5a9" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="Bruto" fill="#d6d3d1" radius={[4, 4, 0, 0]} />
           <Bar dataKey="Neto" fill="#1c1917" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
@@ -345,7 +345,7 @@ export default function ProducerPayments() {
           <MonthlyChart data={data.monthly_summary || []} />
           <div className="flex items-center gap-4 mt-3 text-xs text-stone-500 justify-center">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-[#d4c5a9]" /> Bruto
+              <span className="w-3 h-3 rounded-sm bg-[#d6d3d1]" /> Bruto
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-sm bg-stone-950" /> Neto

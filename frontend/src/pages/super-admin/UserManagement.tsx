@@ -448,7 +448,7 @@ export default function UserManagement() {
                     <td className="px-6 py-4">
                       <p className="text-sm text-stone-500">
                         {user.created_at 
-                          ? new Date(user.created_at).toLocaleDateString()
+                          ? new Date(user.created_at).toLocaleDateString('es-ES')
                           : 'N/A'
                         }
                       </p>

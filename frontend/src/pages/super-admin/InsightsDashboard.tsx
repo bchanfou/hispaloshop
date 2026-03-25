@@ -1079,7 +1079,7 @@ function ComplianceTab({ data, config }) {
                               </span>
                             </td>
                             <td className="py-2 text-stone-500">
-                              {consent.consent_date ? new Date(consent.consent_date).toLocaleDateString() : '-'}
+                              {consent.consent_date ? new Date(consent.consent_date).toLocaleDateString('es-ES') : '-'}
                             </td>
                           </tr>
                         ))}

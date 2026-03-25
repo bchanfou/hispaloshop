@@ -1150,7 +1150,7 @@ export default function InfluencerDashboard() {
                             )}
                           </td>
                           <td className="py-3 px-4 text-sm text-stone-500">
-                            {new Date(comm.created_at).toLocaleDateString()}
+                            {new Date(comm.created_at).toLocaleDateString('es-ES')}
                           </td>
                         </tr>
                       );

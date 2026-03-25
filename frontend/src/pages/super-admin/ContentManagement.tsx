@@ -465,7 +465,7 @@ export default function ContentManagement() {
                       <td className="px-6 py-4">
                         <p className="font-medium text-stone-950">{cert.name}</p>
                         <p className="text-xs text-stone-500">
-                          {cert.expiry_date ? `Exp: ${new Date(cert.expiry_date).toLocaleDateString()}` : 'Sin expiración'}
+                          {cert.expiry_date ? `Exp: ${new Date(cert.expiry_date).toLocaleDateString('es-ES')}` : 'Sin expiración'}
                         </p>
                       </td>
                       <td className="px-6 py-4">

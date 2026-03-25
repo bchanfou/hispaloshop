@@ -430,7 +430,7 @@ export default function AdminCertificates() {
                       </td>
                       <td className="px-4 md:px-6 py-4 hidden lg:table-cell">
                         <p className="text-stone-500 text-sm">
-                          {cert.created_at ? new Date(cert.created_at).toLocaleDateString() : 'N/A'}
+                          {cert.created_at ? new Date(cert.created_at).toLocaleDateString('es-ES') : 'N/A'}
                         </p>
                       </td>
                       <td className="px-4 md:px-6 py-4">

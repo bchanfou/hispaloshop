@@ -118,9 +118,9 @@ export default function AdminOverview() {
   return (
     <div className="bg-stone-50 min-h-full">
       {statsError && (
-        <div className="mx-6 mt-4 flex items-center justify-between rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3">
-          <span className="text-sm text-amber-800">No se pudieron cargar las estadísticas</span>
-          <button onClick={fetchStats} className="text-sm font-semibold text-amber-800 hover:underline">Reintentar</button>
+        <div className="mx-6 mt-4 flex items-center justify-between rounded-2xl bg-stone-100 border border-stone-200 px-4 py-3">
+          <span className="text-sm text-stone-800">No se pudieron cargar las estadísticas</span>
+          <button onClick={fetchStats} className="text-sm font-semibold text-stone-800 hover:underline">Reintentar</button>
         </div>
       )}
      <div className="max-w-[975px] mx-auto">
@@ -183,17 +183,17 @@ export default function AdminOverview() {
           {(stats?.expiring_certificates || 0) > 0 ? (
             <Link
               to="/admin/certificates"
-              className="flex items-center justify-between p-3.5 bg-amber-50 rounded-2xl border border-amber-200 transition-all hover:border-amber-300 text-sm"
+              className="flex items-center justify-between p-3.5 bg-stone-100 rounded-2xl border border-stone-200 transition-all hover:border-stone-300 text-sm"
             >
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-amber-600" />
-                <span className="font-medium text-amber-800">Certificados que expiran en 30 días</span>
+                <Clock className="w-4 h-4 text-stone-600" />
+                <span className="font-medium text-stone-800">Certificados que expiran en 30 días</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center bg-amber-100 text-amber-800">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center bg-stone-100 text-stone-800">
                   {stats.expiring_certificates}
                 </span>
-                <ArrowRight className="w-4 h-4 text-amber-600" />
+                <ArrowRight className="w-4 h-4 text-stone-600" />
               </div>
             </Link>
           ) : (

@@ -145,7 +145,7 @@ export default function AdminGrowthAnalytics() {
             value={overview.total_interactions?.toLocaleString('es-ES') ?? '—'}
             sub={`Últimos ${days} días`}
             current={overview.total_interactions}
-            previous={prevOverview.total_interactions != null ? prevOverview.total_interactions - (overview.total_interactions ?? 0) : null}
+            previous={prevOverview.total_interactions != null ? Math.max(1, prevOverview.total_interactions - (overview.total_interactions ?? 0)) : null}
           />
           <StatCard
             icon={ShoppingCart}
@@ -153,7 +153,7 @@ export default function AdminGrowthAnalytics() {
             value={overview.content_driven_carts?.toLocaleString('es-ES') ?? '—'}
             sub="Atribuido a post o receta"
             current={overview.content_driven_carts}
-            previous={prevOverview.content_driven_carts != null ? prevOverview.content_driven_carts - (overview.content_driven_carts ?? 0) : null}
+            previous={prevOverview.content_driven_carts != null ? Math.max(1, prevOverview.content_driven_carts - (overview.content_driven_carts ?? 0)) : null}
           />
           <StatCard
             icon={TrendingUp}
@@ -161,7 +161,7 @@ export default function AdminGrowthAnalytics() {
             value={overview.content_driven_purchases?.toLocaleString('es-ES') ?? '—'}
             sub="Conversión directa"
             current={overview.content_driven_purchases}
-            previous={prevOverview.content_driven_purchases != null ? prevOverview.content_driven_purchases - (overview.content_driven_purchases ?? 0) : null}
+            previous={prevOverview.content_driven_purchases != null ? Math.max(1, prevOverview.content_driven_purchases - (overview.content_driven_purchases ?? 0)) : null}
           />
         </div>
 

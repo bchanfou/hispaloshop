@@ -223,7 +223,7 @@ export default function PayoutsPage() {
     }
     if (s === 'failed' || s === 'error' || s === 'rejected') {
       return (
-        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-red-500">
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-stone-500">
           <AlertCircle className="w-3 h-3" />
           Fallido
         </span>

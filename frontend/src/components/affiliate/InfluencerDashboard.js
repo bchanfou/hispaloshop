@@ -197,7 +197,7 @@ export function InfluencerDashboard() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{conv.product_name}</p>
                       <p className="text-sm text-stone-500">
-                        {conv.converted_at ? new Date(conv.converted_at).toLocaleDateString() : 'Reciente'}
+                        {conv.converted_at ? new Date(conv.converted_at).toLocaleDateString('es-ES') : 'Reciente'}
                       </p>
                     </div>
                     <div className="text-right shrink-0">

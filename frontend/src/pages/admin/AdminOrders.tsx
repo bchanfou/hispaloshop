@@ -235,7 +235,7 @@ export default function AdminOrders() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-stone-500 text-sm">
-                        {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A'}
+                        {order.created_at ? new Date(order.created_at).toLocaleDateString('es-ES') : 'N/A'}
                       </p>
                     </td>
                   </tr>
@@ -278,7 +278,7 @@ export default function AdminOrders() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-stone-500 text-sm">
-                        {payment.created_at ? new Date(payment.created_at).toLocaleDateString() : 'N/A'}
+                        {payment.created_at ? new Date(payment.created_at).toLocaleDateString('es-ES') : 'N/A'}
                       </p>
                     </td>
                   </tr>

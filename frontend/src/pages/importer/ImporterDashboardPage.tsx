@@ -35,8 +35,8 @@ function KPICard({ label, value, icon: Icon, href, description }) {
 function AlertCard({ alert }) {
   const isDanger = alert.type === 'danger';
   return (
-    <div className={`flex items-start gap-3 p-3 mb-2 rounded-2xl border ${isDanger ? 'bg-red-50 border-red-200' : 'bg-stone-100 border-stone-200'}`}>
-      <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${isDanger ? 'text-red-600' : 'text-stone-500'}`} />
+    <div className={`flex items-start gap-3 p-3 mb-2 rounded-2xl border ${isDanger ? 'bg-stone-100 border-stone-200' : 'bg-stone-100 border-stone-200'}`}>
+      <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${isDanger ? 'text-stone-700' : 'text-stone-500'}`} />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-stone-950">{alert.title}</p>
         {alert.message && <p className="text-xs mt-0.5 text-stone-500">{alert.message}</p>}
@@ -92,7 +92,7 @@ function ImporterPlanCard({ plan }) {
         <p className="text-sm font-bold text-stone-950">
           Plan {(plan || 'FREE').toUpperCase()} · Actualizar a ELITE
         </p>
-        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">
+        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-stone-100 text-stone-700">
           ELITE
         </span>
       </div>
@@ -137,7 +137,7 @@ function B2BOrderStatusBadge({ status }) {
     shipped: { label: 'En camino', cls: 'bg-stone-100 text-stone-500' },
     delivered: { label: 'Recibido', cls: 'bg-stone-950 text-white' },
     cancelled: { label: 'Cancelado', cls: 'bg-white text-stone-500' },
-    rejected: { label: 'Rechazado', cls: 'bg-red-50 text-red-600' },
+    rejected: { label: 'Rechazado', cls: 'bg-stone-100 text-stone-700' },
   };
   const c = config[status] || { label: status, cls: 'bg-stone-100 text-stone-500' };
   return (
@@ -149,12 +149,12 @@ function B2BOrderStatusBadge({ status }) {
 
 function B2COrderStatusBadge({ status }) {
   const config = {
-    pending: { label: 'Pendiente', cls: 'bg-amber-50 text-amber-600' },
-    processing: { label: 'Procesando', cls: 'bg-blue-50 text-blue-600' },
+    pending: { label: 'Pendiente', cls: 'bg-stone-100 text-stone-700' },
+    processing: { label: 'Procesando', cls: 'bg-stone-100 text-stone-700' },
     shipped: { label: 'Enviado', cls: 'bg-stone-100 text-stone-500' },
     delivered: { label: 'Entregado', cls: 'bg-stone-100 text-stone-950' },
-    cancelled: { label: 'Cancelado', cls: 'bg-red-50 text-red-600' },
-    refunded: { label: 'Reembolsado', cls: 'bg-red-50 text-red-600' },
+    cancelled: { label: 'Cancelado', cls: 'bg-stone-100 text-stone-700' },
+    refunded: { label: 'Reembolsado', cls: 'bg-stone-100 text-stone-700' },
   };
   const c = config[status] || { label: status, cls: 'bg-stone-100 text-stone-500' };
   return (
@@ -385,8 +385,8 @@ export default function ImporterDashboardPage() {
                     key={order.order_id || i}
                     className="flex items-center gap-3 p-3.5 bg-white rounded-2xl shadow-sm"
                   >
-                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-amber-50">
-                      <Clock className="w-4 h-4 text-amber-600" />
+                    <div className="w-9 h-9 flex items-center justify-center shrink-0 rounded-2xl bg-stone-100">
+                      <Clock className="w-4 h-4 text-stone-700" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate text-stone-950">
@@ -551,7 +551,7 @@ export default function ImporterDashboardPage() {
             <div className="mb-5">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-bold text-stone-950">Requieren tu acción</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700">
                   {actionableOps.length}
                 </span>
               </div>
@@ -723,7 +723,7 @@ export default function ImporterDashboardPage() {
               icon: PenTool,
               label: 'Firma digital',
               sublabel: user?.signature_url ? 'Configurada' : 'Pendiente',
-              sublabelCls: user?.signature_url ? 'text-stone-950' : 'text-amber-600',
+              sublabelCls: user?.signature_url ? 'text-stone-950' : 'text-stone-700',
               to: '/settings/signature',
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },
