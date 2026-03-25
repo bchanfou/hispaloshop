@@ -30,7 +30,7 @@ function ShippingProgressBar({ store }) {
           )}
           <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
         </div>
-        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toFixed(2)} €</span>
+        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</span>
       </div>
     );
   }
@@ -52,7 +52,7 @@ function ShippingProgressBar({ store }) {
         {store.is_free ? (
           <span className="text-xs font-bold text-stone-950 flex-shrink-0">Envío gratis</span>
         ) : (
-          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toFixed(2)} €</span>
+          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</span>
         )}
       </div>
       <div className="h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
@@ -60,7 +60,7 @@ function ShippingProgressBar({ store }) {
       </div>
       {!store.is_free && store.remaining_cents > 0 && (
         <p className="text-[11px] text-stone-500 mt-0.5">
-          Faltan {(store.remaining_cents / 100).toFixed(2)} € para envío gratis
+          Faltan {((store.remaining_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} para envío gratis
         </p>
       )}
     </div>
@@ -328,15 +328,20 @@ export default function CartPage() {
     }
   };
 
-  const handleUpdateQuantity = async (item, newQuantity) => {
-    try {
-      await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
+  const qtyDebounceRef = useRef({});
+  const handleUpdateQuantity = useCallback((item, newQuantity) => {
+    const key = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
+    // Optimistic UI update is instant (CartContext handles it)
+    updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null).catch(
+      (error) => toast.error(error?.message || 'No se pudo actualizar la cantidad')
+    );
+    // Debounce the server-side refetch to avoid rapid-fire API calls
+    clearTimeout(qtyDebounceRef.current[key]);
+    qtyDebounceRef.current[key] = setTimeout(() => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       refetchPricing();
-    } catch (error) {
-      toast.error(error?.message || 'No se pudo actualizar la cantidad');
-    }
-  };
+    }, 500);
+  }, [updateQuantity, queryClient, refetchPricing]);
 
   const handleRemoveItem = async (item) => {
     try {
@@ -579,13 +584,13 @@ export default function CartPage() {
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
                                   <motion.button
-                                    whileTap={{ scale: 0.88 }}
+                                    whileTap={item.quantity > 1 ? { scale: 0.88 } : undefined}
                                     type="button"
-                                    onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                    className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
-                                    aria-label={`Disminuir cantidad de ${item.product_name}`}
+                                    onClick={() => item.quantity > 1 ? handleUpdateQuantity(item, item.quantity - 1) : handleRemoveItem(item)}
+                                    className={`w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border flex items-center justify-center transition-colors ${item.quantity <= 1 ? 'border-stone-100 bg-stone-50' : 'border-stone-200 hover:bg-stone-50'}`}
+                                    aria-label={item.quantity <= 1 ? `Eliminar ${item.product_name}` : `Disminuir cantidad de ${item.product_name}`}
                                   >
-                                    <Minus className="w-4 h-4 text-stone-950" />
+                                    {item.quantity <= 1 ? <Trash2 className="w-3.5 h-3.5 text-stone-400" /> : <Minus className="w-4 h-4 text-stone-950" />}
                                   </motion.button>
                                   <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
                                   <motion.button
@@ -599,7 +604,7 @@ export default function CartPage() {
                                   </motion.button>
                                 </div>
                                 <p className="text-sm font-bold text-stone-950 md:text-base">
-                                  {convertAndFormatPrice((item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0)) * item.quantity, item.currency || 'EUR')}
+                                  {formatCurrency((item.unit_price_cents || 0) * item.quantity)}
                                 </p>
                               </div>
                               <button
@@ -818,7 +823,7 @@ export default function CartPage() {
                         -{formatCurrency(appliedDiscount.discount_cents || 0)}
                       </span>
                     </div>
-                    <button onClick={handleRemoveDiscount} className="p-1 text-stone-700 hover:text-stone-950" aria-label="Eliminar descuento" data-testid="remove-discount-btn">
+                    <button onClick={handleRemoveDiscount} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-700 hover:text-stone-950" aria-label="Eliminar descuento" data-testid="remove-discount-btn">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -870,7 +875,9 @@ export default function CartPage() {
 
                 {/* Total */}
                 <div className="flex justify-between">
-                  <span className="text-base font-bold text-stone-950">{t('cart.total')}</span>
+                  <span className="text-base font-bold text-stone-950">
+                    {isGuest ? 'Subtotal' : t('cart.total')}
+                  </span>
                   <span className="text-base font-bold text-stone-950">{formatCurrency(displayTotal)}</span>
                 </div>
 
@@ -878,7 +885,7 @@ export default function CartPage() {
                 {user ? (
                   <p className="text-[11px] text-stone-400 text-right">IVA incluido ({formatCurrency(cartSummary.tax_cents ?? 0)} IVA)</p>
                 ) : (
-                  <p className="text-[11px] text-stone-400 text-right">IVA incluido</p>
+                  <p className="text-[11px] text-stone-400 text-right">IVA incluido · Envío se calcula al iniciar sesión</p>
                 )}
 
                 {/* Delivery estimate */}
