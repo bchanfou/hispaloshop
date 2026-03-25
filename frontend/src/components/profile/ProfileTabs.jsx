@@ -137,8 +137,11 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     if (followLoading) return;
     setFollowLoading(true);
     try {
-      await apiClient.post(`/users/${userId}/follow`);
-      if (onFollow) onFollow();
+      if (typeof onFollow === 'function') {
+        await onFollow();
+      } else {
+        await apiClient.post(`/users/${userId}/follow`);
+      }
     } catch {
       toast.error('Error al seguir');
     } finally {
@@ -600,8 +603,8 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
     const wasSaved = saved;
     setSaved(!wasSaved);
     try {
-      if (wasSaved) await apiClient.delete(`/reels/${reelId}/save`);
-      else await apiClient.post(`/reels/${reelId}/save`);
+      if (wasSaved) await apiClient.delete(`/posts/${reelId}/save`);
+      else await apiClient.post(`/posts/${reelId}/save`);
     } catch { setSaved(wasSaved); }
   }, [saved, reelId]);
 

@@ -12,6 +12,13 @@ import { useDwellTime } from '../../hooks/useDwellTime';
 import { abbreviateCount } from '../../utils/helpers';
 import MilestoneToast, { checkMilestone } from './MilestoneToast';
 
+const EMOJI_MAP = {
+  '\u2764\uFE0F': 'heart',
+  '\uD83D\uDD25': 'fire',
+  '\uD83D\uDE02': 'laugh',
+  '\uD83D\uDE2E': 'wow',
+  '\uD83D\uDC4F': 'clap',
+};
 
 // ---------------------------------------------------------------------------
 // Like-particle burst (double-tap)
@@ -247,7 +254,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
     setShowReactions(false);
     trigger('medium');
     try {
-      await apiClient.post(`/posts/${post.id}/react`, { reaction: emoji });
+      await apiClient.post(`/posts/${post.id}/react`, { emoji: EMOJI_MAP[emoji] || 'heart' });
     } catch (err) {
       toast.error('Error al reaccionar');
     }

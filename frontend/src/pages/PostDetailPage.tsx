@@ -17,7 +17,7 @@ function renderCaption(text, navigate) {
     if (part.startsWith('#')) {
       return (
         <span key={i} className="text-stone-500 font-medium cursor-pointer hover:underline"
-          onClick={() => navigate?.(`/explore?tag=${encodeURIComponent(part.slice(1))}`)}
+          onClick={() => navigate?.(`/hashtag/${encodeURIComponent(part.slice(1))}`)}
         >{part}</span>
       );
     }
@@ -164,7 +164,7 @@ export default function PostDetailPage() {
       next.has(commentId) ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    try { await apiClient.post(`/comments/${commentId}/like`); } catch (err) { /* like toggle best-effort */ }
+    try { await apiClient.post(`/posts/${postId}/comments/${commentId}/like`); } catch (err) { /* like toggle best-effort */ }
   };
 
   const handleLikePost = async () => {

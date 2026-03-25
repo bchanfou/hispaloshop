@@ -108,7 +108,7 @@ function SocialIcon({ href, label, children }) {
 
 /* ── Green premium story ring gradient ────────────────────────────── */
 
-const STORY_RING_GRADIENT = 'conic-gradient(#1B6B40 0deg, #4ADE80 90deg, #2ECC71 180deg, #1B6B40 270deg, #155534 360deg)';
+const STORY_RING_GRADIENT = 'conic-gradient(#0c0a09 0deg, #57534e 90deg, #a8a29e 180deg, #57534e 270deg, #0c0a09 360deg)';
 
 /* ── verified badge SVG ──────────────────────────────────────────── */
 

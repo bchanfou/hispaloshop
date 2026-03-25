@@ -60,9 +60,9 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
           {isOwner && (
             <button
               onClick={() => onDelete(comment.comment_id || comment.id)}
-              className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center text-red-600 text-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+              className="bg-transparent border-none cursor-pointer p-0 min-h-[32px] flex items-center text-stone-950 text-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
             >
-              <Trash2 size={12} className="text-red-600 hover:text-red-700" />
+              <Trash2 size={12} className="text-stone-950 hover:text-stone-700" />
             </button>
           )}
         </div>
@@ -80,7 +80,7 @@ function renderCaption(text, navigate, onClose) {
     if (part.startsWith('#')) {
       return (
         <span key={key} className="text-stone-500 font-medium cursor-pointer hover:underline"
-          onClick={() => { onClose?.(); navigate?.(`/explore?tag=${encodeURIComponent(part.slice(1))}`); }}
+          onClick={() => { onClose?.(); navigate?.(`/hashtag/${encodeURIComponent(part.slice(1))}`); }}
         >{part}</span>
       );
     }

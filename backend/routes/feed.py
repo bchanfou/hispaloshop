@@ -404,8 +404,8 @@ async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] =
 
     # Fetch posts + reels concurrently
     posts_raw, reels_raw = await asyncio.gather(
-        db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size),
-        db.reels.find({}, {"_id": 0}).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size),
+        db.user_posts.find({"status": {"$ne": "draft"}, "is_active": {"$ne": False}}, {"_id": 0}).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size),
+        db.reels.find({"is_active": {"$ne": False}}, {"_id": 0}).sort("created_at", -1).skip(offset).limit(pool_size).to_list(pool_size),
     )
     for p in posts_raw:
         p.setdefault("type", "post")
@@ -497,14 +497,14 @@ async def feed_following(request: Request, limit: int = 20, cursor: Optional[str
         if not following_ids:
             return {"posts": [], "items": [], "total": 0, "has_more": False}
 
-        query = {"user_id": {"$in": following_ids}}
+        query = {"user_id": {"$in": following_ids}, "status": {"$ne": "draft"}, "is_active": {"$ne": False}}
         posts = await db.user_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
         for p in posts:
             p.setdefault("type", "post")
             p.setdefault("id", p.get("post_id") or p.get("id"))
 
         # Mix in reels from followed users
-        reel_query = {"user_id": {"$in": following_ids}} if following_ids else {}
+        reel_query = {"user_id": {"$in": following_ids}, "is_active": {"$ne": False}} if following_ids else {"is_active": {"$ne": False}}
         reels = await db.reels.find(reel_query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
         for r in reels:
             r["type"] = "reel"

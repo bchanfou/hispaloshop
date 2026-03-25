@@ -35,6 +35,14 @@ import MentionDropdown from './MentionDropdown';
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
 
+const EMOJI_MAP = {
+  '\u2764\uFE0F': 'heart',
+  '\uD83D\uDD25': 'fire',
+  '\uD83D\uDE02': 'laugh',
+  '\uD83D\uDE2E': 'wow',
+  '\uD83D\uDC4F': 'clap',
+};
+
 // ---------------------------------------------------------------------------
 // Reaction picker
 // ---------------------------------------------------------------------------
@@ -443,7 +451,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     setShowReactions(false);
     const reelId = reel.id || reel.reel_id || reel.post_id;
     try {
-      await apiClient.post(`/reels/${reelId}/react`, { reaction: emoji });
+      await apiClient.post(`/reels/${reelId}/react`, { emoji: EMOJI_MAP[emoji] || 'heart' });
     } catch (err) {
       setSelectedReaction(null);
       toast.error('Error al reaccionar');
@@ -480,7 +488,16 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     } else {
       // Immediately toggle play/pause
       const video = videoRef.current;
-      if (embedded) { navigate('/reels'); return; }
+      if (embedded) {
+        if (videoRef.current?.paused) {
+          videoRef.current.play().catch(() => {});
+          setPlaying(true);
+        } else {
+          videoRef.current?.pause();
+          setPlaying(false);
+        }
+        return;
+      }
       wasPlayingBeforeTap.current = !video?.paused;
       togglePlay();
     }
@@ -857,7 +874,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             setSaved(next);
             try {
               const reelId = reel.id || reel.reel_id || reel.post_id;
-              await apiClient.post(`/reels/${reelId}/save`);
+              await apiClient.post(`/posts/${reelId}/save`);
             } catch (err) {
               setSaved(!next); // rollback
               toast.error('Error al guardar');

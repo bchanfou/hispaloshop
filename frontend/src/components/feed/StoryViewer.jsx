@@ -521,7 +521,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   if (!currentStory || !items.length) return null;
 
   const user = currentStory.user;
-  const isOwnStory = currentStory.user_id === currentUser?.id || currentStory.user?.id === currentUser?.id;
+  const isOwnStory = currentStory.user_id === (currentUser?.user_id || currentUser?.id) || currentStory.user?.id === (currentUser?.user_id || currentUser?.id);
 
   return (
     <motion.div
