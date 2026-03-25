@@ -43,7 +43,13 @@ const AddToCartButton = ({
     setState('loading');
 
     try {
-      await addToCart(productId, quantity, variantId, packId);
+      await addToCart(productId, quantity, variantId, packId, {
+        productName: product?.name || product?.product_name || '',
+        productImage: product?.image || product?.product_image || product?.images?.[0] || '',
+        unitPriceCents: product?.price_cents || product?.unit_price_cents || (product?.price ? Math.round(product.price * 100) : 0),
+        sellerId: product?.seller_id || product?.producer_id || '',
+        sellerName: product?.seller_name || product?.producer_name || product?.producer?.name || '',
+      });
       trigger('success');
       setState('success');
       window.dispatchEvent(new CustomEvent('cart-added'));

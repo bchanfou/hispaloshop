@@ -45,9 +45,9 @@ const MiniCart = ({ isOpen, onClose }) => {
     prevCountRef.current = cartItems.length;
   }, [cartItems]);
 
-  const shipping = shippingData?.total_shipping_cents != null
-    ? shippingData.total_shipping_cents / 100
-    : subtotal > 50 ? 0 : 4.90;
+  const shippingKnown = shippingData?.total_shipping_cents != null;
+  const shippingCents = shippingData?.total_shipping_cents ?? 0;
+  const shipping = shippingCents / 100;
   const freeShippingThreshold = 50;
   const total = subtotal + shipping;
 
@@ -267,7 +267,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                       <Truck className="w-4 h-4" />
                       Envío estimado
                     </span>
-                    <span>{shipping === 0 ? 'GRATIS' : `€${shipping.toFixed(2)}`}</span>
+                    <span>{!shippingKnown ? 'Calculando...' : shipping === 0 ? 'GRATIS' : `€${shipping.toFixed(2)}`}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t border-stone-200">
                     <span>Total</span>

@@ -131,16 +131,32 @@ export function CartProvider({ children }) {
     return () => window.removeEventListener('storage', handleStorage);
   }, [user]);
 
-  const addToCart = useCallback(async (productId, quantity, variantId = null, packId = null) => {
+  const addToCart = useCallback(async (productId, quantity, variantId = null, packId = null, displayInfo = {}) => {
+    const MAX_GUEST_QTY = 20;
     if (!user) {
       // Guest cart — localStorage
       const guest = readGuestCart();
       const key = cartKey(productId, variantId, packId);
       const idx = guest.findIndex((i) => itemKey(i) === key);
       if (idx >= 0) {
-        guest[idx].quantity += quantity;
+        guest[idx].quantity = Math.min(guest[idx].quantity + quantity, MAX_GUEST_QTY);
+        // Update display info if provided
+        if (displayInfo.productName) guest[idx].product_name = displayInfo.productName;
+        if (displayInfo.productImage) guest[idx].product_image = displayInfo.productImage;
+        if (displayInfo.unitPriceCents != null) guest[idx].unit_price_cents = displayInfo.unitPriceCents;
+        if (displayInfo.sellerName) guest[idx].seller_name = displayInfo.sellerName;
       } else {
-        guest.push({ product_id: productId, quantity, variant_id: variantId, pack_id: packId });
+        guest.push({
+          product_id: productId,
+          quantity: Math.min(quantity, MAX_GUEST_QTY),
+          variant_id: variantId,
+          pack_id: packId,
+          product_name: displayInfo.productName || '',
+          product_image: displayInfo.productImage || '',
+          unit_price_cents: displayInfo.unitPriceCents || 0,
+          seller_id: displayInfo.sellerId || '',
+          seller_name: displayInfo.sellerName || '',
+        });
       }
       writeGuestCart(guest);
       setCartItems(guest);
@@ -212,7 +228,7 @@ export function CartProvider({ children }) {
       const key = cartKey(productId, variantId, packId);
       const idx = guest.findIndex((i) => itemKey(i) === key);
       if (idx >= 0) {
-        guest[idx].quantity = newQuantity;
+        guest[idx].quantity = Math.min(newQuantity, 20);
         writeGuestCart(guest);
         setCartItems(guest);
       }

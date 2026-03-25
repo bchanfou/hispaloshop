@@ -150,11 +150,8 @@ export default function CartPage() {
     defaultValues: { country: 'ES', is_default: false },
   });
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/login');
-    }
-  }, [authLoading, navigate, user]);
+  // Allow guests to view their cart — checkout button will prompt login
+  const isGuest = !authLoading && !user;
 
   // Shipping data now comes from GET /cart response (cartSummary.shipping_breakdown)
   // No separate shipping preview call needed
@@ -286,6 +283,10 @@ export default function CartPage() {
   };
 
   const handleCheckout = async () => {
+    if (isGuest) {
+      navigate('/login?redirect=/cart');
+      return;
+    }
     if (checkoutLoading) return; // Prevent double-submit
     if (cartItems.length === 0) {
       toast.error(t('cart.empty'));
@@ -870,19 +871,21 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
-                className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+                disabled={!isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm))}
+                className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${isGuest || (!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm)) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
                 data-testid="checkout-button"
               >
-                {checkoutLoading
-                  ? t('common.loading')
-                  : !emailVerified
-                    ? t('errors.unauthorized')
-                    : stockIssues.length > 0
-                      ? t('errors.generic')
-                      : (!getSelectedAddress() && !showNewAddressForm)
-                        ? (t('checkout.selectAddress', 'Selecciona una dirección'))
-                        : t('cart.checkout')}
+                {isGuest
+                  ? 'Iniciar sesión para comprar'
+                  : checkoutLoading
+                    ? t('common.loading')
+                    : !emailVerified
+                      ? t('errors.unauthorized')
+                      : stockIssues.length > 0
+                        ? t('errors.generic')
+                        : (!getSelectedAddress() && !showNewAddressForm)
+                          ? (t('checkout.selectAddress', 'Selecciona una dirección'))
+                          : t('cart.checkout')}
               </button>
 
               {!emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Debes verificar tu correo electrónico'}</p>}
@@ -909,10 +912,10 @@ export default function CartPage() {
             whileTap={{ scale: 0.96 }}
             type="button"
             onClick={handleCheckout}
-            disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
-            className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+            disabled={!isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm))}
+            className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${isGuest || (!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm)) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
           >
-            {checkoutLoading ? t('common.loading') : t('cart.checkout')}
+            {isGuest ? 'Iniciar sesión para comprar' : checkoutLoading ? t('common.loading') : t('cart.checkout')}
           </motion.button>
         </div>
       )}

@@ -42,18 +42,22 @@ export function useCartPricing(options = {}) {
   return useQuery({
     queryKey: cartKeys.pricing,
     queryFn: async () => {
-      const data = await apiClient.get('/cart');
+      const res = await apiClient.get('/cart');
+      const cart = res?.data || res || {};
 
       return {
-        subtotalCents: data?.subtotal_cents || 0,
-        shippingCents: data?.shipping_cents || 0,
-        taxCents: data?.tax_cents || 0,
-        taxRateBp: data?.tax_rate_bp || 2100,
-        taxRateDisplay: data?.tax_rate_display || '21%',
-        shippingBreakdown: data?.shipping_breakdown || [],
-        totalCents: data?.total_cents || 0,
-        discountCents: data?.discount_cents || 0,
-        stockIssues: (data?.items || []).filter((item) => !item.stock_available),
+        subtotalCents: cart.subtotal_cents || 0,
+        shippingCents: cart.shipping_cents || 0,
+        taxCents: cart.tax_cents || 0,
+        taxRateBp: cart.tax_rate_bp || 2100,
+        taxRateDisplay: cart.tax_rate_display || '21%',
+        shippingBreakdown: cart.shipping_breakdown || [],
+        totalCents: cart.total_cents || 0,
+        discountCents: cart.discount_cents || 0,
+        items: cart.items || [],
+        stockIssues: (cart.items || []).filter((item) => item.stock_available === false),
+        couponCode: cart.coupon_code || null,
+        isEmpty: cart.is_empty ?? true,
       };
     },
     ...options,
@@ -128,9 +132,11 @@ export function useUpdateCartItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ itemId, quantity }) =>
-      apiClient.patch(`/cart/items/${itemId}`, null, {
-        params: { quantity },
+    mutationFn: ({ itemId, quantity, variant_id, pack_id }) =>
+      apiClient.patch(`/cart/items/${itemId}`, {
+        quantity,
+        ...(variant_id ? { variant_id } : {}),
+        ...(pack_id ? { pack_id } : {}),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
@@ -142,7 +148,13 @@ export function useRemoveFromCart() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (itemId) => apiClient.delete(`/cart/items/${itemId}`),
+    mutationFn: ({ itemId, variant_id, pack_id }) => {
+      const params = new URLSearchParams();
+      if (variant_id) params.append('variant_id', variant_id);
+      if (pack_id) params.append('pack_id', pack_id);
+      const qs = params.toString();
+      return apiClient.delete(`/cart/items/${itemId}${qs ? `?${qs}` : ''}`);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
     },
@@ -154,7 +166,7 @@ export function useApplyCoupon() {
 
   return useMutation({
     mutationFn: (couponCode) =>
-      apiClient.post('/cart/apply-coupon', { code: couponCode }),
+      apiClient.post(`/cart/apply-coupon?code=${encodeURIComponent(couponCode)}`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
     },
