@@ -174,17 +174,35 @@ async def send_message(conversation_id: str, input: MessageInput, background_tas
         "conversation_id": conversation_id,
         "sender_id": user.user_id,
         "content": input.content,
+        "message_type": input.message_type or "text",
+        "image_url": input.image_url,
+        "audio_url": input.audio_url,
+        "audio_duration": input.audio_duration,
+        "file_url": input.file_url,
+        "file_name": input.file_name,
+        "reply_to_id": input.reply_to_id,
+        "reply_to_preview": input.reply_to_preview,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "read": False
     }
-    
+
     await db.chat_messages.insert_one(message)
-    
-    # Update conversation
+
+    # Update conversation with type-based preview text
+    msg_type = message.get("message_type", "text")
+    if msg_type == "image":
+        preview = "Imagen"
+    elif msg_type == "audio":
+        preview = "Audio"
+    elif msg_type == "document":
+        preview = "Documento"
+    else:
+        preview = (message.get("content") or "")[:100]
+
     await db.internal_chats.update_one(
         {"conversation_id": conversation_id},
         {"$set": {
-            "last_message": input.content[:100],
+            "last_message": preview,
             "last_message_at": message["created_at"]
         }}
     )
@@ -216,7 +234,7 @@ async def send_message(conversation_id: str, input: MessageInput, background_tas
                     </div>
                     
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="https://www.hispaloshop.com" 
+                        <a href="https://www.hispaloshop.com/messages/{conversation_id}"
                            style="display: inline-block; background-color: #1C1C1C; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: 500;">
                             Ver mensaje
                         </a>
@@ -501,6 +519,43 @@ async def upload_conv_audio(
     from services.cloudinary_storage import upload_image as cloudinary_upload
     result = await cloudinary_upload(contents, folder="chat-audio", filename=f"voice_{uuid.uuid4().hex[:8]}")
     return {"audio_url": result["url"], "duration": duration}
+
+
+@router.post("/chat/conversations/{conversation_id}/upload-document")
+async def upload_document(
+    conversation_id: str,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    """Upload a document (PDF, JPG, PNG, WebP) in a conversation"""
+    conv = await db.internal_chats.find_one({
+        "conversation_id": conversation_id,
+        "$or": [{"user1_id": current_user.user_id}, {"user2_id": current_user.user_id}]
+    })
+    if not conv:
+        raise HTTPException(status_code=403, detail="Not a participant")
+
+    allowed = ["application/pdf", "image/jpeg", "image/png", "image/webp"]
+    if file.content_type not in allowed:
+        raise HTTPException(status_code=400, detail="Formato no soportado. Usa PDF, JPG, PNG o WebP")
+
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="El archivo no puede superar 10 MB")
+
+    import cloudinary.uploader
+    resource_type = "raw" if file.content_type == "application/pdf" else "image"
+    result = cloudinary.uploader.upload(
+        content,
+        resource_type=resource_type,
+        folder=f"hispaloshop/chat/docs/{conversation_id}",
+    )
+    return {
+        "file_url": result["secure_url"],
+        "file_name": file.filename,
+        "file_type": file.content_type,
+        "file_size": len(content),
+    }
 
 
 # ──────────── Delete conversation ────────────

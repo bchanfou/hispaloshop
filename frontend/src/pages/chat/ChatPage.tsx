@@ -23,6 +23,7 @@ import {
   Play,
   Download,
   MoreVertical,
+  FileText,
 } from 'lucide-react';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { useAuth } from '../../context/AuthContext';
@@ -513,9 +514,60 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
     );
   }
 
+  /* Story reply */
+  if (message.message_type === 'story_reply' || message.type === 'story_reply') {
+    return (
+      <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
+        <div className="min-w-0 max-w-[75%]">
+          <div className={`px-3.5 py-2.5 ${isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'}`} style={{ borderRadius: '20px' }}>
+            <span className="text-[11px] text-stone-400 block mb-1">Respondió a tu story</span>
+            <p className="whitespace-pre-wrap break-words text-[15px]">{message.content}</p>
+          </div>
+          <ReactionBar reactions={message.reactions} />
+          {showTimestamp && (
+            <div className={`mt-1 flex items-center gap-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+              <span className="text-[11px] text-stone-500">{formatTime(ts)}</span>
+              {isOwn && <ReadReceiptTicks message={message} />}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* Document / file message */
+  if (message.message_type === 'document' || message.file_url) {
+    const fileName = message.file_name || message.content || 'Documento';
+    return (
+      <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
+        <div className="min-w-0 max-w-[75%]">
+          <div className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl ${isOwn ? 'bg-stone-950' : 'bg-stone-100'}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isOwn ? 'bg-stone-800' : 'bg-stone-200'}`}>
+              <FileText size={20} className={isOwn ? 'text-white' : 'text-stone-600'} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className={`text-sm font-medium truncate ${isOwn ? 'text-white' : 'text-stone-950'}`}>{fileName}</p>
+              <p className={`text-[11px] ${isOwn ? 'text-stone-400' : 'text-stone-500'}`}>PDF</p>
+            </div>
+            <a href={message.file_url || message.document_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className={isOwn ? 'text-stone-300' : 'text-stone-500'}>
+              <Download size={18} />
+            </a>
+          </div>
+          <ReactionBar reactions={message.reactions} />
+          {showTimestamp && (
+            <div className={`mt-1 flex items-center gap-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+              <span className="text-[11px] text-stone-500">{formatTime(ts)}</span>
+              {isOwn && <ReadReceiptTicks message={message} />}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   /* Default text bubble — with swipe-to-reply */
   const bubbleContent = (
-    <div className="min-w-0 max-w-[80%]">
+    <div className="min-w-0 max-w-[75%]">
       <div
         className={`whitespace-pre-wrap break-words font-apple ${compact ? 'px-3 py-2 text-[14px] leading-5' : 'px-3.5 py-2.5 text-[15px] leading-[21px]'} ${
           isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'
@@ -553,6 +605,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
         <Reply size={18} className="text-stone-400" />
       </motion.div>
       <motion.div
+        className="min-w-0 w-full"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={{ left: 0, right: 0.5 }}
@@ -856,7 +909,7 @@ function EmptyConversation({ conversation, onSendSuggestion }) {
 /* ================================================================
    MessageInput — with reply preview bar, voice recording, image pick
    ================================================================ */
-function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply, onVoiceSend }) {
+function MessageInput({ onSend, onTyping, onAttachImage, onAttachDocument, replyTo, onCancelReply, onVoiceSend }) {
   const [text, setText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSecs, setRecordingSecs] = useState(0);
@@ -964,7 +1017,12 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
   const handleImagePick = () => fileInputRef.current?.click();
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) onAttachImage?.(file);
+    if (!file) return;
+    if (file.type === 'application/pdf') {
+      onAttachDocument?.(file);
+    } else {
+      onAttachImage?.(file);
+    }
     e.target.value = '';
   };
 
@@ -994,7 +1052,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, replyTo, onCancelReply,
         )}
       </AnimatePresence>
 
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+      <input ref={fileInputRef} type="file" accept="image/*,.pdf,application/pdf" className="hidden" onChange={handleFileChange} />
 
       {isRecording ? (
         <div className="flex items-center gap-3 px-3 pt-2">
@@ -1218,6 +1276,31 @@ export default function ChatPage() {
     }
   }, [conversationId, sendMessage, user]);
 
+  // Handle document upload (PDF)
+  const handleAttachDocument = useCallback(async (file) => {
+    if (!conversationId || !file) return;
+    if (file.size > 10 * 1024 * 1024) { toast.error('Máximo 10 MB'); return; }
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const data = await apiClient.post(`/chat/conversations/${conversationId}/upload-document`, formData);
+      const fileUrl = data?.file_url || data?.data?.file_url;
+      if (fileUrl) {
+        const tempId = `temp-doc-${Date.now()}`;
+        const optimistic = {
+          id: tempId, message_id: tempId, sender_id: user?.user_id || user?.id,
+          content: file.name, message_type: 'document', file_url: fileUrl, file_name: file.name,
+          created_at: new Date().toISOString(), read: false, status: 'sending',
+        };
+        setLocalMessages((prev) => [...prev, optimistic]);
+        sendMessage(conversationId, file.name, { message_type: 'document', file_url: fileUrl, file_name: file.name, temp_id: tempId });
+        requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }));
+      }
+    } catch {
+      toast.error('Error al enviar el documento');
+    }
+  }, [conversationId, sendMessage, user]);
+
   // Handle voice send (Q9)
   const handleVoiceSend = useCallback(async (blob, duration) => {
     if (!conversationId || !blob) return;
@@ -1423,6 +1506,7 @@ export default function ChatPage() {
         onSend={handleSend}
         onTyping={handleTyping}
         onAttachImage={handleAttachImage}
+        onAttachDocument={handleAttachDocument}
         replyTo={replyTo}
         onCancelReply={() => setReplyTo(null)}
         onVoiceSend={handleVoiceSend}

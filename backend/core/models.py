@@ -786,8 +786,15 @@ class Notification(BaseModel):
 
 
 class MessageInput(BaseModel):
-    content: str = Field(max_length=5000)
+    content: str = Field(default="", max_length=5000)
     image_url: Optional[str] = None
+    message_type: Optional[str] = "text"
+    audio_url: Optional[str] = None
+    audio_duration: Optional[float] = None
+    file_url: Optional[str] = None
+    file_name: Optional[str] = None
+    reply_to_id: Optional[str] = None
+    reply_to_preview: Optional[dict] = None
 
 
 class NewConversationInput(BaseModel):

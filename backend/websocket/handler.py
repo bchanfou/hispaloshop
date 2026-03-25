@@ -269,20 +269,32 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             "image_url": message.get("image_url"),
             "audio_url": message.get("audio_url"),
             "audio_duration": message.get("audio_duration"),
+            "file_url": message.get("file_url"),
+            "file_name": message.get("file_name"),
             "reply_to_id": message.get("reply_to_id"),
             "reply_to_preview": message.get("reply_to_preview"),
             "created_at": datetime.now(timezone.utc).isoformat(),
             "read": False
         }
-        
+
         await db.chat_messages.insert_one(message_doc)
+        message_doc.pop("_id", None)
         
-        # Actualizar conversación
+        # Actualizar conversación with type-based preview text
+        if message_type == "image":
+            preview = "Imagen"
+        elif message_type == "audio":
+            preview = "Audio"
+        elif message_type == "document":
+            preview = "Documento"
+        else:
+            preview = (content or "")[:100]
+
         await db.internal_chats.update_one(
             {"conversation_id": conversation_id},
             {
                 "$set": {
-                    "last_message": content,
+                    "last_message": preview,
                     "last_message_at": message_doc["created_at"]
                 }
             }

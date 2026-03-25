@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import apiClient, { getWSUrl } from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
-import { getToken } from '../../lib/auth';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -23,11 +23,9 @@ export function ChatProvider({ children }) {
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const wsRef = useRef(null);
-  const notifWsRef = useRef(null);
   const reconnectRef = useRef(null);
   const reconnectDelayRef = useRef(1000);
   const pingIntervalRef = useRef(null);
-  const notifReconnectRef = useRef(null);
   const [connected, setConnected] = useState(false);
   const [notifConnected, setNotifConnected] = useState(false);
   const [conversations, setConversations] = useState([]);
@@ -38,6 +36,8 @@ export function ChatProvider({ children }) {
   const [typingUsers, setTypingUsers] = useState({});
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const currentConversationRef = useRef(currentConversation);
+  useEffect(() => { currentConversationRef.current = currentConversation; }, [currentConversation]);
   const [polling, setPolling] = useState(false);
   const pollingRef = useRef(null);
   const wsFailCountRef = useRef(0);
@@ -245,7 +245,7 @@ export function ChatProvider({ children }) {
       const formData = new FormData();
       formData.append('file', file);
       const data = await apiClient.post(
-        `/chat/conversations/${conversationId}/upload-image`,
+        `/chat/conversations/${conversationId}/upload-document`,
         formData,
       );
       return data;
@@ -304,91 +304,9 @@ export function ChatProvider({ children }) {
     setNotifUnreadCount(0);
   }, []);
 
-  // Notification WebSocket connection (migrated from RealtimeProvider)
-  const connectNotifications = useCallback(() => {
-    if (!isAuthenticated) return;
-
-    if (notifWsRef.current) {
-      notifWsRef.current.close();
-    }
-
-    const wsUrl = getWSUrl('/ws/chat');
-    try {
-      const ws = new WebSocket(wsUrl);
-      notifWsRef.current = ws;
-
-      ws.onopen = () => {
-        setNotifConnected(true);
-        // Cookie-based auth is automatic via browser upgrade request.
-        // Send token message as fallback for environments without cookies.
-        const token = getToken();
-        if (token) {
-          ws.send(JSON.stringify({ type: 'auth', token }));
-        }
-      };
-
-      ws.onclose = () => {
-        setNotifConnected(false);
-        notifReconnectRef.current = setTimeout(connectNotifications, 3000);
-      };
-
-      ws.onerror = () => {};
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          const type = data?.type || data?.event;
-          const payload = data?.payload || data;
-
-          switch (type) {
-            case 'notification':
-              toast(payload.title, { description: payload.body, duration: 5000 });
-              if (!payload.read && !payload.read_at) setNotifUnreadCount(prev => prev + 1);
-              queryClient.invalidateQueries({ queryKey: ['notifications'] });
-              queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
-              break;
-            case 'message':
-            case 'new_message':
-              queryClient.invalidateQueries({ queryKey: ['hi', 'conversations'] });
-              queryClient.invalidateQueries({ queryKey: ['hi', 'conversation'] });
-              break;
-            case 'order_update':
-              queryClient.invalidateQueries({ queryKey: ['order', payload.orderId] });
-              queryClient.invalidateQueries({ queryKey: ['orders'] });
-              toast.success(`Pedido #${payload.orderId}: ${payload.status}`);
-              break;
-            case 'new_follower':
-              queryClient.invalidateQueries({ queryKey: ['user'] });
-              toast.success(`${payload.followerName} ahora te sigue`);
-              break;
-            case 'story_view':
-              queryClient.invalidateQueries({ queryKey: ['story', payload.storyId, 'views'] });
-              break;
-            case 'price_drop':
-              toast(`${payload.productName} bajó de precio`, {
-                description: `Antes: €${payload.oldPrice} → Ahora: €${payload.newPrice}`,
-                action: {
-                  label: 'Ver',
-                  onClick: () => { window.location.href = `/products/${payload.productId}`; },
-                },
-              });
-              break;
-            case 'auth_failed':
-            case 'auth_error':
-              // Auth failed — close silently
-              ws.close();
-              break;
-            default:
-              break;
-          }
-        } catch (e) {
-          // silently handled
-        }
-      };
-    } catch (error) {
-      notifReconnectRef.current = setTimeout(connectNotifications, 5000);
-    }
-  }, [isAuthenticated, queryClient]);
+  // Notification events are handled in the main WS onmessage handler.
+  // connectNotifications is kept as a no-op for backward compatibility.
+  const connectNotifications = useCallback(() => {}, []);
 
   // Chat WebSocket connection
   const connect = useCallback(() => {
@@ -459,7 +377,7 @@ export function ChatProvider({ children }) {
               
             case 'new_message':
               // Add new message to current conversation if matches
-              if (payload.conversation_id === currentConversation) {
+              if (payload.conversation_id === currentConversationRef.current) {
                 setMessages(prev => [...prev, payload.message]);
                 // Mark as read immediately
                 markAsRead(payload.conversation_id, [payload.message.message_id]);
@@ -506,7 +424,7 @@ export function ChatProvider({ children }) {
               
             case 'read_receipt':
               // Update read status in messages
-              if (payload.conversation_id === currentConversation) {
+              if (payload.conversation_id === currentConversationRef.current) {
                 const readIds = Array.isArray(payload.message_ids)
                   ? payload.message_ids
                   : (payload.message_id ? [payload.message_id] : []);
@@ -597,7 +515,7 @@ export function ChatProvider({ children }) {
         reconnectDelayRef.current = Math.min(delay * 2, 30000);
       }
     }
-  }, [isAuthenticated, user, currentConversation, loadConversations, markAsRead, startPolling, stopPolling, queryClient]);
+  }, [isAuthenticated, user, loadConversations, markAsRead, startPolling, stopPolling, queryClient]);
 
   // Connect when authenticated
   useEffect(() => {
@@ -608,7 +526,6 @@ export function ChatProvider({ children }) {
     } else {
       // Close connections when logged out
       if (wsRef.current) wsRef.current.close();
-      if (notifWsRef.current) notifWsRef.current.close();
       setConnected(false);
       setNotifConnected(false);
       setConversations([]);
@@ -623,9 +540,7 @@ export function ChatProvider({ children }) {
       Object.values(typingTimersRef.current).forEach(clearTimeout);
       typingTimersRef.current = {};
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
-      if (notifReconnectRef.current) clearTimeout(notifReconnectRef.current);
       if (wsRef.current) wsRef.current.close();
-      if (notifWsRef.current) notifWsRef.current.close();
     };
   }, [isAuthenticated, connect]);
 
