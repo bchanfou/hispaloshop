@@ -78,7 +78,7 @@ class Settings(BaseSettings):
     # EMAIL
     # ============================================
     RESEND_API_KEY: Optional[str] = Field(default=None)
-    EMAIL_FROM: str = Field(default="Hispaloshop <onboarding@resend.dev>")
+    EMAIL_FROM: str = Field(default="Hispaloshop <noreply@hispaloshop.com>")
     FRONTEND_URL: str = Field(default="https://www.hispaloshop.com")
     AUTH_BACKEND_URL: str = Field(default="http://localhost:8000")
     GOOGLE_CLIENT_ID: Optional[str] = Field(default=None)

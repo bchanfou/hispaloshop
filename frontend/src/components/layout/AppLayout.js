@@ -103,12 +103,15 @@ export default function AppLayout({ children }) {
     }
   }, [location.pathname, location.hash, location.key]);
 
-  if (hideChrome) {
-    return <>{children}</>;
-  }
-
   // Block access until email is verified (full-screen wall)
-  if (user && user.email_verified === false) {
+  // Must run BEFORE hideChrome check so it catches all routes including /onboarding, /producer, etc.
+  // Exceptions: public pages (login, register, verify-email, landing pages) where user is not logged in
+  const isPublicPage = ['/login', '/register', '/signup', '/verify-email', '/forgot-password', '/reset-password',
+    '/terms', '/privacy', '/about', '/pricing', '/productor', '/influencer/aplicar', '/importador',
+    '/que-es', '/que-es-hispaloshop', '/contacto', '/help', '/blog', '/press', '/careers', '/contact',
+    '/certificate', '/certificado'].some(p => location.pathname === p || location.pathname.startsWith(`${p}/`));
+
+  if (user && user.email_verified === false && !isPublicPage) {
     return (
       <VerifyEmailWall
         email={user.email}
@@ -116,6 +119,10 @@ export default function AppLayout({ children }) {
         onLogout={logout}
       />
     );
+  }
+
+  if (hideChrome) {
+    return <>{children}</>;
   }
 
   return (
