@@ -397,7 +397,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 pt-14">
       <div className="max-w-[600px] lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12 pb-32 md:pb-12">
         <div className="hidden md:block">
           <Breadcrumbs className="mb-6" />
@@ -594,11 +594,12 @@ export default function CartPage() {
                                   </motion.button>
                                   <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
                                   <motion.button
-                                    whileTap={{ scale: 0.88 }}
+                                    whileTap={!(item.stock != null && item.quantity >= item.stock) ? { scale: 0.88 } : undefined}
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                    className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-50 transition-colors"
-                                    aria-label={`Aumentar cantidad de ${item.product_name}`}
+                                    disabled={item.stock != null && item.quantity >= item.stock}
+                                    className={`w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border flex items-center justify-center transition-colors ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed' : 'border-stone-200 hover:bg-stone-50'}`}
+                                    aria-label={item.stock != null && item.quantity >= item.stock ? 'Máximo alcanzado' : `Aumentar cantidad de ${item.product_name}`}
                                   >
                                     <Plus className="w-4 h-4 text-stone-950" />
                                   </motion.button>
@@ -728,7 +729,7 @@ export default function CartPage() {
                 )}
 
                 {showNewAddressForm && (
-                  <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 shadow-sm rounded-2xl" data-testid="new-address-form">
+                  <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 shadow-sm rounded-2xl bg-white" data-testid="new-address-form">
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.addressName') || 'Nombre de dirección'}</label>
                       <input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} className="w-full h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors" data-testid="new-address-name" />

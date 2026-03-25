@@ -114,6 +114,7 @@ const MiniCart = ({ isOpen, onClose }) => {
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             role="dialog"
             aria-modal="true"
             aria-labelledby="minicart-title"
@@ -206,12 +207,12 @@ const MiniCart = ({ isOpen, onClose }) => {
                                 <div className="flex items-center justify-between mt-2">
                                   <div className="flex items-center gap-2">
                                     <motion.button
-                                      whileTap={{ scale: 0.88 }}
-                                      onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                      className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
-                                      aria-label={`Disminuir cantidad de ${item.product_name || item.name || item.product?.name}`}
+                                      whileTap={item.quantity > 1 ? { scale: 0.88 } : undefined}
+                                      onClick={() => item.quantity > 1 ? handleUpdateQuantity(item, item.quantity - 1) : removeFromCart(item.product_id, item.variant_id, item.pack_id)}
+                                      className={`w-11 h-11 flex items-center justify-center rounded-full border transition-colors ${item.quantity <= 1 ? 'border-stone-100 bg-stone-50' : 'border-stone-200 hover:bg-stone-50'}`}
+                                      aria-label={item.quantity <= 1 ? `Eliminar ${item.product_name || item.name || ''}` : `Disminuir cantidad de ${item.product_name || item.name || ''}`}
                                     >
-                                      <Minus className="w-3.5 h-3.5 text-stone-950" />
+                                      {item.quantity <= 1 ? <Trash2 className="w-3.5 h-3.5 text-stone-400" /> : <Minus className="w-3.5 h-3.5 text-stone-950" />}
                                     </motion.button>
                                     <span className="w-6 text-center text-sm font-semibold text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
                                       {item.quantity}
@@ -219,8 +220,9 @@ const MiniCart = ({ isOpen, onClose }) => {
                                     <motion.button
                                       whileTap={{ scale: 0.88 }}
                                       onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                      className="w-8 h-8 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-stone-200 hover:bg-stone-50 transition-colors"
-                                      aria-label={`Aumentar cantidad de ${item.product_name || item.name || item.product?.name}`}
+                                      disabled={item.stock != null && item.quantity >= item.stock}
+                                      className={`w-11 h-11 flex items-center justify-center rounded-full border transition-colors ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40' : 'border-stone-200 hover:bg-stone-50'}`}
+                                      aria-label={`Aumentar cantidad de ${item.product_name || item.name || ''}`}
                                     >
                                       <Plus className="w-3.5 h-3.5 text-stone-950" />
                                     </motion.button>
