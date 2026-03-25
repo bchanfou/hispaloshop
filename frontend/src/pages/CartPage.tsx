@@ -137,6 +137,7 @@ export default function CartPage() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [discountLoading, setDiscountLoading] = useState(false);
+  const [imgError, setImgError] = useState<Record<string, boolean>>({});
   // shippingData from separate API no longer needed — shipping_breakdown comes from GET /cart via cartSummary
   const { emailVerified, verifying, resending, verifyEmail, resendVerification, refetch: refetchVerification } = useCartVerification();
   const { savedAddresses, defaultAddressId, createAddress, savingAddress, isLoading: addressesLoading } = useCartAddresses();
@@ -330,6 +331,7 @@ export default function CartPage() {
     try {
       await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      refetchPricing();
     } catch (error) {
       toast.error(error?.message || 'No se pudo actualizar la cantidad');
     }
@@ -339,6 +341,7 @@ export default function CartPage() {
     try {
       await removeFromCart(item.product_id, item.variant_id, item.pack_id);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      refetchPricing();
     } catch (error) {
       toast.error(error?.message || 'No se pudo eliminar el producto');
     }
@@ -535,7 +538,7 @@ export default function CartPage() {
                     </div>
                     <AnimatePresence>
                     {items.map((item, index) => {
-                      const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
+                      const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id && (issue.variant_id || null) === (item.variant_id || null) && (issue.pack_id || null) === (item.pack_id || null));
                       const itemKey = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
                       return (
                         <motion.div
@@ -549,7 +552,13 @@ export default function CartPage() {
                           data-testid={`cart-item-${itemKey}`}
                         >
                           <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
-                            {(item.product_image || item.image) && <img src={item.product_image || item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />}
+                            {(item.product_image || item.image) && !imgError[itemKey] ? (
+                              <img src={item.product_image || item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" onError={() => setImgError(prev => ({ ...prev, [itemKey]: true }))} />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package size={20} className="text-stone-400" />
+                              </div>
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">

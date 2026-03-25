@@ -145,7 +145,7 @@ const AddToCartButton = ({
           <span className="w-10 text-center font-medium text-stone-950" aria-live="polite">{quantity}</span>
           <motion.button
             whileTap={{ scale: 0.88 }}
-            onClick={() => setQuantity(quantity + 1)}
+            onClick={() => setQuantity(q => Math.min(q + 1, product?.stock || 99))}
             className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-r-2xl transition-colors"
             disabled={state === 'loading'}
             aria-label="Aumentar cantidad"

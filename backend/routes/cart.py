@@ -265,22 +265,37 @@ async def add_to_cart(
                 break
 
         if existing_idx is not None:
-            # Validate stock before atomic increment
-            new_qty = cart["items"][existing_idx]["quantity"] + quantity
-            if stock is not None and new_qty > stock:
-                raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
-            # Atomic $inc to prevent race conditions on concurrent add
-            await db.carts.update_one(
-                {"_id": cart["_id"], "user_id": current_user.user_id},
+            existing_qty = cart["items"][existing_idx]["quantity"]
+            # Atomic conditional increment — avoids stale-snapshot race condition
+            result = await db.carts.update_one(
+                {
+                    "_id": cart["_id"],
+                    f"items.{existing_idx}.product_id": product_id,
+                },
                 {
                     "$inc": {f"items.{existing_idx}.quantity": quantity},
                     "$set": {
-                        f"items.{existing_idx}.total_price_cents": unit_price_cents * new_qty,
+                        f"items.{existing_idx}.total_price_cents": (existing_qty + quantity) * unit_price_cents,
                         "updated_at": datetime.now(timezone.utc),
                         "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
-                    },
+                    }
                 }
             )
+
+            # Verify stock AFTER the increment to handle concurrent adds
+            if stock is not None:
+                updated_cart = await db.carts.find_one({"_id": cart["_id"]})
+                actual_qty = updated_cart["items"][existing_idx]["quantity"]
+                if actual_qty > stock:
+                    # Revert to stock limit
+                    await db.carts.update_one(
+                        {"_id": cart["_id"]},
+                        {"$set": {
+                            f"items.{existing_idx}.quantity": stock,
+                            f"items.{existing_idx}.total_price_cents": stock * unit_price_cents,
+                        }}
+                    )
+                    raise HTTPException(400, f"Stock ajustado a {stock} unidades disponibles")
         else:
             # Atomic push: add new item without overwriting concurrent changes
             await db.carts.update_one(
@@ -333,7 +348,8 @@ async def update_cart_item(
 
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
-        "status": "active"
+        "status": "active",
+        "expires_at": {"$gte": datetime.now(timezone.utc)}
     })
 
     if not cart:
@@ -382,19 +398,27 @@ async def update_cart_item(
         if stock is not None and quantity > stock:
             raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
 
-        # Index-based update — avoids positional $ operator mismatch with multiple conditions
+        # Use arrayFilters to match by product+variant+pack — avoids index-based race condition
         unit_price = items[item_idx]["unit_price_cents"]
+        array_filter = {"elem.product_id": product_id}
+        if variant_id:
+            array_filter["elem.variant_id"] = variant_id
+        else:
+            array_filter["elem.variant_id"] = {"$in": [None, ""]}
+        if pack_id:
+            array_filter["elem.pack_id"] = pack_id
+        else:
+            array_filter["elem.pack_id"] = {"$in": [None, ""]}
+
         await db.carts.update_one(
-            {
-                "_id": cart["_id"],
-                "user_id": current_user.user_id,
-            },
+            {"user_id": current_user.user_id, "expires_at": {"$gte": datetime.now(timezone.utc)}},
             {"$set": {
-                f"items.{item_idx}.quantity": quantity,
-                f"items.{item_idx}.total_price_cents": unit_price * quantity,
+                "items.$[elem].quantity": quantity,
+                "items.$[elem].total_price_cents": unit_price * quantity,
                 "updated_at": datetime.now(timezone.utc),
                 "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
-            }}
+            }},
+            array_filters=[array_filter]
         )
 
     return {"success": True, "message": "Cart updated"}
@@ -412,7 +436,8 @@ async def remove_from_cart(
 
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
-        "status": "active"
+        "status": "active",
+        "expires_at": {"$gte": datetime.now(timezone.utc)}
     })
 
     if not cart:
@@ -451,7 +476,7 @@ async def validate_cart_country(request: Request, current_user = Depends(get_cur
     if not country:
         raise HTTPException(status_code=400, detail="Country is required")
 
-    cart = await db.carts.find_one({"user_id": current_user.user_id, "status": "active"})
+    cart = await db.carts.find_one({"user_id": current_user.user_id, "status": "active", "expires_at": {"$gte": datetime.now(timezone.utc)}})
     if not cart:
         return {"unavailable_count": 0, "unavailable_items": []}
 
@@ -492,7 +517,7 @@ async def apply_country_change(request: Request, current_user = Depends(get_curr
     if not country:
         raise HTTPException(status_code=400, detail="Country is required")
 
-    cart = await db.carts.find_one({"user_id": current_user.user_id, "status": "active"})
+    cart = await db.carts.find_one({"user_id": current_user.user_id, "status": "active", "expires_at": {"$gte": datetime.now(timezone.utc)}})
     if not cart:
         return {"removed_count": 0, "updated_count": 0, "items": []}
 
@@ -552,7 +577,15 @@ async def apply_coupon(
         "active": True,
         "$or": [
             {"end_date": None},
+            {"end_date": {"$exists": False}},
             {"end_date": {"$gte": datetime.now(timezone.utc)}}
+        ],
+        "$and": [
+            {"$or": [
+                {"start_date": None},
+                {"start_date": {"$exists": False}},
+                {"start_date": {"$lte": datetime.now(timezone.utc)}},
+            ]}
         ]
     })
     
@@ -566,7 +599,8 @@ async def apply_coupon(
     # Obtener carrito
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
-        "status": "active"
+        "status": "active",
+        "expires_at": {"$gte": datetime.now(timezone.utc)}
     })
     
     if not cart or not cart.get("items"):
@@ -634,7 +668,12 @@ async def clear_cart(current_user = Depends(get_current_user)):
     await db.carts.update_one(
         {
             "user_id": current_user.user_id,
-            "status": "active"
+            "status": "active",
+            "$or": [
+                {"expires_at": {"$gte": datetime.now(timezone.utc)}},
+                {"expires_at": None},
+                {"expires_at": {"$exists": False}},
+            ],
         },
         {
             "$set": {
@@ -697,6 +736,7 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
     existing_cart = await db.carts.find_one({
         "user_id": current_user.user_id,
         "status": "active",
+        "expires_at": {"$gte": datetime.now(timezone.utc)},
     })
 
     if existing_cart:
@@ -706,6 +746,7 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
                 "$set": {
                     "items": normalized_items,
                     "updated_at": datetime.now(timezone.utc),
+                    "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
                 }
             },
         )
@@ -731,6 +772,11 @@ async def shipping_preview(current_user=Depends(get_current_user)):
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
         "status": "active",
+        "$or": [
+            {"expires_at": {"$gte": datetime.now(timezone.utc)}},
+            {"expires_at": None},
+            {"expires_at": {"$exists": False}},
+        ],
     })
 
     if not cart or not cart.get("items"):
@@ -759,6 +805,11 @@ async def remove_coupon(current_user=Depends(get_current_user)):
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
         "status": "active",
+        "$or": [
+            {"expires_at": {"$gte": datetime.now(timezone.utc)}},
+            {"expires_at": None},
+            {"expires_at": {"$exists": False}},
+        ],
     })
 
     if not cart:

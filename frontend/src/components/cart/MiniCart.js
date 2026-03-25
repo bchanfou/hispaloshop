@@ -10,7 +10,7 @@ const fmtEur = (eur) => eur.toLocaleString('es-ES', { style: 'currency', currenc
 
 const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading, appliedDiscount } = useCart();
   const [shippingData, setShippingData] = useState(null);
   const prevCountRef = useRef(cartItems.length);
 
@@ -54,7 +54,8 @@ const MiniCart = ({ isOpen, onClose }) => {
   const freeShippingThreshold = shippingData?.stores?.[0]?.free_threshold_cents
     ? shippingData.stores[0].free_threshold_cents / 100
     : 30;
-  const total = subtotal + shipping;
+  const discountEur = appliedDiscount?.discount_cents ? appliedDiscount.discount_cents / 100 : 0;
+  const total = Math.max(0, subtotal + shipping - discountEur);
 
   // Group items by producer
   const groupedItems = useMemo(() => {
@@ -268,6 +269,12 @@ const MiniCart = ({ isOpen, onClose }) => {
                     </span>
                     <span>{!shippingKnown ? 'Calculando...' : shipping === 0 ? 'GRATIS' : fmtEur(shipping)}</span>
                   </div>
+                  {discountEur > 0 && (
+                    <div className="flex justify-between text-stone-500">
+                      <span>Descuento</span>
+                      <span>-{fmtEur(discountEur)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t border-stone-200">
                     <span>Total</span>
                     <span>{fmtEur(total)}</span>

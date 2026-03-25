@@ -81,20 +81,35 @@ export function CartProvider({ children }) {
         serverKeys = new Set(serverItems.map(itemKey));
       } catch { /* if fetch fails, merge everything */ }
 
+      const mergedIds = [];
       for (const item of guestItems) {
-        if (serverKeys.has(itemKey(item))) continue; // already in server cart
-        await apiClient.post('/cart/items', {
-          product_id: item.product_id,
-          quantity: item.quantity,
-          ...(item.variant_id != null && item.variant_id !== '' && { variant_id: item.variant_id }),
-          ...(item.pack_id != null && item.pack_id !== '' && { pack_id: item.pack_id }),
-        });
+        if (serverKeys.has(itemKey(item))) {
+          mergedIds.push(item.product_id);
+          continue; // already in server cart
+        }
+        try {
+          await apiClient.post('/cart/items', {
+            product_id: item.product_id,
+            quantity: item.quantity,
+            ...(item.variant_id != null && item.variant_id !== '' && { variant_id: item.variant_id }),
+            ...(item.pack_id != null && item.pack_id !== '' && { pack_id: item.pack_id }),
+          });
+          mergedIds.push(item.product_id);
+        } catch (e) {
+          if (process.env.NODE_ENV === 'development') console.error('Merge failed for', item.product_id, e);
+        }
+      }
+      // Clear only merged items, keep failed ones
+      if (mergedIds.length === guestItems.length) {
+        clearGuestCart();
+      } else {
+        const remaining = guestItems.filter(i => !mergedIds.includes(i.product_id));
+        localStorage.setItem(GUEST_CART_KEY, JSON.stringify(remaining));
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.error('[CartContext] Error merging guest cart:', error);
       try { toast.error('Algunos items del carrito no se pudieron recuperar'); } catch { /* toast not ready */ }
     }
-    clearGuestCart();
   }, []);
 
   useEffect(() => {
@@ -196,8 +211,8 @@ export function CartProvider({ children }) {
     }
 
     // Optimistic remove — hide item immediately, revert on error
-    const snapshot = [...cartItems]; // shallow copy captures current state
     const key = cartKey(productId, variantId, packId);
+    const removedItem = cartItems.find(i => itemKey(i) === key);
     setCartItems(prev => prev.filter(item => itemKey(item) !== key));
 
     try {
@@ -211,7 +226,7 @@ export function CartProvider({ children }) {
       await fetchCart();
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.error('Error removing from cart:', error);
-      setCartItems(snapshot); // Revert on error
+      setCartItems(prev => removedItem ? [...prev, removedItem] : prev); // Revert on error
       toast.error('No se pudo eliminar el producto');
       captureException(error);
     }
@@ -235,8 +250,9 @@ export function CartProvider({ children }) {
     }
 
     // Optimistic update — update UI immediately, revert on error
-    const snapshot = [...cartItems]; // shallow copy captures current state
     const key = cartKey(productId, variantId, packId);
+    const origItem = cartItems.find(i => itemKey(i) === key);
+    const origQty = origItem?.quantity;
     setCartItems(prev =>
       prev.map(item => itemKey(item) === key ? { ...item, quantity: newQuantity } : item)
     );
@@ -250,7 +266,9 @@ export function CartProvider({ children }) {
       await fetchCart();
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.error('Error updating quantity:', error);
-      setCartItems(snapshot); // Revert on error
+      setCartItems(prev => prev.map(i =>
+        itemKey(i) === key ? { ...i, quantity: origQty } : i
+      )); // Revert on error
       toast.error('No se pudo actualizar la cantidad');
       captureException(error);
     }
