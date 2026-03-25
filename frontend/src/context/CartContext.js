@@ -42,6 +42,8 @@ export function CartProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const prevUserRef = useRef(null);
   const fetchingRef = useRef(false);
+  const cartItemsRef = useRef(cartItems);
+  cartItemsRef.current = cartItems; // Always in sync, no re-render dep
 
   const fetchCart = useCallback(async () => {
     if (fetchingRef.current) return; // Guard against concurrent calls
@@ -213,7 +215,7 @@ export function CartProvider({ children }) {
 
     // Optimistic remove — hide item immediately, revert on error
     const key = cartKey(productId, variantId, packId);
-    const removedItem = cartItems.find(i => itemKey(i) === key);
+    const removedItem = cartItemsRef.current.find(i => itemKey(i) === key);
     setCartItems(prev => prev.filter(item => itemKey(item) !== key));
 
     try {
@@ -231,7 +233,7 @@ export function CartProvider({ children }) {
       toast.error('No se pudo eliminar el producto');
       captureException(error);
     }
-  }, [user, fetchCart, cartItems]);
+  }, [user, fetchCart]); // cartItems removed — uses cartItemsRef instead
 
   const updateQuantity = useCallback(async (productId, newQuantity, variantId = null, packId = null) => {
     if (newQuantity <= 0) {
@@ -252,8 +254,8 @@ export function CartProvider({ children }) {
 
     // Optimistic update — update UI immediately, revert on error
     const key = cartKey(productId, variantId, packId);
-    // Capture origQty synchronously from current state before optimistic update
-    const origQty = cartItems.find(i => itemKey(i) === key)?.quantity ?? 1;
+    // Capture origQty from ref (always current, no dep chain)
+    const origQty = cartItemsRef.current.find(i => itemKey(i) === key)?.quantity ?? 1;
     setCartItems(prev => prev.map(item => {
       if (itemKey(item) !== key) return item;
       const unitPrice = item.unit_price_cents || 0;
@@ -275,7 +277,7 @@ export function CartProvider({ children }) {
       toast.error('No se pudo actualizar la cantidad');
       captureException(error);
     }
-  }, [user, fetchCart, removeFromCart, cartItems]);
+  }, [user, fetchCart, removeFromCart]); // cartItems removed — uses cartItemsRef instead
 
   const clearCart = useCallback(async () => {
     if (!user) {

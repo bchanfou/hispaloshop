@@ -85,7 +85,12 @@ async def get_cart(current_user = Depends(get_current_user)):
             else:
                 item["stock_available"] = True
 
-    subtotal_cents = sum(item.get("total_price_cents", 0) for item in items)
+    # Only count available items in subtotal (exclude deleted/out-of-stock products)
+    subtotal_cents = sum(
+        item.get("total_price_cents", 0)
+        for item in items
+        if item.get("stock_available", True) is not False
+    )
 
     # Aplicar descuento si hay coupon
     discount_cents = cart.get("discount_cents", 0)
@@ -139,15 +144,14 @@ async def get_cart(current_user = Depends(get_current_user)):
         item_count = len(group_items)
 
         # Use ShippingService — same calculation as checkout
+        _bc = seller.get("shipping_base_cost_cents") if seller else None
+        _pi = seller.get("shipping_per_item_cents") if seller else None
+        _ft = seller.get("shipping_free_threshold_cents") if seller else None
         policy = ShippingPolicy(
             enabled=bool(seller.get("shipping_policy_enabled", False)) if seller else False,
-            base_cost_cents=int(seller.get("shipping_base_cost_cents", 490) or 490) if seller else 490,
-            per_item_cents=int(seller.get("shipping_per_item_cents", 0) or 0) if seller else 0,
-            free_threshold_cents=(
-                int(seller.get("shipping_free_threshold_cents", 3000) or 3000)
-                if seller and seller.get("shipping_free_threshold_cents") is not None
-                else 3000
-            ),
+            base_cost_cents=int(_bc) if _bc is not None else 490,
+            per_item_cents=int(_pi) if _pi is not None else 0,
+            free_threshold_cents=int(_ft) if _ft is not None else 3000,
         )
         # If policy not enabled, use default base cost (490 = 4.90 EUR)
         if not policy.enabled:
@@ -277,15 +281,19 @@ async def add_to_cart(
                 break
 
         if existing_idx is not None:
-            existing_qty = cart["items"][existing_idx]["quantity"]
-            # Atomic conditional increment — avoids stale-snapshot race condition
+            # Atomic increment using $elemMatch — safe against concurrent index shifts
+            elem_filter = {
+                "_id": cart["_id"],
+                "items": {"$elemMatch": {
+                    "product_id": product_id,
+                    "variant_id": variant_id,
+                    "pack_id": pack_id,
+                }},
+            }
             result = await db.carts.update_one(
+                elem_filter,
                 {
-                    "_id": cart["_id"],
-                    f"items.{existing_idx}.product_id": product_id,
-                },
-                {
-                    "$inc": {f"items.{existing_idx}.quantity": quantity},
+                    "$inc": {"items.$.quantity": quantity},
                     "$set": {
                         "updated_at": datetime.now(timezone.utc),
                         "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
@@ -293,37 +301,31 @@ async def add_to_cart(
                 }
             )
 
-            # Re-read actual quantity after $inc and set total_price_cents to avoid race
+            # Re-read actual quantity and fix total_price_cents atomically
             updated = await db.carts.find_one({"_id": cart["_id"]}, {"items": 1})
-            for item in updated.get("items", []):
-                if (item["product_id"] == product_id and
+            actual_qty = quantity  # fallback
+            for item in (updated or {}).get("items", []):
+                if (item.get("product_id") == product_id and
                         item.get("variant_id") == variant_id and
                         item.get("pack_id") == pack_id):
                     actual_qty = item["quantity"]
                     await db.carts.update_one(
-                        {"_id": cart["_id"], "items": {"$elemMatch": {
-                            "product_id": product_id,
-                            "variant_id": variant_id,
-                            "pack_id": pack_id,
-                        }}},
+                        elem_filter,
                         {"$set": {"items.$.total_price_cents": actual_qty * unit_price_cents}}
                     )
                     break
 
-            # Verify stock AFTER the increment to handle concurrent adds
-            if stock is not None:
-                updated_cart = await db.carts.find_one({"_id": cart["_id"]})
-                actual_qty = updated_cart["items"][existing_idx]["quantity"]
-                if actual_qty > stock:
-                    # Revert to stock limit
-                    await db.carts.update_one(
-                        {"_id": cart["_id"]},
-                        {"$set": {
-                            f"items.{existing_idx}.quantity": stock,
-                            f"items.{existing_idx}.total_price_cents": stock * unit_price_cents,
-                        }}
-                    )
-                    raise HTTPException(400, f"Stock ajustado a {stock} unidades disponibles")
+            # Verify stock AFTER the increment — use $elemMatch, not stale index
+            if stock is not None and actual_qty > stock:
+                # Revert to stock limit
+                await db.carts.update_one(
+                    elem_filter,
+                    {"$set": {
+                        "items.$.quantity": stock,
+                        "items.$.total_price_cents": stock * unit_price_cents,
+                    }}
+                )
+                raise HTTPException(400, f"Stock ajustado a {stock} unidades disponibles")
         else:
             # Atomic push: add new item without overwriting concurrent changes
             await db.carts.update_one(
