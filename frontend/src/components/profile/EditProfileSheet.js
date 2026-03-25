@@ -132,9 +132,9 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
       toast.error('El nombre de usuario debe tener al menos 3 caracteres');
       return;
     }
+    // Auto-prepend https:// if user typed a bare domain
     if (draft.website && !/^https?:\/\//i.test(draft.website)) {
-      toast.error('El enlace web debe empezar por http:// o https://');
-      return;
+      draft.website = 'https://' + draft.website;
     }
 
     const payload = {

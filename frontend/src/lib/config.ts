@@ -59,7 +59,7 @@ export const ORDER_STATUSES = {
 export const IMAGE_CONFIG = {
   MAX_FILE_SIZE: 5 * 1024 * 1024,
   ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
-  DEFAULT_AVATAR: '/default-avatar.png',
+  DEFAULT_AVATAR: '',
   DEFAULT_PRODUCT_IMAGE: '/default-product.png',
 };
 

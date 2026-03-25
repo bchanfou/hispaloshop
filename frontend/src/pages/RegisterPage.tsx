@@ -174,9 +174,14 @@ export default function RegisterPage() {
 
   // Debounced username check
   const checkUsername = useCallback(async (value) => {
-    const clean = value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    const clean = value.trim().toLowerCase().replace(/[^a-z0-9_.\-]/g, '');
     if (clean.length < 3) {
       setUsernameStatus('short');
+      return;
+    }
+    // No consecutive dots, cannot start/end with dot or hyphen
+    if (/^[.\-]|[.\-]$|\.\./.test(clean)) {
+      setUsernameStatus('invalid');
       return;
     }
     setUsernameStatus('checking');
@@ -214,6 +219,7 @@ export default function RegisterPage() {
     if (!form.fullName.trim()) e.fullName = 'El nombre es obligatorio';
     if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) e.email = 'Email no válido';
     if (!form.username.trim() || form.username.trim().length < 3) e.username = 'Mínimo 3 caracteres';
+    else if (/^[.\-]|[.\-]$|\.\./.test(form.username.trim())) e.username = 'No puede empezar/terminar con punto o guion, ni tener puntos consecutivos';
     else if (usernameStatus === 'taken') e.username = 'Este usuario ya está en uso';
     if (form.password.length < 8) e.password = 'Mínimo 8 caracteres';
     if (!form.country) e.country = 'Selecciona tu país';
@@ -250,7 +256,7 @@ export default function RegisterPage() {
     const payload = {
       name: form.fullName,
       email: form.email,
-      username: form.username.trim().toLowerCase().replace(/[^a-z0-9_]/g, ''),
+      username: form.username.trim().toLowerCase().replace(/[^a-z0-9_.\-]/g, ''),
       password: form.password,
       birth_date: birthDate,
       role: roleConfig.backendRole,
@@ -435,7 +441,7 @@ export default function RegisterPage() {
             <input
               value={form.username}
               onChange={e => {
-                const val = e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
+                const val = e.target.value.replace(/[^a-zA-Z0-9_.\-]/g, '').slice(0, 30);
                 updateForm('username', val);
               }}
               placeholder="tu_usuario"

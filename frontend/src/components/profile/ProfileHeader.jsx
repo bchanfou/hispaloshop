@@ -33,6 +33,7 @@ import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { getToken } from '../../lib/auth';
 import { useHaptics } from '../../hooks/useHaptics';
+import { InitialsAvatar } from '../ui/InitialsAvatar';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -529,11 +530,18 @@ export default function ProfileHeader({
                       }}
                       className="flex min-w-0 flex-1 items-center gap-3 py-1 text-left"
                     >
-                      <img
-                        src={acc.avatar_url || '/default-avatar.png'}
-                        alt={acc.username}
-                        className="h-11 w-11 rounded-full object-cover"
-                        onError={e => { e.target.src = '/default-avatar.png'; }}
+                      {acc.avatar_url ? (
+                        <img
+                          src={acc.avatar_url}
+                          alt={acc.username}
+                          className="h-11 w-11 rounded-full object-cover"
+                          onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                        />
+                      ) : null}
+                      <InitialsAvatar
+                        name={acc.name || acc.full_name || acc.username || 'U'}
+                        size={44}
+                        style={acc.avatar_url ? { display: 'none' } : {}}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-medium text-stone-950">{acc.name || acc.full_name || acc.email?.split('@')[0] || `Cuenta ${idx + 1}`}</div>
@@ -665,17 +673,28 @@ export default function ProfileHeader({
               style={{ background: STORY_RING_GRADIENT }}
             />
           )}
-          <img
-            src={user?.profile_image || user?.avatar_url || '/default-avatar.png'}
-            alt={user?.name}
-            onClick={
-              user?.has_active_story
-                ? () => onViewOwnStory ? onViewOwnStory() : navigate(`/stories/${user?.user_id}`)
-                : undefined
-            }
-            className={`relative h-[86px] w-[86px] rounded-full border-[3px] border-white object-cover lg:h-[150px] lg:w-[150px] ${
+          {(user?.profile_image || user?.avatar_url) ? (
+            <img
+              src={user?.profile_image || user?.avatar_url}
+              alt={user?.name}
+              onClick={
+                user?.has_active_story
+                  ? () => onViewOwnStory ? onViewOwnStory() : navigate(`/stories/${user?.user_id}`)
+                  : undefined
+              }
+              className={`relative h-[86px] w-[86px] rounded-full border-[3px] border-white object-cover lg:h-[150px] lg:w-[150px] ${
+                user?.has_active_story ? 'cursor-pointer' : 'ring-1 ring-stone-200'
+              }`}
+              onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+            />
+          ) : null}
+          <InitialsAvatar
+            name={user?.name || user?.full_name || user?.username || '?'}
+            size={86}
+            className={`relative border-[3px] border-white lg:!w-[150px] lg:!h-[150px] ${
               user?.has_active_story ? 'cursor-pointer' : 'ring-1 ring-stone-200'
-            }`}
+            } ${(user?.profile_image || user?.avatar_url) ? '' : 'lg:text-2xl'}`}
+            style={(user?.profile_image || user?.avatar_url) ? { display: 'none' } : {}}
           />
           {isOwn && (
             <>
@@ -950,12 +969,17 @@ export default function ProfileHeader({
         <div className="flex items-center gap-2 px-4 pb-2">
           <div className="flex -space-x-1.5">
             {user.mutual_followers.slice(0, 3).map((mf) => (
-              <img
-                key={mf.user_id}
-                src={mf.profile_image || '/default-avatar.png'}
-                alt={mf.username}
-                className="h-4 w-4 rounded-full border-[1.5px] border-white object-cover"
-              />
+              mf.profile_image ? (
+                <img
+                  key={mf.user_id}
+                  src={mf.profile_image}
+                  alt={mf.username}
+                  className="h-4 w-4 rounded-full border-[1.5px] border-white object-cover"
+                  onError={e => { e.target.style.display = 'none'; }}
+                />
+              ) : (
+                <InitialsAvatar key={mf.user_id} name={mf.username} size={16} className="border-[1.5px] border-white" />
+              )
             ))}
           </div>
           <span className="text-[12px] text-stone-500 leading-tight">

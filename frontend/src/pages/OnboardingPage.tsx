@@ -3,22 +3,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Loader2, Check, ShoppingCart, Wheat, Star, Globe,
-  Camera, MapPin,
+  ArrowLeft, Loader2, Check, Camera, MapPin,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
 /* ── Constants ── */
-const TOTAL_STEPS = 4;
-
-const ROLES = [
-  { id: 'consumer', icon: <ShoppingCart size={24} />, label: 'Consumidor', desc: 'Descubrir y comprar productos artesanales' },
-  { id: 'producer', icon: <Wheat size={24} />, label: 'Productor', desc: 'Vender tus productos artesanales' },
-  { id: 'influencer', icon: <Star size={24} />, label: 'Influencer', desc: 'Crear contenido y ganar comisiones' },
-  { id: 'importer', icon: <Globe size={24} />, label: 'Importador', desc: 'Importar o distribuir productos' },
-];
+const TOTAL_STEPS = 3;
 
 const INTERESTS = [
   'Aceites', 'Mieles', 'Quesos', 'Vinos', 'Conservas', 'Embutidos',
@@ -28,6 +20,7 @@ const INTERESTS = [
 
 const ROLE_WELCOME_SUBTITLES = {
   consumer: 'Descubre productos artesanales únicos de productores locales.',
+  customer: 'Descubre productos artesanales únicos de productores locales.',
   producer: 'Tu tienda está lista. Empieza a vender tus productos artesanales.',
   influencer: 'Conecta con marcas y empieza a crear contenido que inspira.',
   importer: 'Explora el marketplace B2B y encuentra los mejores productores.',
@@ -67,7 +60,7 @@ const StepShell = ({ step, onBack, onSkip, children }) => (
           className="flex items-center gap-1 text-sm text-stone-500 bg-transparent border-none cursor-pointer p-0"
           style={{ fontFamily: 'inherit' }}
         >
-          <ArrowLeft size={18} /> Atrás
+          <ArrowLeft size={18} /> Atr&aacute;s
         </button>
       ) : <div />}
       {onSkip ? (
@@ -107,13 +100,10 @@ export default function OnboardingPage() {
   const [direction, setDirection] = useState(1);
   const [saving, setSaving] = useState(false);
 
-  // Step 1: Role
-  const [selectedRole, setSelectedRole] = useState('');
-
   // Step 2: Interests
   const [selectedInterests, setSelectedInterests] = useState([]);
 
-  // Step 3: Profile personalization
+  // Step 1: Profile personalization
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
   const [displayName, setDisplayName] = useState('');
@@ -124,23 +114,13 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate('/login', { replace: true }); return; }
-    if (user.role && user.role !== 'customer') { navigate('/', { replace: true }); return; }
-    if (user.role === 'customer' && user.onboarding_completed) { navigate('/', { replace: true }); }
+    if (user.onboarding_completed) { navigate('/', { replace: true }); }
   }, [user, authLoading, navigate]);
 
   const goTo = useCallback((s) => {
     setDirection(s > step ? 1 : -1);
     setStep(s);
   }, [step]);
-
-  // Save progress to API silently
-  const saveProgress = useCallback(async (data) => {
-    try {
-      await apiClient.post('/users/me/onboarding', data);
-    } catch {
-      // silent — best effort
-    }
-  }, []);
 
   const handlePhotoSelect = useCallback((e) => {
     const file = e.target.files?.[0];
@@ -167,48 +147,52 @@ export default function OnboardingPage() {
         }
       }
 
-      // Save profile details if provided
-      const profileData = {};
+      // Save profile details + mark onboarding complete
+      const profileData = { onboarding_completed: true };
       if (displayName.trim()) profileData.display_name = displayName.trim();
       if (bio.trim()) profileData.bio = bio.trim();
       if (location.trim()) profileData.location = location.trim();
 
-      if (Object.keys(profileData).length > 0) {
+      try {
+        await apiClient.patch('/users/me', profileData);
+      } catch {
+        // non-blocking
+      }
+
+      // Save interests if any
+      if (selectedInterests.length > 0) {
         try {
-          await apiClient.patch('/users/me', profileData);
+          await apiClient.patch('/users/me', {
+            preferences: selectedInterests.map(i => i.toLowerCase().replace(/\//g, '-')),
+          });
         } catch {
           // non-blocking
         }
       }
 
-      await apiClient.post('/auth/set-role', {
-        role: selectedRole,
-        preferences: selectedInterests.map(i => i.toLowerCase().replace(/\//g, '-')),
-      });
-      await saveProgress({ step: 4, completed: true });
       await checkAuth();
 
+      const role = user?.role || 'customer';
       const roleDestinations = {
         producer:   '/producer/verification',
         influencer: '/influencer/fiscal-setup',
         importer:   '/importer/dashboard',
         customer:   '/discover',
       };
-      navigate(roleDestinations[selectedRole] || '/', { replace: true });
+      navigate(roleDestinations[role] || '/', { replace: true });
     } catch (err) {
-      toast.error(err?.response?.data?.detail || 'Error al guardar tu perfil. Inténtalo de nuevo.');
+      toast.error(err?.response?.data?.detail || 'Error al guardar tu perfil. Intentalo de nuevo.');
       navigate('/', { replace: true });
     } finally {
       setSaving(false);
     }
-  }, [profilePhoto, displayName, bio, location, selectedRole, selectedInterests, saveProgress, checkAuth, navigate]);
+  }, [profilePhoto, displayName, bio, location, selectedInterests, checkAuth, navigate, user]);
 
   const handleSkip = useCallback(() => {
     if (step < TOTAL_STEPS) {
-      saveProgress({ step, skipped: true });
       goTo(step + 1);
     }
-  }, [step, goTo, saveProgress]);
+  }, [step, goTo]);
 
   if (authLoading) {
     return (
@@ -218,119 +202,15 @@ export default function OnboardingPage() {
     );
   }
 
-  /* ═══════════════ STEP 1: Role Selection ═══════════════ */
+  /* ═══════════════ STEP 1: Personalización ═══════════════ */
   const Step1 = (
-    <StepShell step={1} onBack={null} onSkip={null}>
-      <div className="flex-1 flex flex-col items-center pt-6">
-        <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
-          ¿Cómo quieres participar?
-        </h2>
-        <p className="text-sm text-stone-500 text-center mb-8">
-          Siempre puedes cambiar esto más adelante
-        </p>
-
-        <div className="grid grid-cols-2 gap-3 w-full">
-          {ROLES.map(role => {
-            const selected = selectedRole === role.id;
-            return (
-              <motion.button
-                key={role.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setSelectedRole(role.id)}
-                className={`relative flex flex-col items-center text-center rounded-2xl p-5 cursor-pointer transition-all border-2 bg-white ${
-                  selected ? 'border-stone-950' : 'border-stone-200 hover:border-stone-200'
-                }`}
-                style={{ fontFamily: 'inherit' }}
-              >
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${
-                  selected ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'
-                }`}>
-                  {role.icon}
-                </div>
-                <span className="text-sm font-semibold text-stone-950">{role.label}</span>
-                <span className="text-xs text-stone-500 mt-1 leading-snug">{role.desc}</span>
-              </motion.button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="mt-8">
-        <PrimaryButton
-          onClick={() => { saveProgress({ step: 1, role: selectedRole }); goTo(2); }}
-          disabled={!selectedRole}
-        >
-          Siguiente
-        </PrimaryButton>
-      </div>
-    </StepShell>
-  );
-
-  /* ═══════════════ STEP 2: Interests / Preferences ═══════════════ */
-  const toggleInterest = (name) => {
-    setSelectedInterests(prev =>
-      prev.includes(name) ? prev.filter(p => p !== name) : [...prev, name]
-    );
-  };
-
-  const Step2 = (
-    <StepShell step={2} onBack={() => goTo(1)} onSkip={() => { setSelectedInterests([]); saveProgress({ step: 2, skipped: true }); goTo(3); }}>
-      <div className="flex-1 flex flex-col items-center pt-6">
-        <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
-          ¿Qué te interesa?
-        </h2>
-        <p className="text-sm text-stone-500 text-center mb-8">
-          Selecciona al menos 3 categorías
-        </p>
-
-        <div className="flex flex-wrap gap-2.5 justify-center">
-          {INTERESTS.map(name => {
-            const selected = selectedInterests.includes(name);
-            return (
-              <motion.button
-                key={name}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleInterest(name)}
-                className={`px-4 py-2.5 rounded-full text-sm font-medium cursor-pointer border transition-all ${
-                  selected
-                    ? 'bg-stone-950 text-white border-stone-950'
-                    : 'bg-stone-100 text-stone-700 border-transparent hover:bg-stone-200'
-                }`}
-                style={{ fontFamily: 'inherit' }}
-              >
-                {name}
-              </motion.button>
-            );
-          })}
-        </div>
-
-        {selectedInterests.length > 0 && (
-          <p className="text-sm text-stone-500 mt-4">
-            {selectedInterests.length} seleccionados
-          </p>
-        )}
-      </div>
-
-      <div className="mt-8">
-        <PrimaryButton
-          onClick={() => { saveProgress({ step: 2, interests: selectedInterests }); goTo(3); }}
-          disabled={selectedInterests.length < 3}
-        >
-          Siguiente
-        </PrimaryButton>
-      </div>
-    </StepShell>
-  );
-
-  /* ═══════════════ STEP 3: Personalización ═══════════════ */
-  const Step3 = (
-    <StepShell step={3} onBack={() => goTo(2)} onSkip={() => { saveProgress({ step: 3, skipped: true }); goTo(4); }}>
+    <StepShell step={1} onBack={null} onSkip={() => goTo(2)}>
       <div className="flex-1 flex flex-col items-center pt-6">
         <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
           Personaliza tu perfil
         </h2>
         <p className="text-sm text-stone-500 text-center mb-8">
-          Esto es lo que verán otros usuarios
+          Esto es lo que ver&aacute;n otros usuarios
         </p>
 
         {/* Avatar upload */}
@@ -385,7 +265,7 @@ export default function OnboardingPage() {
           <textarea
             value={bio}
             onChange={e => { if (e.target.value.length <= 150) setBio(e.target.value); }}
-            placeholder="Cuéntanos algo sobre ti..."
+            placeholder="Cuentanos algo sobre ti..."
             rows={3}
             className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-950 text-sm focus:outline-none focus:border-stone-400 placeholder:text-stone-400 resize-none"
             style={{ fontFamily: 'inherit' }}
@@ -394,7 +274,7 @@ export default function OnboardingPage() {
 
         {/* Location */}
         <div className="w-full">
-          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Ubicación (opcional)</label>
+          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Ubicacion (opcional)</label>
           <div className="relative">
             <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
             <input
@@ -410,17 +290,75 @@ export default function OnboardingPage() {
       </div>
 
       <div className="mt-8">
-        <PrimaryButton onClick={() => { saveProgress({ step: 3, displayName, bio, location }); goTo(4); }}>
+        <PrimaryButton onClick={() => goTo(2)}>
           Siguiente
         </PrimaryButton>
       </div>
     </StepShell>
   );
 
-  /* ═══════════════ STEP 4: Bienvenida ═══════════════ */
-  const Step4 = (
+  /* ═══════════════ STEP 2: Intereses ═══════════════ */
+  const toggleInterest = (name) => {
+    setSelectedInterests(prev =>
+      prev.includes(name) ? prev.filter(p => p !== name) : [...prev, name]
+    );
+  };
+
+  const Step2 = (
+    <StepShell step={2} onBack={() => goTo(1)} onSkip={() => { setSelectedInterests([]); goTo(3); }}>
+      <div className="flex-1 flex flex-col items-center pt-6">
+        <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
+          Que te interesa?
+        </h2>
+        <p className="text-sm text-stone-500 text-center mb-8">
+          Selecciona al menos 3 categorias
+        </p>
+
+        <div className="flex flex-wrap gap-2.5 justify-center">
+          {INTERESTS.map(name => {
+            const selected = selectedInterests.includes(name);
+            return (
+              <motion.button
+                key={name}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => toggleInterest(name)}
+                className={`px-4 py-2.5 rounded-full text-sm font-medium cursor-pointer border transition-all ${
+                  selected
+                    ? 'bg-stone-950 text-white border-stone-950'
+                    : 'bg-stone-100 text-stone-700 border-transparent hover:bg-stone-200'
+                }`}
+                style={{ fontFamily: 'inherit' }}
+              >
+                {name}
+              </motion.button>
+            );
+          })}
+        </div>
+
+        {selectedInterests.length > 0 && (
+          <p className="text-sm text-stone-500 mt-4">
+            {selectedInterests.length} seleccionados
+          </p>
+        )}
+      </div>
+
+      <div className="mt-8">
+        <PrimaryButton
+          onClick={() => goTo(3)}
+          disabled={selectedInterests.length < 3}
+        >
+          Siguiente
+        </PrimaryButton>
+      </div>
+    </StepShell>
+  );
+
+  /* ═══════════════ STEP 3: Bienvenida ═══════════════ */
+  const userRole = user?.role || 'customer';
+
+  const Step3 = (
     <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center px-6" style={{ fontFamily: 'inherit' }}>
-      <ProgressBar step={4} />
+      <ProgressBar step={3} />
 
       <motion.div
         initial={{ scale: 0 }}
@@ -443,7 +381,7 @@ export default function OnboardingPage() {
         transition={{ delay: 0.4 }}
         className="text-2xl font-bold text-stone-950 text-center mb-2"
       >
-        ¡Bienvenido a HispaloShop!
+        Bienvenido a HispaloShop!
       </motion.h2>
       <motion.p
         initial={{ opacity: 0, y: 10 }}
@@ -451,7 +389,7 @@ export default function OnboardingPage() {
         transition={{ delay: 0.5 }}
         className="text-sm text-stone-500 text-center mb-12 max-w-xs"
       >
-        {ROLE_WELCOME_SUBTITLES[selectedRole] || ROLE_WELCOME_SUBTITLES.consumer}
+        {ROLE_WELCOME_SUBTITLES[userRole] || ROLE_WELCOME_SUBTITLES.customer}
       </motion.p>
 
       <motion.div
@@ -472,7 +410,7 @@ export default function OnboardingPage() {
   );
 
   /* ═══════════════ Render ═══════════════ */
-  const steps = { 1: Step1, 2: Step2, 3: Step3, 4: Step4 };
+  const steps = { 1: Step1, 2: Step2, 3: Step3 };
 
   return (
     <div className="overflow-hidden">
