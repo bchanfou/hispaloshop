@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { X, Check, Loader2, Plus, Tag, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { useCartAddresses, useCartCheckout, useCartPricing } from '../features/cart/hooks';
+import { useCartVerification } from '../features/cart/hooks/useCartVerification';
 
 /* ── Stepper ── */
 function Stepper({ current, onStepClick }) {
@@ -112,6 +113,7 @@ export default function CheckoutPage() {
   const { cartItems, appliedDiscount, applyDiscount, removeDiscount, loading: cartLoading } = useCart();
   const { convertAndFormatPrice, currency } = useLocale();
   const { savedAddresses, defaultAddressId, createAddress, savingAddress, isLoading: addressesLoading } = useCartAddresses();
+  const { emailVerified } = useCartVerification();
   const { cartSummary } = useCartPricing(cartItems, appliedDiscount);
   const { checkoutLoading, createCheckout } = useCartCheckout();
   const formatPrice = useCallback((euros) => convertAndFormatPrice(euros, currency), [convertAndFormatPrice, currency]);
@@ -170,7 +172,7 @@ export default function CheckoutPage() {
       return;
     }
     try {
-      await createAddress({
+      const result = await createAddress({
         name: 'Dirección',
         full_name: trimmedName,
         street: trimmedStreet + (newAddress.floor ? `, ${newAddress.floor.trim()}` : ''),
@@ -180,6 +182,9 @@ export default function CheckoutPage() {
         phone: newAddress.phone.trim(),
         is_default: savedAddresses.length === 0,
       });
+      if (result?.id || result?.address_id) {
+        setSelectedAddressId(result.id || result.address_id);
+      }
       setShowNewForm(false);
       toast.success('Dirección guardada');
     } catch (err) {
@@ -267,6 +272,17 @@ export default function CheckoutPage() {
 
       {/* Content — desktop: 2-col (form left 60%, summary right 40%) */}
       <div className="mx-auto max-w-[960px] px-4 pt-6 pb-24 lg:flex lg:gap-8 lg:items-start">
+
+        {/* Email verification banner */}
+        {user && emailVerified === false && (
+          <div className="bg-stone-100 rounded-2xl p-4 mb-4 flex items-center justify-between w-full">
+            <div>
+              <p className="text-sm font-medium text-stone-950">Verifica tu correo</p>
+              <p className="text-xs text-stone-500">Necesitas verificar tu email para completar la compra</p>
+            </div>
+            <Link to="/settings" className="text-sm font-semibold text-stone-950 underline">Verificar</Link>
+          </div>
+        )}
 
         {/* ── Left: Form Steps ── */}
         <div className="lg:w-[60%]">

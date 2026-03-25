@@ -88,6 +88,12 @@ export default function OrderDetailPage() {
     }
   };
 
+  const INVOICE_STATUS_ES = {
+    pending: 'Pendiente', paid: 'Pagado', confirmed: 'Confirmado',
+    preparing: 'Preparando', shipped: 'Enviado', delivered: 'Entregado',
+    cancelled: 'Cancelado', refunded: 'Reembolsado',
+  };
+
   const downloadInvoice = async () => {
     setInvoiceLoading(true);
     try {
@@ -109,7 +115,7 @@ export default function OrderDetailPage() {
         `IVA: ${Number(data.tax).toFixed(2)}€`,
         `TOTAL: ${Number(data.total).toFixed(2)}€`,
         '',
-        `Estado: ${data.status}`,
+        `Estado: ${INVOICE_STATUS_ES[data.status] || data.status}`,
         `Método de pago: ${data.payment_method}`,
       ];
       const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
@@ -164,7 +170,7 @@ export default function OrderDetailPage() {
       <div className="sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-4 py-3">
         <button
           onClick={() => navigate('/dashboard/orders')}
-          className="bg-transparent border-none cursor-pointer p-1 flex"
+          className="bg-transparent border-none cursor-pointer p-1 flex min-w-[44px] min-h-[44px] items-center justify-center"
         >
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
@@ -407,7 +413,7 @@ export default function OrderDetailPage() {
             {canCancel && (
               <button
                 onClick={cancelOrder}
-                className="w-full h-11 bg-transparent border border-stone-500 rounded-xl text-sm font-semibold text-stone-500 cursor-pointer"
+                className="w-full h-11 bg-transparent border border-stone-200 rounded-xl text-sm font-semibold text-stone-700 cursor-pointer"
               >
                 Cancelar pedido
               </button>

@@ -801,8 +801,8 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "email_verified": 1, "locale": 1})
     if not user_doc or not user_doc.get("email_verified", False):
         raise HTTPException(
-            status_code=403, 
-            detail="Please verify your email before placing an order. Check your email or request a new verification link."
+            status_code=403,
+            detail="Debes verificar tu correo electrónico antes de realizar un pedido"
         )
     
     # Get user's selected country for pricing and currency
@@ -845,7 +845,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         
         # Validate country availability
         if not is_product_available_in_country(product, user_country):
-            stock_issues.append(f"Product '{item['product_name']}' is not available in {user_country}")
+            stock_issues.append(f"El producto '{item['product_name']}' no está disponible en {user_country}")
             continue
         
         # Auto-correct pricing if changed (don't reject, just update)
@@ -884,9 +884,9 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         
         if track_stock:
             if current_stock <= 0:
-                stock_issues.append(f"'{item_label}' is out of stock")
+                stock_issues.append(f"'{item_label}' no tiene stock disponible")
             elif item["quantity"] > current_stock:
-                stock_issues.append(f"Only {current_stock} units of '{item_label}' available")
+                stock_issues.append(f"Solo {current_stock} unidades disponibles de '{item_label}'")
     
     if stock_issues:
         raise HTTPException(status_code=400, detail={"message": "Checkout validation failed", "issues": stock_issues})
@@ -1090,6 +1090,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         line_item = {
             "product_id": item["product_id"],
             "product_name": item["product_name"],
+            "product_image": item.get("product_image", item.get("image", "")),
             "producer_id": item["producer_id"],
             "quantity": item["quantity"],
             "price": item["price"],

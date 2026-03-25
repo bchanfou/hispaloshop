@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { ShoppingBag, ChevronRight, Clock, Check, ExternalLink, RotateCcw } from 'lucide-react';
@@ -209,9 +209,9 @@ export default function CustomerOrders() {
                 : 'No hay pedidos en esta categoría'}
             </p>
             {activeFilter === 'all' && (
-              <a href="/products" className="text-stone-950 hover:underline font-medium">
+              <Link to="/discover" className="text-stone-950 hover:underline font-medium">
                 Empezar a comprar →
-              </a>
+              </Link>
             )}
           </div>
         ) : (
