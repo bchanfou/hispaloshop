@@ -60,6 +60,31 @@ async def get_cart(current_user = Depends(get_current_user)):
 
     # Calcular totales
     items = cart.get("items", [])
+
+    # Stock validation — enrich each item with stock_available flag
+    product_ids = [item.get("product_id") for item in items if item.get("product_id")]
+    products = await db.products.find(
+        {"product_id": {"$in": product_ids}},
+        {"product_id": 1, "stock_quantity": 1, "stock": 1, "is_active": 1}
+    ).to_list(len(product_ids)) if product_ids else []
+    stock_map = {p["product_id"]: p for p in products}
+
+    for item in items:
+        product = stock_map.get(item.get("product_id"))
+        if not product:
+            item["stock_available"] = False
+            item["stock_message"] = "Producto no disponible"
+        elif not product.get("is_active", True):
+            item["stock_available"] = False
+            item["stock_message"] = "Producto descatalogado"
+        else:
+            stock = product.get("stock_quantity", product.get("stock"))
+            if stock is not None and stock < item.get("quantity", 1):
+                item["stock_available"] = False
+                item["stock_message"] = f"Solo quedan {stock} unidades"
+            else:
+                item["stock_available"] = True
+
     subtotal_cents = sum(item.get("total_price_cents", 0) for item in items)
 
     # Aplicar descuento si hay coupon

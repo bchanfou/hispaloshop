@@ -12,7 +12,7 @@ const MiniCart = ({ isOpen, onClose }) => {
   const prevCountRef = useRef(cartItems.length);
 
   const subtotal = cartItems.reduce((sum, item) => {
-    const unitPrice = item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0);
+    const unitPrice = (item.unit_price_cents || 0) / 100;
     return sum + unitPrice * item.quantity;
   }, 0);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -48,7 +48,9 @@ const MiniCart = ({ isOpen, onClose }) => {
   const shippingKnown = shippingData?.total_shipping_cents != null;
   const shippingCents = shippingData?.total_shipping_cents ?? 0;
   const shipping = shippingCents / 100;
-  const freeShippingThreshold = 50;
+  const freeShippingThreshold = shippingData?.stores?.[0]?.free_threshold_cents
+    ? shippingData.stores[0].free_threshold_cents / 100
+    : 30;
   const total = subtotal + shipping;
 
   // Group items by producer
@@ -217,7 +219,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                     </motion.button>
                                   </div>
                                   <span className="font-semibold text-stone-950">
-                                    €{((item.unit_price_cents != null ? item.unit_price_cents / 100 : (item.price || 0)) * item.quantity).toFixed(2)}
+                                    €{(((item.unit_price_cents || 0) / 100) * item.quantity).toFixed(2)}
                                   </span>
                                 </div>
                               </div>

@@ -13,6 +13,7 @@ import { useLocale } from '../context/LocaleContext';
 import { toast } from 'sonner';
 import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Minus, Check, Clock, RefreshCw, Truck, Package, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
 
 /* ── ShippingProgressBar — per-store free-shipping progress ── */
@@ -116,6 +117,7 @@ const addressSchema = z.object({
 
 export default function CartPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, loading: authLoading, checkAuth } = useAuth();
   const {
     cartItems,
@@ -327,6 +329,7 @@ export default function CartPage() {
   const handleUpdateQuantity = async (item, newQuantity) => {
     try {
       await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
       toast.error(error?.message || 'No se pudo actualizar la cantidad');
     }
@@ -335,6 +338,7 @@ export default function CartPage() {
   const handleRemoveItem = async (item) => {
     try {
       await removeFromCart(item.product_id, item.variant_id, item.pack_id);
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
       toast.error(error?.message || 'No se pudo eliminar el producto');
     }

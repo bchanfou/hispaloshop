@@ -165,8 +165,8 @@ export function CartProvider({ children }) {
 
     try {
       const payload = { product_id: productId, quantity };
-      if (variantId) payload.variant_id = variantId;
-      if (packId) payload.pack_id = packId;
+      if (variantId != null && variantId !== '') payload.variant_id = variantId;
+      if (packId != null && packId !== '') payload.pack_id = packId;
 
       await apiClient.post('/cart/items', payload);
       await fetchCart();
@@ -244,8 +244,8 @@ export function CartProvider({ children }) {
     try {
       await apiClient.patch(`/cart/items/${productId}`, {
         quantity: newQuantity,
-        ...(variantId && { variant_id: variantId }),
-        ...(packId && { pack_id: packId }),
+        ...(variantId != null && variantId !== '' ? { variant_id: variantId } : {}),
+        ...(packId != null && packId !== '' ? { pack_id: packId } : {}),
       });
       await fetchCart();
     } catch (error) {
