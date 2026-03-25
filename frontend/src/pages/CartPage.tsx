@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -131,7 +131,7 @@ export default function CartPage() {
     fetchCart,
     getShippingPreview,
   } = useCart();
-  const { t, convertAndFormatPrice, currency, getExchangeRateDisplay, countries, country } = useLocale();
+  const { t, currency, getExchangeRateDisplay, countries, country } = useLocale();
   const [verificationToken, setVerificationToken] = useState('');
   const [discountCode, setDiscountCode] = useState('');
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -426,7 +426,7 @@ export default function CartPage() {
                       aria-label={t('checkout.verificationCodePlaceholder')}
                       data-testid="verification-input"
                     />
-                    <button type="button" onClick={handleVerifyEmail} disabled={verifying} className="rounded-2xl bg-stone-950 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-50" data-testid="verify-button">
+                    <button type="button" onClick={handleVerifyEmail} disabled={verifying} className="rounded-2xl bg-stone-950 px-4 py-2.5 min-h-[44px] text-[13px] font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-50" data-testid="verify-button" aria-label="Verificar email">
                       {verifying ? t('checkout.verifying') : t('checkout.verify')}
                     </button>
                   </div>
@@ -494,7 +494,7 @@ export default function CartPage() {
                   <button
                     type="button"
                     onClick={() => { fetchCart(); refetchPricing(); }}
-                    className="shrink-0 flex items-center gap-1.5 rounded-2xl bg-stone-950 px-3 py-1.5 text-xs font-medium text-white hover:bg-stone-800 transition-colors"
+                    className="shrink-0 flex items-center gap-1.5 rounded-2xl bg-stone-950 px-3 py-2.5 min-h-[44px] text-xs font-medium text-white hover:bg-stone-800 transition-colors"
                   >
                     <RefreshCw className="w-3 h-3" />
                     Actualizar
@@ -623,7 +623,7 @@ export default function CartPage() {
                                 const addBizDays = (d, n) => { let dt = new Date(d); let a = 0; while (a < n) { dt.setDate(dt.getDate() + 1); if (dt.getDay() !== 0 && dt.getDay() !== 6) a++; } return dt; };
                                 const now = new Date();
                                 const fmt = (d) => d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-                                return `${fmt(addBizDays(now, 3))} — ${fmt(addBizDays(now, 7))}`;
+                                return `${fmt(addBizDays(now, 3))} — ${fmt(addBizDays(now, 5))}`;
                               })()}
                             </p>
                             {/* Stock hold timer */}
@@ -810,7 +810,7 @@ export default function CartPage() {
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
                     <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200" aria-label={t('cart.discountCode')} data-testid="discount-code-input" />
-                    <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-2xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50" data-testid="apply-discount-btn">
+                    <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-2xl border border-stone-200 px-4 py-2.5 min-h-[44px] text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50" data-testid="apply-discount-btn" aria-label="Aplicar código de descuento">
                       {discountLoading ? t('common.loading') : t('cart.apply')}
                     </button>
                   </div>

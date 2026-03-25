@@ -122,7 +122,7 @@ const MiniCart = ({ isOpen, onClose }) => {
             <div className="flex items-center justify-between p-4 border-b border-stone-200">
               <div>
                 <h2 id="minicart-title" className="text-lg font-bold text-stone-950">Tu cesta</h2>
-                <p className="text-sm text-stone-500">{totalItems > 0 ? `${totalItems} ${totalItems === 1 ? 'artículo' : 'artículos'}` : 'Carrito'}</p>
+                <p className="text-sm text-stone-500">{totalItems > 0 ? `${totalItems} ${totalItems === 1 ? 'artículo' : 'artículos'}` : 'Sin artículos'}</p>
               </div>
               <button
                 onClick={onClose}
@@ -275,7 +275,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                       <Truck className="w-4 h-4" />
                       Envío estimado
                     </span>
-                    <span>{!shippingKnown ? 'Calculando...' : shipping === 0 ? 'GRATIS' : fmtEur(shipping)}</span>
+                    <span>{!shippingKnown ? 'Calculando...' : shipping === 0 ? 'Gratis' : fmtEur(shipping)}</span>
                   </div>
                   {discountEur > 0 && (
                     <div className="flex justify-between text-stone-500">
