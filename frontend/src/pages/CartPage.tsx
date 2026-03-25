@@ -587,7 +587,7 @@ export default function CartPage() {
                                     whileTap={item.quantity > 1 ? { scale: 0.88 } : undefined}
                                     type="button"
                                     onClick={() => item.quantity > 1 ? handleUpdateQuantity(item, item.quantity - 1) : handleRemoveItem(item)}
-                                    className={`w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border flex items-center justify-center transition-colors ${item.quantity <= 1 ? 'border-stone-100 bg-stone-50' : 'border-stone-200 hover:bg-stone-50'}`}
+                                    className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors ${item.quantity <= 1 ? 'border-stone-100 bg-stone-50' : 'border-stone-200 hover:bg-stone-50'}`}
                                     aria-label={item.quantity <= 1 ? `Eliminar ${item.product_name}` : `Disminuir cantidad de ${item.product_name}`}
                                   >
                                     {item.quantity <= 1 ? <Trash2 className="w-3.5 h-3.5 text-stone-400" /> : <Minus className="w-4 h-4 text-stone-950" />}
@@ -598,7 +598,7 @@ export default function CartPage() {
                                     type="button"
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                                     disabled={item.stock != null && item.quantity >= item.stock}
-                                    className={`w-10 h-10 min-w-[44px] min-h-[44px] rounded-full border flex items-center justify-center transition-colors ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed' : 'border-stone-200 hover:bg-stone-50'}`}
+                                    className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed' : 'border-stone-200 hover:bg-stone-50'}`}
                                     aria-label={item.stock != null && item.quantity >= item.stock ? 'Máximo alcanzado' : `Aumentar cantidad de ${item.product_name}`}
                                   >
                                     <Plus className="w-4 h-4 text-stone-950" />
@@ -620,12 +620,7 @@ export default function CartPage() {
                             {/* Delivery estimate per item */}
                             <p className="text-[11px] text-stone-400 mt-1">
                               <Calendar className="w-3 h-3 inline mr-0.5 -mt-px" />
-                              Entrega estimada: {(() => {
-                                const addBizDays = (d, n) => { let dt = new Date(d); let a = 0; while (a < n) { dt.setDate(dt.getDate() + 1); if (dt.getDay() !== 0 && dt.getDay() !== 6) a++; } return dt; };
-                                const now = new Date();
-                                const fmt = (d) => d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-                                return `${fmt(addBizDays(now, 3))} — ${fmt(addBizDays(now, 5))}`;
-                              })()}
+                              Entrega estimada: {getEstimatedDelivery()}
                             </p>
                             {/* Stock hold timer */}
                             <StockHoldTimer expiresAt={item.hold_expires_at} />
@@ -638,7 +633,7 @@ export default function CartPage() {
                           </div>
                           <button
                             onClick={() => handleRemoveItem(item)}
-                            className="hidden rounded-full p-2 text-stone-400 transition-colors hover:text-stone-950 hover:bg-stone-50 md:flex"
+                            className="hidden rounded-full p-2 min-w-[44px] min-h-[44px] items-center justify-center text-stone-400 transition-colors hover:text-stone-950 hover:bg-stone-50 md:flex"
                             aria-label={`Eliminar ${item.product_name}`}
                             data-testid={`remove-item-${itemKey}`}
                           >
@@ -779,7 +774,7 @@ export default function CartPage() {
                       {addrErrors.country && <p className="mt-1 text-xs text-stone-700">{addrErrors.country.message}</p>}
                     </div>
                     <div className="flex items-center gap-2">
-                      <input type="checkbox" id="is_default" {...registerAddr('is_default')} className="rounded border-stone-200" />
+                      <input type="checkbox" id="is_default" {...registerAddr('is_default')} className="w-5 h-5 rounded border-stone-200 accent-stone-950" />
                       <label htmlFor="is_default" className="text-sm text-stone-500">{t('checkout.setAsDefault') || 'Establecer como predeterminada'}</label>
                     </div>
                     <div className="flex gap-2.5">

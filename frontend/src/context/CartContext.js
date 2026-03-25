@@ -59,7 +59,8 @@ export function CartProvider({ children }) {
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.error('Error fetching cart:', error);
       captureException(error);
-      setCartItems([]);
+      // Don't clear cartItems on network error — keep showing existing items
+      // Only clear if this is the first fetch (no items loaded yet)
       setAppliedDiscount(null);
     } finally {
       setLoading(false);
@@ -251,20 +252,13 @@ export function CartProvider({ children }) {
 
     // Optimistic update — update UI immediately, revert on error
     const key = cartKey(productId, variantId, packId);
-    let origQty;
-    setCartItems(prev => {
-      const found = prev.find(i => itemKey(i) === key);
-      origQty = found?.quantity;
-      return prev.map(item => {
-        if (itemKey(item) !== key) return item;
-        const unitPrice = item.unit_price_cents || 0;
-        return {
-          ...item,
-          quantity: newQuantity,
-          total_price_cents: unitPrice * newQuantity,
-        };
-      });
-    });
+    // Capture origQty synchronously from current state before optimistic update
+    const origQty = cartItems.find(i => itemKey(i) === key)?.quantity ?? 1;
+    setCartItems(prev => prev.map(item => {
+      if (itemKey(item) !== key) return item;
+      const unitPrice = item.unit_price_cents || 0;
+      return { ...item, quantity: newQuantity, total_price_cents: unitPrice * newQuantity };
+    }));
 
     try {
       await apiClient.patch(`/cart/items/${productId}`, {
