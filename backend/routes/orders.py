@@ -914,7 +914,17 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     
     # === APPLY DISCOUNT IF ANY ===
     discount_amount = 0
-    applied_discount = await db.cart_discounts.find_one({"user_id": user.user_id}, {"_id": 0})
+    # Read coupon from the cart document (set by routes/cart.py apply-coupon)
+    cart_doc = await db.carts.find_one({"user_id": user.user_id, "status": "active"}, {"coupon_code": 1, "discount_cents": 1, "coupon_code_id": 1})
+    # Also check legacy cart_discounts collection as fallback
+    applied_discount = None
+    if cart_doc and cart_doc.get("coupon_code"):
+        # Look up the full discount code from the code string
+        _code_doc = await db.discount_codes.find_one({"code": cart_doc["coupon_code"]}, {"_id": 0})
+        if _code_doc:
+            applied_discount = {"code_id": _code_doc.get("code_id", _code_doc.get("code")), "code": cart_doc["coupon_code"]}
+    if not applied_discount:
+        applied_discount = await db.cart_discounts.find_one({"user_id": user.user_id}, {"_id": 0})
     discount_info = None
     influencer_commission_data = None  # Phase 4: Track influencer commission
     

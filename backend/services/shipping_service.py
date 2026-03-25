@@ -46,13 +46,18 @@ class ShippingService:
         shipping_cents: int,
         tax_rate_bp: int,
     ) -> dict[str, int]:
-        taxable_amount_cents = max(0, subtotal_cents) + max(0, shipping_cents)
-        tax_cents = ShippingService.calculate_tax_cents(taxable_amount_cents, tax_rate_bp)
-        total_cents = max(0, subtotal_cents) + max(0, shipping_cents) + tax_cents
+        # Spain B2C: prices INCLUDE IVA. Tax is informational only.
+        # Total = subtotal + shipping (no tax added on top).
+        # tax_cents = how much of the subtotal is IVA (extracted, not added).
+        subtotal_safe = max(0, subtotal_cents)
+        shipping_safe = max(0, shipping_cents)
+        # Extract IVA from IVA-inclusive price: tax = price * rate / (10000 + rate)
+        tax_cents = int(round((subtotal_safe * tax_rate_bp) / (10000 + tax_rate_bp))) if tax_rate_bp > 0 else 0
+        total_cents = subtotal_safe + shipping_safe
         return {
-            "subtotal_cents": max(0, subtotal_cents),
-            "shipping_cents": max(0, shipping_cents),
-            "taxable_amount_cents": taxable_amount_cents,
+            "subtotal_cents": subtotal_safe,
+            "shipping_cents": shipping_safe,
+            "taxable_amount_cents": subtotal_safe,
             "tax_cents": tax_cents,
             "total_cents": total_cents,
             "tax_rate_bp": tax_rate_bp,
