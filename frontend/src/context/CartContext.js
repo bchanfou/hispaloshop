@@ -255,7 +255,15 @@ export function CartProvider({ children }) {
     setCartItems(prev => {
       const found = prev.find(i => itemKey(i) === key);
       origQty = found?.quantity;
-      return prev.map(item => itemKey(item) === key ? { ...item, quantity: newQuantity } : item);
+      return prev.map(item => {
+        if (itemKey(item) !== key) return item;
+        const unitPrice = item.unit_price_cents || 0;
+        return {
+          ...item,
+          quantity: newQuantity,
+          total_price_cents: unitPrice * newQuantity,
+        };
+      });
     });
 
     try {

@@ -41,14 +41,14 @@ export function useCartPricing(options = {}) {
       const cart = res?.data || res || {};
 
       return {
-        subtotalCents: cart.subtotal_cents || 0,
-        shippingCents: cart.shipping_cents || 0,
-        taxCents: cart.tax_cents || 0,
-        taxRateBp: cart.tax_rate_bp || 2100,
-        taxRateDisplay: cart.tax_rate_display || '21%',
-        shippingBreakdown: cart.shipping_breakdown || [],
-        totalCents: cart.total_cents || 0,
-        discountCents: cart.discount_cents || 0,
+        subtotalCents: cart.subtotal_cents ?? 0,
+        shippingCents: cart.shipping_cents ?? 0,
+        taxCents: cart.tax_cents ?? 0,
+        taxRateBp: cart.tax_rate_bp ?? 2100,
+        taxRateDisplay: cart.tax_rate_display ?? '21%',
+        shippingBreakdown: cart.shipping_breakdown ?? [],
+        totalCents: cart.total_cents ?? 0,
+        discountCents: cart.discount_cents ?? 0,
         items: cart.items || [],
         stockIssues: (cart.items || []).filter((item) => item.stock_available === false),
         couponCode: cart.coupon_code || null,

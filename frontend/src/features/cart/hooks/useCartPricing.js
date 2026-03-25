@@ -13,8 +13,17 @@ export function useCartPricing(cartItems, appliedDiscount) {
   const { user } = useAuth();
   const pricingQuery = useCartPricingQuery({ enabled: Boolean(user) });
   const pricing = pricingQuery.data;
-  const subtotalCents =
-    pricing?.subtotalCents ?? cartItems.reduce((sum, item) => sum + (item.unit_price_cents || 0) * item.quantity, 0);
+
+  // Client-side subtotal — ALWAYS computed from live cartItems for instant UI updates
+  const clientSubtotal = cartItems.reduce(
+    (sum, item) => sum + (item.unit_price_cents || 0) * (item.quantity || 1), 0
+  );
+
+  // Use server pricing for shipping/tax/breakdown, but client subtotal for instant feedback
+  const serverSubtotal = pricing?.subtotalCents;
+  const subtotalCents = user && !pricingQuery.isFetching && serverSubtotal != null
+    ? serverSubtotal
+    : clientSubtotal;
   const shippingCents = pricing?.shippingCents ?? 0;
   const taxCents = pricing?.taxCents ?? 0;
   const taxRateBp = pricing?.taxRateBp ?? 2100;
