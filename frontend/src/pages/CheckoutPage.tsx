@@ -82,7 +82,7 @@ function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel, 
         </div>
       ))}
       {cartItems.length > 5 && (
-        <p className="text-xs text-stone-500 mb-2.5">+{cartItems.length - 5} mas</p>
+        <p className="text-xs text-stone-500 mb-2.5">+{cartItems.length - 5} más</p>
       )}
 
       <div className="flex flex-col gap-1.5">
@@ -122,7 +122,6 @@ export default function CheckoutPage() {
   const [newAddress, setNewAddress] = useState({
     full_name: '', street: '', floor: '', postal_code: '', city: '', country: 'ES', phone: '',
   });
-  const [saveAddress, setSaveAddress] = useState(true);
   const [discountCode, setDiscountCode] = useState('');
   const [discountLoading, setDiscountLoading] = useState(false);
   const [discountError, setDiscountError] = useState('');
@@ -134,6 +133,7 @@ export default function CheckoutPage() {
     if (user?.phone && !newAddress.phone) {
       setNewAddress(prev => ({ ...prev, phone: user.phone }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Redirect if not logged in or no items (guard against loading state)
@@ -165,7 +165,7 @@ export default function CheckoutPage() {
       toast.error('Completa todos los campos obligatorios');
       return;
     }
-    if (!/^\d{4,10}$/.test(trimmedPostal)) {
+    if (!/^[a-zA-Z0-9\s\-]{3,10}$/.test(trimmedPostal.trim())) {
       toast.error('Código postal no válido');
       return;
     }
@@ -364,7 +364,6 @@ export default function CheckoutPage() {
                             onChange={e => setNewAddress(p => ({ ...p, postal_code: e.target.value }))}
                             className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
                             placeholder="28001"
-                            inputMode="numeric"
                             maxLength={10}
                           />
                         </div>
@@ -416,10 +415,7 @@ export default function CheckoutPage() {
                         />
                         {phoneWarning && <p className="text-xs text-stone-500 mt-1">{phoneWarning}</p>}
                       </div>
-                      <label className="flex items-center gap-2 text-[13px] text-stone-500 cursor-pointer">
-                        <input type="checkbox" checked={saveAddress} onChange={e => setSaveAddress(e.target.checked)} className="accent-stone-950" />
-                        Guardar esta dirección
-                      </label>
+                      {/* Address is always saved when submitted */}
                       <button
                         onClick={handleSaveNewAddress}
                         disabled={savingAddress}

@@ -42,6 +42,7 @@ export default function OrderDetailPage() {
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
 
   const fetchOrder = useCallback(async () => {
@@ -77,6 +78,7 @@ export default function OrderDetailPage() {
         rating: reviewRating, comment: reviewText,
       });
       toast.success('Reseña publicada');
+      setReviewSubmitted(true);
       setReviewRating(0);
       setReviewText('');
     } catch {
@@ -91,7 +93,8 @@ export default function OrderDetailPage() {
     try {
       const data = await apiClient.get(`/invoices/order/${orderId}`);
       const lines = [
-        `FACTURA ${data.invoice_number}`,
+        `RESUMEN DE PEDIDO ${data.invoice_number}`,
+        '(Este documento NO es una factura fiscal)',
         `Fecha: ${new Date(data.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`,
         '',
         `Cliente: ${data.customer?.name || ''}`,
@@ -113,7 +116,7 @@ export default function OrderDetailPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `factura-${data.invoice_number}.txt`;
+      a.download = `resumen_pedido_${orderId}.txt`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -336,8 +339,8 @@ export default function OrderDetailPage() {
           </>
         )}
 
-        {/* ── Review form (if delivered) ── */}
-        {isDelivered && (
+        {/* ── Review form (if delivered and not yet submitted) ── */}
+        {isDelivered && !reviewSubmitted && (
           <div className="bg-stone-100 border border-stone-200 rounded-2xl p-4 mt-6">
             <p className="text-[15px] font-semibold text-stone-950 mb-3">
               ¿Cómo fue tu experiencia?
@@ -374,6 +377,9 @@ export default function OrderDetailPage() {
             </button>
           </div>
         )}
+        {isDelivered && reviewSubmitted && (
+          <p className="text-sm text-stone-500 mt-6">Reseña enviada. ¡Gracias!</p>
+        )}
 
         {/* ── Actions ── */}
         {!isCancelled && (
@@ -388,7 +394,7 @@ export default function OrderDetailPage() {
               ) : (
                 <FileText size={16} />
               )}
-              Descargar factura
+              Descargar resumen
             </button>
 
             <button

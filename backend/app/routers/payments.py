@@ -64,6 +64,7 @@ async def create_checkout(
             "variant_name": item.get("variant_name"),
             "pack_id": item.get("pack_id"),
             "pack_label": item.get("pack_label"),
+            # WARNING: float multiplication for money — use int cents if reactivated
             "amount": item["price"] * item["quantity"]
         })
     
@@ -291,7 +292,7 @@ async def checkout_status(
                     "created_at": datetime.now(timezone.utc).isoformat()
                 })
                 
-                # Update stock exactly once for the pending -> confirmed transition
+                # WARNING: Non-atomic stock decrement in polling endpoint — do not use
                 for item in order.get("line_items", []):
                     await db.products.update_one(
                         {"product_id": item.get("product_id", ""), "track_stock": True},

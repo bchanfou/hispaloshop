@@ -240,7 +240,7 @@ export default function CustomerOrders() {
                     {/* Order info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-stone-950">{convertAndFormatPrice(asNumber(order.total_amount), currency)}</span>
+                        <span className="text-sm font-semibold text-stone-950">{convertAndFormatPrice(asNumber(order.total_amount), order.currency || 'EUR', currency)}</span>
                         <span className="text-xs text-stone-500">·</span>
                         <span className="text-xs text-stone-500">{order.line_items?.length || 0} {(order.line_items?.length || 0) === 1 ? 'artículo' : 'artículos'}</span>
                       </div>

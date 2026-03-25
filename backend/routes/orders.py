@@ -418,6 +418,9 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     Central post-payment processing. Called by webhook or checkout-status polling.
     Handles: order status, stock decrement, transfers, notifications, influencer scheduling.
     """
+    # NOTE: Legacy app/routers/payments.py uses 'stripe_session_id' field name.
+    # This handler uses 'payment_session_id'. If legacy code is reactivated,
+    # update field names to match.
     order = await db.orders.find_one({"payment_session_id": session_id}, {"_id": 0})
     if not order:
         # Try pending_orders (buy-now flow)

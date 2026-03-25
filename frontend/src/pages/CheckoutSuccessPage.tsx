@@ -34,7 +34,7 @@ export default function CheckoutSuccessPage() {
   const { fetchCart } = useCart();
 
   const tempRef = useMemo(
-    () => (sessionId ? `#HS-${sessionId.slice(-8).toUpperCase()}` : ''),
+    () => (sessionId ? `#HSP-${sessionId.slice(-8).toUpperCase()}` : ''),
     [sessionId],
   );
 
@@ -131,14 +131,9 @@ export default function CheckoutSuccessPage() {
   const orderRef = orderId
     ? `#HSP-${String(orderId).slice(-8).toUpperCase()}`
     : tempRef;
-  const totalPaid = order?.total_cents
-    ? `${(order.total_cents / 100).toFixed(2)} €`
-    : order?.total
-      ? `${(Number(order.total) / 100).toFixed(2)} €`
-      : order?.total_amount
-        ? `${Number(order.total_amount).toFixed(2)} €`
-        : '';
-  const email = order?.customer_email || order?.email || '';
+  const total = order?.total_amount ?? (order?.total_cents ? order.total_cents / 100 : 0);
+  const totalPaid = total ? `${Number(total).toFixed(2)} €` : '';
+  const email = order?.user_email || order?.customer_email || order?.email || '';
   const allItems = order?.items || order?.line_items || [];
   const visibleItems = allItems.slice(0, 5);
   const extraCount = allItems.length - 5;
