@@ -28,6 +28,7 @@ const MiniCart = ({ isOpen, onClose }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, cartItems.length]);
 
+  const [imgErrors, setImgErrors] = useState({});
   // Track when new items are added for slide-in animation
   const [newItemKeys, setNewItemKeys] = useState(new Set());
   useEffect(() => {
@@ -55,7 +56,7 @@ const MiniCart = ({ isOpen, onClose }) => {
   const hasMultipleStores = stores.length > 1;
   // Use minimum threshold across all stores
   const freeShippingThreshold = stores.length > 0
-    ? Math.min(...stores.map(s => (s.free_threshold_cents || 3000))) / 100
+    ? Math.min(...stores.map(s => (s.free_threshold_cents || s.threshold_cents || 3000))) / 100
     : 30;
   const discountEur = appliedDiscount?.discount_cents ? appliedDiscount.discount_cents / 100 : 0;
   const total = Math.max(0, subtotal + shipping - discountEur);
@@ -178,18 +179,16 @@ const MiniCart = ({ isOpen, onClose }) => {
                               transition={{ type: 'spring', damping: 22, stiffness: 260 }}
                               className="flex gap-3 bg-stone-50 rounded-2xl p-3"
                             >
-                              <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 overflow-hidden">
-                                {(item.product_image || item.image || item.product?.image) ? (
+                              <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                {(item.product_image || item.image || item.product?.image) && !imgErrors[item.product_id] ? (
                                   <img
                                     src={item.product_image || item.image || item.product?.image}
                                     alt={item.product_name || item.name || item.product?.name || ''}
                                     className="w-full h-full object-cover"
-                                    onError={(e) => { e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-stone-400"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>'; }}
+                                    onError={() => setImgErrors(prev => ({ ...prev, [item.product_id]: true }))}
                                   />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center">
-                                    <ShoppingBag className="w-6 h-6 text-stone-400" />
-                                  </div>
+                                  <ShoppingBag className="w-6 h-6 text-stone-400" />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">

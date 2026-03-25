@@ -212,7 +212,7 @@ async def add_to_cart(
     variant_id = body.variant_id
     pack_id = body.pack_id
     if quantity <= 0:
-        raise HTTPException(status_code=400, detail="Quantity must be at least 1")
+        raise HTTPException(status_code=400, detail="La cantidad debe ser al menos 1")
     db = get_db()
     
     # Validar producto — lookup by product_id string field (matches products collection schema)
@@ -222,7 +222,7 @@ async def add_to_cart(
     }, {"_id": 0})
     
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
 
     user_doc = await db.users.find_one(
         {"user_id": current_user.user_id},
@@ -237,7 +237,7 @@ async def add_to_cart(
     if stock is not None and stock < quantity:
         raise HTTPException(
             status_code=400,
-            detail=f"Only {stock} units available"
+            detail=f"Solo {stock} unidades disponibles"
         )
     
     # Obtener precio
@@ -351,7 +351,7 @@ async def add_to_cart(
     
     return {
         "success": True,
-        "message": "Added to cart",
+        "message": "Añadido al carrito",
         "data": cart_item
     }
 
@@ -381,7 +381,7 @@ async def update_cart_item(
     })
 
     if not cart:
-        raise HTTPException(status_code=404, detail="Cart not found")
+        raise HTTPException(status_code=404, detail="Carrito no encontrado")
 
     # Encontrar item (triple match: product + variant + pack)
     items = cart.get("items", [])
@@ -394,7 +394,7 @@ async def update_cart_item(
             break
     
     if item_idx is None:
-        raise HTTPException(status_code=404, detail="Item not found in cart")
+        raise HTTPException(status_code=404, detail="Artículo no encontrado en el carrito")
     
     if quantity <= 0:
         # Eliminar item atomically with $pull — robust null matching
@@ -424,7 +424,7 @@ async def update_cart_item(
         stock = product.get("stock_quantity", product.get("stock")) if product else None
 
         if stock is not None and quantity > stock:
-            raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
+            raise HTTPException(status_code=400, detail=f"Stock máximo disponible: {stock}")
 
         # Use arrayFilters to match by product+variant+pack — avoids index-based race condition
         unit_price = items[item_idx]["unit_price_cents"]
@@ -449,7 +449,7 @@ async def update_cart_item(
             array_filters=[array_filter]
         )
 
-    return {"success": True, "message": "Cart updated"}
+    return {"success": True, "message": "Carrito actualizado"}
 
 
 @router.delete("/items/{product_id}")
@@ -469,7 +469,7 @@ async def remove_from_cart(
     })
 
     if not cart:
-        raise HTTPException(status_code=404, detail="Cart not found")
+        raise HTTPException(status_code=404, detail="Carrito no encontrado")
 
     # Build robust $pull filter — null variant_id/pack_id must match None or missing
     pull_filter = {"product_id": product_id}
@@ -493,7 +493,7 @@ async def remove_from_cart(
         }
     )
 
-    return {"success": True, "message": "Item removed"}
+    return {"success": True, "message": "Artículo eliminado"}
 
 
 @router.post("/validate-country")
@@ -502,7 +502,7 @@ async def validate_cart_country(request: Request, current_user = Depends(get_cur
     payload = await request.json()
     country = str(payload.get("country", "")).upper()
     if not country:
-        raise HTTPException(status_code=400, detail="Country is required")
+        raise HTTPException(status_code=400, detail="El país es obligatorio")
 
     cart = await db.carts.find_one({"user_id": current_user.user_id, "status": "active", "expires_at": {"$gte": datetime.now(timezone.utc)}})
     if not cart:
@@ -543,7 +543,7 @@ async def apply_country_change(request: Request, current_user = Depends(get_curr
     payload = await request.json()
     country = str(payload.get("country", "")).upper()
     if not country:
-        raise HTTPException(status_code=400, detail="Country is required")
+        raise HTTPException(status_code=400, detail="El país es obligatorio")
 
     cart = await db.carts.find_one({"user_id": current_user.user_id, "status": "active", "expires_at": {"$gte": datetime.now(timezone.utc)}})
     if not cart:
@@ -618,11 +618,11 @@ async def apply_coupon(
     })
     
     if not coupon:
-        raise HTTPException(status_code=400, detail="Invalid or expired coupon code")
+        raise HTTPException(status_code=400, detail="Código de descuento inválido o expirado")
     
     # Verificar uso
     if coupon.get("usage_limit") and coupon.get("usage_count", 0) >= coupon["usage_limit"]:
-        raise HTTPException(status_code=400, detail="Coupon usage limit reached")
+        raise HTTPException(status_code=400, detail="Límite de uso del cupón alcanzado")
     
     # Obtener carrito
     cart = await db.carts.find_one({
@@ -632,7 +632,7 @@ async def apply_coupon(
     })
     
     if not cart or not cart.get("items"):
-        raise HTTPException(status_code=400, detail="Cart is empty")
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
     
     # Calcular descuento
     subtotal = sum(item.get("total_price_cents", 0) for item in cart["items"])
@@ -713,7 +713,7 @@ async def clear_cart(current_user = Depends(get_current_user)):
         }
     )
     
-    return {"success": True, "message": "Cart cleared"}
+    return {"success": True, "message": "Carrito vaciado"}
 
 
 @router.post("/sync")
@@ -841,7 +841,7 @@ async def remove_coupon(current_user=Depends(get_current_user)):
     })
 
     if not cart:
-        raise HTTPException(status_code=404, detail="Cart not found")
+        raise HTTPException(status_code=404, detail="Carrito no encontrado")
 
     await db.carts.update_one(
         {"_id": cart["_id"], "user_id": current_user.user_id},
@@ -855,4 +855,4 @@ async def remove_coupon(current_user=Depends(get_current_user)):
         },
     )
 
-    return {"success": True, "message": "Coupon removed"}
+    return {"success": True, "message": "Cupón eliminado"}

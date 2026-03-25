@@ -301,7 +301,7 @@ export function CartProvider({ children }) {
       return { success: true, data };
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.error('Error applying discount:', error);
-      return { success: false, error: error.message || 'Failed to apply discount' };
+      return { success: false, error: error.message || 'Error al aplicar el descuento' };
     }
   }, [fetchCart]);
 
@@ -312,7 +312,7 @@ export function CartProvider({ children }) {
       return { success: true };
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.error('Error removing discount:', error);
-      return { success: false, error: error.message || 'Failed to remove discount' };
+      return { success: false, error: error.message || 'Error al eliminar el descuento' };
     }
   }, [fetchCart]);
 

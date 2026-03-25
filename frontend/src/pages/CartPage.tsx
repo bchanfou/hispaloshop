@@ -329,6 +329,8 @@ export default function CartPage() {
   };
 
   const qtyDebounceRef = useRef({});
+  // Cleanup debounce timers on unmount
+  useEffect(() => () => { Object.values(qtyDebounceRef.current).forEach(clearTimeout); }, []);
   const handleUpdateQuantity = useCallback((item, newQuantity) => {
     const key = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
     // Optimistic UI update is instant (CartContext handles it)
