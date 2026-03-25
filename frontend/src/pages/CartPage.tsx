@@ -107,10 +107,10 @@ const addressSchema = z.object({
   name: z.string().optional(),
   full_name: z.string().min(2, 'Nombre completo requerido'),
   phone: z.string().optional(),
-  street: z.string().min(5, 'Direccion requerida'),
+  street: z.string().min(5, 'Dirección requerida'),
   city: z.string().min(2, 'Ciudad requerida'),
-  postal_code: z.string().regex(/^\d{4,10}$/, 'Codigo postal no valido'),
-  country: z.string().min(2, 'Pais requerido'),
+  postal_code: z.string().regex(/^\d{4,10}$/, 'Código postal no válido'),
+  country: z.string().min(2, 'País requerido'),
   is_default: z.boolean().optional(),
 });
 
@@ -172,7 +172,7 @@ export default function CartPage() {
     try {
       await createAddress({
         ...data,
-        name: data.name || t('checkout.newAddress') || 'Nueva direccion',
+        name: data.name || t('checkout.newAddress') || 'Nueva dirección',
         is_default: data.is_default ?? false,
       });
       setShowNewAddressForm(false);
@@ -203,7 +203,7 @@ export default function CartPage() {
   const handleResendVerification = async () => {
     try {
       await resendVerification();
-      toast.success(t('checkout.verificationSent') || 'Codigo enviado. Revisa tu email.');
+      toast.success(t('checkout.verificationSent') || 'Código enviado. Revisa tu email.');
     } catch (error) {
       toast.error(error?.message || t('checkout.failedResend'));
     }
@@ -270,17 +270,7 @@ export default function CartPage() {
     return `${minStr} — ${maxStr}`;
   };
 
-  const getDiscountedTotal = () => {
-    if (cartSummary.total_cents > 0) {
-      return cartSummary.total_cents / 100;
-    }
-    // getTotalPrice() returns cents, convert to euros
-    const subtotalEuros = getTotalPrice() / 100;
-    if (!appliedDiscount) {
-      return subtotalEuros;
-    }
-    return Math.max(0, subtotalEuros - ((appliedDiscount?.discount_cents || 0) / 100));
-  };
+  // getDiscountedTotal is no longer needed — cartSummary.totalCents is the source of truth
 
   const handleCheckout = async () => {
     if (isGuest) {
@@ -520,13 +510,13 @@ export default function CartPage() {
                           data-testid={`cart-item-${itemKey}`}
                         >
                           <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
-                            {(item.product_image || item.image) && <img src={item.product_image || item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
+                            {(item.product_image || item.image) && <img src={item.product_image || item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-medium text-stone-950 text-sm md:text-base line-clamp-2">{item.product_name}</h3>
                               {item.stock != null && item.stock <= 5 && item.stock > 0 && (
-                                <span className="text-xs font-semibold text-amber-700 bg-amber-50 rounded-full px-2 py-0.5 flex-shrink-0">¡Quedan {item.stock}!</span>
+                                <span className="text-xs font-semibold text-stone-700 bg-stone-100 rounded-full px-2 py-0.5 flex-shrink-0">¡Quedan {item.stock}!</span>
                               )}
                             </div>
                             {(item.variant_name || item.pack_label) && (
@@ -686,7 +676,7 @@ export default function CartPage() {
                 {showNewAddressForm && (
                   <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 shadow-sm rounded-2xl" data-testid="new-address-form">
                     <div>
-                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.addressName') || 'Nombre de direccion'}</label>
+                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.addressName') || 'Nombre de dirección'}</label>
                       <input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} className="w-full h-12 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-400 transition-colors" data-testid="new-address-name" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -720,7 +710,7 @@ export default function CartPage() {
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.country')} <span className="text-stone-700">*</span></label>
                       <select {...registerAddr('country')} className={`w-full h-12 rounded-xl border bg-white px-4 text-sm ${addrErrors.country ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-country">
-                        <option value="ES">Espana</option>
+                        <option value="ES">España</option>
                         <option value="PT">Portugal</option>
                         <option value="FR">Francia</option>
                         <option value="DE">Alemania</option>
@@ -776,11 +766,7 @@ export default function CartPage() {
                       <Tag className="h-4 w-4 text-stone-700" />
                       <span className="font-medium text-stone-950">{appliedDiscount.code}</span>
                       <span className="text-sm text-stone-700">
-                        {appliedDiscount.type === 'percentage'
-                          ? `-${appliedDiscount.value}%`
-                          : appliedDiscount.type === 'fixed'
-                            ? `-${convertAndFormatPrice(appliedDiscount.value, currency)}`
-                            : t('checkout.freeShipping')}
+                        -{formatCurrency(appliedDiscount.discount_cents || 0)}
                       </span>
                     </div>
                     <button onClick={handleRemoveDiscount} className="p-1 text-stone-700 hover:text-stone-950" aria-label="Eliminar descuento" data-testid="remove-discount-btn">
@@ -794,7 +780,7 @@ export default function CartPage() {
                 {/* Subtotal */}
                 <div className="flex justify-between text-sm">
                   <span className="text-stone-500">{t('cart.subtotal')}</span>
-                  <span className="text-stone-950 font-medium">{formatCurrency(cartSummary.subtotal_cents || getTotalPrice())}</span>
+                  <span className="text-stone-950 font-medium">{formatCurrency(cartSummary.subtotal_cents ?? getTotalPrice())}</span>
                 </div>
 
                 {/* Per-store shipping lines */}
@@ -834,7 +820,7 @@ export default function CartPage() {
                 {/* Total */}
                 <div className="flex justify-between">
                   <span className="text-base font-bold text-stone-950">{t('cart.total')}</span>
-                  <span className="text-base font-bold text-stone-950">{formatCurrency(cartSummary.total_cents || Math.round(getDiscountedTotal() * 100))}</span>
+                  <span className="text-base font-bold text-stone-950">{formatCurrency(cartSummary.total_cents ?? 0)}</span>
                 </div>
 
                 {/* IVA included note */}
@@ -871,8 +857,8 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={!isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm))}
-                className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${isGuest || (!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm)) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+                disabled={!isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || !getSelectedAddress() || showNewAddressForm)}
+                className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${isGuest || (!checkoutLoading && emailVerified && stockIssues.length === 0 && getSelectedAddress() && !showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
                 data-testid="checkout-button"
               >
                 {isGuest
@@ -906,14 +892,14 @@ export default function CartPage() {
               <span className="text-sm text-stone-500">{t('cart.total')}</span>
               <span className="text-[10px] text-stone-400">IVA incluido</span>
             </div>
-            <span className="text-lg font-bold text-stone-950">{formatCurrency(cartSummary.total_cents || Math.round(getDiscountedTotal() * 100))}</span>
+            <span className="text-lg font-bold text-stone-950">{formatCurrency(cartSummary.total_cents ?? 0)}</span>
           </div>
           <motion.button
             whileTap={{ scale: 0.96 }}
             type="button"
             onClick={handleCheckout}
-            disabled={!isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm))}
-            className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${isGuest || (!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm)) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+            disabled={!isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || !getSelectedAddress() || showNewAddressForm)}
+            className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${isGuest || (!checkoutLoading && emailVerified && stockIssues.length === 0 && getSelectedAddress() && !showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
           >
             {isGuest ? 'Iniciar sesión para comprar' : checkoutLoading ? t('common.loading') : t('cart.checkout')}
           </motion.button>

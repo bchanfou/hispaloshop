@@ -12,14 +12,8 @@ export const cartKeys = {
   tracking: (id) => ['order', id, 'tracking'],
 };
 
-export function useCart() {
-  return useQuery({
-    queryKey: cartKeys.cart,
-    queryFn: () => apiClient.get('/cart'),
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-  });
-}
+// useCart() React Query hook removed — app uses CartContext.useCart() instead.
+// Cart data is managed via CartContext (context/CartContext.js).
 
 export function useAddToCart() {
   const queryClient = useQueryClient();

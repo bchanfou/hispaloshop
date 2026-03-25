@@ -60,9 +60,8 @@ export {
 } from './useProducts';
 
 // Cart & Orders
-export { 
-  useCart, 
-  useAddToCart, 
+export {
+  useAddToCart,
   useUpdateCartItem, 
   useRemoveFromCart,
   useApplyCoupon, 

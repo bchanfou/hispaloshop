@@ -62,16 +62,9 @@ const MiniCart = ({ isOpen, onClose }) => {
     return groups;
   }, [cartItems]);
 
-  // Check if user has a saved address for direct checkout
-  const hasSavedAddress = useMemo(() => {
-    return cartItems.some(
-      (item) => item.shipping_address || item.address,
-    ) || !!localStorage.getItem('checkout_address');
-  }, [cartItems]);
-
   const handleDirectCheckout = () => {
     onClose();
-    navigate(hasSavedAddress ? '/checkout' : '/cart');
+    navigate('/cart');
   };
 
   const handleViewCart = () => {
@@ -180,6 +173,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   src={item.product_image || item.image || item.product?.image}
                                   alt={item.product_name || item.name || item.product?.name}
                                   className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
+                                  onError={(e) => { e.target.style.display = 'none'; }}
                                 />
                               ) : (
                                 <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 flex items-center justify-center">

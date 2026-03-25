@@ -43,13 +43,21 @@ const AddToCartButton = ({
     setState('loading');
 
     try {
-      await addToCart(productId, quantity, variantId, packId, {
+      const result = await addToCart(productId, quantity, variantId, packId, {
         productName: product?.name || product?.product_name || '',
         productImage: product?.image || product?.product_image || product?.images?.[0] || '',
         unitPriceCents: product?.price_cents || product?.unit_price_cents || (product?.price ? Math.round(product.price * 100) : 0),
         sellerId: product?.seller_id || product?.producer_id || '',
         sellerName: product?.seller_name || product?.producer_name || product?.producer?.name || '',
       });
+      if (result === false || result === 'redirect') {
+        if (mountedRef.current) setState('idle');
+        addingRef.current = false;
+        if (result === 'redirect') {
+          navigate('/login?redirect=' + encodeURIComponent(window.location.pathname));
+        }
+        return false;
+      }
       trigger('success');
       setState('success');
       window.dispatchEvent(new CustomEvent('cart-added'));
@@ -77,7 +85,7 @@ const AddToCartButton = ({
 
   const handleBuyNow = async () => {
     const success = await handleAdd();
-    if (success) navigate('/cart');
+    if (success === true) navigate('/cart');
   };
 
   const variants = {

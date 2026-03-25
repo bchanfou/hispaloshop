@@ -57,7 +57,7 @@ export function CartProvider({ children }) {
           : null
       );
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error fetching cart:', error);
       captureException(error);
       setCartItems([]);
       setAppliedDiscount(null);
@@ -91,7 +91,7 @@ export function CartProvider({ children }) {
         });
       }
     } catch (error) {
-      console.error('[CartContext] Error merging guest cart:', error);
+      if (process.env.NODE_ENV === 'development') console.error('[CartContext] Error merging guest cart:', error);
       try { toast.error('Algunos items del carrito no se pudieron recuperar'); } catch { /* toast not ready */ }
     }
     clearGuestCart();
@@ -172,14 +172,13 @@ export function CartProvider({ children }) {
       await fetchCart();
       return true;
     } catch (error) {
-      console.error('[CartContext] Error adding to cart:', error);
+      if (process.env.NODE_ENV === 'development') console.error('[CartContext] Error adding to cart:', error);
       captureException(error);
 
       const status = error?.response?.status || error?.status || error?.statusCode;
       if (status === 401) {
         sessionStorage.setItem('pendingCartAction', JSON.stringify({ productId, quantity, variantId, packId }));
-        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-        return 'redirect';
+        return 'redirect';  // Let the caller handle navigation
       }
 
       return false;
@@ -197,7 +196,7 @@ export function CartProvider({ children }) {
     }
 
     // Optimistic remove — hide item immediately, revert on error
-    const previousItems = cartItems;
+    const snapshot = [...cartItems]; // shallow copy captures current state
     const key = cartKey(productId, variantId, packId);
     setCartItems(prev => prev.filter(item => itemKey(item) !== key));
 
@@ -211,8 +210,8 @@ export function CartProvider({ children }) {
       await apiClient.delete(path);
       await fetchCart();
     } catch (error) {
-      console.error('Error removing from cart:', error);
-      setCartItems(previousItems); // Revert on error
+      if (process.env.NODE_ENV === 'development') console.error('Error removing from cart:', error);
+      setCartItems(snapshot); // Revert on error
       toast.error('No se pudo eliminar el producto');
       captureException(error);
     }
@@ -236,7 +235,7 @@ export function CartProvider({ children }) {
     }
 
     // Optimistic update — update UI immediately, revert on error
-    const previousItems = cartItems;
+    const snapshot = [...cartItems]; // shallow copy captures current state
     const key = cartKey(productId, variantId, packId);
     setCartItems(prev =>
       prev.map(item => itemKey(item) === key ? { ...item, quantity: newQuantity } : item)
@@ -250,8 +249,8 @@ export function CartProvider({ children }) {
       });
       await fetchCart();
     } catch (error) {
-      console.error('Error updating quantity:', error);
-      setCartItems(previousItems); // Revert on error
+      if (process.env.NODE_ENV === 'development') console.error('Error updating quantity:', error);
+      setCartItems(snapshot); // Revert on error
       toast.error('No se pudo actualizar la cantidad');
       captureException(error);
     }
@@ -269,7 +268,7 @@ export function CartProvider({ children }) {
       setCartItems([]);
       setAppliedDiscount(null);
     } catch (error) {
-      console.error('Error clearing cart:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error clearing cart:', error);
       toast.error('No se pudo vaciar el carrito');
     }
   }, [user]);
@@ -280,7 +279,7 @@ export function CartProvider({ children }) {
       await fetchCart();
       return { success: true, data };
     } catch (error) {
-      console.error('Error applying discount:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error applying discount:', error);
       return { success: false, error: error.message || 'Failed to apply discount' };
     }
   }, [fetchCart]);
@@ -291,7 +290,7 @@ export function CartProvider({ children }) {
       await fetchCart();
       return { success: true };
     } catch (error) {
-      console.error('Error removing discount:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error removing discount:', error);
       return { success: false, error: error.message || 'Failed to remove discount' };
     }
   }, [fetchCart]);
@@ -301,7 +300,7 @@ export function CartProvider({ children }) {
       const res = await apiClient.post('/cart/shipping-preview', {});
       return (res.data || res);
     } catch (error) {
-      console.error('Error fetching shipping preview:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error fetching shipping preview:', error);
       return { stores: [], total_shipping_cents: 0, total_savings_cents: 0, store_count: 0 };
     }
   }, []);

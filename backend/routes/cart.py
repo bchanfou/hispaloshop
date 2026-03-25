@@ -195,11 +195,11 @@ async def add_to_cart(
     if not is_product_available_in_country(product, user_country):
         raise HTTPException(status_code=400, detail=f"Product not available in {user_country}")
     
-    # Verificar stock
-    stock = product.get("stock_quantity", product.get("stock", 0))
-    if stock < quantity:
+    # Verificar stock — None means stock tracking is disabled (unlimited)
+    stock = product.get("stock_quantity", product.get("stock"))
+    if stock is not None and stock < quantity:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail=f"Only {stock} units available"
         )
     
@@ -208,10 +208,15 @@ async def add_to_cart(
     if unit_price_cents == 0 and product.get("price"):
         unit_price_cents = price_to_cents(product["price"])
     
-    # Obtener o crear carrito
+    # Obtener o crear carrito — only match non-expired carts
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
-        "status": "active"
+        "status": "active",
+        "$or": [
+            {"expires_at": {"$gte": datetime.now(timezone.utc)}},
+            {"expires_at": None},
+            {"expires_at": {"$exists": False}},
+        ]
     })
     
     cart_item = {
@@ -239,17 +244,21 @@ async def add_to_cart(
                 break
 
         if existing_idx is not None:
-            # Atomic update: increment quantity directly in DB to prevent race condition
+            # Validate stock before atomic increment
             new_qty = cart["items"][existing_idx]["quantity"] + quantity
-            if new_qty > stock:
+            if stock is not None and new_qty > stock:
                 raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
+            # Atomic $inc to prevent race conditions on concurrent add
             await db.carts.update_one(
                 {"_id": cart["_id"], "user_id": current_user.user_id},
-                {"$set": {
-                    f"items.{existing_idx}.quantity": new_qty,
-                    f"items.{existing_idx}.total_price_cents": unit_price_cents * new_qty,
-                    "updated_at": datetime.now(timezone.utc),
-                }}
+                {
+                    "$inc": {f"items.{existing_idx}.quantity": quantity},
+                    "$set": {
+                        f"items.{existing_idx}.total_price_cents": unit_price_cents * new_qty,
+                        "updated_at": datetime.now(timezone.utc),
+                        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+                    },
+                }
             )
         else:
             # Atomic push: add new item without overwriting concurrent changes
@@ -257,7 +266,10 @@ async def add_to_cart(
                 {"_id": cart["_id"], "user_id": current_user.user_id},
                 {
                     "$push": {"items": cart_item},
-                    "$set": {"updated_at": datetime.now(timezone.utc)},
+                    "$set": {
+                        "updated_at": datetime.now(timezone.utc),
+                        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+                    },
                 }
             )
     else:
@@ -320,25 +332,46 @@ async def update_cart_item(
         raise HTTPException(status_code=404, detail="Item not found in cart")
     
     if quantity <= 0:
-        # Eliminar item
-        items.pop(item_idx)
+        # Eliminar item atomically with $pull
+        await db.carts.update_one(
+            {"_id": cart["_id"], "user_id": current_user.user_id},
+            {
+                "$pull": {"items": {
+                    "product_id": product_id,
+                    "variant_id": variant_id,
+                    "pack_id": pack_id,
+                }},
+                "$set": {
+                    "updated_at": datetime.now(timezone.utc),
+                    "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+                },
+            }
+        )
     else:
         # Verificar stock
         product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
-        stock = product.get("stock_quantity", product.get("stock", 0)) if product else 0
-        
-        if quantity > stock:
+        stock = product.get("stock_quantity", product.get("stock")) if product else None
+
+        if stock is not None and quantity > stock:
             raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
-        
-        # Actualizar
+
+        # Atomic positional update — match the item by product_id in the query
         unit_price = items[item_idx]["unit_price_cents"]
-        items[item_idx]["quantity"] = quantity
-        items[item_idx]["total_price_cents"] = unit_price * quantity
-    
-    await db.carts.update_one(
-        {"_id": cart["_id"], "user_id": current_user.user_id},
-        {"$set": {"items": items, "updated_at": datetime.now(timezone.utc)}}
-    )
+        await db.carts.update_one(
+            {
+                "_id": cart["_id"],
+                "user_id": current_user.user_id,
+                "items.product_id": product_id,
+                "items.variant_id": variant_id,
+                "items.pack_id": pack_id,
+            },
+            {"$set": {
+                "items.$.quantity": quantity,
+                "items.$.total_price_cents": unit_price * quantity,
+                "updated_at": datetime.now(timezone.utc),
+                "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+            }}
+        )
 
     return {"success": True, "message": "Cart updated"}
 
@@ -361,16 +394,20 @@ async def remove_from_cart(
     if not cart:
         raise HTTPException(status_code=404, detail="Cart not found")
 
-    items = cart.get("items", [])
-    items = [i for i in items if not (
-        i.get("product_id") == product_id
-        and i.get("variant_id") == variant_id
-        and i.get("pack_id") == pack_id
-    )]
-    
+    # Atomic $pull — remove matching item without replacing the whole array
     await db.carts.update_one(
         {"_id": cart["_id"], "user_id": current_user.user_id},
-        {"$set": {"items": items, "updated_at": datetime.now(timezone.utc)}}
+        {
+            "$pull": {"items": {
+                "product_id": product_id,
+                "variant_id": variant_id,
+                "pack_id": pack_id,
+            }},
+            "$set": {
+                "updated_at": datetime.now(timezone.utc),
+                "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+            },
+        }
     )
 
     return {"success": True, "message": "Item removed"}
