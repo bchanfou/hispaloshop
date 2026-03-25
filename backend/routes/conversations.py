@@ -76,6 +76,9 @@ async def get_conversations(user: User = Depends(get_current_user)):
 @router.post("/chat/conversations")
 async def create_conversation(input: NewConversationInput, user: User = Depends(get_current_user)):
     """Start a new conversation"""
+    if input.other_user_id == user.user_id:
+        raise HTTPException(status_code=400, detail="No puedes enviarte mensajes a ti mismo")
+
     # Check if other user exists
     other_user = await db.users.find_one({"user_id": input.other_user_id}, {"_id": 0})
     if not other_user:

@@ -245,7 +245,7 @@ export function ChatProvider({ children }) {
       const formData = new FormData();
       formData.append('file', file);
       const data = await apiClient.post(
-        `/chat/conversations/${conversationId}/upload`,
+        `/chat/conversations/${conversationId}/upload-image`,
         formData,
       );
       return data;
@@ -262,7 +262,7 @@ export function ChatProvider({ children }) {
       formData.append('file', file);
       formData.append('message_type', 'image');
       const data = await apiClient.post(
-        `/chat/conversations/${conversationId}/upload`,
+        `/chat/conversations/${conversationId}/upload-image`,
         formData,
       );
       return data;
@@ -536,6 +536,45 @@ export function ChatProvider({ children }) {
               ws.close();
               break;
 
+            // Notification events (merged from connectNotifications)
+            case 'notification':
+              toast(payload.title || payload.payload?.title, { description: payload.body || payload.payload?.body, duration: 5000 });
+              if (!(payload.read || payload.read_at || payload.payload?.read || payload.payload?.read_at)) {
+                setNotifUnreadCount(prev => prev + 1);
+              }
+              queryClient.invalidateQueries({ queryKey: ['notifications'] });
+              queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+              break;
+            case 'order_update': {
+              const op = payload.payload || payload;
+              queryClient.invalidateQueries({ queryKey: ['order', op.orderId] });
+              queryClient.invalidateQueries({ queryKey: ['orders'] });
+              toast.success(`Pedido #${op.orderId}: ${op.status}`);
+              break;
+            }
+            case 'new_follower': {
+              const fp = payload.payload || payload;
+              queryClient.invalidateQueries({ queryKey: ['user'] });
+              toast.success(`${fp.followerName} ahora te sigue`);
+              break;
+            }
+            case 'story_view': {
+              const sp = payload.payload || payload;
+              queryClient.invalidateQueries({ queryKey: ['story', sp.storyId, 'views'] });
+              break;
+            }
+            case 'price_drop': {
+              const pp = payload.payload || payload;
+              toast(`${pp.productName} bajó de precio`, {
+                description: `Antes: €${pp.oldPrice} → Ahora: €${pp.newPrice}`,
+                action: {
+                  label: 'Ver',
+                  onClick: () => { window.location.href = `/products/${pp.productId}`; },
+                },
+              });
+              break;
+            }
+
             case 'error':
               break;
 
@@ -558,13 +597,14 @@ export function ChatProvider({ children }) {
         reconnectDelayRef.current = Math.min(delay * 2, 30000);
       }
     }
-  }, [isAuthenticated, user, currentConversation, loadConversations, markAsRead, startPolling, stopPolling]);
+  }, [isAuthenticated, user, currentConversation, loadConversations, markAsRead, startPolling, stopPolling, queryClient]);
 
   // Connect when authenticated
   useEffect(() => {
     if (isAuthenticated) {
       connect();
-      connectNotifications();
+      // Notification events are handled in the main WS onmessage handler below.
+      // Do NOT call connectNotifications() — it opens a duplicate connection.
     } else {
       // Close connections when logged out
       if (wsRef.current) wsRef.current.close();
@@ -587,7 +627,7 @@ export function ChatProvider({ children }) {
       if (wsRef.current) wsRef.current.close();
       if (notifWsRef.current) notifWsRef.current.close();
     };
-  }, [isAuthenticated, connect, connectNotifications]);
+  }, [isAuthenticated, connect]);
 
   const value = useMemo(() => ({
     // Connection state

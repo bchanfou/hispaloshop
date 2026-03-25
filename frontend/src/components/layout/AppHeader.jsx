@@ -15,7 +15,7 @@ export default function AppHeader() {
   const { getTotalItems } = useCart();
   // Only fetch notifications when authenticated — prevents 401 spam
   const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
-  const { notifUnreadCount: wsCount } = useChatContext();
+  const { notifUnreadCount: wsCount, unreadTotal: chatUnreadTotal } = useChatContext();
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -86,6 +86,11 @@ export default function AppHeader() {
             className="relative flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full no-underline"
           >
             <MessageCircle size={20} className="text-stone-950" strokeWidth={1.8} />
+            {chatUnreadTotal > 0 && (
+              <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-stone-950 text-white text-[9px] font-extrabold px-1 leading-none">
+                {chatUnreadTotal > 9 ? '9+' : chatUnreadTotal}
+              </span>
+            )}
           </Link>
 
           {/* Notification bell */}

@@ -1357,7 +1357,7 @@ export default function ChatPage() {
 
       {polling && (
         <div className="flex items-center justify-center gap-1.5 bg-stone-100 px-3 py-1.5 text-xs text-stone-500">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-stone-400 animate-pulse" />
           Conexión inestable — actualizando cada 5s
         </div>
       )}

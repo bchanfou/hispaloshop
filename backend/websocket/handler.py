@@ -4,6 +4,7 @@ Fase 5: WebSockets con session cookies (integrado con sistema de auth existente)
 """
 from fastapi import WebSocket, WebSocketDisconnect, Query
 from typing import Dict, Optional
+from datetime import datetime, timezone
 import json
 import logging
 import hashlib
@@ -93,8 +94,10 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
         if not session_token:
             session_token = token
 
-        # Accept connection first (needed for auth-message flow)
-        await websocket.accept()
+        # If no token from query/cookie, accept early (needed for auth-message flow)
+        # When we have a token, ConnectionManager.connect() will accept later.
+        if not session_token:
+            await websocket.accept()
 
         # If no token from query/cookie, wait for auth message
         if not session_token:
@@ -147,10 +150,14 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
             await websocket.close(code=4001, reason="User not found")
             return
 
-        # Register connection (already accepted above)
-        self_ref = manager.active_connections
-        self_ref[user_id] = websocket
-        logger.info(f"[WS] User {user_id} connected. Total: {len(self_ref)}")
+        # Register connection via ConnectionManager (calls accept if not already accepted)
+        if session_token:
+            # Token was available from cookie/query — not yet accepted
+            await manager.connect(websocket, user_id)
+        else:
+            # Already accepted above for auth-message flow — register directly
+            manager.active_connections.setdefault(user_id, []).append(websocket)
+            logger.info(f"[WS] User {user_id} connected. Total connections: {sum(len(v) for v in manager.active_connections.values())}")
 
         # Notificar al usuario que está conectado
         await websocket.send_json({
@@ -179,11 +186,11 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
     
     except WebSocketDisconnect:
         if user_id:
-            manager.disconnect(user_id)
+            manager.disconnect(user_id, websocket)
     except Exception as e:
         logger.error(f"[WS] Unexpected error: {e}")
         if user_id:
-            manager.disconnect(user_id)
+            manager.disconnect(user_id, websocket)
 
 
 async def process_websocket_message(message: dict, user_id: str, websocket: WebSocket):
@@ -217,6 +224,14 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         content = message.get("content", "").strip()
         message_type = message.get("message_type", "text")
         
+        # Enforce message length limit
+        if content and len(content) > 5000:
+            await websocket.send_json({
+                "type": "error",
+                "message": "Message too long (max 5000 characters)"
+            })
+            return
+
         if not conversation_id or (not content and message_type == "text"):
             await websocket.send_json({
                 "type": "error",
@@ -241,7 +256,6 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             return
         
         # Crear mensaje
-        from datetime import datetime, timezone
         import uuid
         
         msg_id = f"msg_{uuid.uuid4().hex[:12]}"

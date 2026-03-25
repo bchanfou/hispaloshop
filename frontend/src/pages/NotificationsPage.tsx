@@ -322,7 +322,7 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   return (
     <div className="relative overflow-hidden">
       {/* Delete zone (revealed on swipe) */}
-      <div className="absolute inset-y-0 right-0 flex items-center justify-center w-[72px] bg-red-600">
+      <div className="absolute inset-y-0 right-0 flex items-center justify-center w-[72px] bg-stone-800">
         <button
           onClick={(e) => { e.stopPropagation(); onDelete(notifKey); }}
           className="flex flex-col items-center justify-center gap-0.5 bg-transparent border-none cursor-pointer"

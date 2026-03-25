@@ -786,7 +786,7 @@ class Notification(BaseModel):
 
 
 class MessageInput(BaseModel):
-    content: str
+    content: str = Field(max_length=5000)
     image_url: Optional[str] = None
 
 
