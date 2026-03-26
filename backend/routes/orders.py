@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional, List
 from datetime import datetime, timezone, timedelta
 import uuid
 import os
+import io
 import json as _json
 import logging
 
@@ -168,13 +169,8 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
     }
     await db.influencer_commissions.insert_one(commission_record)
 
-    # Update influencer's cumulative earnings counter
-    await db.influencers.update_one(
-        {"influencer_id": influencer_id},
-        {"$inc": {"total_commission_earned": influencer_amount}},
-    )
-
     # Notify influencer about new commission (B-09)
+    # NOTE: total_commission_earned is incremented below alongside total_sales_generated
     try:
         influencer_user = await db.users.find_one({"user_id": influencer_id})
         if influencer_user:

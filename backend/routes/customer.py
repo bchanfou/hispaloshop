@@ -76,8 +76,18 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
         if not product or product.get("status") != "active":
             continue
 
+        # Check stock availability
+        stock = product.get("stock_quantity", product.get("stock"))
+        if stock is not None and stock <= 0:
+            continue  # Skip out-of-stock products
+
         product_id = item.get("product_id", "")
+        variant_id = item.get("variant_id")
+        pack_id = item.get("pack_id")
         quantity = item.get("quantity", 1)
+        # Cap at available stock
+        if stock is not None:
+            quantity = min(quantity, stock)
         unit_price_cents = item.get("price_cents") or int(round((item.get("price", 0)) * 100))
         # Prefer current product price over stale order price
         if product.get("price_cents"):
@@ -85,10 +95,12 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
         elif product.get("price"):
             unit_price_cents = int(round(product["price"] * 100))
 
-        # Check if already in cart
+        # Check if already in cart — match by product+variant+pack (not just product_id)
         existing_idx = None
         for idx, ci in enumerate(cart_items):
-            if ci.get("product_id") == product_id:
+            if (ci.get("product_id") == product_id
+                    and ci.get("variant_id") == variant_id
+                    and ci.get("pack_id") == pack_id):
                 existing_idx = idx
                 break
 
@@ -162,15 +174,28 @@ async def submit_order_review(
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    # Create reviews for each product in the order
+    # Create reviews for each product in the order + update product avg_rating
     for item in order.get("line_items", []):
+        pid = item.get("product_id")
         product_review = {
             **review_doc,
-            "product_id": item.get("product_id"),
+            "product_id": pid,
             "product_name": item.get("product_name"),
             "producer_id": item.get("producer_id"),
         }
         await db.reviews.insert_one(product_review)
+        # Recalculate product avg_rating
+        if pid:
+            pipeline = [
+                {"$match": {"product_id": pid}},
+                {"$group": {"_id": None, "avg": {"$avg": "$rating"}, "count": {"$sum": 1}}},
+            ]
+            agg = await db.reviews.aggregate(pipeline).to_list(1)
+            if agg:
+                await db.products.update_one(
+                    {"product_id": pid},
+                    {"$set": {"avg_rating": round(agg[0]["avg"], 1), "reviews_count": agg[0]["count"]}}
+                )
 
     # Mark order as reviewed
     await db.orders.update_one(
@@ -225,6 +250,23 @@ async def cancel_customer_order(order_id: str, user: User = Depends(get_current_
                 "available_balance": -commission_amount
             }}
         )
+
+    # Notify producer(s) about cancellation
+    producer_ids = set(item.get("producer_id") for item in order.get("line_items", []) if item.get("producer_id"))
+    for pid in producer_ids:
+        try:
+            await db.notifications.insert_one({
+                "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                "user_id": pid,
+                "type": "order_update",
+                "title": "Pedido cancelado",
+                "body": f"El pedido #{order_id[-8:]} ha sido cancelado por el cliente.",
+                "action_url": "/producer/orders",
+                "read": False,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+        except Exception:
+            pass  # non-critical
 
     return {"message": "Pedido cancelado correctamente"}
 

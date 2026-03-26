@@ -139,7 +139,16 @@ export default function CustomerOrders() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const { refreshing, progress, handlers } = usePullToRefresh(fetchOrders);
+  const handleRefresh = useCallback(async () => {
+    setPage(1);
+    setLoading(true);
+    const data = await apiClient.get(`/customer/orders?limit=${LIMIT}&skip=0`);
+    const fetched = Array.isArray(data) ? data : data?.orders || [];
+    setOrders(fetched);
+    setHasMore(data?.has_more ?? fetched.length >= LIMIT);
+    setLoading(false);
+  }, []);
+  const { refreshing, progress, handlers } = usePullToRefresh(handleRefresh);
 
   const filteredOrders = useMemo(() => {
     let result = orders;
