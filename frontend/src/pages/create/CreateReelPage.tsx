@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check, Video, Search, Tag } from 'lucide-react';
+import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check, Video, Search } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -443,7 +443,7 @@ export default function CreateReelPage() {
         <div className="flex-1 flex flex-col items-center justify-center gap-4 px-8">
           <Video size={48} className="text-white/30" />
           <span className="text-base text-white font-medium">
-            {uploadTab === 'subir' ? 'Selecciona un video' : 'Graba un video'}
+            {uploadTab === 'subir' ? 'Selecciona un vídeo' : 'Graba un vídeo'}
           </span>
           <span className="text-xs text-white/50">
             Máximo 60 segundos · MP4 o MOV
@@ -540,10 +540,10 @@ export default function CreateReelPage() {
           {/* Mute toggle — bottom-left like Instagram */}
           <button
             onClick={(e) => { e.stopPropagation(); setIsMuted((m) => !m); }}
-            className="absolute bottom-3 left-3 z-10 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center"
+            className="absolute bottom-3 left-3 z-10 w-11 h-11 rounded-full bg-black/50 backdrop-blur-sm border-none cursor-pointer flex items-center justify-center"
             aria-label={isMuted ? 'Activar audio' : 'Silenciar audio'}
           >
-            {isMuted ? <VolumeX size={15} className="text-white" /> : <Volume2 size={15} className="text-white" />}
+            {isMuted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
           </button>
 
           {/* Text overlays */}
@@ -1031,7 +1031,7 @@ export default function CreateReelPage() {
             className="w-full bg-transparent text-stone-950 border border-stone-200 rounded-2xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border relative caret-stone-950"
             aria-label="Descripción del reel"
           />
-          <div className={`text-right text-xs mt-1 ${caption.length > 2000 ? 'text-stone-950' : 'text-stone-400'}`}>
+          <div className={`text-right text-xs mt-1 ${caption.length > 450 ? 'text-stone-950 font-semibold' : 'text-stone-400'}`}>
             {caption.length}/500
           </div>
         </div>
@@ -1229,7 +1229,7 @@ export default function CreateReelPage() {
 
       {/* Product search modal */}
       {showProductSearch && (
-        <div className="fixed inset-0 z-60 bg-black/50 flex items-end justify-center">
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center">
           <div className="bg-white w-full max-h-[70vh] rounded-t-2xl flex flex-col overflow-hidden">
             <div className="flex items-center px-4 py-3 border-b border-stone-200 gap-2">
               <Search size={18} className="text-stone-400" />

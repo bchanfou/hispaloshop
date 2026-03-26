@@ -37,6 +37,7 @@ export default function ReelsPage() {
     try {
       // Primary: dedicated /reels endpoint
       let items = [];
+      let backendHasMore = null;
       try {
         const data = await apiClient.get(`/reels`, {
           params: { skip: (p - 1) * 10, limit: 10, tab: activeTab },
@@ -51,6 +52,7 @@ export default function ReelsPage() {
               ? data.reels
               : [];
         items = extracted;
+        if (typeof data?.has_more === 'boolean') backendHasMore = data.has_more;
       } catch (err) {
         // Fallback: use /feed/foryou and filter for reel-type items
         if (process.env.NODE_ENV === 'development') console.warn('[ReelsPage] /reels failed, trying feed fallback', err?.message || err);
@@ -76,7 +78,7 @@ export default function ReelsPage() {
         }
       }
       if (!Array.isArray(items)) items = [];
-      if (items.length < 10) setHasMore(false);
+      if (backendHasMore === false || items.length < 10) setHasMore(false);
       setReels((prev) => (p === 1 ? items : [...prev, ...items]));
     } catch {
       setHasMore(false);
@@ -243,7 +245,7 @@ export default function ReelsPage() {
         <div className="flex items-center gap-2 px-4 pb-1">
           <button
             onClick={() => navigate(-1)}
-            className="w-8 h-8 rounded-full bg-transparent flex items-center justify-center shrink-0"
+            className="w-11 h-11 rounded-full bg-transparent flex items-center justify-center shrink-0"
             aria-label="Volver"
           >
             <ArrowLeft className="w-5 h-5 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]" />
@@ -273,6 +275,7 @@ export default function ReelsPage() {
             isActive={idx === activeIndex}
             onLike={() => handleLike(reel.id || reel.reel_id || reel.post_id)}
             priority={idx <= 1}
+            nextVideoUrl={reels[idx + 1]?.video_url || reels[idx + 1]?.videoUrl}
           />
         </div>
       ))}

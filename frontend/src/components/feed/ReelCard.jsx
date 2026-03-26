@@ -20,7 +20,6 @@ import {
   ShoppingBag,
   MoreHorizontal,
   Pencil,
-  Flag,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
@@ -34,14 +33,6 @@ import MentionDropdown from './MentionDropdown';
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
-
-const EMOJI_MAP = {
-  '\u2764\uFE0F': 'heart',
-  '\uD83D\uDD25': 'fire',
-  '\uD83D\uDE02': 'laugh',
-  '\uD83D\uDE2E': 'wow',
-  '\uD83D\uDC4F': 'clap',
-};
 
 // ---------------------------------------------------------------------------
 // Reaction picker
@@ -293,7 +284,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       setComments(Array.isArray(res) ? res : res?.data || res?.comments || []);
     } catch (err) { /* non-critical: comments fetch failed */ setComments([]); }
     finally { setCommentsLoading(false); }
-  }, [reel]);
+  }, [reel.id, reel.reel_id, reel.post_id]);
 
   const submitComment = useCallback(async () => {
     if (!newComment.trim() || sendingComment) return;
@@ -450,14 +441,29 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const handleReaction = useCallback(async (emoji) => {
     setSelectedReaction(emoji);
     setShowReactions(false);
+    // Reactions also toggle the like state
+    const wasLiked = liked;
+    if (!wasLiked) {
+      setLiked(true);
+      setLikesCount((c) => c + 1);
+    }
     const reelId = reel.id || reel.reel_id || reel.post_id;
     try {
-      await apiClient.post(`/reels/${reelId}/like`);
+      const res = await apiClient.post(`/reels/${reelId}/like`);
+      // If server says not liked but we wanted liked, re-toggle
+      if (res?.liked === false && !wasLiked) {
+        // Server toggled to unlike (was already liked), re-like
+        await apiClient.post(`/reels/${reelId}/like`);
+      }
     } catch (err) {
       setSelectedReaction(null);
+      if (!wasLiked) {
+        setLiked(false);
+        setLikesCount((c) => Math.max(0, c - 1));
+      }
       toast.error('Error al reaccionar');
     }
-  }, [reel.id, reel.reel_id, reel.post_id]);
+  }, [liked, reel.id, reel.reel_id, reel.post_id]);
 
   // Single tap = play/pause (immediate), double-tap = like (reverses play toggle)
   const handleVideoTap = useCallback(() => {
@@ -502,7 +508,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       wasPlayingBeforeTap.current = !video?.paused;
       togglePlay();
     }
-  }, [liked, handleLike, togglePlay, embedded, navigate]);
+  }, [liked, handleLike, togglePlay, embedded]);
 
   const videoUrl = reel.video_url || reel.videoUrl;
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
@@ -576,7 +582,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       {isOwner && (
         <button
           onClick={() => setShowOwnerMenu(v => !v)}
-          className="absolute top-4 left-4 z-[6] w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
+          className="absolute top-4 left-4 z-[6] w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
           aria-label="Opciones del reel"
         >
           <MoreHorizontal size={18} className="text-white" />
@@ -711,7 +717,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       {/* Mute toggle — top-right to avoid overlap with product card + actions */}
       <button
         onClick={toggleMute}
-        className="absolute right-4 top-4 z-10 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
+        className="absolute right-4 top-4 z-10 w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
         aria-label={muted ? 'Activar sonido' : 'Silenciar'}
       >
         <AnimatePresence mode="wait">
@@ -1097,14 +1103,14 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           {/* Reply-to context banner */}
           {replyTo && (
             <div className="mx-4 mt-2 mb-1 shrink-0">
-              <div className="flex items-center justify-between bg-stone-100 rounded-xl px-3 py-2">
-                <span className="text-xs text-stone-600">Respondiendo a <span className="font-semibold">@{replyTo.username}</span></span>
+              <div className="flex items-center justify-between bg-white/10 rounded-xl px-3 py-2">
+                <span className="text-xs text-white/60">Respondiendo a <span className="font-semibold text-white/80">@{replyTo.username}</span></span>
                 <button
                   onClick={() => { setReplyTo(null); setNewComment(''); }}
-                  className="w-6 h-6 rounded-full bg-transparent hover:bg-stone-200 border-none cursor-pointer flex items-center justify-center transition-colors"
+                  className="w-6 h-6 rounded-full bg-transparent hover:bg-white/10 border-none cursor-pointer flex items-center justify-center transition-colors"
                   aria-label="Cancelar respuesta"
                 >
-                  <XIcon size={12} className="text-stone-500" />
+                  <XIcon size={12} className="text-white/50" />
                 </button>
               </div>
             </div>
@@ -1143,7 +1149,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             <button
               onClick={submitComment}
               disabled={!newComment.trim() || sendingComment}
-              className={`w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer transition-colors ${
+              className={`w-11 h-11 rounded-full flex items-center justify-center border-none cursor-pointer transition-colors ${
                 newComment.trim() ? 'bg-white text-stone-950' : 'bg-white/10 text-white/30'
               }`}
               aria-label="Enviar comentario"

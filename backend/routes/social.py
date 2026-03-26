@@ -413,6 +413,9 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
                 "created_at": reel.get("created_at") or datetime.now(timezone.utc).isoformat(),
                 "user": {
                     "id": user_id,
+                    "user_id": user_id,
+                    "username": (user_doc or {}).get("username"),
+                    "name": reel.get("user_name") or (user_doc or {}).get("name") or "Usuario",
                     "full_name": reel.get("user_name") or (user_doc or {}).get("name") or "Usuario",
                     "avatar_url": reel.get("user_profile_image") or (user_doc or {}).get("profile_image"),
                     "is_followed_by_me": is_followed,
@@ -448,6 +451,10 @@ async def create_reel(
     slow_motion_end: float = Form(0),
     product_id: str = Form(""),
     tagged_products_json: str = Form(""),
+    filter: str = Form(""),
+    text_overlays_json: str = Form(""),
+    audience: str = Form("public"),
+    cover_image: UploadFile = File(None),
     user: User = Depends(get_current_user)
 ):
     """Create a reel (short video). Uploads to Cloudinary."""
@@ -528,6 +535,35 @@ async def create_reel(
     tagged_products = await _hydrate_tagged_products(requested_tags)
     tagged_product = tagged_products[0] if tagged_products else None
 
+    # Parse text overlays sent from frontend
+    parsed_text_overlays = []
+    if text_overlays_json and text_overlays_json.strip():
+        try:
+            parsed_text_overlays = json.loads(text_overlays_json)
+            if not isinstance(parsed_text_overlays, list):
+                parsed_text_overlays = []
+        except (json.JSONDecodeError, TypeError):
+            parsed_text_overlays = []
+
+    # Validate audience
+    safe_audience = audience.strip().lower() if audience else "public"
+    if safe_audience not in ("public", "followers"):
+        safe_audience = "public"
+
+    # Upload custom cover image if provided
+    custom_cover_url = None
+    if cover_image and hasattr(cover_image, "content_type") and cover_image.content_type and cover_image.content_type.startswith("image/"):
+        try:
+            cover_contents = await cover_image.read()
+            if len(cover_contents) <= 10 * 1024 * 1024:  # 10MB limit
+                cover_result = await cloudinary_upload(cover_contents, folder="reel_covers", filename=f"cover_{uuid.uuid4().hex[:8]}")
+                custom_cover_url = cover_result.get("url")
+        except Exception as e:
+            logger.warning(f"Failed to upload custom cover image: {e}")
+
+    if custom_cover_url:
+        thumbnail_url = custom_cover_url
+
     # Fetch profile image for denormalization
     reel_user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "company_name": 1})
     reel_id = f"reel_{uuid.uuid4().hex[:12]}"
@@ -551,6 +587,10 @@ async def create_reel(
         "slow_motion_enabled": has_slow_motion,
         "slow_motion_start": safe_slow_motion_start,
         "slow_motion_end": safe_slow_motion_end,
+        "filter": filter.strip() if filter else "",
+        "text_overlays": parsed_text_overlays,
+        "audience": safe_audience,
+        "is_private": safe_audience != "public",
         "reel_settings": {
             "cover_frame_seconds": safe_cover_frame,
             "trim_start_seconds": safe_trim_start,
@@ -605,11 +645,36 @@ async def create_reel(
     return {k: v for k, v in reel.items() if k != "_id"}
 
 
+async def _find_reel_in_any_collection(reel_id: str):
+    """Find a reel in db.reels first, fallback to db.user_posts (dual-collection)."""
+    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
+    reel = await db.reels.find_one(filter_q)
+    if reel:
+        return reel, "reels"
+    # Fallback: reel may live in user_posts
+    filter_q_posts = {"$or": [{"post_id": reel_id}, {"id": reel_id}], "$or": [{"type": "reel"}, {"is_reel": True}]}
+    # Build a proper query for user_posts
+    reel = await db.user_posts.find_one({
+        "$and": [
+            {"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]},
+            {"$or": [{"type": "reel"}, {"is_reel": True}]},
+        ]
+    })
+    if reel:
+        return reel, "user_posts"
+    return None, None
+
+
 @router.post("/reels/{reel_id}/view")
 async def view_reel(reel_id: str, request: Request):
     """Increment view count on a reel."""
     current_user = await get_optional_user(request)
+    # Update in both collections (one will match)
     await db.reels.update_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]}, {"$inc": {"views_count": 1}})
+    await db.user_posts.update_one(
+        {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]},
+        {"$inc": {"views_count": 1}},
+    )
     await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "view"}, current_user.user_id if current_user else None)
     return {"status": "ok"}
 
@@ -617,10 +682,10 @@ async def view_reel(reel_id: str, request: Request):
 @router.post("/reels/{reel_id}/like")
 async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
     """Toggle like on a reel."""
-    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
-    reel = await db.reels.find_one(filter_q)
+    reel, reel_collection = await _find_reel_in_any_collection(reel_id)
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found")
+    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
     # Authorization: if private, only owner or allowed users can like
     if reel.get("is_private"):
         # Only owner can like their own private reel (customize as needed)
@@ -629,15 +694,17 @@ async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
             raise HTTPException(status_code=403, detail="Not authorized to interact with this reel")
 
     existing = await db.reel_likes.find_one({"reel_id": reel_id, "user_id": user.user_id})
+    target_col = db.reels if reel_collection == "reels" else db.user_posts
+    target_filter = filter_q if reel_collection == "reels" else {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]}
     if existing:
         await db.reel_likes.delete_one({"reel_id": reel_id, "user_id": user.user_id})
-        await db.reels.update_one(filter_q, {"$inc": {"likes_count": -1}})
+        await target_col.update_one(target_filter, {"$inc": {"likes_count": -1}})
         return {"liked": False}
     await db.reel_likes.insert_one({
         "reel_id": reel_id, "user_id": user.user_id,
         "created_at": datetime.now(timezone.utc).isoformat()
     })
-    await db.reels.update_one(filter_q, {"$inc": {"likes_count": 1}})
+    await target_col.update_one(target_filter, {"$inc": {"likes_count": 1}})
     await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "like"}, user.user_id)
     return {"liked": True}
 
@@ -677,8 +744,7 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
     if not text:
         raise HTTPException(status_code=400, detail="Comment text required")
 
-    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
-    reel = await db.reels.find_one(filter_q)
+    reel, reel_collection = await _find_reel_in_any_collection(reel_id)
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found")
     # Authorization: if private, only owner or allowed users can comment
@@ -701,7 +767,14 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
         "replies": [],
     }
     await db.reel_comments.insert_one(comment)
-    await db.reels.update_one(filter_q, {"$inc": {"comments_count": 1}})
+    # Update comments_count in the correct collection
+    if reel_collection == "reels":
+        await db.reels.update_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]}, {"$inc": {"comments_count": 1}})
+    else:
+        await db.user_posts.update_one(
+            {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]},
+            {"$inc": {"comments_count": 1}},
+        )
     await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "comment"}, user.user_id)
     return {k: v for k, v in comment.items() if k != "_id"}
 
@@ -715,8 +788,13 @@ async def delete_reel_comment(reel_id: str, comment_id: str, user: User = Depend
     if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
         raise HTTPException(status_code=403, detail="Not your comment")
     await db.reel_comments.delete_one({"comment_id": comment_id, "reel_id": reel_id})
+    # Decrement in both collections (one will match)
     await db.reels.update_one(
         {"$or": [{"reel_id": reel_id}, {"id": reel_id}]},
+        {"$inc": {"comments_count": -1}},
+    )
+    await db.user_posts.update_one(
+        {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]},
         {"$inc": {"comments_count": -1}},
     )
     return {"status": "deleted"}
@@ -744,7 +822,7 @@ async def like_reel_comment(reel_id: str, comment_id: str, user: User = Depends(
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
     # Authorization: check parent reel privacy
-    reel = await db.reels.find_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]})
+    reel, _ = await _find_reel_in_any_collection(reel_id)
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found")
     if reel.get("is_private") and reel.get("user_id") != user.user_id:
@@ -801,16 +879,21 @@ async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(
 @router.patch("/reels/{reel_id}")
 async def edit_reel(reel_id: str, body: dict = Body(...), user: User = Depends(get_current_user)):
     """Edit reel caption. Only the owner can edit."""
-    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}], "user_id": user.user_id}
-    reel = await db.reels.find_one(filter_q)
-    if not reel:
+    reel, reel_collection = await _find_reel_in_any_collection(reel_id)
+    if not reel or reel.get("user_id") != user.user_id:
         raise HTTPException(status_code=404, detail="Reel not found or not owned")
     update = {}
     if "caption" in body:
         update["caption"] = sanitize_text(str(body["caption"])[:500])
     if not update:
         raise HTTPException(status_code=400, detail="Nothing to update")
-    await db.reels.update_one(filter_q, {"$set": update})
+    if reel_collection == "reels":
+        await db.reels.update_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]}, {"$set": update})
+    else:
+        await db.user_posts.update_one(
+            {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]},
+            {"$set": update},
+        )
     return {"status": "updated", **update}
 
 
@@ -819,6 +902,17 @@ async def delete_reel(reel_id: str, user: User = Depends(get_current_user)):
     """Delete a reel. Only the owner can delete."""
     filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}], "user_id": user.user_id}
     reel = await db.reels.find_one(filter_q)
+    reel_in_posts = False
+    if not reel:
+        # Fallback: reel may live in user_posts
+        reel = await db.user_posts.find_one({
+            "$and": [
+                {"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]},
+                {"$or": [{"type": "reel"}, {"is_reel": True}]},
+                {"user_id": user.user_id},
+            ]
+        })
+        reel_in_posts = True
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found or not owned")
     # Clean Cloudinary assets
@@ -829,7 +923,15 @@ async def delete_reel(reel_id: str, user: User = Depends(get_current_user)):
     except Exception as e:
         logger.warning(f"[REEL_DELETE] Cloudinary cleanup failed for {reel_id}: {e}")
 
-    await db.reels.delete_one(filter_q)
+    if reel_in_posts:
+        await db.user_posts.delete_one({
+            "$and": [
+                {"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]},
+                {"user_id": user.user_id},
+            ]
+        })
+    else:
+        await db.reels.delete_one(filter_q)
     await db.reel_likes.delete_many({"reel_id": reel_id})
     await db.reel_comments.delete_many({"reel_id": reel_id})
     await db.reel_saves.delete_many({"reel_id": reel_id})

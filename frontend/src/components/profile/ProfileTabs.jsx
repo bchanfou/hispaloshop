@@ -657,7 +657,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
               <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
               <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-2xl bg-white shadow-lg border border-stone-100 overflow-hidden">
                 <button
-                  onClick={() => { onClose(); toast?.('Edición de reels no disponible aún'); }}
+                  onClick={() => { onClose(); navigate(`/posts/${reelId}`); }}
                   className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-50"
                 >
                   <Pencil size={16} /> Editar
@@ -689,27 +689,28 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
 
       {/* Right sidebar — like/comment/share/save */}
       <div className="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-5">
-        <button onClick={handleLike} className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer">
+        <button onClick={handleLike} className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center" aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}>
           <Heart size={26} fill={liked ? 'white' : 'none'} className="text-white" />
           <span className="text-[11px] text-white font-medium">{likesCount}</span>
         </button>
         <button
           onClick={() => navigate(`/posts/${reelId}`)}
-          className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer"
+          className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center"
+          aria-label="Comentar"
         >
           <MessageCircle size={26} className="text-white" />
           <span className="text-[11px] text-white font-medium">{reel.comments_count ?? 0}</span>
         </button>
-        <button onClick={handleShare} className="flex flex-col items-center bg-transparent border-none cursor-pointer">
+        <button onClick={handleShare} className="flex flex-col items-center bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center" aria-label="Compartir">
           <Send size={24} className="text-white" />
         </button>
-        <button onClick={handleSave} className="flex flex-col items-center bg-transparent border-none cursor-pointer">
+        <button onClick={handleSave} className="flex flex-col items-center bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center" aria-label={saved ? 'Quitar guardado' : 'Guardar'}>
           <Bookmark size={24} fill={saved ? 'white' : 'none'} className="text-white" />
         </button>
         <button
           onClick={() => setMuted((m) => !m)}
           aria-label={muted ? 'Activar sonido' : 'Silenciar'}
-          className="flex flex-col items-center bg-transparent border-none cursor-pointer"
+          className="flex flex-col items-center bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center"
         >
           {muted ? <VolumeX size={24} className="text-white" /> : <Volume2 size={24} className="text-white" />}
         </button>
