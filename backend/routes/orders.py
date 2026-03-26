@@ -813,7 +813,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     })
     _raw_items = _cart_doc.get("items", []) if _cart_doc else []
     if not _raw_items:
-        raise HTTPException(status_code=400, detail="Cart is empty")
+        raise HTTPException(status_code=400, detail="El carrito está vacío")
 
     # Normalize field names: cart.py stores seller_id + unit_price_cents,
     # checkout logic expects producer_id + price (euros)
@@ -1191,7 +1191,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         session = stripe.checkout.Session.create(**stripe_params)
     except stripe.error.StripeError as e:
         logger.error(f"[CHECKOUT] Stripe error: {e}")
-        raise HTTPException(status_code=500, detail="Payment processing error. Please try again.")
+        raise HTTPException(status_code=500, detail="Error al procesar el pago. Inténtalo de nuevo.")
     
     transaction_id = f"txn_{uuid.uuid4().hex[:12]}"
     transaction = {
@@ -1263,9 +1263,17 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
     """
     Create direct checkout session for Buy Now (skip cart)
     """
+    # Rate limiting (same as cart checkout)
+    await rate_limiter.check(request, endpoint_type="checkout")
+
     _sk = STRIPE_SECRET_KEY or ""
     if not (_sk.startswith(("sk_live_", "sk_test_")) and len(_sk) > 20 and "PENDIENTE" not in _sk):
-        raise HTTPException(status_code=503, detail="Payment processing not configured. Contact the administrator.")
+        raise HTTPException(status_code=503, detail="El procesamiento de pagos no está configurado. Contacta con el administrador.")
+
+    # Email verification check (same as cart checkout)
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"email_verified": 1})
+    if user_doc and user_doc.get("email_verified") is False:
+        raise HTTPException(status_code=403, detail="Debes verificar tu correo electrónico antes de realizar un pedido")
 
     # Get user's country for pricing
     user_country = normalize_market_code(user.country) or 'ES'
@@ -1273,7 +1281,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
     # Fetch product with country-specific pricing
     product = await db.products.find_one({"product_id": input.product_id}, {"_id": 0})
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
     
     # Check country availability
     product["target_markets"] = get_product_target_markets(product)
@@ -1294,7 +1302,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         variants = product.get("variants", [])
         variant = next((v for v in variants if v["variant_id"] == input.variant_id), None)
         if not variant:
-            raise HTTPException(status_code=400, detail="Variant not found")
+            raise HTTPException(status_code=400, detail="Variante no encontrada")
         variant_name = variant.get("name")
         variant_price_modifier = variant.get("price_modifier", 0)
     
@@ -1309,7 +1317,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
             packs = product.get("packs", [])
         pack = next((p for p in packs if p["pack_id"] == input.pack_id), None)
         if not pack:
-            raise HTTPException(status_code=400, detail="Pack not found")
+            raise HTTPException(status_code=400, detail="Pack no encontrado")
         pack_price = pack.get("price")
         pack_label = pack.get("label")
         pack_units = pack.get("units")
@@ -1457,7 +1465,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         session = stripe.checkout.Session.create(**stripe_params)
     except stripe.error.StripeError as e:
         logger.error(f"[BUY_NOW] Stripe error: {e}")
-        raise HTTPException(status_code=500, detail="Payment processing error. Please try again.")
+        raise HTTPException(status_code=500, detail="Error al procesar el pago. Inténtalo de nuevo.")
 
     # Store transaction
     transaction_id = f"txn_{uuid.uuid4().hex[:12]}"
@@ -1526,11 +1534,11 @@ async def checkout_status(session_id: str, user: User = Depends(get_current_user
         session = stripe.checkout.Session.retrieve(session_id)
     except stripe.error.StripeError as e:
         logger.error(f"[CHECKOUT-STATUS] Stripe error: {e}")
-        raise HTTPException(status_code=400, detail="Could not retrieve payment status")
+        raise HTTPException(status_code=400, detail="No se pudo obtener el estado del pago")
     
     transaction = await db.payment_transactions.find_one({"session_id": session_id, "user_id": user.user_id}, {"_id": 0})
     if not transaction:
-        raise HTTPException(status_code=404, detail="Transaction not found")
+        raise HTTPException(status_code=404, detail="Transacción no encontrada")
 
     order_id = transaction.get("order_id", "")
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0}) if order_id else None

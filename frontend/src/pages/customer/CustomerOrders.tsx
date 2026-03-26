@@ -142,11 +142,16 @@ export default function CustomerOrders() {
   const handleRefresh = useCallback(async () => {
     setPage(1);
     setLoading(true);
-    const data = await apiClient.get(`/customer/orders?limit=${LIMIT}&skip=0`);
-    const fetched = Array.isArray(data) ? data : data?.orders || [];
-    setOrders(fetched);
-    setHasMore(data?.has_more ?? fetched.length >= LIMIT);
-    setLoading(false);
+    try {
+      const data = await apiClient.get(`/customer/orders?limit=${LIMIT}&skip=0`);
+      const fetched = Array.isArray(data) ? data : data?.orders || [];
+      setOrders(fetched);
+      setHasMore(data?.has_more ?? fetched.length >= LIMIT);
+    } catch {
+      toast.error('Error al actualizar los pedidos');
+    } finally {
+      setLoading(false);
+    }
   }, []);
   const { refreshing, progress, handlers } = usePullToRefresh(handleRefresh);
 

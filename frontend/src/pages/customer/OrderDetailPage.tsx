@@ -11,9 +11,11 @@ import { useLocale } from '../../context/LocaleContext';
 
 const STATUS_FLOW = ['confirmed', 'preparing', 'shipped', 'delivered'];
 const STATUS_LABELS = {
-  pending: 'Pendiente', paid: 'Pagado', confirmed: 'Confirmado', preparing: 'Preparando',
+  pending: 'Pendiente', paid: 'Pagado', processing: 'Procesando',
+  confirmed: 'Confirmado', preparing: 'Preparando',
   shipped: 'Enviado', in_transit: 'Enviado', delivered: 'Entregado',
-  cancelled: 'Cancelado', refunded: 'Reembolsado',
+  completed: 'Completado', cancelled: 'Cancelado', refunded: 'Reembolsado',
+  partially_refunded: 'Reembolso parcial', payment_failed: 'Pago fallido',
 };
 
 function formatDate(dateStr) {

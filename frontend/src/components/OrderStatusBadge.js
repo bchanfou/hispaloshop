@@ -8,6 +8,7 @@ const STATUS_CONFIG = {
   confirmed:            { icon: Check,          label: 'Confirmado',          color: 'bg-stone-100 text-stone-700' },
   preparing:            { icon: Package,        label: 'Preparando',          color: 'bg-stone-100 text-stone-700' },
   shipped:              { icon: Truck,          label: 'Enviado',             color: 'bg-stone-100 text-stone-700' },
+  in_transit:           { icon: Truck,          label: 'En camino',           color: 'bg-stone-100 text-stone-700' },
   delivered:            { icon: Check,          label: 'Entregado',           color: 'bg-stone-950 text-white' },
   completed:            { icon: Check,          label: 'Completado',          color: 'bg-stone-950 text-white' },
   cancelled:            { icon: XCircle,        label: 'Cancelado',           color: 'border border-stone-200 text-stone-400 bg-white' },
