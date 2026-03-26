@@ -2,7 +2,7 @@
 Customer dashboard, profile, account management, and shipping addresses.
 Extracted from server.py.
 """
-from fastapi import APIRouter, HTTPException, Depends, Body, Request
+from fastapi import APIRouter, HTTPException, Depends, Body, Request, Query
 from typing import Optional
 from datetime import datetime, timezone, timedelta
 import uuid

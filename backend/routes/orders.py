@@ -1938,6 +1938,34 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
         {"order_id": order_id},
         {"$set": {"status": new_status, "updated_at": now_iso}}
     )
+
+    # 3b. Restore stock for refunded items
+    if refund_type == "full":
+        for item in order.get("line_items", []):
+            pid = item.get("product_id")
+            qty = item.get("quantity", 0)
+            if pid and qty > 0:
+                await db.products.update_one(
+                    {"product_id": pid},
+                    {"$inc": {"stock": qty, "stock_quantity": qty}}
+                )
+
+    # 3c. Notify customer about refund
+    try:
+        customer_id = order.get("user_id")
+        if customer_id:
+            await db.notifications.insert_one({
+                "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                "user_id": customer_id,
+                "type": "order_update",
+                "title": "Pedido reembolsado",
+                "body": f"Tu pedido #{order_id[-8:]} ha sido reembolsado. El importe se reflejará en tu cuenta en 5-10 días hábiles.",
+                "action_url": f"/dashboard/orders/{order_id}",
+                "read": False,
+                "created_at": now_iso,
+            })
+    except Exception as e:
+        logger.warning(f"[REFUND] Failed to send refund notification: {e}")
     
     # 4. Commission transaction record
     commission_data = order.get("commission_data", {})

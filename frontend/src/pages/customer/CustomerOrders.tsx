@@ -112,11 +112,18 @@ export default function CustomerOrders() {
   const { fetchCart } = useCart();
   const [reorderingId, setReorderingId] = useState<string | null>(null);
 
+  const [hasMore, setHasMore] = useState(true);
   const fetchOrders = useCallback(async () => {
     try {
       const data = await apiClient.get(`/customer/orders?limit=${LIMIT}&skip=${(page - 1) * LIMIT}`);
       const fetched = Array.isArray(data) ? data : data?.orders || [];
       setOrders(prev => page === 1 ? fetched : [...prev, ...fetched]);
+      // Use server's has_more if available, otherwise heuristic
+      if (data?.has_more != null) {
+        setHasMore(data.has_more);
+      } else {
+        setHasMore(fetched.length >= LIMIT);
+      }
     } catch (error) {
       toast.error('Error al cargar los pedidos');
     } finally {
@@ -331,7 +338,7 @@ export default function CustomerOrders() {
           </div>
         )}
       </div>
-      {orders.length >= page * LIMIT && (
+      {hasMore && orders.length > 0 && (
         <button
           onClick={() => setPage(p => p + 1)}
           className="w-full mt-4 py-3 text-sm font-semibold text-stone-700 bg-white rounded-2xl shadow-sm hover:bg-stone-50 transition-colors"

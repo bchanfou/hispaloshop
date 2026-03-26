@@ -350,7 +350,7 @@ export default function OrderDetailPage() {
         )}
 
         {/* ── Review form (if delivered and not yet submitted) ── */}
-        {isDelivered && !reviewSubmitted && (
+        {isDelivered && !reviewSubmitted && !order.has_review && (
           <div className="bg-stone-100 border border-stone-200 rounded-2xl p-4 mt-6">
             <p className="text-[15px] font-semibold text-stone-950 mb-3">
               ¿Cómo fue tu experiencia?
@@ -361,7 +361,8 @@ export default function OrderDetailPage() {
                 <button
                   key={s}
                   onClick={() => setReviewRating(s)}
-                  className="bg-transparent border-none cursor-pointer p-0.5"
+                  className="bg-transparent border-none cursor-pointer p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label={`${s} estrellas`}
                 >
                   <Star
                     size={28}
@@ -381,7 +382,7 @@ export default function OrderDetailPage() {
             <button
               onClick={submitReview}
               disabled={reviewSubmitting}
-              className="mt-2.5 px-5 py-2 bg-stone-950 text-white border-none rounded-xl text-[13px] font-semibold cursor-pointer"
+              className="mt-2.5 px-5 py-2.5 min-h-[44px] bg-stone-950 text-white border-none rounded-xl text-[13px] font-semibold cursor-pointer"
             >
               {reviewSubmitting ? 'Publicando...' : 'Publicar reseña'}
             </button>
