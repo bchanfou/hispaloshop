@@ -21,7 +21,7 @@ const TIMELINE_STEPS = [
   { key: 'delivered', label: 'Entregado' },
 ];
 
-const CANCELLED_STATUSES = ['cancelled', 'refunded'];
+const CANCELLED_STATUSES = ['cancelled', 'refunded', 'partially_refunded', 'payment_failed'];
 
 function getTimelineStep(status: string): number {
   if (status === 'pending') return 0;
@@ -90,13 +90,16 @@ const STATUS_LABELS: Record<string, string> = {
   completed: 'Entregado',
   cancelled: 'Cancelado',
   refunded: 'Reembolsado',
+  partially_refunded: 'Reembolso parcial',
+  payment_failed: 'Pago fallido',
+  processing: 'Procesando',
 };
 
 const FILTER_TABS = [
   { key: 'all', label: 'Todos' },
-  { key: 'active', label: 'Activos', statuses: ['pending', 'confirmed', 'preparing', 'shipped', 'paid'] },
+  { key: 'active', label: 'Activos', statuses: ['pending', 'confirmed', 'preparing', 'shipped', 'paid', 'processing'] },
   { key: 'delivered', label: 'Entregados', statuses: ['delivered', 'completed'] },
-  { key: 'cancelled', label: 'Cancelados', statuses: ['cancelled', 'refunded'] },
+  { key: 'cancelled', label: 'Cancelados', statuses: ['cancelled', 'refunded', 'partially_refunded', 'payment_failed'] },
 ];
 
 export default function CustomerOrders() {

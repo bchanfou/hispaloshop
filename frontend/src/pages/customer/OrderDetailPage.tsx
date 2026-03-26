@@ -149,7 +149,7 @@ export default function OrderDetailPage() {
   const status = (order.status || 'pending').toLowerCase();
   const canCancel = ['pending', 'processing', 'paid', 'confirmed'].includes(status);
   const isDelivered = status === 'delivered';
-  const isCancelled = status === 'cancelled' || status === 'refunded';
+  const isCancelled = ['cancelled', 'refunded', 'partially_refunded', 'payment_failed'].includes(status);
   const normalizedStatus = status === 'pending' || status === 'paid' ? 'confirmed' : status === 'in_transit' ? 'shipped' : status;
   const currentStepIdx = STATUS_FLOW.indexOf(normalizedStatus);
   const ref = `#HSP-${String(order.order_id || orderId).slice(-8).toUpperCase()}`;
@@ -190,11 +190,15 @@ export default function OrderDetailPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-stone-950">
-                {status === 'refunded' ? 'Pedido reembolsado' : 'Pedido cancelado'}
+                {status === 'refunded' ? 'Pedido reembolsado'
+                  : status === 'partially_refunded' ? 'Reembolso parcial'
+                  : status === 'payment_failed' ? 'Pago fallido'
+                  : 'Pedido cancelado'}
               </p>
               <p className="text-xs text-stone-500">
-                {status === 'refunded'
-                  ? 'El importe se reflejará en tu cuenta en 5-10 días hábiles'
+                {status === 'refunded' ? 'El importe se reflejará en tu cuenta en 5-10 días hábiles'
+                  : status === 'partially_refunded' ? 'Se ha reembolsado parte del importe a tu cuenta'
+                  : status === 'payment_failed' ? 'El pago no se pudo procesar. Inténtalo de nuevo o contacta con soporte.'
                   : 'Este pedido fue cancelado'}
               </p>
             </div>

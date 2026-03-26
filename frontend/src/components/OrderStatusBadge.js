@@ -1,16 +1,19 @@
 import React from 'react';
-import { Clock, Check, Package, Truck, XCircle, CreditCard } from 'lucide-react';
+import { Clock, Check, Package, Truck, XCircle, CreditCard, AlertTriangle, RotateCcw } from 'lucide-react';
 
 const STATUS_CONFIG = {
-  pending:   { icon: Clock,      label: 'Pendiente',  color: 'bg-stone-100 text-stone-700' },
-  paid:      { icon: CreditCard, label: 'Pagado',     color: 'bg-stone-100 text-stone-700' },
-  confirmed: { icon: Check,      label: 'Confirmado', color: 'bg-stone-100 text-stone-700' },
-  preparing: { icon: Package,    label: 'Preparando', color: 'bg-stone-100 text-stone-700' },
-  shipped:   { icon: Truck,      label: 'Enviado',    color: 'bg-stone-100 text-stone-700' },
-  delivered: { icon: Check,      label: 'Entregado',  color: 'bg-stone-950 text-white' },
-  completed: { icon: Check,      label: 'Completado', color: 'bg-stone-950 text-white' },
-  cancelled: { icon: XCircle,    label: 'Cancelado',  color: 'border border-stone-200 text-stone-400 bg-white' },
-  refunded:  { icon: XCircle,    label: 'Reembolsado', color: 'border border-stone-200 text-stone-400 bg-white' },
+  pending:              { icon: Clock,          label: 'Pendiente',           color: 'bg-stone-100 text-stone-700' },
+  paid:                 { icon: CreditCard,     label: 'Pagado',              color: 'bg-stone-100 text-stone-700' },
+  processing:           { icon: Clock,          label: 'Procesando',          color: 'bg-stone-100 text-stone-700' },
+  confirmed:            { icon: Check,          label: 'Confirmado',          color: 'bg-stone-100 text-stone-700' },
+  preparing:            { icon: Package,        label: 'Preparando',          color: 'bg-stone-100 text-stone-700' },
+  shipped:              { icon: Truck,          label: 'Enviado',             color: 'bg-stone-100 text-stone-700' },
+  delivered:            { icon: Check,          label: 'Entregado',           color: 'bg-stone-950 text-white' },
+  completed:            { icon: Check,          label: 'Completado',          color: 'bg-stone-950 text-white' },
+  cancelled:            { icon: XCircle,        label: 'Cancelado',           color: 'border border-stone-200 text-stone-400 bg-white' },
+  refunded:             { icon: RotateCcw,      label: 'Reembolsado',         color: 'border border-stone-200 text-stone-400 bg-white' },
+  partially_refunded:   { icon: RotateCcw,      label: 'Reembolso parcial',   color: 'border border-stone-200 text-stone-500 bg-white' },
+  payment_failed:       { icon: AlertTriangle,  label: 'Pago fallido',        color: 'border border-stone-200 text-stone-500 bg-white' },
 };
 
 export function getStatusLabel(status) {
