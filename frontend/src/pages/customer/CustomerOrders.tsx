@@ -113,12 +113,13 @@ export default function CustomerOrders() {
   const [reorderingId, setReorderingId] = useState<string | null>(null);
 
   const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const fetchOrders = useCallback(async () => {
+    if (page > 1) setLoadingMore(true);
     try {
       const data = await apiClient.get(`/customer/orders?limit=${LIMIT}&skip=${(page - 1) * LIMIT}`);
       const fetched = Array.isArray(data) ? data : data?.orders || [];
       setOrders(prev => page === 1 ? fetched : [...prev, ...fetched]);
-      // Use server's has_more if available, otherwise heuristic
       if (data?.has_more != null) {
         setHasMore(data.has_more);
       } else {
@@ -128,6 +129,7 @@ export default function CustomerOrders() {
       toast.error('Error al cargar los pedidos');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [page]);
 
@@ -282,7 +284,7 @@ export default function CustomerOrders() {
                       </span>
                       {order.status === 'refunded' && order.refund_amount_cents != null && (
                         <span className="text-xs text-stone-500">
-                          {convertAndFormatPrice((order.refund_amount_cents || 0) / 100)}
+                          {convertAndFormatPrice((order.refund_amount_cents || 0) / 100, order.currency || 'EUR', currency)}
                         </span>
                       )}
                       {order.cancelled_at && (
@@ -341,9 +343,10 @@ export default function CustomerOrders() {
       {hasMore && orders.length > 0 && (
         <button
           onClick={() => setPage(p => p + 1)}
-          className="w-full mt-4 py-3 text-sm font-semibold text-stone-700 bg-white rounded-2xl shadow-sm hover:bg-stone-50 transition-colors"
+          disabled={loadingMore}
+          className="w-full mt-4 py-3 min-h-[44px] text-sm font-semibold text-stone-700 bg-white rounded-2xl shadow-sm hover:bg-stone-50 transition-colors disabled:opacity-50"
         >
-          Cargar más pedidos
+          {loadingMore ? 'Cargando...' : 'Cargar más pedidos'}
         </button>
       )}
       </div>

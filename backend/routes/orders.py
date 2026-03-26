@@ -511,7 +511,7 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
             else:
                 result = await db.products.update_one(
                     {"product_id": item_product_id, "stock": {"$gte": item_qty}},
-                    {"$inc": {"stock": -item_qty}}
+                    {"$inc": {"stock": -item_qty, "stock_quantity": -item_qty}}
                 )
                 if result.matched_count == 0:
                     stock_issues.append(item.get("product_name", item_product_id))

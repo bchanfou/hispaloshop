@@ -5,7 +5,7 @@ import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Truck, Check, Clock, Package, ExternalLink, Star, MessageCircle, Loader2, FileText,
+  ArrowLeft, Truck, Check, Clock, Package, ExternalLink, Star, MessageCircle, Loader2, FileText, XCircle,
 } from 'lucide-react';
 import { useLocale } from '../../context/LocaleContext';
 
@@ -182,6 +182,25 @@ export default function OrderDetailPage() {
       </div>
 
       <div className="px-4 max-w-[600px] mx-auto pt-4">
+        {/* ── Cancelled/Refunded Banner ── */}
+        {isCancelled && (
+          <div className={`rounded-2xl p-4 mb-4 flex items-center gap-3 ${status === 'refunded' ? 'bg-stone-100 border border-stone-200' : 'bg-stone-100 border border-stone-200'}`}>
+            <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center flex-shrink-0">
+              <XCircle size={20} className="text-stone-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-stone-950">
+                {status === 'refunded' ? 'Pedido reembolsado' : 'Pedido cancelado'}
+              </p>
+              <p className="text-xs text-stone-500">
+                {status === 'refunded'
+                  ? 'El importe se reflejará en tu cuenta en 5-10 días hábiles'
+                  : 'Este pedido fue cancelado'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ── Status Timeline ── */}
         {!isCancelled && currentStepIdx >= 0 && (
           <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-4">
@@ -196,7 +215,7 @@ export default function OrderDetailPage() {
 
                 return (
                   <React.Fragment key={s}>
-                    <div className={`flex flex-col items-center ${isLast ? 'flex-none' : 'flex-0'}`}>
+                    <div className={`flex flex-col items-center ${isLast ? 'flex-none' : 'flex-1'}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center relative ${
                         isCompleted || isActive ? 'bg-stone-950' : 'bg-transparent border-2 border-stone-200'
                       }`}>
