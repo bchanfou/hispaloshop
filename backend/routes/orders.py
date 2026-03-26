@@ -791,7 +791,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     # Guard: Stripe must be configured with a real key
     _sk = STRIPE_SECRET_KEY or ""
     if not (_sk.startswith(("sk_live_", "sk_test_")) and len(_sk) > 20 and "PENDIENTE" not in _sk):
-        raise HTTPException(status_code=503, detail="Payment processing not configured. Contact the administrator.")
+        raise HTTPException(status_code=503, detail="El procesamiento de pagos no está configurado. Contacta con el administrador.")
 
     # Check email verification before checkout
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "email_verified": 1, "locale": 1})
@@ -836,7 +836,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
              "inventory_by_country": 1}
         )
         if not product:
-            stock_issues.append(f"Product '{item['product_name']}' no longer available")
+            stock_issues.append(f"'{item['product_name']}' ya no está disponible")
             continue
         
         # Validate country availability
@@ -1286,7 +1286,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
     # Check country availability
     product["target_markets"] = get_product_target_markets(product)
     if not is_product_available_in_country(product, user_country):
-        raise HTTPException(status_code=400, detail=f"Product not available in {user_country}")
+        raise HTTPException(status_code=400, detail=f"Producto no disponible en {user_country}")
     
     # Get country-specific price and currency
     country_prices = product.get("country_prices", {})
@@ -1340,7 +1340,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         if current_stock < input.quantity:
             raise HTTPException(
                 status_code=400, 
-                detail=f"Insufficient stock. Only {current_stock} units available"
+                detail=f"Stock insuficiente. Solo {current_stock} unidades disponibles"
             )
     
     # Calculate subtotal (product price only)
@@ -1846,9 +1846,9 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
     
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     if order.get("status") in ("refunded", "cancelled"):
-        raise HTTPException(status_code=400, detail="Order already refunded/cancelled")
+        raise HTTPException(status_code=400, detail="El pedido ya fue reembolsado o cancelado")
     
     total_amount = order.get("total_amount", 0)
     refund_amount = total_amount if refund_type == "full" else min(partial_amount, total_amount)
@@ -2300,18 +2300,18 @@ async def get_orders(response: Response, user: User = Depends(get_current_user))
 async def get_order(order_id: str, user: User = Depends(get_current_user)):
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     # Customers can only see their own orders
     if user.role in ("customer", "consumer") and order.get("user_id") != user.user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="No autorizado")
     # Producers/importers can only see orders containing their products
     if user.role in ("producer", "importer"):
         order_producer_ids = {item.get("producer_id") for item in order.get("line_items", [])}
         if user.user_id not in order_producer_ids:
-            raise HTTPException(status_code=403, detail="Not authorized")
+            raise HTTPException(status_code=403, detail="No autorizado")
     # Influencers can only see orders with their referral
     if user.role == "influencer" and order.get("influencer_id") != user.user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="No autorizado")
     # Admin/super_admin can see all orders
     return order
 
@@ -2336,7 +2336,7 @@ async def cancel_order(order_id: str, user: User = Depends(get_current_user)):
     order = await get_order(order_id, user)
     current_status = (order.get("status") or "").lower()
     if current_status in {"delivered", "cancelled", "refunded"}:
-        raise HTTPException(status_code=400, detail="Order cannot be cancelled")
+        raise HTTPException(status_code=400, detail="Este pedido no se puede cancelar")
 
     await db.orders.update_one(
         {"order_id": order_id, "user_id": user.user_id},
@@ -2355,7 +2355,7 @@ async def reorder_order(order_id: str, user: User = Depends(get_current_user)):
     """Legacy reorder endpoint for frontend compatibility."""
     order = await get_order(order_id, user)
     if user.role == "customer" and order.get("user_id") != user.user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="No autorizado")
 
     line_items = order.get("line_items", [])
     if not line_items:
@@ -2415,7 +2415,7 @@ async def customer_reorder(order_id: str, user: User = Depends(get_current_user)
         except Exception:
             pass
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
     line_items = order.get("line_items", order.get("items", []))
     if not line_items:
@@ -2482,7 +2482,7 @@ async def update_producer_order_status(order_id: str, body: dict, user: User = D
         except Exception:
             pass
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
     # Verify this producer has at least one item in the order
     line_items = order.get("line_items", order.get("items", []))
@@ -2520,7 +2520,7 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, user: Us
     # Get the order
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     
     current_status = order.get("status", "pending")
     

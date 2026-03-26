@@ -295,8 +295,8 @@ export default function CustomerOrders() {
                           ? 'bg-stone-100 text-stone-700'
                           : 'bg-stone-100 text-stone-500'
                       }`}>
-                        {order.status === 'refunded' ? <RotateCcw size={12} /> : <Clock size={12} />}
-                        {order.status === 'cancelled' ? 'Cancelado' : 'Reembolsado'}
+                        {(order.status === 'refunded' || order.status === 'partially_refunded') ? <RotateCcw size={12} /> : <Clock size={12} />}
+                        {STATUS_LABELS[order.status] || order.status}
                       </span>
                       {order.status === 'refunded' && order.refund_amount_cents != null && (
                         <span className="text-xs text-stone-500">

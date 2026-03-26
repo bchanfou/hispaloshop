@@ -329,7 +329,7 @@ async def update_customer_profile(data: dict, user: User = Depends(get_current_u
                 {"producer_id": user.user_id},
                 {"$set": {"name": update_data["name"]}},
             )
-    return {"message": "Profile updated"}
+    return {"message": "Perfil actualizado"}
 
 @router.put("/customer/password")
 async def change_customer_password(data: dict = Body(...), user: User = Depends(get_current_user)):
@@ -337,17 +337,17 @@ async def change_customer_password(data: dict = Body(...), user: User = Depends(
     current_password = data.get("current_password")
     new_password = data.get("new_password")
     if not current_password or not new_password:
-        raise HTTPException(status_code=400, detail="Current password and new password are required")
+        raise HTTPException(status_code=400, detail="La contraseña actual y la nueva son obligatorias")
 
     user_doc = await db.users.find_one({"user_id": user.user_id})
     if not user_doc:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
     if not verify_password(current_password, user_doc.get("password_hash", "")):
-        raise HTTPException(status_code=400, detail="Current password is incorrect")
+        raise HTTPException(status_code=400, detail="La contraseña actual es incorrecta")
 
     await db.users.update_one({"user_id": user.user_id}, {"$set": {"password_hash": hash_password(new_password)}})
-    return {"message": "Password changed"}
+    return {"message": "Contraseña actualizada"}
 
 @router.get("/customer/stats")
 async def get_customer_stats(user: User = Depends(get_current_user)):
@@ -404,7 +404,7 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
 
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "email": 1})
     if not user_doc:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
     if email_confirmation.lower().strip() != (user_doc.get("email", "")).lower().strip():
         raise HTTPException(status_code=400, detail="El email no coincide con tu cuenta")
@@ -475,7 +475,7 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
         )
 
     await db.users.delete_one({"user_id": user_id})
-    return {"message": "Account deleted successfully"}
+    return {"message": "Cuenta eliminada correctamente"}
 
 
 @router.put("/account/update-email")
@@ -485,15 +485,15 @@ async def update_email(data: dict, user: User = Depends(get_current_user)):
     password = data.get("password")
     
     if not new_email or not password:
-        raise HTTPException(status_code=400, detail="Email and password required")
+        raise HTTPException(status_code=400, detail="Email y contraseña son obligatorios")
     
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "password_hash": 1})
     if not verify_password(password, user_doc.get("password_hash", "")):
-        raise HTTPException(status_code=400, detail="Incorrect password")
+        raise HTTPException(status_code=400, detail="Contraseña incorrecta")
     
     existing = await db.users.find_one({"email": new_email}, {"_id": 0, "user_id": 1})
     if existing and existing.get("user_id") != user.user_id:
-        raise HTTPException(status_code=400, detail="Email already in use")
+        raise HTTPException(status_code=400, detail="Este email ya está en uso")
     
     await db.users.update_one(
         {"user_id": user.user_id},
