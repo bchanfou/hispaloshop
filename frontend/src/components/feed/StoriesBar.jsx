@@ -24,6 +24,7 @@ function normalizeStories(raw) {
     items: s.preview ? [{
       id: `${s.user_id}_preview`,
       image_url: s.preview.image,
+      video_url: s.preview.video,
       caption: s.preview.text,
       type: s.preview.type,
       price: s.preview.price,

@@ -498,7 +498,7 @@ export default function CreateStoryPage() {
             ctx.fillText('Escribe tu respuesta...', x, y + 22);
           } else if (s.type === 'mention') {
             ctx.font = 'bold 14px sans-serif';
-            const label = '@' + s.content;
+            const label = s.content.startsWith('@') ? s.content : '@' + s.content;
             const measured = ctx.measureText(label);
             ctx.fillStyle = 'rgba(0,0,0,0.7)';
             ctx.beginPath(); ctx.roundRect(x - measured.width/2 - 14, y - 13, measured.width + 28, 26, 13); ctx.fill();

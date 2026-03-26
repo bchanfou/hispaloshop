@@ -2328,6 +2328,8 @@ async def create_story(
     file: UploadFile = File(...),
     caption: str = Form(""),
     location: str = Form(""),
+    overlays_json: str = Form(""),
+    products_json: str = Form(""),
     user: User = Depends(get_current_user)
 ):
     """Upload a story that auto-expires after 24h."""
@@ -2366,6 +2368,19 @@ async def create_story(
         "likes_count": 0,
         "replies_count": 0,
     }
+    # Parse and store overlay metadata (text, stickers, draws for video stories)
+    if overlays_json:
+        try:
+            story["overlays"] = json.loads(overlays_json) if isinstance(overlays_json, str) else overlays_json
+        except Exception:
+            story["overlays"] = {}
+    # Parse and store product sticker references
+    if products_json:
+        try:
+            products = json.loads(products_json) if isinstance(products_json, str) else products_json
+            story["products"] = products if isinstance(products, list) else []
+        except Exception:
+            story["products"] = []
     await db.hispalostories.insert_one(story)
     return {k: v for k, v in story.items() if k != "_id"}
 

@@ -111,7 +111,7 @@ async def get_stories(request: Request):
     try:
         active_ephemeral = await db.hispalostories.find(
             story_query,
-            {"_id": 0, "user_id": 1, "image_url": 1, "caption": 1, "created_at": 1, "views": 1},
+            {"_id": 0, "user_id": 1, "image_url": 1, "video_url": 1, "caption": 1, "created_at": 1, "views": 1},
         ).sort("created_at", -1).to_list(300)
     except Exception as exc:
         logger.warning(f"[FEED/STORIES] hispalostories unavailable: {exc}")
@@ -160,6 +160,7 @@ async def get_stories(request: Request):
             "preview": {
                 "type": "story",
                 "image": story.get("image_url"),
+                "video": story.get("video_url"),
                 "text": (story.get("caption") or "")[:60],
             },
             "is_recent": True,

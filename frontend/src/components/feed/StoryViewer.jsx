@@ -464,7 +464,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     } finally {
       setShareLoading(false);
     }
-  }, [currentItem, user]);
+  }, [currentItem, currentStory]);
 
   const handleShareToUser = useCallback(async (conversation) => {
     const convId = conversation.id || conversation._id || conversation.conversation_id;
@@ -703,11 +703,11 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               <button
                 onClick={async (e) => {
                   e.stopPropagation();
-                  if (!confirm('¿Eliminar esta story?')) return;
+                  if (!confirm('¿Eliminar esta historia?')) return;
                   try {
                     const sid = currentItem?.story_id || currentItem?.id;
                     await apiClient.delete(`/stories/${sid}`);
-                    toast.success('Story eliminada');
+                    toast.success('Historia eliminada');
                     onClose();
                   } catch { toast.error('No se pudo eliminar'); }
                 }}
@@ -1029,7 +1029,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 <input
                   value={shareSearch}
                   onChange={(e) => setShareSearch(e.target.value)}
-                  placeholder="Buscar conversacion..."
+                  placeholder="Buscar conversación..."
                   className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
                   autoFocus
                 />
