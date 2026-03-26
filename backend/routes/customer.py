@@ -33,10 +33,19 @@ def _extract_product_image(product: dict) -> str | None:
 # ============================================
 
 @router.get("/customer/orders")
-async def get_customer_orders(user: User = Depends(get_current_user)):
-    """Get orders for logged-in customer"""
-    orders = await db.orders.find({"user_id": user.user_id}, {"_id": 0}).sort("created_at", -1).to_list(100)
-    return orders
+async def get_customer_orders(
+    user: User = Depends(get_current_user),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    status: str = Query(None),
+):
+    """Get orders for logged-in customer with pagination and optional status filter"""
+    query = {"user_id": user.user_id}
+    if status and status != "all":
+        query["status"] = {"$in": status.split(",")}
+    total = await db.orders.count_documents(query)
+    orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"orders": orders, "total": total, "has_more": skip + limit < total}
 
 @router.get("/customer/orders/{order_id}")
 async def get_customer_order_detail(order_id: str, user: User = Depends(get_current_user)):
@@ -174,18 +183,32 @@ async def submit_order_review(
 
 @router.put("/customer/orders/{order_id}/cancel")
 async def cancel_customer_order(order_id: str, user: User = Depends(get_current_user)):
-    """Cancel an order (if status allows)"""
+    """Cancel an order (if status allows — pending, paid, confirmed before preparation)"""
     order = await db.orders.find_one({"order_id": order_id, "user_id": user.user_id}, {"_id": 0})
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    if order["status"] not in ["pending", "processing"]:
-        raise HTTPException(status_code=400, detail="Order cannot be cancelled")
-    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "cancelled", "updated_at": datetime.now(timezone.utc).isoformat()}})
-    
-    # Phase 4: Reverse influencer commission if applicable
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    cancellable = ["pending", "processing", "paid", "confirmed"]
+    if order["status"] not in cancellable:
+        raise HTTPException(status_code=400, detail="Este pedido no se puede cancelar porque ya está en preparación o enviado")
+    await db.orders.update_one({"order_id": order_id}, {"$set": {
+        "status": "cancelled",
+        "cancelled_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }})
+
+    # Restore stock for each item in the order
+    for item in order.get("line_items", []):
+        pid = item.get("product_id")
+        qty = item.get("quantity", 0)
+        if pid and qty > 0:
+            await db.products.update_one(
+                {"product_id": pid},
+                {"$inc": {"stock": qty, "stock_quantity": qty}}
+            )
+
+    # Reverse influencer commission if applicable
     if order.get("influencer_id") and order.get("influencer_commission_status") == "pending":
         commission_amount = order.get("influencer_commission_amount", 0)
-        
         await db.orders.update_one(
             {"order_id": order_id},
             {"$set": {"influencer_commission_status": "reversed"}}
@@ -202,8 +225,8 @@ async def cancel_customer_order(order_id: str, user: User = Depends(get_current_
                 "available_balance": -commission_amount
             }}
         )
-    
-    return {"message": "Order cancelled"}
+
+    return {"message": "Pedido cancelado correctamente"}
 
 @router.get("/customer/profile")
 async def get_customer_profile(user: User = Depends(get_current_user)):

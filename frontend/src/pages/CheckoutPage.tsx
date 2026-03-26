@@ -542,7 +542,7 @@ export default function CheckoutPage() {
             <div className="sticky bottom-0 z-30 mt-4 bg-white/80 backdrop-blur-xl pt-3 pb-[max(12px,env(safe-area-inset-bottom))] lg:static lg:bg-transparent lg:backdrop-blur-none lg:pb-0">
               <button
                 onClick={handlePay}
-                disabled={checkoutLoading || paying}
+                disabled={checkoutLoading || paying || (user && !emailVerified)}
                 className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-live="polite"
               >

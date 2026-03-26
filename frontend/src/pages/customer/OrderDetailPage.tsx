@@ -147,7 +147,7 @@ export default function OrderDetailPage() {
   if (!order) return null;
 
   const status = (order.status || 'pending').toLowerCase();
-  const canCancel = ['pending', 'processing'].includes(status);
+  const canCancel = ['pending', 'processing', 'paid', 'confirmed'].includes(status);
   const isDelivered = status === 'delivered';
   const isCancelled = status === 'cancelled' || status === 'refunded';
   const normalizedStatus = status === 'pending' || status === 'paid' ? 'confirmed' : status === 'in_transit' ? 'shipped' : status;
@@ -264,7 +264,7 @@ export default function OrderDetailPage() {
         <SectionLabel>PRODUCTOS</SectionLabel>
         <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
           {items.map((item, i) => (
-            <div key={i} className={`flex items-center gap-3 p-3.5 ${i < items.length - 1 ? 'border-b border-stone-200' : ''}`}>
+            <div key={`${item.product_id || ''}-${item.variant_id || ''}-${i}`} className={`flex items-center gap-3 p-3.5 ${i < items.length - 1 ? 'border-b border-stone-200' : ''}`}>
               <div className="w-14 h-14 rounded-xl bg-stone-100 overflow-hidden shrink-0">
                 {(item.image || item.product_image) && (
                   <img loading="lazy" src={item.image || item.product_image} alt="" className="w-full h-full object-cover" />
