@@ -206,13 +206,14 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
   const isOwner = (currentUser?.user_id || currentUser?.id) && ((currentUser.user_id || currentUser.id) === (post.user?.id || post.user_id));
 
-  // Cleanup timers on unmount to prevent memory leaks + setState on unmounted component
+  // Cleanup timers + RAF on unmount to prevent memory leaks + setState on unmounted component
   React.useEffect(() => {
     return () => {
       clearTimeout(heartTimerRef.current);
       clearTimeout(undoTimerRef.current);
       clearTimeout(longPressRef.current);
       clearTimeout(deleteTimerRef.current);
+      cancelAnimationFrame(scrollThrottleRef.current);
     };
   }, []);
 

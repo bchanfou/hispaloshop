@@ -344,7 +344,7 @@ function CommentInput({ isAuthenticated, user, replyTo, setReplyTo, newComment, 
     <div className="border-t border-stone-100 bg-white">
       {replyTo && (
         <div className="flex items-center justify-between bg-stone-100 rounded-xl mx-3 mt-2 px-3 py-2 text-xs text-stone-600">
-          <span>Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username}</span></span>
+          <span>Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username || replyTo.user_name || 'usuario'}</span></span>
           <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0 ml-2">
             <X size={14} className="text-stone-400" />
           </button>

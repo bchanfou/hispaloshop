@@ -542,7 +542,7 @@ export default function PostDetailPage() {
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-100" style={{ paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}>
           {replyTo && (
             <div className="flex items-center justify-between px-4 py-1.5 bg-stone-50 text-[12px] text-stone-500">
-              <span>Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username}</span></span>
+              <span>Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username || replyTo.user_name || 'usuario'}</span></span>
               <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="bg-transparent border-none cursor-pointer p-0">
                 <X size={14} className="text-stone-400" />
               </button>
