@@ -112,7 +112,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const [sendingComment, setSendingComment] = useState(false);
   const [likedComments, setLikedComments] = useState(new Set());
   const [replyTo, setReplyTo] = useState(null);
-  const [isFollowing, setIsFollowing] = useState(reel.is_following ?? false);
+  const [isFollowing, setIsFollowing] = useState(reel.is_following ?? reel.user?.is_followed_by_me ?? false);
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const commentInputRef = useRef(null);
@@ -826,7 +826,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             transition={{ type: 'spring', stiffness: 400, damping: 15, duration: 0.3 }}
             className="text-xs text-white font-sans leading-none"
           >
-            {likesCount}
+            {abbreviateCount(likesCount)}
           </motion.span>
           </button>
         </div>
@@ -847,7 +847,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           onClick={async () => {
             trigger('light');
             const reelId = reel.id || reel.reel_id || reel.post_id;
-            const url = `${window.location.origin}/reels/${reelId}`;
+            const url = `${window.location.origin}/posts/${reelId}`;
             try {
               if (navigator.share) {
                 await navigator.share({ title: reel.caption || 'Reel', url });

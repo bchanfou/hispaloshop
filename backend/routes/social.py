@@ -347,7 +347,7 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
     if reel_uids:
         reel_user_docs = await db.users.find(
             {"user_id": {"$in": reel_uids}},
-            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1}
+            {"_id": 0, "user_id": 1, "username": 1, "name": 1, "profile_image": 1}
         ).to_list(100)
         reel_user_cache = {u["user_id"]: u for u in reel_user_docs}
     followed_set = set()
@@ -687,6 +687,7 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
             raise HTTPException(status_code=403, detail="Not authorized to interact with this reel")
 
     comment_id = f"rcom_{uuid.uuid4().hex[:10]}"
+    reply_to = body.get("reply_to")
     comment = {
         "comment_id": comment_id,
         "reel_id": reel.get("reel_id") or reel.get("id") or reel_id,
@@ -694,6 +695,7 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
         "user_name": user.get("name") if hasattr(user, "get") else getattr(user, "name", "Usuario"),
         "user_profile_image": user.get("profile_image") if hasattr(user, "get") else getattr(user, "profile_image", None),
         "text": sanitize_text(text[:500]),
+        "reply_to": reply_to,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "likes_count": 0,
         "replies": [],
@@ -830,6 +832,7 @@ async def delete_reel(reel_id: str, user: User = Depends(get_current_user)):
     await db.reels.delete_one(filter_q)
     await db.reel_likes.delete_many({"reel_id": reel_id})
     await db.reel_comments.delete_many({"reel_id": reel_id})
+    await db.reel_saves.delete_many({"reel_id": reel_id})
     return {"status": "deleted"}
 
 

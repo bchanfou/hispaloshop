@@ -16,7 +16,7 @@ const FILTERS = [
   { name: 'Antiguo', emoji: '📜', value: 'sepia(0.45) saturate(0.8) brightness(1.05)' },
 ];
 
-const SPEED_OPTIONS = [0.3, 0.5, 1, 2, 3];
+const SPEED_OPTIONS = [0.5, 0.75, 1, 1.5, 2];
 
 const FONTS = ['Sans', 'Serif', 'Mono', 'Display'];
 const TEXT_COLORS = ['#ffffff', '#0c0a09', '#78716c', '#d6d3d1', '#a8a29e'];
@@ -1024,15 +1024,15 @@ export default function CreateReelPage() {
           </div>
           <textarea
             value={caption}
-            onChange={(e) => { if (e.target.value.length <= 2200) setCaption(e.target.value); }}
+            onChange={(e) => { if (e.target.value.length <= 500) setCaption(e.target.value); }}
             placeholder="Describe tu reel..."
             rows={4}
-            maxLength={2200}
+            maxLength={500}
             className="w-full bg-transparent text-stone-950 border border-stone-200 rounded-2xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border relative caret-stone-950"
             aria-label="Descripción del reel"
           />
           <div className={`text-right text-xs mt-1 ${caption.length > 2000 ? 'text-stone-950' : 'text-stone-400'}`}>
-            {caption.length}/2200
+            {caption.length}/500
           </div>
         </div>
 
