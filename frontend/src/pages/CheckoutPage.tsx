@@ -89,7 +89,7 @@ function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel, 
       <div className="flex flex-col gap-1.5">
         <SummaryRow label="Subtotal" value={fmt(subtotal)} />
         {discount > 0 && <SummaryRow label="Descuento" value={`-${fmt(discount)}`} />}
-        <SummaryRow label="Envio" value={shipping === 0 ? (shippingLabel || 'Calculando...') : fmt(shipping)} />
+        <SummaryRow label="Envío" value={shipping === 0 ? (shippingLabel || 'Calculando...') : fmt(shipping)} />
         <div className="h-px bg-stone-200 my-1" />
         <SummaryRow label="Total" value={fmt(total)} bold />
       </div>
@@ -271,9 +271,9 @@ export default function CheckoutPage() {
       <Stepper current={step} onStepClick={(s) => { if (s < step) setStep(s); }} />
 
       {/* Content — desktop: 2-col (form left 60%, summary right 40%) */}
-      <div className="mx-auto max-w-[960px] px-4 pt-6 pb-24 lg:flex lg:gap-8 lg:items-start">
+      <div className="mx-auto max-w-[960px] px-4 pt-6 pb-24">
 
-        {/* Email verification banner */}
+        {/* Email verification banner — full width, before 2-col layout */}
         {user && emailVerified === false && (
           <div className="bg-stone-100 rounded-2xl p-4 mb-4 flex items-center justify-between w-full">
             <div>
@@ -283,6 +283,8 @@ export default function CheckoutPage() {
             <Link to="/settings" className="text-sm font-semibold text-stone-950 underline">Verificar</Link>
           </div>
         )}
+
+        <div className="lg:flex lg:gap-8 lg:items-start">
 
         {/* ── Left: Form Steps ── */}
         <div className="lg:w-[60%]">
@@ -564,6 +566,7 @@ export default function CheckoutPage() {
           <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel={step === 1 ? 'Según dirección' : undefined} formatPrice={formatPrice} />
         </div>
 
+        </div>
       </div>
     </div>
   );

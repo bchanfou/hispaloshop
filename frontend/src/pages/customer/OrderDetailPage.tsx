@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft, Truck, Check, Clock, Package, ExternalLink, Star, MessageCircle, Loader2, FileText,
 } from 'lucide-react';
+import { useLocale } from '../../context/LocaleContext';
 
 const STATUS_FLOW = ['confirmed', 'preparing', 'shipped', 'delivered'];
 const STATUS_LABELS = {
@@ -37,6 +38,7 @@ function SectionLabel({ children }) {
 export default function OrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const { convertAndFormatPrice, currency } = useLocale();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviewRating, setReviewRating] = useState(0);
@@ -108,12 +110,12 @@ export default function OrderDetailPage() {
         '',
         'PRODUCTOS',
         '─'.repeat(40),
-        ...data.items.map(it => `${it.name}  x${it.quantity}  ${Number(it.unit_price).toFixed(2)}€  →  ${Number(it.total).toFixed(2)}€`),
+        ...data.items.map(it => `${it.name}  x${it.quantity}  ${convertAndFormatPrice(Number(it.unit_price), order?.currency || 'EUR')}  →  ${convertAndFormatPrice(Number(it.total), order?.currency || 'EUR')}`),
         '─'.repeat(40),
-        `Subtotal: ${Number(data.subtotal).toFixed(2)}€`,
-        `Envío: ${Number(data.shipping).toFixed(2)}€`,
-        `IVA: ${Number(data.tax).toFixed(2)}€`,
-        `TOTAL: ${Number(data.total).toFixed(2)}€`,
+        `Subtotal: ${convertAndFormatPrice(Number(data.subtotal), order?.currency || 'EUR')}`,
+        `Envío: ${convertAndFormatPrice(Number(data.shipping), order?.currency || 'EUR')}`,
+        `IVA: ${convertAndFormatPrice(Number(data.tax), order?.currency || 'EUR')}`,
+        `TOTAL: ${convertAndFormatPrice(Number(data.total), order?.currency || 'EUR')}`,
         '',
         `Estado: ${INVOICE_STATUS_ES[data.status] || data.status}`,
         `Método de pago: ${data.payment_method}`,
@@ -145,17 +147,19 @@ export default function OrderDetailPage() {
   if (!order) return null;
 
   const status = (order.status || 'pending').toLowerCase();
-  const canCancel = ['pending', 'paid', 'confirmed'].includes(status);
+  const canCancel = ['pending', 'processing'].includes(status);
   const isDelivered = status === 'delivered';
   const isCancelled = status === 'cancelled' || status === 'refunded';
   const normalizedStatus = status === 'pending' || status === 'paid' ? 'confirmed' : status === 'in_transit' ? 'shipped' : status;
   const currentStepIdx = STATUS_FLOW.indexOf(normalizedStatus);
   const ref = `#HSP-${String(order.order_id || orderId).slice(-8).toUpperCase()}`;
   const items = order.items || order.line_items || [];
-  const subtotal = order.subtotal_cents ? (order.subtotal_cents / 100).toFixed(2) : order.subtotal ? Number(order.subtotal).toFixed(2) : null;
-  const discount = order.discount_cents ? (order.discount_cents / 100).toFixed(2) : order.discount ? Number(order.discount).toFixed(2) : null;
-  const shipping = order.shipping_cents != null ? (order.shipping_cents / 100).toFixed(2) : order.shipping_amount != null ? Number(order.shipping_amount).toFixed(2) : null;
-  const total = order.total_cents ? (order.total_cents / 100).toFixed(2) : order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00';
+  const orderCurrency = order.currency || 'EUR';
+  const fmtPrice = (v) => convertAndFormatPrice(v, orderCurrency);
+  const subtotalNum = order.subtotal_cents ? order.subtotal_cents / 100 : order.subtotal ? Number(order.subtotal) : null;
+  const discountNum = order.discount_cents ? order.discount_cents / 100 : order.discount ? Number(order.discount) : null;
+  const shippingNum = order.shipping_cents != null ? order.shipping_cents / 100 : order.shipping_amount != null ? Number(order.shipping_amount) : null;
+  const totalNum = order.total_cents ? order.total_cents / 100 : order.total_amount ? Number(order.total_amount) : 0;
 
   const statusTimestamps = {};
   if (order.status_history) {
@@ -274,9 +278,9 @@ export default function OrderDetailPage() {
               </div>
               <span className="text-sm font-semibold text-stone-950 shrink-0">
                 {item.unit_price_cents
-                  ? `${(item.unit_price_cents / 100 * item.quantity).toFixed(2)} €`
+                  ? convertAndFormatPrice(item.unit_price_cents / 100 * item.quantity, order.currency || 'EUR')
                   : item.price
-                    ? `${(Number(item.price) * item.quantity).toFixed(2)} €`
+                    ? convertAndFormatPrice(Number(item.price) * item.quantity, order.currency || 'EUR')
                     : ''}
               </span>
             </div>
@@ -302,11 +306,11 @@ export default function OrderDetailPage() {
         <SectionLabel>RESUMEN DE PAGO</SectionLabel>
         <div className="bg-white border border-stone-200 rounded-2xl p-4">
           <div className="flex flex-col gap-1.5">
-            {subtotal && <PaymentRow label="Subtotal" value={`${subtotal}€`} />}
-            {discount && Number(discount) > 0 && <PaymentRow label="Descuento" value={`-${discount}€`} />}
-            {shipping != null && <PaymentRow label="Envío" value={Number(shipping) === 0 ? 'Gratis' : `${shipping}€`} />}
+            {subtotalNum != null && <PaymentRow label="Subtotal" value={fmtPrice(subtotalNum)} />}
+            {discountNum != null && discountNum > 0 && <PaymentRow label="Descuento" value={`-${fmtPrice(discountNum)}`} />}
+            {shippingNum != null && <PaymentRow label="Envío" value={shippingNum === 0 ? 'Gratis' : fmtPrice(shippingNum)} />}
             <div className="h-px bg-stone-200 my-1" />
-            <PaymentRow label="Total" value={`${total}€`} bold />
+            <PaymentRow label="Total" value={fmtPrice(totalNum)} bold />
           </div>
           {order.payment_method && (
             <p className="text-xs text-stone-500 mt-3">

@@ -7,6 +7,7 @@ import apiClient from '../services/api/client';
 import { captureException } from '../lib/sentry';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCart } from '../context/CartContext';
+import { useLocale } from '../context/LocaleContext';
 
 function estimateDeliveryRange(createdAt) {
   const base = createdAt ? new Date(createdAt) : new Date();
@@ -32,6 +33,7 @@ export default function CheckoutSuccessPage() {
   const [order, setOrder] = useState(null);
   const queryClient = useQueryClient();
   const { fetchCart } = useCart();
+  const { convertAndFormatPrice } = useLocale();
 
   const tempRef = useMemo(
     () => (sessionId ? `#HSP-${sessionId.slice(-8).toUpperCase()}` : ''),
@@ -131,8 +133,9 @@ export default function CheckoutSuccessPage() {
   const orderRef = orderId
     ? `#HSP-${String(orderId).slice(-8).toUpperCase()}`
     : tempRef;
+  const orderCurrency = order?.currency || 'EUR';
   const total = order?.total_amount ?? (order?.total_cents ? order.total_cents / 100 : 0);
-  const totalPaid = total ? `${Number(total).toFixed(2)} €` : '';
+  const totalPaid = total ? convertAndFormatPrice(Number(total), orderCurrency) : '';
   const email = order?.user_email || order?.customer_email || order?.email || '';
   const allItems = order?.items || order?.line_items || [];
   const visibleItems = allItems.slice(0, 5);
@@ -239,9 +242,9 @@ export default function CheckoutSuccessPage() {
                 </div>
                 <span className="text-[13px] font-semibold text-stone-950 flex-shrink-0">
                   {item.unit_price_cents
-                    ? `${(item.unit_price_cents / 100 * item.quantity).toFixed(2)} €`
+                    ? convertAndFormatPrice(item.unit_price_cents / 100 * item.quantity, orderCurrency)
                     : item.price
-                      ? `${(Number(item.price) * item.quantity).toFixed(2)} €`
+                      ? convertAndFormatPrice(Number(item.price) * item.quantity, orderCurrency)
                       : ''}
                 </span>
               </div>

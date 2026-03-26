@@ -109,7 +109,8 @@ export default function CustomerOrders() {
   const LIMIT = 20;
   const navigate = useNavigate();
   const { convertAndFormatPrice, currency } = useLocale();
-  const { addToCart } = useCart();
+  const { fetchCart } = useCart();
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -304,17 +305,19 @@ export default function CustomerOrders() {
                           onClick={async (e) => {
                             e.stopPropagation();
                             try {
-                              const items = order.line_items || [];
-                              for (const item of items) {
-                                const pid = item.product_id || item.id;
-                                if (pid) await addToCart(pid, item.quantity || 1);
-                              }
-                              toast.success('Productos agregados al carrito');
+                              setReorderingId(order.order_id);
+                              await apiClient.post(`/customer/orders/${order.order_id}/reorder`);
+                              await fetchCart();
+                              toast.success('Productos añadidos al carrito');
+                              navigate('/cart');
                             } catch (err: any) {
-                              toast.error(err?.message || 'Error al reordenar');
+                              toast.error(err?.message || 'No se pudo repetir el pedido');
+                            } finally {
+                              setReorderingId(null);
                             }
                           }}
-                          className="inline-flex items-center gap-1.5 border border-stone-200 rounded-full px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
+                          disabled={reorderingId === order.order_id}
+                          className="inline-flex items-center gap-1.5 border border-stone-200 rounded-full px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-stone-50 transition-colors disabled:opacity-50"
                           data-testid={`reorder-${order.order_id}`}
                         >
                           <RotateCcw size={14} /> Volver a pedir

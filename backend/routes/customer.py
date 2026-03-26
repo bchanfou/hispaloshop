@@ -120,6 +120,58 @@ async def reorder(order_id: str, user: User = Depends(get_current_user)):
 
     return {"added": added, "message": f"{added} productos agregados al carrito"}
 
+@router.post("/customer/orders/{order_id}/review")
+async def submit_order_review(
+    order_id: str,
+    body: dict = Body(...),
+    user: User = Depends(get_current_user)
+):
+    """Submit a review for a delivered order."""
+    order = await db.orders.find_one({"order_id": order_id, "user_id": user.user_id})
+    if not order:
+        raise HTTPException(404, "Pedido no encontrado")
+    if order.get("status") != "delivered":
+        raise HTTPException(400, "Solo puedes dejar reseña de pedidos entregados")
+
+    # Check for existing review
+    existing = await db.reviews.find_one({"order_id": order_id, "user_id": user.user_id})
+    if existing:
+        raise HTTPException(400, "Ya has dejado una reseña para este pedido")
+
+    rating = body.get("rating")
+    comment = body.get("comment", "").strip()
+    if not rating or not isinstance(rating, (int, float)) or rating < 1 or rating > 5:
+        raise HTTPException(400, "La valoración debe ser entre 1 y 5")
+
+    review_doc = {
+        "review_id": f"rev_{uuid.uuid4().hex[:12]}",
+        "order_id": order_id,
+        "user_id": user.user_id,
+        "user_name": user.name or user.username,
+        "rating": int(rating),
+        "comment": comment[:500] if comment else "",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    # Create reviews for each product in the order
+    for item in order.get("line_items", []):
+        product_review = {
+            **review_doc,
+            "product_id": item.get("product_id"),
+            "product_name": item.get("product_name"),
+            "producer_id": item.get("producer_id"),
+        }
+        await db.reviews.insert_one(product_review)
+
+    # Mark order as reviewed
+    await db.orders.update_one(
+        {"order_id": order_id},
+        {"$set": {"has_review": True, "review_rating": int(rating)}}
+    )
+
+    return {"success": True, "message": "Reseña publicada"}
+
+
 @router.put("/customer/orders/{order_id}/cancel")
 async def cancel_customer_order(order_id: str, user: User = Depends(get_current_user)):
     """Cancel an order (if status allows)"""
