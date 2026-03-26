@@ -74,7 +74,7 @@ const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike
 /* ── Render caption with clickable hashtags and @mentions ── */
 function renderCaption(text, navigate, onClose) {
   if (!text) return null;
-  const parts = text.split(/(#\w+|@\w+)/g);
+  const parts = text.split(/(#[\w\u00C0-\u024F]+|@[\w\u00C0-\u024F.]+)/g);
   return parts.map((part, i) => {
     const key = `${i}-${part.slice(0, 20)}`;
     if (part.startsWith('#')) {
@@ -208,7 +208,7 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
       {/* Caption as first "comment" */}
       {(post.caption || post.content) && (
         <div className="flex gap-3 py-2.5">
-          <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="shrink-0">
+          <Link to={`/${userObj.username || userObj.id || post?.user_id}`} onClick={onClose} className="shrink-0">
             {avatarUrl ? (
               <img loading="lazy" src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
             ) : (
@@ -217,10 +217,10 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
           </Link>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] leading-relaxed text-stone-950">
-              <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="font-semibold no-underline text-stone-950 hover:underline mr-1.5">
+              <Link to={`/${userObj.username || userObj.id || post?.user_id}`} onClick={onClose} className="font-semibold no-underline text-stone-950 hover:underline mr-1.5">
                 {userName}
               </Link>
-              {renderCaption(post.caption || post.content, navigate, onClose)}
+              {renderCaption(post?.caption || post?.content, navigate, onClose)}
             </p>
             <span className="text-[11px] text-stone-400 mt-0.5 block">{timeAgo(post.created_at)}</span>
           </div>
@@ -790,7 +790,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             {/* Actions row */}
             <div className="flex items-center px-3 py-2">
               <div className="flex items-center gap-3">
-                <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label="Me gusta">
+                <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}>
                   <Heart size={24} fill={liked ? 'currentColor' : 'none'} />
                 </button>
                 <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-2.5 text-stone-950" aria-label="Comentar">
@@ -887,7 +887,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             <div className="border-t border-stone-100 shrink-0">
               <div className="flex items-center px-3 py-2">
                 <div className="flex items-center gap-3">
-                  <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`}>
+                  <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}>
                     <Heart size={22} fill={liked ? 'currentColor' : 'none'} />
                   </button>
                   <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-2.5 text-stone-950">

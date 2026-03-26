@@ -12,7 +12,7 @@ import BottomSheet from '../components/motion/BottomSheet';
 /* ── Render caption with hashtags/mentions ── */
 function renderCaption(text, navigate) {
   if (!text) return null;
-  const parts = text.split(/(#\w+|@\w+)/g);
+  const parts = text.split(/(#[\w\u00C0-\u024F]+|@[\w\u00C0-\u024F.]+)/g);
   return parts.map((part, i) => {
     if (part.startsWith('#')) {
       return (
@@ -150,7 +150,7 @@ export default function PostDetailPage() {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      await apiClient.delete(`/comments/${commentId}`);
+      await apiClient.delete(`/posts/${postId}/comments/${commentId}`);
       setComments(prev => prev.filter(c => (c.comment_id || c.id) !== commentId));
       setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
     } catch (err) {

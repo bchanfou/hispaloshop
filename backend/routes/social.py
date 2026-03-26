@@ -1772,12 +1772,14 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
     text = body.get("text", "").strip()
     if not text:
         raise HTTPException(status_code=400, detail="Comment text is required")
+    reply_to = body.get("reply_to")  # parent comment ID for threading
     comment = {
         "comment_id": f"cmt_{uuid.uuid4().hex[:10]}",
         "post_id": post_id,
         "user_id": user.user_id,
         "user_name": user.name,
         "text": sanitize_text(text[:500]),
+        "reply_to": reply_to if reply_to else None,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.post_comments.insert_one(comment)
@@ -1800,9 +1802,21 @@ async def edit_comment(comment_id: str, request: Request, user: User = Depends(g
     await db.post_comments.update_one({"comment_id": comment_id}, {"$set": {"text": sanitize_text(text[:500]), "edited_at": datetime.now(timezone.utc).isoformat()}})
     return {"status": "updated"}
 
+@router.delete("/posts/{post_id}/comments/{comment_id}")
+async def delete_comment_nested(post_id: str, comment_id: str, user: User = Depends(get_current_user)):
+    """Delete own comment (nested route)."""
+    comment = await db.post_comments.find_one({"comment_id": comment_id, "post_id": post_id}, {"_id": 0})
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not your comment")
+    await db.post_comments.delete_one({"comment_id": comment_id})
+    await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"comments_count": -1}})
+    return {"status": "deleted"}
+
 @router.delete("/comments/{comment_id}")
 async def delete_comment(comment_id: str, user: User = Depends(get_current_user)):
-    """Delete own comment."""
+    """Delete own comment (legacy flat route)."""
     comment = await db.post_comments.find_one({"comment_id": comment_id}, {"_id": 0})
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")

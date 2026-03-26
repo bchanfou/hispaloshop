@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../../services/api/client';
+import { toast } from 'sonner';
 
 interface FeedMediaItem {
   url: string;
@@ -281,6 +282,7 @@ export function useLikePost() {
       if (context?.previousFollowing) {
         queryClient.setQueryData(feedKeys.following, context.previousFollowing);
       }
+      toast.error('No se pudo procesar el like');
     },
     onSettled: (_data: any, _error: any, variables: LikePostVariables) => {
       queryClient.invalidateQueries({ queryKey: ['post', variables.postId] });

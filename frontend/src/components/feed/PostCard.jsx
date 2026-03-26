@@ -73,7 +73,7 @@ const formatPrice = (price) => priceFormatter.format(price);
 
 function renderCaption(text, navigate) {
   if (!text) return null;
-  const parts = text.split(/(#\w+|@\w+)/g);
+  const parts = text.split(/(#[\w\u00C0-\u024F]+|@[\w\u00C0-\u024F.]+)/g);
   return parts.map((part, i) => {
     const key = `${i}-${part.slice(0, 20)}`;
     if (part.startsWith('#')) {
@@ -220,12 +220,12 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
   // Like — delegate entirely to parent (React Query optimistic update)
   const likingRef = useRef(false);
-  const handleLike = useCallback(() => {
+  const handleLike = useCallback(async () => {
     if (likingRef.current) return;
     likingRef.current = true;
     try {
       trigger('light');
-      onLike?.(post.id);
+      await onLike?.(post.id);
       // Check milestone after like (optimistic: assume count increments)
       if (!liked) {
         const newCount = likesCount + 1;
@@ -233,8 +233,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         if (m) setActiveMilestone(m);
       }
     } finally {
-      // Reset after a short delay to allow the mutation to complete
-      setTimeout(() => { likingRef.current = false; }, 500);
+      likingRef.current = false;
     }
   }, [onLike, post.id, trigger, liked, likesCount]);
 
@@ -640,7 +639,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
           )}
 
           {/* Price pill overlay */}
-          {normalizedProducts.length > 0 && normalizedProducts[0].price != null && (
+          {normalizedProducts.length > 0 && normalizedProducts[0].price > 0 && (
             <button
               className="absolute top-3 left-3 z-[1] flex items-center gap-1 rounded-full bg-stone-950/70 backdrop-blur-sm px-2.5 py-1 border-none cursor-pointer"
               onClick={(e) => { e.stopPropagation(); navigate(`/products/${normalizedProducts[0].id || normalizedProducts[0].product_id}`); }}
@@ -890,7 +889,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                   <span className="max-w-[80px] truncate text-[11px] font-medium text-stone-950">
                     {product.name || product.title}
                   </span>
-                  {product.price != null && (
+                  {product.price > 0 && (
                     <span className="whitespace-nowrap text-[11px] font-semibold text-stone-950">
                       {formatPrice(product.price)}
                     </span>
