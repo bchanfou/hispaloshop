@@ -196,10 +196,10 @@ export default function CreateReelPage() {
         const seekTime = (dur / frameCount) * i;
         v.currentTime = seekTime;
         await new Promise((resolve) => {
-          const onSeeked = () => { v.removeEventListener('seeked', onSeeked); resolve(); };
+          const onSeeked = () => { v.removeEventListener('seeked', onSeeked); resolve(undefined); };
           v.addEventListener('seeked', onSeeked);
-          // Safety timeout — don't hang if seeked never fires
-          setTimeout(resolve, 300);
+          // Safety timeout — don't hang if seeked never fires; also clean up listener
+          setTimeout(() => { v.removeEventListener('seeked', onSeeked); resolve(undefined); }, 300);
         });
         try {
           ctx.drawImage(v, 0, 0, 60, 90);
@@ -216,7 +216,7 @@ export default function CreateReelPage() {
     };
 
     if (v.readyState >= 2) captureFrames();
-    else v.addEventListener('seeked', () => captureFrames(), { once: true });
+    else v.addEventListener('canplay', () => captureFrames(), { once: true });
   }, []);
 
   const addTextOverlay = useCallback(() => {
@@ -413,7 +413,7 @@ export default function CreateReelPage() {
         <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => navigate(-1)}
-            className="bg-transparent border-none cursor-pointer p-1"
+            className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label="Cerrar"
           >
             <X className="text-white w-[22px] h-[22px]" />
@@ -497,7 +497,7 @@ export default function CreateReelPage() {
               setCurrentTime(0);
               setDuration(0);
             }}
-            className="bg-transparent border-none cursor-pointer p-1"
+            className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label="Volver"
           >
             <X className="text-white w-[22px] h-[22px]" />
@@ -505,7 +505,7 @@ export default function CreateReelPage() {
           <span className="text-white text-[15px] font-medium">Editar Reel</span>
           <button
             onClick={() => { videoRef.current?.pause(); setIsPlaying(false); setScreen('details'); }}
-            className="bg-transparent border-none text-white text-sm font-semibold cursor-pointer"
+            className="bg-transparent border-none text-white text-sm font-semibold cursor-pointer min-h-[44px] px-2"
           >
             Siguiente →
           </button>
@@ -785,7 +785,7 @@ export default function CreateReelPage() {
                     max={100}
                     value={volume}
                     onChange={(e) => setVolume(Number(e.target.value))}
-                    className="flex-1 accent-stone-950"
+                    className="flex-1 accent-white"
                     aria-label="Volumen del audio original"
                   />
                   <Volume2 size={14} className="text-white/40 shrink-0" />
@@ -886,7 +886,7 @@ export default function CreateReelPage() {
                       max={48}
                       value={textSize}
                       onChange={(e) => setTextSize(Number(e.target.value))}
-                      className="flex-1 accent-stone-950"
+                      className="flex-1 accent-white"
                       aria-label="Tamaño de texto"
                     />
                     <span className="text-white text-sm font-semibold">A</span>
@@ -952,7 +952,7 @@ export default function CreateReelPage() {
       <div className="flex items-center justify-between px-4 py-3 border-b border-stone-200">
         <button
           onClick={() => setScreen('edit')}
-          className="bg-transparent border-none cursor-pointer p-1"
+          className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Volver al editor"
         >
           <ChevronLeft className="text-stone-950 w-[22px] h-[22px]" />
@@ -1229,8 +1229,8 @@ export default function CreateReelPage() {
 
       {/* Product search modal */}
       {showProductSearch && (
-        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center">
-          <div className="bg-white w-full max-h-[70vh] rounded-t-2xl flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => { setShowProductSearch(false); setProductQuery(''); setProductResults([]); }}>
+          <div className="bg-white w-full max-h-[70vh] rounded-t-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center px-4 py-3 border-b border-stone-200 gap-2">
               <Search size={18} className="text-stone-400" />
               <input

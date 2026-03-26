@@ -67,7 +67,7 @@ function ReelReactionPicker({ show, onSelect, onClose }) {
           {REACTIONS.map((emoji, i) => (
             <motion.button
               key={emoji}
-              className="w-10 h-10 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-xl"
+              className="w-11 h-11 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-xl"
               whileHover={{ scale: 1.3 }}
               animate={bouncingIdx === i ? { scale: [1, 1.5, 1], transition: { duration: 0.35 } } : {}}
               onClick={(e) => {
@@ -191,15 +191,19 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         isVisibleRef.current = visible;
 
         if (visible && !document.hidden) {
-          video.play().catch(() => { setPlaying(false); });
-          setPlaying(true);
           // Track view once when reel becomes visible
           if (!viewTrackedRef.current) {
             viewTrackedRef.current = true;
             const reelId = reel.id || reel.reel_id || reel.post_id;
             if (reelId) apiClient.post(`/reels/${reelId}/view`).catch(() => {});
           }
-        } else {
+          // In embedded mode, IO controls playback directly.
+          // In non-embedded (ReelsPage), parent's isActive prop controls playback.
+          if (embedded) {
+            video.play().catch(() => { setPlaying(false); });
+            setPlaying(true);
+          }
+        } else if (embedded) {
           video.pause();
           setPlaying(false);
         }
@@ -212,7 +216,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       observer.disconnect();
       video.pause();
     };
-  }, [reel.id, reel.reel_id, reel.post_id]);
+  }, [reel.id, reel.reel_id, reel.post_id, embedded]);
 
   // Pause on tab switch (visibilitychange) — resume only if in viewport
   useEffect(() => {
@@ -623,7 +627,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-white/70">Editar descripción</span>
-              <button className="bg-transparent border-none cursor-pointer p-0.5" onClick={() => setShowEditCaption(false)} aria-label="Cerrar">
+              <button className="bg-transparent border-none cursor-pointer p-1 min-w-[36px] min-h-[36px] flex items-center justify-center" onClick={() => setShowEditCaption(false)} aria-label="Cerrar">
                 <XIcon size={14} className="text-white/50" />
               </button>
             </div>
@@ -1013,7 +1017,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
             <span className="text-sm font-semibold text-white">Comentarios</span>
-            <button onClick={closeComments} className="bg-transparent border-none cursor-pointer p-1" aria-label="Cerrar">
+            <button onClick={closeComments} className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Cerrar">
               <XIcon size={18} className="text-white/60" />
             </button>
           </div>
@@ -1055,7 +1059,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                         {isOwn && (
                           <button
                             onClick={() => handleDeleteComment(cId)}
-                            className="bg-transparent border-none cursor-pointer p-0 min-h-[28px] flex items-center"
+                            className="bg-transparent border-none cursor-pointer p-1 min-h-[32px] min-w-[32px] flex items-center justify-center"
                           >
                             <Trash2 size={12} className="text-white/30 hover:text-white/60" />
                           </button>
@@ -1094,7 +1098,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                 onClick={() => {
                   setNewComment((prev) => prev + emoji);
                 }}
-                className="text-[24px] leading-none bg-transparent border-none cursor-pointer p-1 active:scale-125 transition-transform"
+                className="text-[24px] leading-none bg-transparent border-none cursor-pointer p-1 active:scale-125 transition-transform min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 {emoji}
               </button>
@@ -1175,7 +1179,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
               <span className="text-sm font-semibold text-stone-950">Productos ({allProducts.length})</span>
               <button
                 onClick={() => setShowProductSheet(false)}
-                className="bg-transparent border-none cursor-pointer p-1"
+                className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Cerrar"
               >
                 <XIcon size={16} className="text-stone-400" />

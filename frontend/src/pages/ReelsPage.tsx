@@ -102,11 +102,12 @@ export default function ReelsPage() {
   }, [fetchReels]);
 
   // Intersection observer to detect active reel
+  // Re-observe when reels change so newly loaded items are tracked
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const observer = new IntersectionObserver(
+    const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -118,20 +119,30 @@ export default function ReelsPage() {
       { root: container, threshold: 0.8 }
     );
 
-    const children = container.querySelectorAll('[data-reel-item]');
-    children.forEach((child) => observer.observe(child));
+    const observeAll = () => {
+      const children = container.querySelectorAll('[data-reel-item]');
+      children.forEach((child) => io.observe(child));
+    };
+    observeAll();
 
-    return () => observer.disconnect();
+    // Also watch for DOM additions (load-more appends) so new items are observed
+    const mo = new MutationObserver(() => observeAll());
+    mo.observe(container, { childList: true });
+
+    return () => { io.disconnect(); mo.disconnect(); };
   }, [reels]);
 
   // Load more when near end
+  const pageRef = useRef(1);
+  pageRef.current = page;
   useEffect(() => {
     if (activeIndex >= reels.length - 2 && hasMore && !loading && !fetchingRef.current) {
-      const nextPage = page + 1;
+      const nextPage = pageRef.current + 1;
       setPage(nextPage);
       fetchReels(nextPage);
     }
-  }, [activeIndex, reels.length, hasMore, loading, page, fetchReels]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex, reels.length, hasMore, loading, fetchReels]);
 
   // Keyboard navigation between reels
   useEffect(() => {
@@ -203,7 +214,7 @@ export default function ReelsPage() {
         </button>
         <button
           onClick={() => { setLoading(true); setPage(1); setHasMore(true); fetchingRef.current = false; fetchReels(1); }}
-          className="text-white/50 text-xs font-sans bg-transparent border-none cursor-pointer hover:text-white/80 transition-colors"
+          className="text-white/50 text-xs font-sans bg-transparent border-none cursor-pointer hover:text-white/80 transition-colors min-h-[44px] px-4"
         >
           Reintentar
         </button>

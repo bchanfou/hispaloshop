@@ -652,8 +652,6 @@ async def _find_reel_in_any_collection(reel_id: str):
     if reel:
         return reel, "reels"
     # Fallback: reel may live in user_posts
-    filter_q_posts = {"$or": [{"post_id": reel_id}, {"id": reel_id}], "$or": [{"type": "reel"}, {"is_reel": True}]}
-    # Build a proper query for user_posts
     reel = await db.user_posts.find_one({
         "$and": [
             {"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]},
