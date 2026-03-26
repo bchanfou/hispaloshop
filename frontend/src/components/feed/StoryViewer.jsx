@@ -393,9 +393,16 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     if (!text || sendingReply) return;
     setSendingReply(true);
     try {
+      const storyId = currentItem?.story_id || currentItem?.id;
       const res = await apiClient.post('/chat/conversations', {
         other_user_id: currentStory?.user_id || currentStory?.user?.id,
         message: text,
+        message_type: 'story_reply',
+        metadata: {
+          story_id: storyId,
+          story_image: currentItem?.image_url || currentItem?.video_url,
+          story_caption: currentItem?.caption?.slice(0, 60),
+        },
       });
       setReplyText('');
       replyInputRef.current?.blur();
@@ -708,7 +715,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     const sid = currentItem?.story_id || currentItem?.id;
                     await apiClient.delete(`/stories/${sid}`);
                     toast.success('Historia eliminada');
-                    onClose();
+                    handleClose(); // invalidates feed-stories query so ring disappears
                   } catch { toast.error('No se pudo eliminar'); }
                 }}
                 className="absolute bottom-4 right-4 z-[2] flex items-center gap-1 bg-transparent border-none cursor-pointer"
@@ -944,9 +951,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             const newLiked = !liked;
             setLiked(newLiked);
             try {
-              if (newLiked) {
-                await apiClient.post(`/stories/${currentItem?.story_id}/like`);
-              }
+              await apiClient.post(`/stories/${currentItem?.story_id || currentItem?.id}/like`);
             } catch (err) { /* like best-effort */ }
           }}
           className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"

@@ -555,6 +555,17 @@ export default function CreateStoryPage() {
       }
 
       fd.append('caption', '');
+      // Send product sticker data as structured JSON
+      const productStickers = stickerOverlays.filter(s => s.type === 'product' && s.productId);
+      if (productStickers.length > 0) {
+        fd.append('products_json', JSON.stringify(productStickers.map(s => ({
+          product_id: s.productId,
+          product_name: s.productName || '',
+          product_image: s.productImage || '',
+          product_price: s.productPrice || 0,
+          position: { x: s.x, y: s.y },
+        }))));
+      }
       await apiClient.post('/stories', fd);
       queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
       if (navigator.vibrate) navigator.vibrate(50);
@@ -935,7 +946,7 @@ export default function CreateStoryPage() {
       {/* Drag-to-trash zone */}
       {showTrashZone && (
         <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-[15] flex items-center justify-center gap-2 px-6 py-3 rounded-full transition-all duration-200 ${
-          overTrash ? 'bg-red-500 scale-110' : 'bg-black/60 backdrop-blur-sm'
+          overTrash ? 'bg-stone-950 scale-110' : 'bg-black/60 backdrop-blur-sm'
         }`}>
           <Trash2 size={20} className={overTrash ? 'text-white' : 'text-white/70'} />
           <span className={`text-sm font-medium ${overTrash ? 'text-white' : 'text-white/70'}`}>
