@@ -564,7 +564,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const videoRef = useRef(null);
-  const [liked, setLiked] = useState(reel.is_liked ?? false);
+  const [liked, setLiked] = useState(reel.is_liked ?? reel.liked ?? false);
   const [likesCount, setLikesCount] = useState(reel.likes_count ?? reel.likes ?? 0);
   const [saved, setSaved] = useState(reel.is_saved ?? false);
   const [showMenu, setShowMenu] = useState(false);
@@ -701,7 +701,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           onClick={async () => {
             setShowComments(true);
             if (videoRef.current) videoRef.current.pause();
-            if (!commentsLoading && comments.length === 0) {
+            if (!commentsLoading) {
               setCommentsLoading(true);
               try {
                 const data = await apiClient.get(`/reels/${reelId}/comments`);
@@ -778,7 +778,13 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
               <p className="text-white/50 text-sm text-center py-4">Sin comentarios aún</p>
             ) : comments.map((c, i) => (
               <div key={c.comment_id || i} className="flex gap-2">
-                <div className="w-8 h-8 rounded-full bg-white/10 flex-shrink-0" />
+                {c.user_profile_image ? (
+                  <img src={c.user_profile_image} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex-shrink-0 flex items-center justify-center text-white/50 text-xs font-semibold">
+                    {(c.user_name || '?')[0]?.toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <span className="text-white text-xs font-semibold">{c.user_name || 'Usuario'}</span>
                   <p className="text-white/80 text-sm">{c.text}</p>
@@ -793,13 +799,17 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
               placeholder="Añade un comentario..."
               className="flex-1 bg-white/10 text-white text-sm rounded-full px-4 py-2.5 min-h-[44px] outline-none placeholder:text-white/30"
               onKeyDown={async (e) => {
-                if (e.key === 'Enter' && newComment.trim()) {
+                if (e.key === 'Enter' && newComment.trim() && !commentsLoading) {
+                  e.preventDefault();
+                  setCommentsLoading(true);
+                  const text = newComment.trim();
+                  setNewComment('');
                   try {
-                    await apiClient.post(`/reels/${reelId}/comments`, { text: newComment.trim() });
-                    setNewComment('');
+                    await apiClient.post(`/reels/${reelId}/comments`, { text });
                     const data = await apiClient.get(`/reels/${reelId}/comments`);
                     setComments(Array.isArray(data) ? data : data?.comments || []);
                   } catch { toast.error('Error al comentar'); }
+                  finally { setCommentsLoading(false); }
                 }
               }}
             />

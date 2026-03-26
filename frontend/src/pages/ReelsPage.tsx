@@ -87,7 +87,7 @@ export default function ReelsPage() {
           const feedItems = Array.isArray(feedData) ? feedData
             : Array.isArray(feedData?.items) ? feedData.items
             : Array.isArray(feedData?.posts) ? feedData.posts : [];
-          items = feedItems.filter(item => item.type === 'reel' || item.is_reel === true || item.video_url).slice(0, 10);
+          items = feedItems.filter(item => item.type === 'reel' || item.is_reel === true).slice(0, 10);
         } catch { /* keep items empty */ }
       }
       if (backendHasMore === false || items.length < 10) setHasMore(false);
@@ -101,17 +101,17 @@ export default function ReelsPage() {
     }
   }, [activeTab]);
 
-  // Re-fetch when tab changes
+  // Re-fetch when tab changes (use activeTab directly to avoid double-fire from fetchReels identity)
   useEffect(() => {
     setReels([]);
     setPage(1);
     setHasMore(true);
     setLoading(true);
     setActiveIndex(0);
-    // Reset guard so StrictMode re-mount can still fetch
     fetchingRef.current = false;
     fetchReels(1);
-  }, [fetchReels]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   // Intersection observer to detect active reel
   // Re-observe when reels change so newly loaded items are tracked
