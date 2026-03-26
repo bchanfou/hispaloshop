@@ -1037,7 +1037,7 @@ export default function CreatePostPage() {
             placeholder="Escribe tu pie de foto... Usa # para hashtags y @ para menciones"
             className="w-full border-[1.5px] border-stone-200 rounded-xl p-3 resize-none min-h-[80px] text-sm leading-relaxed outline-none box-border overflow-hidden bg-transparent relative caret-stone-950"
           />
-          <span className={`absolute bottom-2 right-3 text-[11px] ${caption.length > 2200 ? 'text-red-600 font-semibold' : caption.length > 2000 ? 'text-red-600 font-semibold' : 'text-stone-500'}`}>
+          <span className={`absolute bottom-2 right-3 text-[11px] ${caption.length > 2200 ? 'text-stone-950 font-semibold' : caption.length > 2000 ? 'text-stone-700 font-semibold' : 'text-stone-500'}`}>
             {caption.length}/2200
           </span>
         </div>

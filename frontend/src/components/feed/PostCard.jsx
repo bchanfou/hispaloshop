@@ -463,7 +463,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                   <UserMinus size={16} /> Dejar de seguir
                 </button>
                 <button
-                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
                   onClick={async () => {
                     try {
                       await apiClient.post(`/posts/${post.id}/report`, { reason: 'inappropriate' });
@@ -900,7 +900,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                   )}
                   <button
                     onClick={(e) => handleQuickAddToCart(e, product)}
-                    className="flex items-center justify-center w-5 h-5 rounded-full bg-stone-950 border-none cursor-pointer shrink-0 ml-0.5"
+                    className="flex items-center justify-center w-8 h-8 min-w-[44px] min-h-[44px] rounded-full bg-stone-950 border-none cursor-pointer shrink-0 ml-0.5"
                     aria-label={`Añadir ${product.name || product.title} al carrito`}
                   >
                     <ShoppingBag size={12} className="text-white" />
