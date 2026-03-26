@@ -570,6 +570,10 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
   const [showMenu, setShowMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [muted, setMuted] = useState(true);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [commentsLoading, setCommentsLoading] = useState(false);
   const reelId = reel.id || reel.reel_id;
 
   // Reset state when reel changes
@@ -694,7 +698,18 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           <span className="text-[11px] text-white font-medium">{likesCount}</span>
         </button>
         <button
-          onClick={() => navigate(`/posts/${reelId}`)}
+          onClick={async () => {
+            setShowComments(true);
+            if (videoRef.current) videoRef.current.pause();
+            if (!commentsLoading && comments.length === 0) {
+              setCommentsLoading(true);
+              try {
+                const data = await apiClient.get(`/reels/${reelId}/comments`);
+                setComments(Array.isArray(data) ? data : data?.comments || []);
+              } catch { /* silent */ }
+              finally { setCommentsLoading(false); }
+            }
+          }}
           className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center"
           aria-label="Comentar"
         >
@@ -746,6 +761,67 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           </p>
         )}
       </div>
+
+      {/* Comment sheet */}
+      {showComments && (
+        <div className="absolute inset-x-0 bottom-0 z-30 bg-stone-950/95 backdrop-blur-xl rounded-t-2xl max-h-[60vh] flex flex-col" style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
+          <div className="flex items-center justify-between p-3 border-b border-white/10">
+            <span className="text-white text-sm font-semibold">Comentarios</span>
+            <button onClick={() => { setShowComments(false); if (videoRef.current) videoRef.current.play().catch(() => {}); }} className="w-11 h-11 flex items-center justify-center" aria-label="Cerrar comentarios">
+              <X size={20} className="text-white" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {commentsLoading ? (
+              <p className="text-white/50 text-sm text-center py-4">Cargando...</p>
+            ) : comments.length === 0 ? (
+              <p className="text-white/50 text-sm text-center py-4">Sin comentarios aún</p>
+            ) : comments.map((c, i) => (
+              <div key={c.comment_id || i} className="flex gap-2">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex-shrink-0" />
+                <div>
+                  <span className="text-white text-xs font-semibold">{c.user_name || 'Usuario'}</span>
+                  <p className="text-white/80 text-sm">{c.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 p-3 border-t border-white/10">
+            <input
+              value={newComment}
+              onChange={e => setNewComment(e.target.value)}
+              placeholder="Añade un comentario..."
+              className="flex-1 bg-white/10 text-white text-sm rounded-full px-4 py-2.5 min-h-[44px] outline-none placeholder:text-white/30"
+              onKeyDown={async (e) => {
+                if (e.key === 'Enter' && newComment.trim()) {
+                  try {
+                    await apiClient.post(`/reels/${reelId}/comments`, { text: newComment.trim() });
+                    setNewComment('');
+                    const data = await apiClient.get(`/reels/${reelId}/comments`);
+                    setComments(Array.isArray(data) ? data : data?.comments || []);
+                  } catch { toast.error('Error al comentar'); }
+                }
+              }}
+            />
+            <button
+              onClick={async () => {
+                if (!newComment.trim()) return;
+                try {
+                  await apiClient.post(`/reels/${reelId}/comments`, { text: newComment.trim() });
+                  setNewComment('');
+                  const data = await apiClient.get(`/reels/${reelId}/comments`);
+                  setComments(Array.isArray(data) ? data : data?.comments || []);
+                } catch { toast.error('Error al comentar'); }
+              }}
+              disabled={!newComment.trim()}
+              className="w-11 h-11 rounded-full bg-stone-950 flex items-center justify-center disabled:opacity-30"
+              aria-label="Enviar comentario"
+            >
+              <Send size={18} className="text-white" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

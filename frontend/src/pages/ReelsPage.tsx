@@ -78,6 +78,18 @@ export default function ReelsPage() {
         }
       }
       if (!Array.isArray(items)) items = [];
+      // Defensive: if primary endpoint returned 0 items but we know data exists,
+      // try the feed fallback even if the primary didn't error
+      if (items.length === 0 && p === 1) {
+        try {
+          const feedUrl = activeTab === 'following' ? '/feed/following' : '/feed/foryou';
+          const feedData = await apiClient.get(feedUrl, { params: { limit: 40 } });
+          const feedItems = Array.isArray(feedData) ? feedData
+            : Array.isArray(feedData?.items) ? feedData.items
+            : Array.isArray(feedData?.posts) ? feedData.posts : [];
+          items = feedItems.filter(item => item.type === 'reel' || item.is_reel === true || item.video_url).slice(0, 10);
+        } catch { /* keep items empty */ }
+      }
       if (backendHasMore === false || items.length < 10) setHasMore(false);
       setReels((prev) => (p === 1 ? items : [...prev, ...items]));
     } catch {
