@@ -116,7 +116,7 @@ export default function CheckoutPage() {
   const { emailVerified } = useCartVerification();
   const { cartSummary } = useCartPricing(cartItems, appliedDiscount);
   const { checkoutLoading, createCheckout } = useCartCheckout();
-  const formatPrice = useCallback((euros) => convertAndFormatPrice(euros, currency), [convertAndFormatPrice, currency]);
+  const formatPrice = useCallback((euros) => convertAndFormatPrice(euros, 'EUR', currency), [convertAndFormatPrice, currency]);
 
   const [step, setStep] = useState(1);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -472,7 +472,7 @@ export default function CheckoutPage() {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.25 }}>
             <button
               onClick={() => setStep(1)}
-              className="flex items-center gap-1 text-sm text-stone-500 mb-4 hover:text-stone-950 transition-colors"
+              className="flex items-center gap-1 text-sm text-stone-500 mb-4 py-2.5 min-h-[44px] hover:text-stone-950 transition-colors"
             >
               ← Cambiar dirección
             </button>
@@ -505,7 +505,7 @@ export default function CheckoutPage() {
                   </span>
                   <button
                     onClick={async () => { setDiscountLoading(true); try { await removeDiscount(); } catch { /* handled by context */ } finally { setDiscountLoading(false); } }}
-                    className="text-xs text-stone-500 hover:text-stone-950 transition-colors"
+                    className="text-xs text-stone-500 hover:text-stone-950 transition-colors py-2 px-3 min-h-[44px] flex items-center"
                   >
                     Eliminar
                   </button>

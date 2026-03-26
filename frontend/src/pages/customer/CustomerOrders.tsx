@@ -12,7 +12,6 @@ import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge
 import { useLocale } from '../../context/LocaleContext';
 import { useCart } from '../../context/CartContext';
 
-const STATUS_FLOW = ['pending', 'paid', 'confirmed', 'preparing', 'shipped', 'delivered'];
 
 const TIMELINE_STEPS = [
   { key: 'ordered', label: 'Pedido' },
