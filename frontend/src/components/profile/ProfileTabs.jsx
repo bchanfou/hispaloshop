@@ -608,7 +608,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
   }, [saved, reelId]);
 
   const handleShare = useCallback(async () => {
-    const url = `${window.location.origin}/reels/${reelId}`;
+    const url = `${window.location.origin}/posts/${reelId}`;
     if (navigator.share) {
       try { await navigator.share({ title: reel.caption?.slice(0, 60) || 'Reel', url }); } catch { /* cancelled */ }
     } else {
@@ -637,7 +637,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
       <button
         onClick={onClose}
         aria-label="Cerrar"
-        className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+        className="absolute top-4 left-4 z-10 w-11 h-11 rounded-full bg-stone-950/50 flex items-center justify-center"
       >
         <X size={20} className="text-white" />
       </button>
@@ -648,7 +648,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           <button
             onClick={() => setShowMenu((s) => !s)}
             aria-label="Opciones"
-            className="w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-stone-950/50 flex items-center justify-center"
           >
             <MoreHorizontal size={20} className="text-white" />
           </button>
@@ -663,7 +663,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
                   <Pencil size={16} /> Editar
                 </button>
                 <button
-                  onClick={handleDelete}
+                  onClick={() => { if (confirm('¿Eliminar este reel?')) handleDelete(); }}
                   disabled={deleting}
                   className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-100 disabled:opacity-50"
                 >
@@ -708,7 +708,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           <Bookmark size={24} fill={saved ? 'white' : 'none'} className="text-white" />
         </button>
         <button
-          onClick={() => setMuted((m) => !m)}
+          onClick={() => { setMuted((m) => { const next = !m; if (videoRef.current) videoRef.current.muted = next; return next; }); }}
           aria-label={muted ? 'Activar sonido' : 'Silenciar'}
           className="flex flex-col items-center bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center"
         >
@@ -721,7 +721,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
         <button
           onClick={onPrev}
           aria-label="Reel anterior"
-          className="absolute left-1/2 top-16 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+          className="absolute left-1/2 top-16 -translate-x-1/2 z-10 w-11 h-11 rounded-full bg-stone-950/50 flex items-center justify-center"
         >
           <ChevronUp size={22} className="text-white" />
         </button>
@@ -730,7 +730,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
         <button
           onClick={onNext}
           aria-label="Siguiente reel"
-          className="absolute left-1/2 bottom-6 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-stone-950/50 flex items-center justify-center"
+          className="absolute left-1/2 bottom-6 -translate-x-1/2 z-10 w-11 h-11 rounded-full bg-stone-950/50 flex items-center justify-center"
         >
           <ChevronDown size={22} className="text-white" />
         </button>

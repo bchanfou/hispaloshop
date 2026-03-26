@@ -165,13 +165,9 @@ export default function ReelsPage() {
     return () => document.removeEventListener('keydown', handleKey);
   }, [activeIndex]);
 
-  const handleLike = useCallback(async (reelId) => {
-    try {
-      await apiClient.post(`/reels/${reelId}/like`);
-    } catch {
-      // Optimistic UI already updated in ReelCard
-    }
-  }, []);
+  // ReelCard already calls /reels/{id}/like internally — parent only receives the callback
+  // for optional state tracking. Do NOT call API again (would double-toggle the like).
+  const handleLike = useCallback(() => {}, []);
 
   if (loading && reels.length === 0) {
     return (
