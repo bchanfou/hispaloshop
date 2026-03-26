@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX, ExternalLink, ChevronLeft, ChevronRight, Check, Search } from 'lucide-react';
+import { X, Heart, Send, ArrowRight, Eye, Volume2, VolumeX, ExternalLink, ChevronLeft, ChevronRight, Check, Search, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -443,7 +443,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       try {
         const storyUrl = `${window.location.origin}/stories/${currentItem?.story_id || ''}`;
         await navigator.share({
-          title: `Historia de ${user?.name || user?.username || ''}`,
+          title: `Historia de ${currentStory?.user?.name || currentStory?.user?.username || ''}`,
           url: storyUrl,
         });
         return;
@@ -677,7 +677,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             )}
 
             {/* 7.1: Viewer count — own stories only (tappable to expand seen-by) */}
-            {isOwnStory && (
+            {isOwnStory && (<>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -700,7 +700,23 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                   {currentItem?.view_count ?? currentStory?.view_count ?? 0} vistas
                 </span>
               </button>
-            )}
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (!confirm('¿Eliminar esta story?')) return;
+                  try {
+                    const sid = currentItem?.story_id || currentItem?.id;
+                    await apiClient.delete(`/stories/${sid}`);
+                    toast.success('Story eliminada');
+                    onClose();
+                  } catch { toast.error('No se pudo eliminar'); }
+                }}
+                className="absolute bottom-4 right-4 z-[2] flex items-center gap-1 bg-transparent border-none cursor-pointer"
+                aria-label="Eliminar story"
+              >
+                <Trash2 size={14} className="text-white/60" />
+              </button>
+            </>)}
 
             {/* 7.3: Seen-by expandable list */}
             <AnimatePresence>

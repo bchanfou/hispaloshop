@@ -2336,9 +2336,12 @@ async def create_story(
     if not any(file.content_type.startswith(p) for p in allowed_prefixes):
         raise HTTPException(status_code=400, detail="Solo se permiten imágenes y vídeos")
     contents = await file.read()
-    if len(contents) > 10 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="Image size cannot exceed 10MB")
-    resource_type = "video" if file.content_type.startswith("video/") else "image"
+    is_video = file.content_type.startswith("video/")
+    max_size = 50 * 1024 * 1024 if is_video else 10 * 1024 * 1024  # 50MB video, 10MB image
+    if len(contents) > max_size:
+        limit_mb = max_size // (1024 * 1024)
+        raise HTTPException(status_code=400, detail=f"El archivo no puede superar {limit_mb} MB")
+    resource_type = "video" if is_video else "image"
     if resource_type == "video":
         result = await cloudinary_upload_video(contents, folder="stories", filename=f"story_{uuid.uuid4().hex[:8]}")
     else:
@@ -2559,13 +2562,8 @@ async def get_story_viewers(story_id: str, user: User = Depends(get_current_user
     if story.get("user_id") != user.user_id:
         raise HTTPException(403, "Solo puedes ver las vistas de tus propias stories")
 
-    views = await db.story_views.find(
-        {"story_id": story_id},
-        {"_id": 0, "viewer_id": 1, "viewed_at": 1}
-    ).sort("viewed_at", -1).to_list(100)
-
-    # Enrich with user data
-    viewer_ids = [v["viewer_id"] for v in views]
+    # Views are stored as user_id array in the story document (via $addToSet in view_story)
+    viewer_ids = story.get("views", [])
     users = await db.users.find(
         {"user_id": {"$in": viewer_ids}},
         {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1}
@@ -2573,14 +2571,13 @@ async def get_story_viewers(story_id: str, user: User = Depends(get_current_user
     user_map = {u["user_id"]: u for u in users}
 
     result = []
-    for v in views:
-        u = user_map.get(v["viewer_id"], {})
+    for vid in viewer_ids:
+        u = user_map.get(vid, {})
         result.append({
-            "user_id": v["viewer_id"],
+            "user_id": vid,
             "name": u.get("name", ""),
             "username": u.get("username", ""),
             "profile_image": u.get("profile_image", ""),
-            "viewed_at": v.get("viewed_at"),
         })
 
     return {"viewers": result, "total": len(result)}

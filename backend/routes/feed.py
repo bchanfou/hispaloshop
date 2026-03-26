@@ -104,7 +104,8 @@ async def get_stories(request: Request):
 
     # ── 1. Collect users who have real active hispalostories ─────────────────
     # Exclude current user's stories (self-ring is shown separately by the frontend)
-    story_query = {"expires_at": {"$gt": now}, "image_url": {"$ne": None}}
+    # Accept stories with image_url OR video_url (video stories have no image_url)
+    story_query = {"expires_at": {"$gt": now}, "$or": [{"image_url": {"$ne": None}}, {"video_url": {"$ne": None}}]}
     if current_user:
         story_query["user_id"] = {"$ne": current_user.user_id}
     try:
