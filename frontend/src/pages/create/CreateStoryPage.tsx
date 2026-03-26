@@ -133,11 +133,14 @@ export default function CreateStoryPage() {
   const dragRef = useRef({ type: null, id: null, active: false });
   const productSearchTimer = useRef(null);
 
-  // Cleanup object URLs on unmount to prevent memory leak
+  // Cleanup object URLs, RAF timers, and debounces on unmount
   useEffect(() => {
     return () => {
       if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
       if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+      cancelAnimationFrame(drawRafRef.current);
+      cancelAnimationFrame(rafRef.current);
+      clearTimeout(textDraftDebounceRef.current);
     };
   }, [imagePreviewUrl, videoPreviewUrl]);
 

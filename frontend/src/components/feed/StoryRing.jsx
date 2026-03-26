@@ -7,7 +7,7 @@ const ringClasses = {
   unseen: 'story-ring--unseen',
 };
 
-function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
+function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount, isLoading }) {
   const label = isSelf ? 'Tu historia' : (user?.name || user?.username || '');
   const avatarUrl = user?.avatar_url || user?.avatar || user?.profile_image;
   const showPlaceholder = isSelf && !hasUnseenStory;
@@ -22,7 +22,7 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
       role="button"
       tabIndex={0}
       aria-label={isSelf ? 'Crear tu historia' : `Ver historia de ${label}`}
-      className="flex flex-col items-center gap-1 cursor-pointer w-[58px] shrink-0 snap-center transition-transform duration-150 hover:scale-105 active:scale-95"
+      className={`flex flex-col items-center gap-1 cursor-pointer w-[58px] shrink-0 snap-center transition-transform duration-150 hover:scale-105 active:scale-95 ${isLoading ? 'animate-pulse opacity-60 pointer-events-none' : ''}`}
     >
       <div className="relative">
       {showPlaceholder ? (

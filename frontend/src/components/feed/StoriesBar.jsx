@@ -175,9 +175,11 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
                 try {
                   const res = await apiClient.get(`/stories/${story.user_id}`);
                   const fullItems = Array.isArray(res) ? res : res?.items || res?.stories || [];
+                  // Find correct index by user_id, not by filtered idx
+                  const targetUserId = story.user_id;
                   if (fullItems.length > 0) {
-                    const enrichedStories = stories.map((s, i) => {
-                      if (i === idx) {
+                    const enrichedStories = stories.map((s) => {
+                      if (s.user_id === targetUserId) {
                         return {
                           ...s,
                           items: fullItems.map(item => ({
@@ -193,15 +195,15 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
                       }
                       return s;
                     });
-                    const actualIdx = enrichedStories.findIndex(s => s.user_id === story.user_id);
-                    onStoryClick(enrichedStories, actualIdx >= 0 ? actualIdx : idx);
+                    const actualIdx = enrichedStories.findIndex(s => s.user_id === targetUserId);
+                    onStoryClick(enrichedStories, actualIdx >= 0 ? actualIdx : 0);
                   } else {
-                    // Fallback: use preview
-                    onStoryClick(stories, idx);
+                    const fallbackIdx = stories.findIndex(s => s.user_id === targetUserId);
+                    onStoryClick(stories, fallbackIdx >= 0 ? fallbackIdx : 0);
                   }
                 } catch {
-                  // Fallback: use preview
-                  onStoryClick(stories, idx);
+                  const fallbackIdx = stories.findIndex(s => s.user_id === story.user_id);
+                  onStoryClick(stories, fallbackIdx >= 0 ? fallbackIdx : 0);
                 } finally {
                   setLoadingUserId(null);
                 }
