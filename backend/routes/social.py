@@ -2547,11 +2547,11 @@ async def reply_story(story_id: str, request: Request, user: User = Depends(get_
     body = await request.json()
     message = (body.get("message") or body.get("text") or "").strip()
     if not message:
-        raise HTTPException(status_code=400, detail="Reply message required")
+        raise HTTPException(status_code=400, detail="El mensaje de respuesta es obligatorio")
 
     story = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "user_id": 1})
     if not story:
-        raise HTTPException(status_code=404, detail="Story not found")
+        raise HTTPException(status_code=404, detail="Historia no encontrada")
 
     reply = {
         "reply_id": f"srep_{uuid.uuid4().hex[:10]}",
@@ -2603,9 +2603,9 @@ async def delete_story(story_id: str, user: User = Depends(get_current_user)):
     """Delete own story."""
     story = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "user_id": 1})
     if not story:
-        raise HTTPException(status_code=404, detail="Story not found")
+        raise HTTPException(status_code=404, detail="Historia no encontrada")
     if story["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="No tienes permiso para eliminar esta historia")
     await db.hispalostories.delete_one({"story_id": story_id})
     return {"status": "deleted"}
 

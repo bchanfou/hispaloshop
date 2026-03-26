@@ -560,7 +560,7 @@ export default function CreateStoryPage() {
       if (productStickers.length > 0) {
         fd.append('products_json', JSON.stringify(productStickers.map(s => ({
           product_id: s.productId,
-          product_name: s.productName || '',
+          product_name: s.content || '',
           product_image: s.productImage || '',
           product_price: s.productPrice || 0,
           position: { x: s.x, y: s.y },
@@ -579,7 +579,7 @@ export default function CreateStoryPage() {
       toast.error('Error al publicar la historia');
       setPublishing(false);
     }
-  }, [imageFile, videoFile, background, textOverlays, stickerOverlays, drawPaths, imagePreviewUrl, selectedBg, navigate]);
+  }, [imageFile, videoFile, background, textOverlays, stickerOverlays, drawPaths, imagePreviewUrl, selectedBg, navigate, queryClient]);
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col lg:max-w-[480px] lg:mx-auto">
@@ -1431,7 +1431,7 @@ export default function CreateStoryPage() {
           {/* Colors */}
           <div className="flex gap-2">
             {['#1D1D1F', '#FFFFFF', '#1B6B40', '#FF3B30', '#FF9500', '#007AFF', '#AF52DE', '#FFD60A'].map(c => (
-              <button key={c} onClick={() => setDrawColor(c)} className={`w-8 h-8 rounded-full border-2 cursor-pointer p-0 shrink-0 ${drawColor === c ? 'border-white ring-2 ring-white/50' : 'border-white/30'}`} style={{ background: c }} aria-label={`Color ${c}`} />
+              <button key={c} onClick={() => setDrawColor(c)} className={`w-11 h-11 rounded-full border-2 cursor-pointer p-0 shrink-0 flex items-center justify-center ${drawColor === c ? 'border-white ring-2 ring-white/50' : 'border-transparent'}`} aria-label={`Color ${c}`}><span className="w-7 h-7 rounded-full shrink-0 border-2 border-white/30" style={{ background: c }} /></button>
             ))}
           </div>
           {/* Width */}

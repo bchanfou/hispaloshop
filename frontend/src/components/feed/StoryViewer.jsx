@@ -668,7 +668,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 <button
                   onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
                   aria-label={muted ? 'Activar sonido' : 'Silenciar'}
-                  className="absolute top-16 right-4 z-10 w-9 h-9 rounded-full bg-black/40 flex items-center justify-center"
+                  className="absolute top-16 right-4 z-10 w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
                 >
                   {muted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
                 </button>
