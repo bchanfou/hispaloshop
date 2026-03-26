@@ -176,20 +176,33 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   }, [currentUserIndex]);
 
   // 4.2: Timer — 60fps progress bar with requestAnimationFrame
+  const pauseStartRef = useRef(0);
+  const totalPausedRef = useRef(0);
+
   useEffect(() => {
     if (paused || !items.length) return;
     // For video stories, wait until we know the duration
     if (currentItem?.video_url && !videoDuration) return;
 
     const startTime = performance.now();
+    pauseStartRef.current = 0;
+    totalPausedRef.current = 0;
 
     const tick = (now) => {
       if (isPaused.current) {
-        // Ref gate: skip update during brief hold before React re-renders
+        // Track when pause started
+        if (pauseStartRef.current === 0) {
+          pauseStartRef.current = now;
+        }
         rafRef.current = requestAnimationFrame(tick);
         return;
       }
-      const elapsed = now - startTime;
+      // Accumulate pause duration when unpausing
+      if (pauseStartRef.current > 0) {
+        totalPausedRef.current += now - pauseStartRef.current;
+        pauseStartRef.current = 0;
+      }
+      const elapsed = now - startTime - totalPausedRef.current;
       const p = Math.min(elapsed / effectiveDuration, 1);
       setProgress(p);
       if (p < 1) {
@@ -205,9 +218,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     };
   }, [currentUserIndex, currentItemIndex, paused, items.length, goNext, effectiveDuration, videoDuration, currentItem?.video_url]);
 
-  // Reset progress on item change
+  // Reset progress and liked state on item change
   useEffect(() => {
     setProgress(0);
+    setLiked(false);
   }, [currentUserIndex, currentItemIndex]);
 
   // Track story view when current item changes
@@ -414,7 +428,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     const burstId = Date.now() + Math.random();
     setEmojiBursts((prev) => [...prev, { id: burstId, emoji }]);
     try {
-      await apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji });
+      await apiClient.post(`/stories/${currentItem?.story_id}/like`);
     } catch (err) { /* reaction best-effort */ }
   }, [currentItem]);
 
@@ -910,12 +924,12 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       {/* Bottom bar: like + reply input + send + share */}
       <div className="flex items-center gap-2 px-3 py-2 pb-[calc(env(safe-area-inset-bottom,8px)+8px)]">
         <button
-          onClick={() => {
+          onClick={async () => {
             const newLiked = !liked;
             setLiked(newLiked);
             try {
               if (newLiked) {
-                apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji: 'heart' });
+                await apiClient.post(`/stories/${currentItem?.story_id}/like`);
               }
             } catch (err) { /* like best-effort */ }
           }}
@@ -924,7 +938,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         >
           <Heart
             size={24}
-            className={liked ? 'text-stone-950 fill-stone-950' : 'text-white'}
+            className={liked ? 'text-white fill-white' : 'text-white'}
             strokeWidth={liked ? 0 : 1.5}
           />
         </button>

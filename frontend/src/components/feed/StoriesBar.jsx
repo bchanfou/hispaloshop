@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { RefreshCw, Plus } from 'lucide-react';
@@ -40,7 +40,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
     queryFn: async () => {
       const res = await apiClient.get('/feed/stories');
       const normalized = normalizeStories(res);
-      return normalized.filter(s => s.items && s.items.length > 0 && s.items[0].image_url);
+      return normalized.filter(s => s.items && s.items.length > 0 && (s.items[0].image_url || s.items[0].video_url));
     },
     staleTime: 30_000,
     refetchInterval: 60_000,
@@ -49,13 +49,14 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
 
   const stories = storiesData || [];
 
-  // Preload full story data for the first 3 users to warm the cache
+  // Preload full story data for the first 3 users to warm the cache (once only)
+  const preloadedRef = useRef(false);
   useEffect(() => {
-    if (stories?.length > 0) {
-      stories.slice(0, 3).forEach(s => {
-        apiClient.get(`/stories/${s.user_id}`).catch(() => {});
-      });
-    }
+    if (preloadedRef.current || !stories?.length) return;
+    preloadedRef.current = true;
+    stories.slice(0, 3).forEach(s => {
+      apiClient.get(`/stories/${s.user_id}`).catch(() => {});
+    });
   }, [stories]);
 
   // Hide the bar entirely when loading is done, there are no stories, and no
@@ -191,7 +192,8 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
                       }
                       return s;
                     });
-                    onStoryClick(enrichedStories, idx);
+                    const actualIdx = enrichedStories.findIndex(s => s.user_id === story.user_id);
+                    onStoryClick(enrichedStories, actualIdx >= 0 ? actualIdx : idx);
                   } else {
                     // Fallback: use preview
                     onStoryClick(stories, idx);

@@ -2332,12 +2332,17 @@ async def create_story(
 ):
     """Upload a story that auto-expires after 24h."""
     await rate_limiter.check(request, "create_story")
-    if not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=400, detail="Only image files are allowed")
+    allowed_prefixes = ('image/', 'video/')
+    if not any(file.content_type.startswith(p) for p in allowed_prefixes):
+        raise HTTPException(status_code=400, detail="Solo se permiten imágenes y vídeos")
     contents = await file.read()
     if len(contents) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="Image size cannot exceed 10MB")
-    result = await cloudinary_upload(contents, folder="stories", filename=f"story_{uuid.uuid4().hex[:8]}")
+    resource_type = "video" if file.content_type.startswith("video/") else "image"
+    if resource_type == "video":
+        result = await cloudinary_upload_video(contents, folder="stories", filename=f"story_{uuid.uuid4().hex[:8]}")
+    else:
+        result = await cloudinary_upload(contents, folder="stories", filename=f"story_{uuid.uuid4().hex[:8]}")
     image_url = result["url"]
 
     story_user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "company_name": 1})
@@ -2348,7 +2353,8 @@ async def create_story(
         "user_id": user.user_id,
         "user_name": (story_user_doc or {}).get("company_name") or user.name,
         "user_profile_image": (story_user_doc or {}).get("profile_image"),
-        "image_url": image_url,
+        "image_url": image_url if resource_type == "image" else None,
+        "video_url": image_url if resource_type == "video" else None,
         "caption": sanitize_text(caption[:200]) if caption else "",
         "location": sanitize_text(location[:120]) if location else "",
         "created_at": now.isoformat(),
@@ -2542,6 +2548,42 @@ async def reply_story(story_id: str, request: Request, user: User = Depends(get_
     await db.story_replies.insert_one(reply)
     await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"replies_count": 1}})
     return {k: v for k, v in reply.items() if k != "_id"}
+
+
+@router.get("/stories/{story_id}/viewers")
+async def get_story_viewers(story_id: str, user: User = Depends(get_current_user)):
+    """Get list of users who viewed this story (owner only)"""
+    story = await db.hispalostories.find_one({"story_id": story_id})
+    if not story:
+        raise HTTPException(404, "Story no encontrada")
+    if story.get("user_id") != user.user_id:
+        raise HTTPException(403, "Solo puedes ver las vistas de tus propias stories")
+
+    views = await db.story_views.find(
+        {"story_id": story_id},
+        {"_id": 0, "viewer_id": 1, "viewed_at": 1}
+    ).sort("viewed_at", -1).to_list(100)
+
+    # Enrich with user data
+    viewer_ids = [v["viewer_id"] for v in views]
+    users = await db.users.find(
+        {"user_id": {"$in": viewer_ids}},
+        {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1}
+    ).to_list(len(viewer_ids)) if viewer_ids else []
+    user_map = {u["user_id"]: u for u in users}
+
+    result = []
+    for v in views:
+        u = user_map.get(v["viewer_id"], {})
+        result.append({
+            "user_id": v["viewer_id"],
+            "name": u.get("name", ""),
+            "username": u.get("username", ""),
+            "profile_image": u.get("profile_image", ""),
+            "viewed_at": v.get("viewed_at"),
+        })
+
+    return {"viewers": result, "total": len(result)}
 
 
 @router.delete("/stories/{story_id}")
