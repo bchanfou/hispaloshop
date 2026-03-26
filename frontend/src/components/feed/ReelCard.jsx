@@ -351,10 +351,11 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
 
   const handleDeleteComment = useCallback(async (commentId) => {
     try {
-      await apiClient.delete(`/comments/${commentId}`);
+      const reelId = reel.id || reel.reel_id || reel.post_id;
+      await apiClient.delete(`/reels/${reelId}/comments/${commentId}`);
       setComments(prev => prev.filter(c => (c.comment_id || c.id || c._id) !== commentId));
     } catch (err) { toast.error('Error al eliminar'); }
-  }, []);
+  }, [reel.id, reel.reel_id, reel.post_id]);
 
   const handleReplyComment = useCallback((commentId, username) => {
     setReplyTo({ commentId, username });
@@ -451,7 +452,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     setShowReactions(false);
     const reelId = reel.id || reel.reel_id || reel.post_id;
     try {
-      await apiClient.post(`/reels/${reelId}/react`, { emoji: EMOJI_MAP[emoji] || 'heart' });
+      await apiClient.post(`/reels/${reelId}/like`);
     } catch (err) {
       setSelectedReaction(null);
       toast.error('Error al reaccionar');
@@ -814,7 +815,8 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             ) : (
               <Heart
                 size={28}
-                className={liked || selectedReaction === '❤️' ? 'text-stone-950 fill-stone-950' : 'text-white'}
+                fill={liked || selectedReaction === '❤️' ? 'white' : 'none'}
+                className="text-white"
               />
             )}
             <motion.span
@@ -874,7 +876,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             setSaved(next);
             try {
               const reelId = reel.id || reel.reel_id || reel.post_id;
-              await apiClient.post(`/posts/${reelId}/save`);
+              await apiClient.post(`/reels/${reelId}/save`);
             } catch (err) {
               setSaved(!next); // rollback
               toast.error('Error al guardar');
@@ -1061,7 +1063,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                         className="bg-transparent border-none cursor-pointer p-0 flex flex-col items-center gap-0.5"
                         aria-label={likedComments.has(cId) ? 'Quitar me gusta del comentario' : 'Me gusta en comentario'}
                       >
-                        <Heart size={14} className={likedComments.has(cId) ? 'text-stone-950 fill-stone-950' : 'text-white/40'} strokeWidth={1.8} />
+                        <Heart size={14} fill={likedComments.has(cId) ? 'white' : 'none'} className={likedComments.has(cId) ? 'text-white' : 'text-white/40'} strokeWidth={1.8} />
                         {(c.likes_count || 0) > 0 && <span className="text-[10px] text-white/40 leading-none">{c.likes_count}</span>}
                       </button>
                     </div>

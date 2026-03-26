@@ -53,7 +53,7 @@ export default function ReelsPage() {
         items = extracted;
       } catch (err) {
         // Fallback: use /feed/foryou and filter for reel-type items
-        console.warn('[ReelsPage] /reels failed, trying feed fallback', err?.message || err);
+        if (process.env.NODE_ENV === 'development') console.warn('[ReelsPage] /reels failed, trying feed fallback', err?.message || err);
         try {
           const feedUrl = activeTab === 'following' ? '/feed/following' : '/feed/foryou';
           const feedData = await apiClient.get(feedUrl, {
@@ -69,11 +69,10 @@ export default function ReelsPage() {
           items = feedItems.filter(
             (item) =>
               item.type === 'reel' ||
-              item.is_reel === true ||
-              (item.media_type === 'video' && item.video_url)
+              item.is_reel === true
           ).slice(0, 10);
         } catch (feedErr) {
-          console.warn('[ReelsPage] Feed fallback also failed', feedErr?.message || feedErr);
+          if (process.env.NODE_ENV === 'development') console.warn('[ReelsPage] Feed fallback also failed', feedErr?.message || feedErr);
         }
       }
       if (!Array.isArray(items)) items = [];
@@ -216,24 +215,28 @@ export default function ReelsPage() {
       className="h-dvh overflow-y-scroll snap-y snap-mandatory bg-black [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       style={{ scrollBehavior: 'smooth' }}
     >
-      {/* Active reel dot indicator */}
-      {reels.length > 1 && (
-        <div className="fixed right-3 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-[101]">
-          {reels.slice(0, 5).map((_, i) => (
-            <div
-              key={i}
-              className={
-                i === activeIndex
-                  ? 'w-2 h-2 rounded-full bg-white'
-                  : 'w-1.5 h-1.5 rounded-full bg-white/40'
-              }
-            />
-          ))}
-          {reels.length > 5 && (
-            <span className="text-[8px] text-white/40 text-center leading-none">…</span>
-          )}
-        </div>
-      )}
+      {/* Active reel dot indicator — sliding window of 5 */}
+      {reels.length > 1 && (() => {
+        const dotStart = Math.max(0, Math.min(reels.length - 5, activeIndex - 2));
+        const dotCount = Math.min(5, reels.length);
+        return (
+          <div className="fixed right-3 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-[101]">
+            {Array.from({ length: dotCount }).map((_, i) => {
+              const realIdx = dotStart + i;
+              return (
+                <div
+                  key={realIdx}
+                  className={`rounded-full transition-all duration-200 ${
+                    realIdx === activeIndex
+                      ? 'w-2 h-2 bg-white'
+                      : 'w-1.5 h-1.5 bg-white/30'
+                  }`}
+                />
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* Header — horizontal tab scroll */}
       <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-b from-black/40 to-transparent pt-[max(8px,env(safe-area-inset-top))]">

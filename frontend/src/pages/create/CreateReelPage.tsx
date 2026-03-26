@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check, Video, Search, Tag } from 'lucide-react';
 import apiClient from '../../services/api/client';
@@ -61,6 +61,8 @@ export default function CreateReelPage() {
   const [productQuery, setProductQuery] = useState('');
   const [productResults, setProductResults] = useState([]);
   const [coverFromGallery, setCoverFromGallery] = useState(null);
+  const coverUrl = useMemo(() => coverFromGallery ? URL.createObjectURL(coverFromGallery) : null, [coverFromGallery]);
+  useEffect(() => () => { if (coverUrl) URL.revokeObjectURL(coverUrl); }, [coverUrl]);
   const coverInputRef = useRef(null);
 
   const [isMuted, setIsMuted] = useState(true);
@@ -1086,7 +1088,7 @@ export default function CreateReelPage() {
               aria-label="Portada desde galería"
             >
               {coverFromGallery ? (
-                <img src={URL.createObjectURL(coverFromGallery)} alt="Portada del reel" className="w-full h-full object-cover rounded-xl" />
+                <img src={coverUrl} alt="Portada del reel" className="w-full h-full object-cover rounded-xl" />
               ) : (
                 <>
                   <span className="text-stone-400 text-lg">+</span>

@@ -603,8 +603,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
     const wasSaved = saved;
     setSaved(!wasSaved);
     try {
-      if (wasSaved) await apiClient.delete(`/posts/${reelId}/save`);
-      else await apiClient.post(`/posts/${reelId}/save`);
+      await apiClient.post(`/reels/${reelId}/save`);
     } catch { setSaved(wasSaved); }
   }, [saved, reelId]);
 
@@ -691,7 +690,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
       {/* Right sidebar — like/comment/share/save */}
       <div className="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-5">
         <button onClick={handleLike} className="flex flex-col items-center gap-0.5 bg-transparent border-none cursor-pointer">
-          <Heart size={26} fill={liked ? '#0c0a09' : 'none'} className={liked ? 'text-stone-950' : 'text-white'} />
+          <Heart size={26} fill={liked ? 'white' : 'none'} className="text-white" />
           <span className="text-[11px] text-white font-medium">{likesCount}</span>
         </button>
         <button

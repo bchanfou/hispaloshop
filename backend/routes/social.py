@@ -318,7 +318,6 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
         "$or": [
             {"is_reel": True},
             {"type": "reel"},
-            {"media_type": "video"},
         ]
     }
     if "user_id" in query:
@@ -359,6 +358,25 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
         ).to_list(100)
         followed_set = {f["following_id"] for f in follow_docs}
 
+    # Batch-check likes and saves for current user
+    liked_ids = set()
+    saved_ids = set()
+    if current_user:
+        reel_ids_list = []
+        for r in reels:
+            rid = r.get("id") or r.get("reel_id") or r.get("post_id")
+            if rid:
+                reel_ids_list.append(rid)
+        if reel_ids_list:
+            like_docs = await db.reel_likes.find(
+                {"reel_id": {"$in": reel_ids_list}, "user_id": current_user.user_id}
+            ).to_list(500)
+            liked_ids = {l["reel_id"] for l in like_docs}
+            save_docs = await db.reel_saves.find(
+                {"reel_id": {"$in": reel_ids_list}, "user_id": current_user.user_id}
+            ).to_list(500)
+            saved_ids = {s["reel_id"] for s in save_docs}
+
     items = []
     for reel in reels:
         user_id = reel.get("user_id")
@@ -367,6 +385,7 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
         thumb_url = reel.get("thumbnail_url") or (reel.get("media") or [{}])[0].get("thumbnail_url") or media_url
 
         is_followed = user_id in followed_set if current_user and user_id else False
+        rid = reel.get("id") or reel.get("reel_id") or reel.get("post_id")
 
         items.append(
             {
@@ -405,6 +424,8 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
                 },
                 "tagged_product": reel.get("tagged_product"),
                 "tagged_products": reel.get("tagged_products") or ([reel["tagged_product"]] if reel.get("tagged_product") else []),
+                "is_liked": rid in liked_ids if current_user else False,
+                "is_saved": rid in saved_ids if current_user else False,
             }
         )
 
@@ -681,6 +702,37 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
     await db.reels.update_one(filter_q, {"$inc": {"comments_count": 1}})
     await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "comment"}, user.user_id)
     return {k: v for k, v in comment.items() if k != "_id"}
+
+
+@router.delete("/reels/{reel_id}/comments/{comment_id}")
+async def delete_reel_comment(reel_id: str, comment_id: str, user: User = Depends(get_current_user)):
+    """Delete own comment on a reel."""
+    comment = await db.reel_comments.find_one({"comment_id": comment_id, "reel_id": reel_id})
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not your comment")
+    await db.reel_comments.delete_one({"comment_id": comment_id, "reel_id": reel_id})
+    await db.reels.update_one(
+        {"$or": [{"reel_id": reel_id}, {"id": reel_id}]},
+        {"$inc": {"comments_count": -1}},
+    )
+    return {"status": "deleted"}
+
+
+@router.post("/reels/{reel_id}/save")
+async def toggle_reel_save(reel_id: str, user: User = Depends(get_current_user)):
+    """Toggle save/bookmark on a reel."""
+    existing = await db.reel_saves.find_one({"reel_id": reel_id, "user_id": user.user_id})
+    if existing:
+        await db.reel_saves.delete_one({"reel_id": reel_id, "user_id": user.user_id})
+        return {"saved": False}
+    await db.reel_saves.insert_one({
+        "reel_id": reel_id,
+        "user_id": user.user_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"saved": True}
 
 
 @router.post("/reels/{reel_id}/comments/{comment_id}/like")
@@ -1035,6 +1087,8 @@ async def get_user_reels(user_id: str, skip: int = 0, limit: int = 30):
         {"user_id": user_id},
         {"_id": 0}
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    for r in reels:
+        r["thumbnail_url"] = r.get("thumbnail_url") or r.get("cover_url") or r.get("video_url")
     return reels
 
 
