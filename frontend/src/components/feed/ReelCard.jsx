@@ -1052,14 +1052,16 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                         <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
                         <button
                           onClick={() => handleReplyComment(cId, cName)}
-                          className="bg-transparent border-none cursor-pointer p-0 text-[10px] text-white/40 font-semibold hover:text-white/70 min-h-[28px] flex items-center"
+                          className="bg-transparent border-none cursor-pointer px-2 py-1 text-[10px] text-white/40 font-semibold hover:text-white/70 min-h-[44px] flex items-center"
+                          aria-label="Responder comentario"
                         >
                           Responder
                         </button>
                         {isOwn && (
                           <button
                             onClick={() => handleDeleteComment(cId)}
-                            className="bg-transparent border-none cursor-pointer p-1 min-h-[32px] min-w-[32px] flex items-center justify-center"
+                            className="bg-transparent border-none cursor-pointer p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                            aria-label="Eliminar comentario"
                           >
                             <Trash2 size={12} className="text-white/30 hover:text-white/60" />
                           </button>
@@ -1099,6 +1101,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                   setNewComment((prev) => prev + emoji);
                 }}
                 className="text-[24px] leading-none bg-transparent border-none cursor-pointer p-1 active:scale-125 transition-transform min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label={`Añadir ${emoji}`}
               >
                 {emoji}
               </button>

@@ -815,15 +815,18 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
             />
             <button
               onClick={async () => {
-                if (!newComment.trim()) return;
+                if (!newComment.trim() || commentsLoading) return;
+                setCommentsLoading(true);
+                const text = newComment.trim();
+                setNewComment('');
                 try {
-                  await apiClient.post(`/reels/${reelId}/comments`, { text: newComment.trim() });
-                  setNewComment('');
+                  await apiClient.post(`/reels/${reelId}/comments`, { text });
                   const data = await apiClient.get(`/reels/${reelId}/comments`);
                   setComments(Array.isArray(data) ? data : data?.comments || []);
                 } catch { toast.error('Error al comentar'); }
+                finally { setCommentsLoading(false); }
               }}
-              disabled={!newComment.trim()}
+              disabled={!newComment.trim() || commentsLoading}
               className="w-11 h-11 rounded-full bg-stone-950 flex items-center justify-center disabled:opacity-30"
               aria-label="Enviar comentario"
             >
