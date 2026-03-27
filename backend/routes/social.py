@@ -1651,7 +1651,7 @@ async def create_post(
 @router.get("/posts")
 async def list_posts(skip: int = 0, limit: int = 30, hashtag: Optional[str] = None):
     """List public posts ordered by newest first. Optionally filter by hashtag."""
-    query = {}
+    query = {"$or": [{"is_private": {"$ne": True}}, {"is_private": {"$exists": False}}]}
     if hashtag:
         query["caption"] = {"$regex": f"#{re.escape(hashtag)}", "$options": "i"}
     posts = await db.user_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)

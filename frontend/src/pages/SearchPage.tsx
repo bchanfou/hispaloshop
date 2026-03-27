@@ -4,6 +4,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, Hash, SlidersHorizontal, Check, User } from 'lucide-react';
 import apiClient from '../services/api/client';
+import { abbreviateCount } from '../utils/helpers';
 import { useLocale } from '../context/LocaleContext';
 import SEO from '../components/SEO';
 import SlideTabIndicator from '../components/motion/SlideTabIndicator';
@@ -259,7 +260,7 @@ function PersonRow({ person, linkBase }) {
         {sub && <p className="mt-0.5 truncate text-xs text-stone-500">{sub}</p>}
       </div>
       {person.followers_count > 0 && (
-        <span className="shrink-0 text-xs text-stone-400">{person.followers_count} seg.</span>
+        <span className="shrink-0 text-xs text-stone-400">{abbreviateCount(person.followers_count)} seguidores</span>
       )}
     </Link>
   );
@@ -394,7 +395,7 @@ export default function SearchPage() {
     } else if (type === 'stores') {
       navigate(`/store/${item.slug || item.store_slug || item.store_id || item.id}`);
     } else if (type === 'creators') {
-      navigate(`/user/${item.slug || item.username || item.user_id || item.id}`);
+      navigate(`/${item.username || item.slug || item.user_id || item.id}`);
     }
   }, [navigate]);
 
@@ -861,7 +862,7 @@ export default function SearchPage() {
             {showCreators && (
               <section>
                 <SectionHeader icon={Users} label="Creadores" count={counts.creators} />
-                {results.creators.map(c => <PersonRow key={c.user_id || c.id} person={c} linkBase="/user/" />)}
+                {results.creators.map(c => <PersonRow key={c.user_id || c.id} person={c} linkBase="/" />)}
               </section>
             )}
             {showStores && (
