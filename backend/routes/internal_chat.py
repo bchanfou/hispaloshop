@@ -249,12 +249,17 @@ async def send_internal_message(
         "created_at": now
     }
 
-    await db.internal_messages.insert_one(message)
+    try:
+        await db.internal_messages.insert_one(message)
+    except Exception as e:
+        logger.error(f"[CHAT] Failed to save message: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo guardar el mensaje")
     # Return plaintext to client — never expose encrypted bytes
     message["content"] = input.content
     
-    # Update conversation updated_at and status
-    update_conv = {"updated_at": now}
+    # Update conversation last message, timestamp, and status
+    preview = "Imagen" if input.message_type == "image" else "Audio" if input.message_type == "audio" else (input.content or "")[:100]
+    update_conv = {"updated_at": now, "last_message": preview, "last_message_at": now}
     # Activate conversation when recipient replies for the first time
     if conv.get("status") == "pending":
         other_msgs = await db.internal_messages.count_documents({

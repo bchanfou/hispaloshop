@@ -11,6 +11,7 @@ import hashlib
 
 from core.database import db
 from core.auth import get_current_user
+from services.chat_crypto import encrypt_message
 
 
 def _hash_session_token(token: str) -> str:
@@ -230,7 +231,8 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             "sender_name": (sender_doc or {}).get("name", ""),
             "sender_role": (sender_doc or {}).get("role", ""),
             "sender_avatar": (sender_doc or {}).get("profile_image", ""),
-            "content": content,
+            "content": encrypt_message(content) if content else content,
+            "content_plain": content,  # Keep plaintext for broadcast, stripped before insert
             "message_type": message_type,
             "image_url": message.get("image_url"),
             "audio_url": message.get("audio_url"),
@@ -243,8 +245,17 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             "status": "sent"
         }
 
-        await db.internal_messages.insert_one(message_doc)
+        # Store encrypted content, keep plaintext for broadcast
+        plain_content = message_doc.pop("content_plain", content)
+        try:
+            await db.internal_messages.insert_one(message_doc)
+        except Exception as e:
+            logger.error(f"[WS] Failed to save message: {e}")
+            await websocket.send_json({"type": "error", "detail": "No se pudo guardar el mensaje"})
+            return
         message_doc.pop("_id", None)
+        # Swap encrypted content with plaintext for client broadcast
+        message_doc["content"] = plain_content
         
         # Actualizar conversación with type-based preview text
         if message_type == "image":
