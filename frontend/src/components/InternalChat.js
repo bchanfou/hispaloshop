@@ -1093,8 +1093,10 @@ export default function InternalChat({
               }
             }
           }
-        } catch {
-          // WebSocket message processing error — silently ignored in production
+        } catch (wsErr) {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[WS] Message processing error:', wsErr);
+          }
         }
       };
 
@@ -1320,7 +1322,7 @@ export default function InternalChat({
         ...(currentReply?.id ? { reply_to_id: currentReply.id } : {}),
       });
       setMessages((current) => {
-        const nextMessages = current.map((message) => (message.message_id === optimisticId ? { ...saved } : message));
+        const nextMessages = current.map((message) => (message.message_id === optimisticId ? { ...saved, image_url: saved.image_url || message.image_url } : message));
         messagesCacheRef.current.set(selectedConversationId, nextMessages);
         return nextMessages;
       });

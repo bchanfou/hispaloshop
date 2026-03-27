@@ -57,11 +57,11 @@ class ConnectionManager:
     async def broadcast_to_conversation(self, conversation_id: str, message: dict, exclude_user_id: str = None):
         """Enviar mensaje a todos los participantes de una conversación"""
         # Obtener participantes de la conversación
-        conv = await db.internal_chats.find_one({"conversation_id": conversation_id})
+        conv = await db.internal_conversations.find_one({"conversation_id": conversation_id})
         if not conv:
             return
-        
-        participants = [conv.get("user1_id"), conv.get("user2_id")]
+
+        participants = [p["user_id"] for p in conv.get("participants", [])]
         
         for user_id in participants:
             if user_id and user_id != exclude_user_id:
@@ -96,8 +96,10 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
 
         # If no token from query/cookie, accept early (needed for auth-message flow)
         # When we have a token, ConnectionManager.connect() will accept later.
+        already_accepted = False
         if not session_token:
             await websocket.accept()
+            already_accepted = True
 
         # If no token from query/cookie, wait for auth message
         if not session_token:
@@ -150,14 +152,14 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
             await websocket.close(code=4001, reason="User not found")
             return
 
-        # Register connection via ConnectionManager (calls accept if not already accepted)
-        if session_token:
-            # Token was available from cookie/query — not yet accepted
-            await manager.connect(websocket, user_id)
-        else:
-            # Already accepted above for auth-message flow — register directly
+        # Register connection via ConnectionManager
+        if already_accepted:
+            # Already accepted above for auth-message flow — register directly (no second accept)
             manager.active_connections.setdefault(user_id, []).append(websocket)
             logger.info(f"[WS] User {user_id} connected. Total connections: {sum(len(v) for v in manager.active_connections.values())}")
+        else:
+            # Token was available from cookie/query — not yet accepted
+            await manager.connect(websocket, user_id)
 
         # Notificar al usuario que está conectado
         await websocket.send_json({
@@ -240,12 +242,9 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             return
         
         # Verificar que el usuario es parte de la conversación
-        conv = await db.internal_chats.find_one({
+        conv = await db.internal_conversations.find_one({
             "conversation_id": conversation_id,
-            "$or": [
-                {"user1_id": user_id},
-                {"user2_id": user_id}
-            ]
+            "participants.user_id": user_id
         })
         
         if not conv:
@@ -274,10 +273,10 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             "reply_to_id": message.get("reply_to_id"),
             "reply_to_preview": message.get("reply_to_preview"),
             "created_at": datetime.now(timezone.utc).isoformat(),
-            "read": False
+            "status": "sent"
         }
 
-        await db.chat_messages.insert_one(message_doc)
+        await db.internal_messages.insert_one(message_doc)
         message_doc.pop("_id", None)
         
         # Actualizar conversación with type-based preview text
@@ -290,7 +289,7 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         else:
             preview = (content or "")[:100]
 
-        await db.internal_chats.update_one(
+        await db.internal_conversations.update_one(
             {"conversation_id": conversation_id},
             {
                 "$set": {
@@ -326,7 +325,7 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         conversation_id = message.get("conversation_id")
 
         if message_id and emoji and conversation_id:
-            msg_doc = await db.chat_messages.find_one({"message_id": message_id})
+            msg_doc = await db.internal_messages.find_one({"message_id": message_id})
             if msg_doc:
                 reactions = msg_doc.get("reactions", [])
                 existing = next((r for r in reactions if r["user_id"] == user_id and r["emoji"] == emoji), None)
@@ -336,7 +335,7 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
                     reactions = [r for r in reactions if r["user_id"] != user_id]
                     user_doc = await db.users.find_one({"user_id": user_id}, {"name": 1})
                     reactions.append({"user_id": user_id, "emoji": emoji, "name": (user_doc or {}).get("name", "")})
-                await db.chat_messages.update_one({"message_id": message_id}, {"$set": {"reactions": reactions}})
+                await db.internal_messages.update_one({"message_id": message_id}, {"$set": {"reactions": reactions}})
                 await manager.broadcast_to_conversation(
                     conversation_id,
                     {"type": "reaction", "message_id": message_id, "conversation_id": conversation_id, "reactions": reactions},
@@ -350,12 +349,12 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         
         if conversation_id and message_ids:
             # Marcar mensajes como leídos
-            await db.chat_messages.update_many(
+            await db.internal_messages.update_many(
                 {
                     "message_id": {"$in": message_ids},
                     "sender_id": {"$ne": user_id}
                 },
-                {"$set": {"read": True}}
+                {"$set": {"status": "read", "read_at": datetime.now(timezone.utc).isoformat()}}
             )
             
             # Notificar al remitente original
@@ -374,12 +373,9 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
     elif msg_type == "join_conversation":
         conversation_id = message.get("conversation_id")
         # Verificar acceso
-        conv = await db.internal_chats.find_one({
+        conv = await db.internal_conversations.find_one({
             "conversation_id": conversation_id,
-            "$or": [
-                {"user1_id": user_id},
-                {"user2_id": user_id}
-            ]
+            "participants.user_id": user_id
         })
         
         if conv:
