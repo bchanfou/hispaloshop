@@ -85,7 +85,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
     if (isVerifying) return;
     setIsVerifying(true);
     try {
-      await apiClient.post(`/auth/verify-email?code=${fullCode}`);
+      await apiClient.post(`/auth/verify-email?code=${encodeURIComponent(fullCode)}`);
       setVerified(true);
       toast.success('Email verificado correctamente');
       setTimeout(() => onVerified?.(), 1500);

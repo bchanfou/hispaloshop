@@ -62,8 +62,9 @@ export default function VerifyEmailPage() {
         <div className="flex items-center h-14 px-4">
           <button
             onClick={() => navigate('/login')}
-            className="p-2 -ml-2 text-stone-950 hover:bg-stone-100 rounded-full transition-colors"
+            className="p-2 -ml-2 text-stone-950 hover:bg-stone-100 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             data-testid="mobile-back-btn"
+            aria-label="Volver al login"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>

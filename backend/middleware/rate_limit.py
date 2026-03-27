@@ -34,7 +34,7 @@ class RateLimiter:
 
         max_requests, window = self.limits.get(endpoint_type, self.limits["api_general"])
         if not await redis_manager.check_rate_limit(key, max_requests=max_requests, window=window):
-            raise HTTPException(status_code=429, detail="Rate limit exceeded. Please try again later.")
+            raise HTTPException(status_code=429, detail="Límite de intentos excedido. Inténtalo de nuevo en unos minutos.")
 
     def _get_device_fingerprint(self, request: Request) -> str:
         user_agent = request.headers.get("user-agent", "")
