@@ -217,7 +217,7 @@ export default function RegisterPage() {
   const validate = () => {
     const e = {};
     if (!form.fullName.trim()) e.fullName = 'El nombre es obligatorio';
-    if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) e.email = 'Email no válido';
+    if (!form.email.match(/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/)) e.email = 'Email no válido';
     if (!form.username.trim() || form.username.trim().length < 3) e.username = 'Mínimo 3 caracteres';
     else if (/^[.\-]|[.\-]$|\.\./.test(form.username.trim())) e.username = 'No puede empezar/terminar con punto o guion, ni tener puntos consecutivos';
     else if (usernameStatus === 'taken') e.username = 'Este usuario ya está en uso';
@@ -261,7 +261,7 @@ export default function RegisterPage() {
       birth_date: birthDate,
       role: roleConfig.backendRole,
       country: form.country,
-      analytics_consent: true,
+      analytics_consent: termsAccepted, // Tied to actual checkbox state, not hardcoded
       consent_version: '1.0',
       language: navigator.language?.split('-')[0] || 'es',
     };

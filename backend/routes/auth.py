@@ -220,7 +220,9 @@ async def _resolve_referral_influencer(referral_code: Optional[str]) -> tuple[Op
 @router.post("/auth/register")
 async def register(input: RegisterInput, request: Request):
     await rate_limiter.check(request, endpoint_type="register")
-    # Age verification — must be 16+
+    # Age verification — must be 16+ (required for customers)
+    if input.role == "customer" and not input.birth_date:
+        raise HTTPException(status_code=400, detail="La fecha de nacimiento es obligatoria")
     if input.birth_date:
         try:
             from datetime import date

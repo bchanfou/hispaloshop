@@ -98,7 +98,7 @@ class RegisterInput(BaseModel):
     email: EmailStr
     name: str = Field(min_length=1, max_length=100)
     password: str = Field(min_length=8, max_length=128)
-    role: str = Field(pattern="^(customer|consumer|producer|influencer|importer)$")
+    role: str = Field(pattern="^(customer|producer|influencer|importer)$")
     country: str = Field(min_length=2, max_length=3)
     username: Optional[str] = None
     language: Optional[str] = "es"
