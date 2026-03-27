@@ -27,7 +27,7 @@ export default function SponsoredProductCard({ product, onDismiss }) {
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDismiss(); }}
-          className="absolute top-3 left-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-stone-400 hover:text-stone-700 transition-colors"
+          className="absolute top-1 left-1 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-stone-400 hover:text-stone-700 transition-colors"
           aria-label="Cerrar"
         >
           <X className="h-3.5 w-3.5" />
