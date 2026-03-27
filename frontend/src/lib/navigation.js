@@ -42,7 +42,7 @@ export function getDefaultRoute(user, onboardingCompleted = true) {
   
   switch (role) {
     case 'customer':
-      return '/dashboard';
+      return '/';
     
     case 'producer':
       return '/producer';
@@ -60,7 +60,7 @@ export function getDefaultRoute(user, onboardingCompleted = true) {
       return '/super-admin';
     
     default:
-      return '/dashboard';
+      return '/';
   }
 }
 

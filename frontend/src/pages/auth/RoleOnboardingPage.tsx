@@ -1,4 +1,14 @@
 // @ts-nocheck
+/**
+ * DEAD CODE — This component is defined at route /onboarding/:role but
+ * no registration flow navigates to this route. All roles go through:
+ * - Consumer: /onboarding (OnboardingPage.tsx)
+ * - Producer: /producer/verification
+ * - Influencer: /influencer/fiscal-setup
+ * - Importer: /importer/dashboard
+ *
+ * Consider removing this file and its route in App.js (line ~481).
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -402,7 +412,7 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
     if (step === 2) {
       apiClient.get('/influencer/me/code')
         .then(data => setDiscountCode(data?.code || data?.discount_code || ''))
-        .catch(() => setDiscountCode('HSXXXX'));
+        .catch(() => { setDiscountCode(''); toast.error('No se pudo obtener tu código'); });
     }
   }, [step]);
 

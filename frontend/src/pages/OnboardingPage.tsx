@@ -160,7 +160,7 @@ export default function OnboardingPage() {
 
       await apiClient.patch('/users/me', patchData);
 
-      await checkAuth();
+      try { await checkAuth(); } catch { /* ignore — token already set */ }
 
       const role = user?.role || 'customer';
       const roleDestinations = {
@@ -171,10 +171,9 @@ export default function OnboardingPage() {
       };
       navigate(roleDestinations[role] || '/', { replace: true });
     } catch (err) {
-      toast.error(err?.response?.data?.detail || 'Error al guardar tu perfil. Intentalo de nuevo.');
-      navigate('/', { replace: true });
-    } finally {
+      toast.error(typeof err?.response?.data?.detail === 'string' ? err.response.data.detail : 'Error al guardar tu perfil. Inténtalo de nuevo.');
       setSaving(false);
+      return;
     }
   }, [profilePhoto, displayName, bio, location, selectedInterests, checkAuth, navigate, user]);
 
@@ -224,6 +223,7 @@ export default function OnboardingPage() {
         {profilePhotoPreview && (
           <button
             onClick={() => { setProfilePhoto(null); setProfilePhotoPreview(null); }}
+            aria-label="Eliminar foto de perfil"
             className="text-xs text-stone-500 bg-transparent border-none cursor-pointer mb-4"
             style={{ fontFamily: 'inherit' }}
           >
