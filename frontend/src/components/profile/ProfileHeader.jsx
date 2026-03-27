@@ -1428,6 +1428,8 @@ export default function ProfileHeader({
                 try {
                   await apiClient.post(`/users/${user?.user_id}/block`);
                   toast.success(`Has bloqueado a @${user?.username}`);
+                  setIsFollowing(false); // Reset follow state
+                  if (refetch) refetch(); // Refresh profile to show blocked state
                 } catch { toast.error('Error al bloquear'); }
                 setShowOptionsSheet(false);
               }} />
@@ -1451,8 +1453,10 @@ export default function ProfileHeader({
 function OptionRow({ icon, label, onClick, muted }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-5 py-3.5 text-left text-[15px] font-medium transition-all duration-150 hover:bg-stone-50 ${
+      aria-label={typeof label === 'string' ? label : undefined}
+      className={`flex w-full items-center gap-3 px-5 py-3.5 min-h-[44px] text-left text-[15px] font-medium transition-all duration-150 hover:bg-stone-50 ${
         muted ? 'text-stone-500' : 'text-stone-950'
       }`}
     >
