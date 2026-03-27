@@ -32,69 +32,40 @@ export default function ReelsPage() {
   }, [activeTab]);
 
   const fetchReels = useCallback(async (p) => {
-    if (fetchingRef.current) return;
+    // Simple, bulletproof fetch — no nested try/catch, no complex fallback chains
     fetchingRef.current = true;
     try {
-      // Primary: dedicated /reels endpoint
-      let items = [];
-      let backendHasMore = null;
-      try {
-        const data = await apiClient.get(`/reels`, {
-          params: { skip: (p - 1) * 10, limit: 10, tab: activeTab },
-        });
-        // Backend returns { items: [...], has_more: bool }
-        // Robustly extract the array regardless of wrapper shape
-        const extracted = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.items)
-            ? data.items
-            : Array.isArray(data?.reels)
-              ? data.reels
-              : [];
-        items = extracted;
-        if (typeof data?.has_more === 'boolean') backendHasMore = data.has_more;
-      } catch (err) {
-        // Fallback: use /feed/foryou and filter for reel-type items
-        if (process.env.NODE_ENV === 'development') console.warn('[ReelsPage] /reels failed, trying feed fallback', err?.message || err);
-        try {
-          const feedUrl = activeTab === 'following' ? '/feed/following' : '/feed/foryou';
-          const feedData = await apiClient.get(feedUrl, {
-            params: { limit: 40, cursor: ((p - 1) * 10) || undefined },
-          });
-          const feedItems = Array.isArray(feedData)
-            ? feedData
-            : Array.isArray(feedData?.items)
-              ? feedData.items
-              : Array.isArray(feedData?.posts)
-                ? feedData.posts
-                : [];
-          items = feedItems.filter(
-            (item) =>
-              item.type === 'reel' ||
-              item.is_reel === true
-          ).slice(0, 10);
-        } catch (feedErr) {
-          if (process.env.NODE_ENV === 'development') console.warn('[ReelsPage] Feed fallback also failed', feedErr?.message || feedErr);
-        }
-      }
-      if (!Array.isArray(items)) items = [];
-      // Defensive: if primary endpoint returned 0 items but we know data exists,
-      // try the feed fallback even if the primary didn't error
+      // Step 1: Try dedicated /reels endpoint
+      const data = await apiClient.get('/reels', {
+        params: { skip: (p - 1) * 10, limit: 10, tab: activeTab },
+      });
+
+      // Extract items from any response shape
+      let items = Array.isArray(data) ? data
+        : Array.isArray(data?.items) ? data.items
+        : Array.isArray(data?.reels) ? data.reels
+        : Array.isArray(data?.data?.items) ? data.data.items  // double-wrapped
+        : [];
+
+      // Step 2: If empty, try feed as fallback
       if (items.length === 0 && p === 1) {
-        try {
-          const feedUrl = activeTab === 'following' ? '/feed/following' : '/feed/foryou';
-          const feedData = await apiClient.get(feedUrl, { params: { limit: 40 } });
-          const feedItems = Array.isArray(feedData) ? feedData
-            : Array.isArray(feedData?.items) ? feedData.items
-            : Array.isArray(feedData?.posts) ? feedData.posts : [];
-          items = feedItems.filter(item => item.type === 'reel' || item.is_reel === true).slice(0, 10);
-        } catch { /* keep items empty */ }
+        const feedUrl = activeTab === 'following' ? '/feed/following' : '/feed/foryou';
+        const feedData = await apiClient.get(feedUrl, { params: { limit: 40 } }).catch(() => ({}));
+        const feedItems = Array.isArray(feedData) ? feedData
+          : feedData?.items || feedData?.posts || [];
+        items = feedItems.filter(item =>
+          item.type === 'reel' || item.is_reel === true || (item.video_url && item.media_type === 'video')
+        ).slice(0, 10);
       }
-      if (backendHasMore === false || items.length < 10) setHasMore(false);
-      setReels((prev) => (p === 1 ? items : [...prev, ...items]));
+
+      if (!Array.isArray(items)) items = [];
+      const hasMoreFromBackend = typeof data?.has_more === 'boolean' ? data.has_more : items.length >= 10;
+      setHasMore(hasMoreFromBackend);
+      setReels(prev => p === 1 ? items : [...prev, ...items]);
     } catch {
       setHasMore(false);
-      toast.error('Error al cargar reels');
+      // Don't show error toast on first load — just show empty state
+      if (p > 1) toast.error('Error al cargar más reels');
     } finally {
       setLoading(false);
       fetchingRef.current = false;
