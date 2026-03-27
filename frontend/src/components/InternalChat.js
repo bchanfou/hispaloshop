@@ -214,7 +214,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
             className={`absolute top-1/2 z-30 hidden -translate-y-1/2 items-center justify-center rounded-full border border-stone-100 bg-white shadow-sm transition-colors hover:bg-stone-50 lg:flex ${
               isOwn ? '-left-9' : '-right-9'
             }`}
-            style={{ width: 28, height: 28 }}
+            style={{ width: 44, height: 44 }}
             aria-label="Responder"
           >
             <Reply className="h-[13px] w-[13px] text-stone-600" />

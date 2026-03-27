@@ -172,7 +172,7 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         
         if conversation_id:
             # Notificar al otro participante
-            await manager.broadcast_to_conversation(
+            await broadcast_to_conversation(
                 conversation_id,
                 {
                     "type": "typing",
@@ -315,7 +315,7 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
                     user_doc = await db.users.find_one({"user_id": user_id}, {"name": 1})
                     reactions.append({"user_id": user_id, "emoji": emoji, "name": (user_doc or {}).get("name", "")})
                 await db.internal_messages.update_one({"message_id": message_id}, {"$set": {"reactions": reactions}})
-                await manager.broadcast_to_conversation(
+                await broadcast_to_conversation(
                     conversation_id,
                     {"type": "reaction", "message_id": message_id, "conversation_id": conversation_id, "reactions": reactions},
                     exclude_user_id=user_id
@@ -337,7 +337,7 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             )
             
             # Notificar al remitente original
-            await manager.broadcast_to_conversation(
+            await broadcast_to_conversation(
                 conversation_id,
                 {
                     "type": "read_receipt",
