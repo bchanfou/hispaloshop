@@ -108,7 +108,8 @@ function renderCaption(text, navigate) {
 // Reaction picker
 // ---------------------------------------------------------------------------
 
-const REACTIONS = ['❤️', '🔥', '👏', '😍', '😮', '😢'];
+// Must match backend VALID_EMOJIS: heart, fire, laugh, wow, clap
+const REACTIONS = ['❤️', '🔥', '😂', '😮', '👏'];
 
 function ReactionPicker({ show, onSelect, onClose, position = 'above' }) {
   const pickerRef = useRef(null);
@@ -263,13 +264,15 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const handleDoubleTap = useCallback(() => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
-      if (!liked) {
-        onLike?.(post.id);
-      }
+      // Always show heart overlay on double-tap (Instagram pattern)
       trigger('medium');
       setShowHeartAnim(true);
       clearTimeout(heartTimerRef.current);
       heartTimerRef.current = setTimeout(() => setShowHeartAnim(false), 1000);
+      // Only toggle like if not already liked (double-tap never unlikes)
+      if (!liked) {
+        onLike?.(post.id);
+      }
     }
     lastTapRef.current = now;
   }, [liked, onLike, post.id, trigger]);
@@ -728,7 +731,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             whileTap={{ scale: 0.85 }}
             transition={{ type: 'spring', damping: 20, stiffness: 400 }}
             className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer ${
-              liked || selectedReaction ? 'text-stone-950' : 'text-stone-950'
+              'text-stone-950'
             }`}
             onClick={handleLike}
             onPointerDown={handleLongPressStart}

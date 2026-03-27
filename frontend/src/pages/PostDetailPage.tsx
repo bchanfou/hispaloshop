@@ -357,7 +357,7 @@ export default function PostDetailPage() {
         {/* Actions row */}
         <div className="flex items-center px-3 py-2">
           <div className="flex items-center gap-3">
-            <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}>
+            <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-110 transition-transform text-stone-950`} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}>
               <Heart size={24} fill={liked ? 'currentColor' : 'none'} />
             </button>
             <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-950" aria-label="Comentar">
