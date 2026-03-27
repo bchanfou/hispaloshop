@@ -157,6 +157,7 @@ export default function ForYouFeed() {
             type="button"
             className="fixed top-16 left-1/2 -translate-x-1/2 z-30 bg-stone-950 text-white text-xs font-semibold px-5 py-3 min-h-[44px] rounded-full shadow-lg cursor-pointer border-none"
             aria-live="polite"
+            aria-label="Cargar nuevo contenido"
           >
             Nuevo contenido
           </motion.button>

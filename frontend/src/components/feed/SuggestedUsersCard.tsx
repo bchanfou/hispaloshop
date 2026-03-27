@@ -120,6 +120,7 @@ export default function SuggestedUsersCard({ onDismiss }: SuggestedUsersCardProp
                   navigate(`/${user.username || user.user_id}`)
                 }
                 className="mb-2 h-16 w-16 overflow-hidden rounded-full bg-stone-200 border-none p-0 cursor-pointer"
+                aria-label={`Ver perfil de ${displayName}`}
               >
                 {avatar ? (
                   <img
@@ -151,6 +152,7 @@ export default function SuggestedUsersCard({ onDismiss }: SuggestedUsersCardProp
                 whileTap={{ scale: 0.95 }}
                 onClick={() => !isFollowed && handleFollow(user.user_id)}
                 disabled={isFollowed}
+                aria-label={isFollowed ? `Siguiendo a ${displayName}` : `Seguir a ${displayName}`}
                 className={`mt-2.5 flex w-full items-center justify-center rounded-full px-4 py-1.5 text-xs font-semibold border-none cursor-pointer transition-colors ${
                   isFollowed
                     ? 'bg-stone-100 text-stone-950'
