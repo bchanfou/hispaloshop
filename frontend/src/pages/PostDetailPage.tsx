@@ -357,17 +357,17 @@ export default function PostDetailPage() {
         {/* Actions row */}
         <div className="flex items-center px-3 py-2">
           <div className="flex items-center gap-3">
-            <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-1.5 active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label="Me gusta">
+            <button onClick={handleLikePost} className={`bg-transparent border-none cursor-pointer p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-110 transition-transform ${liked ? 'text-stone-950' : 'text-stone-950'}`} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}>
               <Heart size={24} fill={liked ? 'currentColor' : 'none'} />
             </button>
-            <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Comentar">
+            <button onClick={() => inputRef.current?.focus()} className="bg-transparent border-none cursor-pointer p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-950" aria-label="Comentar">
               <MessageCircle size={24} />
             </button>
-            <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label="Compartir">
+            <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-950" aria-label="Compartir">
               <Send size={24} />
             </button>
           </div>
-          <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-1.5 text-stone-950" aria-label={saved ? 'Quitar guardado' : 'Guardar'}>
+          <button onClick={handleSavePost} className="ml-auto bg-transparent border-none cursor-pointer p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-950" aria-label={saved ? 'Quitar guardado' : 'Guardar'}>
             <Bookmark size={24} fill={saved ? 'currentColor' : 'none'} />
           </button>
         </div>
