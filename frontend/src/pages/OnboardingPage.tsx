@@ -224,7 +224,7 @@ export default function OnboardingPage() {
           <button
             onClick={() => { setProfilePhoto(null); setProfilePhotoPreview(null); }}
             aria-label="Eliminar foto de perfil"
-            className="text-xs text-stone-500 bg-transparent border-none cursor-pointer mb-4"
+            className="text-xs text-stone-500 bg-transparent border-none cursor-pointer mb-4 py-2 px-3 min-h-[44px] flex items-center"
             style={{ fontFamily: 'inherit' }}
           >
             Eliminar foto
@@ -264,7 +264,7 @@ export default function OnboardingPage() {
 
         {/* Location */}
         <div className="w-full">
-          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Ubicacion (opcional)</label>
+          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Ubicación (opcional)</label>
           <div className="relative">
             <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
             <input
@@ -312,6 +312,8 @@ export default function OnboardingPage() {
                 key={name}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => toggleInterest(name)}
+                aria-label={`${selected ? 'Quitar' : 'Seleccionar'} ${name}`}
+                aria-pressed={selected}
                 className={`px-4 py-3 min-h-[44px] rounded-full text-sm font-medium cursor-pointer border transition-all ${
                   selected
                     ? 'bg-stone-950 text-white border-stone-950'
@@ -391,7 +393,8 @@ export default function OnboardingPage() {
           onClick={handleFinish}
           disabled={saving}
           aria-disabled={saving}
-          className="bg-stone-950 text-white rounded-full px-12 py-3 text-base font-semibold border-none cursor-pointer transition-colors hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          aria-label="Empezar a usar Hispaloshop"
+          className="bg-stone-950 text-white rounded-full px-12 py-3 min-h-[44px] text-base font-semibold border-none cursor-pointer transition-colors hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           style={{ fontFamily: 'inherit' }}
         >
           {saving ? <Loader2 size={20} className="animate-spin" /> : 'Empezar'}
