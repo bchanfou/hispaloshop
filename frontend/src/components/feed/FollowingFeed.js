@@ -174,7 +174,7 @@ function FollowingFeed() {
         <button
           type="button"
           onClick={() => feedQuery.refetch()}
-          className="mt-5 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
+          className="mt-5 rounded-full bg-stone-950 px-6 py-3 min-h-[44px] text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
         >
           {t('common.retry', 'Reintentar')}
         </button>
@@ -204,7 +204,8 @@ function FollowingFeed() {
             exit={{ opacity: 0, y: -40 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             onClick={handleNewContentClick}
-            className="fixed top-16 left-1/2 -translate-x-1/2 z-30 bg-stone-950 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg cursor-pointer border-none"
+            type="button"
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-30 bg-stone-950 text-white text-xs font-semibold px-5 py-3 min-h-[44px] rounded-full shadow-lg cursor-pointer border-none"
             aria-live="polite"
           >
             Nuevo contenido
@@ -350,7 +351,7 @@ function FollowingFeed() {
           }}
           overscan={3}
           increaseViewportBy={{ top: 0, bottom: 1500 }}
-          style={{ height: 'calc(100vh - 56px - 64px)' }}
+          style={{ height: 'calc(100vh - 52px - 64px)' }}
           components={{
             Footer: () => {
               if (feedQuery.isFetchingNextPage) return <FeedSkeleton count={2} />;
