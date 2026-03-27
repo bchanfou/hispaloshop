@@ -84,6 +84,7 @@ const PrimaryButton = ({ onClick, disabled, loading, children, className = '' })
   <button
     onClick={onClick}
     disabled={disabled || loading}
+    aria-disabled={disabled || loading}
     className={`w-full rounded-full bg-stone-950 text-white font-semibold text-base cursor-pointer border-none flex items-center justify-center gap-2 transition-colors hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     style={{ fontFamily: 'inherit', height: 52, padding: '0 24px' }}
   >
@@ -388,6 +389,7 @@ export default function OnboardingPage() {
         <button
           onClick={handleFinish}
           disabled={saving}
+          aria-disabled={saving}
           className="bg-stone-950 text-white rounded-full px-12 py-3 text-base font-semibold border-none cursor-pointer transition-colors hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           style={{ fontFamily: 'inherit' }}
         >

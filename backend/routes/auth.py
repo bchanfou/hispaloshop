@@ -239,12 +239,22 @@ async def register(input: RegisterInput, request: Request):
         except ValueError:
             pass  # Invalid date format, skip check
 
-    # GDPR Compliance: Consent is MANDATORY for customers
-    if input.role == "customer" and not input.analytics_consent:
+    # GDPR Compliance: Consent is MANDATORY for all roles
+    if not input.analytics_consent:
         raise HTTPException(
             status_code=400,
-            detail="Analytics consent is required for customer registration"
+            detail="Analytics consent is required for registration"
         )
+
+    # Influencer: at least one social media handle required
+    if input.role == "influencer":
+        instagram = (input.instagram or "").strip()
+        tiktok = (input.tiktok or "").strip()
+        if not instagram and not tiktok:
+            raise HTTPException(
+                status_code=400,
+                detail="Se requiere al menos una red social (Instagram o TikTok)"
+            )
 
     normalized_email = input.email.lower()
     existing = await db.users.find_one({"email": normalized_email}, {"_id": 0})

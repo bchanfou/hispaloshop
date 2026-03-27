@@ -263,6 +263,7 @@ export default function RegisterPage() {
       country: form.country,
       analytics_consent: true,
       consent_version: '1.0',
+      language: navigator.language?.split('-')[0] || 'es',
     };
 
     // Role-specific fields
@@ -464,6 +465,9 @@ export default function RegisterPage() {
               </span>
             )}
           </div>
+          <p className="text-[11px] text-stone-400 mt-1">
+            Letras minúsculas, números, puntos y guiones bajos
+          </p>
           {usernameStatus === 'taken' && (
             <p className="text-xs text-stone-600 mt-1">Este usuario ya está en uso</p>
           )}

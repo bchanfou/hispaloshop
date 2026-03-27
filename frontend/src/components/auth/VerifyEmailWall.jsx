@@ -68,8 +68,8 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
       toast.success('Email verificado correctamente');
       setTimeout(() => onVerified?.(), 1500);
     } catch (err) {
-      const msg = err?.response?.data?.detail || 'Codigo incorrecto o expirado';
-      toast.error(typeof msg === 'string' ? msg : 'Codigo incorrecto');
+      const msg = err?.response?.data?.detail || 'Código incorrecto o expirado';
+      toast.error(typeof msg === 'string' ? msg : 'Código incorrecto');
       setCode(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {
@@ -84,9 +84,9 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
       await apiClient.post('/auth/resend-verification');
       setResendCount(prev => prev + 1);
       setCooldown(60);
-      toast.success('Codigo reenviado a tu email');
+      toast.success('Código reenviado a tu email');
     } catch (err) {
-      toast.error('No se pudo reenviar el codigo');
+      toast.error('No se pudo reenviar el código');
     } finally {
       setIsResending(false);
     }
@@ -123,7 +123,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
           Verifica tu email
         </h1>
         <p className="text-sm text-stone-500 mb-8 leading-relaxed">
-          Hemos enviado un codigo de 6 digitos a<br />
+          Hemos enviado un código de 6 dígitos a<br />
           <span className="font-semibold text-stone-700">{maskedEmail}</span>
         </p>
 
@@ -139,6 +139,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
               value={digit}
               onChange={e => handleDigitChange(i, e.target.value)}
               onKeyDown={e => handleKeyDown(i, e)}
+              aria-label={`Dígito ${i + 1} de 6`}
               className="w-11 h-14 text-center text-xl font-bold text-stone-950 bg-white border-2 border-stone-200 rounded-xl outline-none focus:border-stone-950 transition-colors"
               autoFocus={i === 0}
             />
@@ -154,7 +155,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
         <div className="mb-8">
           {resendCount >= 3 ? (
             <p className="text-xs text-stone-400">
-              Maximo de reenvios alcanzado. Revisa tu carpeta de spam.
+              Máximo de reenvíos alcanzado. Revisa tu carpeta de spam.
             </p>
           ) : cooldown > 0 ? (
             <p className="text-xs text-stone-400">
@@ -167,12 +168,12 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
               className="text-sm font-semibold text-stone-950 hover:underline disabled:opacity-50 flex items-center gap-1.5 mx-auto"
             >
               <RefreshCw size={14} className={isResending ? 'animate-spin' : ''} />
-              Reenviar codigo
+              Reenviar código
             </button>
           )}
           {resendCount > 0 && resendCount < 3 && (
             <p className="text-[11px] text-stone-400 mt-1">
-              {3 - resendCount} {3 - resendCount === 1 ? 'reenvio' : 'reenvios'} restante{3 - resendCount === 1 ? '' : 's'}
+              {3 - resendCount} {3 - resendCount === 1 ? 'reenvío' : 'reenvíos'} restante{3 - resendCount === 1 ? '' : 's'}
             </p>
           )}
         </div>
@@ -183,7 +184,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
           className="text-xs text-stone-400 hover:text-stone-600 flex items-center gap-1.5 mx-auto transition-colors"
         >
           <LogOut size={12} />
-          Cerrar sesion
+          Cerrar sesión
         </button>
       </div>
     </div>

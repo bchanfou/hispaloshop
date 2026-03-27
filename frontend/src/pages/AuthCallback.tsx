@@ -33,9 +33,12 @@ export default function AuthCallback() {
         if (token) {
           const user = await checkAuth();
           if (user) {
-            const needsOnboarding = user.role === 'customer' && !user.onboarding_completed;
-            if (needsOnboarding) {
-              navigate('/onboarding', { replace: true });
+            if (!user.onboarding_completed) {
+              if (user.role === 'customer') navigate('/onboarding', { replace: true });
+              else if (user.role === 'producer') navigate('/producer/verification', { replace: true });
+              else if (user.role === 'influencer') navigate('/influencer/fiscal-setup', { replace: true });
+              else if (user.role === 'importer') navigate('/importer/dashboard', { replace: true });
+              else navigate('/', { replace: true });
             } else {
               redirectAfterAuth(user, navigate);
             }
@@ -47,9 +50,12 @@ export default function AuthCallback() {
         // No token found - check if user is already authenticated
         const user = await checkAuth();
         if (user) {
-          const needsOnboarding = user.role === 'customer' && !user.onboarding_completed;
-          if (needsOnboarding) {
-            navigate('/onboarding', { replace: true });
+          if (!user.onboarding_completed) {
+            if (user.role === 'customer') navigate('/onboarding', { replace: true });
+            else if (user.role === 'producer') navigate('/producer/verification', { replace: true });
+            else if (user.role === 'influencer') navigate('/influencer/fiscal-setup', { replace: true });
+            else if (user.role === 'importer') navigate('/importer/dashboard', { replace: true });
+            else navigate('/', { replace: true });
           } else {
             redirectAfterAuth(user, navigate);
           }
