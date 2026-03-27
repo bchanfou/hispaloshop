@@ -221,10 +221,15 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         
         msg_id = f"msg_{uuid.uuid4().hex[:12]}"
         temp_id = message.get("temp_id")
+        # Fetch sender info for recipient display
+        sender_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "name": 1, "role": 1, "profile_image": 1})
         message_doc = {
             "message_id": msg_id,
             "conversation_id": conversation_id,
             "sender_id": user_id,
+            "sender_name": (sender_doc or {}).get("name", ""),
+            "sender_role": (sender_doc or {}).get("role", ""),
+            "sender_avatar": (sender_doc or {}).get("profile_image", ""),
             "content": content,
             "message_type": message_type,
             "image_url": message.get("image_url"),
@@ -270,8 +275,20 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             "timestamp": message_doc["created_at"]
         })
         
-        # Enviar al otro participante si está conectado
-        await manager.broadcast_to_conversation(
+        # Enviar al otro participante si está conectado + mark delivered
+        conv = await db.internal_conversations.find_one({"conversation_id": conversation_id})
+        recipients = [p["user_id"] for p in (conv or {}).get("participants", []) if p["user_id"] != user_id]
+        any_delivered = False
+        for rid in recipients:
+            if manager.is_online(rid):
+                any_delivered = True
+        if any_delivered:
+            await db.internal_messages.update_one(
+                {"message_id": msg_id},
+                {"$set": {"status": "delivered"}}
+            )
+            message_doc["status"] = "delivered"
+        await broadcast_to_conversation(
             conversation_id,
             {
                 "type": "new_message",
