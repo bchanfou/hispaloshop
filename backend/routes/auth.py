@@ -425,7 +425,7 @@ async def register(input: RegisterInput, request: Request):
                 </a>
             </div>
             <p style="color: #78716c; font-size: 14px; margin-top: 20px; line-height: 1.5;">
-                Tambien puedes abrir este enlace directamente:<br>
+                También puedes abrir este enlace directamente:<br>
                 <a href="{verification_link}" style="color: #0c0a09;">{verification_link}</a>
             </p>
             <p style="color: #78716c; font-size: 14px; margin-top: 25px;">
@@ -448,7 +448,7 @@ async def register(input: RegisterInput, request: Request):
             user_data,
             session_token,
             email_delivery_available=False,
-            message="La cuenta se creo, pero el servicio de email no esta configurado. Configura Resend antes de pedir verificacion por email.",
+            message="La cuenta se creó, pero el servicio de email no está configurado. Configura Resend antes de pedir verificación por email.",
         )
 
     try:
@@ -466,7 +466,7 @@ async def register(input: RegisterInput, request: Request):
             user_data,
             session_token,
             email_delivery_available=False,
-            message="La cuenta se creo, pero no se pudo enviar el email de verificacion. Prueba a reenviarlo cuando el servicio de email este disponible.",
+            message="La cuenta se creó, pero no se pudo enviar el email de verificación. Prueba a reenviarlo cuando el servicio de email esté disponible.",
         )
     
     return _build_auth_response(
@@ -517,6 +517,7 @@ async def verify_email(request: Request, token: str = None, code: str = None):
 @router.post("/auth/resend-verification")
 async def resend_verification(request: Request, user: User = Depends(get_current_user)):
     """Resend verification email with 6-digit code"""
+    await rate_limiter.check(request, endpoint_type="resend_verification")
     if user.email_verified:
         return {"message": "Email already verified"}
 
@@ -527,7 +528,7 @@ async def resend_verification(request: Request, user: User = Depends(get_current
         "created_at": {"$gt": cutoff}
     })
     if recent_resends >= 3:
-        raise HTTPException(status_code=429, detail="Maximo de reenvios alcanzado. Intentalo en 24 horas.")
+        raise HTTPException(status_code=429, detail="Máximo de reenvíos alcanzado. Inténtalo en 24 horas.")
 
     # Log this resend for rate limiting
     await db.email_resend_log.insert_one({
@@ -549,8 +550,13 @@ async def resend_verification(request: Request, user: User = Depends(get_current
         "expires_at": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
     })
     verification_link = _build_verification_link(request, verification_code)
-    
-    # Send verification email with 6-digit code
+
+    # Get email template in user's language (default to "es")
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "country": 1})
+    user_lang = "es"  # Default; could be extended with user preference
+    template = get_email_template("verification", user_lang)
+
+    # Send verification email with 6-digit code (same structure as registration email)
     email_html = f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FFFFFF;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -558,9 +564,9 @@ async def resend_verification(request: Request, user: User = Depends(get_current
         </div>
 
         <div style="background-color: #FFFFFF; border: 1px solid #e7e5e4; border-radius: 12px; padding: 30px; text-align: center;">
-            <h2 style="color: #0c0a09; margin: 0 0 15px 0;">Verifica tu cuenta</h2>
+            <h2 style="color: #0c0a09; margin: 0 0 15px 0;">{template['title']}</h2>
             <p style="color: #78716c; font-size: 16px; margin: 0 0 25px 0;">
-                Introduce este codigo en tu panel para activar tu cuenta:
+                {template['body']}
             </p>
             <div style="background-color: #0c0a09; color: white; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 20px 30px; border-radius: 8px; display: inline-block;">
                 {verification_code}
@@ -571,30 +577,34 @@ async def resend_verification(request: Request, user: User = Depends(get_current
                 </a>
             </div>
             <p style="color: #78716c; font-size: 14px; margin-top: 20px; line-height: 1.5;">
-                Tambien puedes abrir este enlace directamente:<br>
+                También puedes abrir este enlace directamente:<br>
                 <a href="{verification_link}" style="color: #0c0a09;">{verification_link}</a>
             </p>
             <p style="color: #78716c; font-size: 14px; margin-top: 25px;">
-                Este codigo expira en 24 horas.
+                {template['expires']}
             </p>
         </div>
+
+        <p style="color: #78716c; font-size: 12px; text-align: center; margin-top: 30px;">
+            {template['ignore']}
+        </p>
     </div>
     """
     
     if not _is_email_delivery_configured():
         logger.error("[RESEND_VERIFICATION] Email delivery unavailable for %s", user.email)
-        raise HTTPException(status_code=503, detail="El servicio de email no esta configurado. Configura Resend antes de reenviar codigos de verificacion.")
+        raise HTTPException(status_code=503, detail="No se pudo enviar el código. Inténtalo de nuevo en unos minutos.")
 
     # Send email
     try:
         send_email(
             to=user.email,
-        subject="Código de verificación - Hispaloshop",
+            subject=template['subject'],
             html=email_html
         )
     except Exception as exc:
         logger.exception("[RESEND_VERIFICATION] Failed to send verification email to %s", user.email)
-        raise HTTPException(status_code=503, detail="No se pudo enviar el email de verificacion. Intentalo de nuevo cuando el servicio de email este disponible.") from exc
+        raise HTTPException(status_code=503, detail="No se pudo enviar el código. Inténtalo de nuevo en unos minutos.") from exc
 
     logger.info(f"[RESEND_VERIFICATION] Code sent to {user.email}")
     

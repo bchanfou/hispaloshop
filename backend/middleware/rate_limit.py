@@ -20,6 +20,8 @@ class RateLimiter:
             "create_post": (10, 3600),   # 10 posts per hour
             "create_comment": (30, 300), # 30 comments per 5 min
             "create_story": (20, 3600),  # 20 stories per hour
+            "verify_email": (5, 300),    # 5 per 5 min
+            "resend_verification": (3, 300),  # 3 per 5 min
             "api_general": (100, 60),    # 100 per min
         }
 

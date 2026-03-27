@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import { CheckCircle, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
+import { getToken } from '../lib/auth';
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -34,8 +35,8 @@ export default function VerifyEmailPage() {
       toast.success('Email verificado. Ya puedes iniciar sesión.');
 
       setTimeout(() => {
-        const token = localStorage.getItem('hsp_token');
-        navigate(token ? '/' : '/login');
+        const authToken = getToken();
+        navigate(authToken ? '/' : '/login');
       }, 2000);
     } catch (error) {
       setStatus('error');

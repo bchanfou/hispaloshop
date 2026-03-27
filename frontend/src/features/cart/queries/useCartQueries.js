@@ -93,7 +93,7 @@ export function useVerifyEmail() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (token) => apiClient.post(`/auth/verify-email?token=${encodeURIComponent(token)}`, {}),
+    mutationFn: (code) => apiClient.post(`/auth/verify-email?code=${encodeURIComponent(code)}`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.verification });
     },
