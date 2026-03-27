@@ -1218,7 +1218,7 @@ async def get_user_recipes(user_id: str, skip: int = 0, limit: int = 50):
 @router.post("/users/{user_id}/follow")
 async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     # Check if blocked in either direction
-    is_blocked = await db.user_blocks.find_one({
+    is_blocked = await db.blocked_users.find_one({
         "$or": [
             {"blocker_id": user.user_id, "blocked_id": user_id},
             {"blocker_id": user_id, "blocked_id": user.user_id}
@@ -3029,7 +3029,7 @@ async def get_saved_reels(skip: int = 0, limit: int = 20, user: User = Depends(g
 @router.post("/users/{user_id}/block")
 async def block_user(user_id: str, user: User = Depends(get_current_user)):
     if user_id == user.user_id:
-        raise HTTPException(400, "Cannot block yourself")
+        raise HTTPException(400, "No puedes bloquearte a ti mismo")
     await db.blocked_users.update_one(
         {"blocker_id": user.user_id, "blocked_id": user_id},
         {"$set": {"blocker_id": user.user_id, "blocked_id": user_id, "created_at": datetime.now(timezone.utc).isoformat()}},

@@ -516,7 +516,7 @@ export default function SearchPage() {
             type="button"
             onClick={() => { window.history.length > 1 ? navigate(-1) : navigate('/discover'); }}
             aria-label="Volver"
-            className="flex h-10 w-10 shrink-0 items-center justify-center"
+            className="flex h-11 w-11 shrink-0 items-center justify-center"
           >
             <ArrowLeft size={20} className="text-stone-950" />
           </button>
@@ -555,7 +555,7 @@ export default function SearchPage() {
             type="button"
             onClick={() => setShowFilters(prev => !prev)}
             aria-label="Filtros"
-            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white transition-colors hover:bg-stone-50 lg:hidden"
+            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white transition-colors hover:bg-stone-50 lg:hidden"
           >
             <SlidersHorizontal size={18} className="text-stone-950" />
             {hasActiveFilters && (
