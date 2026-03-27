@@ -21,14 +21,14 @@ export default function BadgeToast({ badge, hpEarned, show, onClose }) {
           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         >
           <div className="text-5xl mb-2">{badge.emoji || badge.icon}</div>
-          <div className="font-bold text-sm" style={{ color: 'var(--color-text-primary)' }}>
+          <div className="font-bold text-sm text-stone-950">
             ¡Logro desbloqueado!
           </div>
-          <div className="text-base font-semibold mt-0.5" style={{ color: 'var(--color-accent)' }}>
+          <div className="text-base font-semibold mt-0.5 text-stone-950">
             {badge.name || badge.name_default}
           </div>
           {hpEarned > 0 && (
-            <div className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+            <div className="text-xs mt-1 text-stone-500">
               +{hpEarned} HP
             </div>
           )}

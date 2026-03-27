@@ -109,7 +109,7 @@ export default function SuggestedUsersCard({ onDismiss }: SuggestedUsersCardProp
               <button
                 onClick={() => handleRemoveUser(user.user_id)}
                 aria-label={`Descartar ${displayName}`}
-                className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-300 hover:text-stone-500 transition-colors"
+                className="absolute top-0 right-0 flex h-11 w-11 items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-300 hover:text-stone-500 transition-colors"
               >
                 <X size={14} />
               </button>
