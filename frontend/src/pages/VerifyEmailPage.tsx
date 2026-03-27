@@ -94,7 +94,7 @@ export default function VerifyEmailPage() {
           {status === 'success' && (
             <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="success-card">
               <div className="w-16 h-16 md:w-20 md:h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
-                <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-stone-700" />
+                <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-stone-950" />
               </div>
               <h1 className="text-xl md:text-2xl font-bold text-stone-950 mb-3 md:mb-4">
                 ¡Email verificado!
@@ -116,7 +116,7 @@ export default function VerifyEmailPage() {
           {status === 'error' && (
             <div className="bg-white p-6 md:p-8 rounded-[28px] border border-stone-200 shadow-sm text-center" data-testid="error-card">
               <div className="w-16 h-16 md:w-20 md:h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
-                <AlertCircle className="w-8 h-8 md:w-10 md:h-10 text-stone-700" />
+                <AlertCircle className="w-8 h-8 md:w-10 md:h-10 text-stone-950" />
               </div>
               <h1 className="text-xl md:text-2xl font-bold text-stone-950 mb-3 md:mb-4">
                 Verificación fallida

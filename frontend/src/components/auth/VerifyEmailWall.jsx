@@ -165,7 +165,8 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
             <button
               onClick={handleResend}
               disabled={isResending}
-              className="text-sm font-semibold text-stone-950 hover:underline disabled:opacity-50 flex items-center gap-1.5 mx-auto"
+              className="text-sm font-semibold text-stone-950 hover:underline disabled:opacity-50 flex items-center gap-1.5 mx-auto min-h-[44px] px-4"
+              aria-label="Reenviar código de verificación"
             >
               <RefreshCw size={14} className={isResending ? 'animate-spin' : ''} />
               Reenviar código
@@ -181,7 +182,8 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
         {/* Logout */}
         <button
           onClick={onLogout}
-          className="text-xs text-stone-400 hover:text-stone-600 flex items-center gap-1.5 mx-auto transition-colors"
+          className="text-xs text-stone-400 hover:text-stone-950 flex items-center gap-1.5 mx-auto transition-colors min-h-[44px] px-4"
+          aria-label="Cerrar sesión"
         >
           <LogOut size={12} />
           Cerrar sesión

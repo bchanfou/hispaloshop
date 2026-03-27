@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
     return (
       <div className="text-center py-6">
         <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-5">
-          <AlertCircle size={28} className="text-stone-700" />
+          <AlertCircle size={28} className="text-stone-950" />
         </div>
         <h1 className="text-xl font-bold text-stone-950 mb-2">
           {t('resetPassword.invalidLink', 'Enlace no válido')}
@@ -143,7 +143,7 @@ export default function ResetPasswordPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors"
               data-testid="toggle-password-btn"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -170,7 +170,7 @@ export default function ResetPasswordPage() {
         </div>
 
         {error && (
-          <div className="p-3 bg-stone-100 border border-stone-200 rounded-2xl text-sm text-stone-700" data-testid="error-message">
+          <div className="p-3 bg-stone-100 border border-stone-200 rounded-2xl text-sm text-stone-950" data-testid="error-message">
             {error}
           </div>
         )}
