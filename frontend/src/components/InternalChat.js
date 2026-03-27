@@ -1594,15 +1594,17 @@ export default function InternalChat({
               <div className="flex shrink-0 items-center gap-0.5">
                 <button
                   type="button"
-                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
-                  aria-label="Llamada de voz"
+                  onClick={() => toast('Llamadas de voz próximamente', { icon: '📞' })}
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100"
+                  aria-label="Llamada de voz (próximamente)"
                 >
                   <Phone className="h-[18px] w-[18px]" strokeWidth={1.8} />
                 </button>
                 <button
                   type="button"
-                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
-                  aria-label="Videollamada"
+                  onClick={() => toast('Videollamadas próximamente', { icon: '📹' })}
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100"
+                  aria-label="Videollamada (próximamente)"
                 >
                   <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
                 </button>

@@ -20,58 +20,20 @@ def _hash_session_token(token: str) -> str:
 logger = logging.getLogger(__name__)
 
 
-class ConnectionManager:
-    """
-    Gestor de conexiones WebSocket — supports multiple tabs per user.
-    """
-    def __init__(self):
-        self.active_connections: Dict[str, list[WebSocket]] = {}
-
-    async def connect(self, websocket: WebSocket, user_id: str):
-        await websocket.accept()
-        self.active_connections.setdefault(user_id, []).append(websocket)
-        logger.info(f"[WS] User {user_id} connected. Total connections: {sum(len(v) for v in self.active_connections.values())}")
-    
-    def disconnect(self, user_id: str, websocket: WebSocket = None):
-        conns = self.active_connections.get(user_id, [])
-        if websocket and websocket in conns:
-            conns.remove(websocket)
-        if not conns:
-            self.active_connections.pop(user_id, None)
-        logger.info(f"[WS] User {user_id} disconnected. Total connections: {sum(len(v) for v in self.active_connections.values())}")
-
-    async def send_personal_message(self, message: dict, user_id: str):
-        conns = self.active_connections.get(user_id, [])
-        dead = []
-        for ws in conns:
-            try:
-                await ws.send_json(message)
-            except Exception as e:
-                logger.error(f"[WS] Error sending to {user_id}: {e}")
-                dead.append(ws)
-        for ws in dead:
-            conns.remove(ws)
-        if not conns:
-            self.active_connections.pop(user_id, None)
-    
-    async def broadcast_to_conversation(self, conversation_id: str, message: dict, exclude_user_id: str = None):
-        """Enviar mensaje a todos los participantes de una conversación"""
-        # Obtener participantes de la conversación
-        conv = await db.internal_conversations.find_one({"conversation_id": conversation_id})
-        if not conv:
-            return
-
-        participants = [p["user_id"] for p in conv.get("participants", [])]
-        
-        for user_id in participants:
-            if user_id and user_id != exclude_user_id:
-                await self.send_personal_message(message, user_id)
-
-    def is_online(self, user_id: str) -> bool:
-        return user_id in self.active_connections
+# Use the shared ConnectionManager from core (single instance for both REST + WS)
+from core.websocket import chat_manager as manager
 
 
-manager = ConnectionManager()
+async def broadcast_to_conversation(conversation_id: str, message: dict, exclude_user_id: str = None):
+    """Enviar mensaje a todos los participantes de una conversación."""
+    conv = await db.internal_conversations.find_one({"conversation_id": conversation_id})
+    if not conv:
+        logger.warning(f"[WS] broadcast_to_conversation: conversation {conversation_id} not found")
+        return
+    participants = [p["user_id"] for p in conv.get("participants", [])]
+    for user_id in participants:
+        if user_id and user_id != exclude_user_id:
+            await manager.send_personal_message(message, user_id)
 
 
 async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
