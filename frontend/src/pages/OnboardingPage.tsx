@@ -57,7 +57,7 @@ const StepShell = ({ step, onBack, onSkip, children }) => (
         <button
           onClick={onBack}
           aria-label="Volver al paso anterior"
-          className="flex items-center gap-1 text-sm text-stone-500 bg-transparent border-none cursor-pointer p-0"
+          className="flex items-center gap-1 text-sm text-stone-500 bg-transparent border-none cursor-pointer py-2 px-3 min-h-[44px]"
           style={{ fontFamily: 'inherit' }}
         >
           <ArrowLeft size={18} /> Atrás
@@ -66,8 +66,9 @@ const StepShell = ({ step, onBack, onSkip, children }) => (
       {onSkip ? (
         <button
           onClick={onSkip}
-          className="text-sm text-stone-500 bg-transparent border-none cursor-pointer p-0"
+          className="text-sm text-stone-500 bg-transparent border-none cursor-pointer py-2 px-3 min-h-[44px]"
           style={{ fontFamily: 'inherit' }}
+          aria-label="Saltar este paso"
         >
           Saltar
         </button>
@@ -311,10 +312,10 @@ export default function OnboardingPage() {
                 key={name}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => toggleInterest(name)}
-                className={`px-4 py-2.5 rounded-full text-sm font-medium cursor-pointer border transition-all ${
+                className={`px-4 py-3 min-h-[44px] rounded-full text-sm font-medium cursor-pointer border transition-all ${
                   selected
                     ? 'bg-stone-950 text-white border-stone-950'
-                    : 'bg-stone-100 text-stone-700 border-transparent hover:bg-stone-200'
+                    : 'bg-stone-100 text-stone-600 border-transparent hover:bg-stone-200'
                 }`}
                 style={{ fontFamily: 'inherit' }}
               >

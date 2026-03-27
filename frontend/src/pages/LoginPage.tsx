@@ -254,7 +254,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors"
               tabIndex={-1}
               aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             >
@@ -279,7 +279,7 @@ export default function LoginPage() {
           {loginError && (
             <motion.p
               key={loginError}
-              className="text-sm text-stone-700 text-center px-4 py-3 bg-stone-100 rounded-2xl"
+              className="text-sm text-stone-950 text-center px-4 py-3 bg-stone-100 rounded-2xl"
               animate={{ x: [0, -6, 6, -4, 4, 0] }}
               transition={{ duration: 0.4 }}
             >

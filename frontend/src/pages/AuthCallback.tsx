@@ -77,7 +77,7 @@ export default function AuthCallback() {
       <div className="text-center">
         {error ? (
           <div>
-            <p className="text-stone-700 mb-2" data-testid="auth-error">{error}</p>
+            <p className="text-stone-950 mb-2" data-testid="auth-error">{error}</p>
             <p className="text-stone-500">Redirigiendo...</p>
           </div>
         ) : (

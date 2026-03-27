@@ -124,7 +124,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
         </h1>
         <p className="text-sm text-stone-500 mb-8 leading-relaxed">
           Hemos enviado un código de 6 dígitos a<br />
-          <span className="font-semibold text-stone-700">{maskedEmail}</span>
+          <span className="font-semibold text-stone-950">{maskedEmail}</span>
         </p>
 
         {/* 6-digit code input */}
