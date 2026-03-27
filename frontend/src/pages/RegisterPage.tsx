@@ -387,6 +387,7 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={handleGoogleRegister}
+            aria-label="Registrarse con Google"
             className="w-full h-12 flex items-center justify-center gap-2.5 bg-white border border-stone-200 rounded-full text-[15px] font-semibold text-stone-950 hover:bg-stone-50 transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
@@ -447,6 +448,7 @@ export default function RegisterPage() {
               }}
               placeholder="tu_usuario"
               autoComplete="username"
+              maxLength={20}
               className={`w-full h-12 pl-8 pr-10 text-[15px] text-stone-950 placeholder:text-stone-400 bg-white border rounded-xl outline-none transition-colors ${
                 errors.username ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
               }`}
@@ -466,7 +468,7 @@ export default function RegisterPage() {
             )}
           </div>
           <p className="text-[11px] text-stone-400 mt-1">
-            Letras minúsculas, números, puntos y guiones bajos
+            Letras, números, puntos y guiones bajos (máximo 20 caracteres)
           </p>
           {usernameStatus === 'taken' && (
             <p className="text-xs text-stone-600 mt-1">Este usuario ya está en uso</p>
@@ -493,7 +495,7 @@ export default function RegisterPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
               tabIndex={-1}
-              aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>

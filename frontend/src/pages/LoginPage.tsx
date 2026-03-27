@@ -64,6 +64,8 @@ export default function LoginPage() {
       });
 
       if (data?.user) {
+        // setToken stores the token in localStorage (TOKEN_KEY) for API client Bearer headers.
+        // AuthContext.login() only stores it in hsp_accounts — this call is NOT redundant.
         if (data.session_token || data.access_token) {
           setToken(data.session_token || data.access_token, data.refresh_token);
         }
@@ -170,6 +172,7 @@ export default function LoginPage() {
       <motion.button
         type="button"
         onClick={handleGoogleLogin}
+        aria-label="Continuar con Google"
         className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-3 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-950 hover:bg-stone-50 transition-colors"
         whileTap={{ scale: 0.97 }}
       >
@@ -186,6 +189,7 @@ export default function LoginPage() {
       <motion.button
         type="button"
         onClick={() => toast('Apple Sign-In próximamente')}
+        aria-label="Continuar con Apple"
         className="w-full flex items-center justify-center gap-3 px-4 h-12 mb-6 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors"
         whileTap={{ scale: 0.97 }}
       >

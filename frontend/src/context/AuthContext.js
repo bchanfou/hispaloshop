@@ -316,7 +316,7 @@ export function AuthProvider({ children }) {
         throw error;
       }
     } catch (err) {
-      console.error('Switch account failed', err);
+      if (process.env.NODE_ENV === 'development') console.error('Switch account failed', err);
       authDebug('switch:failed', {
         targetId: accountId(account),
         code: err?.code || 'switch_failed',
