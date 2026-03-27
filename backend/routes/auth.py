@@ -530,11 +530,8 @@ async def resend_verification(request: Request, user: User = Depends(get_current
     if recent_resends >= 3:
         raise HTTPException(status_code=429, detail="Máximo de reenvíos alcanzado. Inténtalo en 24 horas.")
 
-    # Log this resend for rate limiting
-    await db.email_resend_log.insert_one({
-        "user_id": user.user_id,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
+    # NOTE: resend log inserted AFTER successful email send (not before)
+    # to avoid consuming quota on failed sends
 
     # Delete old tokens
     await db.email_verifications.delete_many({"user_id": user.user_id})
@@ -607,7 +604,13 @@ async def resend_verification(request: Request, user: User = Depends(get_current
         raise HTTPException(status_code=503, detail="No se pudo enviar el código. Inténtalo de nuevo en unos minutos.") from exc
 
     logger.info(f"[RESEND_VERIFICATION] Code sent to {user.email}")
-    
+
+    # Log resend AFTER successful send (not before) to avoid quota loss on failures
+    await db.email_resend_log.insert_one({
+        "user_id": user.user_id,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+
     return {
         "message": "Código enviado. Revisa tu email."
     }

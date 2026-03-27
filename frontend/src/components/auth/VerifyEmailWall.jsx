@@ -45,17 +45,39 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !code[index] && index > 0) {
+    if (e.key === 'Backspace') {
+      e.preventDefault();
+      const newCode = [...code];
+      if (code[index]) {
+        // Clear current digit
+        newCode[index] = '';
+        setCode(newCode);
+      } else if (index > 0) {
+        // Move to previous and clear it
+        newCode[index - 1] = '';
+        setCode(newCode);
+        inputRefs.current[index - 1]?.focus();
+      }
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      e.preventDefault();
       inputRefs.current[index - 1]?.focus();
+    } else if (e.key === 'ArrowRight' && index < 5) {
+      e.preventDefault();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handlePaste = (e) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (pasted.length === 6) {
-      setCode(pasted.split(''));
-      inputRefs.current[5]?.focus();
+    if (pasted.length > 0) {
+      const newCode = [...code];
+      for (let i = 0; i < Math.min(pasted.length, 6); i++) {
+        newCode[i] = pasted[i];
+      }
+      setCode(newCode);
+      const focusIdx = Math.min(pasted.length, 5);
+      inputRefs.current[focusIdx]?.focus();
     }
   };
 
@@ -128,7 +150,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
         </p>
 
         {/* 6-digit code input */}
-        <div className="flex justify-center gap-2.5 mb-6" onPaste={handlePaste}>
+        <div className="flex justify-center gap-2.5 mb-6">
           {code.map((digit, i) => (
             <input
               key={i}
@@ -139,6 +161,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
               value={digit}
               onChange={e => handleDigitChange(i, e.target.value)}
               onKeyDown={e => handleKeyDown(i, e)}
+              onPaste={handlePaste}
               aria-label={`Dígito ${i + 1} de 6`}
               className="w-11 h-14 text-center text-xl font-bold text-stone-950 bg-white border-2 border-stone-200 rounded-xl outline-none focus:border-stone-950 transition-colors"
               autoFocus={i === 0}

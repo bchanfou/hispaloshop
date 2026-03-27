@@ -19,32 +19,36 @@ export default function VerifyEmailPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (verificationValue) {
-      verifyEmail();
-    } else {
+    if (!verificationValue) {
       setStatus('error');
       setMessage('No se proporcionó un código de verificación');
+      return;
     }
+    let cancelled = false;
+    let timer = null;
+    (async () => {
+      try {
+        const data = await apiClient.post(`/auth/verify-email?${verificationParam}=${encodeURIComponent(verificationValue)}`);
+        if (cancelled) return;
+        setStatus('success');
+        setMessage(data.message || '¡Email verificado correctamente!');
+        toast.success('Email verificado. Ya puedes iniciar sesión.');
+        timer = setTimeout(() => {
+          if (cancelled) return;
+          const authToken = getToken();
+          navigate(authToken ? '/' : '/login', { replace: true });
+        }, 2000);
+      } catch (error) {
+        if (cancelled) return;
+        setStatus('error');
+        const detail = error?.response?.data?.detail;
+        setMessage(typeof detail === 'string' ? detail : 'El código no es válido o ha expirado');
+        toast.error('Error en la verificación');
+      }
+    })();
+    return () => { cancelled = true; clearTimeout(timer); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verificationValue]);
-
-  const verifyEmail = async () => {
-    try {
-      const data = await apiClient.post(`/auth/verify-email?${verificationParam}=${encodeURIComponent(verificationValue)}`);
-      setStatus('success');
-      setMessage(data.message || '¡Email verificado correctamente!');
-      toast.success('Email verificado. Ya puedes iniciar sesión.');
-
-      setTimeout(() => {
-        const authToken = getToken();
-        navigate(authToken ? '/' : '/login');
-      }, 2000);
-    } catch (error) {
-      setStatus('error');
-      const detail = error?.response?.data?.detail;
-      setMessage(typeof detail === 'string' ? detail : 'El código no es válido o ha expirado');
-      toast.error('Error en la verificación');
-    }
-  };
 
   const mobileTitle =
     status === 'verifying' ? 'Verificando email' :
