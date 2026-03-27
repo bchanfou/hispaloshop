@@ -295,13 +295,29 @@ export default function RegisterPage() {
       }
     } catch (err) {
       const detail = err?.response?.data?.detail;
+      // Handle age requirement
       if (detail?.error === 'age_requirement' || (typeof detail === 'string' && detail.includes('age_requirement'))) {
         setAgeBlocked(true);
         return;
       }
-      const msg = getAuthErrorMessage(err, 'Error al crear la cuenta.');
+      // Handle Pydantic validation errors (array of objects)
+      if (Array.isArray(detail)) {
+        const fieldErrors = {};
+        for (const d of detail) {
+          const field = d.loc?.[d.loc.length - 1]; // e.g., "password", "email"
+          const pydanticMsg = d.msg || '';
+          if (field === 'password') fieldErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+          else if (field === 'email') fieldErrors.email = 'El email no es válido';
+          else if (field === 'name') fieldErrors.fullName = 'El nombre es obligatorio';
+          else if (field === 'username') fieldErrors.username = 'El nombre de usuario no es válido';
+          else toast.error(pydanticMsg || 'Error de validación');
+        }
+        if (Object.keys(fieldErrors).length > 0) { setErrors(fieldErrors); return; }
+      }
+      // Handle string error messages
+      const msg = typeof detail === 'string' ? detail : getAuthErrorMessage(err, 'Error al crear la cuenta.');
       if (msg.toLowerCase().includes('email')) {
-        setErrors({ email: 'Este email ya está registrado' });
+        setErrors({ email: msg });
       } else if (msg.toLowerCase().includes('username') || msg.toLowerCase().includes('usuario')) {
         setErrors({ username: msg });
       } else {

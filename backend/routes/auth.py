@@ -243,7 +243,7 @@ async def register(input: RegisterInput, request: Request):
     if not input.analytics_consent:
         raise HTTPException(
             status_code=400,
-            detail="Analytics consent is required for registration"
+            detail="Es necesario aceptar el consentimiento para registrarse"
         )
 
     # Influencer: at least one social media handle required
@@ -259,17 +259,17 @@ async def register(input: RegisterInput, request: Request):
     normalized_email = input.email.lower()
     existing = await db.users.find_one({"email": normalized_email}, {"_id": 0})
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Este email ya está registrado")
     
     # Username validation
     username = input.username
     if username:
         username = username.strip().lower()
         if not re.match(r"^[a-z0-9_.\-]{3,20}$", username):
-            raise HTTPException(status_code=400, detail="Invalid username. Use 3-20 lowercase letters, numbers, or underscores.")
+            raise HTTPException(status_code=400, detail="Nombre de usuario no válido. Usa 3-20 caracteres: letras minúsculas, números o guiones.")
         existing_username = await db.users.find_one({"username": username}, {"_id": 0})
         if existing_username:
-            raise HTTPException(status_code=400, detail="Username already taken")
+            raise HTTPException(status_code=400, detail="Este nombre de usuario ya está en uso")
     else:
         username = f"user_{uuid.uuid4().hex[:8]}"
     
@@ -484,7 +484,7 @@ async def verify_email(request: Request, token: str = None, code: str = None):
     await rate_limiter.check(request, endpoint_type="verify_email")
     verification_key = code or token
     if not verification_key:
-        raise HTTPException(status_code=400, detail="Verification code required")
+        raise HTTPException(status_code=400, detail="Se requiere el código de verificación")
     
     # Try to find by code first, then by token (for backwards compatibility)
     verification = await db.email_verifications.find_one(
@@ -519,7 +519,7 @@ async def resend_verification(request: Request, user: User = Depends(get_current
     """Resend verification email with 6-digit code"""
     await rate_limiter.check(request, endpoint_type="resend_verification")
     if user.email_verified:
-        return {"message": "Email already verified"}
+        return {"message": "El email ya está verificado"}
 
     # Rate limit: max 3 resends per user per 24 hours
     cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
@@ -635,13 +635,13 @@ async def login(input: LoginInput, request: Request):
         user_doc = await db.users.find_one({"username": username}, {"_id": 0})
     
     if not user_doc:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
     
     if "password_hash" not in user_doc:
-        raise HTTPException(status_code=401, detail="Please use Google login for this account")
+        raise HTTPException(status_code=401, detail="Esta cuenta usa inicio de sesión con Google")
     
     if not verify_password(input.password, user_doc["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
 
     # Note: approved status is included in the response for the frontend to handle via ProtectedRoute.
     # We no longer block login for non-approved users.
@@ -723,7 +723,7 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
     if not _is_email_delivery_configured():
         logger.error("[FORGOT_PASSWORD] Email delivery unavailable for %s", normalized_email)
         return {
-            "message": "If that email exists, a password reset link has been sent.",
+            "message": "Si el email existe, recibirás instrucciones para restablecer tu contraseña.",
             "email_delivery_available": False,
         }
     
@@ -736,7 +736,7 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
         # Still return success to user
     
     return {
-        "message": "If that email exists, a password reset link has been sent.",
+        "message": "Si el email existe, recibirás instrucciones para restablecer tu contraseña.",
         "email_delivery_available": True,
     }
 
