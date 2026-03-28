@@ -154,7 +154,7 @@ export default function ChatToastNotification({ notification, onClose, onOpen })
             height: 28,
             color: '#78716c',
           }}
-          aria-label="Cerrar notificacion"
+          aria-label="Cerrar notificación"
         >
           <X style={{ width: 16, height: 16 }} />
         </button>

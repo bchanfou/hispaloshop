@@ -14,6 +14,7 @@ import {
   useDeleteNotification,
   useUnreadNotifications,
 } from '../hooks/api/useNotifications';
+import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { useChatContext } from '../context/chat/ChatProvider';
 
@@ -300,8 +301,9 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
     try {
       await apiClient.post(`/users/${actorId}/follow`);
       setFollowedIds(prev => new Set([...prev, notifKey]));
-    } catch {
-      // silently fail — user can retry
+    } catch (err) {
+      setFollowedIds(prev => { const next = new Set(prev); next.delete(notifKey); return next; });
+      toast.error('Error al seguir al usuario');
     } finally {
       setFollowLoading(false);
     }
@@ -393,7 +395,7 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
           <button
             onClick={handleFollowBack}
             disabled={followLoading}
-            className={`rounded-full text-[11px] font-semibold cursor-pointer shrink-0 px-4 py-1.5 transition-all duration-150 ${
+            className={`rounded-full text-[11px] font-semibold cursor-pointer shrink-0 px-4 py-2 min-h-[44px] transition-all duration-150 ${
               isFollowing
                 ? 'border border-stone-200 bg-white text-stone-500'
                 : 'border-none bg-stone-950 text-white'
@@ -527,7 +529,7 @@ export default function NotificationsPage() {
           <button
             onClick={() => navigate(-1)}
             aria-label="Volver"
-            className="p-2 -ml-2 rounded-full transition-opacity text-stone-950"
+            className="p-2 -ml-2 rounded-full transition-opacity text-stone-950 min-w-[44px] min-h-[44px]"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -565,7 +567,7 @@ export default function NotificationsPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 py-2.5 transition-colors text-[13px] bg-transparent border-none border-b-2 cursor-pointer whitespace-nowrap px-3 ${
+                className={`flex-1 py-3 min-h-[44px] transition-colors text-[13px] bg-transparent border-none border-b-2 cursor-pointer whitespace-nowrap px-3 ${
                   isActive
                     ? 'font-semibold text-stone-950 border-stone-950'
                     : 'font-normal text-stone-500 border-transparent'

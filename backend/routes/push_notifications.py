@@ -66,10 +66,13 @@ async def send_push_to_user(recipient_id: str, title: str, body: str, data: dict
         {"user_id": recipient_id}, {"_id": 0}
     ).to_list(10)
 
+    merged_data = data or {}
+    if "action_url" not in merged_data:
+        merged_data["action_url"] = "/"
     payload = json.dumps({
         "title": title,
         "body": body,
-        "data": data or {},
+        "data": merged_data,
         "icon": "/logo192.png",
         "badge": "/logo192.png",
     })
