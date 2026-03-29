@@ -130,14 +130,17 @@ async def create_collaboration(body: CreateCollabBody, current_user=Depends(get_
     await db.collaborations.insert_one(collab)
 
     # Notify influencer
-    await create_notification(
-        user_id=body.influencer_id,
-        title="Nueva propuesta de colaboración",
-        body=f"Un productor quiere colaborar contigo con {product.get('name', '')}.",
-        notification_type="b2b_offer_received",
-        action_url=f"/messages",
-        data={"collab_id": collab_id},
-    )
+    try:
+        await create_notification(
+            user_id=body.influencer_id,
+            title="Nueva propuesta de colaboración",
+            body=f"Un productor quiere colaborar contigo con {product.get('name', '')}.",
+            notification_type="b2b_offer_received",
+            action_url="/messages",
+            data={"collab_id": collab_id},
+        )
+    except Exception:
+        pass  # non-critical
 
     return {"collab_id": collab_id, "status": "proposed"}
 
@@ -201,14 +204,17 @@ async def accept_collaboration(collab_id: str, current_user=Depends(get_current_
     )
 
     # Notify producer
-    await create_notification(
-        user_id=collab["producer_id"],
-        title="Colaboración aceptada",
-        body=f"El influencer ha aceptado tu propuesta para {collab['proposal']['product_name']}.",
-        notification_type="b2b_offer_accepted",
-        action_url="/messages",
-        data={"collab_id": collab_id},
-    )
+    try:
+        await create_notification(
+            user_id=collab["producer_id"],
+            title="Colaboración aceptada",
+            body=f"El influencer ha aceptado tu propuesta para {collab['proposal']['product_name']}.",
+            notification_type="b2b_offer_accepted",
+            action_url="/messages",
+            data={"collab_id": collab_id},
+        )
+    except Exception:
+        pass  # non-critical
 
     return {"collab_id": collab_id, "status": "active", "affiliate_link": {"code": code, "url": url}}
 
@@ -255,14 +261,17 @@ async def decline_collaboration(collab_id: str, body: DeclineBody, current_user=
             {"$set": {"active": False}},
         )
 
-    await create_notification(
-        user_id=collab["producer_id"],
-        title="Colaboración rechazada",
-        body=f"El influencer ha rechazado la propuesta para {collab['proposal']['product_name']}.",
-        notification_type="system",
-        action_url="/messages",
-        data={"collab_id": collab_id},
-    )
+    try:
+        await create_notification(
+            user_id=collab["producer_id"],
+            title="Colaboración rechazada",
+            body=f"El influencer ha rechazado la propuesta para {collab['proposal']['product_name']}.",
+            notification_type="system",
+            action_url="/messages",
+            data={"collab_id": collab_id},
+        )
+    except Exception:
+        pass  # non-critical
 
     return {"collab_id": collab_id, "status": "declined"}
 
@@ -298,14 +307,17 @@ async def send_sample(collab_id: str, body: SendSampleBody, current_user=Depends
         }},
     )
 
-    await create_notification(
-        user_id=collab["influencer_id"],
-        title="Muestra enviada",
-        body=f"El productor ha enviado la muestra. Tracking: {body.tracking_number}",
-        notification_type="order_shipped",
-        action_url="/messages",
-        data={"collab_id": collab_id, "tracking_number": body.tracking_number},
-    )
+    try:
+        await create_notification(
+            user_id=collab["influencer_id"],
+            title="Muestra enviada",
+            body=f"El productor ha enviado la muestra. Tracking: {body.tracking_number}",
+            notification_type="order_shipped",
+            action_url="/messages",
+            data={"collab_id": collab_id, "tracking_number": body.tracking_number},
+        )
+    except Exception:
+        pass  # non-critical
 
     return {"collab_id": collab_id, "status": "sample_sent"}
 
@@ -334,13 +346,16 @@ async def confirm_receipt(collab_id: str, current_user=Depends(get_current_user)
         }},
     )
 
-    await create_notification(
-        user_id=collab["producer_id"],
-        title="Muestra recibida",
-        body=f"El influencer ha confirmado la recepción de la muestra.",
-        notification_type="order_delivered",
-        data={"collab_id": collab_id},
-    )
+    try:
+        await create_notification(
+            user_id=collab["producer_id"],
+            title="Muestra recibida",
+            body="El influencer ha confirmado la recepción de la muestra.",
+            notification_type="order_delivered",
+            data={"collab_id": collab_id},
+        )
+    except Exception:
+        pass  # non-critical
 
     return {"collab_id": collab_id, "status": "sample_received"}
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import apiClient from '../services/api/client';
+import { requestNotificationPermission } from '../services/notifications';
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -20,7 +21,7 @@ export function usePushNotifications(user) {
         const reg = await navigator.serviceWorker.register('/sw-push.js');
         await navigator.serviceWorker.ready;
 
-        const permission = await Notification.requestPermission();
+        const permission = await requestNotificationPermission();
         if (permission !== 'granted') return;
 
         // Try env var first, fall back to backend API

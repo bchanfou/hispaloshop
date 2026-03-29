@@ -361,7 +361,7 @@ export default function CreateReelPage() {
       fd.append('audience', audience);
       if (activeFilter !== 'none') fd.append('filter', activeFilter);
       if (trimStart > 0) fd.append('trim_start_seconds', String(trimStart.toFixed(2)));
-      if (trimEnd > 0 && trimEnd < duration) fd.append('trim_end_seconds', String(trimEnd.toFixed(2)));
+      if (trimEnd > 0 && trimEnd <= duration) fd.append('trim_end_seconds', String(trimEnd.toFixed(2)));
       if (thumbnailIndex > 0 && duration > 0) {
         fd.append('cover_frame_seconds', String((duration / 5) * thumbnailIndex));
       }

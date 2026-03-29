@@ -207,14 +207,24 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
   const isOwner = (currentUser?.user_id || currentUser?.id) && ((currentUser.user_id || currentUser.id) === (post.user?.id || post.user_id));
 
+  // Track deleted state for unmount cleanup
+  const deletedRef = useRef(false);
+  useEffect(() => { deletedRef.current = deleted; }, [deleted]);
+
   // Cleanup timers + RAF on unmount to prevent memory leaks + setState on unmounted component
   React.useEffect(() => {
     return () => {
       clearTimeout(heartTimerRef.current);
       clearTimeout(undoTimerRef.current);
       clearTimeout(longPressRef.current);
-      clearTimeout(deleteTimerRef.current);
       cancelAnimationFrame(scrollThrottleRef.current);
+      // If post was marked for deletion and user scrolled away, execute delete now
+      if (deletedRef.current && deleteTimerRef.current) {
+        clearTimeout(deleteTimerRef.current);
+        apiClient.delete(`/posts/${post.id}`).catch(() => {});
+      } else {
+        clearTimeout(deleteTimerRef.current);
+      }
     };
   }, []);
 
@@ -321,7 +331,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
     if (scrollThrottleRef.current) return;
     scrollThrottleRef.current = requestAnimationFrame(() => {
       const el = scrollRef.current;
-      if (!el) { scrollThrottleRef.current = null; return; }
+      if (!el || el.clientWidth === 0) { scrollThrottleRef.current = null; return; }
       const idx = Math.round(el.scrollLeft / el.clientWidth);
       setCarouselIndex(idx);
       scrollThrottleRef.current = null;
@@ -397,7 +407,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
   const captionJSX = useMemo(() => renderCaption(captionText, navigate), [captionText, navigate]);
   const commentsCount = post.comments_count ?? post.comments ?? 0;
   const createdAt = post.created_at ?? post.timestamp;
-  const hasStory = user.has_story ?? post.has_story ?? false;
+  const hasStory = post.user_has_story ?? user.has_story ?? post.has_story ?? false;
   const normalizedProducts = useMemo(() => {
     if (Array.isArray(post.tagged_products) && post.tagged_products.length > 0) return post.tagged_products;
     if (Array.isArray(post.products) && post.products.length > 0) return post.products;

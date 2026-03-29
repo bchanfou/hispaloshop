@@ -13,6 +13,7 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
     firstName: ['required', 'minLength:2', 'maxLength:50'],
     lastName: ['required', 'minLength:2', 'maxLength:50'],
     password: ['required', 'password'],
+    birthDate: ['required'],
   };
 
   const { values, errors, touched, handleChange, handleBlur, validateAll } = useFormValidation(
@@ -21,6 +22,7 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
       firstName: data.firstName || '',
       lastName: data.lastName || '',
       password: data.password || '',
+      birthDate: data.birthDate || '',
     },
     validationRules
   );
@@ -32,7 +34,7 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
 
   const handleSubmit = () => {
     if (validateAll() && acceptTerms) {
-      onDataChange({ ...values, acceptTerms, acceptMarketing });
+      onDataChange({ ...values, acceptTerms, acceptMarketing, birthDate: values.birthDate });
       onNext();
     }
   };
@@ -71,6 +73,13 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
           <input id="consumer-password" type="password" value={values.password} onChange={handleChange('password')} onBlur={handleBlur('password')} placeholder="Crea una contraseña segura" className={fieldClass(errors.password, touched.password)} />
           {errors.password && touched.password ? <p className="mt-1 text-xs text-stone-700">{errors.password}</p> : null}
           <PasswordStrength password={values.password} />
+        </div>
+
+        <div>
+          <label htmlFor="consumer-birth-date" className="text-sm font-medium text-stone-800">Fecha de nacimiento *</label>
+          <input id="consumer-birth-date" type="date" value={values.birthDate} onChange={handleChange('birthDate')} onBlur={handleBlur('birthDate')} max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]} className={fieldClass(errors.birthDate, touched.birthDate)} />
+          {errors.birthDate && touched.birthDate ? <p className="mt-1 text-xs text-stone-700">{errors.birthDate}</p> : null}
+          <p className="mt-1 text-xs text-stone-500">Debes tener al menos 16 años.</p>
         </div>
       </div>
 

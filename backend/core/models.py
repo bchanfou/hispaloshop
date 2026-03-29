@@ -116,7 +116,13 @@ class RegisterInput(BaseModel):
     followers: Optional[str] = None
     niche: Optional[str] = None
     analytics_consent: bool = False
+    marketing_consent: bool = False
     consent_version: str = "1.0"
+    dietary_restrictions: Optional[List[str]] = None
+    preferred_categories: Optional[List[str]] = None
+    postal_code: Optional[str] = None
+    discovery_method: Optional[str] = None
+    purchase_frequency: Optional[str] = None
 
 
 class LoginInput(BaseModel):

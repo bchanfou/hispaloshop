@@ -37,7 +37,7 @@ export default function AuthCallback() {
               if (user.role === 'customer') navigate('/onboarding', { replace: true });
               else if (user.role === 'producer') navigate('/producer/verification', { replace: true });
               else if (user.role === 'influencer') navigate('/influencer/fiscal-setup', { replace: true });
-              else if (user.role === 'importer') navigate('/importer/dashboard', { replace: true });
+              else if (user.role === 'importer') navigate('/producer/verification', { replace: true });
               else navigate('/', { replace: true });
             } else {
               redirectAfterAuth(user, navigate);

@@ -10,25 +10,32 @@ import {
 import {
   useNotifications,
   useMarkAsRead,
+  useMarkBatchAsRead,
   useMarkAllAsRead,
   useDeleteNotification,
   useUnreadNotifications,
 } from '../hooks/api/useNotifications';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
-import { useChatContext } from '../context/chat/ChatProvider';
 
 // ── Icon map by notification type ────────────────────────────────
 const TYPE_META = {
   // Social
-  like:            { icon: Heart,          category: 'social' },
-  post_liked:      { icon: Heart,          category: 'social' },
-  comment:         { icon: MessageCircle,  category: 'social' },
-  post_commented:  { icon: MessageCircle,  category: 'social' },
-  follow:          { icon: UserPlus,       category: 'social' },
-  new_follower:    { icon: UserPlus,       category: 'social' },
-  mentioned:       { icon: User,           category: 'social' },
-  review:          { icon: Star,           category: 'social' },
+  like:                     { icon: Heart,          category: 'social' },
+  post_liked:               { icon: Heart,          category: 'social' },
+  new_like:                 { icon: Heart,          category: 'social' },
+  comment:                  { icon: MessageCircle,  category: 'social' },
+  post_commented:           { icon: MessageCircle,  category: 'social' },
+  new_comment:              { icon: MessageCircle,  category: 'social' },
+  follow:                   { icon: UserPlus,       category: 'social' },
+  new_follower:             { icon: UserPlus,       category: 'social' },
+  new_follow_request:       { icon: UserPlus,       category: 'social' },
+  follow_request_accepted:  { icon: UserPlus,       category: 'social' },
+  story_like:               { icon: Heart,          category: 'social' },
+  story_reply:              { icon: MessageCircle,  category: 'social' },
+  mentioned:                { icon: User,           category: 'social' },
+  review:                   { icon: Star,           category: 'social' },
   // Pedidos
   order_update:          { icon: Package,      category: 'pedidos' },
   order_confirmed:       { icon: Package,      category: 'pedidos' },
@@ -39,6 +46,8 @@ const TYPE_META = {
   order_received:        { icon: ShoppingBag,  category: 'pedidos' },
   order_review_request:  { icon: Star,         category: 'pedidos' },
   purchase:              { icon: ShoppingBag,  category: 'pedidos' },
+  order_payment_failed:  { icon: Package,      category: 'pedidos' },
+  new_product:           { icon: ShoppingBag,  category: 'pedidos' },
   // Ofertas / Influencer / B2B
   offer:               { icon: Tag,  category: 'ofertas' },
   commission_earned:   { icon: Tag,  category: 'ofertas' },
@@ -59,6 +68,8 @@ const TYPE_META = {
   moderation_hidden:     { icon: Info,       category: 'sistema' },
   moderation_restored:   { icon: Info,       category: 'sistema' },
   fiscal_certificate_ok: { icon: Info,       category: 'sistema' },
+  level_up:              { icon: Star,       category: 'sistema' },
+  predict_overdue:       { icon: Info,       category: 'sistema' },
 };
 
 // Icon circle styles by category
@@ -77,9 +88,9 @@ const TABS = [
   { key: 'following', label: 'Siguiendo' },
 ];
 
-const INTERACTION_TYPES = new Set(['like', 'comment', 'mention', 'save', 'post_liked', 'post_commented', 'mentioned', 'review']);
-const ORDER_TYPES = new Set(['order_confirmed', 'order_shipped', 'order_delivered', 'order_update', 'order_preparing', 'order_received', 'new_order', 'purchase', 'order_review_request']);
-const FOLLOWING_TYPES = new Set(['follow', 'follow_request', 'new_follower']);
+const INTERACTION_TYPES = new Set(['like', 'comment', 'post_liked', 'post_commented', 'mentioned', 'review', 'new_like', 'new_comment', 'story_like', 'story_reply']);
+const ORDER_TYPES = new Set(['order_confirmed', 'order_shipped', 'order_delivered', 'order_update', 'order_preparing', 'order_received', 'new_order', 'purchase', 'order_review_request', 'order_payment_failed', 'new_product']);
+const FOLLOWING_TYPES = new Set(['follow', 'follow_request', 'new_follower', 'new_follow_request', 'follow_request_accepted']);
 
 function filterByTab(notifs, tab) {
   if (tab === 'all') return notifs;
@@ -90,7 +101,7 @@ function filterByTab(notifs, tab) {
 }
 
 // ── Grouping logic ───────────────────────────────────────────────
-const GROUPABLE_TYPES = new Set(['like', 'post_liked', 'follow', 'new_follower']);
+const GROUPABLE_TYPES = new Set(['like', 'post_liked', 'new_like', 'follow', 'new_follower']);
 const WITHIN_24H = 24 * 60 * 60 * 1000;
 
 function groupNotifications(notifs) {
@@ -133,7 +144,10 @@ function groupNotifications(notifs) {
 
 // ── Relative time helper ─────────────────────────────────────────
 function relativeTime(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
+  if (!dateStr) return '';
+  const ts = new Date(dateStr).getTime();
+  if (Number.isNaN(ts)) return '';
+  const diff = Date.now() - ts;
   const mins  = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days  = Math.floor(diff / 86400000);
@@ -146,9 +160,12 @@ function relativeTime(dateStr) {
 
 // ── Date group label ─────────────────────────────────────────────
 function dateGroup(dateStr) {
+  if (!dateStr) return 'Anterior';
   const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return 'Anterior';
   const today = new Date();
   const diff  = Math.floor((today - d) / 86400000);
+  if (diff < 0)   return 'Hoy';
   if (diff === 0) return 'Hoy';
   if (diff === 1) return 'Ayer';
   if (diff <  7)  return 'Esta semana';
@@ -157,13 +174,13 @@ function dateGroup(dateStr) {
 }
 
 // ── Grouped notification row (simplified: 1 avatar + count text) ─
-function GroupedNotifRow({ group, onRead }) {
+function GroupedNotifRow({ group, onBatchRead }) {
   const navigate = useNavigate();
   const { members, type } = group;
   const first = members[0];
   const count = members.length;
-  const isLike   = type === 'like' || type === 'post_liked';
-  const isFollow = type === 'follow' || type === 'new_follower';
+  const isLike   = type === 'like' || type === 'post_liked' || type === 'new_like';
+  const isFollow = type === 'follow' || type === 'new_follower' || type === 'follow_request_accepted';
 
   const firstName = first.actor_username || first.data?.actor_username || 'Alguien';
   const others = count - 1;
@@ -171,8 +188,8 @@ function GroupedNotifRow({ group, onRead }) {
   let text = '';
   if (isLike) {
     text = others > 0
-      ? `${firstName} y otras ${others} personas les gustó tu publicación`
-      : `${firstName} les gustó tu publicación`;
+      ? `A ${firstName} y otras ${others} personas les gustó tu publicación`
+      : `A ${firstName} le gustó tu publicación`;
   } else if (isFollow) {
     text = others > 0
       ? `${firstName} y ${others} más han empezado a seguirte`
@@ -185,9 +202,10 @@ function GroupedNotifRow({ group, onRead }) {
 
   const handleClick = () => {
     if (!allRead) {
-      members.forEach(n => {
-        if (!n.read_at) onRead(n.notification_id || n._id);
-      });
+      const unreadIds = members
+        .filter(n => !n.read_at)
+        .map(n => n.notification_id || n._id);
+      if (unreadIds.length > 0) onBatchRead(unreadIds);
     }
     const url = first.action_url || first.data?.action_url;
     if (url) navigate(url);
@@ -285,9 +303,9 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   };
 
   // Follow-back state
-  const isFollowType = notif.type === 'follow' || notif.type === 'new_follower';
+  const isFollowType = notif.type === 'follow' || notif.type === 'new_follower' || notif.type === 'new_follow_request' || notif.type === 'follow_request_accepted';
   const actorId = notif.actor_id || notif.data?.actor_id || notif.sender_id;
-  const isFollowing = followedIds.has(notifKey);
+  const isFollowing = actorId ? followedIds.has(actorId) : false;
   const [followLoading, setFollowLoading] = useState(false);
 
   // Avatar
@@ -300,9 +318,9 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
     setFollowLoading(true);
     try {
       await apiClient.post(`/users/${actorId}/follow`);
-      setFollowedIds(prev => new Set([...prev, notifKey]));
+      setFollowedIds(prev => new Set([...prev, actorId]));
     } catch (err) {
-      setFollowedIds(prev => { const next = new Set(prev); next.delete(notifKey); return next; });
+      setFollowedIds(prev => { const next = new Set(prev); next.delete(actorId); return next; });
       toast.error('Error al seguir al usuario');
     } finally {
       setFollowLoading(false);
@@ -445,10 +463,12 @@ function EmptyState() {
 export default function NotificationsPage() {
   const navigate  = useNavigate();
   const loaderRef = useRef(null);
-  const { clearNotifUnreadCount } = useChatContext();
+  const queryClient = useQueryClient();
 
-  // Clear notification badge when page opens
-  useEffect(() => { clearNotifUnreadCount?.(); }, []);
+  // Refresh badge count when page opens
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+  }, [queryClient]);
 
   // Tab state
   const [activeTab, setActiveTab] = useState('all');
@@ -461,9 +481,10 @@ export default function NotificationsPage() {
   } = useNotifications();
 
   const { data: unreadData } = useUnreadNotifications();
-  const { mutate: markRead }    = useMarkAsRead();
-  const { mutate: markAll }     = useMarkAllAsRead();
-  const { mutate: deleteNotif } = useDeleteNotification();
+  const { mutate: markRead }      = useMarkAsRead();
+  const { mutate: markBatch }    = useMarkBatchAsRead();
+  const { mutate: markAll }      = useMarkAllAsRead();
+  const { mutate: deleteNotif }  = useDeleteNotification();
 
   const unreadCount = unreadData?.unread_count ?? 0;
 
@@ -478,15 +499,15 @@ export default function NotificationsPage() {
   // Group notifications
   const groupedItems = groupNotifications(tabFiltered);
 
-  // Mark all as read (the backend has no "delete all" endpoint)
+  // Delete all notifications
   const handleClearAll = async () => {
     try {
-      markAll();
-      const { toast } = await import('sonner');
-      toast.success('Todas las notificaciones marcadas como leídas');
+      await apiClient.delete('/notifications/all');
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+      toast.success('Notificaciones eliminadas');
     } catch {
-      const { toast } = await import('sonner');
-      toast.error('No se pudieron marcar las notificaciones');
+      toast.error('No se pudieron eliminar las notificaciones');
     }
   };
 
@@ -503,7 +524,7 @@ export default function NotificationsPage() {
   useEffect(() => {
     const el = loaderRef.current;
     if (!el) return;
-    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1, rootMargin: '0px 0px 200px 0px' });
     observer.observe(el);
     return () => observer.disconnect();
   }, [handleObserver]);
@@ -610,7 +631,7 @@ export default function NotificationsPage() {
                         : (item.notif.notification_id || item.notif._id || i)
                     }>
                       {item.grouped ? (
-                        <GroupedNotifRow group={item} onRead={markRead} />
+                        <GroupedNotifRow group={item} onBatchRead={markBatch} />
                       ) : (
                         <NotifRow
                           notif={item.notif}

@@ -1,7 +1,7 @@
 """
 Gamification service — XP, levels, streaks, leaderboard.
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 import logging
 
@@ -43,9 +43,16 @@ class GamificationService:
         new_level = self._get_level_for_xp(new_xp)
         if new_level["level"] > old_level["level"]:
             await self.db.notifications.insert_one({
-                "user_id": user_id, "type": "level_up",
+                "user_id": user_id,
+                "type": "level_up",
+                "title": f"¡Has subido al nivel {new_level['level']}!",
+                "body": f"Enhorabuena, ahora eres {new_level['name']}.",
                 "data": {"level": new_level["level"], "name": new_level["name"]},
-                "read": False, "created_at": datetime.utcnow()
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": datetime.now(timezone.utc),
+                "sent_at": datetime.now(timezone.utc),
             })
         return {"xp_gained": amount, "total_xp": new_xp, "level": new_level}
 

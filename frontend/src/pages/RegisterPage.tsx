@@ -173,6 +173,9 @@ export default function RegisterPage() {
   };
 
   // Debounced username check
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const checkUsername = useCallback(async (value) => {
     const clean = value.trim().toLowerCase().replace(/[^a-z0-9_.\-]/g, '');
     if (clean.length < 3) {
@@ -187,9 +190,11 @@ export default function RegisterPage() {
     setUsernameStatus('checking');
     try {
       const res = await apiClient.get(`/users/check-username/${clean}`);
-      setUsernameStatus(res?.available ?? res?.data?.available ? 'available' : 'taken');
+      if (mountedRef.current) {
+        setUsernameStatus(res?.available ?? res?.data?.available ? 'available' : 'taken');
+      }
     } catch {
-      setUsernameStatus(null);
+      if (mountedRef.current) setUsernameStatus(null);
     }
   }, []);
 
@@ -206,7 +211,9 @@ export default function RegisterPage() {
     const m = parseInt(form.birthMonth, 10);
     const d = parseInt(form.birthDay, 10);
     if (isNaN(y) || isNaN(m) || isNaN(d)) return false;
+    // Validate the date is real (e.g., Feb 30 is invalid)
     const birth = new Date(y, m - 1, d);
+    if (birth.getFullYear() !== y || birth.getMonth() !== m - 1 || birth.getDate() !== d) return false;
     const now = new Date();
     let age = now.getFullYear() - birth.getFullYear();
     const monthDiff = now.getMonth() - birth.getMonth();
@@ -289,7 +296,7 @@ export default function RegisterPage() {
           customer: '/onboarding',
           producer: '/producer/verification',
           influencer: '/influencer/fiscal-setup',
-          importer: '/importer/dashboard',
+          importer: '/producer/verification',
         };
         navigate(destinations[activeRole] || '/onboarding', { replace: true });
       }

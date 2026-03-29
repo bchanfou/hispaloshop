@@ -27,10 +27,8 @@ export function ChatProvider({ children }) {
   const reconnectDelayRef = useRef(1000);
   const pingIntervalRef = useRef(null);
   const [connected, setConnected] = useState(false);
-  const [notifConnected, setNotifConnected] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [unreadTotal, setUnreadTotal] = useState(0);
-  const [notifUnreadCount, setNotifUnreadCount] = useState(0);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [typingUsers, setTypingUsers] = useState({});
@@ -299,11 +297,6 @@ export function ChatProvider({ children }) {
     }
   }, [isAuthenticated]);
 
-  // Clear notification unread count
-  const clearNotifUnreadCount = useCallback(() => {
-    setNotifUnreadCount(0);
-  }, []);
-
   // Notification events are handled in the main WS onmessage handler.
   // connectNotifications is kept as a no-op for backward compatibility.
   const connectNotifications = useCallback(() => {}, []);
@@ -375,16 +368,30 @@ export function ChatProvider({ children }) {
               // Heartbeat response
               break;
               
-            case 'new_message':
-              // Add new message to current conversation if matches
-              if (payload.conversation_id === currentConversationRef.current) {
-                setMessages(prev => [...prev, payload.message]);
-                // Mark as read immediately
-                markAsRead(payload.conversation_id, [payload.message.message_id]);
+            case 'new_message': {
+              const msg = payload.message;
+              const isCurrentConv = payload.conversation_id === currentConversationRef.current;
+
+              if (isCurrentConv) {
+                setMessages(prev => [...prev, msg]);
+                markAsRead(payload.conversation_id, [msg.message_id]);
+              } else if (msg && msg.sender_id !== (user?.user_id || user?.id)) {
+                // Show chat toast for messages in other conversations
+                if (window.__hispaloChatToast) {
+                  window.__hispaloChatToast({
+                    senderId: msg.sender_id,
+                    senderName: msg.sender_name || 'Nuevo mensaje',
+                    avatar: msg.sender_avatar || null,
+                    preview: msg.content || 'Te ha enviado un mensaje',
+                    conversationId: payload.conversation_id,
+                    type: msg.message_type || 'c2c',
+                  });
+                }
               }
               // Refresh conversations list
               loadConversations();
               break;
+            }
               
             case 'message_sent':
               // Update pending message with server-confirmed id
@@ -457,9 +464,6 @@ export function ChatProvider({ children }) {
             // Notification events (merged from connectNotifications)
             case 'notification':
               toast(payload.title || payload.payload?.title, { description: payload.body || payload.payload?.body, duration: 5000 });
-              if (!(payload.read || payload.read_at || payload.payload?.read || payload.payload?.read_at)) {
-                setNotifUnreadCount(prev => prev + 1);
-              }
               queryClient.invalidateQueries({ queryKey: ['notifications'] });
               queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
               break;
@@ -527,10 +531,8 @@ export function ChatProvider({ children }) {
       // Close connections when logged out
       if (wsRef.current) wsRef.current.close();
       setConnected(false);
-      setNotifConnected(false);
       setConversations([]);
       setUnreadTotal(0);
-      setNotifUnreadCount(0);
     }
 
     return () => {
@@ -577,11 +579,6 @@ export function ChatProvider({ children }) {
     // Typing indicators
     typingUsers,
 
-    // Notifications (migrated from RealtimeProvider)
-    notifConnected,
-    notifUnreadCount,
-    clearNotifUnreadCount,
-
     // Connection mode
     polling,
 
@@ -610,9 +607,6 @@ export function ChatProvider({ children }) {
     hasMoreMessages,
     loadingMore,
     typingUsers,
-    notifConnected,
-    notifUnreadCount,
-    clearNotifUnreadCount,
     polling
   ]);
 

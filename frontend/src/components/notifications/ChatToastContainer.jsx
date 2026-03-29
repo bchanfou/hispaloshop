@@ -54,14 +54,26 @@ export default function ChatToastContainer() {
     setToasts([]); // Clear all toasts
   }, [navigate]);
 
-  // Auto-dismiss
+  // Auto-dismiss each toast individually
+  const dismissTimers = useRef({});
   useEffect(() => {
-    if (toasts.length === 0) return;
-    const timer = setTimeout(() => {
-      setToasts((prev) => prev.slice(0, -1)); // Remove oldest
-    }, AUTO_DISMISS_MS);
-    return () => clearTimeout(timer);
-  }, [toasts]);
+    toasts.forEach((t) => {
+      if (!dismissTimers.current[t.id]) {
+        dismissTimers.current[t.id] = setTimeout(() => {
+          removeToast(t.id);
+          delete dismissTimers.current[t.id];
+        }, AUTO_DISMISS_MS);
+      }
+    });
+    // Cleanup timers for removed toasts
+    const currentIds = new Set(toasts.map((t) => String(t.id)));
+    Object.keys(dismissTimers.current).forEach((id) => {
+      if (!currentIds.has(id)) {
+        clearTimeout(dismissTimers.current[id]);
+        delete dismissTimers.current[id];
+      }
+    });
+  }, [toasts, removeToast]);
 
   // Expose addToast globally for BottomNavBar/ChatProvider to call
   useEffect(() => {

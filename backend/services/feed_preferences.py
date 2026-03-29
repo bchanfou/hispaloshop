@@ -46,11 +46,13 @@ async def update_preferences(
     if inc_ops:
         update["$inc"] = inc_ops
 
-    # Track seller affinity
+    # Track seller affinity — add to one list and remove from the other
     if seller_id and delta > 0:
         update.setdefault("$addToSet", {})["preferred_seller_ids"] = seller_id
+        update.setdefault("$pull", {})["disliked_seller_ids"] = seller_id
     elif seller_id and delta < 0:
         update.setdefault("$addToSet", {})["disliked_seller_ids"] = seller_id
+        update.setdefault("$pull", {})["preferred_seller_ids"] = seller_id
 
     try:
         await db.user_feed_preferences.update_one(

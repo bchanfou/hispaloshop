@@ -15,7 +15,7 @@ export default function AppHeader() {
   const { getTotalItems } = useCart();
   // Only fetch notifications when authenticated — prevents 401 spam
   const { data: unreadData } = useUnreadNotifications({ enabled: !!user });
-  const { notifUnreadCount: wsCount, unreadTotal: chatUnreadTotal } = useChatContext();
+  const { unreadTotal: chatUnreadTotal } = useChatContext();
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,10 +23,8 @@ export default function AppHeader() {
 
   const isAuthenticated = !!user;
 
-  // WS count is real-time; polled count is fallback
-  const unreadCount = isAuthenticated
-    ? (wsCount > 0 ? wsCount : (unreadData?.unread_count ?? 0))
-    : 0;
+  // Polled count is source of truth; WS events invalidate the cache for instant refresh
+  const unreadCount = isAuthenticated ? (unreadData?.unread_count ?? 0) : 0;
   const totalCartItems = isAuthenticated ? getTotalItems() : 0;
 
   // Scroll-aware border + shadow

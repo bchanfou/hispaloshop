@@ -127,12 +127,6 @@ async def _follow_users_for_user(user_id: str, data: dict) -> Dict[str, Any]:
             if target_id and target_id != user_id and target_id not in requested_ids:
                 requested_ids.append(target_id)
 
-    current_user = await _get_user_doc(
-        user_id,
-        {"_id": 0, "following": 1},
-    )
-    current_following = set(current_user.get("following", []))
-
     if not requested_ids:
         await db.users.update_one(
             {"user_id": user_id},
@@ -150,27 +144,37 @@ async def _follow_users_for_user(user_id: str, data: dict) -> Dict[str, Any]:
     ).to_list(length=len(requested_ids))
 
     valid_ids = [target["user_id"] for target in targets]
-    new_ids = [target_id for target_id in valid_ids if target_id not in current_following]
+
+    # Check which ones the user is already following via db.user_follows
+    existing_follows = await db.user_follows.find(
+        {"follower_id": user_id, "following_id": {"$in": valid_ids}},
+        {"_id": 0, "following_id": 1},
+    ).to_list(len(valid_ids))
+    already_following = {f["following_id"] for f in existing_follows}
+    new_ids = [tid for tid in valid_ids if tid not in already_following]
+
+    now = _now_iso()
+    if new_ids:
+        # Insert into db.user_follows (the collection the rest of the app reads)
+        await db.user_follows.insert_many([
+            {"follower_id": user_id, "following_id": target_id, "created_at": now}
+            for target_id in new_ids
+        ])
+        # Update followers_count on each followed user
+        await db.users.update_many(
+            {"user_id": {"$in": new_ids}},
+            {"$inc": {"followers_count": 1}},
+        )
+        # Update following_count on current user
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$inc": {"following_count": len(new_ids)}},
+        )
 
     await db.users.update_one(
         {"user_id": user_id},
-        {
-            "$addToSet": {"following": {"$each": new_ids}},
-            "$set": {"onboarding_step": 3, "updated_at": _now_iso()},
-        },
+        {"$set": {"onboarding_step": 3, "updated_at": now}},
     )
-
-    for target_id in new_ids:
-        await db.users.update_one(
-            {
-                "user_id": target_id,
-                "followers": {"$ne": user_id},
-            },
-            {
-                "$addToSet": {"followers": user_id},
-                "$inc": {"followers_count": 1},
-            },
-        )
 
     return {"success": True, "followed": valid_ids, "count": len(valid_ids)}
 
@@ -257,10 +261,16 @@ async def get_follow_suggestions(
     user_id = _user_id(user)
     user_doc = await _get_user_doc(
         user_id,
-        {"_id": 0, "country": 1, "following": 1},
+        {"_id": 0, "country": 1},
     )
-    following = user_doc.get("following", [])
     country = user_doc.get("country")
+
+    # Read from db.user_follows (the live collection) instead of legacy db.users.following array
+    follow_docs = await db.user_follows.find(
+        {"follower_id": user_id},
+        {"_id": 0, "following_id": 1},
+    ).to_list(length=500)
+    following = [f["following_id"] for f in follow_docs]
 
     same_country_query = {
         "user_id": {"$nin": [user_id, *following]},

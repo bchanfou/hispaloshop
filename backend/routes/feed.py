@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 import asyncio
 import uuid
 import logging
+import random
 
 from core.database import db
 from core.models import User, PageVisitRequest
@@ -58,21 +59,22 @@ async def track_social_event(request: Request):
         event_type = body.get("event_type", "")
         
         valid_events = [
-            "view_post", "click_product_from_post", "add_to_cart_from_post",
+            "view_post", "view_reel", "click_product_from_post", "add_to_cart_from_post",
             "buy_from_post", "follow_seller", "save_post",
             "click_info", "click_become_seller", "click_become_influencer",
             "share_post", "click_post_comment"
         ]
         if event_type not in valid_events:
             return {"status": "ok"}
-        
+
         current_user = await get_optional_user(request)
-        
+
         event_doc = {
             "event_id": f"evt_{uuid.uuid4().hex[:12]}",
             "event_type": event_type,
             "user_id": current_user.user_id if current_user else None,
-            "post_id": body.get("post_id"),
+            # useDwellTime sends content_id; other callers send post_id — accept both
+            "post_id": body.get("post_id") or body.get("content_id"),
             "product_id": body.get("product_id"),
             "seller_id": body.get("seller_id"),
             "country": body.get("country", "ES"),
@@ -105,7 +107,7 @@ async def get_stories(request: Request):
     # ── 1. Collect users who have real active hispalostories ─────────────────
     # Exclude current user's stories (self-ring is shown separately by the frontend)
     # Accept stories with image_url OR video_url (video stories have no image_url)
-    story_query = {"expires_at": {"$gt": now}, "$or": [{"image_url": {"$ne": None}}, {"video_url": {"$ne": None}}]}
+    story_query = {"expires_at": {"$gt": now}, "is_hidden": {"$ne": True}, "$or": [{"image_url": {"$ne": None}}, {"video_url": {"$ne": None}}]}
     if current_user:
         story_query["user_id"] = {"$ne": current_user.user_id}
     try:
@@ -132,7 +134,7 @@ async def get_stories(request: Request):
     if story_user_ids:
         udocs = await db.users.find(
             {"user_id": {"$in": story_user_ids}},
-            {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1},
+            {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1, "username": 1},
         ).to_list(len(story_user_ids))
         story_user_docs = {u["user_id"]: u for u in udocs}
 
@@ -155,6 +157,7 @@ async def get_stories(request: Request):
         story.pop("views", None)
         result.append({
             "user_id": uid,
+            "username": u.get("username"),
             "name": u.get("company_name") or u.get("name", ""),
             "avatar": u.get("profile_image"),
             "preview": {
@@ -166,6 +169,7 @@ async def get_stories(request: Request):
             "is_recent": True,
             "is_followed": uid in followed_ids,
             "has_unseen": has_unseen,
+            "stories_count": len(all_stories_by_user.get(uid, [])),
         })
 
     # Sort: unseen first, then followed, then by user_id
@@ -233,11 +237,17 @@ async def get_stories(request: Request):
                     if img:
                         preview = {"type": "product", "image": img, "text": latest_product.get("name", ""), "price": latest_product.get("price")}
                 if preview and preview.get("image"):
+                    # Count actual stories for this seller
+                    seller_story_count = await db.hispalostories.count_documents({
+                        "user_id": sid,
+                        "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()},
+                    })
                     result.append({
                         "user_id": sid,
                         "name": seller.get("company_name") or seller.get("name", ""),
                         "avatar": seller.get("profile_image"),
                         "preview": preview,
+                        "stories_count": max(seller_story_count, 1),
                         "is_recent": False,
                         "is_followed": sid in followed_ids,
                         "has_unseen": True,
@@ -336,22 +346,28 @@ async def _hydrate_feed_users(items, current_user=None, following_ids=None):
     ).to_list(len(author_ids))
     user_map = {u["user_id"]: u for u in users}
 
-    # Check which authors have recent stories (posts with image in last 24h)
-    twenty_four_h_ago = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    # Check which authors have active stories in db.hispalostories (not user_posts)
     story_authors = set()
     if author_ids:
+        now_iso = datetime.now(timezone.utc).isoformat()
         story_pipeline = [
-            {"$match": {"user_id": {"$in": author_ids}, "image_url": {"$ne": None}, "created_at": {"$gte": twenty_four_h_ago}}},
+            {"$match": {
+                "user_id": {"$in": author_ids},
+                "expires_at": {"$gt": now_iso},
+                "is_hidden": {"$ne": True},
+                "$or": [{"image_url": {"$ne": None}}, {"video_url": {"$ne": None}}],
+            }},
             {"$group": {"_id": "$user_id"}}
         ]
         try:
-            story_results = await db.user_posts.aggregate(story_pipeline).to_list(len(author_ids))
+            story_results = await db.hispalostories.aggregate(story_pipeline).to_list(len(author_ids))
             story_authors = {s["_id"] for s in story_results}
         except Exception as e:
             logger.warning(f"[FEED] Story aggregation failed: {e}")
 
-    # Check like status for current user
+    # Check like and save status for current user
     liked_ids = set()
+    saved_ids = set()
     if current_user:
         item_ids = [item.get("id") or item.get("post_id") or item.get("reel_id") for item in items]
         item_ids = [i for i in item_ids if i]
@@ -368,6 +384,18 @@ async def _hydrate_feed_users(items, current_user=None, following_ids=None):
                 {"_id": 0, "reel_id": 1}
             ).to_list(len(item_ids))
             liked_ids.update(l["reel_id"] for l in reel_likes)
+            # Check post bookmarks
+            post_bookmarks = await db.post_bookmarks.find(
+                {"user_id": current_user.user_id, "post_id": {"$in": item_ids}},
+                {"_id": 0, "post_id": 1}
+            ).to_list(len(item_ids))
+            saved_ids.update(b["post_id"] for b in post_bookmarks)
+            # Check reel saves
+            reel_saves = await db.reel_saves.find(
+                {"user_id": current_user.user_id, "reel_id": {"$in": item_ids}},
+                {"_id": 0, "reel_id": 1}
+            ).to_list(len(item_ids))
+            saved_ids.update(s["reel_id"] for s in reel_saves)
 
     # Enrich each item
     for item in items:
@@ -378,10 +406,14 @@ async def _hydrate_feed_users(items, current_user=None, following_ids=None):
         item["user_verified"] = user.get("verified", False)
         item["user_has_story"] = uid in story_authors
         item["user_role"] = user.get("role")
+        # username is needed for profile navigation (safeUser.username in feed components)
+        if not item.get("username"):
+            item["username"] = user.get("username")
         item_id = item.get("id") or item.get("post_id") or item.get("reel_id")
         if current_user and item_id:
             item["is_liked"] = item_id in liked_ids
             item["liked"] = item_id in liked_ids
+            item["is_saved"] = item_id in saved_ids
 
     return items
 
@@ -395,7 +427,6 @@ async def _hydrate_feed_users(items, current_user=None, following_ids=None):
 @router.get("/feed/foryou")
 async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] = None, skip: int = 0):
     """For-you feed — mixed posts+reels scored by engagement + recency."""
-    import random
     try:
         current_user = await get_optional_user(request)
     except Exception:
@@ -447,7 +478,10 @@ async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] =
             + (item.get("saves_count", 0) or 0) * 2
         ) / 5)
         personalization = 60 if item.get("user_id") in following_ids else 30
-        serendipity = random.uniform(0, 15)
+        item_id = item.get("id") or item.get("post_id") or item.get("reel_id") or ""
+        viewer_id = current_user.user_id if current_user else "anon"
+        seed = hash(f"{viewer_id}:{item_id}") & 0xFFFFFFFF
+        serendipity = random.Random(seed).uniform(0, 15)
 
         score = recency * 0.25 + engagement * 0.30 + personalization * 0.35 + serendipity * 0.10
         scored.append((score, item))

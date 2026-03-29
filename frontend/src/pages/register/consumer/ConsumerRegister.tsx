@@ -38,6 +38,8 @@ const ConsumerRegister = () => {
         password: data.step2?.password,
         name: `${data.step2?.firstName || ''} ${data.step2?.lastName || ''}`.trim(),
         role: 'customer',
+        birth_date: data.step2?.birthDate || '',
+        country: data.step3?.country || '',
         analytics_consent: data.step2?.acceptTerms || false,
         marketing_consent: data.step2?.acceptMarketing || false,
         dietary_restrictions: data.step3?.dietaryRestrictions || [],

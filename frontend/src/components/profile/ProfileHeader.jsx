@@ -695,6 +695,7 @@ export default function ProfileHeader({
               user?.has_active_story ? 'cursor-pointer' : 'ring-1 ring-stone-200'
             } ${(user?.profile_image || user?.avatar_url) ? '' : 'lg:text-2xl'}`}
             style={(user?.profile_image || user?.avatar_url) ? { display: 'none' } : {}}
+            onClick={user?.has_active_story ? () => onViewOwnStory ? onViewOwnStory() : navigate(`/stories/${user?.user_id}`) : undefined}
           />
           {isOwn && (
             <>

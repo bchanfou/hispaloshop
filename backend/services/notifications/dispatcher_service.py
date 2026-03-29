@@ -65,7 +65,8 @@ class NotificationDispatcher:
         effective_channels = self._determine_channels(
             channels or [NotificationChannel.IN_APP],
             prefs,
-            priority
+            priority,
+            notification_type,
         )
         
         # Crear registro de notificación
@@ -203,29 +204,29 @@ class NotificationDispatcher:
             "Content-Type": "application/json"
         }
         
-        for token_data in tokens:
-            token = token_data.get("token")
-            if not token:
-                continue
-            
-            payload = {
-                "to": token,
-                "notification": {
-                    "title": title,
-                    "body": body,
-                    "image": data.get("image_url") if data else None
-                },
-                "data": data or {},
-                "priority": "high" if data and data.get("priority") in ["urgent", "critical"] else "normal"
-            }
-            
-            async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient() as client:
+            for token_data in tokens:
+                token = token_data.get("token")
+                if not token:
+                    continue
+
+                payload = {
+                    "to": token,
+                    "notification": {
+                        "title": title,
+                        "body": body,
+                        "image": data.get("image_url") if data else None
+                    },
+                    "data": data or {},
+                    "priority": "high" if data and data.get("priority") in ["urgent", "critical"] else "normal"
+                }
+
                 response = await client.post(
                     "https://fcm.googleapis.com/fcm/send",
                     headers=headers,
                     json=payload
                 )
-                
+
                 if response.status_code != 200:
                     raise Exception(f"FCM error: {response.text}")
     
@@ -297,29 +298,68 @@ class NotificationDispatcher:
         # Implementación Twilio
         pass
     
+    # Maps notification_type → preference key stored in user_notification_preferences
+    TYPE_PREF_KEY: Dict[str, str] = {
+        "like": "likes",
+        "post_liked": "likes",
+        "story_like": "likes",
+        "comment": "comments",
+        "post_commented": "comments",
+        "story_reply": "comments",
+        "follow": "new_followers",
+        "new_follower": "new_followers",
+        "mention": "mentions",
+        "mentioned": "mentions",
+        "order_confirmed": "order_confirmation",
+        "order_confirmation": "order_confirmation",
+        "order_preparing": "shipping_updates",
+        "order_shipped": "shipping_updates",
+        "order_delivered": "order_delivered",
+        "order_review_request": "review_requests",
+        "b2b_offer_received": "b2b_offers",
+        "b2b_offer_accepted": "b2b_offers",
+        "b2b_contract_ready": "b2b_contracts",
+        "b2b_contract_signed": "b2b_contracts",
+        "b2b_payment_received": "b2b_payments",
+        "platform_news": "platform_news",
+        "commission_earned": "b2b_payments",
+        "tier_upgraded": "platform_news",
+        "payout_sent": "b2b_payments",
+    }
+
     def _determine_channels(
         self,
         requested_channels: List[str],
         prefs: Dict,
-        priority: str
+        priority: str,
+        notification_type: str = "",
     ) -> List[str]:
         """
         Determinar canales efectivos según preferencias
         """
+        # Work on a copy to avoid mutating the caller's list
+        channels = list(requested_channels)
+
+        # Per-type preference check (unless urgent/critical — those always go through)
+        if priority not in [NotificationPriority.URGENT, NotificationPriority.CRITICAL]:
+            pref_key = self.TYPE_PREF_KEY.get(notification_type)
+            if pref_key and not prefs.get(pref_key, True):
+                return []  # User opted out of this notification type entirely
+
         # Master switches
         if not prefs.get("master_push_enabled", True):
-            requested_channels = [c for c in requested_channels if c != NotificationChannel.PUSH]
+            channels = [c for c in channels if c != NotificationChannel.PUSH]
         if not prefs.get("master_email_enabled", True):
-            requested_channels = [c for c in requested_channels if c != NotificationChannel.EMAIL]
-        
+            channels = [c for c in channels if c != NotificationChannel.EMAIL]
+
         # Para urgente/crítico, forzar push + email
         if priority in [NotificationPriority.URGENT, NotificationPriority.CRITICAL]:
-            if NotificationChannel.PUSH not in requested_channels:
-                requested_channels.append(NotificationChannel.PUSH)
-            if NotificationChannel.EMAIL not in requested_channels:
-                requested_channels.append(NotificationChannel.EMAIL)
-        
-        return list(set(requested_channels))
+            if NotificationChannel.PUSH not in channels:
+                channels.append(NotificationChannel.PUSH)
+            if NotificationChannel.EMAIL not in channels:
+                channels.append(NotificationChannel.EMAIL)
+
+        return list(set(channels))
     
     def _is_quiet_hours(self, prefs: Dict) -> bool:
         """
@@ -330,9 +370,9 @@ class NotificationDispatcher:
             
             quiet_start = prefs.get("quiet_hours_start", "22:00")
             quiet_end = prefs.get("quiet_hours_end", "08:00")
-            timezone = prefs.get("quiet_hours_timezone", "Europe/Madrid")
-            
-            tz = pytz.timezone(timezone)
+            user_tz_name = prefs.get("quiet_hours_timezone", "Europe/Madrid")
+
+            tz = pytz.timezone(user_tz_name)
             now = datetime.now(tz)
             
             start_hour, start_min = map(int, quiet_start.split(":"))
@@ -355,7 +395,7 @@ class NotificationDispatcher:
         
         if not prefs:
             # Defaults
-            user = await db.users.find_one({"_id": ObjectId(user_id)})
+            user = await db.users.find_one({"user_id": user_id})
             return {
                 "user_id": user_id,
                 "email": user.get("email") if user else None,
@@ -365,7 +405,21 @@ class NotificationDispatcher:
                 "quiet_hours_start": "22:00",
                 "quiet_hours_end": "08:00",
                 "quiet_hours_timezone": "Europe/Madrid",
-                "push_tokens": []
+                "push_tokens": [],
+                # Per-type defaults
+                "new_followers": True,
+                "likes": True,
+                "comments": True,
+                "mentions": True,
+                "order_confirmation": True,
+                "shipping_updates": True,
+                "order_delivered": True,
+                "review_requests": True,
+                "b2b_offers": True,
+                "b2b_contracts": True,
+                "b2b_payments": True,
+                "platform_news": True,
+                "marketing_emails": False,
             }
         
         return prefs
@@ -429,6 +483,7 @@ class NotificationDispatcher:
         
         notifications = await cursor.to_list(length=limit)
         for n in notifications:
+            n["notification_id"] = str(n["_id"])
             n["_id"] = str(n["_id"])
         
         return {

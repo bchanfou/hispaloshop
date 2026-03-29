@@ -438,8 +438,12 @@ async def run_full_verification(user_id: str) -> dict:
                 "title": "Verificación rechazada",
                 "body": "Algunos documentos necesitan ser revisados. Consulta los detalles en tu panel.",
                 "action_url": "/producer/verification",
-                "read": False,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "data": {},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": datetime.now(timezone.utc),
+                "sent_at": datetime.now(timezone.utc),
             })
         except Exception as e:
             logger.warning(f"[VERIFICATION] Could not send rejection notification to {user_id}: {e}")
@@ -447,6 +451,7 @@ async def run_full_verification(user_id: str) -> dict:
     elif cif_ok and facility_ok and has_valid_cert and not any_low_confidence and not any_cert_low:
         # APPROVED
         update = {
+            "approved": True,
             "verification_status.is_verified": True,
             "verification_status.verified_at": now,
             "verification_status.verified_by": "ai",
@@ -463,8 +468,12 @@ async def run_full_verification(user_id: str) -> dict:
                 "title": "Cuenta verificada",
                 "body": "Tu cuenta de productor ha sido verificada. Ya puedes publicar y vender productos.",
                 "action_url": "/producer/products",
-                "read": False,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "data": {},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": datetime.now(timezone.utc),
+                "sent_at": datetime.now(timezone.utc),
             })
         except Exception as e:
             logger.warning(f"[VERIFICATION] Could not send approval notification to {user_id}: {e}")

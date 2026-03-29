@@ -473,18 +473,21 @@ async def notify_store_followers(store_id: str, product_name: str, product_id: s
     followers = await db.store_followers.find({"store_id": store_id}).to_list(500)
     
     for follower in followers:
-        # Create in-app notification
+        # Create in-app notification (same schema as dispatcher_service)
         notification = {
-            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
             "user_id": follower["user_id"],
             "type": "new_product",
             "title": f"Nuevo producto en {store['name']}",
-            "message": f"{store['name']} ha añadido un nuevo producto: {product_name}",
-            "link": f"/products/{product_id}",
-            "read": False,
-            "created_at": datetime.now(timezone.utc).isoformat()
+            "body": f"{store['name']} ha añadido un nuevo producto: {product_name}",
+            "action_url": f"/products/{product_id}",
+            "data": {"store_id": store_id, "product_id": product_id},
+            "channels": ["in_app"],
+            "status_by_channel": {"in_app": "sent"},
+            "read_at": None,
+            "created_at": datetime.now(timezone.utc),
+            "sent_at": datetime.now(timezone.utc),
         }
-        await db.user_notifications.insert_one(notification)
+        await db.notifications.insert_one(notification)
         
         # Send email if enabled
         if follower.get("notify_email", True):

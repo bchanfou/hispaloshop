@@ -89,17 +89,26 @@ async def apply_as_influencer(input: InfluencerApplication):
     }
     await db.influencer_applications.insert_one(application)
     
-    # Notify admin (optional - create notification)
-    admin_notif = {
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-        "type": "influencer_application",
-        "title": "Nueva solicitud de influencer",
-        "message": f"{input.artist_name or input.name} ha solicitado ser influencer ({desired_tier})",
-        "link": "/admin/influencers",
-        "read": False,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    await db.admin_notifications.insert_one(admin_notif)
+    # Notify admins about new application
+    try:
+        admins = await db.users.find({"role": {"$in": ["admin", "super_admin"]}}, {"user_id": 1}).to_list(20)
+        now = datetime.now(timezone.utc)
+        for admin in admins:
+            await db.notifications.insert_one({
+                "user_id": admin["user_id"],
+                "type": "system",
+                "title": "Nueva solicitud de influencer",
+                "body": f"{input.artist_name or input.name} ha solicitado ser influencer ({desired_tier})",
+                "action_url": "/admin/influencers",
+                "data": {},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": now,
+                "sent_at": now,
+            })
+    except Exception:
+        pass  # non-critical
     
     return {
         "message": "Application submitted successfully",
@@ -279,14 +288,25 @@ async def create_influencer_discount_code(input: CreateInfluencerCodeInput, user
     )
 
     # Notify admins
-    await db.admin_notifications.insert_one({
-        "type": "influencer_code_pending",
-        "message": f"El influencer {influencer['full_name']} ha creado el código {code} — requiere aprobación",
-        "influencer_id": influencer["influencer_id"],
-        "code_id": code_id,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "read": False
-    })
+    try:
+        admins = await db.users.find({"role": {"$in": ["admin", "super_admin"]}}, {"user_id": 1}).to_list(20)
+        now = datetime.now(timezone.utc)
+        for admin in admins:
+            await db.notifications.insert_one({
+                "user_id": admin["user_id"],
+                "type": "system",
+                "title": "Código de descuento pendiente",
+                "body": f"El influencer {influencer['full_name']} ha creado el código {code} — requiere aprobación",
+                "action_url": "/admin/influencers",
+                "data": {"influencer_id": influencer["influencer_id"], "code_id": code_id},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": now,
+                "sent_at": now,
+            })
+    except Exception:
+        pass  # non-critical
 
     return {
         "success": True,

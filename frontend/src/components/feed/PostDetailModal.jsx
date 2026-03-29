@@ -111,7 +111,7 @@ const ModalCarousel = memo(function ModalCarousel({ images, userName, className,
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
-    if (!el) return;
+    if (!el || el.clientWidth === 0) return;
     const next = Math.round(el.scrollLeft / el.clientWidth);
     setIdx(next);
     onIndexChange?.(next);
@@ -478,8 +478,14 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
         const items = Array.isArray(data) ? data : data?.comments || [];
         if (append) {
           setComments(prev => [...prev, ...items]);
+          setLikedComments(prev => {
+            const next = new Set(prev);
+            items.forEach(c => { if (c.is_liked && c.comment_id) next.add(c.comment_id); });
+            return next;
+          });
         } else {
           setComments(items);
+          setLikedComments(new Set(items.filter(c => c.is_liked && c.comment_id).map(c => c.comment_id)));
         }
         setHasMoreComments(items.length >= COMMENTS_PAGE_SIZE);
         setCommentsPage(page);
@@ -493,7 +499,9 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     fetchComments(commentsPage + 1, true);
   }, [fetchComments, commentsPage, loadingMore, hasMoreComments]);
 
-  useEffect(() => { if (post) fetchComments(0); }, [post, fetchComments]);
+  // Intentionally use postId (not post) so mutating post.comments_count in
+  // handleSend/handleDelete doesn't trigger a full re-fetch of comments.
+  useEffect(() => { if (postId) fetchComments(0); }, [postId, fetchComments]);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -593,11 +601,10 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
       next.has(commentId) ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    // Optimistic update likes_count locally
+    // Optimistic update likes_count locally — use captured wasLiked, not stale closure
     setComments(prev => prev.map(c => {
       const cId = c.comment_id || c.id;
       if (cId !== commentId) return c;
-      const wasLiked = likedComments.has(commentId);
       return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
     }));
     try {
@@ -902,7 +909,9 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 </button>
               </div>
               <div className="px-4 pb-2">
-                <p className="text-[13px] font-semibold text-stone-950">{likesCount.toLocaleString()} Me gusta</p>
+                {likesCount > 0 && (
+                  <p className="text-[13px] font-semibold text-stone-950">{likesCount.toLocaleString()} Me gusta</p>
+                )}
                 <p className="text-[11px] text-stone-400 mt-0.5">{timeAgo(post.created_at)}</p>
               </div>
             </div>

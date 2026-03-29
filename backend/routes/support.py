@@ -223,13 +223,18 @@ async def update_case_status(
     )
 
     if body.status == "escalado a humano":
-        await db.admin_notifications.insert_one({
-            "notification_id": str(uuid.uuid4()),
-            "type": "case_escalated",
-            "case_id": case_id,
+        await db.notifications.insert_one({
             "user_id": case.get("user_id", ""),
+            "type": "support_reply",
+            "title": "Caso escalado a soporte",
+            "body": "Tu caso ha sido escalado a un agente humano. Te responderemos pronto.",
+            "action_url": "/settings/support",
+            "data": {"case_id": case_id},
+            "channels": ["in_app"],
+            "status_by_channel": {"in_app": "sent"},
+            "read_at": None,
             "created_at": now,
-            "read": False,
+            "sent_at": now,
         })
 
     return {"case_id": case_id, "status": body.status}
@@ -264,13 +269,18 @@ async def admin_send_message(
             "$set": {"updated_at": now, "assigned_admin_id": user.user_id},
         },
     )
-    await db.admin_notifications.insert_one({
-        "notification_id": str(uuid.uuid4()),
-        "type": "admin_replied",
-        "case_id": case_id,
+    await db.notifications.insert_one({
         "user_id": case.get("user_id", ""),
+        "type": "support_reply",
+        "title": "Respuesta de soporte",
+        "body": "Has recibido una respuesta del equipo de soporte.",
+        "action_url": "/settings/support",
+        "data": {"case_id": case_id},
+        "channels": ["in_app"],
+        "status_by_channel": {"in_app": "sent"},
+        "read_at": None,
         "created_at": now,
-        "read": False,
+        "sent_at": now,
     })
     return msg
 
@@ -327,8 +337,12 @@ async def support_unread_count(user: User = Depends(get_current_user)):
     """Admin: count unread support notifications scoped to country."""
     if not _is_admin(user):
         raise HTTPException(status_code=403, detail="Acceso denegado")
-    query = {"read": False, "type": {"$in": ["support_case", "case_escalated", "user_replied"]}}
-    count = await db.admin_notifications.count_documents(query)
+    query = {
+        "user_id": user.user_id,
+        "read_at": None,
+        "type": "support_reply",
+    }
+    count = await db.notifications.count_documents(query)
     return {"count": count}
 
 
@@ -390,12 +404,17 @@ async def user_send_message(
             "$set": {"status": "pendiente de respuesta", "updated_at": now},
         },
     )
-    await db.admin_notifications.insert_one({
-        "notification_id": str(uuid.uuid4()),
-        "type": "user_replied",
-        "case_id": case_id,
+    await db.notifications.insert_one({
         "user_id": user.user_id,
+        "type": "support_reply",
+        "title": "Tu mensaje fue enviado",
+        "body": "Tu respuesta ha sido registrada. Te notificaremos cuando soporte conteste.",
+        "action_url": "/settings/support",
+        "data": {"case_id": case_id},
+        "channels": ["in_app"],
+        "status_by_channel": {"in_app": "sent"},
+        "read_at": None,
         "created_at": now,
-        "read": False,
+        "sent_at": now,
     })
     return msg

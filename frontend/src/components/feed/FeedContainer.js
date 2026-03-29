@@ -9,6 +9,7 @@ import StoryViewer from './StoryViewer';
 import WeeklyGoalBar from '../gamification/WeeklyGoalBar';
 import ProductCard from '../ProductCard';
 import { useAuth } from '../../context/AuthContext';
+import { useFeedTab } from '../../context/FeedTabContext';
 import apiClient from '../../services/api/client';
 
 /**
@@ -16,8 +17,8 @@ import apiClient from '../../services/api/client';
  */
 function FeedContainer() {
   const { user } = useAuth();
-  // Feed tab state
-  const [feedTab, setFeedTab] = useState('foryou');
+  // Feed tab state — persisted across navigations via context
+  const { activeTab: feedTab, setActiveTab: setFeedTab } = useFeedTab();
 
   // Gamification profile for weekly goal
   const { data: gamifProfile } = useQuery({
@@ -40,9 +41,9 @@ function FeedContainer() {
   const [storyViewer, setStoryViewer] = useState(null);
   const queryClient = useQueryClient();
 
-  const handleCreateStory = () => {
+  const handleCreateStory = useCallback(() => {
     window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
-  };
+  }, []);
 
   const handleStoryClick = useCallback((stories, index) => {
     if (stories?.length > 0) {
@@ -52,8 +53,10 @@ function FeedContainer() {
 
   const handleCloseStoryViewer = useCallback(() => {
     setStoryViewer(null);
-    // Force immediate refetch (not just invalidate) so story rings update
+    // Force immediate refetch so story rings update (seen → grey ring)
     queryClient.refetchQueries({ queryKey: ['feed-stories'] });
+    // Sync own-story ring state in case user viewed/deleted their own story
+    queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
   }, [queryClient]);
 
   return (
@@ -116,13 +119,16 @@ function FeedContainer() {
       </div>
 
       {/* Story Viewer (fullscreen modal) */}
-      {storyViewer && (
-        <StoryViewer
-          stories={storyViewer.stories}
-          initialIndex={storyViewer.initialIndex}
-          onClose={handleCloseStoryViewer}
-        />
-      )}
+      <AnimatePresence>
+        {storyViewer && (
+          <StoryViewer
+            key="story-viewer"
+            stories={storyViewer.stories}
+            initialIndex={storyViewer.initialIndex}
+            onClose={handleCloseStoryViewer}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

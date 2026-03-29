@@ -47,7 +47,7 @@ const storyVariants = {
     : { opacity: 0, x: 0 },
 };
 
-export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
+export default function StoryViewer({ stories, initialIndex = 0, onClose, readOnly = false }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
@@ -62,6 +62,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [replySent, setReplySent] = useState(false);
   const [muted, setMuted] = useState(true);
   const [emojiBursts, setEmojiBursts] = useState([]);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const [shareSearch, setShareSearch] = useState('');
   const [shareConversations, setShareConversations] = useState([]);
@@ -90,6 +92,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
   const viewedRef = useRef(new Set());
 
+  // Local copy of stories that can be enriched with full items as user navigates
+  const [localStories, setLocalStories] = useState(stories);
+  const fetchedUsersRef = useRef(new Set());
+
   // Invalidate stories query on close so ring colors refresh with updated has_unseen
   const handleClose = useCallback(() => {
     if (viewedRef.current.size > 0) {
@@ -98,7 +104,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     onClose();
   }, [onClose, queryClient]);
 
-  const currentStory = stories[currentUserIndex];
+  const currentStory = localStories[currentUserIndex];
   const items = currentStory?.items || [];
   const currentItem = items[currentItemIndex];
 
@@ -122,7 +128,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       setCurrentItemIndex((i) => i + 1);
       setProgress(0);
       setVideoDuration(null);
-    } else if (currentUserIndex < stories.length - 1) {
+    } else if (currentUserIndex < localStories.length - 1) {
       isUserChangeRef.current = true;
       setCurrentUserIndex((u) => u + 1);
       setCurrentItemIndex(0);
@@ -131,7 +137,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     } else {
       handleClose();
     }
-  }, [currentItemIndex, items.length, currentUserIndex, stories.length, handleClose]);
+  }, [currentItemIndex, items.length, currentUserIndex, localStories.length, handleClose]);
 
   const goPrev = useCallback(() => {
     directionRef.current = -1;
@@ -142,19 +148,19 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       setVideoDuration(null);
     } else if (currentUserIndex > 0) {
       isUserChangeRef.current = true;
-      const prevUserItems = stories[currentUserIndex - 1]?.items || [];
+      const prevUserItems = localStories[currentUserIndex - 1]?.items || [];
       setCurrentUserIndex((u) => u - 1);
       // Land on last story of previous user (IG behavior)
       setCurrentItemIndex(Math.max(0, prevUserItems.length - 1));
       setProgress(0);
       setVideoDuration(null);
     }
-  }, [currentItemIndex, currentUserIndex, stories]);
+  }, [currentItemIndex, currentUserIndex, localStories]);
 
   const goNextUser = useCallback(() => {
     directionRef.current = 1;
     isUserChangeRef.current = true;
-    if (currentUserIndex < stories.length - 1) {
+    if (currentUserIndex < localStories.length - 1) {
       setCurrentUserIndex((u) => u + 1);
       setCurrentItemIndex(0);
       setProgress(0);
@@ -162,7 +168,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     } else {
       handleClose();
     }
-  }, [currentUserIndex, stories.length, handleClose]);
+  }, [currentUserIndex, localStories.length, handleClose]);
 
   const goPrevUser = useCallback(() => {
     directionRef.current = -1;
@@ -180,7 +186,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const totalPausedRef = useRef(0);
 
   useEffect(() => {
-    if (paused || !items.length) return;
+    if (!items.length) return;
     // For video stories, wait until we know the duration
     if (currentItem?.video_url && !videoDuration) return;
 
@@ -216,26 +222,85 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [currentUserIndex, currentItemIndex, paused, items.length, goNext, effectiveDuration, videoDuration, currentItem?.video_url]);
+  }, [currentUserIndex, currentItemIndex, items.length, goNext, effectiveDuration, videoDuration, currentItem?.video_url]);
 
-  // Reset progress and liked state on item change
+  // Fallback: if video metadata never loads (network error, unsupported format),
+  // unblock the timer after 3 s so the user isn't stuck forever.
+  useEffect(() => {
+    if (!currentItem?.video_url || videoDuration) return;
+    const timer = setTimeout(() => setVideoDuration(STORY_DURATION), 3000);
+    return () => clearTimeout(timer);
+  }, [currentItem?.video_url, videoDuration]);
+
+  // Reset progress, liked and reply text on item/user change.
+  // Seed liked from backend is_liked (populated by get_user_stories after auto-fetch).
   useEffect(() => {
     setProgress(0);
-    setLiked(false);
-  }, [currentUserIndex, currentItemIndex]);
+    setLiked(currentItem?.is_liked ?? false);
+    setReplyText('');
+  }, [currentUserIndex, currentItemIndex]); // currentItem is derived from these indices
 
-  // Track story view when current item changes
+  // Track story view when current item changes (skip for own stories — don't count self as viewer)
   useEffect(() => {
     const item = currentStory?.items?.[currentItemIndex];
     const storyId = item?.story_id || item?.id;
-    if (storyId && !viewedRef.current.has(storyId)) {
+    const myId = currentUser?.user_id || currentUser?.id;
+    const isOwn = myId && (currentStory?.user_id === myId || currentStory?.user?.id === myId);
+    if (storyId && !isOwn && !viewedRef.current.has(storyId)) {
       viewedRef.current.add(storyId);
       apiClient.post(`/stories/${storyId}/view`).catch(() => {
         // Remove from Set so it retries on next visit
         viewedRef.current.delete(storyId);
       });
     }
-  }, [currentStory, currentItemIndex]);
+  }, [currentStory, currentItemIndex, currentUser]);
+
+  // Auto-fetch full story data when navigating to a user who only has a preview item.
+  // StoriesBar only fetches full items for the initially-clicked user; all other users
+  // in the list have a single preview item (id ends in "_preview"). Fetch on demand.
+  useEffect(() => {
+    const story = localStories[currentUserIndex];
+    if (!story?.user_id) return;
+    const isPreviewOnly = story.items?.length === 1 && story.items[0]?.id?.endsWith?.('_preview');
+    if (!isPreviewOnly || fetchedUsersRef.current.has(story.user_id)) return;
+
+    fetchedUsersRef.current.add(story.user_id);
+    // Use queryClient.fetchQuery so preloaded cache from StoriesBar is hit before network
+    queryClient.fetchQuery({
+      queryKey: ['user-stories', story.user_id],
+      queryFn: () => apiClient.get(`/stories/${story.user_id}`),
+      staleTime: 30_000,
+    }).then((res) => {
+      const fullItems = Array.isArray(res) ? res : res?.items || res?.stories || [];
+      if (fullItems.length > 0) {
+        const targetUserId = story.user_id;
+        setLocalStories(prev => prev.map((s) =>
+          s.user_id === targetUserId ? {
+            ...s,
+            items: fullItems.map(item => ({
+              id: item.id || item.story_id,
+              story_id: item.story_id || item.id,
+              image_url: item.image_url || item.media_url,
+              video_url: item.video_url,
+              caption: item.caption || item.text,
+              created_at: item.created_at,
+              products: item.products,
+              view_count: item.view_count ?? 0,
+              is_liked: item.is_liked ?? false,
+              overlays: item.overlays,
+            })),
+          } : s
+        ));
+        // Seed liked state for the first item (currentItemIndex is 0 when swiping to a new user)
+        const firstItem = fullItems[0];
+        if (firstItem?.is_liked !== undefined) {
+          setLiked(firstItem.is_liked);
+        }
+      }
+    }).catch(() => {
+      fetchedUsersRef.current.delete(story.user_id); // allow retry on failure
+    });
+  }, [currentUserIndex]); // intentionally omits localStories to avoid re-triggering after update
 
   // Lock body scroll while viewer is open + cleanup timers + pause/unload video on unmount
   useEffect(() => {
@@ -244,6 +309,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     return () => {
       document.body.style.overflow = prev;
       clearTimeout(longPressRef.current);
+      clearTimeout(tapHintTimerRef.current);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       // B-3: Explicitly pause and unload video on close to free resources
       const video = videoRef.current;
@@ -255,35 +321,42 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     };
   }, []);
 
-  // Keyboard: Escape to close, Arrow keys to navigate
+  // Keyboard: Escape to close panels first, then viewer; Arrow keys blocked while panels open
   useEffect(() => {
     const handleKey = (e) => {
-      if (e.key === 'Escape') handleClose();
-      else if (e.key === 'ArrowRight') goNext();
-      else if (e.key === 'ArrowLeft') goPrev();
-      else if (e.key === ' ') {
+      if (e.key === 'Escape') {
+        if (shareSheetOpen) { handleShareClose(); return; }
+        if (showSeenBy) { setShowSeenBy(false); isPaused.current = false; setPaused(false); return; }
+        handleClose();
+      } else if (e.key === 'ArrowRight') {
+        if (!shareSheetOpen && !showSeenBy) goNext();
+      } else if (e.key === 'ArrowLeft') {
+        if (!shareSheetOpen && !showSeenBy) goPrev();
+      } else if (e.key === ' ') {
+        if (shareSheetOpen || showSeenBy) return;
         e.preventDefault();
-        setPaused((p) => !p);
+        isPaused.current = !isPaused.current;
+        setPaused(isPaused.current);
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [handleClose, goNext, goPrev]);
+  }, [handleClose, goNext, goPrev, shareSheetOpen, showSeenBy, handleShareClose]);
 
   // Preload next story image
   useEffect(() => {
     let nextItem = null;
     if (currentItemIndex < items.length - 1) {
       nextItem = items[currentItemIndex + 1];
-    } else if (currentUserIndex < stories.length - 1) {
-      const nextUserStory = stories[currentUserIndex + 1];
+    } else if (currentUserIndex < localStories.length - 1) {
+      const nextUserStory = localStories[currentUserIndex + 1];
       nextItem = nextUserStory?.items?.[0];
     }
     if (nextItem?.image_url && !nextItem.video_url) {
       const img = new Image();
       img.src = nextItem.image_url;
     }
-  }, [currentItemIndex, currentUserIndex, items, stories]);
+  }, [currentItemIndex, currentUserIndex, items, localStories]);
 
   // Sync video play/pause with paused state
   useEffect(() => {
@@ -306,6 +379,11 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
   // 4.3: Unified pointer handlers — replaces separate touch/mouse/click handlers
   const handlePointerDown = (e) => {
+    if (!e.isPrimary) return; // ignore non-primary pointers (multi-touch)
+    // Don't start gesture tracking when the pointer originates on an overlay interactive
+    // element (Eye, Delete, Product sticker, Mute, Link, seen-by panel buttons).
+    // Without this guard, tapping any overlay button ALSO triggers tap navigation.
+    if (e.target !== e.currentTarget && e.target.closest?.('button, [role="link"]')) return;
     e.currentTarget.setPointerCapture?.(e.pointerId);
     pointerStartX.current = e.clientX;
     pointerStartY.current = e.clientY;
@@ -316,18 +394,33 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     }, 120);
   };
 
+  const handlePointerCancel = (e) => {
+    if (!e.isPrimary) return;
+    clearTimeout(longPressRef.current);
+    isPaused.current = false;
+    setPaused(false);
+    swipingDown.current = false;
+    setSwipeDownY(0);
+    pointerStartX.current = null;
+    pointerStartY.current = null;
+  };
+
   const handlePointerMove = (e) => {
+    if (!e.isPrimary) return;
     if (pointerStartY.current === null) return;
     const deltaY = e.clientY - pointerStartY.current;
+    // Start tracking downward swipe once threshold is reached
     if (deltaY > 10 && Math.abs(e.clientX - pointerStartX.current) < 40) {
       swipingDown.current = true;
+    }
+    // Once swiping down, always track finger position (including back up)
+    if (swipingDown.current) {
       setSwipeDownY(Math.max(0, deltaY));
-    } else if (!swipingDown.current) {
-      setSwipeDownY(0);
     }
   };
 
   const handlePointerUp = (e) => {
+    if (!e.isPrimary) return;
     clearTimeout(longPressRef.current);
     isPaused.current = false;
     setPaused(false);
@@ -370,7 +463,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     }
 
     // Tap — no significant swipe, quick press
-    if (elapsed < 200 && Math.abs(deltaX) < 15 && Math.abs(deltaY) < 15) {
+    if (elapsed < 200 && Math.abs(deltaX) < 25 && Math.abs(deltaY) < 25) {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const threshold = rect.width * 0.4;
@@ -387,31 +480,28 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     pointerStartY.current = null;
   };
 
-  // J3: send reply as DM — open/create conversation then navigate to chat
+  // J3: send reply as DM — uses /chat/story-reply which atomically creates/finds
+  // the conversation and inserts the message with story context in one round-trip.
   const handleSendReply = useCallback(async () => {
     const text = replyText.trim();
     if (!text || sendingReply) return;
     setSendingReply(true);
     try {
       const storyId = currentItem?.story_id || currentItem?.id;
-      const res = await apiClient.post('/chat/conversations', {
-        other_user_id: currentStory?.user_id || currentStory?.user?.id,
+      const res = await apiClient.post('/chat/story-reply', {
+        story_id: storyId,
+        recipient_id: currentStory?.user_id || currentStory?.user?.id,
         message: text,
-        message_type: 'story_reply',
-        metadata: {
-          story_id: storyId,
-          story_image: currentItem?.image_url || currentItem?.video_url,
-          story_caption: currentItem?.caption?.slice(0, 60),
-        },
       });
+      const conversationId = res?.conversation_id || res?.id || res?._id;
       setReplyText('');
       replyInputRef.current?.blur();
       // A-2: Brief checkmark animation before navigating
       setReplySent(true);
-      setTimeout(() => setReplySent(false), 200);
-      const conversationId = res?.conversation_id || res?.id || res?._id;
+      setTimeout(() => { if (mountedRef.current) setReplySent(false); }, 200);
       if (conversationId) {
         setTimeout(() => {
+          if (!mountedRef.current) return;
           handleClose();
           navigate(`/messages/${conversationId}`);
         }, 250);
@@ -419,25 +509,45 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     } catch (err) {
       // fallback: legacy story reply endpoint
       try {
-        await apiClient.post(`/stories/${currentItem?.story_id}/reply`, { text });
+        await apiClient.post(`/stories/${currentItem?.story_id || currentItem?.id}/reply`, { text });
         setReplyText('');
         replyInputRef.current?.blur();
         setReplySent(true);
-        setTimeout(() => setReplySent(false), 200);
+        setTimeout(() => { if (mountedRef.current) setReplySent(false); }, 200);
       } catch (err) { toast.error('Error al responder'); }
     } finally {
       setSendingReply(false);
     }
   }, [replyText, sendingReply, currentStory, currentItem, navigate, handleClose]);
 
-  // A-1: Quick reaction with burst animation + API call simultaneously
+  // A-1: Quick reaction with burst animation + API call simultaneously.
+  // ❤️ → toggles like (same as heart button). Other emojis → sent as a quick DM reply
+  // via /chat/story-reply so they don't accidentally toggle the liked state.
   const handleQuickReaction = useCallback(async (emoji) => {
     const burstId = Date.now() + Math.random();
     setEmojiBursts((prev) => [...prev, { id: burstId, emoji }]);
-    try {
-      await apiClient.post(`/stories/${currentItem?.story_id}/like`);
-    } catch (err) { /* reaction best-effort */ }
-  }, [currentItem]);
+    const isHeart = emoji === '❤️';
+    const storyId = currentItem?.story_id || currentItem?.id;
+    if (isHeart) {
+      if (liked) return; // already liked — show burst but skip API call to prevent accidental unlike
+      setLiked(true);
+      try {
+        await apiClient.post(`/stories/${storyId}/like`);
+      } catch (err) {
+        setLiked(false); // rollback
+      }
+    } else {
+      // Non-heart emoji: send as a quick DM reply (fire-and-forget, no UI state change)
+      const recipientId = currentStory?.user_id || currentStory?.user?.id;
+      if (recipientId) {
+        apiClient.post('/chat/story-reply', {
+          story_id: storyId,
+          recipient_id: recipientId,
+          message: emoji,
+        }).catch(() => {}); // non-critical
+      }
+    }
+  }, [currentItem, currentStory, liked]);
 
   const removeEmojiBurst = useCallback((id) => {
     setEmojiBursts((prev) => prev.filter((b) => b.id !== id));
@@ -448,7 +558,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     // Try navigator.share first on mobile
     if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
       try {
-        const storyUrl = `${window.location.origin}/stories/${currentItem?.story_id || ''}`;
+        const ownerHandle = currentStory?.user?.username || currentStory?.user_id || '';
+        const storyUrl = `${window.location.origin}/${ownerHandle}`;
         await navigator.share({
           title: `Historia de ${currentStory?.user?.name || currentStory?.user?.username || ''}`,
           url: storyUrl,
@@ -478,11 +589,11 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     if (!convId || shareSending) return;
     setShareSending(convId);
     try {
-      const storyUrl = `${window.location.origin}/stories/${currentItem?.story_id || ''}`;
+      const ownerHandle = currentStory?.user?.username || currentStory?.user_id || '';
+      const profileUrl = `${window.location.origin}/${ownerHandle}`;
       await apiClient.post(`/chat/conversations/${convId}/messages`, {
-        text: `Mira esta historia: ${storyUrl}`,
-        type: 'story_share',
-        story_id: currentItem?.story_id,
+        content: `Mira esta historia: ${profileUrl}`,
+        message_type: 'story_share',
       });
       setShareSheetOpen(false);
       isPaused.current = false;
@@ -533,16 +644,31 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     }
   }, [currentItem, viewersLoading]);
 
-  // Reset seen-by panel when story changes
+  // Reset seen-by panel and close share sheet when story changes (swipe/tap navigation)
   useEffect(() => {
     setShowSeenBy(false);
     setViewers([]);
+    setViewersLoading(false); // cancel in-flight fetch so next story can fetch fresh
+    // Close share sheet if open so it doesn't bleed across stories
+    setShareSheetOpen(false);
+    setShareSearch('');
   }, [currentUserIndex, currentItemIndex]);
 
   if (!currentStory || !items.length) return null;
 
   const user = currentStory.user;
   const isOwnStory = currentStory.user_id === (currentUser?.user_id || currentUser?.id) || currentStory.user?.id === (currentUser?.user_id || currentUser?.id);
+
+  // Merge products from image stories (currentItem.products) and video story overlay stickers (type=product)
+  const overlayProductStickers = (currentItem?.overlays?.stickers || [])
+    .filter(s => s.type === 'product')
+    .map(s => ({
+      product_id: s.productId,
+      product_name: s.content,
+      product_image: s.productImage,
+      product_price: s.productPrice,
+    }));
+  const effectiveProducts = [...(currentItem?.products || []), ...overlayProductStickers];
 
   return (
     <motion.div
@@ -637,6 +763,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
       >
         {/* Bottom gradient for text legibility */}
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/60 to-transparent z-[1] pointer-events-none" />
@@ -672,6 +799,137 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 >
                   {muted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
                 </button>
+                {/* Video text overlays — metadata stored on the story item */}
+                {currentItem?.overlays?.texts?.map((t, i) => (
+                  <div
+                    key={i}
+                    className="absolute pointer-events-none z-[3]"
+                    style={{
+                      left: `${t.x}%`,
+                      top: `${t.y}%`,
+                      transform: 'translate(-50%, -50%)',
+                      color: t.color || '#fff',
+                      fontSize: `${t.size || 20}px`,
+                      fontFamily: t.font || 'sans-serif',
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                      whiteSpace: 'pre-wrap',
+                      textShadow: t.style !== 'box' ? '0 1px 4px rgba(0,0,0,0.5)' : 'none',
+                      WebkitTextStroke: t.style === 'outline' ? `1px ${t.color || '#fff'}` : undefined,
+                      background: t.style === 'box' ? 'rgba(0,0,0,0.75)' : 'transparent',
+                      padding: t.style === 'box' ? '4px 10px' : undefined,
+                      borderRadius: t.style === 'box' ? 6 : undefined,
+                    }}
+                  >
+                    {t.text}
+                  </div>
+                ))}
+                {/* Video draw paths — SVG overlay */}
+                {Array.isArray(currentItem?.overlays?.draws) && currentItem.overlays.draws.length > 0 && (
+                  <svg
+                    className="absolute inset-0 w-full h-full z-[2] pointer-events-none"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {currentItem.overlays.draws.map((path, pi) => {
+                      if (!path.points?.length || path.points.length < 2) return null;
+                      const d = path.points.map((pt, j) =>
+                        `${j === 0 ? 'M' : 'L'}${pt.x} ${pt.y}`
+                      ).join(' ');
+                      return (
+                        <path
+                          key={pi}
+                          d={d}
+                          stroke={path.color || '#fff'}
+                          strokeWidth={((path.width || 3) / 4)}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          fill="none"
+                          vectorEffect="non-scaling-stroke"
+                        />
+                      );
+                    })}
+                  </svg>
+                )}
+                {(currentItem?.overlays?.stickers || []).filter(s => s.type !== 'product').map((s, i) => {
+                  const pos = {
+                    position: 'absolute',
+                    left: `${s.x}%`,
+                    top: `${s.y}%`,
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 3,
+                    pointerEvents: 'none',
+                  };
+                  if (s.type === 'emoji') {
+                    return (
+                      <div key={i} className="text-4xl" style={pos}>
+                        {s.content}
+                      </div>
+                    );
+                  }
+                  if (s.type === 'poll') {
+                    return (
+                      <div key={i} style={{ ...pos, pointerEvents: 'none' }}>
+                        <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-3 shadow-lg w-[180px] text-center">
+                          <p className="text-[9px] font-bold text-stone-950 mb-1">ENCUESTA</p>
+                          <p className="text-[11px] font-bold text-stone-950 mb-2 leading-tight">{s.content}</p>
+                          <div className="flex gap-1">
+                            {(s.options || []).map((opt, oi) => (
+                              <div key={oi} className="flex-1 bg-stone-100 rounded-full py-1 px-1.5 text-[10px] font-semibold text-stone-950 text-center truncate">{opt}</div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (s.type === 'question') {
+                    return (
+                      <div key={i} style={pos}>
+                        <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-3 shadow-lg w-[180px] text-center">
+                          <p className="text-[9px] font-bold text-stone-950 mb-1">PREGUNTA</p>
+                          <p className="text-[11px] font-bold text-stone-950 mb-2 leading-tight">{s.content}</p>
+                          <div className="bg-stone-100 rounded-xl py-1.5 px-2 text-[10px] text-stone-400">Escribe tu respuesta...</div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (s.type === 'mention') {
+                    const label = s.content.startsWith('@') ? s.content : `@${s.content}`;
+                    return (
+                      <div key={i} style={pos}>
+                        <div className="flex items-center gap-1 bg-black/70 backdrop-blur-sm text-white text-[12px] font-semibold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+                          <span className="text-white/70 text-[11px]">@</span>{label.replace(/^@/, '')}
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (s.type === 'link') {
+                    const display = s.content.replace(/^https?:\/\//, '').replace(/\/$/, '').slice(0, 28);
+                    return (
+                      <div key={i} style={pos}>
+                        <div className="flex items-center gap-1 bg-white/95 backdrop-blur-xl text-stone-950 text-[11px] font-semibold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap max-w-[160px] overflow-hidden text-ellipsis">
+                          🔗 {display}
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (s.type === 'location') {
+                    return (
+                      <div key={i} style={pos}>
+                        <div className="flex items-center gap-1 bg-white/95 backdrop-blur-xl text-stone-950 text-[12px] font-semibold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+                          📍 {s.content}
+                        </div>
+                      </div>
+                    );
+                  }
+                  // fallback: generic text pill
+                  return (
+                    <div key={i} style={pos}>
+                      <div className="bg-black/60 text-white text-[12px] font-semibold px-3 py-1.5 rounded-full">{s.content}</div>
+                    </div>
+                  );
+                })}
               </>
             ) : (
               <img
@@ -683,8 +941,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               />
             )}
 
-            {/* 7.1: Viewer count — own stories only (tappable to expand seen-by) */}
-            {isOwnStory && (<>
+            {/* 7.1: Viewer count + delete — own active stories only (hidden for highlights/readOnly) */}
+            {isOwnStory && !readOnly && (<>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -715,7 +973,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     const sid = currentItem?.story_id || currentItem?.id;
                     await apiClient.delete(`/stories/${sid}`);
                     toast.success('Historia eliminada');
-                    handleClose(); // invalidates feed-stories query so ring disappears
+                    queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
+                    queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+                    queryClient.invalidateQueries({ queryKey: ['user-stories', currentStory?.user_id] });
+                    handleClose();
                   } catch { toast.error('No se pudo eliminar'); }
                 }}
                 className="absolute bottom-4 right-4 z-[2] flex items-center gap-1 bg-transparent border-none cursor-pointer"
@@ -761,11 +1022,17 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     ) : viewers.length > 0 ? (
                       viewers.map((v, vi) => (
                         <div key={v.user_id || v.id || vi} className="flex items-center gap-3 py-2">
-                          <img
-                            src={v.avatar_url || v.profile_image || v.avatar || '/default-avatar.png'}
-                            alt=""
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
+                          {(v.avatar_url || v.profile_image || v.avatar) ? (
+                            <img
+                              src={v.avatar_url || v.profile_image || v.avatar}
+                              alt=""
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                              {(v.username || v.name || '?').charAt(0).toUpperCase()}
+                            </div>
+                          )}
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm text-white font-sans font-medium truncate">
                               {v.username || v.name || 'Usuario'}
@@ -785,15 +1052,15 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             </AnimatePresence>
 
             {/* 7.1: Product stickers + Link stickers — unified stack above reply bar */}
-            {(currentItem?.products?.length > 0 || currentItem?.links?.length > 0) && (
+            {(effectiveProducts.length > 0 || currentItem?.links?.length > 0) && (
               <div className="absolute bottom-16 left-4 right-4 z-[2] flex flex-col gap-2">
-                {currentItem?.products?.map((product, idx) => (
+                {effectiveProducts.map((product, idx) => (
                   <div
                     key={product.id || product.product_id || idx}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleClose();
-                      const pid = product?.product_id || product?.id || product?.slug;
+                      const pid = product?.product_id || product?.id || product?.slug || product?.productId;
                       if (pid) navigate(`/products/${pid}`);
                     }}
                     onKeyDown={(e) => {
@@ -801,7 +1068,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                         e.preventDefault();
                         e.stopPropagation();
                         handleClose();
-                        const pid = product?.product_id || product?.id || product?.slug;
+                        const pid = product?.product_id || product?.id || product?.slug || product?.productId;
                         if (pid) navigate(`/products/${pid}`);
                       }
                     }}
@@ -810,20 +1077,20 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     tabIndex={0}
                     aria-label={`Ver producto: ${product?.name}`}
                   >
-                    {(product?.thumbnail || product?.image) && (
+                    {(product?.thumbnail || product?.image || product?.product_image) && (
                       <img
-                        src={product.thumbnail || product.image}
+                        src={product.thumbnail || product.image || product.product_image}
                         alt=""
                         className="w-8 h-8 rounded-2xl object-cover shrink-0"
                       />
                     )}
                     <div className="flex flex-col flex-1 min-w-0">
                       <span className="text-[13px] text-white font-sans font-medium overflow-hidden text-ellipsis whitespace-nowrap">
-                        {product?.name}
+                        {product?.name || product?.product_name}
                       </span>
-                      {product?.price != null && (
+                      {(product?.price ?? product?.product_price) != null && (
                         <span className="text-[11px] text-white/70 font-semibold font-sans">
-                          {priceFormatter.format(product.price)}
+                          {priceFormatter.format(product.price ?? product.product_price)}
                         </span>
                       )}
                       <span className="text-[10px] text-white/50 font-sans">Ver producto</span>
@@ -916,8 +1183,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
       </div>
 
-      {/* Quick emoji reactions with burst animations */}
-      <div className="flex items-center justify-center gap-1.5 px-3 py-1">
+      {/* Quick emoji reactions with burst animations — hidden for own stories */}
+      {!isOwnStory && <div className="flex items-center justify-center gap-1.5 px-3 py-1">
         {QUICK_REACTIONS.map((emoji) => (
           <div key={emoji} className="relative">
             <button
@@ -942,9 +1209,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             </AnimatePresence>
           </div>
         ))}
-      </div>
+      </div>}
 
-      {/* Bottom bar: like + reply input + send + share */}
+      {/* Bottom bar: like + reply input + send + share — hidden for own stories */}
+      {!isOwnStory &&
       <div className="flex items-center gap-2 px-3 py-2 pb-[calc(env(safe-area-inset-bottom,8px)+8px)]">
         <button
           onClick={async () => {
@@ -952,7 +1220,9 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             setLiked(newLiked);
             try {
               await apiClient.post(`/stories/${currentItem?.story_id || currentItem?.id}/like`);
-            } catch (err) { /* like best-effort */ }
+            } catch (err) {
+              setLiked(!newLiked); // rollback on failure
+            }
           }}
           className="shrink-0 w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"
           aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
@@ -1004,7 +1274,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             <Send size={20} className="text-white" />
           </button>
         )}
-      </div>
+      </div>}
+
+      {/* Own-story spacer — keeps the bottom safe area consistent when reply bar is hidden */}
+      {isOwnStory && <div className="h-[calc(env(safe-area-inset-bottom,8px)+8px)]" />}
 
       {/* A-3: Share to DM sheet */}
       <AnimatePresence>

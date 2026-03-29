@@ -26,17 +26,40 @@ const CATEGORY_OPTIONS = [
   'Infusiones',
 ];
 
+const COUNTRY_OPTIONS = [
+  { value: 'ES', label: 'España' },
+  { value: 'PT', label: 'Portugal' },
+  { value: 'FR', label: 'Francia' },
+  { value: 'DE', label: 'Alemania' },
+  { value: 'IT', label: 'Italia' },
+  { value: 'GB', label: 'Reino Unido' },
+  { value: 'NL', label: 'Países Bajos' },
+  { value: 'BE', label: 'Bélgica' },
+  { value: 'CH', label: 'Suiza' },
+  { value: 'AT', label: 'Austria' },
+  { value: 'MX', label: 'México' },
+  { value: 'AR', label: 'Argentina' },
+  { value: 'CO', label: 'Colombia' },
+];
+
 const Step3Profile = ({ onNext, data, onDataChange }) => {
   const [dietaryRestrictions, setDietaryRestrictions] = useState(data.dietaryRestrictions || []);
   const [categories, setCategories] = useState(data.categories || []);
   const [postalCode, setPostalCode] = useState(data.postalCode || '');
+  const [country, setCountry] = useState(data.country || '');
+  const [countryError, setCountryError] = useState('');
 
   const toggleItem = (value, state, setter) => {
     setter(state.includes(value) ? state.filter((item) => item !== value) : [...state, value]);
   };
 
   const handleSubmit = () => {
-    onDataChange({ dietaryRestrictions, categories, postalCode });
+    if (!country) {
+      setCountryError('Selecciona tu país');
+      return;
+    }
+    setCountryError('');
+    onDataChange({ dietaryRestrictions, categories, postalCode, country });
     onNext();
   };
 
@@ -93,6 +116,24 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
             );
           })}
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="consumer-country" className="text-sm font-medium text-stone-800">
+          País *
+        </label>
+        <select
+          id="consumer-country"
+          value={country}
+          onChange={(e) => { setCountry(e.target.value); setCountryError(''); }}
+          className={`mt-2 h-12 w-full rounded-xl border bg-white px-3 text-base md:h-11 md:text-sm ${countryError ? 'border-stone-950' : 'border-stone-200'}`}
+        >
+          <option value="">Selecciona tu país</option>
+          {COUNTRY_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        {countryError ? <p className="mt-1 text-xs text-stone-700">{countryError}</p> : null}
       </div>
 
       <div>

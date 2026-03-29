@@ -256,14 +256,17 @@ async def cancel_customer_order(order_id: str, user: User = Depends(get_current_
     for pid in producer_ids:
         try:
             await db.notifications.insert_one({
-                "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
                 "user_id": pid,
                 "type": "order_update",
                 "title": "Pedido cancelado",
                 "body": f"El pedido #{order_id[-8:]} ha sido cancelado por el cliente.",
                 "action_url": "/producer/orders",
-                "read": False,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "data": {"order_id": order_id},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": datetime.now(timezone.utc),
+                "sent_at": datetime.now(timezone.utc),
             })
         except Exception:
             pass  # non-critical
@@ -419,7 +422,6 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
     await db.post_comments.update_many({"user_id": user_id}, {"$set": {"user_name": "Deleted User", "user_id": "deleted"}})
     await db.wishlists.delete_many({"user_id": user_id})
     await db.notifications.delete_many({"user_id": user_id})
-    await db.user_notifications.delete_many({"user_id": user_id})
     await db.community_members.delete_many({"user_id": user_id})
     await db.carts.delete_many({"user_id": user_id})
     await db.cart_discounts.delete_many({"user_id": user_id})

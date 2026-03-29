@@ -164,13 +164,20 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   );
 
   // Clean up timers on unmount
+  const deletedRef = useRef(false);
+  useEffect(() => { deletedRef.current = deleted; }, [deleted]);
   useEffect(() => {
     return () => {
       clearTimeout(playIconTimer.current);
       clearTimeout(singleTapTimer.current);
       clearTimeout(doubleTapHeartTimer.current);
-      clearTimeout(undoTimerRef.current);
       clearTimeout(reactionLongPressRef.current);
+      // If reel was marked for deletion and user scrolled away, execute delete now
+      if (deletedRef.current && undoTimerRef.current) {
+        clearTimeout(undoTimerRef.current);
+        const reelId = reel.id || reel.reel_id || reel.post_id;
+        if (reelId) apiClient.delete(`/reels/${reelId}`).catch(() => {});
+      }
     };
   }, []);
 
@@ -285,7 +292,9 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     try {
       const reelId = reel.id || reel.reel_id || reel.post_id;
       const res = await apiClient.get(`/reels/${reelId}/comments?limit=60`);
-      setComments(Array.isArray(res) ? res : res?.data || res?.comments || []);
+      const items = Array.isArray(res) ? res : res?.data || res?.comments || [];
+      setComments(items);
+      setLikedComments(new Set(items.filter(c => c.is_liked && c.comment_id).map(c => c.comment_id)));
     } catch (err) { /* non-critical: comments fetch failed */ setComments([]); }
     finally { setCommentsLoading(false); }
   }, [reel.id, reel.reel_id, reel.post_id]);
@@ -300,6 +309,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       await apiClient.post(`/reels/${reelId}/comments`, payload);
       setNewComment('');
       setReplyTo(null);
+      setLocalCommentsCount((c) => c + 1);
       fetchComments();
     } catch (err) { toast.error('Error al comentar'); }
     finally { setSendingComment(false); }
@@ -317,11 +327,11 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     setReplyTo(null);
     // Resume video playback when closing comments
     const video = videoRef.current;
-    if (video && isActive) {
+    if (video && (isActive || embedded)) {
       video.play().catch(() => {});
       setPlaying(true);
     }
-  }, [isActive]);
+  }, [isActive, embedded]);
 
   const likingCommentRef = useRef(false);
   const handleLikeComment = useCallback(async (commentId) => {
@@ -349,6 +359,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       const reelId = reel.id || reel.reel_id || reel.post_id;
       await apiClient.delete(`/reels/${reelId}/comments/${commentId}`);
       setComments(prev => prev.filter(c => (c.comment_id || c.id || c._id) !== commentId));
+      setLocalCommentsCount((c) => Math.max(0, c - 1));
     } catch (err) { toast.error('Error al eliminar'); }
   }, [reel.id, reel.reel_id, reel.post_id]);
 
@@ -420,7 +431,13 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     }
     const reelId = reel.id || reel.reel_id || reel.post_id;
     try {
-      await apiClient.post(`/reels/${reelId}/like`);
+      if (onLike) {
+        // Embedded: parent (React Query) owns the API call and cache update.
+        // Do NOT also call /reels/{id}/like — that would double-increment likes_count.
+        await onLike(reelId, next);
+      } else {
+        await apiClient.post(`/reels/${reelId}/like`);
+      }
     } catch (err) {
       // Rollback on failure
       setLiked(prev);
@@ -428,8 +445,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       toast.error('Error al dar me gusta');
     }
     likingRef.current = false;
-    onLike?.(reelId, next);
-  }, [liked, reel.id, reel.reel_id, reel.post_id, onLike]);
+  }, [liked, likesCount, reel.id, reel.reel_id, reel.post_id, onLike, trigger]);
 
   // Long press handlers for reaction picker
   const handleReactionLongPressStart = useCallback(() => {
@@ -445,28 +461,27 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const handleReaction = useCallback(async (emoji) => {
     setSelectedReaction(emoji);
     setShowReactions(false);
-    // Reactions also toggle the like state
+    // Reactions ensure the reel is liked (never unlike)
     const wasLiked = liked;
     if (!wasLiked) {
       setLiked(true);
       setLikesCount((c) => c + 1);
-    }
-    const reelId = reel.id || reel.reel_id || reel.post_id;
-    try {
-      const res = await apiClient.post(`/reels/${reelId}/like`);
-      // If server says not liked but we wanted liked, re-toggle
-      if (res?.liked === false && !wasLiked) {
-        // Server toggled to unlike (was already liked), re-like
-        await apiClient.post(`/reels/${reelId}/like`);
-      }
-    } catch (err) {
-      setSelectedReaction(null);
-      if (!wasLiked) {
+      const reelId = reel.id || reel.reel_id || reel.post_id;
+      try {
+        const res = await apiClient.post(`/reels/${reelId}/like`);
+        // Server toggled to unlike (was already liked) — rollback optimistic update
+        if (res?.liked === false) {
+          setLiked(false);
+          setLikesCount((c) => Math.max(0, c - 1));
+        }
+      } catch (err) {
+        setSelectedReaction(null);
         setLiked(false);
         setLikesCount((c) => Math.max(0, c - 1));
+        toast.error('Error al reaccionar');
       }
-      toast.error('Error al reaccionar');
     }
+    // If already liked, reaction is just a visual emoji change — no API call needed
   }, [liked, reel.id, reel.reel_id, reel.post_id]);
 
   // Single tap = play/pause (immediate), double-tap = like (reverses play toggle)
@@ -500,6 +515,8 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       // Immediately toggle play/pause
       const video = videoRef.current;
       if (embedded) {
+        // Track pre-tap play state so double-tap can restore it (same as non-embedded)
+        wasPlayingBeforeTap.current = !videoRef.current?.paused;
         if (videoRef.current?.paused) {
           videoRef.current.play().catch(() => {});
           setPlaying(true);
@@ -517,7 +534,8 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const videoUrl = reel.video_url || reel.videoUrl;
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
   const avatarUrl = reel.user?.avatar_url || reel.user?.avatar || reel.user?.profile_image || reel.user_profile_image;
-  const reelCommentsCount = reel.comments_count ?? reel.comments ?? 0;
+  const [localCommentsCount, setLocalCommentsCount] = useState(reel.comments_count ?? reel.comments ?? 0);
+  const reelCommentsCount = localCommentsCount;
   const allProducts = [...(reel.products || []), ...(reel.tagged_products || [])].filter(Boolean);
   const product = allProducts[0] || reel.tagged_product || reel.productTag || null;
   const hasMultipleProducts = allProducts.length > 1;
@@ -1189,7 +1207,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
               </button>
             </div>
             {allProducts.map((p, i) => {
-              const pid = p.id || p.product_id;
+              const pid = p.product_id || p.id;
               const pImg = p.image || p.thumbnail || p.images?.[0];
               return (
                 <div

@@ -180,8 +180,12 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
                 "title": "Nueva comisión generada",
                 "body": f"Has ganado {influencer_amount:.2f}€ de comisión por un pedido de {_round_money(order_value)}€",
                 "action_url": "/influencer/dashboard",
-                "read": False,
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "data": {"order_id": order_id},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": datetime.now(timezone.utc),
+                "sent_at": datetime.now(timezone.utc),
             })
     except Exception as e:
         logger.warning(f"[COMMISSION] Non-critical notification error for order {order_id}: {e}")
@@ -578,9 +582,12 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
                     "title": "Nuevo pedido recibido",
                     "body": f"Tienes un nuevo pedido con {item_count} producto(s). Prepáralo cuanto antes.",
                     "action_url": "/producer/orders",
-                    "read": False,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
                     "data": {"order_id": order_id},
+                    "channels": ["in_app"],
+                    "status_by_channel": {"in_app": "sent"},
+                    "read_at": None,
+                    "created_at": datetime.now(timezone.utc),
+                    "sent_at": datetime.now(timezone.utc),
                 })
     except Exception as e:
         logger.warning(f"[PAYMENT] Non-critical producer notification error for {order_id}: {e}")
@@ -1670,10 +1677,14 @@ async def stripe_webhook(request: Request):
                         "user_id": user_id,
                         "type": "order_payment_failed",
                         "title": "Pago fallido",
-                        "message": f"El pago de tu pedido #{str(order_id)[-4:].upper()} no se ha completado.",
+                        "body": f"El pago de tu pedido #{str(order_id)[-4:].upper()} no se ha completado.",
+                        "action_url": f"/orders/{order_id}",
                         "data": {"order_id": order_id},
-                        "read": False,
+                        "channels": ["in_app"],
+                        "status_by_channel": {"in_app": "sent"},
+                        "read_at": None,
                         "created_at": datetime.now(timezone.utc),
+                        "sent_at": datetime.now(timezone.utc),
                     })
                 except Exception as notif_err:
                     logger.error(f"[WEBHOOK] Failed to create payment_failed notification for {user_id}: {notif_err}")
@@ -1959,14 +1970,17 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
         customer_id = order.get("user_id")
         if customer_id:
             await db.notifications.insert_one({
-                "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
                 "user_id": customer_id,
                 "type": "order_update",
                 "title": "Pedido reembolsado",
                 "body": f"Tu pedido #{order_id[-8:]} ha sido reembolsado. El importe se reflejará en tu cuenta en 5-10 días hábiles.",
-                "action_url": f"/dashboard/orders/{order_id}",
-                "read": False,
-                "created_at": now_iso,
+                "action_url": f"/orders/{order_id}",
+                "data": {"order_id": order_id},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": datetime.now(timezone.utc),
+                "sent_at": datetime.now(timezone.utc),
             })
     except Exception as e:
         logger.warning(f"[REFUND] Failed to send refund notification: {e}")

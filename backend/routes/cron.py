@@ -334,10 +334,10 @@ async def cron_predict_notifications(user: User = Depends(get_current_user)):
             continue
 
         # Check: was a predict notification sent to this user in the last 24h?
-        recent = await db.user_notifications.find_one({
+        recent = await db.notifications.find_one({
             "user_id": uid,
             "type": "predict_overdue",
-            "created_at": {"$gte": (now - timedelta(hours=24)).isoformat()},
+            "created_at": {"$gte": now - timedelta(hours=24)},
         })
         if recent:
             skipped_already_notified += 1
@@ -350,16 +350,19 @@ async def cron_predict_notifications(user: User = Depends(get_current_user)):
             summary_text += f" y {len(overdue) - 5} mas"
 
         notification = {
-            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
             "user_id": uid,
             "type": "predict_overdue",
             "title": f"{len(overdue)} producto(s) necesitan recompra",
-            "message": summary_text,
-            "link": "/dashboard/predictions",
-            "read": False,
-            "created_at": now_iso,
+            "body": summary_text,
+            "action_url": "/dashboard/predictions",
+            "data": {},
+            "channels": ["in_app"],
+            "status_by_channel": {"in_app": "sent"},
+            "read_at": None,
+            "created_at": now,
+            "sent_at": now,
         }
-        await db.user_notifications.insert_one(notification)
+        await db.notifications.insert_one(notification)
 
         # Build and send email — HTML-escape all user-controlled values to prevent XSS
         product_list_html = ""
@@ -791,3 +794,32 @@ async def cron_review_request_notifications(user: User = Depends(get_current_use
             logger.error(f"[CRON] Review request failed for order {oid}: {e}")
 
     return {"checked": len(delivered_orders), "sent": sent}
+
+
+@router.post("/admin/cron/cleanup-expired-stories")
+async def cron_cleanup_expired_stories(user: User = Depends(get_current_user)):
+    """Daily: delete expired stories older than 48h and their related likes/replies.
+    Stories expire after 24h but we keep them 48h for highlight creation."""
+    await require_role(user, ["admin", "super_admin"])
+
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=48)).isoformat()
+
+    expired = await db.hispalostories.find(
+        {"expires_at": {"$lte": cutoff}},
+        {"_id": 0, "story_id": 1},
+    ).to_list(1000)
+
+    if not expired:
+        return {"stories_deleted": 0, "likes_deleted": 0, "replies_deleted": 0}
+
+    expired_ids = [s["story_id"] for s in expired]
+
+    likes_result = await db.story_likes.delete_many({"story_id": {"$in": expired_ids}})
+    replies_result = await db.story_replies.delete_many({"story_id": {"$in": expired_ids}})
+    stories_result = await db.hispalostories.delete_many({"story_id": {"$in": expired_ids}})
+
+    return {
+        "stories_deleted": stories_result.deleted_count,
+        "likes_deleted": likes_result.deleted_count,
+        "replies_deleted": replies_result.deleted_count,
+    }

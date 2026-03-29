@@ -141,7 +141,7 @@ export default function OnboardingPage() {
         const formData = new FormData();
         formData.append('file', profilePhoto);
         try {
-          await apiClient.post('/users/me/avatar', formData, {
+          await apiClient.post('/users/upload-avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
         } catch {
@@ -166,7 +166,7 @@ export default function OnboardingPage() {
       const roleDestinations = {
         producer:   '/producer/verification',
         influencer: '/influencer/fiscal-setup',
-        importer:   '/importer/dashboard',
+        importer:   '/producer/verification',
         customer:   '/discover',
       };
       navigate(roleDestinations[role] || '/', { replace: true });
@@ -295,7 +295,7 @@ export default function OnboardingPage() {
   };
 
   const Step2 = (
-    <StepShell step={2} onBack={() => goTo(1)} onSkip={() => { setSelectedInterests([]); goTo(3); }}>
+    <StepShell step={2} onBack={() => goTo(1)} onSkip={() => goTo(3)}>
       <div className="flex-1 flex flex-col items-center pt-6">
         <h2 className="text-2xl font-bold text-stone-950 text-center mb-1">
           Que te interesa?

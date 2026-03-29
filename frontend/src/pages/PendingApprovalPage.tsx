@@ -1,11 +1,15 @@
 // @ts-nocheck
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock3, ShieldCheck } from 'lucide-react';
+import { Clock3, ShieldCheck, FileCheck } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
 
 export default function PendingApprovalPage() {
+  const { user } = useAuth();
+  const canVerify = user?.role === 'producer' || user?.role === 'importer';
+  const canFiscalSetup = user?.role === 'influencer';
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
       <Header />
@@ -31,9 +35,27 @@ export default function PendingApprovalPage() {
             </div>
           </div>
           <div className="flex flex-col gap-3">
+            {canVerify && (
+              <Link
+                to="/producer/verification"
+                className="flex h-11 items-center justify-center gap-2 rounded-full bg-stone-950 px-6 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
+              >
+                <FileCheck className="w-4 h-4" />
+                Subir documentos de verificación
+              </Link>
+            )}
+            {canFiscalSetup && (
+              <Link
+                to="/influencer/fiscal-setup"
+                className="flex h-11 items-center justify-center gap-2 rounded-full bg-stone-950 px-6 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
+              >
+                <FileCheck className="w-4 h-4" />
+                Completar configuración fiscal
+              </Link>
+            )}
             <Link
               to="/"
-              className="flex h-11 items-center justify-center rounded-full bg-stone-950 px-6 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
+              className={`flex h-11 items-center justify-center rounded-full px-6 text-[14px] font-medium transition-colors ${(canVerify || canFiscalSetup) ? 'border border-stone-200 bg-white text-stone-700 hover:bg-stone-50' : 'bg-stone-950 text-white hover:bg-stone-800'}`}
             >
               Volver al inicio
             </Link>

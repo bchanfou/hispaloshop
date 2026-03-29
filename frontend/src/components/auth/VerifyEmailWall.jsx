@@ -25,12 +25,15 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
     return () => clearInterval(cooldownRef.current);
   }, [cooldown]);
 
-  // Auto-verify when all 6 digits entered
+  // Auto-verify when all 6 digits entered (debounced to prevent duplicate calls on paste)
+  const autoVerifyRef = useRef(null);
   useEffect(() => {
+    clearTimeout(autoVerifyRef.current);
     const fullCode = code.join('');
     if (fullCode.length === 6 && /^\d{6}$/.test(fullCode)) {
-      handleVerify(fullCode);
+      autoVerifyRef.current = setTimeout(() => handleVerify(fullCode), 50);
     }
+    return () => clearTimeout(autoVerifyRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 

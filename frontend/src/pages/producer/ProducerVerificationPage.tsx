@@ -7,6 +7,7 @@ import {
   Building2, Camera, Award, Plus, X, ChevronRight, ShieldCheck,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
 
 /* ── Design tokens (Tailwind stone palette) ────────────── */
 
@@ -100,6 +101,7 @@ function UploadArea({ accept, maxSize, hint, onFile, uploading }) {
 /* ── Main Component ─────────────────────────────────────── */
 export default function ProducerVerificationPage() {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [vs, setVs] = useState(null); // verification_status
 
@@ -473,7 +475,7 @@ export default function ProducerVerificationPage() {
               </p>
               <button
                 className="w-full py-3 text-sm font-bold transition-colors bg-stone-950 text-white rounded-full hover:bg-stone-800"
-                onClick={() => navigate('/producer/products')}
+                onClick={async () => { await refreshUser(); navigate('/producer/products'); }}
               >
                 Publicar mi primer producto
               </button>

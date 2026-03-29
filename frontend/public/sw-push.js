@@ -14,7 +14,7 @@ self.addEventListener('push', (event) => {
     body: data.body || '',
     icon: data.icon || '/brand/logo-icon.png',
     badge: data.badge || '/brand/logo-icon.png',
-    data: { ...(data.data || {}), action_url: data.action_url, type: data.type },
+    data: { ...(data.data || {}), action_url: data.action_url || (data.data || {}).action_url, type: data.type || (data.data || {}).type },
     vibrate: [100, 50, 100],
     tag: data.tag || data.type || data.data?.conversation_id || 'default',
     renotify: true,
@@ -48,6 +48,8 @@ self.addEventListener('notificationclick', (event) => {
       url = '/collaborations';
     } else if (data.type === 'new_follower' || data.type === 'post_liked' || data.type === 'post_commented') {
       url = '/notifications';
+    } else if (data.type === 'story_like' || data.type === 'story_reply') {
+      url = '/notifications';
     }
   }
 
@@ -55,10 +57,10 @@ self.addEventListener('notificationclick', (event) => {
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
       for (const client of clients) {
         if (client.url.includes(self.location.origin)) {
-          client.focus();
-          client.postMessage({ type: 'NOTIFICATION_CLICK', data });
-          if (url !== '/') client.navigate(url);
-          return;
+          return client.focus().then((focused) => {
+            focused.postMessage({ type: 'NOTIFICATION_CLICK', data });
+            if (url !== '/') return focused.navigate(url);
+          });
         }
       }
       return self.clients.openWindow(url);

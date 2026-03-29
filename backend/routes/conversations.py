@@ -306,7 +306,7 @@ async def get_unread_count(user: User = Depends(get_current_user)):
 
 
 @router.post("/chat/story-reply")
-async def reply_to_story(request: Request, user: User = Depends(get_current_user)):
+async def reply_to_story(request: Request, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
     """Send a DM with story context (story reply)"""
     body = await request.json()
     story_id = body.get("story_id")
@@ -352,11 +352,18 @@ async def reply_to_story(request: Request, user: User = Depends(get_current_user
         "sender_id": user.user_id,
         "content": message_text,
         "story_id": story_id,
-        "type": "story_reply",
+        "message_type": "story_reply",
         "created_at": now,
         "read": False
     }
     await db.chat_messages.insert_one(msg_doc)
+
+    # Increment replies_count on the story document
+    if story_id:
+        await db.hispalostories.update_one(
+            {"story_id": story_id},
+            {"$inc": {"replies_count": 1}},
+        )
 
     # Update conversation last message
     await db.internal_chats.update_one(
@@ -366,6 +373,54 @@ async def reply_to_story(request: Request, user: User = Depends(get_current_user
             "last_message_at": now
         }}
     )
+
+    receiver = await db.users.find_one({"user_id": recipient_id}, {"_id": 0, "email": 1, "name": 1})
+    sender_name = getattr(user, "name", None) or "Un usuario"
+
+    # In-app + push notification
+    try:
+        import asyncio
+        from services.notifications.dispatcher_service import notification_dispatcher
+        asyncio.create_task(notification_dispatcher.send_notification(
+            user_id=recipient_id,
+            title="Nueva respuesta a tu historia",
+            body=f"{sender_name} ha respondido a tu historia",
+            notification_type="story_reply",
+            channels=["in_app", "push"],
+            data={"story_id": story_id, "from_user_id": user.user_id, "conversation_id": conversation_id},
+            action_url=f"/messages/{conversation_id}",
+        ))
+    except Exception:
+        pass
+
+    # Email notification to recipient
+    if receiver and receiver.get("email"):
+        def send_story_reply_notification():
+            try:
+                html = f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h1 style="color: #1C1C1C; text-align: center;">Hispaloshop</h1>
+                    <div style="background-color: #FAF7F2; border-radius: 12px; padding: 30px;">
+                        <h2 style="color: #1C1C1C; margin: 0 0 15px 0;">💬 Respuesta a tu historia</h2>
+                        <p style="color: #4A4A4A; font-size: 16px;"><strong>{html_module.escape(sender_name)}</strong> ha respondido a tu historia:</p>
+                        <div style="background-color: white; border-radius: 8px; padding: 15px; border-left: 4px solid #1C1C1C;">
+                            <p style="color: #1C1C1C; font-size: 14px; margin: 0; font-style: italic;">
+                                "{html_module.escape(message_text[:200])}{'...' if len(message_text) > 200 else ''}"
+                            </p>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <a href="https://www.hispaloshop.com/messages/{conversation_id}"
+                               style="display: inline-block; background-color: #1C1C1C; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: 500;">
+                                Ver mensaje
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                """
+                send_email(receiver["email"], f"💬 {sender_name} respondió a tu historia", html)
+            except Exception as e:
+                logger.error(f"[Chat] Failed to send story-reply email: {e}")
+        background_tasks.add_task(send_story_reply_notification)
 
     return {"conversation_id": conversation_id, "message_id": message_id}
 

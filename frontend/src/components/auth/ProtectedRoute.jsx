@@ -28,7 +28,8 @@ export default function ProtectedRoute({
     user.approved === false &&
     ['producer', 'importer', 'influencer'].includes(user.role);
 
-  if (isPendingApproval && location.pathname !== '/pending-approval') {
+  const PENDING_ALLOWED = ['/pending-approval', '/producer/verification', '/influencer/fiscal-setup'];
+  if (isPendingApproval && !PENDING_ALLOWED.includes(location.pathname)) {
     return <Navigate to="/pending-approval" replace />;
   }
 

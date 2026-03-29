@@ -148,9 +148,7 @@ export default function ReelsPage() {
     return () => document.removeEventListener('keydown', handleKey);
   }, [activeIndex]);
 
-  // ReelCard already calls /reels/{id}/like internally — parent only receives the callback
-  // for optional state tracking. Do NOT call API again (would double-toggle the like).
-  const handleLike = useCallback(() => {}, []);
+  // No handleLike needed — ReelCard calls /reels/{id}/like itself when no onLike prop is passed.
 
   if (loading && reels.length === 0) {
     return (
@@ -263,7 +261,6 @@ export default function ReelsPage() {
           <ReelCard
             reel={reel}
             isActive={idx === activeIndex}
-            onLike={() => handleLike(reel.id || reel.reel_id || reel.post_id)}
             priority={idx <= 1}
             nextVideoUrl={reels[idx + 1]?.video_url || reels[idx + 1]?.videoUrl}
           />

@@ -1884,17 +1884,24 @@ async def create_support_case(req: HISupportCaseRequest, user: User = Depends(ge
         "resolved_at": None,
     }
     await db.support_cases.insert_one(case)
-    await db.admin_notifications.insert_one({
-        "notification_id": str(uuid.uuid4()),
-        "type": "support_case",
-        "case_id": case_id,
-        "user_id": user.user_id,
-        "issue_type": req.issue_type,
-        "priority": priority,
-        "country": country,
-        "created_at": now,
-        "read": False,
-    })
+    try:
+        admins = await db.users.find({"role": {"$in": ["admin", "super_admin"]}}, {"user_id": 1}).to_list(20)
+        for admin in admins:
+            await db.notifications.insert_one({
+                "user_id": admin["user_id"],
+                "type": "support_reply",
+                "title": "Nuevo caso de soporte",
+                "body": f"Caso #{case_id[-6:]} — {req.issue_type} (prioridad: {priority})",
+                "action_url": "/admin/support",
+                "data": {"case_id": case_id, "issue_type": req.issue_type, "priority": priority},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": now,
+                "sent_at": now,
+            })
+    except Exception:
+        pass  # non-critical
     logger.info("Support case %s created by user %s (country=%s, priority=%s)", case_id, user.user_id, country, priority)
     return {"case_id": case_id, "status": "abierto", "priority": priority}
 

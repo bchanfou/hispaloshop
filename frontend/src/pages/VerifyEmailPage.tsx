@@ -7,10 +7,12 @@ import { CheckCircle, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { getToken } from '../lib/auth';
+import { useAuth } from '../context/AuthContext';
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { checkAuth } = useAuth();
   const verificationCode = searchParams.get('code');
   const token = searchParams.get('token');
   const verificationValue = verificationCode || token;
@@ -33,6 +35,10 @@ export default function VerifyEmailPage() {
         setStatus('success');
         setMessage(data.message || '¡Email verificado correctamente!');
         toast.success('Email verificado. Ya puedes iniciar sesión.');
+        // Refresh auth context so user.email_verified is up to date
+        if (getToken()) {
+          try { await checkAuth(); } catch { /* non-critical */ }
+        }
         timer = setTimeout(() => {
           if (cancelled) return;
           const authToken = getToken();

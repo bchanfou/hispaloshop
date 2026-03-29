@@ -34,7 +34,7 @@ export default function SponsoredProductCard({ product, onDismiss }) {
         </button>
       )}
 
-      <Link to={`/products/${product.id}`} className="block">
+      <Link to={`/products/${product.id || product.product_id}`} className="block">
         {/* Product image */}
         {image ? (
           <div className="aspect-[4/5] w-full overflow-hidden">
@@ -59,9 +59,9 @@ export default function SponsoredProductCard({ product, onDismiss }) {
           {producer && (
             <p className="mt-0.5 text-[12px] text-stone-400">{producer}</p>
           )}
-          {product.weekly_purchases > 0 && (
+          {(product.weekly_purchases || product.total_sold || 0) > 0 && (
             <p className="mt-1 text-[11px] text-stone-500">
-              🛒 {product.weekly_purchases} comprados esta semana
+              🛒 {product.weekly_purchases || product.total_sold} comprados
             </p>
           )}
           <div className="mt-2 flex items-center justify-between">

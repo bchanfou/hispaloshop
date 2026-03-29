@@ -4,6 +4,11 @@ import { X } from 'lucide-react';
 import { getToastConversationId } from './ChatToastContainer';
 
 const TYPE_BADGES = {
+  c2c: {
+    label: 'Mensaje',
+    bg: '#f5f5f4',
+    color: '#78716c',
+  },
   b2c: {
     label: 'Tienda',
     bg: '#f5f5f4',
@@ -18,6 +23,16 @@ const TYPE_BADGES = {
     label: 'Collab',
     bg: '#F5F0F8',
     color: '#8060B0',
+  },
+  story_reply: {
+    label: 'Historia',
+    bg: '#f5f5f4',
+    color: '#78716c',
+  },
+  story_share: {
+    label: 'Historia',
+    bg: '#f5f5f4',
+    color: '#78716c',
   },
 };
 

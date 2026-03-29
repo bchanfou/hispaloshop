@@ -244,8 +244,9 @@ function reelReducer(state: ReelEditorState, action: ReelAction): ReelEditorStat
       return {
         ...state,
         cover: {
-          coverIndex: action.coverIndex ?? state.cover.coverIndex,
-          customCoverUrl: action.customCoverUrl ?? state.cover.customCoverUrl,
+          // When selecting a frame index, clear custom cover; when setting custom cover, reset index
+          coverIndex: action.coverIndex !== undefined ? action.coverIndex : (action.customCoverUrl !== undefined ? -1 : state.cover.coverIndex),
+          customCoverUrl: action.customCoverUrl !== undefined ? action.customCoverUrl : (action.coverIndex !== undefined ? null : state.cover.customCoverUrl),
         },
       };
 

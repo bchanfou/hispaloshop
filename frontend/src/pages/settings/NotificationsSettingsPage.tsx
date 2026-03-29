@@ -1,11 +1,14 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
-import apiClient from '../../services/api/client';
+import {
+  useNotificationPreferences,
+  useUpdateNotificationPreferences,
+} from '../../hooks/api/useNotifications';
 
 function ToggleSwitch({ value, onChange, disabled }) {
   return (
@@ -79,25 +82,24 @@ export default function NotificationsSettingsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [prefs, setPrefs] = useState(DEFAULT_PREFS);
-  const [loading, setLoading] = useState(true);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await apiClient.get('/notifications/preferences');
-        if (data) setPrefs(p => ({ ...p, ...data }));
-      } catch { /* use defaults */ }
-      finally { setLoading(false); }
-    })();
-  }, []);
+  const { data: serverPrefs, isLoading: loading } = useNotificationPreferences();
+  const { mutateAsync: updatePrefs } = useUpdateNotificationPreferences();
 
+  useEffect(() => {
+    if (serverPrefs) setPrefs(p => ({ ...p, ...serverPrefs }));
+  }, [serverPrefs]);
+
+  const toastTimer = useRef(null);
   const handleToggle = async (key, val) => {
     setPrefs(p => ({ ...p, [key]: val }));
     try {
-      await apiClient.put('/notifications/preferences', { [key]: val });
-      toast.success('Preferencias guardadas');
+      await updatePrefs({ [key]: val });
+      // Debounce success toast — one toast for rapid toggles
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      toastTimer.current = setTimeout(() => toast.success('Preferencias guardadas'), 600);
     } catch {
       setPrefs(p => ({ ...p, [key]: !val }));
       toast.error('Error al actualizar');
@@ -128,9 +130,9 @@ export default function NotificationsSettingsPage() {
           <div className="bg-white border-t border-stone-200">
             <ToggleRow index={0} label="Nuevos seguidores" sublabel="Cuando alguien te sigue"
               value={prefs.new_followers} onChange={v => handleToggle('new_followers', v)} />
-            <ToggleRow index={1} label="Me gusta en posts" sublabel="Cuando alguien da like a tu contenido"
+            <ToggleRow index={1} label="Me gusta" sublabel="Likes en posts e historias"
               value={prefs.likes} onChange={v => handleToggle('likes', v)} />
-            <ToggleRow index={2} label="Comentarios" sublabel="Cuando alguien comenta"
+            <ToggleRow index={2} label="Comentarios y respuestas" sublabel="Comentarios en posts y respuestas a historias"
               value={prefs.comments} onChange={v => handleToggle('comments', v)} />
             <ToggleRow index={3} label="Menciones" sublabel="Cuando alguien te menciona"
               value={prefs.mentions} onChange={v => handleToggle('mentions', v)} />

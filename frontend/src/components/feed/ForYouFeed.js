@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef, Component } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +18,14 @@ import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
 import { useSponsoredContent } from '../../hooks/useSponsoredContent';
 
+/** Lightweight error boundary that silently hides a single broken feed item. */
+class FeedItemBoundary extends Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err) { console.warn('[ForYouFeed] Item render error:', err); }
+  render() { return this.state.hasError ? null : this.props.children; }
+}
+
 export default function ForYouFeed() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -35,6 +43,16 @@ export default function ForYouFeed() {
       return true;
     });
   }, [feedQuery.data]);
+
+  // Pre-compute next reel video URL for each index (avoids O(n²) .slice().find() inside itemContent)
+  const nextReelUrlByIndex = useMemo(() => {
+    const map = {};
+    for (let i = allPosts.length - 2; i >= 0; i--) {
+      const next = allPosts.slice(i + 1).find(p => p.video_url || p.type === 'reel');
+      map[i] = next?.video_url || null;
+    }
+    return map;
+  }, [allPosts]);
   const hasMore = Boolean(feedQuery.hasNextPage);
   const isInitialLoading = feedQuery.isLoading;
   const error = feedQuery.error;
@@ -49,6 +67,8 @@ export default function ForYouFeed() {
   // Post detail modal state
   const [modalPost, setModalPost] = useState(null);
   const handleCloseModal = useCallback(() => setModalPost(null), []);
+
+  const virtuosoRef = useRef(null);
 
   const { refreshing, progress, handlers } = usePullToRefresh(
     async () => { await queryClient.refetchQueries({ queryKey: feedKeys.forYou, type: 'active' }); }
@@ -82,36 +102,16 @@ export default function ForYouFeed() {
     else navigate(`/posts/${postId}`);
   }, [allPosts, navigate]);
 
-  const handleShare = useCallback(async (postId) => {
-    const postUrl = `${window.location.origin}/posts/${postId}`;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Hispaloshop',
-          text: t('feed.sharePrompt', 'Mira esta publicación en Hispaloshop'),
-          url: postUrl,
-        });
-        return;
-      }
-
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(postUrl);
-        // Provide feedback when using clipboard fallback (no native share sheet)
-        const { toast } = await import('sonner');
-        toast.success(t('common.linkCopied', 'Enlace copiado'));
-      }
-    } catch {
-      // User cancelled share dialog — ignore
-    }
-  }, [t]);
+  // Cards (PostCard/ReelCard) handle sharing themselves before calling onShare.
+  // This callback is intentionally a no-op to avoid opening the share sheet twice.
+  const handleShare = useCallback(() => {}, []);
 
   // "New content" pill (must be before early returns to satisfy hooks rules)
   const showNewContentPill = feedQuery.isFetching && !feedQuery.isFetchingNextPage && allPosts.length > 0;
 
   const handleNewContentClick = useCallback(() => {
     trigger('light');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    virtuosoRef.current?.scrollToIndex({ index: 0, behavior: 'smooth' });
     queryClient.invalidateQueries({ queryKey: feedKeys.forYou });
   }, [queryClient, trigger]);
 
@@ -186,6 +186,7 @@ export default function ForYouFeed() {
         </div>
       ) : (
         <Virtuoso
+          ref={virtuosoRef}
           data={allPosts}
           defaultItemHeight={460}
           itemContent={(index, post) => {
@@ -208,9 +209,24 @@ export default function ForYouFeed() {
               ? { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay } }
               : {};
 
+            // Build a safe user object — same as FollowingFeed for consistency
+            const safeUser = (post.user && typeof post.user === 'object')
+              ? { ...post.user, has_story: post.user_has_story ?? post.user.has_story ?? false }
+              : {
+              id: post.user_id,
+              name: post.user_name || post.author_name || 'Usuario',
+              username: post.username || post.author_username,
+              avatar: post.user_profile_image || post.author_avatar,
+              avatar_url: post.user_profile_image || post.author_avatar,
+              verified: post.user_verified ?? false,
+              has_story: post.user_has_story ?? false,
+            };
+
             if (isReel) {
               return (
+                <FeedItemBoundary>
                 <div className="mb-3 mx-3 rounded-2xl overflow-hidden">
+                  {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                   {showSponsored && (
                     <SponsoredProductCard
                       product={sponsoredSlot}
@@ -222,21 +238,22 @@ export default function ForYouFeed() {
                     <ReelCard
                       reel={{
                         id: post.id,
-                        user: {
-                          id: post.user_id,
-                          name: post.user_name,
-                          avatar: post.user_profile_image,
-                        },
+                        post_id: post.id,
+                        user: safeUser,
                         videoUrl: post.video_url || post.media?.[0]?.url,
+                        video_url: post.video_url || post.media?.[0]?.url,
                         thumbnail: post.thumbnail || post.image_url,
-                        caption: post.caption,
-                        likes: post.likes_count,
-                        liked: post.is_liked,
-                        comments: post.comments_count,
+                        caption: post.caption || '',
+                        likes_count: post.likes_count || 0,
+                        likes: post.likes_count || 0,
+                        liked: post.is_liked || post.liked || false,
+                        is_saved: post.is_saved ?? post.saved ?? false,
+                        saved: post.is_saved ?? post.saved ?? false,
+                        comments_count: post.comments_count || 0,
+                        comments: post.comments_count || 0,
                         shares: post.shares_count || 0,
                         productTag: post.product_tag,
-                        tagged_products: post.tagged_products,
-                        products: post.products,
+                        products: Array.isArray(post.products) ? post.products : Array.isArray(post.tagged_products) ? post.tagged_products : [],
                         timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                       }}
                       embedded
@@ -244,14 +261,16 @@ export default function ForYouFeed() {
                       onComment={() => handleComment(post.id)}
                       onShare={() => handleShare(post.id)}
                       priority={index < 2}
-                      nextVideoUrl={allPosts.slice(index + 1).find(p => p.video_url || p.type === 'reel')?.video_url}
+                      nextVideoUrl={nextReelUrlByIndex[index]}
                     />
                   </motion.div>
                 </div>
+                </FeedItemBoundary>
               );
             }
 
             return (
+              <FeedItemBoundary>
               <div className="mb-2">
                 {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                 {showSponsored && (
@@ -265,19 +284,14 @@ export default function ForYouFeed() {
                   <PostCard
                     post={{
                       id: post.id,
-                      user: post.user || {
-                        id: post.user_id,
-                        name: post.user_name || post.author_name || 'Usuario',
-                        username: post.username || post.author_username,
-                        avatar: post.user_profile_image || post.author_avatar,
-                        avatar_url: post.user_profile_image || post.author_avatar,
-                        verified: post.user_verified,
-                        has_story: post.user_has_story,
-                      },
+                      user: safeUser,
+                      user_has_story: post.user_has_story ?? false,
                       media: post.media || (post.image_url ? [{ url: post.image_url, ratio: '1:1' }] : post.images?.map(url => ({ url, ratio: '1:1' })) || []),
                       caption: post.caption || '',
                       likes: post.likes_count || 0,
                       liked: post.is_liked || post.liked || false,
+                      is_saved: post.is_saved ?? post.saved ?? false,
+                      saved: post.is_saved ?? post.saved ?? false,
                       comments: post.comments_count || 0,
                       productTag: post.product_tag,
                       tagged_products: post.tagged_products,
@@ -291,6 +305,7 @@ export default function ForYouFeed() {
                   />
                 </motion.div>
               </div>
+              </FeedItemBoundary>
             );
           }}
           endReached={() => {

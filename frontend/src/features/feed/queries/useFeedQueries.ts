@@ -234,11 +234,11 @@ export function useLikePost() {
       return apiClient.post(`/posts/${postId}/like`, {});
     },
     onMutate: async ({ postId, liked }: LikePostVariables) => {
-      await queryClient.cancelQueries({ queryKey: ['feed'] });
+      // Cancel only single-post detail queries, not feed pagination
       await queryClient.cancelQueries({ queryKey: ['post', postId] });
 
-      const previousForYou = queryClient.getQueryData(feedKeys.forYou);
-      const previousFollowing = queryClient.getQueryData(feedKeys.following);
+      // Snapshot ALL feed caches (forYou, following, and any category feeds) for rollback
+      const previousFeedData = queryClient.getQueriesData<any>({ queryKey: ['feed'] });
 
       const applyLikeUpdate = (old: any) => {
         if (!old || !Array.isArray(old?.pages)) return old;
@@ -270,17 +270,17 @@ export function useLikePost() {
         };
       };
 
-      queryClient.setQueryData(feedKeys.forYou, applyLikeUpdate);
-      queryClient.setQueryData(feedKeys.following, applyLikeUpdate);
+      // Update all feed caches (forYou, following, and all category feeds)
+      queryClient.setQueriesData<any>({ queryKey: ['feed'] }, applyLikeUpdate);
 
-      return { previousForYou, previousFollowing };
+      return { previousFeedData };
     },
     onError: (_error: any, _variables: LikePostVariables, context: any) => {
-      if (context?.previousForYou) {
-        queryClient.setQueryData(feedKeys.forYou, context.previousForYou);
-      }
-      if (context?.previousFollowing) {
-        queryClient.setQueryData(feedKeys.following, context.previousFollowing);
+      // Restore all feed caches to their pre-mutation snapshots
+      if (context?.previousFeedData) {
+        for (const [queryKey, queryData] of context.previousFeedData) {
+          queryClient.setQueryData(queryKey, queryData);
+        }
       }
       toast.error('No se pudo procesar el like');
     },
@@ -299,10 +299,9 @@ export function useSavePost() {
       return apiClient.post(`/posts/${postId}/save`, {});
     },
     onMutate: async ({ postId, saved }: SavePostVariables) => {
-      await queryClient.cancelQueries({ queryKey: ['feed'] });
 
-      const previousForYou = queryClient.getQueryData(feedKeys.forYou);
-      const previousFollowing = queryClient.getQueryData(feedKeys.following);
+      // Snapshot ALL feed caches for rollback
+      const previousFeedData = queryClient.getQueriesData<any>({ queryKey: ['feed'] });
 
       const applySaveUpdate = (old: any) => {
         if (!old || !Array.isArray(old?.pages)) return old;
@@ -328,17 +327,16 @@ export function useSavePost() {
         };
       };
 
-      queryClient.setQueryData(feedKeys.forYou, applySaveUpdate);
-      queryClient.setQueryData(feedKeys.following, applySaveUpdate);
+      // Update all feed caches (forYou, following, and all category feeds)
+      queryClient.setQueriesData<any>({ queryKey: ['feed'] }, applySaveUpdate);
 
-      return { previousForYou, previousFollowing };
+      return { previousFeedData };
     },
     onError: (_error: any, _variables: SavePostVariables, context: any) => {
-      if (context?.previousForYou) {
-        queryClient.setQueryData(feedKeys.forYou, context.previousForYou);
-      }
-      if (context?.previousFollowing) {
-        queryClient.setQueryData(feedKeys.following, context.previousFollowing);
+      if (context?.previousFeedData) {
+        for (const [queryKey, queryData] of context.previousFeedData) {
+          queryClient.setQueryData(queryKey, queryData);
+        }
       }
     },
   });

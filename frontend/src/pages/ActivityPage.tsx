@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowLeft, Heart, MessageCircle, UserPlus, Bookmark,
-  AlertTriangle, Clock, RefreshCw,
+  AlertTriangle, Clock, RefreshCw, Flame,
 } from 'lucide-react';
 import apiClient from '../services/api/client';
 
@@ -24,8 +24,10 @@ type FilterKey = (typeof FILTERS)[number]['key'];
 const ACTIVITY_TYPES: Record<string, FilterKey> = {
   like: 'likes',
   post_liked: 'likes',
+  story_like: 'likes',
   comment: 'comments',
   post_commented: 'comments',
+  story_reply: 'comments',
   follow: 'follows',
   new_follower: 'follows',
 };
@@ -37,8 +39,10 @@ const SOCIAL_TYPES = new Set(Object.keys(ACTIVITY_TYPES));
 const TYPE_ICON: Record<string, React.ElementType> = {
   like: Heart,
   post_liked: Heart,
+  story_like: Flame,
   comment: MessageCircle,
   post_commented: MessageCircle,
+  story_reply: MessageCircle,
   follow: UserPlus,
   new_follower: UserPlus,
 };
@@ -133,8 +137,8 @@ export default function ActivityPage() {
   const [filter, setFilter] = useState<FilterKey>('all');
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['user-activity'],
-    queryFn: () => apiClient.get('/notifications', { params: { limit: 50 } }),
+    queryKey: ['notifications', 'all', { page: 1 }],
+    queryFn: () => apiClient.get('/notifications', { params: { page: 1, limit: 50 } }),
     staleTime: 30_000,
   });
 

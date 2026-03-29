@@ -304,13 +304,18 @@ async def apply_action(
                 {"user_id": target_user_id},
                 {"$inc": {"warning_count": 1}},
             )
-            await db.admin_notifications.insert_one({
-                "notification_id": str(uuid.uuid4()),
-                "type": "moderation_warning",
+            await db.notifications.insert_one({
                 "user_id": target_user_id,
-                "message": "Tu contenido ha sido retirado porque infringe nuestras normas comunitarias.",
+                "type": "moderation_hidden",
+                "title": "Contenido retirado",
+                "body": "Tu contenido ha sido retirado porque infringe nuestras normas comunitarias.",
+                "action_url": "/settings/account",
+                "data": {},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
                 "created_at": now,
-                "read": False,
+                "sent_at": now,
             })
         elif body.action == "suspend":
             await db.users.update_one(
@@ -321,6 +326,35 @@ async def apply_action(
             await db.users.update_one(
                 {"user_id": target_user_id},
                 {"$set": {"banned": True, "banned_at": now}},
+            )
+
+    # Hide or restore the actual content
+    if body.action in ("remove", "warn"):
+        if item_content_type in ("post", "reel"):
+            await db.posts.update_one(
+                {"post_id": item_content_id},
+                {"$set": {"is_hidden": True, "status": "removed"}},
+            )
+        elif item_content_type == "story":
+            await db.hispalostories.update_one(
+                {"story_id": item_content_id},
+                {"$set": {"is_hidden": True}},
+            )
+        elif item_content_type == "product":
+            await db.products.update_one(
+                {"product_id": item_content_id},
+                {"$set": {"status": "removed"}},
+            )
+    elif body.action == "approve":
+        if item_content_type in ("post", "reel"):
+            await db.posts.update_one(
+                {"post_id": item_content_id},
+                {"$set": {"is_hidden": False, "status": "published"}},
+            )
+        elif item_content_type == "story":
+            await db.hispalostories.update_one(
+                {"story_id": item_content_id},
+                {"$set": {"is_hidden": False}},
             )
 
     # Mark related reports as reviewed

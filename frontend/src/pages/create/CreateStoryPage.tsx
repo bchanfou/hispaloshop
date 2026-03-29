@@ -280,7 +280,7 @@ export default function CreateStoryPage() {
       }
       ctx.stroke();
     }
-  }, [drawPaths, currentPath]);
+  }, [drawPaths, currentPath, drawMode]);
 
   const addProductSticker = useCallback((product) => {
     setStickerOverlays((prev) => [
@@ -366,7 +366,7 @@ export default function CreateStoryPage() {
   const handlePublish = useCallback(async () => {
     setPublishing(true);
     try {
-      if (!imageFile && !videoFile && !textOverlays.length && !stickerOverlays.length) {
+      if (!imageFile && !videoFile && !textOverlays.length && !stickerOverlays.length && !drawPaths.length) {
         toast.error('Añade contenido a tu historia');
         setPublishing(false);
         return;
@@ -378,10 +378,22 @@ export default function CreateStoryPage() {
         // Video story — send video file + overlays as JSON metadata
         fd.append('file', videoFile);
         if (textOverlays.length || stickerOverlays.length || drawPaths.length) {
+          // Normalize draw path coordinates from absolute pixels to percentages
+          const containerEl = canvasRef.current;
+          const cRect = containerEl?.getBoundingClientRect();
+          const cw = cRect?.width || 1;
+          const ch = cRect?.height || 1;
           fd.append('overlays_json', JSON.stringify({
             texts: textOverlays,
             stickers: stickerOverlays,
-            draws: drawPaths.length,
+            draws: drawPaths.map(p => ({
+              color: p.color,
+              width: p.width,
+              points: p.points.map(pt => ({
+                x: (pt.x / cw) * 100,
+                y: (pt.y / ch) * 100,
+              })),
+            })),
           }));
         }
       } else {
@@ -390,6 +402,7 @@ export default function CreateStoryPage() {
         const canvasEl = canvasRef.current;
         if (!canvasEl) { setPublishing(false); return; }
         const rect = canvasEl.getBoundingClientRect();
+        if (!rect.width || !rect.height) { setPublishing(false); toast.error('Error al exportar la historia'); return; }
         const scale = 2; // 2x resolution for quality
         canvas.width = rect.width * scale;
         canvas.height = rect.height * scale;
@@ -444,9 +457,13 @@ export default function CreateStoryPage() {
             ctx.strokeText(t.text, x, y);
           } else {
             ctx.fillStyle = t.color;
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
-            ctx.shadowBlur = 4;
-            ctx.shadowOffsetY = 1;
+            // Only apply drop shadow for 'clean' style — 'box' has its own background,
+            // so shadow bleeds through box edges and mismatches the CSS preview.
+            if (t.style !== 'box') {
+              ctx.shadowColor = 'rgba(0,0,0,0.5)';
+              ctx.shadowBlur = 4;
+              ctx.shadowOffsetY = 1;
+            }
             ctx.fillText(t.text, x, y);
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
@@ -552,7 +569,8 @@ export default function CreateStoryPage() {
         }
 
         // Export canvas to blob
-        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+        if (!blob) { setPublishing(false); toast.error('Error al exportar la historia'); return; }
         const compositeFile = new File([blob], 'story.jpg', { type: 'image/jpeg' });
         fd.append('file', compositeFile);
       }
@@ -571,6 +589,8 @@ export default function CreateStoryPage() {
       }
       await apiClient.post('/stories', fd);
       queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+      queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
+      queryClient.invalidateQueries({ queryKey: ['user-stories'] }); // broad invalidate — clears all user story caches
       if (navigator.vibrate) navigator.vibrate(50);
       try { localStorage.removeItem('story_draft'); } catch { /* ignore */ }
       setPublishSuccess(true);
@@ -751,7 +771,10 @@ export default function CreateStoryPage() {
                 ...(t.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
                 ...(t.style === 'outline' ? { WebkitTextStroke: `2px ${t.color}` } : {}),
               }}
-              onTouchStart={() => setShowTrashZone(true)}
+              onTouchStart={(e) => {
+                setShowTrashZone(true);
+                dragRef.current = { type: 'text', id: t.id, active: true, el: e.currentTarget, lastX: t.x, lastY: t.y };
+              }}
               onTouchMove={(e) => {
                 handleOverlayDragDOM(e.currentTarget, e);
                 // Check if over trash zone (bottom 15% of screen)
@@ -800,7 +823,10 @@ export default function CreateStoryPage() {
                 left: `${s.x}%`,
                 top: `${s.y}%`,
               }}
-              onTouchStart={() => setShowTrashZone(true)}
+              onTouchStart={(e) => {
+                setShowTrashZone(true);
+                dragRef.current = { type: 'sticker', id: s.id, active: true, el: e.currentTarget, lastX: s.x, lastY: s.y };
+              }}
               onTouchMove={(e) => {
                 handleOverlayDragDOM(e.currentTarget, e);
                 const touch = e.touches?.[0];
@@ -943,12 +969,9 @@ export default function CreateStoryPage() {
         </div>
       </div>
 
-      {/* Right toolbar */}
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
-
-      {/* Drag-to-trash zone */}
+      {/* Drag-to-trash zone — at screen bottom, outside toolbar */}
       {showTrashZone && (
-        <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-[15] flex items-center justify-center gap-2 px-6 py-3 rounded-full transition-all duration-200 ${
+        <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-[15] flex items-center justify-center gap-2 px-6 py-3 rounded-full transition-all duration-200 ${
           overTrash ? 'bg-stone-950 scale-110' : 'bg-black/60 backdrop-blur-sm'
         }`}>
           <Trash2 size={20} className={overTrash ? 'text-white' : 'text-white/70'} />
@@ -957,6 +980,9 @@ export default function CreateStoryPage() {
           </span>
         </div>
       )}
+
+      {/* Right toolbar */}
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
         {[
           { key: 'text', icon: <Type size={20} className="text-white" />, label: 'Añadir texto' },
           { key: 'sticker', icon: <span className="text-xl">🌿</span>, label: 'Añadir sticker' },

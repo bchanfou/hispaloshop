@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { authApi } from '../lib/authApi';
-import { getToken, removeToken, TOKEN_KEY } from '../lib/auth';
+import { getToken, setToken, removeToken, TOKEN_KEY } from '../lib/auth';
 import { setUser as setSentryUser } from '../lib/sentry';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -187,6 +187,7 @@ export function AuthProvider({ children }) {
         setSentryUser({ id: normalizedUser.user_id, username: normalizedUser.username, email: normalizedUser.email });
 
         const token = data?.session_token || data?.access_token || getToken() || '';
+        if (token) setToken(token, data?.refresh_token);
         upsertStoredAccount(toAccountObject(normalizedUser, token));
       }
 
@@ -221,6 +222,7 @@ export function AuthProvider({ children }) {
 
       if (normalizedUser) {
         const token = data?.session_token || data?.access_token || getToken() || '';
+        if (token) setToken(token, data?.refresh_token);
         upsertStoredAccount(toAccountObject(normalizedUser, token));
       }
 

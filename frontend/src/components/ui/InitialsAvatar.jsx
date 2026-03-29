@@ -19,7 +19,7 @@ const getColorIndex = (name) => {
   return Math.abs(hash) % COLORS.length;
 };
 
-export const InitialsAvatar = ({ name, size = 40, className = '', style }) => {
+export const InitialsAvatar = ({ name, size = 40, className = '', style, onClick }) => {
   const initials = getInitials(name);
   const colorClass = COLORS[getColorIndex(name)];
   const fontSize = size < 32 ? 'text-xs' : size < 48 ? 'text-sm' : 'text-base';
@@ -28,6 +28,7 @@ export const InitialsAvatar = ({ name, size = 40, className = '', style }) => {
     <div
       className={`rounded-full flex items-center justify-center font-semibold ${colorClass} ${fontSize} ${className}`}
       style={{ width: size, height: size, flexShrink: 0, ...style }}
+      onClick={onClick}
     >
       {initials}
     </div>

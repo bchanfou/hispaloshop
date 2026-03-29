@@ -30,9 +30,16 @@ export const usePullToRefresh = (onRefresh: () => Promise<void>): PullToRefreshR
 
   const progress = Math.min(pullDistance / THRESHOLD, 1);
 
+  // Find the actual scroll container — Virtuoso renders [data-virtuoso-scroller],
+  // falling back to the element itself. The outer motion.div wrapper is never the scroller.
+  const getScroller = (el: HTMLElement): HTMLElement => {
+    const inner = el.querySelector<HTMLElement>('[data-virtuoso-scroller]');
+    return inner ?? el;
+  };
+
   const onTouchStart = useCallback((e: TouchEvent<HTMLElement>) => {
-    const el = e.currentTarget;
-    if (el.scrollTop > 0) return;
+    const scroller = getScroller(e.currentTarget);
+    if (scroller.scrollTop > 0) return;
     startY.current = e.touches[0].clientY;
     isDragging.current = true;
     hapticFired.current = false;
@@ -40,8 +47,8 @@ export const usePullToRefresh = (onRefresh: () => Promise<void>): PullToRefreshR
 
   const onTouchMove = useCallback((e: TouchEvent<HTMLElement>) => {
     if (!isDragging.current || refreshing) return;
-    const el = e.currentTarget;
-    if (el.scrollTop > 0) {
+    const scroller = getScroller(e.currentTarget);
+    if (scroller.scrollTop > 0) {
       isDragging.current = false;
       return;
     }

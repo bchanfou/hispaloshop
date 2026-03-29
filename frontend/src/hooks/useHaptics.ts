@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 type HapticType = 'light' | 'medium' | 'heavy' | 'success' | 'error';
 
 const PATTERNS: Record<HapticType, number | number[]> = {
@@ -9,10 +11,10 @@ const PATTERNS: Record<HapticType, number | number[]> = {
 };
 
 export function useHaptics() {
-  const trigger = (type: HapticType = 'light') => {
+  const trigger = useCallback((type: HapticType = 'light') => {
     try {
       if (navigator?.vibrate) navigator.vibrate(PATTERNS[type]);
     } catch {}
-  };
+  }, []);
   return { trigger };
 }

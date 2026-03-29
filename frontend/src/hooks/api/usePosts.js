@@ -218,6 +218,7 @@ export function useCreateStory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POST_KEYS.stories });
       queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+      queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
     },
   });
 }
@@ -233,17 +234,19 @@ export function useDeleteStory() {
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POST_KEYS.stories });
+      queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+      queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
     },
   });
 }
 
 /**
- * Hook para estadísticas de views de story
+ * Hook para lista de viewers de una story (solo propietario)
  */
 export function useStoryViews(storyId) {
   return useQuery({
-    queryKey: ['story', storyId, 'views'],
-    queryFn: () => apiClient.get(`/stories/${storyId}/views`),
+    queryKey: ['story', storyId, 'viewers'],
+    queryFn: () => apiClient.get(`/stories/${storyId}/viewers`),
     enabled: !!storyId,
   });
 }

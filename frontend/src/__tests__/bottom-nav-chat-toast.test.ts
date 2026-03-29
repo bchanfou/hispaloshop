@@ -1,15 +1,16 @@
 // @ts-nocheck
 import { describe, it, expect } from 'vitest';
 
-import { resolveChatToastTarget, resolveOpenChatTarget } from '../components/BottomNavBar';
+import { resolveOpenChatTarget } from '../components/BottomNavBar';
+import { getToastConversationTarget } from '../components/notifications/ChatToastContainer';
 
-describe('BottomNavBar chat toast navigation', () => {
+describe('ChatToastContainer toast navigation', () => {
   it('navigates to the conversation route when a toast has a conversation id', () => {
-    expect(resolveChatToastTarget({ conversationId: 'conv_123', senderId: 'user_9' })).toBe('/messages/conv_123');
+    expect(getToastConversationTarget({ conversationId: 'conv_123', senderId: 'user_9' })).toBe('/messages/conv_123');
   });
 
   it('falls back to the inbox when conversation id is missing', () => {
-    expect(resolveChatToastTarget({ senderId: 'user_9' })).toBe('/messages');
+    expect(getToastConversationTarget({ senderId: 'user_9' })).toBe('/messages');
   });
 });
 

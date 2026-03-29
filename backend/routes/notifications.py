@@ -54,11 +54,41 @@ async def mark_as_read(
     """
     Marcar notificación como leída
     """
+    from bson import ObjectId
+
+    if not ObjectId.is_valid(notification_id):
+        raise HTTPException(status_code=400, detail="Invalid notification ID")
+
     await notification_dispatcher.mark_as_read(
         notification_id=notification_id,
         user_id=current_user.user_id
     )
     return {"status": "marked_as_read"}
+
+
+@router.post("/mark-batch-read")
+async def mark_batch_read(
+    body: dict,
+    current_user = Depends(get_current_user)
+):
+    """Mark a batch of notifications as read in one request."""
+    from core.database import db
+    from datetime import datetime, timezone
+    from bson import ObjectId
+
+    ids = body.get("notification_ids", [])
+    if not ids or len(ids) > 100:
+        raise HTTPException(status_code=400, detail="Provide 1-100 notification IDs")
+
+    valid_oids = [ObjectId(nid) for nid in ids if ObjectId.is_valid(nid)]
+    if not valid_oids:
+        raise HTTPException(status_code=400, detail="No valid notification IDs")
+
+    result = await db.notifications.update_many(
+        {"_id": {"$in": valid_oids}, "user_id": current_user.user_id, "read_at": None},
+        {"$set": {"read_at": datetime.now(timezone.utc)}},
+    )
+    return {"marked": result.modified_count}
 
 
 @router.post("/mark-all-read")
@@ -170,7 +200,20 @@ async def get_notification_preferences(
             "quiet_hours_start": "22:00",
             "quiet_hours_end": "08:00",
             "quiet_hours_timezone": "Europe/Madrid",
-            "push_tokens": []
+            "push_tokens": [],
+            "new_followers": True,
+            "likes": True,
+            "comments": True,
+            "mentions": True,
+            "order_confirmation": True,
+            "shipping_updates": True,
+            "order_delivered": True,
+            "review_requests": True,
+            "b2b_offers": True,
+            "b2b_contracts": True,
+            "b2b_payments": True,
+            "platform_news": True,
+            "marketing_emails": False,
         }
     
     prefs["_id"] = str(prefs["_id"])
@@ -217,7 +260,11 @@ async def admin_send_notification(
     if getattr(current_user, "role", None) not in ["admin", "super_admin"]:
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Admin access required")
-    
+
+    valid_channels = {"in_app", "push", "email", "sms"}
+    if not all(c in valid_channels for c in channels):
+        raise HTTPException(status_code=400, detail=f"Invalid channels. Valid: {', '.join(valid_channels)}")
+
     notification_id = await notification_dispatcher.send_notification(
         user_id=user_id,
         title=title,
@@ -349,8 +396,14 @@ async def notify_social_event(
     """Create social notifications (new_follower, post_liked, post_commented, mentioned)."""
     from core.database import db
 
-    actor = await db.users.find_one({"user_id": actor_id}, {"_id": 0, "name": 1})
-    actor_name = (actor or {}).get("name", "Alguien")
+    actor = await db.users.find_one(
+        {"user_id": actor_id},
+        {"_id": 0, "name": 1, "username": 1, "profile_image": 1, "avatar_url": 1},
+    )
+    actor_doc = actor or {}
+    actor_name = actor_doc.get("name", "Alguien")
+    actor_username = actor_doc.get("username", actor_name)
+    actor_avatar = actor_doc.get("profile_image") or actor_doc.get("avatar_url")
 
     EVENT_MAP = {
         "new_follower": ("Nuevo seguidor", f"{actor_name} ha empezado a seguirte", f"/profile/{actor_id}"),
@@ -369,7 +422,12 @@ async def notify_social_event(
         title=title,
         body=body,
         notification_type=event_type,
-        data={"actor_id": actor_id, "post_id": post_id},
+        data={
+            "actor_id": actor_id,
+            "actor_username": actor_username,
+            "actor_avatar": actor_avatar,
+            "post_id": post_id,
+        },
         action_url=url,
     )
 

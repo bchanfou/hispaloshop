@@ -8,6 +8,7 @@ import {
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useLocale } from '../../context/LocaleContext';
+import { useAuth } from '../../context/AuthContext';
 
 /* ─── Country list (subset, popular first) ─── */
 const COUNTRIES = [
@@ -73,6 +74,7 @@ function getWithholdingInfo(code) {
 
 export default function FiscalSetupPage() {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const { convertAndFormatPrice } = useLocale();
   const [searchParams] = useSearchParams();
   const fileRef = useRef(null);
@@ -591,11 +593,10 @@ export default function FiscalSetupPage() {
                     try {
                       await apiClient.post('/influencer/fiscal/complete-verification', {});
                       toast.success('Verificación completada. Afiliados activados.');
-                      await loadFiscal();
-                    } catch {
-                      // If no specific endpoint, just proceed with save
-                      toast.success('Configuración fiscal guardada. Afiliados activados.');
+                      await refreshUser();
                       navigate('/influencer/links');
+                    } catch (err) {
+                      toast.error(err?.response?.data?.detail || 'Error al completar la verificación.');
                     }
                   }}
                   className="mt-3 px-4 py-2 text-sm font-semibold bg-stone-950 text-white rounded-full border-none cursor-pointer transition-colors hover:bg-stone-800"
@@ -621,9 +622,15 @@ export default function FiscalSetupPage() {
 
       {/* 5. Save button */}
       <button
-        onClick={() => {
-          toast.success('Configuración fiscal guardada. Afiliados activados.');
-          navigate('/influencer/links');
+        onClick={async () => {
+          try {
+            await apiClient.post('/influencer/fiscal/complete-verification', {});
+            toast.success('Configuración fiscal guardada. Afiliados activados.');
+            await refreshUser();
+            navigate('/influencer/links');
+          } catch (err) {
+            toast.error(err?.response?.data?.detail || 'Error al guardar la configuración fiscal.');
+          }
         }}
         disabled={!canSave}
         className={`w-full py-3.5 text-sm font-semibold rounded-full border-none transition-colors mb-8 ${

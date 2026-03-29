@@ -227,6 +227,44 @@ async def configure_payout_method(request: Request, user: User = Depends(get_cur
         return {"method": "sepa", "iban_masked": masked_iban, "account_name": account_name}
 
 
+# ── POST /influencer/fiscal/complete-verification ──────────────
+
+@router.post("/influencer/fiscal/complete-verification")
+async def complete_fiscal_verification(user: User = Depends(get_current_user)):
+    """Mark fiscal setup as complete — unblocks affiliate links."""
+    influencer = await db.influencers.find_one({"email": user.email.lower()}, {"_id": 0})
+    if not influencer:
+        raise HTTPException(status_code=404, detail="No eres un influencer registrado")
+
+    fiscal = influencer.get("fiscal_status", {})
+    if not fiscal.get("certificate_verified", False):
+        raise HTTPException(status_code=400, detail="Debes verificar tu certificado fiscal primero")
+    if not influencer.get("payout_method"):
+        raise HTTPException(status_code=400, detail="Debes configurar un método de cobro primero")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.influencers.update_one(
+        {"email": user.email.lower()},
+        {
+            "$set": {
+                "fiscal_status.affiliate_blocked": False,
+                "fiscal_status.block_reason": None,
+                "fiscal_status.verified_at": now_iso,
+                "fiscal_status.verified_by": "self",
+                "fiscal_status.fiscal_setup_status": "completed",
+                "updated_at": now_iso,
+            }
+        },
+    )
+    # Unlock dashboard access (ProtectedRoute checks user.approved)
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {"approved": True, "updated_at": now_iso}},
+    )
+
+    return {"success": True, "affiliate_blocked": False, "fiscal_setup_status": "completed"}
+
+
 # ── GET /influencer/fiscal/withholding-summary ─────────────────
 
 @router.get("/influencer/fiscal/withholding-summary")

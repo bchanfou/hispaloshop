@@ -124,6 +124,7 @@ async def approve_verification(
     await db.users.update_one(
         {"user_id": user_id},
         {"$set": {
+            "approved": True,
             "verification_status.is_verified": True,
             "verification_status.verified_at": now,
             "verification_status.verified_by": "admin",

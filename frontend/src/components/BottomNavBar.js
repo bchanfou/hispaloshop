@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, Play, Plus, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import CreateContentSheet from './create/CreateContentSheet';
-import MessageToast from './notifications/MessageToast';
-import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
-import { getToken } from '../lib/auth';
-import { getWSUrl } from '../services/api/client';
+
 import { useHaptics } from '../hooks/useHaptics';
 
 const HIDDEN_ON_PATHS = [
@@ -41,15 +38,6 @@ const HIDDEN_ON_PREFIXES = [
   '/vender',
 ];
 
-export function resolveChatToastTarget(messageToast) {
-  const conversationId = messageToast?.conversationId;
-  if (conversationId) {
-    return `/messages/${conversationId}`;
-  }
-
-  return '/messages';
-}
-
 export function resolveOpenChatTarget(detail) {
   const conversationId = detail?.conversationId || detail?.conversation_id;
   if (conversationId) {
@@ -71,19 +59,8 @@ export default function BottomNavBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { trigger } = useHaptics();
-  const { conversations, reloadConversations } = useInternalChatData();
-  const [messageToast, setMessageToast] = useState(null);
   const [showContentSheet, setShowContentSheet] = useState(false);
   const [profileAvatarError, setProfileAvatarError] = useState(false);
-  const toastTimeoutRef = useRef(null);
-  const conversationsRef = useRef(conversations);
-  const reconnectAttemptsRef = useRef(0);
-  const reconnectTimerRef = useRef(null);
-  const socketRef = useRef(null);
-
-  useEffect(() => {
-    conversationsRef.current = conversations;
-  }, [conversations]);
 
   useEffect(() => {
     setProfileAvatarError(false);
@@ -93,18 +70,6 @@ export default function BottomNavBar() {
     HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path)) ||
     HIDDEN_ON_PREFIXES.some((prefix) => location.pathname === prefix || location.pathname.startsWith(`${prefix}/`));
 
-  const dismissMessageToast = useCallback(() => {
-    if (toastTimeoutRef.current) {
-      window.clearTimeout(toastTimeoutRef.current);
-      toastTimeoutRef.current = null;
-    }
-    setMessageToast(null);
-  }, []);
-
-  const openMessageToast = useCallback(() => {
-    dismissMessageToast();
-    navigate(resolveChatToastTarget(messageToast));
-  }, [dismissMessageToast, messageToast, navigate]);
 
   useEffect(() => {
     const handleOpenChat = (event) => {
@@ -136,108 +101,8 @@ export default function BottomNavBar() {
     };
   }, [user, navigate]);
 
-  useEffect(() => {
-    const token = getToken();
-    if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
-
-    let disposed = false;
-
-    const connect = () => {
-      if (disposed) return;
-      const socket = new WebSocket(getWSUrl('/ws/chat'));
-      socketRef.current = socket;
-
-      socket.addEventListener('open', () => {
-        socket.send(JSON.stringify({ type: 'auth', token }));
-        // Reset backoff on successful connection
-        reconnectAttemptsRef.current = 0;
-      });
-
-      socket.onerror = () => {
-        try { socket.close(); } catch { /* already closed */ }
-      };
-
-      socket.onclose = () => {
-        if (disposed) return;
-        // Exponential backoff: 1s, 2s, 4s, 8s, ... max 30s
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-        reconnectAttemptsRef.current += 1;
-        reconnectTimerRef.current = window.setTimeout(connect, delay);
-      };
-
-      socket.onmessage = (event) => {
-        try {
-          const payload = JSON.parse(event.data);
-          if (payload.type !== 'new_message') return;
-
-          const incomingMessage = payload.message;
-          const currentConversation = conversationsRef.current.find(
-            (conversation) => conversation.conversation_id === payload.conversation_id
-          );
-          const chatOpen = location.pathname === '/messages' || location.pathname.startsWith('/messages/');
-
-          reloadConversations();
-
-          if (!incomingMessage || incomingMessage.sender_id === user.user_id || chatOpen) {
-            return;
-          }
-
-          setMessageToast({
-            conversationId: payload.conversation_id,
-            senderId: currentConversation?.other_user_id || incomingMessage.sender_id,
-            senderName: currentConversation?.other_user_name || incomingMessage.sender_name || 'Nuevo mensaje',
-            avatar: currentConversation?.other_user_avatar || null,
-            preview: incomingMessage.content || 'Te ha enviado una imagen',
-          });
-
-          // Enhanced toast system (ChatToastContainer)
-          if (window.__hispaloChatToast) {
-            window.__hispaloChatToast({
-              senderId: currentConversation?.other_user_id || incomingMessage.sender_id,
-              senderName: currentConversation?.other_user_name || incomingMessage.sender_name || 'Nuevo mensaje',
-              avatar: currentConversation?.other_user_avatar || null,
-              preview: incomingMessage.content || 'Te ha enviado una imagen',
-              conversationId: payload.conversation_id,
-              type: currentConversation?.conv_type || 'c2c',
-            });
-          }
-
-          if (toastTimeoutRef.current) {
-            window.clearTimeout(toastTimeoutRef.current);
-          }
-
-          toastTimeoutRef.current = window.setTimeout(() => {
-            setMessageToast(null);
-            toastTimeoutRef.current = null;
-          }, 4000);
-        } catch {
-          // silently handled
-        }
-      };
-    };
-
-    connect();
-
-    return () => {
-      disposed = true;
-      if (toastTimeoutRef.current) {
-        window.clearTimeout(toastTimeoutRef.current);
-        toastTimeoutRef.current = null;
-      }
-      if (reconnectTimerRef.current) {
-        window.clearTimeout(reconnectTimerRef.current);
-        reconnectTimerRef.current = null;
-      }
-      const socket = socketRef.current;
-      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-        socket.close();
-      }
-      socketRef.current = null;
-      reconnectAttemptsRef.current = 0;
-    };
-    // Only re-create socket when user changes — NOT on route change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.user_id]);
+  // Chat message toasts are handled by ChatProvider via window.__hispaloChatToast
+  // (set up by ChatToastContainer). No duplicate WebSocket needed here.
 
   if (shouldHide) return null;
 
@@ -279,8 +144,6 @@ export default function BottomNavBar() {
 
   return (
     <>
-      <MessageToast notification={messageToast} onClose={dismissMessageToast} onOpen={openMessageToast} />
-
       <CreateContentSheet
         isOpen={showContentSheet}
         onClose={() => setShowContentSheet(false)}

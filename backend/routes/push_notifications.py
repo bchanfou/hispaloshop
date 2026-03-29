@@ -58,6 +58,8 @@ async def unsubscribe_push(request: Request, user: User = Depends(get_current_us
 
 async def send_push_to_user(recipient_id: str, title: str, body: str, data: dict = None):
     """Send a web push notification to all subscriptions of a user."""
+    import asyncio
+
     if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
         logger.warning("[PUSH] VAPID keys not configured, skipping push")
         return
@@ -85,7 +87,8 @@ async def send_push_to_user(recipient_id: str, title: str, body: str, data: dict
         if not subscription_info:
             continue
         try:
-            webpush(
+            await asyncio.to_thread(
+                webpush,
                 subscription_info=subscription_info,
                 data=payload,
                 vapid_private_key=VAPID_PRIVATE_KEY,

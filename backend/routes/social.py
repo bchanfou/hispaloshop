@@ -9,6 +9,7 @@ import uuid
 import logging
 import json
 import re
+import asyncio
 import importlib
 
 try:
@@ -293,11 +294,12 @@ async def _fallback_discover_from_postgres(role: Optional[str], search: Optional
 # ── User Profile ─────────────────────────────────────────────
 
 @router.get("/reels")
-async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request: Request = None):
+async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", hashtag: Optional[str] = None, request: Request = None):
     """
     Legacy reels endpoint used by the current frontend (/api/reels).
     Reads from Mongo social collections and never requires authentication.
     Supports tab='foryou' (default) or tab='following' (only followed users' reels).
+    Optionally filters by hashtag in caption.
     """
     current_user = await get_optional_user(request) if request is not None else None
 
@@ -305,6 +307,8 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
     if tab == "following" and current_user:
         following_ids = [f["following_id"] async for f in db.user_follows.find({"follower_id": current_user.user_id}, {"following_id": 1})]
         query["user_id"] = {"$in": following_ids}
+    if hashtag and hashtag.strip():
+        query["caption"] = {"$regex": f"#{re.escape(hashtag.strip())}", "$options": "i"}
 
     # Fetch from BOTH collections and merge (reels can be in either)
     try:
@@ -322,6 +326,8 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", request
     }
     if "user_id" in query:
         fallback_query["user_id"] = query["user_id"]
+    if hashtag and hashtag.strip():
+        fallback_query["caption"] = {"$regex": f"#{re.escape(hashtag.strip())}", "$options": "i"}
     try:
         reels_from_posts = await db.user_posts.find(
             fallback_query, {"_id": 0},
@@ -460,9 +466,22 @@ async def create_reel(
     """Create a reel (short video). Uploads to Cloudinary."""
     if not file.content_type.startswith("video/"):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos de video")
-    contents = await file.read()
-    if len(contents) > 100 * 1024 * 1024:
+    # Check Content-Length header before reading to prevent DoS
+    MAX_VIDEO_SIZE = 100 * 1024 * 1024
+    if hasattr(file, "size") and file.size and file.size > MAX_VIDEO_SIZE:
         raise HTTPException(status_code=400, detail="El video no puede superar 100MB")
+    # Streaming read with size limit — abort early if too large
+    chunks = []
+    total = 0
+    while True:
+        chunk = await file.read(1024 * 1024)  # 1MB chunks
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > MAX_VIDEO_SIZE:
+            raise HTTPException(status_code=400, detail="El video no puede superar 100MB")
+        chunks.append(chunk)
+    contents = b"".join(chunks)
 
     result = await cloudinary_upload_video(contents, folder="reels", filename=f"reel_{uuid.uuid4().hex[:8]}")
     original_video_url = result["url"]
@@ -570,6 +589,8 @@ async def create_reel(
     reel = {
         "reel_id": reel_id,
         "id": reel_id,
+        "type": "reel",
+        "is_reel": True,
         "user_id": user.user_id,
         "user_name": (reel_user_doc or {}).get("company_name") or user.name,
         "user_profile_image": (reel_user_doc or {}).get("profile_image"),
@@ -665,14 +686,32 @@ async def _find_reel_in_any_collection(reel_id: str):
 
 @router.post("/reels/{reel_id}/view")
 async def view_reel(reel_id: str, request: Request):
-    """Increment view count on a reel."""
+    """Increment view count on a reel (deduplicated per viewer per 10 min)."""
     current_user = await get_optional_user(request)
-    # Update in both collections (one will match)
-    await db.reels.update_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]}, {"$inc": {"views_count": 1}})
-    await db.user_posts.update_one(
-        {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]},
-        {"$inc": {"views_count": 1}},
-    )
+
+    # Deduplicate: one view per viewer per reel per 10 minutes
+    viewer_id = current_user.user_id if current_user else (request.client.host if request.client else "anon")
+    dedup_key = f"reel_view:{reel_id}:{viewer_id}"
+    try:
+        from core.cache import redis_client
+        if redis_client and redis_client.client:
+            already = await redis_client.client.get(dedup_key)
+            if already:
+                return {"status": "ok", "deduplicated": True}
+            await redis_client.client.setex(dedup_key, 600, "1")
+    except Exception:
+        pass  # Redis unavailable — allow view through
+
+    # Update only the matching collection (not both)
+    reel, reel_collection = await _find_reel_in_any_collection(reel_id)
+    if reel:
+        if reel_collection == "reels":
+            await db.reels.update_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]}, {"$inc": {"views_count": 1}})
+        else:
+            await db.user_posts.update_one(
+                {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]},
+                {"$inc": {"views_count": 1}},
+            )
     await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "view"}, current_user.user_id if current_user else None)
     return {"status": "ok"}
 
@@ -684,27 +723,52 @@ async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found")
     filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
-    # Authorization: if private, only owner or allowed users can like
-    if reel.get("is_private"):
-        # Only owner can like their own private reel (customize as needed)
-        if reel.get("user_id") != user.user_id:
-            # Optionally, check if user is a follower or in allowed list
+    # Authorization: if private, only owner or followers can like
+    if reel.get("is_private") and reel.get("user_id") != user.user_id:
+        is_follower = await db.user_follows.find_one(
+            {"follower_id": user.user_id, "following_id": reel["user_id"]}
+        )
+        if not is_follower:
             raise HTTPException(status_code=403, detail="Not authorized to interact with this reel")
 
-    existing = await db.reel_likes.find_one({"reel_id": reel_id, "user_id": user.user_id})
     target_col = db.reels if reel_collection == "reels" else db.user_posts
     target_filter = filter_q if reel_collection == "reels" else {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]}
-    if existing:
-        await db.reel_likes.delete_one({"reel_id": reel_id, "user_id": user.user_id})
-        await target_col.update_one(target_filter, {"$inc": {"likes_count": -1}})
-        return {"liked": False}
-    await db.reel_likes.insert_one({
-        "reel_id": reel_id, "user_id": user.user_id,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    await target_col.update_one(target_filter, {"$inc": {"likes_count": 1}})
-    await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "like"}, user.user_id)
-    return {"liked": True}
+    # Atomic upsert: if not yet liked, insert and increment; otherwise delete and decrement.
+    # Prevents double-like race condition from rapid double-taps (matches post like behavior).
+    result = await db.reel_likes.update_one(
+        {"reel_id": reel_id, "user_id": user.user_id},
+        {"$setOnInsert": {"reel_id": reel_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    if result.upserted_id:
+        # Freshly inserted → user liked it
+        await target_col.update_one(target_filter, {"$inc": {"likes_count": 1}})
+        await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "like"}, user.user_id)
+        # Notify reel owner (fire-and-forget, skip self-like)
+        owner_id = reel.get("user_id") or reel.get("author_id")
+        if owner_id and owner_id != user.user_id:
+            try:
+                now = datetime.now(timezone.utc).isoformat()
+                await db.notifications.insert_one({
+                    "user_id": owner_id,
+                    "type": "new_like",
+                    "title": "Nuevo me gusta",
+                    "body": f"A {user.name} le ha gustado tu reel",
+                    "action_url": f"/reels/{reel_id}",
+                    "data": {"liker_id": user.user_id, "liker_name": user.name, "content_id": reel_id, "content_type": "reel"},
+                    "channels": ["in_app"],
+                    "status_by_channel": {"in_app": "sent"},
+                    "read_at": None,
+                    "created_at": now,
+                    "sent_at": now,
+                })
+            except Exception:
+                pass
+        return {"liked": True}
+    # Document already existed → user is un-liking
+    await db.reel_likes.delete_one({"reel_id": reel_id, "user_id": user.user_id})
+    await target_col.update_one(target_filter, {"$inc": {"likes_count": -1}})
+    return {"liked": False}
 
 
 @router.get("/reels/{reel_id}/comments")
@@ -745,9 +809,12 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
     reel, reel_collection = await _find_reel_in_any_collection(reel_id)
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found")
-    # Authorization: if private, only owner or allowed users can comment
-    if reel.get("is_private"):
-        if reel.get("user_id") != user.user_id:
+    # Authorization: if private, only owner or followers can comment
+    if reel.get("is_private") and reel.get("user_id") != user.user_id:
+        is_follower = await db.user_follows.find_one(
+            {"follower_id": user.user_id, "following_id": reel["user_id"]}
+        )
+        if not is_follower:
             raise HTTPException(status_code=403, detail="Not authorized to interact with this reel")
 
     comment_id = f"rcom_{uuid.uuid4().hex[:10]}"
@@ -774,6 +841,28 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
             {"$inc": {"comments_count": 1}},
         )
     await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "comment"}, user.user_id)
+    # Notify reel owner (fire-and-forget, skip self-comment)
+    owner_id = reel.get("user_id") or reel.get("author_id")
+    if owner_id and owner_id != user.user_id:
+        try:
+            now = datetime.now(timezone.utc).isoformat()
+            snippet = comment["text"][:60] + ("…" if len(comment["text"]) > 60 else "")
+            sender_name = getattr(user, "name", None) or getattr(user, "username", None) or "Alguien"
+            await db.notifications.insert_one({
+                "user_id": owner_id,
+                "type": "new_comment",
+                "title": "Nuevo comentario",
+                "body": f"{sender_name} comentó: {snippet}",
+                "action_url": f"/reels/{reel_id}",
+                "data": {"commenter_id": user.user_id, "commenter_name": sender_name, "content_id": reel_id, "content_type": "reel", "comment_id": comment_id},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": now,
+                "sent_at": now,
+            })
+        except Exception:
+            pass
     return {k: v for k, v in comment.items() if k != "_id"}
 
 
@@ -786,15 +875,19 @@ async def delete_reel_comment(reel_id: str, comment_id: str, user: User = Depend
     if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
         raise HTTPException(status_code=403, detail="Not your comment")
     await db.reel_comments.delete_one({"comment_id": comment_id, "reel_id": reel_id})
-    # Decrement in both collections (one will match)
-    await db.reels.update_one(
-        {"$or": [{"reel_id": reel_id}, {"id": reel_id}]},
-        {"$inc": {"comments_count": -1}},
-    )
-    await db.user_posts.update_one(
-        {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]},
-        {"$inc": {"comments_count": -1}},
-    )
+    # Decrement only in the correct collection
+    reel, reel_collection = await _find_reel_in_any_collection(reel_id)
+    if reel:
+        if reel_collection == "reels":
+            await db.reels.update_one(
+                {"$or": [{"reel_id": reel_id}, {"id": reel_id}]},
+                {"$inc": {"comments_count": -1}},
+            )
+        else:
+            await db.user_posts.update_one(
+                {"$and": [{"$or": [{"post_id": reel_id}, {"id": reel_id}, {"reel_id": reel_id}]}, {"$or": [{"type": "reel"}, {"is_reel": True}]}]},
+                {"$inc": {"comments_count": -1}},
+            )
     return {"status": "deleted"}
 
 
@@ -824,21 +917,25 @@ async def like_reel_comment(reel_id: str, comment_id: str, user: User = Depends(
     if not reel:
         raise HTTPException(status_code=404, detail="Reel not found")
     if reel.get("is_private") and reel.get("user_id") != user.user_id:
-        raise HTTPException(status_code=403, detail="Not authorized to interact with this reel's comments")
+        is_follower = await db.user_follows.find_one(
+            {"follower_id": user.user_id, "following_id": reel["user_id"]}
+        )
+        if not is_follower:
+            raise HTTPException(status_code=403, detail="Not authorized to interact with this reel's comments")
 
-    existing = await db.reel_comment_likes.find_one({"comment_id": comment_id, "user_id": user.user_id})
-    if existing:
+    # Atomic upsert: prevents double-like from rapid double-taps
+    result = await db.reel_comment_likes.update_one(
+        {"comment_id": comment_id, "user_id": user.user_id},
+        {"$setOnInsert": {"comment_id": comment_id, "user_id": user.user_id, "reel_id": reel_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    if result.upserted_id:
+        await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
+        liked = True
+    else:
         await db.reel_comment_likes.delete_one({"comment_id": comment_id, "user_id": user.user_id})
         await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
         liked = False
-    else:
-        await db.reel_comment_likes.insert_one({
-            "comment_id": comment_id,
-            "user_id": user.user_id,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        })
-        await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
-        liked = True
 
     updated = await db.reel_comments.find_one({"comment_id": comment_id}, {"_id": 0, "likes_count": 1})
     return {"liked": liked, "likes_count": (updated or {}).get("likes_count", 0)}
@@ -846,31 +943,57 @@ async def like_reel_comment(reel_id: str, comment_id: str, user: User = Depends(
 
 @router.post("/posts/{post_id}/comments/{comment_id}/like")
 async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(get_current_user)):
-    """Toggle like on a post comment"""
+    """Toggle like on a post or reel comment.
+    Post comments are in db.post_comments; reel comments are in db.reel_comments.
+    Detect reels by post_id prefix (reel_xxx).
+    """
     user_id = getattr(user, "user_id", None)
+    is_reel = post_id.startswith("reel_")
 
-    # Check comment exists
+    if is_reel:
+        comment = await db.reel_comments.find_one({"comment_id": comment_id, "reel_id": post_id})
+        if not comment:
+            raise HTTPException(status_code=404, detail="Comment not found")
+
+        # Use db.reel_comment_likes (same collection as /reels/{id}/comments/{cid}/like)
+        # so liked state is consistent regardless of which endpoint was called.
+        result = await db.reel_comment_likes.delete_one({"comment_id": comment_id, "user_id": user_id})
+        if result.deleted_count > 0:
+            await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
+            return {"liked": False}
+
+        upsert_result = await db.reel_comment_likes.update_one(
+            {"comment_id": comment_id, "user_id": user_id},
+            {"$setOnInsert": {"comment_id": comment_id, "user_id": user_id, "reel_id": post_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True,
+        )
+        if upsert_result.upserted_id:
+            await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
+        return {"liked": True}
+
+    # Post comment
     comment = await db.post_comments.find_one({"comment_id": comment_id, "post_id": post_id})
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
 
-    # Authorization: check parent post privacy if supported
-    post = await db.posts.find_one({"post_id": post_id})
+    # Authorization: check parent post privacy (db.user_posts, not the legacy db.posts)
+    post = await db.user_posts.find_one({"post_id": post_id})
     if post and post.get("is_private") and post.get("user_id") != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to interact with this post's comments")
 
-    # Toggle like (delete if exists, create if not)
+    # Toggle like
     result = await db.comment_likes.delete_one({"comment_id": comment_id, "user_id": user_id})
     if result.deleted_count > 0:
         await db.post_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
         return {"liked": False}
 
-    await db.comment_likes.update_one(
+    upsert_result = await db.comment_likes.update_one(
         {"comment_id": comment_id, "user_id": user_id},
         {"$setOnInsert": {"comment_id": comment_id, "user_id": user_id, "post_id": post_id, "created_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True,
     )
-    await db.post_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
+    if upsert_result.upserted_id:
+        await db.post_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
     return {"liked": True}
 
 
@@ -968,12 +1091,11 @@ async def get_user_profile(user_id: str, request: Request):
         follow_exists = await db.user_follows.find_one({"follower_id": current_user.user_id, "following_id": actual_user_id})
         is_following = follow_exists is not None
 
-    # Check active stories (within 24h)
-    from datetime import datetime, timezone, timedelta
-    story_cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    # Check active stories (not expired)
     has_active_story = await db.hispalostories.count_documents({
         "user_id": actual_user_id,
-        "created_at": {"$gte": story_cutoff},
+        "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()},
+        "is_hidden": {"$ne": True},
     }) > 0
 
     # Mutual followers (people you follow who also follow them)
@@ -1164,6 +1286,24 @@ async def handle_follow_request(
         )
         await db.users.update_one({"user_id": req["requester_id"]}, {"$inc": {"following_count": 1}})
         await db.users.update_one({"user_id": user.user_id}, {"$inc": {"followers_count": 1}})
+        # Notify requester that their follow request was accepted (fire-and-forget)
+        try:
+            now = datetime.now(timezone.utc).isoformat()
+            await db.notifications.insert_one({
+                "user_id": req["requester_id"],
+                "type": "follow_request_accepted",
+                "title": "Solicitud aceptada",
+                "body": f"{user.name} aceptó tu solicitud de seguimiento",
+                "action_url": f"/profile/{user.user_id}",
+                "data": {"acceptor_id": user.user_id, "acceptor_name": user.name},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": now,
+                "sent_at": now,
+            })
+        except Exception:
+            pass
 
     await db.follow_requests.update_one(
         {"_id": _OID(request_id)},
@@ -1184,15 +1324,39 @@ async def get_user_posts(user_id: str, skip: int = 0, limit: int = 30):
 
 
 @router.get("/users/{user_id}/reels")
-async def get_user_reels(user_id: str, skip: int = 0, limit: int = 30):
-    """Get reels (video posts) for a user profile."""
-    reels = await db.reels.find(
-        {"user_id": user_id},
-        {"_id": 0}
-    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    for r in reels:
-        r["thumbnail_url"] = r.get("thumbnail_url") or r.get("cover_url") or r.get("video_url")
-    return reels
+async def get_user_reels(user_id: str, request: Request, skip: int = 0, limit: int = 30):
+    """Get reels (video posts) for a user profile (respects privacy)."""
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+
+    query = {"user_id": user_id}
+    is_owner = current_user and current_user.user_id == user_id
+    if not is_owner:
+        is_follower = False
+        if current_user:
+            is_follower = bool(await db.user_follows.find_one(
+                {"follower_id": current_user.user_id, "following_id": user_id}
+            ))
+        if not is_follower:
+            query["is_private"] = {"$ne": True}
+
+    # Search both collections
+    reels_primary = await db.reels.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    post_query = {**query, "$or": [{"is_reel": True}, {"type": "reel"}]}
+    reels_from_posts = await db.user_posts.find(post_query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+
+    seen = set()
+    merged = []
+    for r in reels_primary + reels_from_posts:
+        rid = r.get("reel_id") or r.get("id") or r.get("post_id")
+        if rid and rid not in seen:
+            seen.add(rid)
+            r["thumbnail_url"] = r.get("thumbnail_url") or r.get("cover_url") or r.get("video_url")
+            merged.append(r)
+    merged.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    return merged[:limit]
 
 
 @router.get("/users/{user_id}/products")
@@ -1249,6 +1413,24 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
             "status": "pending",
             "created_at": datetime.now(timezone.utc),
         })
+        # Notify target of the follow request (fire-and-forget)
+        try:
+            now = datetime.now(timezone.utc).isoformat()
+            await db.notifications.insert_one({
+                "user_id": user_id,
+                "type": "new_follow_request",
+                "title": "Solicitud de seguimiento",
+                "body": f"{user.name} quiere seguirte",
+                "action_url": "/notifications/follow-requests",
+                "data": {"requester_id": user.user_id, "requester_name": user.name},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": now,
+                "sent_at": now,
+            })
+        except Exception:
+            pass
         return {"status": "pending", "message": "Solicitud de seguimiento enviada"}
 
     # Public account — immediate follow
@@ -1262,6 +1444,24 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     # Keep followers_count in sync
     await db.users.update_one({"user_id": user_id}, {"$inc": {"followers_count": 1}})
     await db.users.update_one({"user_id": user.user_id}, {"$inc": {"following_count": 1}})
+    # Notify followed user (fire-and-forget)
+    try:
+        now = datetime.now(timezone.utc).isoformat()
+        await db.notifications.insert_one({
+            "user_id": user_id,
+            "type": "new_follower",
+            "title": "Nuevo seguidor",
+            "body": f"{user.name} ha empezado a seguirte",
+            "action_url": f"/profile/{user.user_id}",
+            "data": {"follower_id": user.user_id, "follower_name": user.name},
+            "channels": ["in_app"],
+            "status_by_channel": {"in_app": "sent"},
+            "read_at": None,
+            "created_at": now,
+            "sent_at": now,
+        })
+    except Exception:
+        pass
     return {"status": "ok"}
 
 
@@ -1426,9 +1626,10 @@ async def get_user_following(
 async def get_user_highlights(user_id: str):
     """Get story highlights for a user profile (public)."""
     # Resolve user_id or username
-    user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "user_id": 1})
-    if not user_doc:
-        user_doc = await db.users.find_one({"username": user_id}, {"_id": 0, "user_id": 1})
+    user_doc = await db.users.find_one(
+        {"$or": [{"user_id": user_id}, {"username": user_id}]},
+        {"_id": 0, "user_id": 1}
+    )
     if not user_doc:
         return []
     actual_user_id = user_doc["user_id"]
@@ -1465,7 +1666,7 @@ async def get_highlight_detail(user_id: str, highlight_id: str):
     if story_ids:
         raw_stories = await db.hispalostories.find(
             {"story_id": {"$in": story_ids}, "user_id": actual_user_id},
-            {"_id": 0, "story_id": 1, "image_url": 1, "video_url": 1, "caption": 1, "created_at": 1, "likes_count": 1}
+            {"_id": 0, "story_id": 1, "image_url": 1, "video_url": 1, "caption": 1, "created_at": 1, "likes_count": 1, "views": 1, "overlays": 1, "products": 1}
         ).to_list(len(story_ids))
         # Preserve the order defined in story_ids
         story_map = {s["story_id"]: s for s in raw_stories}
@@ -1480,6 +1681,9 @@ async def get_highlight_detail(user_id: str, highlight_id: str):
                     "caption": s.get("caption", ""),
                     "created_at": s.get("created_at"),
                     "likes_count": s.get("likes_count", 0),
+                    "view_count": len(s.get("views") or []),
+                    "overlays": s.get("overlays"),
+                    "products": s.get("products"),
                 })
 
     return {**highlight, "stories": stories, "items": stories}
@@ -1582,13 +1786,23 @@ async def create_post(
     if not incoming_files and file and file.filename:
         incoming_files = [file]
 
+    MAX_IMAGE_SIZE = 10 * 1024 * 1024
     media = []
     for index, upload in enumerate(incoming_files):
         if not upload.content_type.startswith('image/'):
             raise HTTPException(status_code=400, detail="Only image files are allowed")
-        contents = await upload.read()
-        if len(contents) > 10 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="Image size cannot exceed 10MB")
+        # Streaming read with size limit to prevent DoS
+        chunks = []
+        total = 0
+        while True:
+            chunk = await upload.read(512 * 1024)  # 512KB chunks
+            if not chunk:
+                break
+            total += len(chunk)
+            if total > MAX_IMAGE_SIZE:
+                raise HTTPException(status_code=400, detail="Image size cannot exceed 10MB")
+            chunks.append(chunk)
+        contents = b"".join(chunks)
         try:
             result = await cloudinary_upload(contents, folder="posts", filename=f"post_{uuid.uuid4().hex[:8]}")
         except Exception as upload_err:
@@ -1616,6 +1830,7 @@ async def create_post(
     post_id = f"post_{uuid.uuid4().hex[:12]}"
     post = {
         "post_id": post_id,
+        "id": post_id,
         "user_id": user.user_id,
         "user_name": (user_doc or {}).get("company_name") or user.name,
         "user_profile_image": (user_doc or {}).get("profile_image"),
@@ -1666,41 +1881,135 @@ async def list_posts(skip: int = 0, limit: int = 30, hashtag: Optional[str] = No
 
 
 @router.get("/posts/{post_id}")
-async def get_post(post_id: str):
-    """Get a single post by id."""
+async def get_post(post_id: str, request: Request):
+    """Get a single post or reel by id.
+    Feed items may be posts (db.user_posts, post_id=post_xxx) or reels (db.reels, reel_id=reel_xxx).
+    Deep-linking to /posts/reel_xxx must work, so we fall back to db.reels.
+    Sets is_liked and is_saved if caller is authenticated.
+    """
+    current_user = await get_optional_user(request)
+
     post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0})
+    is_reel = False
+    if not post and post_id.startswith("reel_"):
+        post = await db.reels.find_one({"reel_id": post_id}, {"_id": 0})
+        if post:
+            # Normalize reel to post shape so the frontend can render it uniformly
+            post.setdefault("id", post.get("reel_id"))
+            post.setdefault("type", "reel")
+            is_reel = True
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     _normalize_post_media(post)
     tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
     post["tagged_products"] = tagged_products
     post["tagged_product"] = tagged_products[0] if tagged_products else None
+    # Enrich with auth-aware fields
+    if current_user:
+        if is_reel:
+            liked_doc = await db.reel_likes.find_one({"reel_id": post_id, "user_id": current_user.user_id}, {"_id": 1})
+            post["is_liked"] = bool(liked_doc)
+            saved_doc = await db.reel_saves.find_one({"reel_id": post_id, "user_id": current_user.user_id}, {"_id": 1})
+            post["is_saved"] = bool(saved_doc)
+        else:
+            liked_doc = await db.post_likes.find_one({"post_id": post_id, "user_id": current_user.user_id}, {"_id": 1})
+            post["is_liked"] = bool(liked_doc)
+            saved_doc = await db.post_bookmarks.find_one({"post_id": post_id, "user_id": current_user.user_id}, {"_id": 1})
+            post["is_saved"] = bool(saved_doc)
     return post
 
 
 @router.get("/posts/{post_id}/likes")
 async def get_post_likes(post_id: str, skip: int = 0, limit: int = 50):
-    """Get users who liked a post."""
+    """Get users who liked a post, enriched with name/avatar."""
     likes = await db.post_likes.find({"post_id": post_id}, {"_id": 0, "user_id": 1, "created_at": 1}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    return {"likes": likes}
+    user_ids = [l["user_id"] for l in likes if l.get("user_id")]
+    user_cache = {}
+    if user_ids:
+        user_docs = await db.users.find(
+            {"user_id": {"$in": user_ids}},
+            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1},
+        ).to_list(len(user_ids))
+        user_cache = {u["user_id"]: u for u in user_docs}
+    enriched = []
+    for like in likes:
+        u = user_cache.get(like.get("user_id"), {})
+        enriched.append({
+            "user_id": like.get("user_id"),
+            "name": u.get("name", ""),
+            "username": u.get("username", ""),
+            "profile_image": u.get("profile_image"),
+            "created_at": like.get("created_at"),
+        })
+    return {"likes": enriched}
 
 
 @router.post("/posts/{post_id}/like")
 async def like_post(post_id: str, user: User = Depends(get_current_user)):
+    """Toggle like on a post or reel.
+    Feed items can be posts (db.user_posts, post_id=post_xxx) or reels (db.reels, reel_id=reel_xxx).
+    When a reel appears in the feed, the frontend calls this endpoint with the reel_id.
+    We detect reels by checking db.reels as fallback.
+    """
     post = await db.user_posts.find_one({"post_id": post_id})
+    is_reel = False
+    if not post:
+        # Could be a reel appearing in the feed — check db.reels
+        post = await db.reels.find_one({"reel_id": post_id})
+        if post:
+            is_reel = True
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
-    # Atomic toggle: delete returns count=1 if existed, 0 if not
+
+    if is_reel:
+        # Delegate to the reel-specific like logic (uses reel_likes collection)
+        result = await db.reel_likes.update_one(
+            {"reel_id": post_id, "user_id": user.user_id},
+            {"$setOnInsert": {"reel_id": post_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True,
+        )
+        if result.upserted_id:
+            await db.reels.update_one({"reel_id": post_id}, {"$inc": {"likes_count": 1}})
+            await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": post_id, "action": "like"}, user.user_id)
+            # Notify reel owner (fire-and-forget, skip self-like)
+            owner_id = post.get("user_id") or post.get("author_id")
+            if owner_id and owner_id != user.user_id:
+                try:
+                    now = datetime.now(timezone.utc)
+                    await db.notifications.insert_one({
+                        "user_id": owner_id,
+                        "type": "new_like",
+                        "title": "Nuevo me gusta",
+                        "body": f"A {user.name} le ha gustado tu reel",
+                        "action_url": f"/reels/{post_id}",
+                        "data": {"liker_id": user.user_id, "liker_name": user.name, "content_id": post_id, "content_type": "reel"},
+                        "channels": ["in_app"],
+                        "status_by_channel": {"in_app": "sent"},
+                        "read_at": None,
+                        "created_at": now,
+                        "sent_at": now,
+                    })
+                except Exception:
+                    pass
+            return {"liked": True}
+        await db.reel_likes.delete_one({"reel_id": post_id, "user_id": user.user_id})
+        await db.reels.update_one({"reel_id": post_id}, {"$inc": {"likes_count": -1}})
+        return {"liked": False}
+
+    # Atomic toggle for posts: delete returns count=1 if existed, 0 if not
     result = await db.post_likes.delete_one({"post_id": post_id, "user_id": user.user_id})
     if result.deleted_count > 0:
         await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"likes_count": -1}})
         return {"liked": False}
-    # Use update+upsert to prevent duplicate likes from concurrent double-clicks
-    await db.post_likes.update_one(
+    # Use update+upsert to prevent duplicate likes from concurrent double-clicks.
+    # Only increment if we actually inserted (upserted_id is set); matched means already liked.
+    upsert_result = await db.post_likes.update_one(
         {"post_id": post_id, "user_id": user.user_id},
         {"$setOnInsert": {"post_id": post_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True,
     )
+    if not upsert_result.upserted_id:
+        return {"liked": True}  # Already liked by a concurrent request — no double-increment
     await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"likes_count": 1}})
     await _record_intelligence_signal("content_engagement", {"content_type": "post", "content_id": post_id, "action": "like"}, user.user_id)
     # Update feed preferences (fire-and-forget)
@@ -1711,6 +2020,26 @@ async def like_post(post_id: str, user: User = Depends(get_current_user)):
         await update_preferences(user.user_id, "like", [c for c in cats if c], seller)
     except Exception:
         pass
+    # Notify post owner (fire-and-forget, skip self-like)
+    owner_id = post.get("user_id") or post.get("author_id")
+    if owner_id and owner_id != user.user_id:
+        try:
+            now = datetime.now(timezone.utc)
+            await db.notifications.insert_one({
+                "user_id": owner_id,
+                "type": "new_like",
+                "title": "Nuevo me gusta",
+                "body": f"A {user.name} le ha gustado tu publicación",
+                "action_url": f"/posts/{post_id}",
+                "data": {"liker_id": user.user_id, "liker_name": user.name, "content_id": post_id, "content_type": "post"},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": now,
+                "sent_at": now,
+            })
+        except Exception:
+            pass
     return {"liked": True}
 
 
@@ -1756,9 +2085,32 @@ async def get_post_reactions(post_id: str):
 
 
 @router.get("/posts/{post_id}/comments")
-async def get_post_comments(post_id: str, skip: int = 0, limit: int = 50):
+async def get_post_comments(post_id: str, request: Request, skip: int = 0, limit: int = 50):
     limit = min(limit, 50)  # Cap to prevent unbounded queries
     comments = await db.post_comments.find({"post_id": post_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    is_reel_fallback = False
+    if not comments and post_id.startswith("reel_"):
+        # Reel appearing in feed — comments are in reel_comments keyed by reel_id
+        comments = await db.reel_comments.find({"reel_id": post_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        is_reel_fallback = True
+
+    # Hydrate is_liked for all comments (post and reel)
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+    if current_user and comments:
+        comment_ids = [c.get("comment_id") for c in comments if c.get("comment_id")]
+        if comment_ids:
+            likes_collection = db.reel_comment_likes if is_reel_fallback else db.comment_likes
+            liked_rows = await likes_collection.find(
+                {"comment_id": {"$in": comment_ids}, "user_id": current_user.user_id},
+                {"_id": 0, "comment_id": 1},
+            ).to_list(len(comment_ids))
+            liked_set = {r["comment_id"] for r in liked_rows}
+            for c in comments:
+                c["is_liked"] = c.get("comment_id") in liked_set
+
     return comments
 
 
@@ -1766,6 +2118,10 @@ async def get_post_comments(post_id: str, skip: int = 0, limit: int = 50):
 async def add_comment(post_id: str, request: Request, user: User = Depends(get_current_user)):
     await rate_limiter.check(request, "create_comment")
     post = await db.user_posts.find_one({"post_id": post_id})
+    is_reel = False
+    if not post and post_id.startswith("reel_"):
+        post = await db.reels.find_one({"reel_id": post_id})
+        is_reel = bool(post)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     body = await request.json()
@@ -1773,24 +2129,60 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
     if not text:
         raise HTTPException(status_code=400, detail="Comment text is required")
     reply_to = body.get("reply_to")  # parent comment ID for threading
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "profile_image": 1, "username": 1})
     comment = {
         "comment_id": f"cmt_{uuid.uuid4().hex[:10]}",
         "post_id": post_id,
         "user_id": user.user_id,
         "user_name": user.name,
+        "username": (user_doc or {}).get("username", ""),
+        "user_profile_image": (user_doc or {}).get("profile_image"),
         "text": sanitize_text(text[:500]),
         "reply_to": reply_to if reply_to else None,
+        "likes_count": 0,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
-    await db.post_comments.insert_one(comment)
-    await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"comments_count": 1}})
+    if is_reel:
+        comment["reel_id"] = post_id
+        await db.reel_comments.insert_one(comment)
+        await db.reels.update_one({"reel_id": post_id}, {"$inc": {"comments_count": 1}})
+    else:
+        await db.post_comments.insert_one(comment)
+        await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"comments_count": 1}})
+    # Notify content owner (fire-and-forget, skip self-comment)
+    owner_id = post.get("user_id") or post.get("author_id")
+    if owner_id and owner_id != user.user_id:
+        try:
+            now = datetime.now(timezone.utc)
+            content_type = "reel" if is_reel else "post"
+            action_url = f"/reels/{post_id}" if is_reel else f"/posts/{post_id}"
+            snippet = comment["text"][:60] + ("…" if len(comment["text"]) > 60 else "")
+            await db.notifications.insert_one({
+                "user_id": owner_id,
+                "type": "new_comment",
+                "title": "Nuevo comentario",
+                "body": f"{user.name} comentó: {snippet}",
+                "action_url": action_url,
+                "data": {"commenter_id": user.user_id, "commenter_name": user.name, "content_id": post_id, "content_type": content_type, "comment_id": comment["comment_id"]},
+                "channels": ["in_app"],
+                "status_by_channel": {"in_app": "sent"},
+                "read_at": None,
+                "created_at": now,
+                "sent_at": now,
+            })
+        except Exception:
+            pass
     return {k: v for k, v in comment.items() if k != "_id"}
 
 
 @router.put("/comments/{comment_id}")
 async def edit_comment(comment_id: str, request: Request, user: User = Depends(get_current_user)):
-    """Edit own comment."""
+    """Edit own comment. Searches post_comments first, then reel_comments."""
     comment = await db.post_comments.find_one({"comment_id": comment_id}, {"_id": 0})
+    is_reel_comment = False
+    if not comment:
+        comment = await db.reel_comments.find_one({"comment_id": comment_id}, {"_id": 0})
+        is_reel_comment = True
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
     if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
@@ -1799,12 +2191,28 @@ async def edit_comment(comment_id: str, request: Request, user: User = Depends(g
     text = body.get("text", "").strip()
     if not text:
         raise HTTPException(status_code=400, detail="Comment text required")
-    await db.post_comments.update_one({"comment_id": comment_id}, {"$set": {"text": sanitize_text(text[:500]), "edited_at": datetime.now(timezone.utc).isoformat()}})
+    update_doc = {"$set": {"text": sanitize_text(text[:500]), "edited_at": datetime.now(timezone.utc).isoformat()}}
+    if is_reel_comment:
+        await db.reel_comments.update_one({"comment_id": comment_id}, update_doc)
+    else:
+        await db.post_comments.update_one({"comment_id": comment_id}, update_doc)
     return {"status": "updated"}
 
 @router.delete("/posts/{post_id}/comments/{comment_id}")
 async def delete_comment_nested(post_id: str, comment_id: str, user: User = Depends(get_current_user)):
-    """Delete own comment (nested route)."""
+    """Delete own comment (nested route). Handles both post and reel comments."""
+    is_reel = post_id.startswith("reel_")
+
+    if is_reel:
+        comment = await db.reel_comments.find_one({"comment_id": comment_id, "reel_id": post_id}, {"_id": 0})
+        if not comment:
+            raise HTTPException(status_code=404, detail="Comment not found")
+        if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
+            raise HTTPException(status_code=403, detail="Not your comment")
+        await db.reel_comments.delete_one({"comment_id": comment_id})
+        await db.reels.update_one({"reel_id": post_id}, {"$inc": {"comments_count": -1}})
+        return {"status": "deleted"}
+
     comment = await db.post_comments.find_one({"comment_id": comment_id, "post_id": post_id}, {"_id": 0})
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
@@ -1816,14 +2224,24 @@ async def delete_comment_nested(post_id: str, comment_id: str, user: User = Depe
 
 @router.delete("/comments/{comment_id}")
 async def delete_comment(comment_id: str, user: User = Depends(get_current_user)):
-    """Delete own comment (legacy flat route)."""
+    """Delete own comment (legacy flat route). Searches post_comments first, then reel_comments."""
     comment = await db.post_comments.find_one({"comment_id": comment_id}, {"_id": 0})
+    is_reel_comment = False
+    if not comment:
+        comment = await db.reel_comments.find_one({"comment_id": comment_id}, {"_id": 0})
+        is_reel_comment = True
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
     if comment["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
         raise HTTPException(status_code=403, detail="Not your comment")
-    await db.post_comments.delete_one({"comment_id": comment_id})
-    await db.user_posts.update_one({"post_id": comment["post_id"]}, {"$inc": {"comments_count": -1}})
+    if is_reel_comment:
+        await db.reel_comments.delete_one({"comment_id": comment_id})
+        reel_id = comment.get("reel_id") or comment.get("post_id")
+        if reel_id:
+            await db.reels.update_one({"reel_id": reel_id}, {"$inc": {"comments_count": -1}})
+    else:
+        await db.post_comments.delete_one({"comment_id": comment_id})
+        await db.user_posts.update_one({"post_id": comment["post_id"]}, {"$inc": {"comments_count": -1}})
     return {"status": "deleted"}
 
 @router.get("/users/by-username/{username}")
@@ -1946,6 +2364,14 @@ async def delete_own_account(request: Request, user: User = Depends(get_current_
 @router.post("/posts/{post_id}/bookmark")
 async def toggle_bookmark(post_id: str, user: User = Depends(get_current_user)):
     post = await db.user_posts.find_one({"post_id": post_id})
+    if not post and post_id.startswith("reel_"):
+        # Reels appearing in the feed use the /posts/{reel_id}/save route via PostDetailModal
+        reel_result = await db.reel_saves.find_one({"reel_id": post_id, "user_id": user.user_id})
+        if reel_result:
+            await db.reel_saves.delete_one({"reel_id": post_id, "user_id": user.user_id})
+            return {"bookmarked": False}
+        await db.reel_saves.insert_one({"reel_id": post_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()})
+        return {"bookmarked": True}
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     existing = await db.post_bookmarks.find_one({"post_id": post_id, "user_id": user.user_id})
@@ -2189,7 +2615,7 @@ async def get_social_feed(
     if all_uids:
         user_docs = await db.users.find(
             {"user_id": {"$in": all_uids}},
-            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1, "role": 1, "country": 1}
+            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "role": 1, "country": 1}
         ).to_list(100)
         user_cache = {u["user_id"]: u for u in user_docs}
 
@@ -2249,6 +2675,7 @@ async def get_social_feed(
         enriched.append({
             **post,
             "user_name": ui.get("name", post.get("user_name", "Usuario")),
+            "username": ui.get("username") or post.get("username"),
             "user_profile_image": ui.get("profile_image"),
             "user_role": ui.get("role", "customer"),
             "user_country": ui.get("country"),
@@ -2288,7 +2715,7 @@ async def get_trending_posts(request: Request, limit: int = 5):
     if user_ids:
         user_docs = await db.users.find(
             {"user_id": {"$in": user_ids}},
-            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1, "role": 1},
+            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "role": 1},
         ).to_list(len(user_ids))
         user_cache = {user.get("user_id", ""): user for user in user_docs}
 
@@ -2314,7 +2741,7 @@ async def get_trending_posts(request: Request, limit: int = 5):
         post_id = post.get("post_id")
         is_liked = post_id in liked_post_ids if current_user and post_id else False
         is_bookmarked = post_id in bookmarked_post_ids if current_user and post_id else False
-        enriched.append({**post, "user_name": ui.get("name", "Usuario"), "user_profile_image": ui.get("profile_image"), "user_role": ui.get("role", "customer"), "is_liked": is_liked, "is_bookmarked": is_bookmarked})
+        enriched.append({**post, "user_name": ui.get("name", "Usuario"), "username": ui.get("username") or post.get("username"), "user_profile_image": ui.get("profile_image"), "user_role": ui.get("role", "customer"), "is_liked": is_liked, "is_bookmarked": is_bookmarked})
     return {"posts": enriched}
 
 
@@ -2448,6 +2875,7 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
         profiles.append({
             "user_id": uid,
             "name": u.get("name", "Usuario"),
+            "username": u.get("username"),
             "profile_image": u.get("profile_image"),
             "bio": u.get("bio", ""),
             "role": u.get("role"),
@@ -2461,6 +2889,41 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
 
 
 # ── Profile Update ────────────────────────────────────────────
+
+@router.patch("/users/me")
+async def patch_user_me(request: Request, user: User = Depends(get_current_user)):
+    """Update current user profile fields and/or mark onboarding as completed."""
+    body = await request.json()
+    update_fields = {}
+
+    # Profile fields
+    name = body.get("display_name") or body.get("name")
+    if name and str(name).strip():
+        update_fields["name"] = sanitize_text(str(name).strip()[:50])
+    if "bio" in body:
+        update_fields["bio"] = sanitize_text(str(body["bio"])[:300])
+    if "location" in body:
+        update_fields["location_text"] = sanitize_text(str(body["location"])[:100])
+    if "food_preferences" in body and isinstance(body["food_preferences"], list):
+        update_fields["food_preferences"] = [str(p)[:50] for p in body["food_preferences"][:20]]
+    if "interests" in body and isinstance(body["interests"], list):
+        update_fields["interests"] = [str(i)[:50] for i in body["interests"][:20]]
+
+    # Onboarding completion — require email verification for customers
+    if body.get("onboarding_completed") is True:
+        if getattr(user, "role", None) == "customer":
+            user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "email_verified": 1})
+            if not (user_doc or {}).get("email_verified"):
+                raise HTTPException(status_code=400, detail="Debes verificar tu email antes de completar el onboarding")
+        update_fields["onboarding_completed"] = True
+        update_fields["onboarding_completed_at"] = datetime.now(timezone.utc).isoformat()
+
+    if update_fields:
+        update_fields["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.users.update_one({"user_id": user.user_id}, {"$set": update_fields})
+
+    return {"status": "ok"}
+
 
 @router.post("/users/update-profile")
 async def update_user_profile_data(request: Request, user: User = Depends(get_current_user)):
@@ -2538,6 +3001,7 @@ async def create_story(
         "views": [],
         "likes_count": 0,
         "replies_count": 0,
+        "is_hidden": False,
     }
     # Parse and store overlay metadata (text, stickers, draws for video stories)
     if overlays_json:
@@ -2569,7 +3033,7 @@ async def get_stories_feed(request: Request):
     # Get all non-expired stories
     try:
         active_stories = await db.hispalostories.find(
-            {"expires_at": {"$gt": now}},
+            {"expires_at": {"$gt": now}, "is_hidden": {"$ne": True}},
             {"_id": 0, "views": 0}
         ).sort("created_at", -1).to_list(200)
     except Exception as exc:
@@ -2658,9 +3122,9 @@ async def get_user_stories(user_id: str, request: Request):
             user_id = user_doc["user_id"]
 
     stories = await db.hispalostories.find(
-        {"user_id": user_id, "expires_at": {"$gt": now}},
+        {"user_id": user_id, "expires_at": {"$gt": now}, "is_hidden": {"$ne": True}},
         {"_id": 0},
-    ).sort("created_at", -1).to_list(50)
+    ).sort("created_at", 1).to_list(50)  # oldest-first so viewer plays in posting order
 
     # Mark which items the current viewer has already seen
     try:
@@ -2668,11 +3132,22 @@ async def get_user_stories(user_id: str, request: Request):
     except Exception:
         current_user = None
 
+    # Batch-check which stories the current user has liked (single query)
+    liked_story_ids: set = set()
+    if current_user and stories:
+        all_story_ids = [s.get("story_id") for s in stories if s.get("story_id")]
+        liked_docs = await db.story_likes.find(
+            {"story_id": {"$in": all_story_ids}, "user_id": current_user.user_id},
+            {"_id": 0, "story_id": 1},
+        ).to_list(len(all_story_ids))
+        liked_story_ids = {d["story_id"] for d in liked_docs}
+
     result = []
     for s in stories:
         views = s.pop("views", []) or []
         s["view_count"] = len(views)
         s["is_seen"] = (current_user.user_id in views) if current_user else False
+        s["is_liked"] = s.get("story_id") in liked_story_ids
         result.append(s)
 
     return result
@@ -2681,7 +3156,10 @@ async def get_user_stories(user_id: str, request: Request):
 @router.post("/stories/{story_id}/view")
 async def view_story(story_id: str, request: Request):
     """Mark a story as viewed."""
-    current_user = await get_optional_user(request)
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        return {"status": "ok"}
     if not current_user:
         return {"status": "ok"}
     await db.hispalostories.update_one(
@@ -2693,22 +3171,41 @@ async def view_story(story_id: str, request: Request):
 
 @router.post("/stories/{story_id}/like")
 async def like_story(story_id: str, user: User = Depends(get_current_user)):
-    """Toggle like on a story."""
-    existing = await db.story_likes.find_one({"story_id": story_id, "user_id": user.user_id})
-    if existing:
-        await db.story_likes.delete_one({"story_id": story_id, "user_id": user.user_id})
+    """Toggle like on a story. Uses atomic upsert to prevent race-condition double-likes."""
+    # Try to delete first — if it existed, this is an unlike
+    result = await db.story_likes.delete_one({"story_id": story_id, "user_id": user.user_id})
+    if result.deleted_count > 0:
         await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"likes_count": -1}})
         liked = False
     else:
-        await db.story_likes.insert_one({
-            "story_id": story_id,
-            "user_id": user.user_id,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        })
-        await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"likes_count": 1}})
+        # Atomic upsert: only insert once even under concurrent requests
+        upsert_result = await db.story_likes.update_one(
+            {"story_id": story_id, "user_id": user.user_id},
+            {"$setOnInsert": {"story_id": story_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True,
+        )
+        if upsert_result.upserted_id:
+            await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"likes_count": 1}})
         liked = True
 
-    story = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "likes_count": 1})
+    story = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "likes_count": 1, "user_id": 1})
+    if liked:
+        story_owner_id = (story or {}).get("user_id")
+        if story_owner_id and story_owner_id != user.user_id:
+            try:
+                from services.notifications.dispatcher_service import notification_dispatcher
+                sender_name = getattr(user, "name", None) or getattr(user, "username", None) or "Alguien"
+                asyncio.create_task(notification_dispatcher.send_notification(
+                    user_id=story_owner_id,
+                    title="Nueva reacción",
+                    body=f"{sender_name} ha reaccionado a tu historia",
+                    notification_type="story_like",
+                    channels=["in_app", "push"],
+                    data={"story_id": story_id, "from_user_id": user.user_id},
+                    action_url="/notifications",
+                ))
+            except Exception:
+                pass
     return {"liked": liked, "likes_count": (story or {}).get("likes_count", 0)}
 
 
@@ -2736,6 +3233,22 @@ async def reply_story(story_id: str, request: Request, user: User = Depends(get_
     }
     await db.story_replies.insert_one(reply)
     await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"replies_count": 1}})
+    story_owner_id = story.get("user_id")
+    if story_owner_id and story_owner_id != user.user_id:
+        try:
+            from services.notifications.dispatcher_service import notification_dispatcher
+            sender_name = getattr(user, "name", None) or getattr(user, "username", None) or "Alguien"
+            asyncio.create_task(notification_dispatcher.send_notification(
+                user_id=story_owner_id,
+                title="Nueva respuesta",
+                body=f"{sender_name} ha respondido a tu historia",
+                notification_type="story_reply",
+                channels=["in_app", "push"],
+                data={"story_id": story_id, "from_user_id": user.user_id},
+                action_url="/notifications",
+            ))
+        except Exception:
+            pass
     return {k: v for k, v in reply.items() if k != "_id"}
 
 
@@ -2778,6 +3291,9 @@ async def delete_story(story_id: str, user: User = Depends(get_current_user)):
     if story["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
         raise HTTPException(status_code=403, detail="No tienes permiso para eliminar esta historia")
     await db.hispalostories.delete_one({"story_id": story_id})
+    # Clean up related likes and replies
+    await db.story_likes.delete_many({"story_id": story_id})
+    await db.story_replies.delete_many({"story_id": story_id})
     return {"status": "deleted"}
 
 
@@ -3018,10 +3534,21 @@ async def get_saved_reels(skip: int = 0, limit: int = 20, user: User = Depends(g
     reel_ids = [s["reel_id"] for s in saved]
     if not reel_ids:
         return {"reels": [], "has_more": False}
-    reels = await db.reels.find(
-        {"reel_id": {"$in": reel_ids}}, {"_id": 0}
+    # Search both collections (reels can live in either)
+    reels_primary = await db.reels.find(
+        {"$or": [{"reel_id": {"$in": reel_ids}}, {"id": {"$in": reel_ids}}]}, {"_id": 0}
     ).to_list(len(reel_ids))
-    reel_map = {r["reel_id"]: r for r in reels}
+    reels_from_posts = await db.user_posts.find(
+        {"$and": [
+            {"$or": [{"post_id": {"$in": reel_ids}}, {"id": {"$in": reel_ids}}, {"reel_id": {"$in": reel_ids}}]},
+            {"$or": [{"is_reel": True}, {"type": "reel"}]},
+        ]}, {"_id": 0}
+    ).to_list(len(reel_ids))
+    reel_map = {}
+    for r in reels_primary + reels_from_posts:
+        rid = r.get("reel_id") or r.get("id") or r.get("post_id")
+        if rid and rid not in reel_map:
+            reel_map[rid] = r
     ordered = [reel_map[rid] for rid in reel_ids if rid in reel_map]
     return {"reels": ordered, "has_more": len(saved) == limit}
 

@@ -236,7 +236,7 @@ export default function HashtagPage() {
                   return (
                     <button
                       key={reelId || idx}
-                      onClick={() => navigate(`/reels/${reelId}`)}
+                      onClick={() => navigate('/reels')}
                       className="relative aspect-[9/16] bg-stone-100 overflow-hidden group cursor-pointer border-none p-0"
                     >
                       {thumb ? (

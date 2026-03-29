@@ -29,7 +29,10 @@ export default function LoginPage() {
 
   const intendedRoute = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return params.get('redirect') || params.get('next') || location.state?.from?.pathname || null;
+    const raw = params.get('redirect') || params.get('next') || location.state?.from?.pathname || null;
+    // Only allow relative paths to prevent open redirect attacks
+    if (raw && raw.startsWith('/') && !raw.startsWith('//')) return raw;
+    return null;
   }, [location.search, location.state]);
 
   const addAccount = useMemo(() => {

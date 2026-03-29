@@ -58,11 +58,28 @@ export function useNotifications() {
  */
 export function useMarkAsRead() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (notificationId) => 
+    mutationFn: (notificationId) =>
       apiClient.post(`/notifications/${notificationId}/read`),
-    
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.unread });
+      queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.all });
+    },
+  });
+}
+
+/**
+ * Hook para marcar un lote de notificaciones como leídas en una sola request
+ */
+export function useMarkBatchAsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (notificationIds) =>
+      apiClient.post('/notifications/mark-batch-read', { notification_ids: notificationIds }),
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.unread });
       queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.all });
@@ -98,6 +115,7 @@ export function useDeleteNotification() {
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.unread });
     },
   });
 }

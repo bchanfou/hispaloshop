@@ -78,7 +78,7 @@ async def get_moderation_queue(
 
 async def _get_content_preview(content_type: str, content_id: str) -> dict:
     """Get a preview of the content for display in the queue."""
-    if content_type in ("post", "reel", "story"):
+    if content_type in ("post", "reel"):
         post = await db.posts.find_one(
             {"_id": _oid(content_id)} if len(content_id) == 24 else {"post_id": content_id},
             {"_id": 0, "content": 1, "media": 1},
@@ -90,6 +90,14 @@ async def _get_content_preview(content_type: str, content_id: str) -> dict:
                     img = m["url"]
                     break
             return {"text": (post.get("content") or "")[:200], "image": img}
+
+    elif content_type == "story":
+        story = await db.hispalostories.find_one(
+            {"story_id": content_id},
+            {"_id": 0, "caption": 1, "image_url": 1, "video_url": 1},
+        )
+        if story:
+            return {"text": (story.get("caption") or "")[:200], "image": story.get("image_url") or story.get("video_url")}
 
     elif content_type == "product":
         product = await db.products.find_one(
@@ -179,10 +187,15 @@ async def restore_moderation(
     if not ct or not cid:
         raise HTTPException(status_code=400, detail="Item missing content_type or content_id")
 
-    if ct in ("post", "reel", "story"):
+    if ct in ("post", "reel"):
         await db.posts.update_one(
             {"_id": _oid(cid)} if len(cid) == 24 else {"post_id": cid},
             {"$set": {"is_hidden": False, "status": "published"}},
+        )
+    elif ct == "story":
+        await db.hispalostories.update_one(
+            {"story_id": cid},
+            {"$set": {"is_hidden": False}},
         )
     elif ct == "product":
         await db.products.update_one(

@@ -21,7 +21,7 @@ function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount, isLoadin
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
       role="button"
       tabIndex={0}
-      aria-label={isSelf ? 'Crear tu historia' : `Ver historia de ${label}`}
+      aria-label={isSelf ? (hasUnseenStory ? 'Ver tu historia' : 'Crear tu historia') : `Ver historia de ${label}`}
       className={`flex flex-col items-center gap-1 cursor-pointer w-[58px] shrink-0 snap-center transition-transform duration-150 hover:scale-105 active:scale-95 ${isLoading ? 'animate-pulse opacity-60 pointer-events-none' : ''}`}
     >
       <div className="relative">

@@ -133,6 +133,23 @@ class FeedAlgorithm:
         # --- Batch: content type preference — posts vs reels likes in last 14d (signal 3) ---
         content_type_pref = await self._get_content_type_preference(user_id, db)
 
+        # --- Batch: product interaction counts (avoids N+1 in _calculate_score) ---
+        product_interaction_map = {}
+        if all_tagged_pids:
+            try:
+                pip = [
+                    {"$match": {
+                        "user_id": user_id,
+                        "action_type": {"$in": ["like_post", "save_post", "quick_buy_from_post"]},
+                        "product_id": {"$in": list(set(all_tagged_pids))},
+                    }},
+                    {"$group": {"_id": "$product_id", "count": {"$sum": 1}}},
+                ]
+                results = await db.feed_interactions.aggregate(pip).to_list(500)
+                product_interaction_map = {r["_id"]: r["count"] for r in results if r.get("_id")}
+            except Exception:
+                pass
+
         # Enrich posts with author_followers
         for post in candidates:
             author_doc = author_cache.get(str(post.get("author_id", "")))
@@ -154,6 +171,7 @@ class FeedAlgorithm:
                 category_dwell_map=category_dwell_map,
                 creator_affinity_map=creator_affinity_map,
                 content_type_pref=content_type_pref,
+                product_interaction_map=product_interaction_map,
             )
             scored_posts.append({
                 "post": post,
@@ -334,6 +352,7 @@ class FeedAlgorithm:
         category_dwell_map: Dict = None,
         creator_affinity_map: Dict = None,
         content_type_pref: Dict = None,
+        product_interaction_map: Dict = None,
     ) -> Dict:
         """Calcula score multidimensional de un post"""
         db = get_db()
@@ -383,14 +402,10 @@ class FeedAlgorithm:
         if author_id in following_ids:
             personalization_score += 30
 
-        # Interacciones previas con productos similares
+        # Interacciones previas con productos similares (batched)
         tagged_product_ids = [tp.get("product_id") for tp in post.get("tagged_products", []) if tp.get("product_id")]
-        if tagged_product_ids:
-            similar_interactions = await db.feed_interactions.count_documents({
-                "user_id": user_id,
-                "action_type": {"$in": ["like_post", "save_post", "quick_buy_from_post"]},
-                "product_id": {"$in": tagged_product_ids}
-            })
+        if tagged_product_ids and product_interaction_map:
+            similar_interactions = sum(product_interaction_map.get(pid, 0) for pid in tagged_product_ids)
             personalization_score += min(20, similar_interactions * 5)
 
         # Categorias preferidas (use cached user doc)
@@ -452,8 +467,11 @@ class FeedAlgorithm:
 
         scores['personalization'] = min(100, personalization_score)
 
-        # 4. SERENDIPIA (0-100)
-        serendipity_score = random.uniform(20, 80)
+        # 4. SERENDIPIA (0-100) — deterministic per user+post to ensure stable ordering
+        post_id_str = str(post.get("_id", "")) or str(post.get("id", ""))
+        seed = hash(f"{user_id}:{post_id_str}") & 0xFFFFFFFF
+        rng = random.Random(seed)
+        serendipity_score = rng.uniform(20, 80)
         if author_id not in following_ids:
             serendipity_score += 20
 

@@ -43,7 +43,11 @@ const TrimTimeline: React.FC<TrimTimelineProps> = ({
   }, []);
 
   const pxToTime = useCallback(
-    (px: number) => (px / getContainerWidth()) * duration,
+    (px: number) => {
+      const w = getContainerWidth();
+      if (w <= 0 || duration <= 0) return 0;
+      return (px / w) * duration;
+    },
     [duration, getContainerWidth]
   );
 

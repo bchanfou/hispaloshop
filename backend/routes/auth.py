@@ -95,7 +95,7 @@ def _get_public_frontend_url(request: Request) -> str:
         if candidate and _is_trusted_frontend_origin(candidate):
             return candidate
 
-    return configured or header_origin or _get_request_origin(request)
+    return configured or _get_request_origin(request)
 
 
 def _is_email_delivery_configured() -> bool:
@@ -239,7 +239,7 @@ async def register(input: RegisterInput, request: Request):
                     },
                 )
         except ValueError:
-            pass  # Invalid date format, skip check
+            raise HTTPException(status_code=400, detail="Formato de fecha de nacimiento no válido (YYYY-MM-DD)")
 
     # GDPR Compliance: Consent is MANDATORY for all roles
     if not input.analytics_consent:
@@ -309,6 +309,7 @@ async def register(input: RegisterInput, request: Request):
         # GDPR Consent tracking
         "consent": {
             "analytics_consent": input.analytics_consent,
+            "marketing_consent": input.marketing_consent,
             "consent_version": input.consent_version,
             "consent_date": datetime.now(timezone.utc).isoformat() if input.analytics_consent else None
         },
@@ -316,7 +317,19 @@ async def register(input: RegisterInput, request: Request):
         "referral_code": resolved_referral_code,
         "referral_expires_at": referral_expires_at,
     }
-    
+
+    if input.role == "customer":
+        if input.dietary_restrictions:
+            user_data["dietary_restrictions"] = input.dietary_restrictions
+        if input.preferred_categories:
+            user_data["preferred_categories"] = input.preferred_categories
+        if input.postal_code:
+            user_data["postal_code"] = input.postal_code
+        if input.discovery_method:
+            user_data["discovery_method"] = input.discovery_method
+        if input.purchase_frequency:
+            user_data["purchase_frequency"] = input.purchase_frequency
+
     if input.role in ["producer", "importer"]:
         user_data.update({
             "company_name": input.company_name,
@@ -487,33 +500,40 @@ async def verify_email(request: Request, token: str = None, code: str = None):
     verification_key = code or token
     if not verification_key:
         raise HTTPException(status_code=400, detail="Se requiere el código de verificación")
-    
-    # Try to find by code first, then by token (for backwards compatibility)
-    verification = await db.email_verifications.find_one(
-        {"$or": [{"code": verification_key}, {"token": verification_key}]},
-        {"_id": 0}
-    )
+
+    # If user is authenticated, scope verification to their account
+    current_user = None
+    try:
+        current_user = await get_current_user(request)
+    except Exception:
+        pass  # Unauthenticated verification (link click) is still allowed
+
+    query = {"$or": [{"code": verification_key}, {"token": verification_key}]}
+    if current_user:
+        query["user_id"] = current_user.user_id
+
+    verification = await db.email_verifications.find_one(query, {"_id": 0})
 
     if not verification:
         raise HTTPException(status_code=400, detail="Código de verificación inválido")
-    
+
     # Check if expired
     expires_at = datetime.fromisoformat(verification["expires_at"])
     if expires_at.tzinfo is None:
         expires_at = expires_at.replace(tzinfo=timezone.utc)
-    
+
     if expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="El código ha expirado. Solicita uno nuevo.")
-    
+
     # Update user's email_verified status
     await db.users.update_one(
         {"user_id": verification["user_id"]},
         {"$set": {"email_verified": True}}
     )
 
-    # Delete the verification record
-    await db.email_verifications.delete_one({"user_id": verification["user_id"]})
-    
+    # Delete all verification records for this user
+    await db.email_verifications.delete_many({"user_id": verification["user_id"]})
+
     return {"message": "Email verificado correctamente", "success": True}
 
 @router.post("/auth/resend-verification")
@@ -524,10 +544,14 @@ async def resend_verification(request: Request, user: User = Depends(get_current
         return {"message": "El email ya está verificado"}
 
     # Rate limit: max 3 resends per user per 24 hours
-    cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+    cutoff_iso = cutoff.isoformat()
     recent_resends = await db.email_resend_log.count_documents({
         "user_id": user.user_id,
-        "created_at": {"$gt": cutoff}
+        "$or": [
+            {"created_at": {"$gt": cutoff}},       # datetime objects
+            {"created_at": {"$gt": cutoff_iso}},    # ISO strings (legacy)
+        ],
     })
     if recent_resends >= 3:
         raise HTTPException(status_code=429, detail="Máximo de reenvíos alcanzado. Inténtalo en 24 horas.")
@@ -636,12 +660,16 @@ async def login(input: LoginInput, request: Request):
         username = identifier.lstrip("@")
         user_doc = await db.users.find_one({"username": username}, {"_id": 0})
     
+    # Constant-time check: always run bcrypt even if user not found to prevent timing attacks
+    DUMMY_HASH = "$2b$12$LJ3m4ys3Lg2VGqsMhW8kuOQ.sVyRNGKBcMK.FS3q5aBn5gZPHjXYm"
     if not user_doc:
+        verify_password(input.password, DUMMY_HASH)  # ~500ms to match real verification
         raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
-    
+
     if "password_hash" not in user_doc:
+        verify_password(input.password, DUMMY_HASH)  # timing consistency
         raise HTTPException(status_code=401, detail="Esta cuenta usa inicio de sesión con Google")
-    
+
     if not verify_password(input.password, user_doc["password_hash"]):
         raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
 
@@ -755,12 +783,12 @@ async def reset_password(input: ResetPasswordInput, request: Request):
     )
 
     if not reset or not _secrets.compare_digest(reset.get("token", ""), input.token):
-        logger.warning(f"[RESET_PASSWORD] Token not found: {input.token[:20]}...")
+        logger.warning("[RESET_PASSWORD] Invalid or not found token attempt")
         raise HTTPException(status_code=400, detail="El enlace de recuperación no es válido. Por favor solicita uno nuevo.")
     
     # Check if already used
     if reset.get("used"):
-        logger.warning(f"[RESET_PASSWORD] Token already used: {input.token[:20]}...")
+        logger.warning("[RESET_PASSWORD] Attempted reuse of already-used token")
         raise HTTPException(status_code=400, detail="Este enlace ya fue utilizado. Por favor solicita uno nuevo.")
     
     # Check if expired
@@ -769,13 +797,19 @@ async def reset_password(input: ResetPasswordInput, request: Request):
         expires_at = expires_at.replace(tzinfo=timezone.utc)
     
     if expires_at < datetime.now(timezone.utc):
-        logger.warning(f"[RESET_PASSWORD] Token expired: {input.token[:20]}...")
+        logger.warning("[RESET_PASSWORD] Expired token attempt")
         raise HTTPException(status_code=400, detail="El enlace ha expirado. Por favor solicita uno nuevo.")
     
     # Validate new password
     if len(input.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
-    
+
+    # Prevent reuse of the same password
+    user_doc = await db.users.find_one({"user_id": reset["user_id"]}, {"_id": 0, "password_hash": 1})
+    if user_doc and user_doc.get("password_hash"):
+        if verify_password(input.new_password, user_doc["password_hash"]):
+            raise HTTPException(status_code=400, detail="La nueva contraseña no puede ser igual a la anterior")
+
     # Update user's password
     password_hash = hash_password(input.new_password)
     await db.users.update_one(
@@ -1085,7 +1119,7 @@ async def get_google_auth_url(request: Request):
         max_age=600,  # 10 minutes
         httponly=True,
         secure=is_secure_cookie,
-        samesite="lax" if not is_secure_cookie else "none"
+        samesite="lax"
     )
     response.set_cookie(
         key="oauth_frontend_origin",
@@ -1093,7 +1127,7 @@ async def get_google_auth_url(request: Request):
         max_age=600,
         httponly=True,
         secure=is_secure_cookie,
-        samesite="lax" if not is_secure_cookie else "none"
+        samesite="lax"
     )
     return response
 
@@ -1222,10 +1256,11 @@ async def google_auth_callback(
     # Use an HTML response (not a redirect) so that Set-Cookie is forwarded
     # correctly by Vercel's proxy edge (which may strip cookies from 3xx redirects).
     frontend_url = _get_public_frontend_url(request)
+    import json as _json
     target_url = f"{frontend_url}/auth/callback?token=google"
     html_content = (
         "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
-        "<script>window.location.replace(\"" + target_url + "\");</script>"
+        "<script>window.location.replace(" + _json.dumps(target_url) + ");</script>"
         "</head><body>Redirecting...</body></html>"
     )
     html_response = HTMLResponse(content=html_content)

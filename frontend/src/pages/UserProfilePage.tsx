@@ -119,15 +119,18 @@ export default function UserProfilePage() {
       }
       setOwnStories([{
         user_id: ownId,
-        user: { id: ownId, name: user?.name, avatar_url: user?.profile_image, profile_image: user?.profile_image },
+        user: { id: ownId, name: user?.name, username: user?.username, avatar_url: user?.profile_image, profile_image: user?.profile_image },
         items: items.map(s => ({
           id: s.id || s.story_id,
-          story_id: s.id || s.story_id,
+          story_id: s.story_id || s.id,
           image_url: s.image_url || s.media_url,
           video_url: s.video_url,
           caption: s.caption || s.text,
           created_at: s.created_at,
           products: s.products,
+          view_count: s.view_count ?? 0,
+          is_liked: s.is_liked ?? false,
+          overlays: s.overlays,
         })),
       }]);
       setShowOwnStory(true);
@@ -151,12 +154,15 @@ export default function UserProfilePage() {
         user: { id: user?.user_id, name: user?.name, avatar_url: user?.profile_image, profile_image: user?.profile_image },
         items: items.map(s => ({
           id: s.id || s.story_id,
-          story_id: s.id || s.story_id,
+          story_id: s.story_id || s.id,
           image_url: s.image_url || s.media_url,
           video_url: s.video_url,
           caption: s.caption || s.text,
           created_at: s.created_at,
           products: s.products,
+          view_count: s.view_count ?? 0,
+          is_liked: s.is_liked ?? false,
+          overlays: s.overlays,
         })),
       }]);
       setViewingHighlight(highlight);
@@ -389,22 +395,29 @@ export default function UserProfilePage() {
       )}
 
       {/* Own story viewer */}
-      {showOwnStory && ownStories && (
-        <StoryViewer
-          stories={ownStories}
-          initialIndex={0}
-          onClose={() => { setShowOwnStory(false); setOwnStories(null); queryClient.refetchQueries({ queryKey: ['feed-stories'] }); }}
-        />
-      )}
+      <AnimatePresence>
+        {showOwnStory && ownStories && (
+          <StoryViewer
+            key="own-story-viewer"
+            stories={ownStories}
+            initialIndex={0}
+            onClose={() => { setShowOwnStory(false); setOwnStories(null); queryClient.refetchQueries({ queryKey: ['feed-stories'] }); queryClient.invalidateQueries({ queryKey: ['stories-mine'] }); refetch(); }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Highlight story viewer */}
-      {viewingHighlight && highlightStories && (
-        <StoryViewer
-          stories={highlightStories}
-          initialIndex={0}
-          onClose={() => { setViewingHighlight(null); setHighlightStories(null); }}
-        />
-      )}
+      <AnimatePresence>
+        {viewingHighlight && highlightStories && (
+          <StoryViewer
+            key="highlight-story-viewer"
+            stories={highlightStories}
+            initialIndex={0}
+            readOnly
+            onClose={() => { setViewingHighlight(null); setHighlightStories(null); }}
+          />
+        )}
+      </AnimatePresence>
 
       {selectedProduct && (
         <ProductDetailOverlay

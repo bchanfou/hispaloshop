@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, Component } from 'react';
+import React, { useMemo, useState, useCallback, useRef, Component } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import SuggestedUsersCard from './SuggestedUsersCard';
 import SponsoredProductCard from './SponsoredProductCard';
 import FeedRecipeCard from './FeedRecipeCard';
 import { useFollowingFeed, useLikePost, feedKeys } from '../../features/feed/queries';
+import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
 import { useSponsoredContent } from '../../hooks/useSponsoredContent';
@@ -60,6 +61,7 @@ function FollowingFeed() {
   const queryClient = useQueryClient();
   const feedQuery = useFollowingFeed();
   const likeMutation = useLikePost();
+  const { trigger } = useHaptics();
   const allPosts = useMemo(() => {
     try {
       const pages = feedQuery.data?.pages;
@@ -79,6 +81,16 @@ function FollowingFeed() {
       return [];
     }
   }, [feedQuery.data]);
+
+  // Pre-compute next reel video URL for each index (avoids O(n²) inside itemContent)
+  const nextReelUrlByIndex = useMemo(() => {
+    const map = {};
+    for (let i = allPosts.length - 2; i >= 0; i--) {
+      const next = allPosts.slice(i + 1).find(p => p.video_url || p.type === 'reel');
+      map[i] = next?.video_url || null;
+    }
+    return map;
+  }, [allPosts]);
   const hasMore = Boolean(feedQuery.hasNextPage);
   const isInitialLoading = feedQuery.isLoading;
   const error = feedQuery.error;
@@ -92,6 +104,8 @@ function FollowingFeed() {
 
   const [modalPost, setModalPost] = useState(null);
   const handleCloseModal = useCallback(() => setModalPost(null), []);
+
+  const virtuosoRef = useRef(null);
 
   const { refreshing, progress, handlers } = usePullToRefresh(
     async () => { await queryClient.refetchQueries({ queryKey: feedKeys.following, type: 'active' }); }
@@ -130,36 +144,18 @@ function FollowingFeed() {
     else navigate(`/posts/${postId}`);
   }, [allPosts, navigate]);
 
-  const handleShare = useCallback(async (postId) => {
-    const postUrl = `${window.location.origin}/posts/${postId}`;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Hispaloshop',
-          text: t('feed.sharePrompt', 'Mira esta publicación en Hispaloshop'),
-          url: postUrl,
-        });
-        return;
-      }
-
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(postUrl);
-        const { toast } = await import('sonner');
-        toast.success(t('common.linkCopied', 'Enlace copiado'));
-      }
-    } catch {
-      // User cancelled share dialog — ignore
-    }
-  }, [t]);
+  // Cards (PostCard/ReelCard) handle sharing themselves before calling onShare.
+  // This callback is intentionally a no-op to avoid opening the share sheet twice.
+  const handleShare = useCallback(() => {}, []);
 
   // "New content" pill (must be before early returns to satisfy hooks rules)
   const showNewContentPill = feedQuery.isFetching && !feedQuery.isFetchingNextPage && allPosts.length > 0;
 
   const handleNewContentClick = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    trigger('light');
+    virtuosoRef.current?.scrollToIndex({ index: 0, behavior: 'smooth' });
     queryClient.invalidateQueries({ queryKey: feedKeys.following });
-  }, [queryClient]);
+  }, [queryClient, trigger]);
 
   if (error) {
     return (
@@ -221,6 +217,7 @@ function FollowingFeed() {
         </div>
       ) : (
         <Virtuoso
+          ref={virtuosoRef}
           data={allPosts}
           defaultItemHeight={460}
           itemContent={(index, post) => {
@@ -247,7 +244,9 @@ function FollowingFeed() {
                 : {};
 
               // Build a safe user object — never pass a raw non-object value
-              const safeUser = (post.user && typeof post.user === 'object') ? post.user : {
+              const safeUser = (post.user && typeof post.user === 'object')
+                ? { ...post.user, has_story: post.user_has_story ?? post.user.has_story ?? false }
+                : {
                 id: post.user_id,
                 name: post.user_name || post.author_name || 'Usuario',
                 username: post.username || post.author_username,
@@ -287,6 +286,8 @@ function FollowingFeed() {
                             likes_count: post.likes_count || 0,
                             likes: post.likes_count || 0,
                             liked: post.is_liked || post.liked || false,
+                            is_saved: post.is_saved ?? post.saved ?? false,
+                            saved: post.is_saved ?? post.saved ?? false,
                             comments_count: post.comments_count || 0,
                             comments: post.comments_count || 0,
                             shares: post.shares_count || 0,
@@ -299,7 +300,7 @@ function FollowingFeed() {
                           onComment={() => handleComment(post.id)}
                           onShare={() => handleShare(post.id)}
                           priority={index < 2}
-                          nextVideoUrl={allPosts.slice(index + 1).find(p => p.video_url || p.type === 'reel')?.video_url}
+                          nextVideoUrl={nextReelUrlByIndex[index]}
                         />
                       </motion.div>
                     </div>
@@ -323,12 +324,17 @@ function FollowingFeed() {
                         post={{
                           id: post.id,
                           user: safeUser,
+                          user_has_story: post.user_has_story ?? false,
                           media: safeMedia,
                           caption: post.caption || '',
                           likes: post.likes_count || 0,
                           liked: post.is_liked || post.liked || false,
+                          is_saved: post.is_saved ?? post.saved ?? false,
+                          saved: post.is_saved ?? post.saved ?? false,
                           comments: post.comments_count || 0,
                           productTag: post.product_tag,
+                          tagged_products: post.tagged_products,
+                          products: post.products,
                           timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                         }}
                         onLike={() => handleLike(post.id)}
