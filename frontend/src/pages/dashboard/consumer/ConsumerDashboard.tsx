@@ -23,13 +23,14 @@ import { asNumber, firstToken } from '../../../utils/safe';
 
 function generateMonthlyData(orders) {
   const months = ['Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb'];
+  // Sep=8→0, Oct=9→1, Nov=10→2, Dec=11→3, Jan=0→4, Feb=1→5
+  const monthToIndex = { 8: 0, 9: 1, 10: 2, 11: 3, 0: 4, 1: 5 };
   const data = new Array(6).fill(0);
 
   orders.forEach((order) => {
     const date = new Date(order.created_at);
-    const monthIndex = date.getMonth();
-    const index = monthIndex % 6;
-    if (index >= 0 && index < 6) {
+    const index = monthToIndex[date.getMonth()];
+    if (index !== undefined) {
       data[index] += order.total_amount || 0;
     }
   });
@@ -78,28 +79,28 @@ function ConsumerDashboard() {
     const ordersData = dashboardQuery.data?.orders || {};
     const wishlistData = dashboardQuery.data?.wishlist || {};
     const recentOrders = (ordersData?.orders || []).slice(0, 2).map((order) => ({
-      id: order.id,
-      title: `Pedido #${order.order_number || order.id.slice(-4)}`,
+      id: order.order_id,
+      title: `Pedido #${order.order_number || String(order.order_id || '').slice(-4)}`,
       subtitle:
         order.status === 'shipped'
           ? 'En camino'
           : order.status === 'delivered'
             ? 'Entregado'
             : `Pedido ${order.status}`,
-      description: order.items?.map((i) => i.product_name).join(' + ') || 'Productos',
+      description: order.line_items?.map((i) => i.product_name).join(' + ') || 'Productos',
       amount: `EUR ${asNumber(order.total_amount).toFixed(2)}`,
       status: order.status,
       actionLabel: order.status === 'delivered' ? 'Reordenar' : 'Ver',
-      onAction: () => navigate(`/dashboard/orders/${order.id}`)
+      onAction: () => navigate(`/dashboard/orders/${order.order_id}`)
     }));
 
-    const totalOrders = ordersData?.total_count || ordersData?.orders?.length || 0;
+    const totalOrders = ordersData?.total || ordersData?.orders?.length || 0;
     const totalSpent = ordersData?.orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
 
     return {
       kpis: {
         orders: totalOrders,
-        favorites: wishlistData?.items?.length || 0,
+        favorites: (Array.isArray(wishlistData) ? wishlistData.length : wishlistData?.items?.length) || 0,
         rating: 0,
         savings: Math.round(totalSpent * 0.15)
       },

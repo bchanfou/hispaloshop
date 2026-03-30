@@ -256,8 +256,8 @@ export function useStoryViews(storyId) {
  */
 export function useReactToStory() {
   return useMutation({
-    mutationFn: ({ storyId, reaction }) => 
-      apiClient.post(`/stories/${storyId}/reaction`, { reaction }),
+    mutationFn: ({ storyId }) =>
+      apiClient.post(`/stories/${storyId}/like`),
   });
 }
 

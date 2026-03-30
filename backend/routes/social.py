@@ -157,6 +157,22 @@ def _normalize_post_media(post: Dict[str, object]) -> Dict[str, object]:
     return post
 
 
+async def _check_content_privacy(post_or_reel: dict, current_user) -> None:
+    """Raise 404 if content is private and viewer is not owner/follower."""
+    if not post_or_reel or not post_or_reel.get("is_private"):
+        return
+    owner_id = post_or_reel.get("user_id")
+    if current_user and current_user.user_id == owner_id:
+        return
+    if current_user and owner_id:
+        is_follower = await db.user_follows.find_one(
+            {"follower_id": current_user.user_id, "following_id": owner_id}
+        )
+        if is_follower:
+            return
+    raise HTTPException(status_code=404, detail="Post not found")
+
+
 def _safe_float(value: object, default: float = 0.0) -> float:
     try:
         return float(value)
@@ -331,7 +347,7 @@ async def get_reels(limit: int = 40, skip: int = 0, tab: str = "foryou", hashtag
     try:
         reels_from_posts = await db.user_posts.find(
             fallback_query, {"_id": 0},
-        ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        ).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
     except Exception:
         reels_from_posts = []
 
@@ -487,6 +503,14 @@ async def create_reel(
     original_video_url = result["url"]
     video_public_id = result.get("public_id", "")
     duration_seconds = _safe_float(result.get("duration"), 0.0)
+    if not duration_seconds or duration_seconds <= 0:
+        # Corrupt or unreadable video — clean up and reject
+        try:
+            from services.cloudinary_storage import delete_media
+            await delete_media(video_public_id, resource_type="video")
+        except Exception:
+            pass
+        raise HTTPException(status_code=400, detail="El vídeo no se pudo procesar (duración 0). Prueba con otro archivo.")
 
     safe_trim_start = max(0.0, _safe_float(trim_start_seconds, 0.0))
     requested_trim_end = max(0.0, _safe_float(trim_end_seconds, 0.0))
@@ -748,7 +772,7 @@ async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
         owner_id = reel.get("user_id") or reel.get("author_id")
         if owner_id and owner_id != user.user_id:
             try:
-                now = datetime.now(timezone.utc).isoformat()
+                now = datetime.now(timezone.utc)
                 await db.notifications.insert_one({
                     "user_id": owner_id,
                     "type": "new_like",
@@ -845,7 +869,7 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
     owner_id = reel.get("user_id") or reel.get("author_id")
     if owner_id and owner_id != user.user_id:
         try:
-            now = datetime.now(timezone.utc).isoformat()
+            now = datetime.now(timezone.utc)
             snippet = comment["text"][:60] + ("…" if len(comment["text"]) > 60 else "")
             sender_name = getattr(user, "name", None) or getattr(user, "username", None) or "Alguien"
             await db.notifications.insert_one({
@@ -1006,6 +1030,12 @@ async def edit_reel(reel_id: str, body: dict = Body(...), user: User = Depends(g
     update = {}
     if "caption" in body:
         update["caption"] = sanitize_text(str(body["caption"])[:500])
+    if "audience" in body:
+        safe_audience = str(body["audience"]).strip().lower() if body["audience"] else "public"
+        if safe_audience not in ("public", "followers"):
+            safe_audience = "public"
+        update["audience"] = safe_audience
+        update["is_private"] = safe_audience != "public"
     if not update:
         raise HTTPException(status_code=400, detail="Nothing to update")
     if reel_collection == "reels":
@@ -1039,7 +1069,7 @@ async def delete_reel(reel_id: str, user: User = Depends(get_current_user)):
     # Clean Cloudinary assets
     try:
         from services.cloudinary_storage import cleanup_urls
-        urls = [reel.get("video_url"), reel.get("thumbnail_url"), reel.get("media_url")]
+        urls = [reel.get("video_url"), reel.get("original_video_url"), reel.get("thumbnail_url")]
         await cleanup_urls([u for u in urls if u], "video")
     except Exception as e:
         logger.warning(f"[REEL_DELETE] Cloudinary cleanup failed for {reel_id}: {e}")
@@ -1125,29 +1155,32 @@ async def get_user_profile(user_id: str, request: Request):
         })
         follow_request_pending = pending is not None
 
+    # For private accounts, hide detailed info from non-followers
+    can_see_details = is_own or is_following or not is_private
+
     profile = {
         "user_id": user.get("user_id"),
         "name": user.get("name"),
         "username": user.get("username"),
         "profile_image": user.get("profile_image"),
-        "bio": user.get("bio", ""),
-        "website": user.get("website"),
-        "location": user.get("location"),
+        "bio": user.get("bio", "") if can_see_details else "",
+        "website": user.get("website") if can_see_details else None,
+        "location": user.get("location") if can_see_details else None,
         "country": user.get("country"),
         "created_at": user.get("created_at"),
         "role": user.get("role"),
         "company_name": user.get("company_name"),
         "is_verified": bool(user.get("is_verified") or user.get("approved")),
         "followers_count": followers_count,
-        "following_count": following_count,
-        "posts_count": posts_count,
-        "reels_count": reels_count,
+        "following_count": following_count if can_see_details else 0,
+        "posts_count": posts_count if can_see_details else 0,
+        "reels_count": reels_count if can_see_details else 0,
         "is_following": is_following,
         "is_private": is_private,
         "follow_request_pending": follow_request_pending,
-        "has_active_story": has_active_story,
-        "mutual_followers": mutual_followers,
-        "mutual_followers_count": mutual_followers_count,
+        "has_active_story": has_active_story if can_see_details else False,
+        "mutual_followers": mutual_followers if can_see_details else [],
+        "mutual_followers_count": mutual_followers_count if can_see_details else 0,
     }
 
     # Attach store_slug for producers
@@ -1288,7 +1321,7 @@ async def handle_follow_request(
         await db.users.update_one({"user_id": user.user_id}, {"$inc": {"followers_count": 1}})
         # Notify requester that their follow request was accepted (fire-and-forget)
         try:
-            now = datetime.now(timezone.utc).isoformat()
+            now = datetime.now(timezone.utc)
             await db.notifications.insert_one({
                 "user_id": req["requester_id"],
                 "type": "follow_request_accepted",
@@ -1313,13 +1346,50 @@ async def handle_follow_request(
 
 
 @router.get("/users/{user_id}/posts")
-async def get_user_posts(user_id: str, skip: int = 0, limit: int = 30):
+async def get_user_posts(user_id: str, request: Request, skip: int = 0, limit: int = 30):
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+
+    # Privacy check: private accounts only show posts to owner/followers
+    target_user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "is_private": 1})
+    if target_user and target_user.get("is_private"):
+        is_owner = current_user and current_user.user_id == user_id
+        is_follower = False
+        if current_user and not is_owner:
+            is_follower = bool(await db.user_follows.find_one(
+                {"follower_id": current_user.user_id, "following_id": user_id}
+            ))
+        if not is_owner and not is_follower:
+            return []
+
     posts = await db.user_posts.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     for post in posts:
         _normalize_post_media(post)
         tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
         post["tagged_products"] = tagged_products
         post["tagged_product"] = tagged_products[0] if tagged_products else None
+
+    # Hydrate is_liked / is_saved for current user
+    if current_user and posts:
+        post_ids = [p.get("post_id") for p in posts if p.get("post_id")]
+        if post_ids:
+            like_docs = await db.post_likes.find(
+                {"post_id": {"$in": post_ids}, "user_id": current_user.user_id},
+                {"_id": 0, "post_id": 1}
+            ).to_list(len(post_ids))
+            liked_ids = {l["post_id"] for l in like_docs}
+            bookmark_docs = await db.post_bookmarks.find(
+                {"post_id": {"$in": post_ids}, "user_id": current_user.user_id},
+                {"_id": 0, "post_id": 1}
+            ).to_list(len(post_ids))
+            saved_ids = {b["post_id"] for b in bookmark_docs}
+            for p in posts:
+                pid = p.get("post_id")
+                p["is_liked"] = pid in liked_ids
+                p["is_saved"] = pid in saved_ids
+
     return posts
 
 
@@ -1356,12 +1426,38 @@ async def get_user_reels(user_id: str, request: Request, skip: int = 0, limit: i
             r["thumbnail_url"] = r.get("thumbnail_url") or r.get("cover_url") or r.get("video_url")
             merged.append(r)
     merged.sort(key=lambda x: x.get("created_at", ""), reverse=True)
-    return merged[:limit]
+    result = merged[:limit]
+
+    # Hydrate is_liked / is_saved for current user
+    if current_user and result:
+        reel_ids_list = [r.get("reel_id") or r.get("id") or r.get("post_id") for r in result]
+        reel_ids_list = [rid for rid in reel_ids_list if rid]
+        if reel_ids_list:
+            like_docs = await db.reel_likes.find(
+                {"reel_id": {"$in": reel_ids_list}, "user_id": current_user.user_id},
+                {"_id": 0, "reel_id": 1}
+            ).to_list(len(reel_ids_list))
+            liked_ids = {l["reel_id"] for l in like_docs}
+            save_docs = await db.reel_saves.find(
+                {"reel_id": {"$in": reel_ids_list}, "user_id": current_user.user_id},
+                {"_id": 0, "reel_id": 1}
+            ).to_list(len(reel_ids_list))
+            saved_ids = {s["reel_id"] for s in save_docs}
+            for r in result:
+                rid = r.get("reel_id") or r.get("id") or r.get("post_id")
+                r["is_liked"] = rid in liked_ids
+                r["is_saved"] = rid in saved_ids
+
+    return result
 
 
 @router.get("/users/{user_id}/products")
-async def get_user_products(user_id: str, skip: int = 0, limit: int = 50):
+async def get_user_products(user_id: str, request: Request, skip: int = 0, limit: int = 50):
     """Get approved products for a producer's profile."""
+    current_user = await get_optional_user(request)
+    target_user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "is_private": 1})
+    if target_user:
+        await _check_content_privacy(target_user, current_user)
     products = await db.products.find(
         {"producer_id": user_id, "approved": True},
         {"_id": 0}
@@ -1370,8 +1466,12 @@ async def get_user_products(user_id: str, skip: int = 0, limit: int = 50):
 
 
 @router.get("/users/{user_id}/recipes")
-async def get_user_recipes(user_id: str, skip: int = 0, limit: int = 50):
+async def get_user_recipes(user_id: str, request: Request, skip: int = 0, limit: int = 50):
     """Recetas públicas de un usuario, filtradas en base de datos (no en cliente)."""
+    current_user = await get_optional_user(request)
+    target_user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "is_private": 1})
+    if target_user:
+        await _check_content_privacy(target_user, current_user)
     recipes = await db.recipes.find(
         {"author_id": user_id, "status": "active"},
         {"_id": 0}
@@ -1394,9 +1494,11 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     if user.user_id == user_id:
         raise HTTPException(status_code=400, detail="Cannot follow yourself")
 
-    # Check if target account is private
+    # Check if target account exists and is private
     target_user = await db.users.find_one({"user_id": user_id}, {"is_private": 1, "role": 1})
-    is_target_private = bool(target_user and target_user.get("is_private", False))
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    is_target_private = bool(target_user.get("is_private", False))
 
     if is_target_private:
         # Create a follow request instead of an immediate follow
@@ -1415,7 +1517,7 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
         })
         # Notify target of the follow request (fire-and-forget)
         try:
-            now = datetime.now(timezone.utc).isoformat()
+            now = datetime.now(timezone.utc)
             await db.notifications.insert_one({
                 "user_id": user_id,
                 "type": "new_follow_request",
@@ -1446,7 +1548,7 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     await db.users.update_one({"user_id": user.user_id}, {"$inc": {"following_count": 1}})
     # Notify followed user (fire-and-forget)
     try:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(timezone.utc)
         await db.notifications.insert_one({
             "user_id": user_id,
             "type": "new_follower",
@@ -1488,6 +1590,19 @@ async def get_user_followers(
 ):
     """Lista paginada de seguidores de un usuario."""
     current_user = await get_optional_user(request)
+
+    # Privacy check: private accounts hide follower list from non-followers
+    target_user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "is_private": 1})
+    if target_user and target_user.get("is_private"):
+        is_owner = current_user and current_user.user_id == user_id
+        is_follower = False
+        if current_user and not is_owner:
+            is_follower = bool(await db.user_follows.find_one(
+                {"follower_id": current_user.user_id, "following_id": user_id}
+            ))
+        if not is_owner and not is_follower:
+            return {"followers": [], "total": 0, "has_more": False}
+
     skip = (page - 1) * limit
 
     query = {"following_id": user_id}
@@ -1559,6 +1674,19 @@ async def get_user_following(
 ):
     """Lista paginada de usuarios que sigue un usuario."""
     current_user = await get_optional_user(request)
+
+    # Privacy check: private accounts hide following list from non-followers
+    target_user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "is_private": 1})
+    if target_user and target_user.get("is_private"):
+        is_owner = current_user and current_user.user_id == user_id
+        is_follower = False
+        if current_user and not is_owner:
+            is_follower = bool(await db.user_follows.find_one(
+                {"follower_id": current_user.user_id, "following_id": user_id}
+            ))
+        if not is_owner and not is_follower:
+            return {"following": [], "total": 0, "has_more": False}
+
     skip = (page - 1) * limit
 
     query = {"follower_id": user_id}
@@ -1623,7 +1751,7 @@ async def get_user_following(
 # ── Story Highlights ──────────────────────────────────────────
 
 @router.get("/users/{user_id}/highlights")
-async def get_user_highlights(user_id: str):
+async def get_user_highlights(user_id: str, request: Request):
     """Get story highlights for a user profile (public)."""
     # Resolve user_id or username
     user_doc = await db.users.find_one(
@@ -1634,6 +1762,21 @@ async def get_user_highlights(user_id: str):
         return []
     actual_user_id = user_doc["user_id"]
 
+    # Block check
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+    if current_user and current_user.user_id != actual_user_id:
+        is_blocked = await db.blocked_users.find_one({
+            "$or": [
+                {"blocker_id": current_user.user_id, "blocked_id": actual_user_id},
+                {"blocker_id": actual_user_id, "blocked_id": current_user.user_id},
+            ]
+        })
+        if is_blocked:
+            return []
+
     highlights = await db.story_highlights.find(
         {"user_id": actual_user_id},
         {"_id": 0}
@@ -1642,7 +1785,7 @@ async def get_user_highlights(user_id: str):
 
 
 @router.get("/users/{user_id}/highlights/{highlight_id}")
-async def get_highlight_detail(user_id: str, highlight_id: str):
+async def get_highlight_detail(user_id: str, highlight_id: str, request: Request):
     """Get a single highlight with its story items (for StoryViewer)."""
     # Resolve user_id or username
     user_doc = await db.users.find_one(
@@ -1652,6 +1795,21 @@ async def get_highlight_detail(user_id: str, highlight_id: str):
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
     actual_user_id = user_doc["user_id"]
+
+    # Block check
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+    if current_user and current_user.user_id != actual_user_id:
+        is_blocked = await db.blocked_users.find_one({
+            "$or": [
+                {"blocker_id": current_user.user_id, "blocked_id": actual_user_id},
+                {"blocker_id": actual_user_id, "blocked_id": current_user.user_id},
+            ]
+        })
+        if is_blocked:
+            raise HTTPException(status_code=403, detail="Acción no permitida")
 
     highlight = await db.story_highlights.find_one(
         {"highlight_id": highlight_id, "user_id": actual_user_id},
@@ -1665,7 +1823,7 @@ async def get_highlight_detail(user_id: str, highlight_id: str):
     stories = []
     if story_ids:
         raw_stories = await db.hispalostories.find(
-            {"story_id": {"$in": story_ids}, "user_id": actual_user_id},
+            {"story_id": {"$in": story_ids}, "user_id": actual_user_id, "is_hidden": {"$ne": True}},
             {"_id": 0, "story_id": 1, "image_url": 1, "video_url": 1, "caption": 1, "created_at": 1, "likes_count": 1, "views": 1, "overlays": 1, "products": 1}
         ).to_list(len(story_ids))
         # Preserve the order defined in story_ids
@@ -1785,6 +1943,8 @@ async def create_post(
     incoming_files = [upload for upload in (files or []) if upload and upload.filename]
     if not incoming_files and file and file.filename:
         incoming_files = [file]
+    if len(incoming_files) > 10:
+        raise HTTPException(status_code=400, detail="Máximo 10 imágenes por publicación")
 
     MAX_IMAGE_SIZE = 10 * 1024 * 1024
     media = []
@@ -1900,10 +2060,35 @@ async def get_post(post_id: str, request: Request):
             is_reel = True
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+
+    # Privacy check: private posts only visible to owner or followers
+    if post.get("is_private"):
+        owner_id = post.get("user_id")
+        is_owner = current_user and current_user.user_id == owner_id
+        if not is_owner:
+            is_follower = False
+            if current_user and owner_id:
+                is_follower = bool(await db.user_follows.find_one(
+                    {"follower_id": current_user.user_id, "following_id": owner_id}
+                ))
+            if not is_follower:
+                raise HTTPException(status_code=404, detail="Post not found")
+
     _normalize_post_media(post)
     tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
     post["tagged_products"] = tagged_products
     post["tagged_product"] = tagged_products[0] if tagged_products else None
+    # Enrich with owner user details (name, username, avatar) if not already set
+    owner_id = post.get("user_id")
+    if owner_id and not post.get("user_name"):
+        owner_doc = await db.users.find_one(
+            {"user_id": owner_id},
+            {"_id": 0, "name": 1, "username": 1, "profile_image": 1, "avatar_url": 1}
+        )
+        if owner_doc:
+            post["user_name"] = owner_doc.get("name") or owner_doc.get("username") or "Usuario"
+            post["username"] = owner_doc.get("username")
+            post["user_profile_image"] = owner_doc.get("profile_image") or owner_doc.get("avatar_url")
     # Enrich with auth-aware fields
     if current_user:
         if is_reel:
@@ -1920,8 +2105,11 @@ async def get_post(post_id: str, request: Request):
 
 
 @router.get("/posts/{post_id}/likes")
-async def get_post_likes(post_id: str, skip: int = 0, limit: int = 50):
+async def get_post_likes(post_id: str, request: Request, skip: int = 0, limit: int = 50):
     """Get users who liked a post, enriched with name/avatar."""
+    current_user = await get_optional_user(request)
+    post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1, "is_private": 1})
+    await _check_content_privacy(post, current_user)
     likes = await db.post_likes.find({"post_id": post_id}, {"_id": 0, "user_id": 1, "created_at": 1}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     user_ids = [l["user_id"] for l in likes if l.get("user_id")]
     user_cache = {}
@@ -1960,6 +2148,14 @@ async def like_post(post_id: str, user: User = Depends(get_current_user)):
             is_reel = True
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+
+    # Privacy check for private content
+    if post.get("is_private") and post.get("user_id") != user.user_id:
+        is_follower = await db.user_follows.find_one(
+            {"follower_id": user.user_id, "following_id": post["user_id"]}
+        )
+        if not is_follower:
+            raise HTTPException(status_code=403, detail="Not authorized to interact with this content")
 
     if is_reel:
         # Delegate to the reel-specific like logic (uses reel_likes collection)
@@ -2048,6 +2244,8 @@ VALID_EMOJIS = ["heart", "laugh", "wow", "clap", "fire"]
 @router.post("/posts/{post_id}/react")
 async def react_to_post(post_id: str, request: Request, user: User = Depends(get_current_user)):
     """Toggle an emoji reaction on a post."""
+    post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1, "is_private": 1})
+    await _check_content_privacy(post, user)
     body = await request.json()
     emoji = body.get("emoji", "").strip()
     if emoji not in VALID_EMOJIS:
@@ -2073,8 +2271,11 @@ async def react_to_post(post_id: str, request: Request, user: User = Depends(get
 
 
 @router.get("/posts/{post_id}/reactions")
-async def get_post_reactions(post_id: str):
+async def get_post_reactions(post_id: str, request: Request):
     """Get reaction counts and list for a post."""
+    current_user = await get_optional_user(request)
+    post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1, "is_private": 1})
+    await _check_content_privacy(post, current_user)
     pipeline = [
         {"$match": {"post_id": post_id}},
         {"$group": {"_id": "$emoji", "count": {"$sum": 1}, "users": {"$push": "$user_name"}}},
@@ -2087,6 +2288,11 @@ async def get_post_reactions(post_id: str):
 @router.get("/posts/{post_id}/comments")
 async def get_post_comments(post_id: str, request: Request, skip: int = 0, limit: int = 50):
     limit = min(limit, 50)  # Cap to prevent unbounded queries
+    # Privacy check
+    current_user = await get_optional_user(request)
+    post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1, "is_private": 1})
+    if post:
+        await _check_content_privacy(post, current_user)
     comments = await db.post_comments.find({"post_id": post_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     is_reel_fallback = False
     if not comments and post_id.startswith("reel_"):
@@ -2095,10 +2301,6 @@ async def get_post_comments(post_id: str, request: Request, skip: int = 0, limit
         is_reel_fallback = True
 
     # Hydrate is_liked for all comments (post and reel)
-    try:
-        current_user = await get_optional_user(request)
-    except Exception:
-        current_user = None
     if current_user and comments:
         comment_ids = [c.get("comment_id") for c in comments if c.get("comment_id")]
         if comment_ids:
@@ -2124,6 +2326,13 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
         is_reel = bool(post)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    # Privacy check: only owner or followers can comment on private content
+    if post.get("is_private") and post.get("user_id") != user.user_id:
+        is_follower = await db.user_follows.find_one(
+            {"follower_id": user.user_id, "following_id": post["user_id"]}
+        )
+        if not is_follower:
+            raise HTTPException(status_code=403, detail="Not authorized to comment on this content")
     body = await request.json()
     text = body.get("text", "").strip()
     if not text:
@@ -2365,7 +2574,8 @@ async def delete_own_account(request: Request, user: User = Depends(get_current_
 async def toggle_bookmark(post_id: str, user: User = Depends(get_current_user)):
     post = await db.user_posts.find_one({"post_id": post_id})
     if not post and post_id.startswith("reel_"):
-        # Reels appearing in the feed use the /posts/{reel_id}/save route via PostDetailModal
+        reel = await db.reels.find_one({"reel_id": post_id}, {"_id": 0, "user_id": 1, "is_private": 1})
+        await _check_content_privacy(reel, user)
         reel_result = await db.reel_saves.find_one({"reel_id": post_id, "user_id": user.user_id})
         if reel_result:
             await db.reel_saves.delete_one({"reel_id": post_id, "user_id": user.user_id})
@@ -2374,6 +2584,7 @@ async def toggle_bookmark(post_id: str, user: User = Depends(get_current_user)):
         return {"bookmarked": True}
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    await _check_content_privacy(post, user)
     existing = await db.post_bookmarks.find_one({"post_id": post_id, "user_id": user.user_id})
     if existing:
         await db.post_bookmarks.delete_one({"post_id": post_id, "user_id": user.user_id})
@@ -2467,7 +2678,9 @@ async def delete_post(post_id: str, user: User = Depends(get_current_user)):
     await db.user_posts.delete_one({"post_id": post_id})
     await db.post_likes.delete_many({"post_id": post_id})
     await db.post_comments.delete_many({"post_id": post_id})
+    await db.comment_likes.delete_many({"post_id": post_id})
     await db.post_bookmarks.delete_many({"post_id": post_id})
+    await db.post_reactions.delete_many({"post_id": post_id})
     await db.social_events.delete_many({"post_id": post_id})
     
     # Audit log
@@ -2944,9 +3157,18 @@ async def update_user_profile_data(request: Request, user: User = Depends(get_cu
 async def upload_avatar(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     if not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="Only image files are allowed")
-    contents = await file.read()
-    if len(contents) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="Image size cannot exceed 5MB")
+    MAX_AVATAR_SIZE = 5 * 1024 * 1024
+    chunks = []
+    total = 0
+    while True:
+        chunk = await file.read(512 * 1024)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > MAX_AVATAR_SIZE:
+            raise HTTPException(status_code=400, detail="Image size cannot exceed 5MB")
+        chunks.append(chunk)
+    contents = b"".join(chunks)
     result = await cloudinary_upload(contents, folder="avatars", filename=f"avatar_{user.user_id}")
     image_url = result["url"]
     await db.users.update_one({"user_id": user.user_id}, {"$set": {"profile_image": image_url, "picture": image_url}})
@@ -3006,7 +3228,16 @@ async def create_story(
     # Parse and store overlay metadata (text, stickers, draws for video stories)
     if overlays_json:
         try:
-            story["overlays"] = json.loads(overlays_json) if isinstance(overlays_json, str) else overlays_json
+            overlays_data = json.loads(overlays_json) if isinstance(overlays_json, str) else overlays_json
+            # Sanitize text overlay content to prevent XSS
+            if isinstance(overlays_data, dict):
+                for t in overlays_data.get("texts", []):
+                    if isinstance(t, dict) and "text" in t:
+                        t["text"] = sanitize_text(t["text"][:500])
+                for s in overlays_data.get("stickers", []):
+                    if isinstance(s, dict) and "content" in s:
+                        s["content"] = sanitize_text(str(s["content"])[:200])
+            story["overlays"] = overlays_data
         except Exception:
             story["overlays"] = {}
     # Parse and store product sticker references
@@ -3030,10 +3261,25 @@ async def get_stories_feed(request: Request):
         current_user = None
     now = datetime.now(timezone.utc).isoformat()
 
-    # Get all non-expired stories
+    # Get blocked user IDs
+    blocked_ids: set = set()
+    if current_user:
+        blocked_docs = await db.blocked_users.find(
+            {"$or": [{"blocker_id": current_user.user_id}, {"blocked_id": current_user.user_id}]},
+            {"_id": 0, "blocker_id": 1, "blocked_id": 1},
+        ).to_list(500)
+        for bd in blocked_docs:
+            blocked_ids.add(bd.get("blocker_id"))
+            blocked_ids.add(bd.get("blocked_id"))
+        blocked_ids.discard(current_user.user_id)
+
+    # Get all non-expired stories (exclude blocked users)
+    story_query = {"expires_at": {"$gt": now}, "is_hidden": {"$ne": True}}
+    if blocked_ids:
+        story_query["user_id"] = {"$nin": list(blocked_ids)}
     try:
         active_stories = await db.hispalostories.find(
-            {"expires_at": {"$gt": now}, "is_hidden": {"$ne": True}},
+            story_query,
             {"_id": 0, "views": 0}
         ).sort("created_at", -1).to_list(200)
     except Exception as exc:
@@ -3053,7 +3299,7 @@ async def get_stories_feed(request: Request):
     if user_ids:
         user_docs = await db.users.find(
             {"user_id": {"$in": user_ids}},
-            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1, "role": 1},
+            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "role": 1},
         ).to_list(len(user_ids))
         user_cache = {user.get("user_id", ""): user for user in user_docs}
 
@@ -3066,6 +3312,7 @@ async def get_stories_feed(request: Request):
         is_own = current_user and current_user.user_id == uid
         result.append({
             "user_id": uid,
+            "username": u.get("username"),
             "user_name": u.get("name", ""),
             "profile_image": u.get("profile_image"),
             "role": u.get("role", "customer"),
@@ -3073,9 +3320,11 @@ async def get_stories_feed(request: Request):
             "stories": stories,
         })
 
-    # Put own stories first
+    # Put own stories first, then others newest-first
+    # key=(is_own, created_at) with reverse=True: True > False so own comes first;
+    # for same is_own group, later dates sort higher → newest-first.
     if current_user:
-        result.sort(key=lambda x: (not x["is_own"], x["stories"][0]["created_at"]), reverse=False)
+        result.sort(key=lambda x: (x["is_own"], x["stories"][0]["created_at"]), reverse=True)
 
     return result
 
@@ -3121,16 +3370,26 @@ async def get_user_stories(user_id: str, request: Request):
         if user_doc:
             user_id = user_doc["user_id"]
 
-    stories = await db.hispalostories.find(
-        {"user_id": user_id, "expires_at": {"$gt": now}, "is_hidden": {"$ne": True}},
-        {"_id": 0},
-    ).sort("created_at", 1).to_list(50)  # oldest-first so viewer plays in posting order
-
-    # Mark which items the current viewer has already seen
+    # Check blocking before returning stories
     try:
         current_user = await get_optional_user(request)
     except Exception:
         current_user = None
+
+    if current_user and current_user.user_id != user_id:
+        is_blocked = await db.blocked_users.find_one({
+            "$or": [
+                {"blocker_id": current_user.user_id, "blocked_id": user_id},
+                {"blocker_id": user_id, "blocked_id": current_user.user_id},
+            ]
+        })
+        if is_blocked:
+            return []
+
+    stories = await db.hispalostories.find(
+        {"user_id": user_id, "expires_at": {"$gt": now}, "is_hidden": {"$ne": True}},
+        {"_id": 0},
+    ).sort("created_at", 1).to_list(50)  # oldest-first so viewer plays in posting order
 
     # Batch-check which stories the current user has liked (single query)
     liked_story_ids: set = set()
@@ -3172,6 +3431,20 @@ async def view_story(story_id: str, request: Request):
 @router.post("/stories/{story_id}/like")
 async def like_story(story_id: str, user: User = Depends(get_current_user)):
     """Toggle like on a story. Uses atomic upsert to prevent race-condition double-likes."""
+    # Block check — prevent likes from/to blocked users
+    story_doc = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "user_id": 1})
+    if story_doc:
+        owner_id = story_doc.get("user_id")
+        if owner_id and owner_id != user.user_id:
+            is_blocked = await db.blocked_users.find_one({
+                "$or": [
+                    {"blocker_id": owner_id, "blocked_id": user.user_id},
+                    {"blocker_id": user.user_id, "blocked_id": owner_id},
+                ]
+            })
+            if is_blocked:
+                raise HTTPException(status_code=403, detail="Acción no permitida")
+
     # Try to delete first — if it existed, this is an unlike
     result = await db.story_likes.delete_one({"story_id": story_id, "user_id": user.user_id})
     if result.deleted_count > 0:
@@ -3188,15 +3461,16 @@ async def like_story(story_id: str, user: User = Depends(get_current_user)):
             await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"likes_count": 1}})
         liked = True
 
-    story = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "likes_count": 1, "user_id": 1})
+    # Re-fetch fresh likes_count after toggle
+    story = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "likes_count": 1})
     if liked:
-        story_owner_id = (story or {}).get("user_id")
-        if story_owner_id and story_owner_id != user.user_id:
+        owner_id = (story_doc or {}).get("user_id")
+        if owner_id and owner_id != user.user_id:
             try:
                 from services.notifications.dispatcher_service import notification_dispatcher
                 sender_name = getattr(user, "name", None) or getattr(user, "username", None) or "Alguien"
                 asyncio.create_task(notification_dispatcher.send_notification(
-                    user_id=story_owner_id,
+                    user_id=owner_id,
                     title="Nueva reacción",
                     body=f"{sender_name} ha reaccionado a tu historia",
                     notification_type="story_like",
@@ -3221,25 +3495,37 @@ async def reply_story(story_id: str, request: Request, user: User = Depends(get_
     if not story:
         raise HTTPException(status_code=404, detail="Historia no encontrada")
 
+    # Block check — prevent replies from/to blocked users
+    owner_id = story.get("user_id")
+    if owner_id and owner_id != user.user_id:
+        is_blocked = await db.blocked_users.find_one({
+            "$or": [
+                {"blocker_id": owner_id, "blocked_id": user.user_id},
+                {"blocker_id": user.user_id, "blocked_id": owner_id},
+            ]
+        })
+        if is_blocked:
+            raise HTTPException(status_code=403, detail="Acción no permitida")
+
     reply = {
         "reply_id": f"srep_{uuid.uuid4().hex[:10]}",
         "story_id": story_id,
         "story_owner_id": story.get("user_id"),
         "user_id": user.user_id,
-        "user_name": user.get("name") if hasattr(user, "get") else getattr(user, "name", "Usuario"),
-        "user_profile_image": user.get("profile_image") if hasattr(user, "get") else getattr(user, "profile_image", None),
+        "user_name": getattr(user, "name", None) or getattr(user, "username", None) or "Usuario",
+        "user_profile_image": getattr(user, "profile_image", None),
         "message": sanitize_text(message[:500]),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.story_replies.insert_one(reply)
     await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"replies_count": 1}})
-    story_owner_id = story.get("user_id")
-    if story_owner_id and story_owner_id != user.user_id:
+    # Block was already checked above — safe to send notification
+    if owner_id and owner_id != user.user_id:
         try:
             from services.notifications.dispatcher_service import notification_dispatcher
             sender_name = getattr(user, "name", None) or getattr(user, "username", None) or "Alguien"
             asyncio.create_task(notification_dispatcher.send_notification(
-                user_id=story_owner_id,
+                user_id=owner_id,
                 title="Nueva respuesta",
                 body=f"{sender_name} ha respondido a tu historia",
                 notification_type="story_reply",
@@ -3550,6 +3836,22 @@ async def get_saved_reels(skip: int = 0, limit: int = 20, user: User = Depends(g
         if rid and rid not in reel_map:
             reel_map[rid] = r
     ordered = [reel_map[rid] for rid in reel_ids if rid in reel_map]
+
+    # Hydrate is_liked (is_saved is True for all — this is the saved-reels endpoint)
+    if ordered:
+        ordered_ids = [r.get("reel_id") or r.get("id") or r.get("post_id") for r in ordered]
+        ordered_ids = [rid for rid in ordered_ids if rid]
+        if ordered_ids:
+            like_docs = await db.reel_likes.find(
+                {"reel_id": {"$in": ordered_ids}, "user_id": user.user_id},
+                {"_id": 0, "reel_id": 1}
+            ).to_list(len(ordered_ids))
+            liked_ids = {l["reel_id"] for l in like_docs}
+            for r in ordered:
+                rid = r.get("reel_id") or r.get("id") or r.get("post_id")
+                r["is_liked"] = rid in liked_ids
+                r["is_saved"] = True
+
     return {"reels": ordered, "has_more": len(saved) == limit}
 
 
@@ -3565,7 +3867,23 @@ async def block_user(user_id: str, user: User = Depends(get_current_user)):
     # Also unfollow in both directions
     await db.user_follows.delete_one({"follower_id": user.user_id, "following_id": user_id})
     await db.user_follows.delete_one({"follower_id": user_id, "following_id": user.user_id})
+    # Cancel pending follow requests in both directions
+    await db.follow_requests.delete_many({
+        "$or": [
+            {"requester_id": user.user_id, "target_id": user_id},
+            {"requester_id": user_id, "target_id": user.user_id},
+        ]
+    })
     return {"status": "blocked"}
+
+
+@router.delete("/users/{user_id}/block")
+async def unblock_user(user_id: str, user: User = Depends(get_current_user)):
+    """Remove block on a user."""
+    result = await db.blocked_users.delete_one({"blocker_id": user.user_id, "blocked_id": user_id})
+    if result.deleted_count == 0:
+        return {"status": "not_blocked"}
+    return {"status": "unblocked"}
 
 
 @router.post("/users/{user_id}/report")

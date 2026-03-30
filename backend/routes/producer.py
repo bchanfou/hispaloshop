@@ -186,6 +186,7 @@ async def get_shipping_policy(user: User = Depends(get_current_user)):
             "shipping_base_cost_cents": 1,
             "shipping_free_threshold_cents": 1,
             "shipping_per_item_cents": 1,
+            "shipping_local_pickup_enabled": 1,
         },
     )
     user_doc = user_doc or {}
@@ -194,6 +195,7 @@ async def get_shipping_policy(user: User = Depends(get_current_user)):
         "base_cost_cents": int(user_doc.get("shipping_base_cost_cents", 0) or 0),
         "free_threshold_cents": user_doc.get("shipping_free_threshold_cents"),
         "per_item_cents": int(user_doc.get("shipping_per_item_cents", 0) or 0),
+        "local_pickup_enabled": bool(user_doc.get("shipping_local_pickup_enabled", False)),
     }
 
 
@@ -208,6 +210,7 @@ async def update_shipping_policy(input: ShippingPolicyInput, user: User = Depend
                 "shipping_base_cost_cents": input.base_cost_cents,
                 "shipping_free_threshold_cents": input.free_threshold_cents,
                 "shipping_per_item_cents": input.per_item_cents,
+                "shipping_local_pickup_enabled": getattr(input, "local_pickup_enabled", False),
                 "updated_at": datetime.now(timezone.utc).isoformat(),
             }
         },
@@ -217,6 +220,7 @@ async def update_shipping_policy(input: ShippingPolicyInput, user: User = Depend
         "base_cost_cents": input.base_cost_cents,
         "free_threshold_cents": input.free_threshold_cents,
         "per_item_cents": input.per_item_cents,
+        "local_pickup_enabled": getattr(input, "local_pickup_enabled", False),
     }
 
 @router.get("/producer/payments")

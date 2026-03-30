@@ -42,7 +42,11 @@ function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPric
     }
     setSubmitting(true);
     try {
-      await apiClient.post('/influencer/withdrawal', { amount: numAmount, method, notes });
+      await apiClient.post('/influencer/request-withdrawal', {
+        amount: numAmount,
+        method: method === 'sepa' ? 'bank_transfer' : method,
+        notes,
+      });
       toast.success('Solicitud de retirada enviada');
       onSuccess?.();
       onClose();

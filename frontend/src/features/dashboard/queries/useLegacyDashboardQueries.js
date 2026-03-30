@@ -13,8 +13,8 @@ export function useLegacyConsumerDashboard(enabled = true) {
     enabled,
     queryFn: async () => {
       const [ordersData, wishlistData] = await Promise.all([
-        apiClient.get('/orders', { params: { limit: 5 } }),
-        apiClient.get('/wishlist').catch(() => ({ items: [] })),
+        apiClient.get('/customer/orders', { params: { limit: 5 } }),
+        apiClient.get('/wishlist').catch(() => []),
       ]);
 
       return {

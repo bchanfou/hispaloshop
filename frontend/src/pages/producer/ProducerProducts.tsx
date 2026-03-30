@@ -520,9 +520,9 @@ export default function ProducerProducts() {
         b2b_enabled: formData.b2b_enabled || false,
         b2b_moq: formData.b2b_moq ? parseInt(formData.b2b_moq) : null,
         b2b_tiers: formData.b2b_enabled && formData.b2b_tiers.length > 0
-          ? formData.b2b_tiers.filter(t => t.min_quantity && t.unit_price).map(t => ({
-              min_quantity: parseInt(t.min_quantity),
-              unit_price: parseFloat(t.unit_price),
+          ? formData.b2b_tiers.filter(tier => tier.min_quantity && tier.unit_price).map(tier => ({
+              min_quantity: parseInt(tier.min_quantity),
+              unit_price: parseFloat(tier.unit_price),
             }))
           : null,
       };
@@ -621,7 +621,7 @@ export default function ProducerProducts() {
     });
     
     // Set legacy strings for backward compatibility
-    setIngredientsStr(product.ingredients?.join(', ') || '');
+    setIngredientsStr(product.ingredients?.map(i => typeof i === 'string' ? i : (i.name || '')).filter(Boolean).join(', ') || '');
     setAllergensStr(product.allergens?.join(', ') || '');
     setCertificationsStr(product.certifications?.join(', ') || '');
     setWizardStep(0);

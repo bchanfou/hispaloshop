@@ -40,7 +40,7 @@ function RevenueChart({ dailyEarnings, days }) {
   const bars = useMemo(() => {
     if (!Array.isArray(dailyEarnings) || dailyEarnings.length === 0) return [];
     // Take last N entries matching period
-    const count = days <= 7 ? 7 : 30;
+    const count = days <= 7 ? 7 : days;
     const slice = dailyEarnings.slice(-count);
     return slice;
   }, [dailyEarnings, days]);
@@ -68,7 +68,7 @@ function RevenueChart({ dailyEarnings, days }) {
                 style={{ height: `${Math.max(h, 2)}%` }}
                 title={`${(bar.amount || 0).toFixed(2)}€`}
               />
-              {bars.length <= 7 && (
+              {days <= 7 && (
                 <span className="text-[9px] text-stone-400 mt-1 truncate w-full text-center">
                   {bar.label || bar.date || ''}
                 </span>

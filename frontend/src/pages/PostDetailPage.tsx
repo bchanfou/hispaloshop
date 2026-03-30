@@ -102,6 +102,7 @@ export default function PostDetailPage() {
   const [localCaption, setLocalCaption] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const inputRef = useRef(null);
+  const likingRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -122,12 +123,24 @@ export default function PostDetailPage() {
   const fetchComments = useCallback(() => {
     setCommentsLoading(true);
     apiClient.get(`/posts/${postId}/comments?limit=50`)
-      .then((data) => setComments(Array.isArray(data) ? data : data?.comments || []))
+      .then((data) => {
+        const list: any[] = Array.isArray(data) ? data : data?.comments || [];
+        setComments(list);
+        // Initialize liked set from API is_liked field
+        const liked = new Set<string>(
+          list
+            .filter((c: any) => c.is_liked)
+            .map((c: any) => c.comment_id || c.id)
+            .filter(Boolean)
+        );
+        setLikedComments(liked);
+      })
       .catch(() => setComments([]))
       .finally(() => setCommentsLoading(false));
   }, [postId]);
 
-  useEffect(() => { if (post) fetchComments(); }, [post, fetchComments]);
+  // Only re-fetch when postId changes, not on every post state update (like/save/count)
+  useEffect(() => { fetchComments(); }, [postId, fetchComments]);
 
   const handleSendComment = async () => {
     const text = newComment.trim();
@@ -159,26 +172,60 @@ export default function PostDetailPage() {
   };
 
   const handleLikeComment = async (commentId) => {
+    const wasLiked = likedComments.has(commentId);
     setLikedComments(prev => {
       const next = new Set(prev);
-      next.has(commentId) ? next.delete(commentId) : next.add(commentId);
+      wasLiked ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    try { await apiClient.post(`/posts/${postId}/comments/${commentId}/like`); } catch (err) { /* like toggle best-effort */ }
+    // Optimistically update the displayed likes_count
+    setComments(prev => prev.map(c => {
+      const cId = c.comment_id || c.id;
+      if (cId !== commentId) return c;
+      return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
+    }));
+    try {
+      await apiClient.post(`/posts/${postId}/comments/${commentId}/like`);
+    } catch (err) {
+      // Rollback on failure
+      setLikedComments(prev => {
+        const next = new Set(prev);
+        wasLiked ? next.add(commentId) : next.delete(commentId);
+        return next;
+      });
+      setComments(prev => prev.map(c => {
+        const cId = c.comment_id || c.id;
+        if (cId !== commentId) return c;
+        return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1)) };
+      }));
+    }
   };
 
+  const isReel = !!(post?.video_url || post?.type === 'reel' || post?.is_reel);
+
   const handleLikePost = async () => {
+    if (likingRef.current) return;
+    likingRef.current = true;
+    const wasLiked = liked;
     setLiked(l => !l);
-    setLikesCount(c => liked ? Math.max(0, c - 1) : c + 1);
-    try { await apiClient.post(`/posts/${postId}/like`); } catch (err) {
-      setLiked(l => !l);
-      setLikesCount(c => liked ? c + 1 : Math.max(0, c - 1));
+    setLikesCount(c => wasLiked ? Math.max(0, c - 1) : c + 1);
+    try {
+      const endpoint = isReel ? `/reels/${postId}/like` : `/posts/${postId}/like`;
+      await apiClient.post(endpoint);
+    } catch (err) {
+      setLiked(wasLiked);
+      setLikesCount(c => wasLiked ? c + 1 : Math.max(0, c - 1));
+    } finally {
+      likingRef.current = false;
     }
   };
 
   const handleSavePost = async () => {
     setSaved(s => !s);
-    try { await apiClient.post(`/posts/${postId}/save`); } catch (err) { setSaved(s => !s); }
+    try {
+      const endpoint = isReel ? `/reels/${postId}/save` : `/posts/${postId}/save`;
+      await apiClient.post(endpoint);
+    } catch (err) { setSaved(s => !s); }
   };
 
   const handleShare = async () => {
@@ -201,7 +248,8 @@ export default function PostDetailPage() {
 
   const handleEditSave = async () => {
     try {
-      await apiClient.patch(`/posts/${postId}`, { caption: editCaption });
+      const endpoint = isReel ? `/reels/${postId}` : `/posts/${postId}`;
+      await apiClient.patch(endpoint, { caption: editCaption });
       setLocalCaption(editCaption);
       setShowEditCaption(false);
       toast.success('Publicación editada');
@@ -213,8 +261,9 @@ export default function PostDetailPage() {
   const handleDeletePost = async () => {
     setShowDeleteConfirm(false);
     try {
-      await apiClient.delete(`/posts/${postId}`);
-      toast.success('Post eliminado');
+      const endpoint = isReel ? `/reels/${postId}` : `/posts/${postId}`;
+      await apiClient.delete(endpoint);
+      toast.success(isReel ? 'Reel eliminado' : 'Post eliminado');
       navigate(-1);
     } catch (err) {
       toast.error('Error al eliminar');
@@ -286,7 +335,7 @@ export default function PostDetailPage() {
       <div className="max-w-[600px] mx-auto bg-white sm:mt-4 sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-100">
         {/* Header */}
         <div className="flex items-center gap-2.5 px-4 py-3">
-          <Link to={`/${userObj.username || userObj.id || post.user_id}`} className="shrink-0">
+          <Link to={`/${userObj.username || post.username || post.user_id}`} className="shrink-0">
             {avatarUrl ? (
               <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
             ) : (
@@ -296,7 +345,7 @@ export default function PostDetailPage() {
             )}
           </Link>
           <div className="min-w-0 flex-1">
-            <Link to={`/${userObj.username || userObj.id || post.user_id}`} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
+            <Link to={`/${userObj.username || post.username || post.user_id}`} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
               {userName}
             </Link>
             {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
@@ -351,8 +400,23 @@ export default function PostDetailPage() {
           </div>
         </BottomSheet>
 
-        {/* Image */}
-        <PostCarousel images={images} userName={userName} />
+        {/* Media — video for reels, carousel for posts */}
+        {(post.video_url || post.type === 'reel' || post.is_reel) ? (
+          <div className="relative w-full bg-black aspect-[9/16] max-h-[70vh] flex items-center justify-center">
+            <video
+              src={post.video_url || post.original_video_url || images[0]}
+              poster={post.thumbnail_url || post.cover_url}
+              controls
+              playsInline
+              autoPlay
+              muted
+              loop
+              className="w-full h-full object-contain"
+            />
+          </div>
+        ) : (
+          <PostCarousel images={images} userName={userName} />
+        )}
 
         {/* Actions row */}
         <div className="flex items-center px-3 py-2">
@@ -383,7 +447,7 @@ export default function PostDetailPage() {
         {(localCaption ?? post.caption ?? post.content) && (
           <div className="px-4 pb-2">
             <p className="text-[13px] leading-relaxed text-stone-950">
-              <Link to={`/${userObj.username || userObj.id || post.user_id}`} className="font-semibold text-stone-950 no-underline hover:underline mr-1.5">
+              <Link to={`/${userObj.username || post.username || post.user_id}`} className="font-semibold text-stone-950 no-underline hover:underline mr-1.5">
                 {userName}
               </Link>
               {renderCaption(localCaption ?? post.caption ?? post.content, navigate)}

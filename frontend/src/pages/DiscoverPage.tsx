@@ -1,35 +1,108 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, ShoppingBag, AlertTriangle, ArrowRight, Bookmark, Store, Users, ChefHat } from 'lucide-react';
+import { Search, MapPin, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, ShoppingBag, AlertTriangle, ArrowRight, Bookmark, Store, ChefHat } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
 import { motion } from 'framer-motion';
-import ProductCard from '../components/ProductCard';
-import PostDetailModal from '../components/feed/PostDetailModal';
 import SEO from '../components/SEO';
 import { CATEGORY_GROUPS } from '../constants/categories';
-import { toast } from 'sonner';
-
 /* ── constants ── */
 
-const DIFFICULTY_MAP = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' };
-
 const ELITE_FADE_MS = 400;
-
-/* ── pill classes ── */
-const pillCls = (active) =>
-  `flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors ${
-    active
-      ? 'bg-stone-950 text-white'
-      : 'bg-stone-100 text-stone-700'
-  }`;
 
 /* ── icon map for category groups ── */
 const CATEGORY_ICON_MAP = { Leaf, Package, Cookie, CupSoda, Baby, PawPrint, Crown };
 const getCategoryIcon = (iconName) => CATEGORY_ICON_MAP[iconName] || Package;
+
+/* ── loading skeleton grid — defined outside DiscoverPage to keep stable identity ── */
+function SkeletonGrid() {
+  return (
+    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i} className="aspect-square bg-stone-100 animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+/* ── Elite carousel — defined outside DiscoverPage to keep stable identity ── */
+function EliteCarousel({ eliteStores, eliteIdx, eliteFading, goToElite, navigate }) {
+  if (eliteStores.length === 0) return null;
+  const store = eliteStores[eliteIdx];
+  const heroImg = store.hero_image || store.cover_image || store.logo;
+  const fadeStyle = { opacity: eliteFading ? 0 : 1, transition: `opacity ${ELITE_FADE_MS}ms ease` };
+  const storeUrl = store.slug || store.store_slug || store.store_id || store.id;
+  return (
+    <div className="mx-4 mb-4">
+      <div
+        role="link"
+        tabIndex={0}
+        aria-label={`Tienda destacada: ${store.name}`}
+        onClick={() => storeUrl && navigate(`/store/${storeUrl}`)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); storeUrl && navigate(`/store/${storeUrl}`); } }}
+        className="relative aspect-video cursor-pointer overflow-hidden rounded-2xl bg-stone-950 outline-none"
+      >
+        {heroImg && (
+          <img src={heroImg} alt={store.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" style={fadeStyle} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 px-5 py-4" style={fadeStyle}>
+          <div className="mb-1.5 flex items-center gap-2.5">
+            {store.logo && (
+              <img src={store.logo} alt="" className="h-9 w-9 rounded-full border-2 border-white/30 object-cover" />
+            )}
+            <div>
+              <p className="text-base font-semibold text-white">{store.name}</p>
+              {store.location && (
+                <p className="flex items-center gap-1 text-[11px] text-white/70">
+                  <MapPin size={10} /> {store.location}
+                </p>
+              )}
+            </div>
+          </div>
+          {store.tagline && (
+            <p className="text-xs leading-relaxed text-white/80">{store.tagline}</p>
+          )}
+        </div>
+        <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white/80 backdrop-blur-md">
+          Destacado
+        </span>
+        {storeUrl && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); navigate(`/store/${storeUrl}`); }}
+            className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-stone-950 backdrop-blur-sm transition-colors hover:bg-white"
+            style={fadeStyle}
+          >
+            Ver tienda <ArrowRight size={14} />
+          </button>
+        )}
+      </div>
+
+      {eliteStores.length > 1 && (
+        <div role="tablist" aria-label="Tiendas destacadas" className="mt-2 flex justify-center gap-1.5">
+          {eliteStores.map((s, i) => (
+            <button
+              key={s.store_id || s.id || i}
+              role="tab"
+              aria-selected={i === eliteIdx}
+              aria-label={`Tienda ${i + 1}: ${s.name || ''}`}
+              onClick={(e) => { e.stopPropagation(); goToElite(i); }}
+              className="flex h-8 w-8 items-center justify-center"
+            >
+              <span className={`block h-1.5 rounded-full transition-all duration-300 ${
+                i === eliteIdx ? 'w-4 bg-stone-950' : 'w-1.5 bg-stone-300'
+              }`} />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ── Explore grid item: square thumbnail, some span 2 rows ── */
 function ExploreGridItem({ item, index, onClick }) {
@@ -75,17 +148,13 @@ export default function DiscoverPage() {
   const userCountry = user?.country || country || 'ES';
 
   /* ── ui states ── */
-  const [selectedPost, setSelectedPost] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
 
   /* ── data states ── */
-  const [trending, setTrending] = useState([]);
   const [loadingTrending, setLoadingTrending] = useState(true);
   const [eliteStores, setEliteStores] = useState([]);
   const [recipes, setRecipes] = useState([]);
-  const [loadingRecipes, setLoadingRecipes] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [trendingHashtags, setTrendingHashtags] = useState([]);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [recommendedStores, setRecommendedStores] = useState([]);
   const [recommendedRecipes, setRecommendedRecipes] = useState([]);
@@ -103,30 +172,17 @@ export default function DiscoverPage() {
   /* ── fetch data ── */
   const fetchAllData = useCallback(() => {
     setLoadingTrending(true);
-    setLoadingRecipes(true);
     setFetchError(false);
 
-    let trendingFailed = false;
-    let productsFailed = false;
-
-    apiClient.get('/discovery/trending', { params: { type: 'products', limit: 6 } })
-      .then(data => { setTrending(Array.isArray(data) ? data.slice(0, 6) : (data?.items || data?.products || []).slice(0, 6)); })
-      .catch(() => { trendingFailed = true; })
-      .finally(() => { setLoadingTrending(false); if (trendingFailed && productsFailed) setFetchError(true); });
+    // Use explore endpoint as connectivity check; feeds error state if API is down
+    apiClient.get('/discovery/explore')
+      .catch(() => { setFetchError(true); })
+      .finally(() => { setLoadingTrending(false); });
 
     apiClient.get('/stores', { params: { plan: 'elite', country: userCountry, limit: 10 } })
       .then(data => {
         const list = Array.isArray(data) ? data : data?.stores || [];
         setEliteStores(list);
-      })
-      .catch(() => {});
-
-    apiClient.get('/discovery/trending', { params: { type: 'hashtags', limit: 12 } })
-      .then(data => {
-        const items = (data?.items || data || []).filter(
-          (item) => item.tag || item.name || item.hashtag
-        );
-        setTrendingHashtags(items.slice(0, 12));
       })
       .catch(() => {});
 
@@ -150,8 +206,7 @@ export default function DiscoverPage() {
         const list = Array.isArray(data) ? data : data?.recipes || [];
         setRecipes(list.slice(0, 6));
       })
-      .catch(() => {})
-      .finally(() => { setLoadingRecipes(false); });
+      .catch(() => {});
 
     // Recommended stores
     apiClient.get('/stores', { params: { sort: 'popular', limit: 6 } })
@@ -245,11 +300,13 @@ export default function DiscoverPage() {
   /* ── handle explore item tap ── */
   const handleItemTap = useCallback((item) => {
     if (!item) return;
-    if (!item?.recipe_id && !item?.product_id && !item?.post_id) return;
-    if (item._type === 'recipe' && item.recipe_id) {
-      navigate(`/recipes/${item.recipe_id}`);
-    } else if (item.product_id) {
-      navigate(`/products/${item.product_id}`);
+    const recipeId = item.recipe_id;
+    const productId = item.product_id || item.id;
+    if (!recipeId && !productId && !item?.post_id) return;
+    if (item._type === 'recipe' && recipeId) {
+      navigate(`/recipes/${recipeId}`);
+    } else if (productId) {
+      navigate(`/products/${productId}`);
     }
     // else: silently ignore (no navigate to /undefined)
   }, [navigate]);
@@ -258,88 +315,6 @@ export default function DiscoverPage() {
   const handleCategoryClick = useCallback((slug) => {
     setActiveCategory(prev => prev === slug ? null : slug);
   }, []);
-
-  /* ── elite carousel card ── */
-  const EliteCarousel = () => {
-    if (eliteStores.length === 0) return null;
-    const store = eliteStores[eliteIdx];
-    const heroImg = store.hero_image || store.cover_image || store.logo;
-    const fadeStyle = { opacity: eliteFading ? 0 : 1, transition: `opacity ${ELITE_FADE_MS}ms ease` };
-    return (
-      <div className="mx-4 mb-4">
-        <div
-          role="link"
-          tabIndex={0}
-          aria-label={`Tienda destacada: ${store.name}`}
-          onClick={() => navigate(`/store/${store.slug || store.store_slug}`)}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/store/${store.slug || store.store_slug}`); } }}
-          className="relative aspect-video cursor-pointer overflow-hidden rounded-2xl bg-stone-950 outline-none"
-        >
-          {heroImg && (
-            <img src={heroImg} alt={store.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" style={fadeStyle} />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 px-5 py-4" style={fadeStyle}>
-            <div className="mb-1.5 flex items-center gap-2.5">
-              {store.logo && (
-                <img src={store.logo} alt="" className="h-9 w-9 rounded-full border-2 border-white/30 object-cover" />
-              )}
-              <div>
-                <p className="text-base font-semibold text-white">{store.name}</p>
-                {store.location && (
-                  <p className="flex items-center gap-1 text-[11px] text-white/70">
-                    <MapPin size={10} /> {store.location}
-                  </p>
-                )}
-              </div>
-            </div>
-            {store.tagline && (
-              <p className="text-xs leading-relaxed text-white/80">{store.tagline}</p>
-            )}
-          </div>
-          <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white/80 backdrop-blur-md">
-            Destacado
-          </span>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); navigate(`/store/${store.slug || store.store_slug}`); }}
-            className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-stone-950 backdrop-blur-sm transition-colors hover:bg-white"
-            style={fadeStyle}
-          >
-            Ver tienda <ArrowRight size={14} />
-          </button>
-        </div>
-
-        {eliteStores.length > 1 && (
-          <div role="tablist" aria-label="Tiendas destacadas" className="mt-2 flex justify-center gap-1.5">
-            {eliteStores.map((s, i) => (
-              <button
-                key={s.store_id || s.id || i}
-                role="tab"
-                aria-selected={i === eliteIdx}
-                aria-label={`Tienda ${i + 1}: ${s.name || ''}`}
-                onClick={(e) => { e.stopPropagation(); goToElite(i); }}
-                className="flex h-8 w-8 items-center justify-center"
-              >
-                <span className={`block h-1.5 rounded-full transition-all duration-300 ${
-                  i === eliteIdx ? 'w-4 bg-stone-950' : 'w-1.5 bg-stone-300'
-                }`} />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  /* ── loading skeleton grid ── */
-  const SkeletonGrid = () => (
-    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="aspect-square bg-stone-100 animate-pulse" />
-      ))}
-    </div>
-  );
 
   /* ── render ── */
   return (
@@ -395,27 +370,6 @@ export default function DiscoverPage() {
         })}
       </div>
 
-      {/* ─── TRENDING HASHTAGS ─── */}
-      {trendingHashtags.length > 0 && (
-        <div className="px-4 pb-3">
-          <p className="text-[13px] font-bold text-stone-950 mb-2">Tendencias</p>
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {trendingHashtags.map((item, i) => {
-              const tagName = item.tag || item.hashtag || item.name || '';
-              return (
-                <button
-                  key={tagName + i}
-                  onClick={() => navigate(`/hashtag/${encodeURIComponent(tagName)}`)}
-                  className="shrink-0 rounded-full bg-stone-100 text-stone-950 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-stone-200"
-                >
-                  #{tagName}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* ─── PARA TI — Personalized row ─── */}
       {recommendedProducts.length > 0 && (
         <div className="px-4 pb-4">
@@ -464,6 +418,7 @@ export default function DiscoverPage() {
             {recommendedStores.map(s => {
               const id = s.store_slug || s.slug || s.store_id || s.id;
               const img = s.logo_url || s.avatar_url || s.image_url;
+              if (!id) return null;
               return (
                 <Link key={id} to={`/store/${id}`} className="w-[140px] shrink-0 no-underline">
                   <div className="aspect-square overflow-hidden rounded-xl bg-stone-100 flex items-center justify-center">
@@ -528,6 +483,7 @@ export default function DiscoverPage() {
             {recommendedCommunities.map(c => {
               const id = c.community_id || c.id || c.slug;
               const img = c.cover_url || c.image_url || c.avatar_url;
+              if (!id) return null;
               return (
                 <Link key={id} to={`/communities/${id}`} className="w-[140px] shrink-0 no-underline">
                   <div className="aspect-square overflow-hidden rounded-xl bg-stone-100 flex items-center justify-center">
@@ -547,7 +503,13 @@ export default function DiscoverPage() {
       )}
 
       {/* ─── ELITE CAROUSEL ─── */}
-      <EliteCarousel />
+      <EliteCarousel
+        eliteStores={eliteStores}
+        eliteIdx={eliteIdx}
+        eliteFading={eliteFading}
+        goToElite={goToElite}
+        navigate={navigate}
+      />
 
       {/* ─── EXPLORE GRID (Instagram-style 3-col) ─── */}
       {fetchError && !loadingProducts && exploreItems.length === 0 ? (
@@ -591,9 +553,6 @@ export default function DiscoverPage() {
 
       </div>{/* end max-w container */}
 
-      {selectedPost && (
-        <PostDetailModal post={selectedPost} onClose={() => setSelectedPost(null)} />
-      )}
     </div>
   );
 }

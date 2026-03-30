@@ -175,9 +175,9 @@ export default function ProducerLayout() {
             </div>
           </div>
           <h1 className="text-lg font-semibold text-stone-950 tracking-editorial">
-            {t('producer.myProducts')}
+            Panel Productor
           </h1>
-          <p className="text-xs text-stone-500 mt-1">{t('producer.manageStock')}</p>
+          <p className="text-xs text-stone-500 mt-1">{user.company_name || user.name}</p>
         </div>
 
         {/* Pending Warning */}

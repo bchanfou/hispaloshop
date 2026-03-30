@@ -191,7 +191,7 @@ export default function CreateStoryPage() {
     setTextOverlays((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: `t_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         text: textDraft,
         font: selectedFont,
         color: selectedColor,
@@ -209,7 +209,7 @@ export default function CreateStoryPage() {
     setStickerOverlays((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         content,
         type,
         x: 50,
@@ -245,8 +245,8 @@ export default function CreateStoryPage() {
     setProductSearching(true);
     productSearchTimer.current = setTimeout(async () => {
       try {
-        const res = await apiClient.get(`/products/search?q=${encodeURIComponent(productQuery)}`);
-        setProductResults(res?.results || res?.data?.results || res?.data || (Array.isArray(res) ? res : []));
+        const res = await apiClient.get(`/products/intelligence-search?q=${encodeURIComponent(productQuery)}`);
+        setProductResults(res?.items || res?.results || res?.data?.results || res?.data || (Array.isArray(res) ? res : []));
       } catch {
         setProductResults([]);
       } finally {
@@ -286,7 +286,7 @@ export default function CreateStoryPage() {
     setStickerOverlays((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: `p_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         content: product.name || product.title,
         type: 'product',
         productId: product.id || product._id,
@@ -385,7 +385,8 @@ export default function CreateStoryPage() {
           const ch = cRect?.height || 1;
           fd.append('overlays_json', JSON.stringify({
             texts: textOverlays,
-            stickers: stickerOverlays,
+            // Product stickers go to products_json (interactive pills) — exclude from overlays to avoid double-render
+            stickers: stickerOverlays.filter((s: any) => s.type !== 'product'),
             draws: drawPaths.map(p => ({
               color: p.color,
               width: p.width,
@@ -1239,7 +1240,7 @@ export default function CreateStoryPage() {
                 onClick={() => {
                   if (!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()) return;
                   setStickerOverlays(prev => [...prev, {
-                    id: Date.now(),
+                    id: `poll_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
                     content: pollQuestion,
                     type: 'poll',
                     options: [pollOption1, pollOption2],
@@ -1350,7 +1351,7 @@ export default function CreateStoryPage() {
                 onClick={() => {
                   if (!questionDraft.trim()) return;
                   setStickerOverlays(prev => [...prev, {
-                    id: Date.now(),
+                    id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
                     content: questionDraft,
                     type: 'question',
                     x: 50,

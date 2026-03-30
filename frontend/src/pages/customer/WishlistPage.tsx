@@ -19,7 +19,7 @@ export default function WishlistPage() {
   const [loadError, setLoadError] = useState(false);
   useEffect(() => {
     apiClient.get('/wishlist')
-      .then(data => setItems(data || []))
+      .then(data => setItems(Array.isArray(data) ? data : data?.items || []))
       .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   }, []);

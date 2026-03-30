@@ -53,7 +53,7 @@ function ImporterDashboard() {
       },
       pendingOrders: (ordersData?.orders || []).slice(0, 3).map((order) => ({
         id: order.id,
-        title: `#${order.order_number || order.id.slice(-4)} · ${order.customer_name || 'Cliente'}`,
+        title: `#${order.order_number || String(order.id || '').slice(-4)} · ${order.customer_name || 'Cliente'}`,
         subtitle: order.status === 'pending' ? 'Nuevo' : `Pedido ${order.status}`,
         description: order.items?.map((item) => item.product_name).join(', ') || 'Productos',
         amount: `EUR ${asNumber(order.total_amount).toFixed(2)}`,

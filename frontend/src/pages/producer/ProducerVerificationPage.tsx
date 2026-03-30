@@ -402,7 +402,7 @@ export default function ProducerVerificationPage() {
           {certs.length > 0 && (
             <div className="mt-4 space-y-2">
               {certs.map((c, i) => {
-                const typeInfo = CERT_TYPES.find(t => t.id === c.type) || { emoji: '📋', label: c.type };
+                const typeInfo = CERT_TYPES.find(ct => ct.id === c.type) || { emoji: '📋', label: c.type };
                 const isExpired = c.status === 'expired';
                 const hasWarning = c.expiry_date && !isExpired && (() => {
                   const d = new Date(c.expiry_date);

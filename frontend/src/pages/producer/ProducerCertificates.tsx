@@ -479,7 +479,7 @@ export default function ProducerCertificates() {
                         <dd className="font-medium text-stone-950">
                           {formData.certificate_type === 'other' 
                             ? formData.custom_type 
-                            : CERTIFICATE_TYPES.find(t => t.id === formData.certificate_type)?.label
+                            : CERTIFICATE_TYPES.find(ct => ct.id === formData.certificate_type)?.label
                           }
                         </dd>
                       </div>

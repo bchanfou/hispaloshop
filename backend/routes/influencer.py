@@ -729,7 +729,9 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
     if influencer.get("status") != "active":
         raise HTTPException(status_code=400, detail="Tu cuenta debe estar activa para solicitar retiros")
 
-    payout_method = (request.method or "stripe").strip().lower()
+    raw_method = (request.method or "stripe").strip().lower()
+    # Normalize 'sepa' alias to 'bank_transfer'
+    payout_method = "bank_transfer" if raw_method == "sepa" else raw_method
     if payout_method not in {"stripe", "bank_transfer"}:
         raise HTTPException(status_code=400, detail="Metodo de retiro invalido. Usa 'stripe' o 'bank_transfer'.")
 
@@ -740,6 +742,11 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
         if not influencer.get("stripe_onboarding_complete"):
             raise HTTPException(status_code=400, detail="Debes completar la configuracion de Stripe")
     else:
+        # Fall back to stored IBAN/account from fiscal setup when not provided in request
+        if not request.bank_account_holder:
+            request.bank_account_holder = influencer.get("sepa_account_name")
+        if not request.bank_iban:
+            request.bank_iban = influencer.get("sepa_iban")
         if not request.bank_account_holder or not request.bank_iban:
             raise HTTPException(status_code=400, detail="Para transferencia bancaria debes indicar titular e IBAN.")
 
@@ -766,7 +773,6 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
 
 async def _execute_withdrawal(db, influencer, user, request, now):
     """Inner withdrawal logic, called under atomic lock."""
-    from routes.influencer import _ensure_stripe_ready, MINIMUM_WITHDRAWAL_AMOUNT
     payout_method = (request.method or "stripe").strip().lower()
 
     available_commissions = await db.influencer_commissions.find({
@@ -1276,7 +1282,7 @@ async def get_influencer_payouts(user: User = Depends(get_current_user)):
 
     # Combine withdrawals (self-service) and scheduled payouts
     withdrawals = await db.influencer_withdrawals.find(
-        {"influencer_id": influencer["influencer_id"], "status": {"$in": ["completed", "paid"]}},
+        {"influencer_id": influencer["influencer_id"]},
         {"_id": 0},
     ).sort("created_at", -1).to_list(50)
 
@@ -1292,7 +1298,9 @@ async def get_influencer_payouts(user: User = Depends(get_current_user)):
         payouts.append({
             "id": wd.get("withdrawal_id", ""),
             "paid_at": wd.get("completed_at") or wd.get("created_at", ""),
-            "net_amount_eur": wd.get("amount", 0),
+            "net_amount_eur": wd.get("net_amount") or wd.get("amount", 0),
+            "fee_amount_eur": wd.get("transfer_fee"),
+            "withholding_amount_eur": wd.get("withholding_amount"),
             "commission_count": comm_count,
             "stripe_transfer_id": wd.get("stripe_transfer_id"),
             "status": wd.get("status", "completed"),

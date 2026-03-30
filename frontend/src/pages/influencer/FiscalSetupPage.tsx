@@ -205,7 +205,7 @@ export default function FiscalSetupPage() {
   // Computed
   const withholdingInfo = getWithholdingInfo(country);
   const canSave = country && certStatus === 'verified' && payoutMethod;
-  const isBlocked = fiscal?.affiliate_blocked !== false;
+  const isBlocked = fiscal?.affiliate_blocked === true;
 
   // Payout preview
   const grossPreview = balance;
@@ -230,7 +230,8 @@ export default function FiscalSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 max-w-[600px] mx-auto">
+    <div className="min-h-screen bg-stone-50">
+      <div className="max-w-[600px] mx-auto px-4 pb-8">
       {/* TopBar */}
       <div className="flex items-center gap-3 mb-2">
         <button onClick={() => navigate(-1)} className="shrink-0 bg-transparent border-none cursor-pointer">
@@ -641,6 +642,7 @@ export default function FiscalSetupPage() {
       >
         {canSave ? 'Guardar y activar afiliados' : 'Completa todos los campos para continuar'}
       </button>
+      </div>
     </div>
   );
 }

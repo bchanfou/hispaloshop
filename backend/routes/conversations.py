@@ -84,13 +84,14 @@ async def create_conversation(input: NewConversationInput, user: User = Depends(
     if not other_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Validate roles - only producers and influencers can chat
-    valid_roles = ["producer"]
-    # Check if other user is an influencer
+    # Validate roles - only producers/importers and influencers can initiate or receive chats
     influencer = await db.influencers.find_one({"user_id": input.other_user_id})
-    if influencer:
-        valid_roles.append("influencer")
-    
+    current_influencer = await db.influencers.find_one({"user_id": user.user_id})
+    sender_can_chat = user.role in ("producer", "importer") or current_influencer is not None
+    receiver_can_chat = other_user.get("role") in ("producer", "importer") or influencer is not None
+    if not sender_can_chat or not receiver_can_chat:
+        raise HTTPException(status_code=403, detail="El chat solo está disponible entre productores e influencers")
+
     # Check if conversation already exists
     existing = await db.internal_chats.find_one({
         "$or": [
@@ -228,7 +229,7 @@ async def send_message(conversation_id: str, input: MessageInput, background_tas
                         </p>
                         <div style="background-color: white; border-radius: 8px; padding: 15px; border-left: 4px solid #1C1C1C;">
                             <p style="color: #1C1C1C; font-size: 14px; margin: 0; font-style: italic;">
-                                "{html_module.escape(input.content[:200])}{'...' if len(input.content) > 200 else ''}"
+                                "{html_module.escape((input.content or '')[:200])}{'...' if len(input.content or '') > 200 else ''}"
                             </p>
                         </div>
                     </div>
@@ -377,24 +378,31 @@ async def reply_to_story(request: Request, background_tasks: BackgroundTasks, us
     receiver = await db.users.find_one({"user_id": recipient_id}, {"_id": 0, "email": 1, "name": 1})
     sender_name = getattr(user, "name", None) or "Un usuario"
 
-    # In-app + push notification
-    try:
-        import asyncio
-        from services.notifications.dispatcher_service import notification_dispatcher
-        asyncio.create_task(notification_dispatcher.send_notification(
-            user_id=recipient_id,
-            title="Nueva respuesta a tu historia",
-            body=f"{sender_name} ha respondido a tu historia",
-            notification_type="story_reply",
-            channels=["in_app", "push"],
-            data={"story_id": story_id, "from_user_id": user.user_id, "conversation_id": conversation_id},
-            action_url=f"/messages/{conversation_id}",
-        ))
-    except Exception:
-        pass
+    # In-app + push notification (skip if blocked)
+    is_blocked = await db.blocked_users.find_one({
+        "$or": [
+            {"blocker_id": recipient_id, "blocked_id": user.user_id},
+            {"blocker_id": user.user_id, "blocked_id": recipient_id},
+        ]
+    })
+    if not is_blocked:
+        try:
+            import asyncio
+            from services.notifications.dispatcher_service import notification_dispatcher
+            asyncio.create_task(notification_dispatcher.send_notification(
+                user_id=recipient_id,
+                title="Nueva respuesta a tu historia",
+                body=f"{sender_name} ha respondido a tu historia",
+                notification_type="story_reply",
+                channels=["in_app", "push"],
+                data={"story_id": story_id, "from_user_id": user.user_id, "conversation_id": conversation_id},
+                action_url=f"/messages/{conversation_id}",
+            ))
+        except Exception:
+            pass
 
-    # Email notification to recipient
-    if receiver and receiver.get("email"):
+    # Email notification to recipient (also skip if blocked)
+    if not is_blocked and receiver and receiver.get("email"):
         def send_story_reply_notification():
             try:
                 html = f"""

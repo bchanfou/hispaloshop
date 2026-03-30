@@ -193,7 +193,7 @@ function RequestCard({ request, onAction }) {
               </div>
               <div>
                 <p className="text-[10px] text-stone-400 uppercase tracking-wider">Precio ref.</p>
-                <p className="text-sm font-extrabold text-stone-700">{request.unit_price?.toFixed(2)}€/{request.unit}</p>
+                <p className="text-sm font-extrabold text-stone-700">{Number(request.unit_price || 0).toFixed(2)}€/{request.unit}</p>
               </div>
               <div>
                 <p className="text-[10px] text-stone-400 uppercase tracking-wider">Total est.</p>
@@ -211,7 +211,7 @@ function RequestCard({ request, onAction }) {
 
         {/* Importer notes */}
         {request.notes && (
-          <div className="bg-stone-50 rounded-2xl p-3 mb-3 border-l-3 border-stone-200">
+          <div className="bg-stone-50 rounded-2xl p-3 mb-3 border-l-4 border-stone-200">
             <p className="text-[11px] font-bold text-stone-500 mb-1">Nota del importador:</p>
             <p className="text-sm text-stone-700">"{request.notes}"</p>
           </div>

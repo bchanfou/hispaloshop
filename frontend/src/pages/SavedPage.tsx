@@ -25,27 +25,15 @@ const PAGE_SIZE = 21;
 /* ── Fetch functions ── */
 
 async function fetchSavedPosts({ pageParam = 0 }) {
-  try {
-    const res = await apiClient.get(`/social/saved-posts?skip=${pageParam}&limit=${PAGE_SIZE}`);
-    const items = res?.posts || res || [];
-    return { items, nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
-  } catch {
-    const res = await apiClient.get(`/posts?saved=true&skip=${pageParam}&limit=${PAGE_SIZE}`);
-    const items = res?.posts || res || [];
-    return { items, nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
-  }
+  const res = await apiClient.get(`/users/me/saved-posts?skip=${pageParam}&limit=${PAGE_SIZE}`);
+  const items = Array.isArray(res) ? res : res?.posts || [];
+  return { items, nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
 }
 
 async function fetchSavedReels({ pageParam = 0 }) {
-  try {
-    const res = await apiClient.get(`/social/saved-reels?skip=${pageParam}&limit=${PAGE_SIZE}`);
-    const items = res?.reels || res || [];
-    return { items, nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
-  } catch {
-    const res = await apiClient.get(`/reels?saved=true&skip=${pageParam}&limit=${PAGE_SIZE}`);
-    const items = res?.reels || res || [];
-    return { items, nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
-  }
+  const res = await apiClient.get(`/social/saved-reels?skip=${pageParam}&limit=${PAGE_SIZE}`);
+  const items = res?.reels || res || [];
+  return { items, nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
 }
 
 async function fetchSavedProducts({ pageParam = 0 }) {
@@ -242,11 +230,13 @@ function PostsGrid({ items }: { items: any[] }) {
   return (
     <div className="grid grid-cols-3 gap-1">
       {items.map((post, idx) => {
+        const postId = post.post_id || post.id;
+        if (!postId) return null;
         const img = post.images?.[0] || post.thumbnail || post.media_url;
         return (
           <button
-            key={post.post_id || post.id || idx}
-            onClick={() => navigate(`/posts/${post.post_id || post.id}`)}
+            key={postId}
+            onClick={() => navigate(`/posts/${postId}`)}
             className="relative aspect-square bg-stone-100 overflow-hidden group cursor-pointer border-none p-0"
           >
             {img ? (
@@ -278,11 +268,13 @@ function ReelsGrid({ items }: { items: any[] }) {
   return (
     <div className="grid grid-cols-3 gap-1">
       {items.map((reel, idx) => {
-        const thumb = reel.thumbnail || reel.cover_url || reel.media_url;
+        const reelId = reel.reel_id || reel.id;
+        if (!reelId) return null;
+        const thumb = reel.thumbnail_url || reel.thumbnail || reel.cover_url;
         return (
           <button
-            key={reel.reel_id || reel.id || idx}
-            onClick={() => navigate(`/reels?id=${reel.reel_id || reel.id}`)}
+            key={reelId}
+            onClick={() => navigate(`/posts/${reelId}`)}
             className="relative aspect-[9/16] bg-stone-100 overflow-hidden group cursor-pointer border-none p-0"
           >
             {thumb ? (
@@ -320,12 +312,14 @@ function ProductsGrid({ items }: { items: any[] }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {items.map((product, idx) => {
+        const productId = product.product_id || product.id;
+        if (!productId) return null;
         const img = product.images?.[0] || product.image_url || product.thumbnail;
         const price = product.price ?? product.unit_price;
         return (
           <Link
-            key={product.product_id || product.id || idx}
-            to={`/products/${product.product_id || product.id}`}
+            key={productId}
+            to={`/products/${productId}`}
             className="block no-underline"
           >
             <div className="overflow-hidden rounded-xl bg-white border border-stone-100">
@@ -368,11 +362,13 @@ function RecipesGrid({ items }: { items: any[] }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {items.map((recipe, idx) => {
+        const recipeId = recipe.recipe_id || recipe.id;
+        if (!recipeId) return null;
         const cookTime = recipe.cook_time || recipe.time_minutes || 0;
         return (
           <Link
-            key={recipe.recipe_id || recipe.id || idx}
-            to={`/recipes/${recipe.recipe_id || recipe.id}`}
+            key={recipeId}
+            to={`/recipes/${recipeId}`}
             className="block no-underline"
           >
             <div className="overflow-hidden rounded-xl bg-white">

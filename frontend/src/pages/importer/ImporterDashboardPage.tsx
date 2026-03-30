@@ -109,7 +109,7 @@ function ImporterPlanCard({ plan }) {
         ))}
       </div>
       <Link
-        to="/producer/plan"
+        to="/settings/plan"
         className="block w-full text-center py-2.5 text-sm font-medium transition-colors bg-stone-950 text-white rounded-2xl"
       >
         Actualizar a ELITE · 249 €/mes <ArrowRight className="w-4 h-4 inline ml-1" />
@@ -131,6 +131,7 @@ function formatRelativeTime(dateStr) {
 
 function B2BOrderStatusBadge({ status }) {
   const config = {
+    pending: { label: 'Esperando productor', cls: 'bg-stone-100 text-stone-500' },
     pending_producer: { label: 'Esperando productor', cls: 'bg-stone-100 text-stone-500' },
     confirmed_by_producer: { label: 'Confirmado', cls: 'bg-stone-100 text-stone-950' },
     paid: { label: 'Pagado', cls: 'bg-stone-100 text-stone-950' },
@@ -223,7 +224,7 @@ export default function ImporterDashboardPage() {
     setError(false);
     setLoading(true);
     Promise.all([
-      apiClient.get('/importer/stats').catch(() => null),
+      apiClient.get(`/importer/stats?period=${period}`).catch(() => null),
       apiClient.get('/importer/alerts').catch(() => []),
       apiClient.get('/importer/b2b-orders?limit=3').catch(() => ({ orders: [] })),
       apiClient.get('/producer/orders').catch(() => []),
@@ -243,10 +244,10 @@ export default function ImporterDashboardPage() {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, []);
+  }, [period]);
 
   useEffect(() => {
-    loadData();
+    return loadData();
   }, [loadData]);
 
   if (loading) {

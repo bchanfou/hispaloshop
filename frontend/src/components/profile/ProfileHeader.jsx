@@ -1189,7 +1189,23 @@ export default function ProfileHeader({
                       Cancelar
                     </button>
                     <button
-                      onClick={handleHighlightDelete}
+                      onClick={async () => {
+                        if (!highlightMenu) return;
+                        setHighlightDeleting(true);
+                        try {
+                          const hlId = highlightMenu.highlight_id || highlightMenu.id;
+                          await apiClient.delete(`/users/me/highlights/${hlId}`);
+                          toast.success('Destacado eliminado');
+                          setHighlightMenu(null);
+                          setHighlightEditMode(null);
+                          queryClient.invalidateQueries({ queryKey: ['user', 'highlights', user?.user_id || user?.id] });
+                          onHighlightDeleted?.();
+                        } catch {
+                          toast.error('Error al eliminar');
+                        } finally {
+                          setHighlightDeleting(false);
+                        }
+                      }}
                       disabled={highlightDeleting}
                       className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-50"
                     >
@@ -1426,13 +1442,13 @@ export default function ProfileHeader({
               <div className="my-3 h-px bg-stone-200" />
 
               <OptionRow label={`Bloquear a @${user?.username}`} icon={<ShieldBan size={20} />} muted onClick={async () => {
+                setShowOptionsSheet(false);
                 try {
                   await apiClient.post(`/users/${user?.user_id}/block`);
                   toast.success(`Has bloqueado a @${user?.username}`);
-                  setIsFollowing(false); // Reset follow state
-                  if (refetch) refetch(); // Refresh profile to show blocked state
+                  queryClient.invalidateQueries({ queryKey: ['userProfile', String(user?.user_id)] });
+                  navigate(-1);
                 } catch { toast.error('Error al bloquear'); }
-                setShowOptionsSheet(false);
               }} />
               <OptionRow label="Reportar cuenta" icon={<Flag size={20} />} muted onClick={async () => {
                 try {

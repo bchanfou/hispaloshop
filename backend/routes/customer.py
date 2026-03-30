@@ -295,6 +295,12 @@ async def update_customer_profile(data: dict, user: User = Depends(get_current_u
     """Update customer profile"""
     allowed_fields = ["name", "country", "username", "bio", "website", "location", "avatar_url", "profile_image", "company_name", "store_description", "is_private", "phone"]
     update_data = {k: v for k, v in data.items() if k in allowed_fields and v is not None}
+    # Handle social_links separately (dict not in allowed_fields scalar check)
+    if "social_links" in data and isinstance(data["social_links"], dict):
+        update_data["social_links"] = {
+            k: str(v)[:100] for k, v in data["social_links"].items()
+            if k in ("instagram", "tiktok", "youtube", "website") and isinstance(v, str)
+        }
 
     # Validate username if being updated
     if "username" in update_data:

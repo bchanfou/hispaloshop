@@ -136,6 +136,10 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     setLiked(reel.liked ?? reel.is_liked ?? false);
     setLikesCount(reel.likes ?? reel.likes_count ?? 0);
   }, [reel.liked, reel.is_liked, reel.likes, reel.likes_count]);
+  const [localCommentsCount, setLocalCommentsCount] = useState(reel.comments_count ?? reel.comments ?? 0);
+  useEffect(() => {
+    setLocalCommentsCount(reel.comments_count ?? reel.comments ?? 0);
+  }, [reel.comments_count, reel.comments]);
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem('hsp_reel_muted') !== 'false'; } catch (err) { /* storage unavailable */ return true; }
   });
@@ -160,7 +164,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const reactionLongPressRef = useRef(null);
 
   const isOwner = currentUser && (
-    (currentUser.user_id || currentUser.id) === (reel.user?.id || reel.user?.user_id)
+    (currentUser.user_id || currentUser.id) === (reel.user?.id || reel.user?.user_id || reel.user_id)
   );
 
   // Clean up timers on unmount
@@ -325,6 +329,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const closeComments = useCallback(() => {
     setShowComments(false);
     setReplyTo(null);
+    setNewComment('');
     // Resume video playback when closing comments
     const video = videoRef.current;
     if (video && (isActive || embedded)) {
@@ -350,7 +355,21 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? -1 : 1)) };
     }));
     const reelId = reel.id || reel.reel_id || reel.post_id;
-    try { await apiClient.post(`/reels/${reelId}/comments/${commentId}/like`); } catch (err) { /* like toggle best-effort */ }
+    try {
+      await apiClient.post(`/reels/${reelId}/comments/${commentId}/like`);
+    } catch (err) {
+      // Rollback optimistic updates
+      setLikedComments(prev => {
+        const next = new Set(prev);
+        wasLiked ? next.add(commentId) : next.delete(commentId);
+        return next;
+      });
+      setComments(prev => prev.map(c => {
+        const cId = c.comment_id || c.id || c._id;
+        if (cId !== commentId) return c;
+        return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1)) };
+      }));
+    }
     likingCommentRef.current = false;
   }, [likedComments, reel.id, reel.reel_id, reel.post_id]);
 
@@ -400,12 +419,14 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         label: 'Deshacer',
         onClick: () => {
           clearTimeout(undoTimerRef.current);
+          undoTimerRef.current = null;
           setDeleted(false);
         },
       },
       duration: 5000,
     });
     undoTimerRef.current = setTimeout(async () => {
+      undoTimerRef.current = null; // prevent double-delete if component unmounts after timer fires
       const reelId = reel.id || reel.reel_id || reel.post_id;
       try {
         await apiClient.delete(`/reels/${reelId}`);
@@ -534,7 +555,6 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
   const videoUrl = reel.video_url || reel.videoUrl;
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
   const avatarUrl = reel.user?.avatar_url || reel.user?.avatar || reel.user?.profile_image || reel.user_profile_image;
-  const [localCommentsCount, setLocalCommentsCount] = useState(reel.comments_count ?? reel.comments ?? 0);
   const reelCommentsCount = localCommentsCount;
   const allProducts = [...(reel.products || []), ...(reel.tagged_products || [])].filter(Boolean);
   const product = allProducts[0] || reel.tagged_product || reel.productTag || null;
@@ -1288,7 +1308,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       >
         <div
           className="h-full w-full bg-white/90 origin-left"
-          style={{ transform: `scaleX(${progress})` }}
+          style={{ transform: `scaleX(${Math.min(1, progress)})` }}
         />
         {/* Progress thumb — shows on interaction */}
         <div

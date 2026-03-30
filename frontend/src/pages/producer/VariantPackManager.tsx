@@ -444,7 +444,7 @@ function PackRow({ pack, onUpdate, onDelete }) {
         <span className="text-xs text-stone-500">{pack.units} unit(s)</span>
       </div>
       <div className="flex items-center gap-4">
-        <span className="font-medium text-stone-950">${(Number(pack.price) || 0).toFixed(2)}</span>
+        <span className="font-medium text-stone-950">{(Number(pack.price) || 0).toFixed(2)}€</span>
         <span className="text-xs px-2 py-1 rounded-full bg-stone-100 text-stone-700">
           {pack.stock} in stock
         </span>

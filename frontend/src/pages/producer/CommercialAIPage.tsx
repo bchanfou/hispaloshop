@@ -71,7 +71,7 @@ function UpgradeBanner() {
       </p>
 
       <button
-        onClick={() => navigate('/productor')}
+        onClick={() => navigate('/producer/plan')}
         className="px-8 py-3.5 rounded-full bg-stone-700 text-white border-none text-[15px] font-semibold cursor-pointer transition-transform duration-200 hover:scale-[1.03]"
       >
         Actualizar a ELITE

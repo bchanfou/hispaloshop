@@ -52,15 +52,17 @@ export default function B2BPaymentPage() {
   const stripeRef = useRef(null);
   const elementsRef = useRef(null);
 
+  const userId = user?.user_id || user?._id || user?.id;
+
   const isBuyer = useMemo(() => {
     if (!operation) return false;
-    return user?._id === operation.buyer_id;
-  }, [user?._id, operation]);
+    return userId === operation.buyer_id;
+  }, [userId, operation]);
 
   const isSeller = useMemo(() => {
     if (!operation) return false;
-    return user?._id === operation.seller_id;
-  }, [user?._id, operation]);
+    return userId === operation.seller_id;
+  }, [userId, operation]);
 
   const last8 = operationId ? String(operationId).slice(-8) : '';
 

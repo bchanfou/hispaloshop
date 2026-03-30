@@ -202,6 +202,8 @@ async def get_importer_b2b_orders(
 
         orders.append({
             "id": rfq.get("rfq_id"),
+            "producer_id": rfq.get("producer_id"),
+            "operation_id": rfq.get("operation_id"),
             "producer_name": (producer or {}).get("company_name") or (producer or {}).get("full_name", "Productor"),
             "product_name": (product or {}).get("name", "Producto"),
             "product_image": extract_product_image(product),
@@ -351,6 +353,7 @@ async def get_importer_products_by_batch(
 async def get_supplier_certificates(
     q: Optional[str] = None,
     status: Optional[str] = None,
+    producer_id: Optional[str] = None,
     user: User = Depends(get_current_user),
 ):
     """List certificates from suppliers the importer works with."""
@@ -362,6 +365,12 @@ async def get_supplier_certificates(
     supplier_ids = await db.rfq_requests.distinct("producer_id", {"importer_id": user.user_id})
     if not supplier_ids:
         return {"certificates": []}
+
+    # If a specific producer is requested, filter to that producer
+    if producer_id:
+        if producer_id not in supplier_ids:
+            return {"certificates": []}
+        supplier_ids = [producer_id]
 
     # Get certificates for those suppliers
     cert_query = {"producer_id": {"$in": supplier_ids}}
@@ -389,6 +398,7 @@ async def get_supplier_certificates(
             "expiry_date": cert.get("expiry_date"),
             "days_until_expiry": days_until_expiry,
             "pdf_url": cert.get("pdf_url"),
+            "is_verified": bool(cert.get("is_verified") or cert.get("verified")),
         })
 
     if q:

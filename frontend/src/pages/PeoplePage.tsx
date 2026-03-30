@@ -146,7 +146,7 @@ export default function PeoplePage() {
                       {ROLE_LABELS[u.role] || u.role}
                     </span>
                     {u.mutual_followers_count > 0 ? (
-                      <p className="mt-1 text-[11px] text-stone-500">{u.mutual_followers_count} seguidor{u.mutual_followers_count > 1 ? 'es' : ''} en comun</p>
+                      <p className="mt-1 text-[11px] text-stone-500">{u.mutual_followers_count} seguidor{u.mutual_followers_count > 1 ? 'es' : ''} en común</p>
                     ) : (
                       <p className="mt-1 text-[11px] text-stone-400">{u.followers_count || 0} seguidores</p>
                     )}

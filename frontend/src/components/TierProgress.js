@@ -69,7 +69,7 @@ export default function TierProgress() {
           </div>
           <div>
             <span className="text-xl font-bold" style={{ color }}>{tierLabels[data.current_tier] || data.current_tier}</span>
-            <p className="text-sm text-stone-500">Comisión: {(data.commission_rate * 100).toFixed(0)}% por venta</p>
+            <p className="text-sm text-stone-500">Comisión: {((data.commission_rate || 0) * 100).toFixed(0)}% por venta</p>
           </div>
         </div>
 
@@ -82,7 +82,7 @@ export default function TierProgress() {
           </div>
           <div className="text-center p-3 bg-stone-50 rounded-2xl">
             <DollarSign className="w-4 h-4 mx-auto text-stone-500 mb-1" />
-            <p className="text-lg font-bold text-stone-950">${(data.metrics?.net_gmv || 0).toLocaleString()}</p>
+            <p className="text-lg font-bold text-stone-950">{(data.metrics?.net_gmv || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</p>
             <p className="text-[10px] text-stone-500 uppercase">Ventas generadas</p>
           </div>
           <div className="text-center p-3 bg-stone-50 rounded-2xl">

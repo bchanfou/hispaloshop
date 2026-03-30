@@ -446,9 +446,8 @@ function FollowerGrowthChart() {
                   const d = new Date(val);
                   return `${d.getDate()}/${d.getMonth()+1}`;
                 }}
-                hide={window.innerWidth < 768}
               />
-              <YAxis tick={{ fontSize: 10 }} hide={window.innerWidth < 768} />
+              <YAxis tick={{ fontSize: 10 }} />
               <Tooltip
                 contentStyle={{ borderRadius: '12px', border: '1px solid #e7e5e4', fontSize: '12px' }}
                 labelFormatter={(val) => new Date(val).toLocaleDateString('es-ES')}
@@ -551,7 +550,6 @@ export default function ProducerOverview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dataWarnings, setDataWarnings] = useState([]);
-  const [period, setPeriod] = useState('month');
   const [salesChart, setSalesChart] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [verificationStatus, setVerificationStatus] = useState(null);
@@ -731,22 +729,6 @@ export default function ProducerOverview() {
           <PlanBadge plan={user?.plan} />
         </div>
         <div className="flex items-center gap-2">
-          {/* Period selector */}
-          <div className="flex p-0.5 rounded-2xl shadow-sm bg-white">
-            {[
-              { key: 'today', label: 'Hoy' },
-              { key: 'week', label: 'Semana' },
-              { key: 'month', label: 'Mes' },
-            ].map(p => (
-              <button
-                key={p.key}
-                onClick={() => setPeriod(p.key)}
-                className={`px-3 py-1.5 text-xs font-medium transition-colors rounded-xl ${period === p.key ? 'bg-stone-950 text-white' : 'bg-transparent text-stone-500'}`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
           {publicProfileUrl && (
             <Link
               to={publicProfileUrl}
@@ -855,7 +837,7 @@ export default function ProducerOverview() {
       {stats?.expiring_certs > 0 && (
         <Link
           to="/producer/certificates"
-          className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-amber-700"
+          className="flex items-center gap-3 p-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-700"
           data-testid="cert-expiry-alert"
         >
           <AlertTriangle className="w-4 h-4 shrink-0" />

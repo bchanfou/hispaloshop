@@ -83,7 +83,7 @@ function CaseDetail({ caseData, onBack, onMessageSent }) {
       <div className="rounded-[24px] border border-stone-100 bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <p className="font-mono text-xs text-stone-400">#{caseData.case_id.slice(0, 8)}</p>
+            <p className="font-mono text-xs text-stone-400">#{(caseData.case_id || '').slice(0, 8)}</p>
             <h2 className="mt-1 text-lg font-semibold capitalize text-stone-950">
               {caseData.issue_type || 'Caso de soporte'}
             </h2>
@@ -261,7 +261,7 @@ export default function CustomerSupport() {
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="font-mono text-[10px] text-stone-400">#{c.case_id.slice(0, 8)}</p>
+                  <p className="font-mono text-[10px] text-stone-400">#{(c.case_id || '').slice(0, 8)}</p>
                   <StatusBadge status={c.status} />
                 </div>
                 <p className="mt-1.5 text-sm font-semibold capitalize text-stone-950">

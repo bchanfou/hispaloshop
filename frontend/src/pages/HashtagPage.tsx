@@ -59,25 +59,32 @@ export default function HashtagPage() {
 
   const totalCount = allPosts.length;
 
-  // Infinite scroll sentinel for posts
+  // Infinite scroll sentinel for posts — stable ref, reads latest state via closure refs
+  const postsHasNextPage = postsQuery.hasNextPage;
+  const postsIsFetching = postsQuery.isFetchingNextPage;
+  const postsFetchNext = postsQuery.fetchNextPage;
   const postsSentinelRef = useCallback((node) => {
     if (!node) return;
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && postsQuery.hasNextPage && !postsQuery.isFetchingNextPage) postsQuery.fetchNextPage();
+      if (entry.isIntersecting && postsHasNextPage && !postsIsFetching) postsFetchNext();
     }, { threshold: 0.5 });
     observer.observe(node);
+    // Callback ref cleanup (React 19+); in earlier React this is ignored but harmless
     return () => observer.disconnect();
-  }, [postsQuery.hasNextPage, postsQuery.isFetchingNextPage, postsQuery.fetchNextPage]);
+  }, [postsHasNextPage, postsIsFetching, postsFetchNext]);
 
   // Infinite scroll sentinel for reels
+  const reelsHasNextPage = reelsQuery.hasNextPage;
+  const reelsIsFetching = reelsQuery.isFetchingNextPage;
+  const reelsFetchNext = reelsQuery.fetchNextPage;
   const reelsSentinelRef = useCallback((node) => {
     if (!node) return;
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && reelsQuery.hasNextPage && !reelsQuery.isFetchingNextPage) reelsQuery.fetchNextPage();
+      if (entry.isIntersecting && reelsHasNextPage && !reelsIsFetching) reelsFetchNext();
     }, { threshold: 0.5 });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [reelsQuery.hasNextPage, reelsQuery.isFetchingNextPage, reelsQuery.fetchNextPage]);
+  }, [reelsHasNextPage, reelsIsFetching, reelsFetchNext]);
 
   const isInitialLoading = postsQuery.isLoading;
   const isError = postsQuery.isError;
@@ -131,7 +138,7 @@ export default function HashtagPage() {
             </div>
             <div className="min-w-0">
               <h1 className="text-lg font-bold text-stone-950 truncate">#{decodedTag}</h1>
-              <p className="text-xs text-stone-500">{totalCount} publicaciones</p>
+              <p className="text-xs text-stone-500">{totalCount > 0 ? `${totalCount}${postsQuery.hasNextPage ? '+' : ''} publicaciones` : 'Publicaciones'}</p>
             </div>
           </div>
         </div>
@@ -172,12 +179,12 @@ export default function HashtagPage() {
               <div className="flex flex-col items-center justify-center py-20 gap-4">
                 <Hash className="w-12 h-12 text-stone-300" />
                 <p className="text-base font-semibold text-stone-950">Sin publicaciones</p>
-                <p className="text-sm text-stone-500">Aun no hay publicaciones con #{decodedTag}</p>
+                <p className="text-sm text-stone-500">Aún no hay publicaciones con #{decodedTag}</p>
               </div>
             ) : (
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
                 {allPosts.map((post, idx) => {
-                  const img = post.images?.[0] || post.thumbnail || post.media_url;
+                  const img = post.image_url || post.media?.[0]?.url || post.images?.[0];
                   return (
                     <button
                       key={post.post_id || post.id || idx}
@@ -226,17 +233,18 @@ export default function HashtagPage() {
               <div className="flex flex-col items-center justify-center py-20 gap-4">
                 <Play className="w-12 h-12 text-stone-300" />
                 <p className="text-base font-semibold text-stone-950">Sin reels</p>
-                <p className="text-sm text-stone-500">Aun no hay reels con #{decodedTag}</p>
+                <p className="text-sm text-stone-500">Aún no hay reels con #{decodedTag}</p>
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-1">
                 {allReels.map((reel, idx) => {
                   const thumb = reel.thumbnail || reel.thumbnail_url || reel.cover_image;
                   const reelId = reel.reel_id || reel.id || reel.post_id;
+                  if (!reelId) return null;
                   return (
                     <button
-                      key={reelId || idx}
-                      onClick={() => navigate('/reels')}
+                      key={reelId}
+                      onClick={() => navigate(`/posts/${reelId}`)}
                       className="relative aspect-[9/16] bg-stone-100 overflow-hidden group cursor-pointer border-none p-0"
                     >
                       {thumb ? (
@@ -288,16 +296,17 @@ export default function HashtagPage() {
               <div className="flex flex-col items-center justify-center py-20 gap-4">
                 <ChefHat className="w-12 h-12 text-stone-300" strokeWidth={1.5} />
                 <p className="text-base font-semibold text-stone-950">Sin recetas</p>
-                <p className="text-sm text-stone-500">Aun no hay recetas con #{decodedTag}</p>
+                <p className="text-sm text-stone-500">Aún no hay recetas con #{decodedTag}</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {allRecipes.map((recipe, idx) => {
                   const recipeId = recipe.recipe_id || recipe.id;
                   const cookTime = recipe.cook_time || recipe.time_minutes || 0;
+                  if (!recipeId) return null;
                   return (
                     <button
-                      key={recipeId || idx}
+                      key={recipeId}
                       onClick={() => navigate(`/recipes/${recipeId}`)}
                       className="text-left bg-white overflow-hidden rounded-2xl border-none p-0 cursor-pointer"
                     >

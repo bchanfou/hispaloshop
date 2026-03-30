@@ -24,7 +24,8 @@ export default function EditProfilePage() {
   const usernameTimerRef = useRef(null);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
-  const canSave = hasChanges() && !saving && usernameStatus !== 'taken' && usernameStatus !== 'checking' && form.username.trim().length >= 3;
+  const originalUsername = user?.username || '';
+  const canSave = hasChanges() && !saving && usernameStatus !== 'taken' && usernameStatus !== 'checking' && (form.username.trim().length >= 3 || form.username === originalUsername);
 
   /* cleanup username debounce timer + blob URL on unmount */
   useEffect(() => {
@@ -54,8 +55,6 @@ export default function EditProfilePage() {
     setAvatarPreview(user.avatar_url || user.avatar || null);
   }, [user]);
 
-  const originalUsername = user?.username || '';
-
   function hasChanges() {
     if (avatarFile) return true;
     if (form.name !== (user?.name || user?.full_name || '')) return true;
@@ -76,7 +75,7 @@ export default function EditProfilePage() {
   }
 
   const handleUsernameChange = useCallback((val) => {
-    const clean = val.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
+    const clean = val.toLowerCase().replace(/[^a-z0-9_.\-]/g, '').slice(0, 20);
     setForm(f => ({ ...f, username: clean }));
 
     if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current);
@@ -159,7 +158,7 @@ export default function EditProfilePage() {
   };
 
   const usernameBorderClass = usernameStatus === 'taken'
-    ? 'border-red-500'
+    ? 'border-stone-950'
     : usernameStatus === 'available'
       ? 'border-stone-950'
       : 'border-stone-200';
@@ -229,7 +228,7 @@ export default function EditProfilePage() {
             <input
               value={form.username}
               onChange={e => handleUsernameChange(e.target.value)}
-              maxLength={30}
+              maxLength={20}
               className={`h-11 w-full rounded-2xl border pl-[30px] pr-9 text-sm text-stone-950 outline-none ${usernameBorderClass}`}
             />
             {usernameStatus === 'checking' && (
@@ -239,11 +238,11 @@ export default function EditProfilePage() {
               <Check size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-950" />
             )}
             {usernameStatus === 'taken' && (
-              <X size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-red-500" />
+              <X size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
             )}
           </div>
           {usernameStatus === 'taken' && (
-            <p className="mt-1 text-xs text-red-600">Este nombre de usuario no está disponible</p>
+            <p className="mt-1 text-xs text-stone-600">Este nombre de usuario no está disponible</p>
           )}
           {usernameStatus === 'available' && (
             <p className="mt-1 text-xs text-stone-500">Disponible</p>

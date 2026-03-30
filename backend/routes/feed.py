@@ -104,12 +104,25 @@ async def get_stories(request: Request):
         ).to_list(1000)
         followed_ids = {f["following_id"] for f in follows}
 
+    # ── Blocked IDs ─────────────────────────────────────────────────────────
+    blocked_ids: set = set()
+    if current_user:
+        blocked_docs = await db.blocked_users.find(
+            {"$or": [{"blocker_id": current_user.user_id}, {"blocked_id": current_user.user_id}]},
+            {"_id": 0, "blocker_id": 1, "blocked_id": 1},
+        ).to_list(500)
+        for bd in blocked_docs:
+            blocked_ids.add(bd.get("blocker_id"))
+            blocked_ids.add(bd.get("blocked_id"))
+        blocked_ids.discard(current_user.user_id)
+
     # ── 1. Collect users who have real active hispalostories ─────────────────
     # Exclude current user's stories (self-ring is shown separately by the frontend)
     # Accept stories with image_url OR video_url (video stories have no image_url)
     story_query = {"expires_at": {"$gt": now}, "is_hidden": {"$ne": True}, "$or": [{"image_url": {"$ne": None}}, {"video_url": {"$ne": None}}]}
     if current_user:
-        story_query["user_id"] = {"$ne": current_user.user_id}
+        excluded_ids = list(blocked_ids | {current_user.user_id})
+        story_query["user_id"] = {"$nin": excluded_ids}
     try:
         active_ephemeral = await db.hispalostories.find(
             story_query,
@@ -188,7 +201,7 @@ async def get_stories(request: Request):
         }
         # Prefer followed sellers, then any seller
         followed_seller_list = await db.users.find(
-            {**seller_query, "user_id": {"$in": list(followed_ids) or ["__none__"]}},
+            {**seller_query, "user_id": {"$in": list(followed_ids) or ["__none__"], "$nin": excluded_user_ids}},
             {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1},
         ).limit(slots_remaining).to_list(slots_remaining)
 
@@ -218,12 +231,18 @@ async def get_stories(request: Request):
                 {"$group": {"_id": "$producer_id", "doc": {"$first": "$$ROOT"}}},
                 {"$project": {"_id": 0, "producer_id": "$_id", "name": "$doc.name", "images": "$doc.images", "price": "$doc.price"}},
             ]
-            latest_posts_list, latest_products_list = await asyncio.gather(
+            now_iso_sellers = datetime.now(timezone.utc).isoformat()
+            latest_posts_list, latest_products_list, seller_story_counts_agg = await asyncio.gather(
                 db.user_posts.aggregate(posts_pipeline).to_list(len(seller_ids)),
                 db.products.aggregate(products_pipeline).to_list(len(seller_ids)),
+                db.hispalostories.aggregate([
+                    {"$match": {"user_id": {"$in": seller_ids}, "expires_at": {"$gt": now_iso_sellers}, "is_hidden": {"$ne": True}}},
+                    {"$group": {"_id": "$user_id", "count": {"$sum": 1}}},
+                ]).to_list(len(seller_ids)),
             )
             posts_by_user = {p["user_id"]: p for p in latest_posts_list}
             products_by_user = {p["producer_id"]: p for p in latest_products_list}
+            story_counts_by_seller = {r["_id"]: r["count"] for r in seller_story_counts_agg}
 
             for seller in sellers:
                 sid = seller["user_id"]
@@ -237,17 +256,12 @@ async def get_stories(request: Request):
                     if img:
                         preview = {"type": "product", "image": img, "text": latest_product.get("name", ""), "price": latest_product.get("price")}
                 if preview and preview.get("image"):
-                    # Count actual stories for this seller
-                    seller_story_count = await db.hispalostories.count_documents({
-                        "user_id": sid,
-                        "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()},
-                    })
                     result.append({
                         "user_id": sid,
                         "name": seller.get("company_name") or seller.get("name", ""),
                         "avatar": seller.get("profile_image"),
                         "preview": preview,
-                        "stories_count": max(seller_story_count, 1),
+                        "stories_count": max(story_counts_by_seller.get(sid, 0), 1),
                         "is_recent": False,
                         "is_followed": sid in followed_ids,
                         "has_unseen": True,

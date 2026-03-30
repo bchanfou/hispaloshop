@@ -41,6 +41,7 @@ export default function CustomerOverview() {
   const { convertAndFormatPrice, currency } = useLocale();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
+  const [ordersTotal, setOrdersTotal] = useState(0);
   const [followedStores, setFollowedStores] = useState([]);
   const [recommended, setRecommended] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,8 +56,12 @@ export default function CustomerOverview() {
     const onErr = () => { errorCount++; if (active && errorCount >= 3) setLoadError(true); };
     Promise.all([
       apiClient.get('/customer/orders').then(data => {
-        if (active) setOrders((Array.isArray(data) ? data : data?.orders || []).slice(0, 3));
-      }).catch(() => { if (active) setOrders([]); onErr(); }),
+        if (active) {
+          const arr = (Array.isArray(data) ? data : data?.orders || []).slice(0, 3);
+          setOrders(arr);
+          setOrdersTotal(data?.total ?? arr.length);
+        }
+      }).catch(() => { if (active) { setOrders([]); setOrdersTotal(0); } onErr(); }),
       apiClient.get('/customer/followed-stores').then(data => {
         if (active) setFollowedStores(Array.isArray(data) ? data : data?.stores || []);
       }).catch(() => { if (active) setFollowedStores([]); onErr(); }),
@@ -107,7 +112,7 @@ export default function CustomerOverview() {
     {
       label: 'David AI',
       icon: Sparkles,
-      onClick: () => dispatchEvent(new Event('open-hispal-ai')),
+      onClick: () => window.dispatchEvent(new Event('open-hispal-ai')),
     },
   ];
 
@@ -131,7 +136,7 @@ export default function CustomerOverview() {
         {/* ── KPI grid ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4">
           {[
-            { label: 'Pedidos',    value: orders.length,         icon: Package },
+            { label: 'Pedidos',    value: ordersTotal,            icon: Package },
             { label: 'Gastado',    value: convertAndFormatPrice(orders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0), currency), icon: ShoppingBag },
             { label: 'Guardados',  value: wishlist.length,       icon: Heart },
             { label: 'Tiendas',    value: followedStores.length, icon: Store },
@@ -167,8 +172,8 @@ export default function CustomerOverview() {
                 const thumb = order.line_items?.[0]?.image || order.items?.[0]?.image || null;
                 return (
                   <Link
-                    key={order.id}
-                    to={`/customer/orders/${order.id}`}
+                    key={order.order_id || order.id}
+                    to={`/dashboard/orders/${order.order_id || order.id}`}
                     className="flex items-center gap-3 bg-white shadow-sm rounded-2xl px-3 py-3 hover:bg-stone-50 transition-colors"
                     data-testid="recent-order-row"
                   >
@@ -265,7 +270,7 @@ export default function CustomerOverview() {
         {/* ── David AI card ── */}
         <div className="px-4">
           <button
-            onClick={() => dispatchEvent(new Event('open-hispal-ai'))}
+            onClick={() => window.dispatchEvent(new Event('open-hispal-ai'))}
             className="w-full block p-4 bg-stone-50 shadow-sm rounded-2xl hover:bg-stone-100 transition-colors text-left"
             data-testid="hispal-ai-card"
           >

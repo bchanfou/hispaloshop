@@ -78,6 +78,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
     try { return localStorage.getItem('hsp_story_tap_hint') === '1'; } catch (err) { /* storage unavailable */ return false; }
   });
   const [tapHintSide, setTapHintSide] = useState(null); // 'left' | 'right' | null
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const tapHintTimerRef = useRef(null);
   const longPressRef = useRef(null);
   const rafRef = useRef(null);
@@ -291,10 +292,12 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
             })),
           } : s
         ));
-        // Seed liked state for the first item (currentItemIndex is 0 when swiping to a new user)
-        const firstItem = fullItems[0];
-        if (firstItem?.is_liked !== undefined) {
-          setLiked(firstItem.is_liked);
+        // Seed liked state only if still viewing the first item (user hasn't tapped forward)
+        if (currentItemIndex === 0) {
+          const firstItem = fullItems[0];
+          if (firstItem?.is_liked !== undefined) {
+            setLiked(firstItem.is_liked);
+          }
         }
       }
     }).catch(() => {
@@ -321,6 +324,13 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
     };
   }, []);
 
+  const handleShareClose = useCallback(() => {
+    setShareSheetOpen(false);
+    setShareSearch('');
+    isPaused.current = false;
+    setPaused(false);
+  }, []);
+
   // Keyboard: Escape to close panels first, then viewer; Arrow keys blocked while panels open
   useEffect(() => {
     const handleKey = (e) => {
@@ -329,11 +339,17 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
         if (showSeenBy) { setShowSeenBy(false); isPaused.current = false; setPaused(false); return; }
         handleClose();
       } else if (e.key === 'ArrowRight') {
-        if (!shareSheetOpen && !showSeenBy) goNext();
+        if (!shareSheetOpen && !showSeenBy && document.activeElement !== replyInputRef.current) {
+          isPaused.current = false; setPaused(false); goNext();
+        }
       } else if (e.key === 'ArrowLeft') {
-        if (!shareSheetOpen && !showSeenBy) goPrev();
+        if (!shareSheetOpen && !showSeenBy && document.activeElement !== replyInputRef.current) {
+          isPaused.current = false; setPaused(false); goPrev();
+        }
       } else if (e.key === ' ') {
         if (shareSheetOpen || showSeenBy) return;
+        // Don't steal space from the reply input
+        if (document.activeElement === replyInputRef.current) return;
         e.preventDefault();
         isPaused.current = !isPaused.current;
         setPaused(isPaused.current);
@@ -380,6 +396,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
   // 4.3: Unified pointer handlers — replaces separate touch/mouse/click handlers
   const handlePointerDown = (e) => {
     if (!e.isPrimary) return; // ignore non-primary pointers (multi-touch)
+    // Block all gestures while panels that overlay the story are open.
+    // The seen-by panel lives inside this container, so swipes on it would otherwise
+    // trigger close/navigate. Share sheet is outside this container so no issue there.
+    if (showSeenBy) return;
     // Don't start gesture tracking when the pointer originates on an overlay interactive
     // element (Eye, Delete, Product sticker, Mute, Link, seen-by panel buttons).
     // Without this guard, tapping any overlay button ALSO triggers tap navigation.
@@ -557,6 +577,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
   const handleShareOpen = useCallback(async () => {
     // Try navigator.share first on mobile
     if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+      isPaused.current = true;
+      setPaused(true);
       try {
         const ownerHandle = currentStory?.user?.username || currentStory?.user_id || '';
         const storyUrl = `${window.location.origin}/${ownerHandle}`;
@@ -564,9 +586,12 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
           title: `Historia de ${currentStory?.user?.name || currentStory?.user?.username || ''}`,
           url: storyUrl,
         });
+        isPaused.current = false;
+        setPaused(false);
         return;
       } catch (err) {
         // non-critical: User cancelled or unsupported — fall through to DM picker
+        // Keep paused so the DM sheet can open without a brief play flash
       }
     }
     setShareSheetOpen(true);
@@ -602,13 +627,6 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
     } catch (err) { toast.error('Error al compartir'); }
     setShareSending(null);
   }, [currentItem, shareSending]);
-
-  const handleShareClose = useCallback(() => {
-    setShareSheetOpen(false);
-    setShareSearch('');
-    isPaused.current = false;
-    setPaused(false);
-  }, []);
 
   const filteredShareConversations = shareConversations.filter((c) => {
     if (!shareSearch.trim()) return true;
@@ -966,18 +984,11 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
                 </span>
               </button>
               <button
-                onClick={async (e) => {
+                onClick={(e) => {
                   e.stopPropagation();
-                  if (!confirm('¿Eliminar esta historia?')) return;
-                  try {
-                    const sid = currentItem?.story_id || currentItem?.id;
-                    await apiClient.delete(`/stories/${sid}`);
-                    toast.success('Historia eliminada');
-                    queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
-                    queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
-                    queryClient.invalidateQueries({ queryKey: ['user-stories', currentStory?.user_id] });
-                    handleClose();
-                  } catch { toast.error('No se pudo eliminar'); }
+                  setShowDeleteConfirm(true);
+                  isPaused.current = true;
+                  setPaused(true);
                 }}
                 className="absolute bottom-4 right-4 z-[2] flex items-center gap-1 bg-transparent border-none cursor-pointer"
                 aria-label="Eliminar story"
@@ -1240,7 +1251,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
           value={replyText}
           onChange={(e) => setReplyText(e.target.value)}
           onFocus={() => { isPaused.current = true; setPaused(true); }}
-          onBlur={() => { isPaused.current = false; setPaused(false); }}
+          onBlur={() => { if (!shareSheetOpen) { isPaused.current = false; setPaused(false); } }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && replyText.trim()) {
               e.preventDefault();
@@ -1355,6 +1366,59 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
               )}
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete story confirmation */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <>
+            <motion.div
+              key="del-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { setShowDeleteConfirm(false); isPaused.current = false; setPaused(false); }}
+              className="absolute inset-0 z-[110] bg-black/50"
+            />
+            <motion.div
+              key="del-modal"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="absolute left-4 right-4 top-1/2 -translate-y-1/2 z-[111] bg-white rounded-2xl p-4 shadow-xl mx-auto max-w-[320px]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="mb-1 text-center text-[15px] font-semibold text-stone-950">¿Eliminar esta historia?</p>
+              <p className="mb-4 text-center text-sm text-stone-500">Esta acción no se puede deshacer.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowDeleteConfirm(false); isPaused.current = false; setPaused(false); }}
+                  className="flex-1 rounded-full bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={async () => {
+                    setShowDeleteConfirm(false);
+                    try {
+                      const sid = currentItem?.story_id || currentItem?.id;
+                      await apiClient.delete(`/stories/${sid}`);
+                      toast.success('Historia eliminada');
+                      queryClient.invalidateQueries({ queryKey: ['stories-mine'] });
+                      queryClient.invalidateQueries({ queryKey: ['feed-stories'] });
+                      queryClient.invalidateQueries({ queryKey: ['user-stories', currentStory?.user_id] });
+                      handleClose();
+                    } catch { toast.error('No se pudo eliminar'); }
+                  }}
+                  className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-semibold text-white"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.div>

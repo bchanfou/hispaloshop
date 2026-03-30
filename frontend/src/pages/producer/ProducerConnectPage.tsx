@@ -51,8 +51,8 @@ export default function ProducerConnectPage() {
 
       prevStatusRef.current = newStatus;
       setStatus(newStatus);
-    } catch (error) {
-      toast.error('No se pudo obtener el estado de Stripe Connect');
+    } catch {
+      // silent: polling errors should not spam toasts
     } finally {
       setLoading(false);
     }

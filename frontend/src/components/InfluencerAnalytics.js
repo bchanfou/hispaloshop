@@ -168,13 +168,13 @@ export default function InfluencerAnalytics() {
         <StatCard
           icon={TrendingUp}
           title="Ventas generadas"
-          value={`€${summary.total_revenue.toFixed(0)}`}
-          subtitle={`${summary.all_time_orders} totales`}
+          value={`€${(summary.total_revenue || 0).toFixed(0)}`}
+          subtitle={`${summary.all_time_orders || 0} totales`}
         />
         <StatCard
           icon={DollarSign}
           title="Comisiones"
-          value={`€${summary.total_commission.toFixed(2)}`}
+          value={`€${(summary.total_commission || 0).toFixed(2)}`}
           color="text-stone-950"
           subtitle={effectiveRateLabel}
         />

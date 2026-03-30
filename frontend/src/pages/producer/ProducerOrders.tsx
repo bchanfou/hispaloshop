@@ -86,7 +86,7 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
               <Truck className="w-6 h-6" />
               <div>
                 <h2 className="font-semibold">{t('orders.shipping.title')}</h2>
-                <p className="text-sm opacity-80">{t('orders.orderNumber', { number: order.order_id?.slice(0, 8) })}</p>
+                <p className="text-sm opacity-80">{t('orders.orderNumber', { number: String(order.order_id || '').slice(0, 8) })}</p>
               </div>
             </div>
             <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-full">
@@ -467,7 +467,7 @@ export default function ProducerOrders() {
                     </div>
                     <div>
                       <p className="font-semibold text-stone-950">
-                        {t('orders.orderNumber')} #{order.order_id?.slice(0, 8)}
+                        {t('orders.orderNumber')} #{String(order.order_id || '').slice(0, 8)}
                       </p>
                       <p className="text-sm text-stone-500">
                         {new Date(order.created_at).toLocaleDateString('es-ES')}
@@ -565,7 +565,7 @@ export default function ProducerOrders() {
                     <div className="md:col-span-2">
                       <p className="text-sm font-medium text-stone-600 mb-2">{t('orders.products')}</p>
                       <div className="space-y-2">
-                        {order.line_items?.map((item, idx) => (
+                        {(order.items || order.line_items)?.map((item, idx) => (
                           <div key={idx} className="flex items-center gap-3 p-2 bg-stone-50 rounded-2xl">
                             {(item.image || item.product_image) && (
                               <img
@@ -630,12 +630,12 @@ export default function ProducerOrders() {
                   {/* Order Total */}
                   <div className="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between">
                     <div className="text-sm text-stone-500">
-                      {t('orders.customer')}: {order.user_email}
+                      {t('orders.customer')}: {order.user_email || order.customer_name}
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-stone-500">{t('orders.orderTotal')}</p>
-                      <p className="text-xl font-bold text-stone-950">{asNumber(order.total_amount).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p>
-                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: {asNumber(order.producer_share || (asNumber(order.total_amount) * (1 - asNumber(order.commission_rate, 0.18)))).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} <span className="text-stone-400">(Plan {order.commission_plan || 'FREE'})</span></p>
+                      <p className="text-xl font-bold text-stone-950">{asNumber(order.total_amount ?? order.total).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p>
+                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: {asNumber(order.producer_share ?? ((order.total_amount ?? order.total ?? 0) * (1 - asNumber(order.commission_rate, 0.18)))).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} <span className="text-stone-400">(Plan {order.commission_plan || 'FREE'})</span></p>
                     </div>
                   </div>
                 </div>

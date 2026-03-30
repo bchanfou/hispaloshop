@@ -18,7 +18,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 
 from bson.objectid import ObjectId
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from core.auth import get_current_user
@@ -255,7 +255,7 @@ async def get_suggested_users(
     seed_user_id: Optional[str] = Query(None),
     roles: Optional[str] = Query(None, description="Comma-separated role filter"),
     preferences: Optional[str] = Query(None, description="Comma-separated food preferences (for onboarding)"),
-    request=None,
+    request: Request = None,
 ):
     """Personalized user recommendations across all roles."""
     from services.user_recommendations import (
@@ -319,7 +319,7 @@ async def browse_people(
     cursor: Optional[str] = Query(None),
     role: Optional[str] = Query(None),
     country: Optional[str] = Query(None),
-    request=None,
+    request: Request = None,
 ):
     """Paginated people browse with optional role/country filters."""
     db = get_db()

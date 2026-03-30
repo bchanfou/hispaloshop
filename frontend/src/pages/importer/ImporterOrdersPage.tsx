@@ -302,8 +302,9 @@ export default function ImporterOrdersPage() {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const params = filter === 'all' ? '' : `?status=${filter}`;
-      const data = await apiClient.get(`/importer/b2b-orders${params}&limit=30`);
+      const qs = new URLSearchParams({ limit: '30' });
+      if (filter !== 'all') qs.set('status', filter);
+      const data = await apiClient.get(`/importer/b2b-orders?${qs.toString()}`);
       setOrders(data?.orders || []);
     } catch {
       setOrders([]);

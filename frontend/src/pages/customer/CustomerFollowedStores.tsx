@@ -126,7 +126,7 @@ export default function CustomerFollowedStores() {
   useEffect(() => {
     let active = true;
     apiClient.get('/customer/followed-stores')
-      .then(data => { if (active) setStores(data || []); })
+      .then(data => { if (active) setStores(Array.isArray(data) ? data : data?.stores || []); })
       .catch(() => { if (active) toast.error(t('common.error')); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };

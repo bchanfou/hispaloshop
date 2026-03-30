@@ -362,12 +362,14 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
         label: 'Deshacer',
         onClick: () => {
           clearTimeout(deleteTimerRef.current);
+          deleteTimerRef.current = null;
           setDeleted(false);
         },
       },
       duration: 5000,
     });
     deleteTimerRef.current = setTimeout(async () => {
+      deleteTimerRef.current = null; // prevent double-delete from unmount cleanup
       try {
         await apiClient.delete(`/posts/${post.id}`);
         onDelete?.(post.id);
@@ -545,7 +547,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       {/* ---- Header ---- */}
       <div className="flex items-center gap-2.5 px-3 py-2">
         <div
-          onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
+          onClick={() => { const t = user.username || user.id || user.user_id; if (t) navigate(`/${t}`); }}
           className={`flex shrink-0 items-center justify-center rounded-full cursor-pointer ${
             hasStory ? 'h-9 w-9 story-ring--unseen p-[2px]' : 'h-9 w-9'
           }`}
@@ -572,7 +574,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
 
         <div className="flex flex-1 flex-wrap items-center gap-1 min-w-0">
           <span
-            onClick={() => navigate(`/${user.username || user.id || user.user_id}`)}
+            onClick={() => { const t = user.username || user.id || user.user_id; if (t) navigate(`/${t}`); }}
             className="text-sm font-semibold text-stone-950 truncate max-w-[140px] cursor-pointer"
             role="link"
           >
@@ -747,6 +749,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
             onPointerDown={handleLongPressStart}
             onPointerUp={handleLongPressEnd}
             onPointerLeave={handleLongPressEnd}
+            onPointerCancel={handleLongPressEnd}
             aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
           >
             {selectedReaction && selectedReaction !== '❤️' ? (
@@ -957,6 +960,7 @@ const arePostPropsEqual = (prev, next) => {
     p?.comments === n?.comments &&
     p?.caption === n?.caption &&
     p?.content === n?.content &&
+    (p?.user_has_story ?? p?.user?.has_story ?? false) === (n?.user_has_story ?? n?.user?.has_story ?? false) &&
     prev.priority === next.priority &&
     prev.onLike === next.onLike &&
     prev.onComment === next.onComment &&

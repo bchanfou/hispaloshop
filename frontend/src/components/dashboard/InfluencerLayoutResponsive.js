@@ -102,7 +102,7 @@ export default function InfluencerLayoutResponsive({ children }) {
                 <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
                 <span>{t('common.back', 'Volver')}</span>
               </button>
-              <div className="h-6 w-px bg-border-default" />
+              <div className="h-6 w-px bg-stone-200" />
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-stone-700" />
                 <span className="text-lg font-semibold text-stone-950">

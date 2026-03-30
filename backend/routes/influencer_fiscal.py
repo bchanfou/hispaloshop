@@ -143,6 +143,7 @@ async def get_fiscal_status(user: User = Depends(get_current_user)):
         "needs_manual_review": fiscal.get("needs_manual_review", False),
         "affiliate_blocked": fiscal.get("affiliate_blocked", True),
         "block_reason": fiscal.get("block_reason"),
+        "fiscal_setup_status": fiscal.get("fiscal_setup_status"),
         "payout_method": influencer.get("payout_method"),
         "stripe_account_id": influencer.get("stripe_account_id"),
         "stripe_onboarding_complete": influencer.get("stripe_onboarding_complete", False),

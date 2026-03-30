@@ -237,6 +237,16 @@ async def _create_indexes():
     )
     logger.info("  OK: social unique indexes (follows, likes)")
 
+    # Stories — performance indexes (were missing, causing full-collection scans)
+    await _safe_create_index(db.hispalostories, "story_id", unique=True, sparse=True)
+    await _safe_create_index(db.hispalostories, [("user_id", 1), ("expires_at", -1)])
+    await _safe_create_index(db.hispalostories, [("expires_at", 1), ("is_hidden", 1)])
+    await _safe_create_index(db.story_likes, [("story_id", 1), ("user_id", 1)], unique=True)
+    await _safe_create_index(db.story_replies, "story_id")
+    await _safe_create_index(db.story_highlights, "user_id")
+    await _safe_create_index(db.story_highlights, [("highlight_id", 1), ("user_id", 1)], unique=True, sparse=True)
+    logger.info("  OK: stories indexes")
+
     # Affiliate commissions
     await db.influencer_commissions.create_index(
         [("influencer_id", 1), ("status", 1)]

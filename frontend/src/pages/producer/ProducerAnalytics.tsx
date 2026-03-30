@@ -276,35 +276,6 @@ export default function ProducerAnalytics() {
         })}
       </div>
 
-      {/* Top 5 productos */}
-      <AnalyticsSection title="Top 5 productos" icon={ShoppingBag}>
-        {data?.top_products?.length ? (
-          <div className="space-y-0">
-            {data.top_products.slice(0, 5).map((product, i) => (
-              <div key={product.product_id || i} className="flex items-center gap-3 py-2.5 border-b border-stone-100 last:border-0">
-                <span className="text-lg font-bold text-stone-300 w-6 text-center shrink-0">
-                  {i === 0 ? '1' : i === 1 ? '2' : i === 2 ? '3' : i === 3 ? '4' : '5'}
-                </span>
-                {product.image ? (
-                  <img loading="lazy" src={product.image} alt="" className="w-10 h-10 rounded-2xl object-cover shrink-0" />
-                ) : (
-                  <div className="w-10 h-10 rounded-2xl bg-stone-100 shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-stone-950 truncate">{product.name}</p>
-                  <p className="text-xs text-stone-500">{product.units_sold ?? 0} uds.</p>
-                </div>
-                <p className="text-sm font-bold text-stone-950 shrink-0">
-                  {(product.revenue || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-stone-400 text-center py-4">Datos insuficientes</p>
-        )}
-      </AnalyticsSection>
-
       {/* Todos los productos vendidos */}
       <AnalyticsSection title="Productos más vendidos" icon={ShoppingBag}>
         {data?.top_products?.length ? (
@@ -321,7 +292,7 @@ export default function ProducerAnalytics() {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-stone-950 truncate">{product.name}</p>
-                  <p className="text-xs text-stone-500">{product.units_sold} unidades vendidas</p>
+                  <p className="text-xs text-stone-500">{product.units_sold ?? 0} unidades vendidas</p>
                 </div>
                 <p className="text-sm font-bold text-stone-950 shrink-0">
                   {(product.revenue || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}

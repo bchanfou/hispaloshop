@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Grid3X3,
@@ -321,10 +321,10 @@ const ProfileTabs = forwardRef(function ProfileTabs({
                   loading="lazy"
                   className="block h-full w-full object-cover"
                 />
-                {reel.views != null && (
+                {(reel.views_count ?? reel.views) != null && (
                   <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 text-[12px] font-semibold text-white drop-shadow-md">
                     <Play size={12} fill="white" />
-                    {formatViews(reel.views)}
+                    {formatViews(reel.views_count ?? reel.views)}
                   </span>
                 )}
               </div>
@@ -568,13 +568,16 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
   const [likesCount, setLikesCount] = useState(reel.likes_count ?? reel.likes ?? 0);
   const [saved, setSaved] = useState(reel.is_saved ?? false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [muted, setMuted] = useState(true);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState([]);
+  const [commentsCount, setCommentsCount] = useState(reel.comments_count ?? 0);
   const [newComment, setNewComment] = useState('');
   const [commentsLoading, setCommentsLoading] = useState(false);
   const reelId = reel.id || reel.reel_id;
+  const likingRef = useRef(false);
 
   // Reset state when reel changes
   useEffect(() => {
@@ -582,6 +585,10 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
     setLikesCount(reel.likes_count ?? reel.likes ?? 0);
     setSaved(reel.is_saved ?? false);
     setShowMenu(false);
+    setShowComments(false);
+    setComments([]);
+    setCommentsCount(reel.comments_count ?? 0);
+    setNewComment('');
   }, [reel]);
 
   // Close on Escape
@@ -592,6 +599,8 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
   }, [onClose]);
 
   const handleLike = useCallback(async () => {
+    if (likingRef.current) return;
+    likingRef.current = true;
     const wasLiked = liked;
     setLiked(!wasLiked);
     setLikesCount((c) => wasLiked ? Math.max(0, c - 1) : c + 1);
@@ -600,6 +609,8 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
     } catch {
       setLiked(wasLiked);
       setLikesCount((c) => wasLiked ? c + 1 : Math.max(0, c - 1));
+    } finally {
+      likingRef.current = false;
     }
   }, [liked, reelId]);
 
@@ -667,7 +678,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
                   <Pencil size={16} /> Editar
                 </button>
                 <button
-                  onClick={() => { if (confirm('¿Eliminar este reel?')) handleDelete(); }}
+                  onClick={() => { setShowMenu(false); setShowDeleteConfirm(true); }}
                   disabled={deleting}
                   className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-100 disabled:opacity-50"
                 >
@@ -714,7 +725,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
           aria-label="Comentar"
         >
           <MessageCircle size={26} className="text-white" />
-          <span className="text-[11px] text-white font-medium">{reel.comments_count ?? 0}</span>
+          <span className="text-[11px] text-white font-medium">{commentsCount}</span>
         </button>
         <button onClick={handleShare} className="flex flex-col items-center bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center" aria-label="Compartir">
           <Send size={24} className="text-white" />
@@ -754,13 +765,58 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
       {/* Bottom caption + views */}
       <div className="absolute bottom-0 left-0 right-16 p-4 bg-gradient-to-t from-stone-950/80 to-transparent z-[5]">
         {reel.caption && <p className="text-white text-sm line-clamp-2 mb-1">{reel.caption}</p>}
-        {reel.views != null && (
+        {(reel.views_count ?? reel.views) != null && (
           <p className="flex items-center gap-1 text-[12px] text-stone-300">
             <Play size={12} fill="currentColor" />
-            {formatViews(reel.views)} visualizaciones
+            {formatViews(reel.views_count ?? reel.views)} visualizaciones
           </p>
         )}
       </div>
+
+      {/* Delete confirmation modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <>
+            <motion.div
+              key="reel-del-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[110] bg-black/60"
+              onClick={() => setShowDeleteConfirm(false)}
+            />
+            <motion.div
+              key="reel-del-modal"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              className="absolute left-4 right-4 top-1/2 -translate-y-1/2 z-[111] bg-white rounded-2xl p-5 shadow-xl"
+            >
+              <p className="text-stone-950 font-semibold text-base mb-1">¿Eliminar este reel?</p>
+              <p className="text-stone-500 text-sm mb-4">Esta acción no se puede deshacer.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 rounded-xl border border-stone-200 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50 active:bg-stone-100"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={async () => {
+                    setShowDeleteConfirm(false);
+                    await handleDelete();
+                  }}
+                  disabled={deleting}
+                  className="flex-1 rounded-xl bg-stone-950 py-2.5 text-sm font-medium text-white hover:bg-stone-800 disabled:opacity-50"
+                >
+                  {deleting ? 'Eliminando...' : 'Eliminar'}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Comment sheet */}
       {showComments && (
@@ -808,6 +864,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
                     await apiClient.post(`/reels/${reelId}/comments`, { text });
                     const data = await apiClient.get(`/reels/${reelId}/comments`);
                     setComments(Array.isArray(data) ? data : data?.comments || []);
+                    setCommentsCount((c) => c + 1);
                   } catch { toast.error('Error al comentar'); }
                   finally { setCommentsLoading(false); }
                 }
@@ -823,6 +880,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
                   await apiClient.post(`/reels/${reelId}/comments`, { text });
                   const data = await apiClient.get(`/reels/${reelId}/comments`);
                   setComments(Array.isArray(data) ? data : data?.comments || []);
+                  setCommentsCount((c) => c + 1);
                 } catch { toast.error('Error al comentar'); }
                 finally { setCommentsLoading(false); }
               }}

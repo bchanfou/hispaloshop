@@ -318,7 +318,7 @@ export function useSavePost() {
                   || String(item.post_id) === String(postId)
                   || String(item.postId) === String(postId)
                 ) {
-                  return { ...item, saved: !saved };
+                  return { ...item, saved: !saved, is_saved: !saved };
                 }
                 return item;
               }),

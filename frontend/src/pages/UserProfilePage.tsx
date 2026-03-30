@@ -143,7 +143,7 @@ export default function UserProfilePage() {
   const handleViewHighlight = useCallback(async (highlight) => {
     const hlId = highlight.highlight_id || highlight.id;
     try {
-    const data = await apiClient.get(`/users/${highlightsLookupKey}/highlights/${hlId}`);
+      const data = await apiClient.get(`/users/${highlightsLookupKey}/highlights/${hlId}`);
       const items = data?.stories || data?.items || [];
       if (items.length === 0) {
         toast('Este destacado no tiene stories');
@@ -151,7 +151,7 @@ export default function UserProfilePage() {
       }
       setHighlightStories([{
         user_id: user?.user_id,
-        user: { id: user?.user_id, name: user?.name, avatar_url: user?.profile_image, profile_image: user?.profile_image },
+        user: { id: user?.user_id, name: user?.name, username: user?.username, avatar_url: user?.profile_image, profile_image: user?.profile_image },
         items: items.map(s => ({
           id: s.id || s.story_id,
           story_id: s.story_id || s.id,
@@ -181,8 +181,8 @@ export default function UserProfilePage() {
   const handleDeletePost = useCallback((postId) => {
     setAllPosts(prev => prev.filter(p => (p.id || p.post_id) !== postId));
     setSelectedPost(null);
-    queryClient.invalidateQueries({ queryKey: ['users', profileLookupKey, 'posts'] });
-    queryClient.invalidateQueries({ queryKey: ['userProfile', profileLookupKey] });
+    queryClient.invalidateQueries({ queryKey: userKeys.posts(profileLookupKey) });
+    queryClient.invalidateQueries({ queryKey: userKeys.profile(profileLookupKey) });
   }, [profileLookupKey, queryClient]);
 
   const handleFollowToggle = useCallback(async () => {
@@ -213,8 +213,8 @@ export default function UserProfilePage() {
       const convId = data?.conversation_id || data?.id;
       if (convId) navigate(`/messages/${convId}`);
       else toast.error('No se pudo abrir la conversación');
-    } catch {
-      toast.error('Error al crear conversación');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Error al crear conversación');
     }
   }, [user, navigate]);
 
@@ -386,7 +386,7 @@ export default function UserProfilePage() {
           <PostViewer
             post={selectedPost}
             posts={allPosts.length > 0 ? allPosts : [selectedPost]}
-            profile={{ name: user.name, profile_image: user.profile_image }}
+            profile={{ name: user.name || user.username, profile_image: user.profile_image }}
             onClose={() => setSelectedPost(null)}
             isOwn={isOwn}
             onDelete={handleDeletePost}

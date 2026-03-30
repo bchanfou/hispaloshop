@@ -24,7 +24,7 @@ import { useLocale } from '../../context/LocaleContext';
 const MINIMUM_WITHDRAWAL = 20; // €20 minimum (synced with WithdrawalPage)
 
 // Withdrawal Component
-function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSuccess }) {
+function WithdrawalCard({ availableToWithdraw, stripeConnected, hasSEPA, onWithdrawSuccess }) {
   const [showHistory, setShowHistory] = useState(false);
   const { withdrawals, withdrawing, requestWithdrawal, refetchWithdrawals } = useInfluencerWithdrawal();
   const { convertAndFormatPrice } = useLocale();
@@ -65,11 +65,21 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
           </div>
 
           {/* Withdraw button */}
-          {!stripeConnected ? (
+          {!stripeConnected && !hasSEPA ? (
             <div className="text-center p-3 bg-stone-100 rounded-xl shadow-sm">
               <p className="text-sm text-stone-500">
-                Conecta tu cuenta de Stripe para poder retirar tus comisiones
+                Configura un método de cobro en <Link to="/influencer/fiscal-setup" className="font-semibold underline text-stone-950">configuración fiscal</Link> para retirar tus comisiones
               </p>
+            </div>
+          ) : !stripeConnected && hasSEPA ? (
+            <div className="text-center p-3 bg-stone-100 rounded-xl shadow-sm">
+              <p className="text-sm text-stone-500 mb-2">Tienes transferencia SEPA configurada</p>
+              <Link
+                to="/influencer/withdraw"
+                className="inline-block px-4 py-2 bg-stone-950 text-white text-sm font-semibold rounded-xl"
+              >
+                Solicitar cobro →
+              </Link>
             </div>
           ) : availableToWithdraw < MINIMUM_WITHDRAWAL ? (
             <div className="text-center p-3 bg-stone-100 rounded-xl shadow-sm">
@@ -370,6 +380,7 @@ export default function InfluencerDashboard() {
   const [showIrpfModal, setShowIrpfModal] = useState(false);
   const [collabs, setCollabs] = useState([]);
   const [discountCodes, setDiscountCodes] = useState([]);
+  const [kpiStats, setKpiStats] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -408,6 +419,9 @@ export default function InfluencerDashboard() {
     apiClient.get('/influencer/payouts').then(d => {
       if (active) setPayoutHistory(d?.payouts || d || []);
     }).catch(logFetchErr('payouts'));
+    apiClient.get('/influencer/stats').then(d => {
+      if (active) setKpiStats(d);
+    }).catch(logFetchErr('kpi-stats'));
 
     return () => {
       active = false;
@@ -595,33 +609,29 @@ export default function InfluencerDashboard() {
         )}
 
         {/* === KPI CARDS ROW === */}
-        {dashboard.stats && (
+        {kpiStats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             <div className="rounded-2xl shadow-sm bg-white p-4">
-              <p className="text-xs text-stone-500 mb-1">Clics 30d</p>
-              <p className="text-xl font-bold text-stone-950">{dashboard.stats.clicks_30d || 0}</p>
+              <p className="text-xs text-stone-500 mb-1">GMV 30d</p>
+              <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(kpiStats.gmv_30d || 0))}</p>
             </div>
             <div className="rounded-2xl shadow-sm bg-white p-4">
-              <p className="text-xs text-stone-500 mb-1">Ventas 30d</p>
-              <p className="text-xl font-bold text-stone-950">{dashboard.stats.sales_30d || 0}</p>
+              <p className="text-xs text-stone-500 mb-1">Atribuciones activas</p>
+              <p className="text-xl font-bold text-stone-950">{kpiStats.active_attributions || 0}</p>
             </div>
             <div className="rounded-2xl shadow-sm bg-white p-4">
-              <p className="text-xs text-stone-500 mb-1">Conversión</p>
-              <p className="text-xl font-bold text-stone-950">
-                {(dashboard.stats.clicks_30d || 0) > 0
-                  ? `${((dashboard.stats.sales_30d || 0) / dashboard.stats.clicks_30d * 100).toFixed(1)}%`
-                  : '—'}
-              </p>
+              <p className="text-xs text-stone-500 mb-1">Comisiones pendientes</p>
+              <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(kpiStats.pending_eur || 0))}</p>
             </div>
             <div className="rounded-2xl shadow-sm bg-white p-4">
-              <p className="text-xs text-stone-500 mb-1">Comisiones 30d</p>
-              <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(dashboard.stats.earned_30d || 0))}</p>
+              <p className="text-xs text-stone-500 mb-1">Total cobrado</p>
+              <p className="text-xl font-bold text-stone-950">{convertAndFormatPrice(Number(kpiStats.paid_total_eur || 0))}</p>
             </div>
           </div>
         )}
 
         {/* Product Performance */}
-        <div className="mb-6 bg-white shadow-sm rounded-2xl">
+        <div id="analytics-section" className="mb-6 bg-white shadow-sm rounded-2xl">
           <div className="px-6 pt-6 pb-4">
             <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
               <BarChart3 className="h-5 w-5 text-stone-500" />
@@ -712,11 +722,11 @@ export default function InfluencerDashboard() {
           </div>
           <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
             <p className="text-2xl font-bold text-stone-950">{convertAndFormatPrice(asNumber(dashboard.total_commission_earned))}</p>
-            <p className="text-xs mt-1 text-stone-500">Comisión mes</p>
+            <p className="text-xs mt-1 text-stone-500">Comisión total</p>
           </div>
           <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
             <p className="text-2xl font-bold text-stone-950">{`${tierPercent}%`}</p>
-            <p className="text-xs mt-1 text-stone-500">Conversión</p>
+            <p className="text-xs mt-1 text-stone-500">Tasa de comisión</p>
           </div>
         </div>
 
@@ -863,7 +873,7 @@ export default function InfluencerDashboard() {
 
         {/* Payment Schedule Card */}
         {dashboard.payment_schedule && (
-          <div className="mt-6 bg-white shadow-sm rounded-2xl">
+          <div id="payments-section" className="mt-6 bg-white shadow-sm rounded-2xl">
             <div className="px-6 pt-6 pb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
                 <CreditCard className="w-5 h-5 text-stone-500" />
@@ -898,7 +908,7 @@ export default function InfluencerDashboard() {
                         })}
                       </p>
                       <p className="text-xs mt-1 text-stone-500">
-                        {t('influencer.daysLeft', { days: Math.ceil((new Date(dashboard.payment_schedule.next_payment_date) - new Date()) / (1000 * 60 * 60 * 24)) })}
+                        {t('influencer.daysLeft', { days: Math.max(0, Math.ceil((new Date(dashboard.payment_schedule.next_payment_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) })}
                       </p>
                     </>
                   ) : (
@@ -922,6 +932,7 @@ export default function InfluencerDashboard() {
             <WithdrawalCard
               availableToWithdraw={dashboard.payment_schedule.available_to_withdraw}
               stripeConnected={stripeStatus?.connected && stripeStatus?.onboarding_complete}
+              hasSEPA={['sepa', 'bank_transfer'].includes(fiscalStatus?.payout_method)}
               onWithdrawSuccess={refetchDashboard}
             />
           </div>
@@ -1002,17 +1013,17 @@ export default function InfluencerDashboard() {
             {/* Payout method card */}
             <div className="p-4 flex items-center justify-between bg-white rounded-2xl shadow-sm">
               <div className="flex items-center gap-3">
-                {fiscalStatus?.payout_method === 'sepa' ? (
+                {['sepa', 'bank_transfer'].includes(fiscalStatus?.payout_method) ? (
                   <Building2 className="w-5 h-5 text-stone-500" />
                 ) : (
                   <CreditCard className="w-5 h-5 text-stone-500" />
                 )}
                 <div>
                   <p className="text-sm font-semibold text-stone-950">
-                    {fiscalStatus?.payout_method === 'sepa' ? 'Transferencia SEPA' : 'Stripe'}
+                    {['sepa', 'bank_transfer'].includes(fiscalStatus?.payout_method) ? 'Transferencia SEPA' : 'Stripe'}
                   </p>
                   <p className="text-xs text-stone-500">
-                    {fiscalStatus?.payout_method === 'sepa'
+                    {['sepa', 'bank_transfer'].includes(fiscalStatus?.payout_method)
                       ? `···· ${fiscalStatus?.sepa_iban_last4 || '****'}`
                       : (fiscalStatus?.stripe_onboarding_complete ? 'Activo' : 'Pendiente')}
                   </p>
@@ -1043,8 +1054,8 @@ export default function InfluencerDashboard() {
                         <p className="text-sm font-bold text-stone-950">
                           {convertAndFormatPrice(Number(p.net_amount || p.amount || 0))}
                         </p>
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full bg-stone-100 ${p.status === 'completed' ? 'text-stone-950' : 'text-stone-500'}`}>
-                          {p.status === 'completed' ? 'Pagado' : 'Procesando'}
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full bg-stone-100 ${p.status === 'completed' ? 'text-stone-950' : p.status === 'failed' ? 'text-stone-400' : 'text-stone-500'}`}>
+                          {p.status === 'completed' ? 'Pagado' : p.status === 'failed' ? 'Fallido' : 'Procesando'}
                         </span>
                       </div>
                     </div>

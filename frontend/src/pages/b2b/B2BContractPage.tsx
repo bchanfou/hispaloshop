@@ -110,8 +110,9 @@ export default function B2BContractPage() {
     operation?.status === 'contract_signed' ||
     operation?.status === 'completed';
 
-  const isSeller = operation?.seller_id === user?._id;
-  const isBuyer = operation?.buyer_id === user?._id;
+  const userId = user?.user_id || user?._id || user?.id;
+  const isSeller = operation?.seller_id === userId;
+  const isBuyer = operation?.buyer_id === userId;
   const myRole = isSeller ? 'seller' : isBuyer ? 'buyer' : null;
 
   const sellerSigned = !!(operation?.contract?.seller_signature_at || operation?.contract?.seller_signed_at);

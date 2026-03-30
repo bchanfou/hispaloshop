@@ -84,20 +84,23 @@ export default function CustomerProfile() {
     let mounted = true;
     (async () => {
       try {
-        const data = await apiClient.get('/customer/profile');
+        const [profileResp, addrResp] = await Promise.all([
+          apiClient.get('/customer/profile'),
+          apiClient.get('/customer/addresses').catch(() => ({ addresses: [] })),
+        ]);
         if (!mounted) return;
-        setProfileData({ name: data.name || '', country: data.country || '', username: data.username || '' });
-        if (data.preferences) {
-          setPreferences({ diet_preferences: data.preferences.diet_preferences || [], allergens: data.preferences.allergens || [], goals: data.preferences.goals || '' });
+        setProfileData({ name: profileResp.name || '', country: profileResp.country || '', username: profileResp.username || '' });
+        if (profileResp.preferences) {
+          setPreferences({ diet_preferences: profileResp.preferences.diet_preferences || [], allergens: profileResp.preferences.allergens || [], goals: profileResp.preferences.goals || '' });
         }
-        setHasConsent(data.consent?.analytics_consent || false);
+        setHasConsent(profileResp.consent?.analytics_consent || false);
+        setAddresses(addrResp.addresses || []);
       } catch {
         if (mounted) toast.error('Error al cargar el perfil');
       } finally {
         if (mounted) setLoading(false);
       }
     })();
-    fetchAddresses();
     return () => { mounted = false; };
   }, []);
 
@@ -553,10 +556,10 @@ export default function CustomerProfile() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-xl font-semibold text-stone-950">
-                {t('profile.shippingAddresses', 'Shipping Addresses')}
+                {t('profile.shippingAddresses', 'Direcciones de envío')}
               </h3>
               <p className="text-stone-500 text-sm mt-1">
-                {t('profile.addressesDescription', 'Manage your shipping addresses for faster checkout.')}
+                {t('profile.addressesDescription', 'Gestiona tus direcciones para agilizar el proceso de compra.')}
               </p>
             </div>
             {!showAddressForm && (
@@ -565,7 +568,7 @@ export default function CustomerProfile() {
                 className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors flex items-center gap-2"
                 data-testid="add-address-btn"
               >
-                <Plus className="w-4 h-4" /> {t('checkout.addNewAddress', 'Add Address')}
+                <Plus className="w-4 h-4" /> {t('checkout.addNewAddress', 'Añadir dirección')}
               </button>
             )}
           </div>
@@ -575,7 +578,7 @@ export default function CustomerProfile() {
             <div className="mb-6 p-4 border border-stone-200 rounded-2xl bg-stone-50" data-testid="address-form">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-medium text-stone-950">
-                  {editingAddressId ? t('profile.editAddress', 'Edit Address') : t('checkout.addNewAddress', 'Add New Address')}
+                  {editingAddressId ? t('profile.editAddress', 'Editar dirección') : t('checkout.addNewAddress', 'Nueva dirección')}
                 </h4>
                 <button onClick={resetAddressForm} className="text-stone-500 hover:text-stone-950">
                   <X className="w-5 h-5" />
@@ -585,12 +588,12 @@ export default function CustomerProfile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-stone-950 mb-1">
-                    {t('checkout.addressName', 'Address Name')}
+                    {t('checkout.addressName', 'Nombre de la dirección')}
                   </label>
                   <input
                     value={addressForm.name}
                     onChange={(e) => setAddressForm({...addressForm, name: e.target.value})}
-                    placeholder={t('checkout.addressNamePlaceholder', 'e.g., Home, Office')}
+                    placeholder={t('checkout.addressNamePlaceholder', 'Ej: Casa, Oficina')}
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-name-input"
                   />
@@ -683,7 +686,7 @@ export default function CustomerProfile() {
                   className="rounded border-stone-200"
                 />
                 <label htmlFor="is_default" className="text-sm text-stone-500">
-                  {t('checkout.setAsDefault', 'Set as default address')}
+                  {t('checkout.setAsDefault', 'Establecer como predeterminada')}
                 </label>
               </div>
 
@@ -694,10 +697,10 @@ export default function CustomerProfile() {
                   className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                   data-testid="save-address-btn"
                 >
-                  {saving ? t('common.loading', 'Saving...') : editingAddressId ? t('common.update', 'Update') : t('common.save', 'Save')}
+                  {saving ? t('common.loading', 'Guardando...') : editingAddressId ? t('common.update', 'Actualizar') : t('common.save', 'Guardar')}
                 </button>
                 <button onClick={resetAddressForm} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors">
-                  {t('common.cancel', 'Cancel')}
+                  {t('common.cancel', 'Cancelar')}
                 </button>
               </div>
             </div>
@@ -707,8 +710,8 @@ export default function CustomerProfile() {
           {addresses.length === 0 && !showAddressForm ? (
             <div className="text-center py-8 text-stone-500">
               <MapPin className="w-12 h-12 mx-auto mb-4 opacity-30" />
-              <p>{t('profile.noAddresses', 'No saved addresses yet.')}</p>
-              <p className="text-sm">{t('profile.addFirstAddress', 'Add your first address to speed up checkout.')}</p>
+              <p>{t('profile.noAddresses', 'Aún no tienes direcciones guardadas.')}</p>
+              <p className="text-sm">{t('profile.addFirstAddress', 'Añade tu primera dirección para agilizar el proceso de compra.')}</p>
             </div>
           ) : (
             <div className="space-y-3" data-testid="addresses-list">
@@ -914,7 +917,7 @@ export default function CustomerProfile() {
                 }}
                 className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
               >
-                {t('common.cancel', 'Cancel')}
+                {t('common.cancel', 'Cancelar')}
               </button>
               <button
                 onClick={handleDeleteAccount}
@@ -922,7 +925,7 @@ export default function CustomerProfile() {
                 className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                 data-testid="confirm-delete-btn"
               >
-                {deleting ? t('common.loading', 'Deleting...') : t('profile.deleteForever', 'Delete Forever')}
+                {deleting ? t('common.loading', 'Eliminando...') : t('profile.deleteForever', 'Eliminar para siempre')}
               </button>
             </div>
           </div>

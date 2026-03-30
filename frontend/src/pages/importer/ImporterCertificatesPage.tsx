@@ -105,7 +105,7 @@ export default function ImporterCertificatesPage() {
       // Try supplier-certificates endpoint first
       let data;
       try {
-        data = await apiClient.get('/importer/supplier-certificates');
+        data = await apiClient.get(`/importer/supplier-certificates?producer_id=${producerId}`);
       } catch {
         // Fallback: fetch certificates for the specific producer
         data = await apiClient.get(`/b2b/producers/${producerId}/certificates`);

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useCart } from '../../context/CartContext';
 
 const STATUS_CONFIG = {
   overdue: { color: 'bg-stone-100 border-stone-200', text: 'text-stone-700', icon: AlertCircle, label: 'Vencido' },
@@ -17,7 +18,7 @@ const STATUS_CONFIG = {
 
 const CONFIDENCE_LABELS = { high: 'Alta', medium: 'Media', low: 'Baja' };
 
-function PredictionCard({ prediction, onReorder, t }) {
+function PredictionCard({ prediction, onReorder, reordering, t }) {
   const config = STATUS_CONFIG[prediction.status] || STATUS_CONFIG.upcoming;
   const StatusIcon = config.icon;
   const daysAbs = Math.abs(prediction.days_until_next);
@@ -79,11 +80,12 @@ function PredictionCard({ prediction, onReorder, t }) {
               </span>
             </div>
             <button
-              className="h-7 px-2 text-xs flex items-center text-stone-600 hover:text-stone-950 hover:bg-stone-100 rounded transition-colors"
+              className="h-7 px-2 text-xs flex items-center text-stone-600 hover:text-stone-950 hover:bg-stone-100 rounded transition-colors disabled:opacity-50"
               onClick={() => onReorder(prediction.product_id)}
+              disabled={reordering === prediction.product_id}
               data-testid={`reorder-predict-${prediction.product_id}`}
             >
-              <RefreshCw className="w-3 h-3 mr-1" />
+              <RefreshCw className={`w-3 h-3 mr-1 ${reordering === prediction.product_id ? 'animate-spin' : ''}`} />
               Recomprar
             </button>
           </div>
@@ -99,6 +101,7 @@ export default function HispaloPredictions() {
   const [summary, setSummary] = useState({ total: 0, overdue: 0, due: 0, soon: 0 });
   const [loading, setLoading] = useState(true);
   const [reordering, setReordering] = useState(null);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetchPredictions();
@@ -110,7 +113,7 @@ export default function HispaloPredictions() {
       setPredictions(data.predictions || []);
       setSummary(data.summary || {});
     } catch (err) {
-      // Sentry captures this automatically
+      toast.error(t('predict.loadError', 'Error al cargar predicciones'));
     } finally {
       setLoading(false);
     }
@@ -119,13 +122,10 @@ export default function HispaloPredictions() {
   const handleReorder = async (productId) => {
     setReordering(productId);
     try {
-      await apiClient.post('/cart/add', {
-        product_id: productId,
-        quantity: 1,
-      });
+      await addToCart(productId, 1);
       toast.success('Producto añadido al carrito');
     } catch (err) {
-      toast.error('Error al añadir al carrito');
+      toast.error(err?.message || 'Error al añadir al carrito');
     } finally {
       setReordering(null);
     }
@@ -227,6 +227,7 @@ export default function HispaloPredictions() {
             key={p.product_id}
             prediction={p}
             onReorder={handleReorder}
+            reordering={reordering}
             t={t}
           />
         ))}

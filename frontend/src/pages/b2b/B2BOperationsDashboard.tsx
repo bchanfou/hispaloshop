@@ -194,7 +194,7 @@ const KPI_STYLES = {
 const B2BOperationsDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const userId = user?._id || user?.id;
+  const userId = user?.user_id || user?._id || user?.id;
 
   const [operations, setOperations] = useState([]);
   const [loading, setLoading] = useState(true);

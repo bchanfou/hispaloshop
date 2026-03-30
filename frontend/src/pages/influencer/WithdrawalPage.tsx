@@ -136,10 +136,10 @@ export default function WithdrawalPage() {
         </div>
         <h2 className="text-xl font-bold mb-2 text-stone-950">¡Cobro en camino!</h2>
         <p className="text-sm text-center mb-6 text-stone-500">
-          Transferiremos {convertAndFormatPrice(Number(success.net_amount || 0))} a tu {success.method === 'sepa' ? 'cuenta bancaria' : 'cuenta Stripe'}
+          Transferiremos {convertAndFormatPrice(Number(success.net_amount || 0))} a tu {(success.method === 'sepa' || success.method === 'bank_transfer') ? 'cuenta bancaria' : 'cuenta Stripe'}
         </p>
         <p className="text-xs mb-6 text-stone-500">
-          {success.method === 'sepa' ? 'Tiempo estimado: 1-3 días hábiles' : 'Tiempo estimado: En minutos'}
+          {(success.method === 'sepa' || success.method === 'bank_transfer') ? 'Tiempo estimado: 1-3 días hábiles' : 'Tiempo estimado: En minutos'}
         </p>
 
         <div className="w-full max-w-xs p-4 space-y-2 mb-6 bg-stone-100 rounded-2xl">
@@ -165,7 +165,7 @@ export default function WithdrawalPage() {
           </div>
           <div className="flex justify-between text-xs pt-1">
             <span className="text-stone-500">Método</span>
-            <span className="text-stone-500">{success.method === 'sepa' ? 'SEPA' : 'Stripe'}</span>
+            <span className="text-stone-500">{(success.method === 'sepa' || success.method === 'bank_transfer') ? 'SEPA' : 'Stripe'}</span>
           </div>
         </div>
 
@@ -182,7 +182,7 @@ export default function WithdrawalPage() {
   return (
     <div className="bg-stone-50 min-h-screen">
       {/* TopBar */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-6 px-4">
         <button onClick={() => navigate(-1)} className="bg-transparent border-none cursor-pointer">
           <ArrowLeft className="w-5 h-5 text-stone-950" />
         </button>

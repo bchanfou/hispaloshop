@@ -26,10 +26,8 @@ export default function ProducerShippingPolicy() {
   });
 
   const preview = useMemo(() => {
-    const itemCount = 3;
     if (!policy.enabled) return 0;
-    if (policy.free_threshold_cents && policy.free_threshold_cents <= 6000) return 0;
-    return (policy.base_cost_cents || 0) + (policy.per_item_cents || 0) * itemCount;
+    return (policy.base_cost_cents || 0) + (policy.per_item_cents || 0) * 3;
   }, [policy]);
 
   useEffect(() => {
@@ -138,7 +136,7 @@ export default function ProducerShippingPolicy() {
             </div>
 
             <div className="rounded-2xl bg-stone-50 border border-stone-200 p-3 text-sm text-stone-700">
-              Ejemplo 3 ítems: €{toEuros(preview)} de envío.
+              Ejemplo 3 ítems: €{toEuros(preview)} de envío (sin contar umbral de envío gratis).
             </div>
           </>
         )}

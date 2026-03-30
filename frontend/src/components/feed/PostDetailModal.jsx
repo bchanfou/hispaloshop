@@ -208,7 +208,7 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
       {/* Caption as first "comment" */}
       {(post.caption || post.content) && (
         <div className="flex gap-3 py-2.5">
-          <Link to={`/${userObj.username || userObj.id || post?.user_id}`} onClick={onClose} className="shrink-0">
+          <Link to={`/${userObj.username || post?.username || post?.user_id}`} onClick={onClose} className="shrink-0">
             {avatarUrl ? (
               <img loading="lazy" src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
             ) : (
@@ -217,7 +217,7 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
           </Link>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] leading-relaxed text-stone-950">
-              <Link to={`/${userObj.username || userObj.id || post?.user_id}`} onClick={onClose} className="font-semibold no-underline text-stone-950 hover:underline mr-1.5">
+              <Link to={`/${userObj.username || post?.username || post?.user_id}`} onClick={onClose} className="font-semibold no-underline text-stone-950 hover:underline mr-1.5">
                 {userName}
               </Link>
               {renderCaption(post?.caption || post?.content, navigate, onClose)}
@@ -631,11 +631,12 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
   }, []);
 
   const handleLikePost = useCallback(async () => {
+    const wasLiked = liked;
     setLiked(l => !l);
-    setLikesCount(c => liked ? Math.max(0, c - 1) : c + 1);
+    setLikesCount(c => wasLiked ? Math.max(0, c - 1) : c + 1);
     try { await apiClient.post(`/posts/${postId}/like`); } catch (err) {
-      setLiked(l => !l);
-      setLikesCount(c => liked ? c + 1 : Math.max(0, c - 1));
+      setLiked(wasLiked);
+      setLikesCount(c => wasLiked ? c + 1 : Math.max(0, c - 1));
     }
   }, [liked, postId]);
 
@@ -759,7 +760,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
           <div className="flex-1 overflow-y-auto overscroll-y-contain">
             {/* Post header */}
             <div className="flex items-center gap-2.5 px-4 py-3">
-              <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="shrink-0">
+              <Link to={`/${userObj.username || post.username || post.user_id}`} onClick={onClose} className="shrink-0">
                 {avatarUrl ? (
                   <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
                 ) : (
@@ -769,7 +770,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 )}
               </Link>
               <div className="min-w-0 flex-1">
-                <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
+                <Link to={`/${userObj.username || post.username || post.user_id}`} onClick={onClose} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
                   {userName}
                 </Link>
                 {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
@@ -859,7 +860,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
           <div className="flex flex-col" style={{ width: '45%' }}>
             {/* I2 — Header in right pane at TOP (desktop) */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-stone-100 shrink-0">
-              <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="shrink-0">
+              <Link to={`/${userObj.username || post.username || post.user_id}`} onClick={onClose} className="shrink-0">
                 {avatarUrl ? (
                   <img loading="lazy" src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
                 ) : (
@@ -869,7 +870,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 )}
               </Link>
               <div className="min-w-0 flex-1">
-                <Link to={`/${userObj.username || userObj.id || post.user_id}`} onClick={onClose} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
+                <Link to={`/${userObj.username || post.username || post.user_id}`} onClick={onClose} className="text-[13px] font-semibold text-stone-950 no-underline hover:underline">
                   {userName}
                 </Link>
                 {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}

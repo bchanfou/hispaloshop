@@ -42,21 +42,26 @@ _MAGIC_BYTES = {
     b'\xff\xd8\xff': 'image/jpeg',
     b'\x89PNG': 'image/png',
     b'GIF8': 'image/gif',
-    b'RIFF': 'image/webp',  # RIFF....WEBP
-    b'\x00\x00\x00': 'video/mp4',  # ftyp box (MP4/MOV)
     b'\x1a\x45\xdf\xa3': 'video/webm',
 }
 
 
 def _validate_magic_bytes(content: bytes, claimed_type: str) -> bool:
     """Verify file content matches claimed MIME type via magic bytes."""
-    if len(content) < 4:
+    if len(content) < 12:
         return False
-    for magic, mime_prefix in _MAGIC_BYTES.items():
+
+    # WebP: RIFF????WEBP (bytes 0-3 = RIFF, bytes 8-11 = WEBP)
+    if content[:4] == b'RIFF' and content[8:12] == b'WEBP':
+        return claimed_type == 'image/webp'
+
+    # MP4/MOV/QuickTime: bytes 4-7 == 'ftyp' (ISO Base Media file format)
+    if content[4:8] == b'ftyp':
+        return claimed_type in ('video/mp4', 'video/quicktime')
+
+    for magic, mime in _MAGIC_BYTES.items():
         if content[:len(magic)] == magic:
-            # Accept if the magic byte type family matches the claimed type family
-            return mime_prefix.split('/')[0] == claimed_type.split('/')[0]
-    # If no magic byte matches, reject for safety
+            return mime == claimed_type
     return False
 
 

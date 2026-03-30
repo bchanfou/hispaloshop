@@ -110,10 +110,7 @@ export default function CreateReelPage() {
       e.target.value = '';
       return;
     }
-    setVideoUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(file);
-    });
+    setVideoUrl(URL.createObjectURL(file));
     setVideoFile(file);
     setScreen('edit');
     e.target.value = '';
@@ -346,6 +343,10 @@ export default function CreateReelPage() {
       toast.error('No hay vídeo seleccionado');
       return;
     }
+    if (trimStart > 0 && trimEnd > 0 && trimStart >= trimEnd) {
+      toast.error('El punto de inicio del recorte no puede ser mayor o igual al de fin.');
+      return;
+    }
     setPublishing(true);
     setPublishError(false);
     setUploadProgress(0);
@@ -496,6 +497,10 @@ export default function CreateReelPage() {
               setIsPlaying(false);
               setCurrentTime(0);
               setDuration(0);
+              setTrimStart(0);
+              setTrimEnd(0);
+              setIsMuted(true);
+              setVolume(100);
             }}
             className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label="Volver"
