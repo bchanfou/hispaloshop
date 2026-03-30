@@ -264,7 +264,7 @@ function FollowingFeed() {
               if (isReel) {
                 return (
                   <FeedItemBoundary>
-                    <div className="mb-3 mx-3 rounded-2xl overflow-hidden">
+                    <div className="mx-3 mb-3">
                       {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                       {showSponsored && (
                         <SponsoredProductCard
@@ -293,7 +293,10 @@ function FollowingFeed() {
                             shares: post.shares_count || 0,
                             productTag: post.product_tag,
                             products: Array.isArray(post.products) ? post.products : Array.isArray(post.tagged_products) ? post.tagged_products : [],
+                            created_at: post.created_at || null,
                             timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
+                            liked_by_sample: post.liked_by_sample || post.liked_by || null,
+                            is_following: post.is_following ?? safeUser?.is_followed_by_me ?? false,
                           }}
                           embedded
                           onLike={() => handleLike(post.id)}

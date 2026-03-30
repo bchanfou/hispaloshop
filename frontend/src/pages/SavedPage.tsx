@@ -1,9 +1,10 @@
 // @ts-nocheck
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { ArrowLeft, Grid3X3, Play, Package, BookOpen, Bookmark, AlertTriangle, Image, ChefHat, Clock } from 'lucide-react';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Grid3X3, Play, Package, BookOpen, Bookmark, AlertTriangle, Image, ChefHat, Clock, FolderOpen, Plus, ArrowDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { resolveUserImage } from '../features/user/queries';
 import SEO from '../components/SEO';
@@ -16,6 +17,7 @@ const TABS = [
   { key: 'reels', label: 'Reels', icon: Play },
   { key: 'products', label: 'Productos', icon: Package },
   { key: 'recipes', label: 'Recetas', icon: BookOpen },
+  { key: 'collections', label: 'Colecciones', icon: FolderOpen },
 ] as const;
 
 type TabKey = typeof TABS[number]['key'];
@@ -48,11 +50,18 @@ async function fetchSavedRecipes({ pageParam = 0 }) {
   return { items, nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
 }
 
+async function fetchCollections({ pageParam = 0 }) {
+  const res = await apiClient.get(`/users/me/collections?skip=${pageParam}&limit=${PAGE_SIZE}`);
+  const items = Array.isArray(res) ? res : res?.collections || [];
+  return { items, nextSkip: items.length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined };
+}
+
 const FETCH_MAP: Record<TabKey, (ctx: { pageParam?: number }) => Promise<any>> = {
   posts: fetchSavedPosts,
   reels: fetchSavedReels,
   products: fetchSavedProducts,
   recipes: fetchSavedRecipes,
+  collections: fetchCollections,
 };
 
 /* ── Main component ── */
@@ -131,6 +140,7 @@ function TabContent({ tab }: { tab: TabKey }) {
   } = useInfiniteQuery({
     queryKey: ['saved', tab],
     queryFn: FETCH_MAP[tab],
+    initialPageParam: 0,
     getNextPageParam: (last: any) => last.nextSkip,
   });
 
@@ -193,6 +203,7 @@ function TabContent({ tab }: { tab: TabKey }) {
       reels: { icon: <Play className="w-12 h-12 text-stone-300" />, text: 'No tienes reels guardados' },
       products: { icon: <Package className="w-12 h-12 text-stone-300" />, text: 'Tu lista de deseos está vacía' },
       recipes: { icon: <BookOpen className="w-12 h-12 text-stone-300" />, text: 'No tienes recetas guardadas' },
+      collections: { icon: <FolderOpen className="w-12 h-12 text-stone-300" />, text: 'No tienes colecciones' },
     };
     const cfg = emptyConfig[tab];
     return (
@@ -211,6 +222,7 @@ function TabContent({ tab }: { tab: TabKey }) {
       {tab === 'reels' && <ReelsGrid items={allItems} />}
       {tab === 'products' && <ProductsGrid items={allItems} />}
       {tab === 'recipes' && <RecipesGrid items={allItems} />}
+      {tab === 'collections' && <CollectionsGrid items={allItems} />}
 
       {/* Sentinel */}
       {hasNextPage && <div ref={sentinelRef} className="h-20" />}
@@ -232,7 +244,7 @@ function PostsGrid({ items }: { items: any[] }) {
       {items.map((post, idx) => {
         const postId = post.post_id || post.id;
         if (!postId) return null;
-        const img = post.images?.[0] || post.thumbnail || post.media_url;
+        const img = post.image_url || post.media?.[0]?.url || post.images?.[0];
         return (
           <button
             key={postId}
@@ -246,7 +258,7 @@ function PostsGrid({ items }: { items: any[] }) {
                 <Image className="w-8 h-8 text-stone-300" />
               </div>
             )}
-            {(post.images?.length || 0) > 1 && (
+            {((post.media?.length || post.images?.length || 0) > 1 || post.type === 'carousel') && (
               <div className="absolute top-2 right-2">
                 <svg className="w-4 h-4 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M4 6h12v12H4z" opacity="0.5" /><path d="M8 2h12v12H8z" />
@@ -334,6 +346,13 @@ function ProductsGrid({ items }: { items: any[] }) {
                 <span className="absolute top-2 right-2 flex items-center justify-center rounded-full bg-white/90 p-1.5 shadow-sm">
                   <Bookmark size={14} className="text-stone-950" fill="currentColor" />
                 </span>
+                {/* P-08: Price drop badge */}
+                {product.original_price != null && price != null && Number(product.original_price) > Number(price) && (
+                  <span className="absolute top-2 left-2 flex items-center gap-0.5 rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                    <ArrowDown size={10} />
+                    Precio reducido
+                  </span>
+                )}
               </div>
               <div className="px-2.5 py-2">
                 <p className="text-sm font-semibold text-stone-950 line-clamp-2 leading-snug">
@@ -343,15 +362,107 @@ function ProductsGrid({ items }: { items: any[] }) {
                   <p className="text-xs text-stone-500 mt-0.5 truncate">{product.store_name}</p>
                 )}
                 {price != null && (
-                  <p className="text-sm font-bold text-stone-950 mt-1">
-                    {Number(price).toFixed(2)} &euro;
-                  </p>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <p className="text-sm font-bold text-stone-950">
+                      {Number(price).toFixed(2)} &euro;
+                    </p>
+                    {product.original_price != null && Number(product.original_price) > Number(price) && (
+                      <p className="text-xs text-stone-400 line-through">
+                        {Number(product.original_price).toFixed(2)} &euro;
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
           </Link>
         );
       })}
+    </div>
+  );
+}
+
+/* ── P-12: Collections Grid ── */
+
+function CollectionsGrid({ items }: { items: any[] }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState('');
+
+  const handleCreate = useCallback(async () => {
+    if (!newName.trim()) return;
+    try {
+      await apiClient.post('/users/me/collections', { name: newName.trim() });
+      setNewName('');
+      setCreating(false);
+      queryClient.invalidateQueries({ queryKey: ['saved', 'collections'] });
+    } catch {
+      toast.error('Error al crear la colección');
+    }
+  }, [newName, queryClient]);
+
+  return (
+    <div className="space-y-3">
+      {/* Create new collection */}
+      {creating ? (
+        <div className="flex items-center gap-2">
+          <input
+            autoFocus
+            type="text"
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
+            placeholder="Nombre de la colección"
+            className="flex-1 h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-950 placeholder:text-stone-400 outline-none"
+          />
+          <button onClick={handleCreate} className="h-10 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors">
+            Crear
+          </button>
+          <button onClick={() => setCreating(false)} className="h-10 rounded-xl bg-stone-100 px-3 text-sm font-medium text-stone-600 border-none cursor-pointer hover:bg-stone-200 transition-colors">
+            Cancelar
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setCreating(true)}
+          className="flex items-center gap-2 w-full h-14 rounded-xl border border-dashed border-stone-200 bg-stone-50 px-4 text-sm font-medium text-stone-600 cursor-pointer hover:border-stone-400 hover:bg-stone-100 transition-colors"
+        >
+          <Plus size={18} className="text-stone-400" />
+          Nueva colección
+        </button>
+      )}
+
+      {/* Collection cards */}
+      <div className="grid grid-cols-2 gap-3">
+        {items.map(col => {
+          const id = col.collection_id || col.id;
+          if (!id) return null;
+          const coverImg = col.cover_url || col.items?.[0]?.image_url || null;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => navigate(`/saved/collections/${id}`)}
+              className="overflow-hidden rounded-xl bg-white border border-stone-100 text-left cursor-pointer p-0"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
+                {coverImg ? (
+                  <img src={resolveUserImage(coverImg)} alt="" className="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <FolderOpen className="w-8 h-8 text-stone-300" />
+                  </div>
+                )}
+              </div>
+              <div className="px-3 py-2.5">
+                <p className="text-sm font-semibold text-stone-950 truncate">{col.name}</p>
+                <p className="text-[11px] text-stone-500">{col.item_count || col.items?.length || 0} elementos</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -29,8 +29,9 @@ function DashboardPage() {
     case 'influencer':
       return <InfluencerDashboard />;
     case 'producer':
-    case 'importer':
       return <ProducerDashboard />;
+    case 'importer':
+      return <ImporterDashboard />;
     case 'admin':
     case 'super_admin':
       return <Navigate to="/admin" replace />;

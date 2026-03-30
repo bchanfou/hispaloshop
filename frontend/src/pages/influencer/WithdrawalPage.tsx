@@ -22,17 +22,19 @@ function WithdrawalHistoryItem({ item, convertAndFormatPrice }) {
     failed: 'Fallido',
   };
   const st = item.status || 'pending';
+  const dateStr = item.paid_at || item.created_at;
+  const isBank = !item.stripe_transfer_id;
   return (
     <div className="flex items-center justify-between py-2.5">
       <div className="flex items-center gap-3 min-w-0">
         <Clock className="w-4 h-4 text-stone-400 shrink-0" />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-stone-950">
-            {convertAndFormatPrice(Number(item.net_amount || item.amount || 0))}
+            {convertAndFormatPrice(Number(item.net_amount_eur || item.net_amount || item.amount || 0))}
           </p>
           <p className="text-[11px] text-stone-500">
-            {item.created_at ? new Date(item.created_at).toLocaleDateString('es-ES') : '—'}
-            {item.method && ` · ${item.method === 'bank_transfer' || item.method === 'sepa' ? 'SEPA' : 'Stripe'}`}
+            {dateStr ? new Date(dateStr).toLocaleDateString('es-ES') : '—'}
+            {` · ${isBank ? 'SEPA' : 'Stripe'}`}
           </p>
         </div>
       </div>

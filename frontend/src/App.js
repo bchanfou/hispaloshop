@@ -63,6 +63,7 @@ const LocaleSettingsPage = lazy(() => import('./pages/LocaleSettingsPage'));
 const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const EditorialCollectionsPage = lazy(() => import('./pages/EditorialCollectionsPage'));
 const PeoplePage = lazy(() => import('./pages/PeoplePage'));
 const ReelsPage = lazy(() => import('./pages/ReelsPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
@@ -426,6 +427,7 @@ function AppRouter() {
               <Route path="/discover/people" element={<PeoplePage />} />
               <Route path="/discover" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/explore" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
+              <Route path="/collections" element={<FeedLayout><EditorialCollectionsPage /></FeedLayout>} />
               <Route path="/explore/category/:slug" element={<ExploreCategoryPage />} />
               <Route path="/hashtag/:tag" element={<HashtagPage />} />
               <Route path="/certifications" element={<CertificationsPage />} />

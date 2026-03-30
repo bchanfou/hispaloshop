@@ -388,10 +388,10 @@ async def get_followed_stores(user: User = Depends(get_current_user)):
                 **store,
                 "product_count": product_count,
                 "follower_count": follower_count,
-                "followed_at": follow.get("followed_at")
+                "followed_at": follow.get("followed_at") or follow.get("created_at")
             })
-    
-    stores.sort(key=lambda x: x.get("followed_at", ""), reverse=True)
+
+    stores.sort(key=lambda x: x.get("followed_at") or "", reverse=True)
     return stores
 
 

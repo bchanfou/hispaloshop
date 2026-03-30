@@ -174,6 +174,8 @@ export default function ProfileHeader({
   const [highlightEditMode, setHighlightEditMode] = useState(null); // 'name' | 'cover' | 'delete' | null
   const [highlightDeleting, setHighlightDeleting] = useState(false);
   const [highlightSavingName, setHighlightSavingName] = useState(false);
+  const [highlightCoverStories, setHighlightCoverStories] = useState([]);
+  const [highlightCoverLoading, setHighlightCoverLoading] = useState(false);
   const longPressTimerRef = useRef(null);
 
   /* 8.1: Create highlight flow state */
@@ -1083,7 +1085,21 @@ export default function ProfileHeader({
                   <OptionRow
                     icon={<Camera size={20} />}
                     label="Editar portada"
-                    onClick={() => setHighlightEditMode('cover')}
+                    onClick={async () => {
+                      setHighlightEditMode('cover');
+                      setHighlightCoverStories([]);
+                      setHighlightCoverLoading(true);
+                      try {
+                        const hlId = highlightMenu?.highlight_id || highlightMenu?.id;
+                        const uid = user?.user_id || user?.id;
+                        const data = await apiClient.get(`/users/${uid}/highlights/${hlId}`);
+                        setHighlightCoverStories(data?.stories || data?.items || []);
+                      } catch {
+                        toast.error('No se pudieron cargar las historias');
+                      } finally {
+                        setHighlightCoverLoading(false);
+                      }
+                    }}
                   />
                   <div className="my-2 mx-5 h-px bg-stone-100" />
                   <OptionRow
@@ -1130,9 +1146,13 @@ export default function ProfileHeader({
               {highlightEditMode === 'cover' && (
                 <div className="px-5">
                   <p className="mb-3 text-center text-[15px] font-semibold text-stone-950">Elegir portada</p>
-                  {(highlightMenu.stories?.length > 0 || highlightMenu.items?.length > 0) ? (
+                  {highlightCoverLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-stone-200 border-t-stone-600" />
+                    </div>
+                  ) : highlightCoverStories.length > 0 ? (
                     <div className="grid grid-cols-4 gap-2">
-                      {(highlightMenu.stories || highlightMenu.items || []).map((story, si) => {
+                      {highlightCoverStories.map((story, si) => {
                         const storyImg = story.image_url || story.media_url || story.thumbnail;
                         return (
                           <button

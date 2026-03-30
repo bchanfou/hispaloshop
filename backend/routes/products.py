@@ -770,7 +770,7 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
                 title="Bajada de precio",
                 body=f"'{product.get('name', '')}' bajo de {product.get('price', 0):.2f}EUR a {input.price:.2f}EUR.",
                 notification_type="system",
-                action_url=f"/product/{product_id}",
+                action_url=f"/products/{product_id}",
             )
     
     # Trigger re-translation if content changed and product is approved

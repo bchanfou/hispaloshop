@@ -60,12 +60,26 @@ class CreatePostBody(BaseModel):
     image_url: Optional[str] = None
 
 
+class UpdateCommunityBody(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    emoji: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    cover_image: Optional[str] = None
+
+
+class CreateCommentBody(BaseModel):
+    text: str
+
+
 # ── EXPLORE / LIST ───────────────────────────────────────
 
 @router.get("/communities")
 async def list_communities(
     q: str = "",
     filter: str = "all",
+    featured: bool = False,
     limit: int = 24,
     request: Request = None,
 ):
@@ -74,6 +88,13 @@ async def list_communities(
     user_id = getattr(user, "user_id", None) if user else None
 
     query = {"is_active": {"$ne": False}}
+
+    # C-04: Featured filter — communities with is_featured flag or top by member_count
+    if featured:
+        query["$or"] = [
+            {"is_featured": True},
+            {"member_count": {"$gte": 5}},
+        ]
 
     # Text search
     if q:
@@ -204,7 +225,7 @@ async def create_community(body: CreateCommunityBody, request: Request):
         "community_id": community_id,
         "user_id": user.user_id,
         "username": getattr(user, "username", None) or user.name,
-        "avatar_url": getattr(user, "picture", None),
+        "avatar_url": getattr(user, "profile_image", None) or getattr(user, "picture", None),
         "is_admin": True,
         "is_seller": user.role in ("producer", "importer"),
         "joined_at": now.isoformat(),
@@ -236,7 +257,7 @@ async def join_community(community_id: str, request: Request):
         "community_id": cid,
         "user_id": user.user_id,
         "username": getattr(user, "username", None) or user.name,
-        "avatar_url": getattr(user, "picture", None),
+        "avatar_url": getattr(user, "profile_image", None) or getattr(user, "picture", None),
         "is_admin": False,
         "is_seller": user.role in ("producer", "importer"),
         "joined_at": datetime.now(timezone.utc).isoformat(),
@@ -303,18 +324,24 @@ async def get_community_posts(
         .limit(limit + 1)
     )
 
-    posts = []
     raw = await cursor.to_list(limit + 1)
     has_more = len(raw) > limit
-    for doc in raw[:limit]:
-        p = _str_id(doc)
+    page_docs = raw[:limit]
+
+    posts = [_str_id(doc) for doc in page_docs]
+    for p in posts:
         p["is_liked"] = False
-        if user_id:
-            like = await db.community_post_likes.find_one(
-                {"post_id": str(p["id"]), "user_id": user_id}
-            )
-            p["is_liked"] = like is not None
-        posts.append(p)
+
+    # Batch-check liked status in a single query instead of N find_one calls
+    if user_id and posts:
+        post_ids = [str(p["id"]) for p in posts]
+        liked_docs = await db.community_post_likes.find(
+            {"post_id": {"$in": post_ids}, "user_id": user_id},
+            {"post_id": 1, "_id": 0},
+        ).to_list(len(post_ids))
+        liked_set = {d["post_id"] for d in liked_docs}
+        for p in posts:
+            p["is_liked"] = str(p["id"]) in liked_set
 
     return {"posts": posts, "page": page, "has_more": has_more}
 
@@ -347,7 +374,7 @@ async def create_community_post(
         "community_id": cid,
         "author_id": user.user_id,
         "author_username": getattr(user, "username", None) or user.name,
-        "author_avatar": getattr(user, "picture", None),
+        "author_avatar": getattr(user, "profile_image", None) or getattr(user, "picture", None),
         "author_is_seller": user.role in ("producer", "importer"),
         "text": sanitize_text(body.text.strip()[:1000]),
         "image_url": body.image_url,
@@ -515,3 +542,148 @@ async def get_members(community_id: str, page: int = 1, limit: int = 30):
         members.append(m)
 
     return {"members": members, "page": page, "has_more": has_more}
+
+
+# ── UPDATE COMMUNITY (admin only) ──────────────────────
+
+@router.put("/communities/{community_id}")
+async def update_community(community_id: str, body: UpdateCommunityBody, request: Request):
+    user = await get_current_user(request)
+    db = get_db()
+
+    community = await db.communities.find_one({"_id": _oid(community_id)})
+    if not community:
+        raise HTTPException(404, "Community not found")
+
+    cid = str(community["_id"])
+    mem = await db.community_members.find_one(
+        {"community_id": cid, "user_id": user.user_id}
+    )
+    if not mem or not mem.get("is_admin", False):
+        raise HTTPException(403, "Solo los admins pueden editar la comunidad")
+
+    updates = {}
+    if body.name is not None:
+        updates["name"] = sanitize_text(body.name)
+    if body.description is not None:
+        updates["description"] = sanitize_text(body.description)
+    if body.emoji is not None:
+        updates["emoji"] = body.emoji
+    if body.category is not None:
+        updates["category"] = body.category
+    if body.tags is not None:
+        updates["tags"] = body.tags[:5]
+    if body.cover_image is not None:
+        updates["cover_image"] = body.cover_image
+
+    if updates:
+        await db.communities.update_one({"_id": community["_id"]}, {"$set": updates})
+
+    return {"ok": True}
+
+
+# ── DELETE COMMUNITY (creator only) ────────────────────
+
+@router.delete("/communities/{community_id}")
+async def delete_community(community_id: str, request: Request):
+    user = await get_current_user(request)
+    db = get_db()
+
+    community = await db.communities.find_one({"_id": _oid(community_id)})
+    if not community:
+        raise HTTPException(404, "Community not found")
+
+    if community.get("creator_id") != user.user_id:
+        raise HTTPException(403, "Solo el creador puede eliminar la comunidad")
+
+    cid = str(community["_id"])
+
+    # Remove all related data
+    await db.community_members.delete_many({"community_id": cid})
+    await db.community_posts.update_many(
+        {"community_id": cid}, {"$set": {"status": "removed"}}
+    )
+    await db.communities.delete_one({"_id": community["_id"]})
+
+    return {"ok": True}
+
+
+# ── PIN / UNPIN POST (admin only) ──────────────────────
+
+@router.patch("/community-posts/{post_id}/pin")
+async def toggle_pin_post(post_id: str, request: Request):
+    user = await get_current_user(request)
+    db = get_db()
+
+    post = await db.community_posts.find_one({"_id": _oid(post_id)})
+    if not post:
+        raise HTTPException(404, "Post not found")
+
+    mem = await db.community_members.find_one(
+        {"community_id": post["community_id"], "user_id": user.user_id}
+    )
+    if not mem or not mem.get("is_admin", False):
+        raise HTTPException(403, "Solo los admins pueden fijar posts")
+
+    current = post.get("is_pinned", False)
+    await db.community_posts.update_one(
+        {"_id": post["_id"]}, {"$set": {"is_pinned": not current}}
+    )
+
+    return {"ok": True, "is_pinned": not current}
+
+
+# ── COMMENTS ───────────────────────────────────────────
+
+@router.get("/community-posts/{post_id}/comments")
+async def get_comments(post_id: str, page: int = 1, limit: int = 20):
+    db = get_db()
+
+    post = await db.community_posts.find_one({"_id": _oid(post_id)})
+    if not post:
+        raise HTTPException(404, "Post not found")
+
+    pid = str(post["_id"])
+    skip = (max(1, page) - 1) * limit
+    cursor = (
+        db.community_post_comments.find({"post_id": pid})
+        .sort("created_at", 1)
+        .skip(skip)
+        .limit(limit + 1)
+    )
+    raw = await cursor.to_list(limit + 1)
+    has_more = len(raw) > limit
+    comments = [_str_id(doc) for doc in raw[:limit]]
+
+    return {"comments": comments, "page": page, "has_more": has_more}
+
+
+@router.post("/community-posts/{post_id}/comments")
+async def create_comment(post_id: str, body: CreateCommentBody, request: Request):
+    user = await get_current_user(request)
+    db = get_db()
+
+    post = await db.community_posts.find_one({"_id": _oid(post_id)})
+    if not post:
+        raise HTTPException(404, "Post not found")
+
+    if not body.text.strip():
+        raise HTTPException(400, "El comentario no puede estar vacío")
+
+    pid = str(post["_id"])
+    now = datetime.now(timezone.utc)
+    comment = {
+        "post_id": pid,
+        "author_id": user.user_id,
+        "author_username": getattr(user, "username", None) or user.name,
+        "author_avatar": getattr(user, "profile_image", None) or getattr(user, "picture", None),
+        "text": sanitize_text(body.text.strip()[:500]),
+        "created_at": now.isoformat(),
+    }
+
+    result = await db.community_post_comments.insert_one(comment)
+    await db.community_posts.update_one(
+        {"_id": post["_id"]}, {"$inc": {"comments_count": 1}}
+    )
+
+    return {"id": str(result.inserted_id), "ok": True}

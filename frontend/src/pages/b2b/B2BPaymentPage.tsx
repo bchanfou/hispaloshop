@@ -78,7 +78,7 @@ export default function B2BPaymentPage() {
       setPaymentInfo(piRes.data);
     } catch (err) {
       captureException(err);
-      setError(err.response?.data?.message || 'Error al cargar los datos de pago');
+      setError(err.response?.data?.detail || err.response?.data?.message || 'Error al cargar los datos de pago');
     } finally {
       setLoading(false);
     }
@@ -213,7 +213,7 @@ export default function B2BPaymentPage() {
     );
   }
 
-  const totalBruto = paymentInfo?.subtotal ?? 0;
+  const totalBruto = paymentInfo?.total_price ?? 0;
   const stripeFee = paymentInfo?.stripe_fee ?? 0;
   const platformFee = paymentInfo?.platform_fee ?? 0;
   const buyerTotal = paymentInfo?.buyer_total ?? 0;

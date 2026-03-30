@@ -686,7 +686,15 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
       product_image: s.productImage,
       product_price: s.productPrice,
     }));
-  const effectiveProducts = [...(currentItem?.products || []), ...overlayProductStickers];
+  // Deduplicate by product_id — legacy video stories may have products in BOTH overlays_json and products_json
+  const mergedProducts = [...(currentItem?.products || []), ...overlayProductStickers];
+  const seenProductIds = new Set();
+  const effectiveProducts = mergedProducts.filter(p => {
+    const pid = p.product_id || p.id;
+    if (!pid || seenProductIds.has(pid)) return false;
+    seenProductIds.add(pid);
+    return true;
+  });
 
   return (
     <motion.div
@@ -860,7 +868,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
                           key={pi}
                           d={d}
                           stroke={path.color || '#fff'}
-                          strokeWidth={((path.width || 3) / 4)}
+                          strokeWidth={(path.width || 3)}
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           fill="none"

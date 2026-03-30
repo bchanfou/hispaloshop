@@ -118,12 +118,12 @@ async def apply_as_influencer(input: InfluencerApplication):
     }
 
 async def _get_in_transit_amount(influencer_id: str) -> float:
-    """Sum of payouts currently processing for this influencer."""
-    in_transit = await db.influencer_payouts.aggregate([
-        {"$match": {"influencer_id": influencer_id, "status": "processing"}},
-        {"$group": {"_id": None, "total": {"$sum": "$amount_cents"}}}
+    """Sum of withdrawals currently in transit (pending_bank_transfer) for this influencer."""
+    in_transit = await db.influencer_withdrawals.aggregate([
+        {"$match": {"influencer_id": influencer_id, "status": "pending_bank_transfer"}},
+        {"$group": {"_id": None, "total": {"$sum": "$net_amount"}}}
     ]).to_list(1)
-    return (in_transit[0]["total"] / 100) if in_transit else 0
+    return round(in_transit[0]["total"], 2) if in_transit else 0
 
 
 @router.get("/influencer/dashboard")
@@ -773,7 +773,8 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
 
 async def _execute_withdrawal(db, influencer, user, request, now):
     """Inner withdrawal logic, called under atomic lock."""
-    payout_method = (request.method or "stripe").strip().lower()
+    raw = (request.method or "stripe").strip().lower()
+    payout_method = "bank_transfer" if raw == "sepa" else raw
 
     available_commissions = await db.influencer_commissions.find({
         "influencer_id": influencer["influencer_id"],
@@ -834,6 +835,14 @@ async def _execute_withdrawal(db, influencer, user, request, now):
         else:
             withdrawal_status = "pending_bank_transfer"
 
+        # For SEPA, read bank details from request first, fall back to influencer's stored SEPA info
+        if payout_method == "bank_transfer":
+            bank_holder = request.bank_account_holder or influencer.get("sepa_account_name", "")
+            bank_iban = request.bank_iban or influencer.get("sepa_iban", "")
+            bank_bic = request.bank_bic or influencer.get("sepa_bic", "")
+        else:
+            bank_holder = bank_iban = bank_bic = None
+
         withdrawal_record = {
             "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
             "influencer_id": influencer["influencer_id"],
@@ -846,9 +855,9 @@ async def _execute_withdrawal(db, influencer, user, request, now):
             "payout_method": payout_method,
             "stripe_transfer_id": transfer_id,
             "status": withdrawal_status,
-            "bank_account_holder": request.bank_account_holder if payout_method == "bank_transfer" else None,
-            "bank_iban": request.bank_iban if payout_method == "bank_transfer" else None,
-            "bank_bic": request.bank_bic if payout_method == "bank_transfer" else None,
+            "bank_account_holder": bank_holder,
+            "bank_iban": bank_iban,
+            "bank_bic": bank_bic,
             "created_at": now.isoformat(),
             "completed_at": now.isoformat() if withdrawal_status == "completed" else None
         }
@@ -1075,18 +1084,24 @@ async def get_influencer_stats(user: User = Depends(get_current_user)):
     # Paid total
     paid_total = influencer.get("total_commission_earned", 0) - pending_eur
 
-    # Next payout date (earliest payment_available_date in the future)
+    # Split pending into available now (past 15-day hold) vs locked
     now = datetime.now(timezone.utc)
+    available_to_withdraw = 0
     next_payout_date = None
     for c in pending_comms:
         pad = c.get("payment_available_date")
         if pad:
             try:
                 pd = datetime.fromisoformat(pad.replace("Z", "+00:00"))
-                if pd > now and (next_payout_date is None or pd < next_payout_date):
+                if pd <= now:
+                    available_to_withdraw += c.get("commission_amount", 0)
+                elif next_payout_date is None or pd < next_payout_date:
                     next_payout_date = pd
             except Exception:
                 pass
+        else:
+            # No payment date set → treat as available
+            available_to_withdraw += c.get("commission_amount", 0)
 
     # Discount code
     discount_code = None
@@ -1106,6 +1121,7 @@ async def get_influencer_stats(user: User = Depends(get_current_user)):
         "gmv_30d": round(gmv_30d, 2),
         "active_attributions": active_attributions,
         "pending_eur": round(pending_eur, 2),
+        "available_to_withdraw": round(available_to_withdraw, 2),
         "paid_total_eur": round(max(paid_total, 0), 2),
         "next_payout_date": next_payout_date.isoformat() if next_payout_date else None,
         "has_stripe_connect": has_stripe,
@@ -1535,7 +1551,7 @@ async def enable_affiliate_capability(user: User = Depends(get_current_user)):
 async def get_discount_codes(user: User = Depends(get_current_user)):
     """Get all discount codes created by this influencer."""
     user_id = getattr(user, "user_id", None)
-    codes = await db.discount_codes.find({"creator_id": user_id}).sort("created_at", -1).to_list(50)
+    codes = await db.discount_codes.find({"owner_user_id": user_id}).sort("created_at", -1).to_list(50)
     for c in codes:
         c["_id"] = str(c["_id"])
     return codes

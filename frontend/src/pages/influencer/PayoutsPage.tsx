@@ -16,14 +16,12 @@ const STATUS_TABS = [
 function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPrice, onSuccess }) {
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('sepa');
-  const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
       setAmount(String(availableBalance || 0));
       setMethod('sepa');
-      setNotes('');
     }
   }, [open, availableBalance]);
 
@@ -45,7 +43,6 @@ function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPric
       await apiClient.post('/influencer/request-withdrawal', {
         amount: numAmount,
         method: method === 'sepa' ? 'bank_transfer' : method,
-        notes,
       });
       toast.success('Solicitud de retirada enviada');
       onSuccess?.();
@@ -101,19 +98,6 @@ function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPric
               <option value="sepa">Transferencia SEPA</option>
               <option value="stripe">Stripe</option>
             </select>
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1">Notas (opcional)</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              maxLength={200}
-              rows={3}
-              className="w-full rounded-xl border border-stone-200 px-4 py-3 text-sm text-stone-950 resize-none focus:outline-none focus:border-stone-400"
-              placeholder="Añade notas si lo necesitas..."
-            />
           </div>
 
           <button
@@ -252,7 +236,7 @@ export default function PayoutsPage() {
           <h1 className="text-xl font-bold text-stone-950">Cobros</h1>
           <button
             onClick={() => setShowWithdrawalModal(true)}
-            disabled={!stats || (stats.pending_eur || 0) < 20}
+            disabled={!stats || (stats.available_to_withdraw ?? stats.pending_eur ?? 0) < 20}
             className="px-5 py-2.5 bg-stone-950 text-white rounded-full text-sm font-bold hover:bg-stone-800 transition-colors disabled:opacity-40 border-none cursor-pointer"
           >
             Solicitar retirada
@@ -272,15 +256,15 @@ export default function PayoutsPage() {
           ) : (
             <>
               <p className="text-4xl font-extrabold tracking-tight text-white mb-1">
-                {convertAndFormatPrice(Number(stats?.pending_eur || 0))}
+                {convertAndFormatPrice(Number(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0))}
               </p>
-              {(stats?.pending_eur || 0) >= 20 ? (
+              {(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0) >= 20 ? (
                 <p className="text-sm text-stone-400 mb-4">
                   <span className="text-white">✓</span> Listo para cobrar
                 </p>
               ) : (
                 <p className="text-sm text-stone-500 mb-4">
-                  Estás a {convertAndFormatPrice(Math.max(0, 20 - Number(stats?.pending_eur || 0)))} de poder solicitar tu cobro
+                  Estás a {convertAndFormatPrice(Math.max(0, 20 - Number(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0)))} de poder solicitar tu cobro
                 </p>
               )}
 
@@ -324,14 +308,14 @@ export default function PayoutsPage() {
         </div>
 
         {/* Fiscal summary */}
-        {withholdingSummary && (withholdingSummary.total_withheld_cents > 0 || withholdingSummary.total_gross_cents > 0) && (
+        {withholdingSummary && ((withholdingSummary.withheld_ytd || 0) > 0 || (withholdingSummary.gross_ytd || 0) > 0) && (
           <div className="bg-white shadow-sm rounded-2xl px-4 py-3 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FileText className="w-4 h-4 text-stone-500 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-stone-950">Resumen fiscal {new Date().getFullYear()}</p>
                 <p className="text-xs text-stone-500">
-                  Retenciones acumuladas: {convertAndFormatPrice(Math.round(Number(withholdingSummary.total_withheld_cents || 0)) / 100)}
+                  Retenciones acumuladas: {convertAndFormatPrice(Number(withholdingSummary.withheld_ytd || 0))}
                 </p>
               </div>
             </div>
@@ -454,7 +438,7 @@ export default function PayoutsPage() {
       <WithdrawalModal
         open={showWithdrawalModal}
         onClose={() => setShowWithdrawalModal(false)}
-        availableBalance={Number(stats?.pending_eur || 0)}
+        availableBalance={Number(stats?.available_to_withdraw ?? stats?.pending_eur ?? 0)}
         convertAndFormatPrice={convertAndFormatPrice}
         onSuccess={handleWithdrawalSuccess}
       />

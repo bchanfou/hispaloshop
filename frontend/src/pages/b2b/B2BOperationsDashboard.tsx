@@ -11,7 +11,7 @@ const POLL_INTERVAL = 20000; // 20 seconds
 const STATUS_MAP = {
   offer_sent:         { bg: 'bg-stone-100',  text: 'text-stone-600',     label: 'Oferta enviada' },
   offer_accepted:     { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Aceptada' },
-  offer_rejected:     { bg: 'bg-red-50',     text: 'text-red-600',       label: 'Rechazada' },
+  offer_rejected:     { bg: 'bg-stone-100',  text: 'text-stone-600',     label: 'Rechazada' },
   contract_generated: { bg: 'bg-stone-50',   text: 'text-stone-500',     label: 'Por firmar' },
   contract_pending:   { bg: 'bg-stone-50',   text: 'text-stone-500',     label: 'Firmando' },
   contract_signed:    { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Firmado' },
@@ -20,7 +20,7 @@ const STATUS_MAP = {
   in_transit:         { bg: 'bg-stone-100',  text: 'text-stone-600',     label: 'En tránsito' },
   delivered:          { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Entregado' },
   completed:          { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Completado' },
-  disputed:           { bg: 'bg-red-50',     text: 'text-red-600',       label: 'En disputa' },
+  disputed:           { bg: 'bg-stone-100',  text: 'text-stone-600',     label: 'En disputa' },
 };
 
 /* ── Helpers ── */
@@ -46,13 +46,13 @@ const getCounterpart = (op, userId) => {
   if (isBuyer) {
     const s = op.seller || op.seller_id;
     return {
-      name: s?.name || s?.company_name || `Op-${String(op._id).slice(-6)}`,
+      name: s?.name || s?.company_name || `Op-${String(op._id || op.id).slice(-6)}`,
       initial: (s?.name || s?.company_name || 'S')[0].toUpperCase(),
     };
   }
   const b = op.buyer || op.buyer_id;
   return {
-    name: b?.name || b?.company_name || `Op-${String(op._id).slice(-6)}`,
+    name: b?.name || b?.company_name || `Op-${String(op._id || op.id).slice(-6)}`,
     initial: (b?.name || b?.company_name || 'B')[0].toUpperCase(),
   };
 };
@@ -77,15 +77,15 @@ export const OperationCard = ({ operation, userId, onNavigate, showAction = true
   const getAction = () => {
     const s = operation.status;
     if (s === 'offer_sent')
-      return { label: 'Ver oferta', path: `/b2b/chat/${operation.chat_id || operation._id}` };
+      return { label: 'Ver oferta', path: `/b2b/chat/${operation.chat_id || operation._id || operation.id}` };
     if (s === 'offer_accepted' || s === 'contract_generated')
-      return { label: 'Ver contrato', path: `/b2b/contract/${operation._id}` };
+      return { label: 'Ver contrato', path: `/b2b/contract/${operation._id || operation.id}` };
     if (s === 'contract_signed' || s === 'payment_pending')
       return isBuyer
-        ? { label: 'Ir al pago', path: `/b2b/payment/${operation._id}` }
-        : { label: 'Ver seguimiento', path: `/b2b/tracking/${operation._id}` };
+        ? { label: 'Ir al pago', path: `/b2b/payment/${operation._id || operation.id}` }
+        : { label: 'Ver seguimiento', path: `/b2b/tracking/${operation._id || operation.id}` };
     if (s === 'payment_confirmed' || s === 'in_transit' || s === 'delivered')
-      return { label: 'Ver seguimiento', path: `/b2b/tracking/${operation._id}` };
+      return { label: 'Ver seguimiento', path: `/b2b/tracking/${operation._id || operation.id}` };
     return null;
   };
 
@@ -187,7 +187,7 @@ const TABS = [
 const KPI_STYLES = {
   negotiating: { bg: 'bg-stone-50',  text: 'text-stone-500' },
   inProgress:  { bg: 'bg-stone-100', text: 'text-stone-950' },
-  pending:     { bg: 'bg-red-50',    text: 'text-red-600' },
+  pending:     { bg: 'bg-stone-100', text: 'text-stone-600' },
 };
 
 /* ── Main component ── */
@@ -221,7 +221,7 @@ const B2BOperationsDashboard = () => {
           const prevMap = new Map(prevOpsRef.current.map((o) => [String(o._id), o.status]));
           const changed = new Set();
           for (const op of incoming) {
-            const id = String(op._id);
+            const id = String(op._id || op.id);
             const prevStatus = prevMap.get(id);
             if (prevStatus === undefined || prevStatus !== op.status) {
               changed.add(id);
@@ -407,12 +407,12 @@ const B2BOperationsDashboard = () => {
                   />
                 ) : (
                   activeOps.map((op, i) => (
-                    <React.Fragment key={op._id || i}>
+                    <React.Fragment key={op._id || op.id || i}>
                       <OperationCard
                         operation={op}
                         userId={userId}
                         onNavigate={handleNavigate}
-                        highlight={changedIds.has(String(op._id))}
+                        highlight={changedIds.has(String(op._id || op.id))}
                       />
                       {i < activeOps.length - 1 && (
                         <div className="h-px bg-stone-200 ml-[72px]" />
@@ -433,17 +433,17 @@ const B2BOperationsDashboard = () => {
                   />
                 ) : (
                   completedOps.map((op, i) => (
-                    <React.Fragment key={op._id || i}>
+                    <React.Fragment key={op._id || op.id || i}>
                       <OperationCard
                         operation={op}
                         userId={userId}
                         onNavigate={handleNavigate}
                         showAction={false}
-                        highlight={changedIds.has(String(op._id))}
+                        highlight={changedIds.has(String(op._id || op.id))}
                         extra={
                           <div className="flex justify-end px-4 pb-2.5">
                             <button
-                              onClick={() => navigate(`/b2b/contract/${op._id}`)}
+                              onClick={() => navigate(`/b2b/contract/${op._id || op.id}`)}
                               className="bg-transparent border-none text-xs text-stone-500 cursor-pointer underline underline-offset-2"
                             >
                               Ver contrato
@@ -470,13 +470,13 @@ const B2BOperationsDashboard = () => {
                   />
                 ) : (
                   disputedOps.map((op, i) => (
-                    <React.Fragment key={op._id || i}>
+                    <React.Fragment key={op._id || op.id || i}>
                       <OperationCard
                         operation={op}
                         userId={userId}
                         onNavigate={handleNavigate}
                         showAction={false}
-                        highlight={changedIds.has(String(op._id))}
+                        highlight={changedIds.has(String(op._id || op.id))}
                         extra={
                           <div className="px-4 pb-2.5">
                             {op.dispute?.reason && (
@@ -486,7 +486,7 @@ const B2BOperationsDashboard = () => {
                             )}
                             <div className="flex justify-end">
                               <button
-                                onClick={() => navigate(`/b2b/dispute/${op._id}`)}
+                                onClick={() => navigate(`/b2b/dispute/${op._id || op.id}`)}
                                 className="px-3.5 py-1.5 text-xs font-semibold bg-stone-950 text-white border-none rounded-full cursor-pointer"
                               >
                                 Ver disputa

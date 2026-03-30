@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Hash, AlertTriangle, Image, Play, ChefHat, Clock } from 'lucide-react';
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Hash, AlertTriangle, Image, Play, ChefHat, Clock, Bell, BellOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
+import { useAuth } from '../context/AuthContext';
 import SEO from '../components/SEO';
 
 const TABS = [
@@ -16,8 +17,36 @@ const TABS = [
 export default function HashtagPage() {
   const { tag } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user: currentUser } = useAuth();
   const decodedTag = decodeURIComponent(tag || '');
   const [activeTab, setActiveTab] = useState('posts');
+
+  // P-06: Hashtag following
+  const { data: followedHashtags } = useQuery({
+    queryKey: ['followed-hashtags'],
+    queryFn: async () => {
+      const res = await apiClient.get('/users/me/followed-hashtags');
+      return Array.isArray(res) ? res : res?.hashtags || [];
+    },
+    enabled: !!currentUser,
+    staleTime: 60_000,
+  });
+
+  const isFollowingTag = (followedHashtags || []).some(
+    h => (h.tag || h.hashtag || h.name || '').toLowerCase() === decodedTag.toLowerCase()
+  );
+
+  const followMutation = useMutation({
+    mutationFn: async () => {
+      if (isFollowingTag) {
+        await apiClient.delete(`/users/me/followed-hashtags/${encodeURIComponent(decodedTag)}`);
+      } else {
+        await apiClient.post('/users/me/followed-hashtags', { tag: decodedTag });
+      }
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['followed-hashtags'] }); },
+  });
 
   // ── Posts query ──
   const postsQuery = useInfiniteQuery({
@@ -57,7 +86,8 @@ export default function HashtagPage() {
   const allReels = reelsQuery.data?.pages?.flatMap(p => p.reels) || [];
   const allRecipes = recipesQuery.data || [];
 
-  const totalCount = allPosts.length;
+  const totalCount = activeTab === 'reels' ? allReels.length : activeTab === 'recipes' ? allRecipes.length : allPosts.length;
+  const hasMoreInTab = activeTab === 'reels' ? reelsQuery.hasNextPage : activeTab === 'recipes' ? false : postsQuery.hasNextPage;
 
   // Infinite scroll sentinel for posts — stable ref, reads latest state via closure refs
   const postsHasNextPage = postsQuery.hasNextPage;
@@ -136,11 +166,26 @@ export default function HashtagPage() {
             <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center shrink-0">
               <Hash className="w-5 h-5 text-stone-500" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h1 className="text-lg font-bold text-stone-950 truncate">#{decodedTag}</h1>
-              <p className="text-xs text-stone-500">{totalCount > 0 ? `${totalCount}${postsQuery.hasNextPage ? '+' : ''} publicaciones` : 'Publicaciones'}</p>
+              <p className="text-xs text-stone-500">{totalCount > 0 ? `${totalCount}${hasMoreInTab ? '+' : ''} publicaciones` : 'Publicaciones'}</p>
             </div>
           </div>
+          {/* P-06: Follow hashtag button */}
+          {currentUser && (
+            <button
+              onClick={() => followMutation.mutate()}
+              disabled={followMutation.isPending}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold border-none cursor-pointer transition-colors shrink-0 ${
+                isFollowingTag
+                  ? 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                  : 'bg-stone-950 text-white hover:bg-stone-800'
+              }`}
+            >
+              {isFollowingTag ? <BellOff size={14} /> : <Bell size={14} />}
+              {isFollowingTag ? 'Siguiendo' : 'Seguir'}
+            </button>
+          )}
         </div>
 
         {/* Tabs */}
@@ -198,7 +243,7 @@ export default function HashtagPage() {
                           <Image className="w-8 h-8 text-stone-300" />
                         </div>
                       )}
-                      {(post.images?.length || 0) > 1 && (
+                      {((post.media?.length || post.images?.length || 0) > 1 || post.type === 'carousel') && (
                         <div className="absolute top-2 right-2">
                           <svg className="w-4 h-4 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M4 6h12v12H4z" opacity="0.5" /><path d="M8 2h12v12H8z" />

@@ -61,7 +61,7 @@ export default function CommunitiesExplorePage() {
     queryFn: () => apiClient.get('/communities?featured=true&limit=4'),
   });
 
-  const canCreate = (user?.follower_count >= 100) || user?.is_verified_seller;
+  const canCreate = (user?.followers_count >= 100) || (user?.role === 'producer' || user?.role === 'importer');
   const communities = data?.communities || [];
   const myCommunities = myData?.communities || [];
   const featuredCommunities = featuredData?.communities || [];
@@ -273,7 +273,7 @@ export default function CommunitiesExplorePage() {
           <div className="mt-5 rounded-2xl shadow-sm bg-stone-100 p-4 text-center">
             <p className="mb-1 text-sm font-bold text-stone-950">¿Quieres crear tu comunidad?</p>
             <p className="mb-1 text-[13px] text-stone-500">Consigue 100 seguidores o verifica tu cuenta de vendedor</p>
-            <p className="text-xs text-stone-500">Tienes {user?.follower_count || 0}/100 seguidores</p>
+            <p className="text-xs text-stone-500">Tienes {user?.followers_count || 0}/100 seguidores</p>
           </div>
         )}
       </div>

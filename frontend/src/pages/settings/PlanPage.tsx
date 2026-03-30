@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Crown, Zap, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -51,6 +51,7 @@ export default function PlanPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [downgradeTarget, setDowngradeTarget] = useState(null);
 
   const currentPlan = (user?.subscription_plan || user?.plan || 'free').toLowerCase();
   const trialDays = user?.trial_days_remaining;
@@ -68,12 +69,12 @@ export default function PlanPage() {
     }
   };
 
-  const handleChangePlan = async (planId) => {
+  const handleChangePlan = useCallback(async (planId) => {
     const PLAN_ORDER = { free: 0, pro: 1, elite: 2 };
     const isDowngrade = (PLAN_ORDER[planId] || 0) < (PLAN_ORDER[currentPlan] || 0);
     if (isDowngrade) {
-      const confirmed = window.confirm('¿Seguro que quieres bajar de plan? Perderás las funcionalidades premium al final del periodo de facturación.');
-      if (!confirmed) return;
+      setDowngradeTarget(planId);
+      return;
     }
     try {
       const data = await apiClient.post('/billing/change-plan', { plan: planId });
@@ -81,7 +82,19 @@ export default function PlanPage() {
     } catch {
       toast.error('Error al cambiar de plan');
     }
-  };
+  }, [currentPlan]);
+
+  const confirmDowngrade = useCallback(async () => {
+    if (!downgradeTarget) return;
+    const planId = downgradeTarget;
+    setDowngradeTarget(null);
+    try {
+      const data = await apiClient.post('/billing/change-plan', { plan: planId });
+      if (data.url) window.location.href = data.url;
+    } catch {
+      toast.error('Error al cambiar de plan');
+    }
+  }, [downgradeTarget]);
 
   const currentPlanData = PLANS.find(p => p.id === currentPlan) || PLANS[0];
 
@@ -196,6 +209,37 @@ export default function PlanPage() {
           })}
         </div>
       </div>
+
+      {/* ── Downgrade Confirm Modal ── */}
+      {downgradeTarget && (
+        <div
+          className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setDowngradeTarget(null)}
+        >
+          <div className="bg-white rounded-2xl shadow-xl p-5 max-w-[360px] w-full" onClick={e => e.stopPropagation()}>
+            <p className="text-stone-950 font-semibold text-base mb-1">¿Bajar de plan?</p>
+            <p className="text-stone-500 text-sm mb-4 leading-relaxed">
+              Perderás las funcionalidades premium al final del periodo de facturación.
+            </p>
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => setDowngradeTarget(null)}
+                className="flex-1 py-2.5 rounded-full border border-stone-200 text-[13px] font-semibold text-stone-950"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDowngrade}
+                className="flex-1 py-2.5 rounded-full bg-stone-950 text-[13px] font-semibold text-white"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

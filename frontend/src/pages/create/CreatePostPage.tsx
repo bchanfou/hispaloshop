@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 /* ───────────────────────── constants ───────────────────────── */
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB per image
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB per image (must match backend limit)
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 
 const FILTERS = [
@@ -210,7 +210,7 @@ export default function CreatePostPage() {
         continue;
       }
       if (file.size > MAX_FILE_SIZE) {
-        toast.error(`"${file.name}" supera los 20 MB permitidos.`);
+        toast.error(`"${file.name}" supera los 10 MB permitidos.`);
         continue;
       }
       valid.push(file);
@@ -243,8 +243,8 @@ export default function CreatePostPage() {
   const searchProducts = useCallback(async (q) => {
     if (!q.trim()) { setSearchResults([]); return; }
     try {
-      const res = await apiClient.get(`/products/search?q=${encodeURIComponent(q)}`);
-      setSearchResults(res?.results || res?.data?.results || res?.data || (Array.isArray(res) ? res : []));
+      const res = await apiClient.get(`/products?search=${encodeURIComponent(q)}&limit=10`);
+      setSearchResults(Array.isArray(res) ? res : res?.products || []);
     } catch { setSearchResults([]); }
   }, []);
 
@@ -353,6 +353,7 @@ export default function CreatePostPage() {
       try { localStorage.removeItem('post_draft'); } catch { /* ignore */ }
 
       // Show success animation before redirecting
+      setPublishing(false);
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success('Publicación creada', {
@@ -519,7 +520,7 @@ export default function CreatePostPage() {
                     <img src={url} alt={`Imagen ${i + 1} de ${selectedFiles.length}`} className="w-full h-full object-cover" />
                     <span className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-stone-950 text-white text-[9px] font-bold flex items-center justify-center">{i + 1}</span>
                     <button
-                      onClick={(e) => { e.stopPropagation(); setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i)); if (previewIndex >= selectedFiles.length - 1) setPreviewIndex(Math.max(0, selectedFiles.length - 2)); }}
+                      onClick={(e) => { e.stopPropagation(); const removeIdx = i; setSelectedFiles((prev) => prev.filter((_, idx) => idx !== removeIdx)); setPreviewIndex((prev) => { const newLen = selectedFiles.length - 1; if (newLen <= 0) return 0; if (removeIdx < prev) return prev - 1; if (prev >= newLen) return newLen - 1; return prev; }); }}
                       aria-label={`Quitar imagen ${i + 1}`}
                       className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/70 text-white text-[10px] border-none cursor-pointer flex items-center justify-center p-0"
                     >×</button>
@@ -1014,7 +1015,7 @@ export default function CreatePostPage() {
             aria-hidden="true"
             className="absolute top-0 left-0 right-0 p-3 text-sm leading-relaxed whitespace-pre-wrap break-words text-transparent pointer-events-none box-border border-[1.5px] border-transparent"
           >
-            {caption.split(/(#\w+|@\w+)/g).map((part, i) =>
+            {caption.split(/(#[\w\u00C0-\u024F\u1E00-\u1EFF]+|@[\w\u00C0-\u024F\u1E00-\u1EFF]+)/g).map((part, i) =>
               part.startsWith('#') ? (
                 <span key={i} className="text-stone-500 font-semibold">{part}</span>
               ) : part.startsWith('@') ? (
@@ -1185,12 +1186,14 @@ export default function CreatePostPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-2">
-              {searchResults.map((p) => (
+              {searchResults.map((p) => {
+                const pid = p.product_id || p.id || p._id;
+                return (
                 <button
-                  key={p.id}
+                  key={pid}
                   onClick={() => {
-                    if (taggedProducts.length < 5 && !taggedProducts.find((t) => t.id === p.id)) {
-                      setTaggedProducts((prev) => [...prev, { id: p.id, name: p.name || p.title }]);
+                    if (taggedProducts.length < 5 && !taggedProducts.find((t) => t.id === pid)) {
+                      setTaggedProducts((prev) => [...prev, { id: pid, name: p.name || p.title }]);
                     }
                     setShowProductSearch(false);
                     setSearchQuery('');
@@ -1198,10 +1201,11 @@ export default function CreatePostPage() {
                   }}
                   className="flex items-center gap-2.5 w-full px-2 py-2.5 bg-transparent border-none border-b border-stone-200 cursor-pointer text-left text-[13px]"
                 >
-                  {p.image && <img src={p.image} alt={p.name || p.title || 'Producto'} className="w-9 h-9 rounded-xl object-cover" />}
+                  {(p.image || p.images?.[0]) && <img src={p.image || p.images?.[0]} alt={p.name || p.title || 'Producto'} className="w-9 h-9 rounded-xl object-cover" />}
                   <span>{p.name || p.title}</span>
                 </button>
-              ))}
+                );
+              })}
               {searchQuery && searchResults.length === 0 && (
                 <p className="text-center text-stone-500 text-[13px] py-5">Sin resultados</p>
               )}

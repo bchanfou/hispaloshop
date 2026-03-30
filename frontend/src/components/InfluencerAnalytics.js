@@ -69,8 +69,8 @@ export default function InfluencerAnalytics() {
   }
 
   const { chart_data, summary, discount_code, referral_link } = analytics;
-  const effectiveRate = summary?.total_revenue > 0
-    ? ((summary.total_commission / summary.total_revenue) * 100)
+  const effectiveRate = (summary?.total_revenue || 0) > 0
+    ? (((summary.total_commission || 0) / summary.total_revenue) * 100)
     : 0;
   const effectiveRateLabel = `${effectiveRate.toFixed(2)}% sobre ventas`;
 
@@ -156,7 +156,7 @@ export default function InfluencerAnalytics() {
         <StatCard
           icon={ShoppingCart}
           title="Conversiones"
-          value={summary.total_conversions}
+          value={summary.total_conversions || 0}
           subtitle="Compras completadas"
         />
         <StatCard
@@ -295,10 +295,10 @@ export default function InfluencerAnalytics() {
             Tips para mejorar tus conversiones
           </h3>
           <ul className="space-y-2 text-sm text-stone-600">
-            {summary.conversion_rate < 5 && (
+            {(summary.click_to_order_rate || 0) < 5 && (
               <li>• Tu tasa de conversión es baja. Intenta crear contenido más específico sobre los productos.</li>
             )}
-            {summary.total_clicks < 10 && (
+            {(summary.total_link_clicks || 0) < 10 && (
               <li>• Comparte tu código más frecuentemente en tus redes sociales.</li>
             )}
             <li>• Recuerda mencionar el descuento del 10% que obtienen tus seguidores.</li>

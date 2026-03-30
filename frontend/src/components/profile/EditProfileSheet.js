@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUpdateProfile } from '../../hooks/api';
 import { useUserAvatar } from '../../features/user/hooks';
-import { resolveUserImage } from '../../features/user/queries';
+import { resolveUserImage, userKeys } from '../../features/user/queries';
 import { getCloudinarySrcSet } from '../../utils/cloudinary';
 import apiClient from '../../services/api/client';
 
@@ -114,7 +114,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
       }
       try {
         await uploadAvatar(file);
-        queryClient.invalidateQueries({ queryKey: ['userProfile', userId] });
+        queryClient.invalidateQueries({ queryKey: userKeys.profile(userId) });
         toast.success('Foto actualizada');
       } catch {
         toast.error('Error al subir la foto');
@@ -152,7 +152,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
 
     mutate(payload, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['userProfile', userId] });
+        queryClient.invalidateQueries({ queryKey: userKeys.profile(userId) });
         toast.success('Perfil actualizado');
         onClose();
       },
@@ -314,7 +314,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                       value={draft.username}
                       onChange={set('username')}
                       placeholder="nombre_de_usuario"
-                      maxLength={30}
+                      maxLength={20}
                       className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
                     />
                   </div>

@@ -761,7 +761,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
                 color="currentColor"
               />
             )}
-            {likesCount > 0 && (
+            {likesCount > 0 && !post.hide_likes && (
               <motion.span
                 key={likesCount}
                 initial={{ scale: 1.15 }}
@@ -818,7 +818,7 @@ function PostCardInner({ post, onLike, onComment, onShare, onSave, onDelete, pri
       </div>
 
       {/* ---- Liked by social proof ---- */}
-      {likesCount > 0 && (() => {
+      {likesCount > 0 && !post.hide_likes && (() => {
         const likedByArr = post.liked_by_sample || post.liked_by || post.liked_by_users;
         const firstUser = likedByArr?.[0];
         if (firstUser) {

@@ -814,7 +814,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             </div>
 
             {/* Likes count */}
-            {likesCount > 0 && (
+            {likesCount > 0 && !post?.hide_likes && (
               <p className="px-4 pb-1 text-[13px] font-semibold text-stone-950">
                 {likesCount.toLocaleString()} Me gusta
               </p>
@@ -833,9 +833,11 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
           </div>
 
           {/* Sticky comment input */}
+          {!post?.disable_comments && (
           <div className="shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
             <CommentInput {...commentInputProps} />
           </div>
+          )}
         </motion.div>
 
         {/* ═══ DESKTOP LAYOUT (>=768px / md) — Instagram Web side-by-side ═══ */}
@@ -910,7 +912,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 </button>
               </div>
               <div className="px-4 pb-2">
-                {likesCount > 0 && (
+                {likesCount > 0 && !post?.hide_likes && (
                   <p className="text-[13px] font-semibold text-stone-950">{likesCount.toLocaleString()} Me gusta</p>
                 )}
                 <p className="text-[11px] text-stone-400 mt-0.5">{timeAgo(post.created_at)}</p>
@@ -918,9 +920,11 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             </div>
 
             {/* I3 — Comment input pinned to bottom of right pane */}
+            {!post?.disable_comments && (
             <div className="shrink-0">
               <CommentInput {...commentInputProps} />
             </div>
+            )}
           </div>
         </motion.div>
       </motion.div>

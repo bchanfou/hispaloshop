@@ -512,6 +512,12 @@ async def get_influencer_insights(
     db = get_db()
     since = datetime.now(timezone.utc) - timedelta(days=days)
 
+    # Look up influencer record to get influencer_id for commission queries
+    influencer_doc = await db.influencers.find_one(
+        {"email": user.email.lower()}, {"_id": 0, "influencer_id": 1}
+    )
+    inf_id = influencer_doc["influencer_id"] if influencer_doc else None
+
     stats, top_products_raw = await asyncio.gather(
         get_content_conversion_stats(entity_id=user.user_id, days=days),
         db.growth_interactions.aggregate([
@@ -530,6 +536,22 @@ async def get_influencer_insights(
             {"$limit": 5},
         ]).to_list(length=5),
     )
+
+    # Build daily earnings from influencer commissions
+    daily_earnings = []
+    if inf_id:
+        since_iso = since.isoformat()
+        comms = await db.influencer_commissions.find(
+            {"influencer_id": inf_id, "created_at": {"$gte": since_iso}},
+            {"_id": 0, "commission_amount": 1, "created_at": 1},
+        ).to_list(2000)
+        daily_map: Dict[str, float] = {}
+        for c in comms:
+            day = (c.get("created_at") or "")[:10]
+            if day:
+                daily_map[day] = round(daily_map.get(day, 0) + c.get("commission_amount", 0), 2)
+        for day in sorted(daily_map.keys()):
+            daily_earnings.append({"date": day, "amount": daily_map[day]})
 
     top_products = []
     for item in top_products_raw:
@@ -554,6 +576,7 @@ async def get_influencer_insights(
         "period_days": days,
         "overview": stats,
         "top_products_driven": top_products,
+        "daily_earnings": daily_earnings,
     }
 
 

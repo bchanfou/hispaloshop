@@ -38,7 +38,7 @@ function orderProgressWidth(status) {
 export default function CustomerOverview() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const { convertAndFormatPrice, currency } = useLocale();
+  const { convertAndFormatPrice } = useLocale();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [ordersTotal, setOrdersTotal] = useState(0);
@@ -137,7 +137,7 @@ export default function CustomerOverview() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4">
           {[
             { label: 'Pedidos',    value: ordersTotal,            icon: Package },
-            { label: 'Gastado',    value: convertAndFormatPrice(orders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0), currency), icon: ShoppingBag },
+            { label: 'Gastado',    value: convertAndFormatPrice(orders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0)), icon: ShoppingBag },
             { label: 'Guardados',  value: wishlist.length,       icon: Heart },
             { label: 'Tiendas',    value: followedStores.length, icon: Store },
           ].map(({ label, value, icon: Icon }) => (
@@ -201,7 +201,7 @@ export default function CustomerOverview() {
 
                     {/* Total */}
                     <span className="text-sm font-bold text-stone-950 shrink-0">
-                      {convertAndFormatPrice(asNumber(order.total_amount), currency)}
+                      {convertAndFormatPrice(asNumber(order.total_amount), order.currency || 'EUR')}
                     </span>
                     <ChevronRight className="w-4 h-4 text-stone-300 shrink-0" />
                   </Link>
@@ -310,7 +310,7 @@ export default function CustomerOverview() {
                   </div>
                   <div className="p-2.5">
                     <p className="text-xs font-medium truncate text-stone-950">{item.name}</p>
-                    {item.price && <p className="text-sm font-bold text-stone-950">{convertAndFormatPrice(Number(item.price), currency)}</p>}
+                    {item.price && <p className="text-sm font-bold text-stone-950">{convertAndFormatPrice(Number(item.price))}</p>}
                   </div>
                 </Link>
               ))}
@@ -342,7 +342,7 @@ export default function CustomerOverview() {
                   </div>
                   <div className="p-2.5">
                     <p className="text-xs font-medium truncate text-stone-950">{p.name}</p>
-                    <p className="text-sm font-bold text-stone-950">{convertAndFormatPrice(Number(p.display_price || p.price || 0), currency)}</p>
+                    <p className="text-sm font-bold text-stone-950">{convertAndFormatPrice(Number(p.display_price || p.price || 0))}</p>
                   </div>
                 </Link>
               );
@@ -401,7 +401,7 @@ export default function CustomerOverview() {
                       <p className="text-sm font-medium truncate text-stone-950">{p.name}</p>
                       <p className="text-xs text-stone-500">{p.store_name || ''}</p>
                     </div>
-                    <p className="text-sm font-bold shrink-0 text-stone-950">{convertAndFormatPrice(Number(p.display_price || p.price || 0), currency)}</p>
+                    <p className="text-sm font-bold shrink-0 text-stone-950">{convertAndFormatPrice(Number(p.display_price || p.price || 0))}</p>
                   </Link>
                 );
               })}

@@ -55,7 +55,7 @@ function RFQCard({ rfq, isProducer }) {
             )}
             {rfq.total_amount != null && (
               <p className="text-sm font-bold text-stone-950 mt-1">
-                {(rfq.total_amount / 100).toFixed(2)} €
+                {Number(rfq.total_amount).toFixed(2)} €
               </p>
             )}
           </div>

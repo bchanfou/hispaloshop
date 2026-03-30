@@ -20,6 +20,11 @@ import apiClient from '../../services/api/client';
 const STEP_LABELS = ['Producto', 'Precio', 'Logística', 'Revisar'];
 
 const UNITS = ['kg', 'unidades', 'litros', 'cajas', 'pallets'];
+const UNIT_TO_CANONICAL: Record<string, string> = {
+  unidades: 'units',
+  litros: 'liters',
+  cajas: 'boxes',
+};
 const CURRENCIES = ['EUR', 'USD'];
 
 const PAYMENT_TERMS = [
@@ -434,11 +439,11 @@ function StepLogistica({ form, set, submitted }) {
           value={form.incoterm_city}
           onChange={(e) => set('incoterm_city', e.target.value)}
           className={`w-full h-11 rounded-xl border px-3.5 text-sm text-stone-950 bg-white outline-none box-border transition-colors ${
-            showCityError ? 'border-red-400' : 'border-stone-200'
+            showCityError ? 'border-stone-500' : 'border-stone-200'
           }`}
         />
         {cityRequired && cityEmpty && (
-          <p className={`text-xs mt-1 ${showCityError ? 'text-red-500 font-medium' : 'text-stone-500'}`}>
+          <p className={`text-xs mt-1 ${showCityError ? 'text-stone-600 font-medium' : 'text-stone-500'}`}>
             La ciudad de entrega es obligatoria para {form.incoterm}
           </p>
         )}
@@ -678,7 +683,7 @@ export default function B2BOfferPage() {
       product_name: (form.product_name || '').trim(),
       product_id: (form.product_id || '').trim() || undefined,
       quantity: Number(form.quantity),
-      unit: form.unit,
+      unit: UNIT_TO_CANONICAL[form.unit] || form.unit,
       price_per_unit: Number(form.price_per_unit),
       currency: form.currency,
       payment_terms: form.payment_terms,
@@ -710,7 +715,7 @@ export default function B2BOfferPage() {
       toast.success(isCounteroffer ? 'Contraoferta enviada' : 'Oferta enviada correctamente');
       navigate(-1);
     } catch (err) {
-      toast.error(err?.message || 'Error al enviar la oferta');
+      toast.error(err?.response?.data?.detail || err?.message || 'Error al enviar la oferta');
     } finally {
       setSubmitting(false);
     }

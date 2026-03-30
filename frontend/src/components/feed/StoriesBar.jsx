@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { RefreshCw, Plus } from 'lucide-react';
+import { RefreshCw, Plus, ChefHat } from 'lucide-react';
 import StoryRing from './StoryRing';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -37,7 +38,19 @@ function normalizeStories(raw) {
 export default function StoriesBar({ onStoryClick, onCreateStory }) {
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [loadingUserId, setLoadingUserId] = useState(null);
+
+  // P-10: Featured recipe of the day
+  const { data: featuredRecipe } = useQuery({
+    queryKey: ['featured-recipe'],
+    queryFn: async () => {
+      const res = await apiClient.get('/recipes', { params: { sort: 'popular', limit: 1 } });
+      const list = Array.isArray(res) ? res : res?.recipes || [];
+      return list[0] || null;
+    },
+    staleTime: 300_000,
+  });
 
   const { data: storiesData, isLoading: loading, isError: error, refetch } = useQuery({
     queryKey: ['feed-stories'],
@@ -160,6 +173,34 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
               <Plus size={10} color="white" />
             </motion.div>
           )}
+        </div>
+      )}
+
+      {/* P-10: Featured recipe ring */}
+      {featuredRecipe && (
+        <div className="shrink-0 snap-center">
+          <button
+            type="button"
+            onClick={() => navigate(`/recipes/${featuredRecipe.recipe_id || featuredRecipe.id}`)}
+            className="flex flex-col items-center gap-1 w-[58px] bg-transparent border-none cursor-pointer p-0"
+          >
+            <div className="relative h-[58px] w-[58px] rounded-full bg-gradient-to-br from-stone-200 to-stone-400 p-[2px]">
+              <div className="h-full w-full rounded-full bg-white p-[2px]">
+                {featuredRecipe.image_url ? (
+                  <img
+                    src={featuredRecipe.image_url}
+                    alt="Receta del día"
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full rounded-full bg-stone-100 flex items-center justify-center">
+                    <ChefHat size={18} className="text-stone-400" />
+                  </div>
+                )}
+              </div>
+            </div>
+            <span className="w-full truncate text-center text-[10px] text-stone-500 leading-tight">Receta</span>
+          </button>
         </div>
       )}
 

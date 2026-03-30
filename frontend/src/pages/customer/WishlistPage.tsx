@@ -7,9 +7,11 @@ import apiClient from '../../services/api/client';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'sonner';
 import { sanitizeImageUrl } from '../../utils/helpers';
+import { useLocale } from '../../context/LocaleContext';
 
 export default function WishlistPage() {
   const { t } = useTranslation();
+  const { convertAndFormatPrice } = useLocale();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [batchAdding, setBatchAdding] = useState(false);
@@ -129,9 +131,9 @@ export default function WishlistPage() {
                 <Link to={productPath} className="text-sm font-medium text-stone-900 hover:underline line-clamp-1">{item.name}</Link>
                 {item.saved_price && item.saved_price !== item.price ? (
                   <div className="flex items-center gap-2 text-xs mt-0.5">
-                    <span className="line-through text-stone-400">{Number(item.saved_price).toFixed(2)} EUR</span>
+                    <span className="line-through text-stone-400">{convertAndFormatPrice(Number(item.saved_price))}</span>
                     <span className={item.price < item.saved_price ? 'font-semibold text-stone-950' : 'text-stone-500'}>
-                      {Number(item.price).toFixed(2)} EUR
+                      {convertAndFormatPrice(Number(item.price))}
                     </span>
                     {item.price < item.saved_price && (
                       <span className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">{'\u2193'} Rebajado</span>
@@ -141,7 +143,7 @@ export default function WishlistPage() {
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm font-semibold text-stone-700 mt-0.5">{item.price ? `${Number(item.price).toFixed(2)} EUR` : ''}</p>
+                  <p className="text-sm font-semibold text-stone-700 mt-0.5">{item.price ? convertAndFormatPrice(Number(item.price)) : ''}</p>
                 )}
                 <p className="text-[10px] text-stone-400">{item.added_at ? new Date(item.added_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : ''}</p>
               </div>

@@ -406,7 +406,7 @@ async def notify_social_event(
     actor_avatar = actor_doc.get("profile_image") or actor_doc.get("avatar_url")
 
     EVENT_MAP = {
-        "new_follower": ("Nuevo seguidor", f"{actor_name} ha empezado a seguirte", f"/profile/{actor_id}"),
+        "new_follower": ("Nuevo seguidor", f"{actor_name} ha empezado a seguirte", f"/{actor_doc.get('username') or actor_id}"),
         "post_liked": ("Le gustó tu publicación", f"A {actor_name} le gustó tu publicación", f"/post/{post_id}"),
         "post_commented": ("Nuevo comentario", f"{actor_name} comentó tu publicación", f"/post/{post_id}"),
         "mentioned": ("Te mencionaron", f"{actor_name} te mencionó", f"/post/{post_id}"),

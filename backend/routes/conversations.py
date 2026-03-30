@@ -9,6 +9,7 @@ import html as html_module
 import re
 import uuid
 import logging
+import asyncio
 
 from core.database import db
 from core.models import User, NewConversationInput, MessageInput
@@ -27,20 +28,37 @@ async def get_conversations(user: User = Depends(get_current_user)):
             {"user2_id": user.user_id}
         ]
     }, {"_id": 0}).sort("last_message_at", -1).to_list(100)
-    
-    result = []
+
+    if not conversations:
+        return []
+
+    # Collect all other-user IDs and conversation IDs in one pass
+    other_user_ids = []
     for conv in conversations:
-        # Determine the other user
-        other_user_id = conv["user2_id"] if conv["user1_id"] == user.user_id else conv["user1_id"]
-        other_user = await db.users.find_one({"user_id": other_user_id}, {"_id": 0, "name": 1, "role": 1, "avatar_url": 1, "profile_image": 1, "last_seen": 1})
-        
-        # Count unread messages
-        unread_count = await db.chat_messages.count_documents({
-            "conversation_id": conv["conversation_id"],
-            "sender_id": {"$ne": user.user_id},
-            "read": False
-        })
-        
+        oid = conv["user2_id"] if conv["user1_id"] == user.user_id else conv["user1_id"]
+        other_user_ids.append(oid)
+
+    conv_ids = [c["conversation_id"] for c in conversations]
+
+    # Batch-fetch user profiles + unread counts concurrently (2 queries total, not 2N)
+    users_docs, unread_agg = await asyncio.gather(
+        db.users.find(
+            {"user_id": {"$in": other_user_ids}},
+            {"_id": 0, "user_id": 1, "name": 1, "role": 1, "avatar_url": 1, "profile_image": 1, "last_seen": 1},
+        ).to_list(len(other_user_ids)),
+        db.chat_messages.aggregate([
+            {"$match": {"conversation_id": {"$in": conv_ids}, "sender_id": {"$ne": user.user_id}, "read": False}},
+            {"$group": {"_id": "$conversation_id", "count": {"$sum": 1}}},
+        ]).to_list(len(conv_ids)),
+    )
+
+    users_map = {u["user_id"]: u for u in users_docs}
+    unread_map = {r["_id"]: r["count"] for r in unread_agg}
+
+    now_utc = datetime.now(timezone.utc)
+    result = []
+    for conv, other_user_id in zip(conversations, other_user_ids):
+        other_user = users_map.get(other_user_id)
         uname = other_user.get("name", "Usuario") if other_user else "Usuario"
         role = other_user.get("role", "customer") if other_user else "customer"
         conv_type = "b2c" if role in ("producer", "importer") else "c2c"
@@ -50,7 +68,7 @@ async def get_conversations(user: User = Depends(get_current_user)):
         if last_seen_val:
             try:
                 seen_dt = datetime.fromisoformat(str(last_seen_val).replace("Z", "+00:00"))
-                is_online = (datetime.now(timezone.utc) - seen_dt) < timedelta(minutes=2)
+                is_online = (now_utc - seen_dt) < timedelta(minutes=2)
             except Exception:
                 pass
 
@@ -66,11 +84,11 @@ async def get_conversations(user: User = Depends(get_current_user)):
             "last_seen": last_seen_val,
             "last_message": conv.get("last_message"),
             "last_message_at": conv.get("last_message_at"),
-            "unread_count": unread_count,
+            "unread_count": unread_map.get(conv["conversation_id"], 0),
             "other_user_name": uname,
             "other_user_type": role,
         })
-    
+
     return result
 
 @router.post("/chat/conversations")
@@ -606,12 +624,19 @@ async def upload_document(
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="El archivo no puede superar 10 MB")
 
+    import asyncio
     import cloudinary.uploader
+    from functools import partial
     resource_type = "raw" if file.content_type == "application/pdf" else "image"
-    result = cloudinary.uploader.upload(
-        content,
-        resource_type=resource_type,
-        folder=f"hispaloshop/chat/docs/{conversation_id}",
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(
+        None,
+        partial(
+            cloudinary.uploader.upload,
+            content,
+            resource_type=resource_type,
+            folder=f"hispaloshop/chat/docs/{conversation_id}",
+        ),
     )
     return {
         "file_url": result["secure_url"],

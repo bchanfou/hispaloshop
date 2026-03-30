@@ -247,6 +247,9 @@ export default function EditProfilePage() {
           {usernameStatus === 'available' && (
             <p className="mt-1 text-xs text-stone-500">Disponible</p>
           )}
+          {usernameStatus == null && form.username.trim().length > 0 && form.username.trim().length < 3 && (
+            <p className="mt-1 text-xs text-stone-600">El usuario debe tener al menos 3 caracteres</p>
+          )}
         </div>
 
         <div className="mb-5">

@@ -562,17 +562,19 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
   const postId = post.id || post._id;
 
   const toggleLike = async () => {
-    setLiked(!liked);
-    setLikes(l => liked ? l - 1 : l + 1);
+    const prevLiked = liked;
+    const prevLikes = likes;
+    setLiked(!prevLiked);
+    setLikes(l => prevLiked ? l - 1 : l + 1);
     try {
-      if (liked) {
+      if (prevLiked) {
         await apiClient.delete(`/community-posts/${postId}/like`);
       } else {
         await apiClient.post(`/community-posts/${postId}/like`);
       }
     } catch {
-      setLiked(liked);
-      setLikes(post.likes_count || 0);
+      setLiked(prevLiked);
+      setLikes(prevLikes);
     }
   };
 
@@ -685,6 +687,8 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 const CommunityMembers = ({ communityId }) => {
   const { user } = useAuth();
   const [page, setPage] = useState(1);
+  const [followedIds, setFollowedIds] = useState(new Set());
+  const [pendingIds, setPendingIds] = useState(new Set());
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['community-members', communityId, page],
     queryFn: () => apiClient.get(`/communities/${communityId}/members?limit=30&page=${page}`),
@@ -696,11 +700,16 @@ const CommunityMembers = ({ communityId }) => {
   const handleFollow = async (e, member) => {
     e.preventDefault();
     e.stopPropagation();
+    const uid = member.user_id;
+    if (pendingIds.has(uid)) return;
+    setPendingIds(prev => new Set(prev).add(uid));
     try {
-      await apiClient.post(`/users/${member.user_id}/follow`);
-      toast.success(`Siguiendo a ${member.username || 'usuario'}`);
+      await apiClient.post(`/users/${uid}/follow`);
+      setFollowedIds(prev => new Set(prev).add(uid));
     } catch {
       toast.error('Error al seguir');
+    } finally {
+      setPendingIds(prev => { const s = new Set(prev); s.delete(uid); return s; });
     }
   };
 
@@ -753,9 +762,14 @@ const CommunityMembers = ({ communityId }) => {
                 {!isOwnProfile && (
                   <button
                     onClick={(e) => handleFollow(e, member)}
-                    aria-label={`Seguir a ${member.username || 'usuario'}`}
-                    className="px-3.5 py-1.5 rounded-full border border-stone-200 bg-white text-stone-950 text-xs font-semibold cursor-pointer shrink-0">
-                    Seguir
+                    disabled={followedIds.has(member.user_id) || pendingIds.has(member.user_id)}
+                    aria-label={followedIds.has(member.user_id) ? `Ya sigues a ${member.username || 'usuario'}` : `Seguir a ${member.username || 'usuario'}`}
+                    className={`px-3.5 py-1.5 rounded-full border text-xs font-semibold shrink-0 ${
+                      followedIds.has(member.user_id)
+                        ? 'border-stone-200 bg-white text-stone-400 cursor-default'
+                        : 'border-stone-200 bg-white text-stone-950 cursor-pointer'
+                    }`}>
+                    {followedIds.has(member.user_id) ? 'Siguiendo' : pendingIds.has(member.user_id) ? '...' : 'Seguir'}
                   </button>
                 )}
               </Link>

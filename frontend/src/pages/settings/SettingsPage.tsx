@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, ChevronRight, User, Lock, Bell, Shield, Eye,
@@ -116,6 +116,8 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteEmail, setDeleteEmail] = useState('');
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => { setIsPrivate(user?.is_private || false); }, [user?.is_private]);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
   const isInfluencer = user?.role === 'influencer';
@@ -433,7 +435,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleteEmail !== user?.email || deleting}
-                className="flex-1 py-3 rounded-full bg-red-600 text-[14px] font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+                className="flex-1 py-3 rounded-full bg-stone-950 text-[14px] font-semibold text-white hover:bg-stone-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
               >
                 {deleting ? 'Eliminando...' : 'Eliminar'}
               </button>

@@ -154,10 +154,16 @@ const ProfileTabs = forwardRef(function ProfileTabs({
   const [selectedReel, setSelectedReel] = useState(null);
   const [reelIndex, setReelIndex] = useState(0);
 
-  // Expose switchTab to parent via ref (Q9)
+  // Expose switchTab + removePost to parent via ref
   useImperativeHandle(ref, () => ({
     switchTab: (tabId) => {
       if (tabs.some((t) => t.id === tabId)) setActiveTab(tabId);
+    },
+    removePost: (postId) => {
+      setData(prev => ({
+        ...prev,
+        posts: (prev.posts || []).filter(p => (p.id || p.post_id) !== postId),
+      }));
     },
   }), [tabs]);
 
@@ -256,8 +262,8 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     return (
       <div className="grid grid-cols-3 gap-1">
         {items.map((post, i) => {
-          const src = (post.images?.length > 0 && post.images[0]) || post.image_url;
-          const hasMultiple = post.images?.length > 1;
+          const src = post.image_url || post.media?.[0]?.url || (post.images?.length > 0 && post.images[0]);
+          const hasMultiple = (post.media?.length > 1) || (post.images?.length > 1) || post.type === 'carousel';
           const Wrapper = i < 12 ? motion.div : 'div';
           const motionProps = i < 12 ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3, delay: Math.min(i * 0.03, 0.3) } } : {};
           return (
@@ -455,7 +461,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     return (
       <div className="grid grid-cols-3 gap-1">
         {items.map((item, i) => {
-          const src = (item.images?.length > 0 && item.images[0]) || item.image_url;
+          const src = item.image_url || item.media?.[0]?.url || (item.images?.length > 0 && item.images[0]);
           const Wrapper = i < 12 ? motion.div : 'div';
           const motionProps = i < 12 ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3, delay: Math.min(i * 0.03, 0.3) } } : {};
           return (
@@ -576,6 +582,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
   const [commentsCount, setCommentsCount] = useState(reel.comments_count ?? 0);
   const [newComment, setNewComment] = useState('');
   const [commentsLoading, setCommentsLoading] = useState(false);
+  const [sendingComment, setSendingComment] = useState(false);
   const reelId = reel.id || reel.reel_id;
   const likingRef = useRef(false);
 
@@ -589,6 +596,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
     setComments([]);
     setCommentsCount(reel.comments_count ?? 0);
     setNewComment('');
+    setSendingComment(false);
   }, [reel]);
 
   // Close on Escape
@@ -828,7 +836,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
-            {commentsLoading ? (
+            {commentsLoading && comments.length === 0 ? (
               <p className="text-white/50 text-sm text-center py-4">Cargando...</p>
             ) : comments.length === 0 ? (
               <p className="text-white/50 text-sm text-center py-4">Sin comentarios aún</p>
@@ -855,36 +863,34 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
               placeholder="Añade un comentario..."
               className="flex-1 bg-white/10 text-white text-sm rounded-full px-4 py-2.5 min-h-[44px] outline-none placeholder:text-white/30"
               onKeyDown={async (e) => {
-                if (e.key === 'Enter' && newComment.trim() && !commentsLoading) {
+                if (e.key === 'Enter' && newComment.trim() && !sendingComment) {
                   e.preventDefault();
-                  setCommentsLoading(true);
+                  setSendingComment(true);
                   const text = newComment.trim();
                   setNewComment('');
                   try {
-                    await apiClient.post(`/reels/${reelId}/comments`, { text });
-                    const data = await apiClient.get(`/reels/${reelId}/comments`);
-                    setComments(Array.isArray(data) ? data : data?.comments || []);
+                    const comment = await apiClient.post(`/reels/${reelId}/comments`, { text });
+                    setComments((prev) => [comment, ...prev]);
                     setCommentsCount((c) => c + 1);
                   } catch { toast.error('Error al comentar'); }
-                  finally { setCommentsLoading(false); }
+                  finally { setSendingComment(false); }
                 }
               }}
             />
             <button
               onClick={async () => {
-                if (!newComment.trim() || commentsLoading) return;
-                setCommentsLoading(true);
+                if (!newComment.trim() || sendingComment) return;
+                setSendingComment(true);
                 const text = newComment.trim();
                 setNewComment('');
                 try {
-                  await apiClient.post(`/reels/${reelId}/comments`, { text });
-                  const data = await apiClient.get(`/reels/${reelId}/comments`);
-                  setComments(Array.isArray(data) ? data : data?.comments || []);
+                  const comment = await apiClient.post(`/reels/${reelId}/comments`, { text });
+                  setComments((prev) => [comment, ...prev]);
                   setCommentsCount((c) => c + 1);
                 } catch { toast.error('Error al comentar'); }
-                finally { setCommentsLoading(false); }
+                finally { setSendingComment(false); }
               }}
-              disabled={!newComment.trim() || commentsLoading}
+              disabled={!newComment.trim() || sendingComment}
               className="w-11 h-11 rounded-full bg-stone-950 flex items-center justify-center disabled:opacity-30"
               aria-label="Enviar comentario"
             >

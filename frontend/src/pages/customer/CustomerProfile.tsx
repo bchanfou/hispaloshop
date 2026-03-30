@@ -73,10 +73,12 @@ export default function CustomerProfile() {
     is_default: false
   });
 
+  // Address delete confirm
+  const [addressToDelete, setAddressToDelete] = useState(null);
+
   // Account management state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletePassword, setDeletePassword] = useState('');
-  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deleteEmailConfirm, setDeleteEmailConfirm] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [hasConsent, setHasConsent] = useState(false);
 
@@ -130,7 +132,7 @@ export default function CustomerProfile() {
 
   const handleAddAddress = async () => {
     if (!addressForm.full_name || !addressForm.street || !addressForm.city || !addressForm.postal_code || !addressForm.country) {
-      toast.error(t('checkout.fillAllFields', 'Please fill in all required fields'));
+      toast.error(t('checkout.fillAllFields', 'Rellena todos los campos obligatorios'));
       return;
     }
 
@@ -138,13 +140,13 @@ export default function CustomerProfile() {
     try {
       await apiClient.post('/customer/addresses', {
         ...addressForm,
-        name: addressForm.name || t('checkout.newAddress', 'New Address')
+        name: addressForm.name || t('checkout.newAddress', 'Nueva dirección')
       });
-      toast.success(t('success.saved', 'Address saved'));
+      toast.success(t('success.saved', 'Dirección guardada'));
       fetchAddresses();
       resetAddressForm();
     } catch (error) {
-      toast.error(error.message || t('errors.generic', 'Failed to save'));
+      toast.error(error.message || t('errors.generic', 'Error al guardar'));
     } finally {
       setSaving(false);
     }
@@ -167,7 +169,7 @@ export default function CustomerProfile() {
 
   const handleUpdateAddress = async () => {
     if (!addressForm.full_name || !addressForm.street || !addressForm.city || !addressForm.postal_code || !addressForm.country) {
-      toast.error(t('checkout.fillAllFields', 'Please fill in all required fields'));
+      toast.error(t('checkout.fillAllFields', 'Rellena todos los campos obligatorios'));
       return;
     }
 
@@ -175,57 +177,58 @@ export default function CustomerProfile() {
     try {
       await apiClient.put(`/customer/addresses/${editingAddressId}`, {
         ...addressForm,
-        name: addressForm.name || t('checkout.newAddress', 'Address')
+        name: addressForm.name || t('checkout.newAddress', 'Dirección')
       });
-      toast.success(t('success.updated', 'Address updated'));
+      toast.success(t('success.updated', 'Dirección actualizada'));
       fetchAddresses();
       resetAddressForm();
     } catch (error) {
-      toast.error(error.message || t('errors.generic', 'Failed to update'));
+      toast.error(error.message || t('errors.generic', 'Error al actualizar'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteAddress = async (addressId) => {
-    if (!window.confirm(t('common.confirmDelete', 'Are you sure you want to delete this address?'))) return;
-
+    const id = addressId || addressToDelete;
+    if (!id) return;
+    setAddressToDelete(null);
     try {
-      await apiClient.delete(`/customer/addresses/${addressId}`);
-      toast.success(t('success.deleted', 'Address deleted'));
+      await apiClient.delete(`/customer/addresses/${id}`);
+      toast.success(t('success.deleted', 'Dirección eliminada'));
       fetchAddresses();
     } catch (error) {
-      toast.error(error.message || t('errors.generic', 'Failed to delete'));
+      toast.error(error.message || t('errors.generic', 'Error al eliminar'));
     }
   };
 
   const handleSetDefault = async (addressId) => {
     try {
       await apiClient.put(`/customer/addresses/${addressId}/default`, {});
-      toast.success(t('profile.defaultAddressSet', 'Default address updated'));
+      toast.success(t('profile.defaultAddressSet', 'Dirección predeterminada actualizada'));
       fetchAddresses();
     } catch (error) {
-      toast.error(error.message || t('errors.generic', 'Failed to set default'));
+      toast.error(error.message || t('errors.generic', 'Error al establecer predeterminada'));
     }
   };
 
   // Account management functions
   const handleDeleteAccount = async () => {
-    if (deleteConfirmation !== 'BORRAR') {
-      toast.error(t('profile.typeDelete', 'Escribe BORRAR para confirmar'));
+    if (!deleteEmailConfirm || deleteEmailConfirm.trim().toLowerCase() !== (user?.email || '').toLowerCase()) {
+      toast.error(t('profile.emailMismatch', 'El email no coincide con tu cuenta'));
       return;
     }
 
     setDeleting(true);
     try {
       await apiClient.delete('/account/delete', {
-        data: { password: deletePassword, confirmation: deleteConfirmation }
+        data: { email_confirmation: deleteEmailConfirm.trim() }
       });
-      toast.success(t('profile.accountDeleted', 'Account deleted successfully'));
+      toast.success(t('profile.accountDeleted', 'Cuenta eliminada correctamente'));
       logout();
       navigate('/');
     } catch (error) {
-      toast.error(error.message || t('errors.generic', 'Failed to delete account'));
+      toast.error(error.message || t('errors.generic', 'Error al eliminar la cuenta'));
     } finally {
       setDeleting(false);
     }
@@ -238,7 +241,7 @@ export default function CustomerProfile() {
       toast.success(t('profile.consentWithdrawn', 'Consent withdrawn successfully'));
       setHasConsent(false);
     } catch (error) {
-      toast.error(error.message || t('errors.generic', 'Failed to withdraw consent'));
+      toast.error(error.message || t('errors.generic', 'Error al retirar el consentimiento'));
     } finally {
       setSaving(false);
     }
@@ -251,7 +254,7 @@ export default function CustomerProfile() {
       toast.success(t('profile.consentReactivated', 'Personalization enabled'));
       setHasConsent(true);
     } catch (error) {
-      toast.error(error.message || t('errors.generic', 'Failed to enable personalization'));
+      toast.error(error.message || t('errors.generic', 'Error al activar la personalización'));
     } finally {
       setSaving(false);
     }
@@ -339,9 +342,9 @@ export default function CustomerProfile() {
   return (
     <div className="max-w-[975px] mx-auto">
       <h1 className="text-3xl font-bold text-stone-950 mb-2">
-        {t('profile.title', 'My Profile')}
+        {t('profile.title', 'Mi perfil')}
       </h1>
-      <p className="text-stone-500 mb-6">{t('profile.subtitle', 'Manage your account settings and preferences.')}</p>
+      <p className="text-stone-500 mb-6">{t('profile.subtitle', 'Gestiona tu cuenta, direcciones y preferencias.')}</p>
 
       {/* Tabs */}
       <div className="flex gap-4 mb-6 border-b border-stone-200 overflow-x-auto">
@@ -600,12 +603,12 @@ export default function CustomerProfile() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-950 mb-1">
-                    {t('checkout.fullName', 'Full Name')} <span className="text-stone-500">*</span>
+                    {t('checkout.fullName', 'Nombre completo')} <span className="text-stone-500">*</span>
                   </label>
                   <input
                     value={addressForm.full_name}
                     onChange={(e) => setAddressForm({...addressForm, full_name: e.target.value})}
-                    placeholder={t('checkout.fullName', 'Full Name')}
+                    placeholder={t('checkout.fullName', 'Nombre completo')}
                     required
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-fullname-input"
@@ -613,12 +616,12 @@ export default function CustomerProfile() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-stone-950 mb-1">
-                    {t('checkout.street', 'Street')} <span className="text-stone-500">*</span>
+                    {t('checkout.street', 'Calle')} <span className="text-stone-500">*</span>
                   </label>
                   <input
                     value={addressForm.street}
                     onChange={(e) => setAddressForm({...addressForm, street: e.target.value})}
-                    placeholder={t('checkout.street', 'Street Address')}
+                    placeholder={t('checkout.street', 'Dirección')}
                     required
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-street-input"
@@ -626,12 +629,12 @@ export default function CustomerProfile() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-950 mb-1">
-                    {t('checkout.city', 'City')} <span className="text-stone-500">*</span>
+                    {t('checkout.city', 'Ciudad')} <span className="text-stone-500">*</span>
                   </label>
                   <input
                     value={addressForm.city}
                     onChange={(e) => setAddressForm({...addressForm, city: e.target.value})}
-                    placeholder={t('checkout.city', 'City')}
+                    placeholder={t('checkout.city', 'Ciudad')}
                     required
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-city-input"
@@ -639,12 +642,12 @@ export default function CustomerProfile() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-950 mb-1">
-                    {t('checkout.zip', 'Postal Code')} <span className="text-stone-500">*</span>
+                    {t('checkout.zip', 'Código postal')} <span className="text-stone-500">*</span>
                   </label>
                   <input
                     value={addressForm.postal_code}
                     onChange={(e) => setAddressForm({...addressForm, postal_code: e.target.value})}
-                    placeholder={t('checkout.zip', 'Postal Code')}
+                    placeholder={t('checkout.zip', 'Código postal')}
                     required
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-postal-input"
@@ -652,12 +655,12 @@ export default function CustomerProfile() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-950 mb-1">
-                    {t('checkout.country', 'Country')} <span className="text-stone-500">*</span>
+                    {t('checkout.country', 'País')} <span className="text-stone-500">*</span>
                   </label>
                   <input
                     value={addressForm.country}
                     onChange={(e) => setAddressForm({...addressForm, country: e.target.value})}
-                    placeholder={t('checkout.country', 'Country')}
+                    placeholder={t('checkout.country', 'País')}
                     required
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-country-input"
@@ -665,12 +668,12 @@ export default function CustomerProfile() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-950 mb-1">
-                    {t('common.phone', 'Phone')}
+                    {t('common.phone', 'Teléfono')}
                   </label>
                   <input
                     value={addressForm.phone}
                     onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})}
-                    placeholder={t('common.phone', 'Phone')}
+                    placeholder={t('common.phone', 'Teléfono')}
                     className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="address-phone-input"
                   />
@@ -731,7 +734,7 @@ export default function CustomerProfile() {
                         </span>
                         {address.is_default && (
                           <span className="text-xs bg-stone-100 text-stone-950 px-2 py-0.5 rounded flex items-center gap-1">
-                            <Star className="w-3 h-3" /> {t('checkout.default', 'Default')}
+                            <Star className="w-3 h-3" /> {t('checkout.default', 'Principal')}
                           </span>
                         )}
                       </div>
@@ -746,8 +749,8 @@ export default function CustomerProfile() {
                         <button
                           onClick={() => handleSetDefault(address.address_id)}
                           className="p-2.5 text-stone-500 hover:text-stone-950 transition-colors"
-                          title={t('profile.setAsDefault', 'Set as default')}
-                          aria-label={t('profile.setAsDefault', 'Set as default')}
+                          title={t('profile.setAsDefault', 'Predeterminada')}
+                          aria-label={t('profile.setAsDefault', 'Predeterminada')}
                           data-testid={`set-default-${address.address_id}`}
                         >
                           <Star className="w-4 h-4" />
@@ -762,7 +765,7 @@ export default function CustomerProfile() {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteAddress(address.address_id)}
+                        onClick={() => setAddressToDelete(address.address_id)}
                         className="p-2.5 text-stone-500 hover:text-stone-950 transition-colors"
                         aria-label={t('common.delete', 'Delete')}
                         data-testid={`delete-address-${address.address_id}`}
@@ -840,13 +843,13 @@ export default function CustomerProfile() {
           <div className="bg-stone-50 rounded-2xl border-2 border-stone-200 p-6">
             <h3 className="font-medium text-stone-700 mb-4 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
-              {t('profile.dangerZone', 'Danger Zone')}
+              {t('profile.dangerZone', 'Zona de riesgo')}
             </h3>
 
             <div className="p-4 bg-white rounded-2xl border border-stone-200">
-              <p className="font-medium text-stone-700">{t('profile.deleteAccount', 'Delete Account')}</p>
+              <p className="font-medium text-stone-700">{t('profile.deleteAccount', 'Eliminar cuenta')}</p>
               <p className="text-sm text-stone-600 mt-1 mb-3">
-                {t('profile.deleteWarning', 'This action is permanent and cannot be undone. All your data will be deleted.')}
+                {t('profile.deleteWarning', 'Esta acción es permanente y no se puede deshacer. Todos tus datos serán eliminados.')}
               </p>
               <button
                 onClick={() => setShowDeleteModal(true)}
@@ -854,7 +857,35 @@ export default function CustomerProfile() {
                 data-testid="delete-account-btn"
               >
                 <Trash2 className="w-4 h-4" />
-                {t('profile.deleteMyAccount', 'Delete My Account')}
+                {t('profile.deleteMyAccount', 'Eliminar mi cuenta')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Address Confirm Modal */}
+      {addressToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-5" role="dialog" aria-modal="true">
+            <p className="text-stone-950 font-semibold text-base mb-1">
+              {t('profile.deleteAddressTitle', '¿Eliminar dirección?')}
+            </p>
+            <p className="text-stone-500 text-sm mb-4">
+              {t('common.confirmDelete', 'Esta acción no se puede deshacer.')}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setAddressToDelete(null)}
+                className="flex-1 rounded-xl bg-stone-100 py-2.5 text-[13px] font-semibold text-stone-950"
+              >
+                {t('common.cancel', 'Cancelar')}
+              </button>
+              <button
+                onClick={() => handleDeleteAddress(addressToDelete)}
+                className="flex-1 rounded-xl bg-stone-950 py-2.5 text-[13px] font-semibold text-white"
+              >
+                {t('common.delete', 'Eliminar')}
               </button>
             </div>
           </div>
@@ -863,47 +894,34 @@ export default function CustomerProfile() {
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
-        <FocusTrap focusTrapOptions={{ escapeDeactivates: true, allowOutsideClick: true, returnFocusOnDeactivate: true, onDeactivate: () => { setShowDeleteModal(false); setDeletePassword(''); setDeleteConfirmation(''); } }}>
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: true, allowOutsideClick: true, returnFocusOnDeactivate: true, onDeactivate: () => { setShowDeleteModal(false); setDeleteEmailConfirm(''); } }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" role="dialog" aria-modal="true" aria-label={t('profile.confirmDeleteTitle', 'Delete Account')}>
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" role="dialog" aria-modal="true" aria-label={t('profile.confirmDeleteTitle', 'Eliminar cuenta')}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-stone-100 rounded-full">
                 <AlertTriangle className="w-6 h-6 text-stone-700" />
               </div>
               <h2 className="text-xl font-bold text-stone-950">
-                {t('profile.confirmDeleteTitle', 'Delete Account')}
+                {t('profile.confirmDeleteTitle', 'Eliminar cuenta')}
               </h2>
             </div>
 
             <p className="text-stone-500 mb-4">
-              {t('profile.confirmDeleteDescription', 'This will permanently delete your account, orders history, and all personal data. This action cannot be undone.')}
+              {t('profile.confirmDeleteDescription', 'Esto eliminará permanentemente tu cuenta, historial de pedidos y todos tus datos. Esta acción no se puede deshacer.')}
             </p>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-stone-950 mb-1">
-                  {t('profile.enterPassword', 'Enter your password')}
+                  {t('profile.confirmEmail', 'Escribe tu email para confirmar')}
                 </label>
                 <input
-                  type="password"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  placeholder="••••••••"
+                  type="email"
+                  value={deleteEmailConfirm}
+                  onChange={(e) => setDeleteEmailConfirm(e.target.value)}
+                  placeholder={user?.email || 'tu@email.com'}
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
-                  data-testid="delete-password-input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-stone-950 mb-1">
-                  {t('profile.typeDelete', 'Type DELETE to confirm')}
-                </label>
-                <input
-                  value={deleteConfirmation}
-                  onChange={(e) => setDeleteConfirmation(e.target.value.toUpperCase())}
-                  placeholder="BORRAR"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 font-mono"
-                  data-testid="delete-confirmation-input"
+                  data-testid="delete-email-confirm-input"
                 />
               </div>
             </div>
@@ -912,8 +930,7 @@ export default function CustomerProfile() {
               <button
                 onClick={() => {
                   setShowDeleteModal(false);
-                  setDeletePassword('');
-                  setDeleteConfirmation('');
+                  setDeleteEmailConfirm('');
                 }}
                 className="px-4 py-2 border border-stone-200 text-stone-600 rounded-2xl hover:bg-stone-50 transition-colors"
               >
@@ -921,7 +938,7 @@ export default function CustomerProfile() {
               </button>
               <button
                 onClick={handleDeleteAccount}
-                disabled={deleting || deleteConfirmation !== 'BORRAR' || !deletePassword}
+                disabled={deleting || !deleteEmailConfirm}
                 className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                 data-testid="confirm-delete-btn"
               >

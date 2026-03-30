@@ -102,7 +102,7 @@ export default function CreateCommunityPage() {
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  const canCreate = (user?.follower_count >= 100) || user?.is_verified_seller;
+  const canCreate = (user?.followers_count >= 100) || (user?.role === 'producer' || user?.role === 'importer');
 
   if (!canCreate) {
     return (
@@ -129,11 +129,11 @@ export default function CreateCommunityPage() {
               <div className="h-1.5 bg-stone-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-stone-950 rounded-full transition-[width] duration-300 ease-in-out"
-                  style={{ width: `${Math.min(100, ((user?.follower_count || 0) / 100) * 100)}%` }}
+                  style={{ width: `${Math.min(100, ((user?.followers_count || 0) / 100) * 100)}%` }}
                 />
               </div>
               <p className="text-xs text-stone-500 mt-1.5 m-0">
-                {user?.follower_count || 0}/100 seguidores
+                {user?.followers_count || 0}/100 seguidores
               </p>
             </div>
           </div>

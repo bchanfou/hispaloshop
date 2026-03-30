@@ -285,8 +285,8 @@ export default function CreateReelPage() {
     if (!showProductSearch || !productQuery.trim()) { setProductResults([]); return; }
     const timer = setTimeout(async () => {
       try {
-        const res = await apiClient.get(`/products/search?q=${encodeURIComponent(productQuery)}`);
-        setProductResults(res?.results || res?.data?.results || res?.data || (Array.isArray(res) ? res : []));
+        const res = await apiClient.get(`/products?search=${encodeURIComponent(productQuery)}&limit=10`);
+        setProductResults(Array.isArray(res) ? res : res?.products || []);
       } catch { setProductResults([]); }
     }, 350);
     return () => clearTimeout(timer);
@@ -386,6 +386,7 @@ export default function CreateReelPage() {
       const postId = res?.id || res?.post?.id || res?.data?.id;
       if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
       try { localStorage.removeItem('reel_draft'); } catch { /* ignore */ }
+      setPublishing(false);
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success('Reel publicado', {
@@ -1251,21 +1252,24 @@ export default function CreateReelPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-2">
-              {productResults.map((p) => (
+              {productResults.map((p) => {
+                const pid = p.product_id || p.id || p._id;
+                return (
                 <button
-                  key={p.id || p._id}
+                  key={pid}
                   onClick={() => {
-                    if (taggedProducts.length < 5 && !taggedProducts.find((t) => t.id === (p.id || p._id))) {
-                      setTaggedProducts((prev) => [...prev, { id: p.id || p._id, name: p.name || p.title }]);
+                    if (taggedProducts.length < 5 && !taggedProducts.find((t) => t.id === pid)) {
+                      setTaggedProducts((prev) => [...prev, { id: pid, name: p.name || p.title }]);
                     }
                     setShowProductSearch(false); setProductQuery(''); setProductResults([]);
                   }}
                   className="flex items-center gap-2.5 w-full px-2 py-2.5 bg-transparent border-none border-b border-stone-100 cursor-pointer text-left text-[13px] hover:bg-stone-50 transition-colors"
                 >
-                  {(p.image || p.thumbnail) && <img src={p.image || p.thumbnail} alt={p.name || p.title || 'Producto'} className="w-9 h-9 rounded-xl object-cover" />}
+                  {(p.image || p.thumbnail || p.images?.[0]) && <img src={p.image || p.thumbnail || p.images?.[0]} alt={p.name || p.title || 'Producto'} className="w-9 h-9 rounded-xl object-cover" />}
                   <span>{p.name || p.title}</span>
                 </button>
-              ))}
+                );
+              })}
               {productQuery && productResults.length === 0 && (
                 <p className="text-center text-stone-400 text-sm py-5">Sin resultados</p>
               )}

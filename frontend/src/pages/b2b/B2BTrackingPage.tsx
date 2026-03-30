@@ -513,7 +513,7 @@ export default function B2BTrackingPage() {
                         <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-stone-50 text-stone-500">Pendiente</span>
                       )}
                       {isExpired && (
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-red-50 text-red-600">Vencido</span>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap bg-stone-100 text-stone-600">Vencido</span>
                       )}
                     </div>
 
@@ -558,7 +558,7 @@ export default function B2BTrackingPage() {
                       )}
 
                       {isExpired && doc.expiry_date && (
-                        <span className="text-[10px] text-red-600">
+                        <span className="text-[10px] text-stone-500">
                           Renueva antes del {new Date(doc.expiry_date).toLocaleDateString('es-ES')}
                         </span>
                       )}
@@ -601,7 +601,7 @@ export default function B2BTrackingPage() {
 
           {/* === Section 5 -- Final Payment === */}
           {showFinalPayment && (
-            <div className="bg-stone-50 border border-stone-500 rounded-xl p-4">
+            <div className="bg-stone-50 border border-stone-200 rounded-xl p-4">
               <div className="text-sm font-semibold text-stone-950 mb-3">
                 Pago final pendiente {finalAmount ? `· ${finalAmount}` : ''}
               </div>

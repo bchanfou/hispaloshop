@@ -480,7 +480,7 @@ async def create_reel(
     user: User = Depends(get_current_user)
 ):
     """Create a reel (short video). Uploads to Cloudinary."""
-    if not file.content_type.startswith("video/"):
+    if not file.content_type or not file.content_type.startswith("video/"):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos de video")
     # Check Content-Length header before reading to prevent DoS
     MAX_VIDEO_SIZE = 100 * 1024 * 1024
@@ -778,7 +778,7 @@ async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
                     "type": "new_like",
                     "title": "Nuevo me gusta",
                     "body": f"A {user.name} le ha gustado tu reel",
-                    "action_url": f"/reels/{reel_id}",
+                    "action_url": f"/posts/{reel_id}",
                     "data": {"liker_id": user.user_id, "liker_name": user.name, "content_id": reel_id, "content_type": "reel"},
                     "channels": ["in_app"],
                     "status_by_channel": {"in_app": "sent"},
@@ -877,7 +877,7 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
                 "type": "new_comment",
                 "title": "Nuevo comentario",
                 "body": f"{sender_name} comentó: {snippet}",
-                "action_url": f"/reels/{reel_id}",
+                "action_url": f"/posts/{reel_id}",
                 "data": {"commenter_id": user.user_id, "commenter_name": sender_name, "content_id": reel_id, "content_type": "reel", "comment_id": comment_id},
                 "channels": ["in_app"],
                 "status_by_channel": {"in_app": "sent"},
@@ -1327,7 +1327,7 @@ async def handle_follow_request(
                 "type": "follow_request_accepted",
                 "title": "Solicitud aceptada",
                 "body": f"{user.name} aceptó tu solicitud de seguimiento",
-                "action_url": f"/profile/{user.user_id}",
+                "action_url": f"/{user.username}" if user.username else f"/{user.user_id}",
                 "data": {"acceptor_id": user.user_id, "acceptor_name": user.name},
                 "channels": ["in_app"],
                 "status_by_channel": {"in_app": "sent"},
@@ -1554,7 +1554,7 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
             "type": "new_follower",
             "title": "Nuevo seguidor",
             "body": f"{user.name} ha empezado a seguirte",
-            "action_url": f"/profile/{user.user_id}",
+            "action_url": f"/{user.username}" if user.username else f"/{user.user_id}",
             "data": {"follower_id": user.user_id, "follower_name": user.name},
             "channels": ["in_app"],
             "status_by_channel": {"in_app": "sent"},
@@ -1926,6 +1926,9 @@ async def create_post(
     product_id: str = Form(""),
     tagged_products_json: str = Form(""),
     post_type: str = Form("post"),
+    audience: str = Form("public"),
+    hide_likes: str = Form(""),
+    disable_comments: str = Form(""),
     file: UploadFile = File(None),
     files: List[UploadFile] = File(None),
     user: User = Depends(get_current_user)
@@ -1949,7 +1952,7 @@ async def create_post(
     MAX_IMAGE_SIZE = 10 * 1024 * 1024
     media = []
     for index, upload in enumerate(incoming_files):
-        if not upload.content_type.startswith('image/'):
+        if not upload.content_type or not upload.content_type.startswith('image/'):
             raise HTTPException(status_code=400, detail="Only image files are allowed")
         # Streaming read with size limit to prevent DoS
         chunks = []
@@ -2004,6 +2007,9 @@ async def create_post(
         "tagged_products": tagged_products,
         "likes_count": 0,
         "comments_count": 0,
+        "audience": audience if audience in ("public", "followers") else "public",
+        "hide_likes": hide_likes.lower() in ("true", "1"),
+        "disable_comments": disable_comments.lower() in ("true", "1"),
         "status": "published",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
@@ -2026,7 +2032,12 @@ async def create_post(
 @router.get("/posts")
 async def list_posts(skip: int = 0, limit: int = 30, hashtag: Optional[str] = None):
     """List public posts ordered by newest first. Optionally filter by hashtag."""
-    query = {"$or": [{"is_private": {"$ne": True}}, {"is_private": {"$exists": False}}]}
+    query = {
+        "$and": [
+            {"$or": [{"is_private": {"$ne": True}}, {"is_private": {"$exists": False}}]},
+            {"$or": [{"audience": {"$ne": "followers"}}, {"audience": {"$exists": False}}]},
+        ]
+    }
     if hashtag:
         query["caption"] = {"$regex": f"#{re.escape(hashtag)}", "$options": "i"}
     posts = await db.user_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
@@ -2177,7 +2188,7 @@ async def like_post(post_id: str, user: User = Depends(get_current_user)):
                         "type": "new_like",
                         "title": "Nuevo me gusta",
                         "body": f"A {user.name} le ha gustado tu reel",
-                        "action_url": f"/reels/{post_id}",
+                        "action_url": f"/posts/{post_id}",
                         "data": {"liker_id": user.user_id, "liker_name": user.name, "content_id": post_id, "content_type": "reel"},
                         "channels": ["in_app"],
                         "status_by_channel": {"in_app": "sent"},
@@ -2326,6 +2337,8 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
         is_reel = bool(post)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    if post.get("disable_comments") and post.get("user_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Los comentarios están desactivados en esta publicación")
     # Privacy check: only owner or followers can comment on private content
     if post.get("is_private") and post.get("user_id") != user.user_id:
         is_follower = await db.user_follows.find_one(
@@ -2364,7 +2377,7 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
         try:
             now = datetime.now(timezone.utc)
             content_type = "reel" if is_reel else "post"
-            action_url = f"/reels/{post_id}" if is_reel else f"/posts/{post_id}"
+            action_url = f"/posts/{post_id}"
             snippet = comment["text"][:60] + ("…" if len(comment["text"]) > 60 else "")
             await db.notifications.insert_one({
                 "user_id": owner_id,
@@ -2545,6 +2558,8 @@ async def delete_own_account(request: Request, user: User = Depends(get_current_
     await db.carts.delete_many({"user_id": uid})
     await db.cart_discounts.delete_many({"user_id": uid})
     await db.social_events.delete_many({"user_id": uid})
+    await db.chat_messages.delete_many({"sender_id": uid})
+    await db.internal_chats.delete_many({"$or": [{"user1_id": uid}, {"user2_id": uid}]})
     await db.internal_messages.delete_many({"sender_id": uid})
     await db.internal_conversations.delete_many({"participants.user_id": uid})
     await db.ai_profiles.delete_many({"user_id": uid})
@@ -3116,7 +3131,7 @@ async def patch_user_me(request: Request, user: User = Depends(get_current_user)
     if "bio" in body:
         update_fields["bio"] = sanitize_text(str(body["bio"])[:300])
     if "location" in body:
-        update_fields["location_text"] = sanitize_text(str(body["location"])[:100])
+        update_fields["location"] = sanitize_text(str(body["location"])[:100])
     if "food_preferences" in body and isinstance(body["food_preferences"], list):
         update_fields["food_preferences"] = [str(p)[:50] for p in body["food_preferences"][:20]]
     if "interests" in body and isinstance(body["interests"], list):
@@ -3155,7 +3170,7 @@ async def update_user_profile_data(request: Request, user: User = Depends(get_cu
 
 @router.post("/users/upload-avatar")
 async def upload_avatar(file: UploadFile = File(...), user: User = Depends(get_current_user)):
-    if not file.content_type.startswith('image/'):
+    if not file.content_type or not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="Only image files are allowed")
     MAX_AVATAR_SIZE = 5 * 1024 * 1024
     chunks = []
@@ -3191,7 +3206,7 @@ async def create_story(
     """Upload a story that auto-expires after 24h."""
     await rate_limiter.check(request, "create_story")
     allowed_prefixes = ('image/', 'video/')
-    if not any(file.content_type.startswith(p) for p in allowed_prefixes):
+    if not file.content_type or not any(file.content_type.startswith(p) for p in allowed_prefixes):
         raise HTTPException(status_code=400, detail="Solo se permiten imágenes y vídeos")
     contents = await file.read()
     is_video = file.content_type.startswith("video/")

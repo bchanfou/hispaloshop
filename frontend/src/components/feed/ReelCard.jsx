@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { abbreviateCount } from '../../utils/helpers';
+import { timeAgo } from '../../utils/time';
 import {
   Eye,
   Heart,
@@ -20,6 +21,8 @@ import {
   ShoppingBag,
   MoreHorizontal,
   Pencil,
+  UserMinus,
+  Flag,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
@@ -576,12 +579,576 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
 
   if (deleted) return null;
 
+  // ─── EMBEDDED MODE: PostCard-unified layout ────────────────────────────
+  // Caption expansion for embedded mode (declared outside early return for hook rules)
+  const [captionExpanded, setCaptionExpanded] = useState(false);
+
+  if (embedded) {
+    const userName = reel.user?.name || reel.user?.full_name || 'Usuario';
+    const userTarget = reel.user?.username || reel.user?.id || reel.user?.user_id;
+    const createdAt = reel.created_at || (reel.timestamp ? new Date(reel.timestamp).toISOString() : null);
+    const captionText = localCaption ?? reel.caption;
+    const shouldClampCaption = captionText && captionText.length > 120 && !captionExpanded;
+    const normalizedProducts = allProducts.length > 0 ? allProducts : (product ? [product] : []);
+
+    return (
+      <article
+        ref={(node) => { containerRef.current = node; dwellRef.current = node; }}
+        className="bg-white rounded-2xl shadow-sm overflow-hidden"
+      >
+        {/* ─ Header (P-01, P-07) ─ */}
+        <div className="flex items-center gap-2.5 px-3 py-2">
+          <div
+            onClick={() => { if (userTarget) navigate(`/${userTarget}`); }}
+            className="flex shrink-0 items-center justify-center rounded-full cursor-pointer h-9 w-9"
+            role="link"
+            aria-label={`Ver perfil de ${userName}`}
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={userName} loading="lazy" className="h-9 w-9 rounded-full object-cover" />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-stone-200 flex items-center justify-center text-sm font-bold text-stone-500">
+                {userName[0]?.toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-1 flex-wrap items-center gap-1 min-w-0">
+            <span
+              onClick={() => { if (userTarget) navigate(`/${userTarget}`); }}
+              className="text-sm font-semibold text-stone-950 truncate max-w-[140px] cursor-pointer"
+              role="link"
+            >
+              {userName}
+            </span>
+            {reel.user?.username && (
+              <span className="text-xs text-stone-500 whitespace-nowrap">@{reel.user.username}</span>
+            )}
+            {createdAt && (
+              <>
+                <span className="text-[11px] text-stone-500">&middot;</span>
+                <span className="text-[11px] text-stone-500 whitespace-nowrap">{timeAgo(createdAt)}</span>
+              </>
+            )}
+          </div>
+          {/* Follow button (P-07) */}
+          {!isOwner && !isFollowing && (
+            <button
+              onClick={async () => {
+                trigger('medium');
+                const reelUserId = reel.user?.id || reel.user?.user_id;
+                try {
+                  const res = await apiClient.post(`/users/${reelUserId}/follow`, {});
+                  if (res?.status === 'pending') { toast.success('Solicitud enviada'); }
+                  else { setIsFollowing(true); }
+                } catch { toast.error('No se pudo seguir al usuario'); }
+              }}
+              className="text-[13px] font-semibold text-stone-950 bg-transparent border border-stone-200 rounded-full px-3.5 py-1.5 cursor-pointer hover:bg-stone-50 transition-colors shrink-0"
+            >
+              Seguir
+            </button>
+          )}
+          <button
+            className="flex shrink-0 items-center justify-center min-w-[44px] min-h-[44px] p-3 bg-transparent border-none cursor-pointer text-stone-500"
+            aria-label="Opciones"
+            onClick={() => setShowOwnerMenu((v) => !v)}
+          >
+            <MoreHorizontal size={20} />
+          </button>
+        </div>
+
+        {/* Owner menu dropdown */}
+        {showOwnerMenu && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setShowOwnerMenu(false)} />
+            <div className="relative z-50 mx-3 -mt-1 mb-1">
+              <div className="absolute right-0 top-0 bg-white rounded-2xl shadow-lg border border-stone-100 py-1 min-w-[170px] z-50">
+                {isOwner ? (
+                  <>
+                    <button
+                      className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
+                      onClick={() => { setEditCaption(localCaption ?? reel.caption ?? ''); setShowEditCaption(true); setShowOwnerMenu(false); }}
+                    >
+                      <Pencil size={16} /> Editar
+                    </button>
+                    <button
+                      className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
+                      onClick={() => { setShowDeleteConfirm(true); setShowOwnerMenu(false); }}
+                    >
+                      <Trash2 size={16} /> Eliminar
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
+                      onClick={async () => {
+                        const reelId = reel.id || reel.reel_id || reel.post_id;
+                        const url = `${window.location.origin}/posts/${reelId}`;
+                        try { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); } catch { /* */ }
+                        setShowOwnerMenu(false);
+                      }}
+                    >
+                      <Send size={16} /> Copiar enlace
+                    </button>
+                    {isFollowing && (
+                      <button
+                        className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
+                        onClick={async () => {
+                          const reelUserId = reel.user?.id || reel.user?.user_id;
+                          try {
+                            await apiClient.delete(`/users/${reelUserId}/follow`);
+                            setIsFollowing(false);
+                            toast.success(`Has dejado de seguir a ${userName}`);
+                          } catch { toast.error('Error al dejar de seguir'); }
+                          setShowOwnerMenu(false);
+                        }}
+                      >
+                        <UserMinus size={16} /> Dejar de seguir
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ─ Video area ─ */}
+        <div
+          className="relative aspect-[9/16] max-h-[480px] bg-black overflow-hidden cursor-pointer"
+          onClick={handleVideoTap}
+        >
+          {videoUrl ? (
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              poster={thumbnailUrl || undefined}
+              className="absolute inset-0 w-full h-full object-cover"
+              loop
+              playsInline
+              muted={muted}
+              preload={priority ? 'metadata' : 'none'}
+              onLoadedMetadata={() => { if (videoRef.current) setVideoDuration(videoRef.current.duration); }}
+              aria-label={playing ? 'Pausar vídeo' : 'Reproducir vídeo'}
+            />
+          ) : thumbnailUrl ? (
+            <img src={thumbnailUrl} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-stone-900">
+              <Play size={48} className="text-white/30" />
+            </div>
+          )}
+
+          {/* Play/Pause center icon */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[3]">
+            <AnimatePresence mode="wait">
+              {!playing && !showDoubleTapHeart ? (
+                <motion.div key="play" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.15 }}>
+                  <div className="bg-black/30 rounded-full p-4"><Play size={48} className="text-white/80 fill-white/80" /></div>
+                </motion.div>
+              ) : showPlayIcon ? (
+                <motion.div key="pause" initial={{ scale: 1.2, opacity: 0 }} animate={{ scale: 1, opacity: 0.6 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.2 }}>
+                  <div className="bg-black/30 rounded-full p-4"><Pause size={48} className="text-white/80 fill-white/80" /></div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </div>
+
+          {/* Double-tap heart */}
+          {showDoubleTapHeart && (
+            <motion.div
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{ scale: [0, 1.3, 0.95, 1], opacity: [1, 1, 1, 0] }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5]"
+            >
+              <Heart size={80} className="text-white fill-white" />
+            </motion.div>
+          )}
+
+          {/* Mute toggle */}
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+            className="absolute bottom-3 right-3 z-10 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border-none cursor-pointer"
+            aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+          >
+            {muted ? <VolumeX size={14} className="text-white" /> : <Volume2 size={14} className="text-white" />}
+          </button>
+
+          {/* Duration badge */}
+          {videoDuration > 0 && !playing && (
+            <div className="absolute top-3 right-3 z-[2] bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
+              <span className="text-[11px] text-white font-semibold tabular-nums">
+                {Math.floor(videoDuration / 60)}:{String(Math.floor(videoDuration % 60)).padStart(2, '0')}
+              </span>
+            </div>
+          )}
+
+          {/* Gradient at bottom for views */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+
+          {/* Views badge */}
+          {(reel.views || reel.view_count || reel.views_count) ? (
+            <div className="absolute bottom-3 left-3 flex items-center gap-1 text-xs text-white/80 z-[2]">
+              <Eye size={12} className="shrink-0" />
+              <span>{abbreviateCount(reel.views || reel.view_count || reel.views_count || 0)}</span>
+            </div>
+          ) : null}
+        </div>
+
+        {/* ─ Progress bar (P-08) ─ */}
+        <div
+          className="h-[2px] bg-stone-100 cursor-pointer relative"
+          onClick={(e) => {
+            const video = videoRef.current;
+            if (!video || !video.duration) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            video.currentTime = ratio * video.duration;
+            setProgress(ratio);
+          }}
+        >
+          <div className="h-full bg-stone-950 origin-left transition-transform duration-150" style={{ transform: `scaleX(${Math.min(1, progress)})` }} />
+        </div>
+
+        {/* ─ Action bar (P-02) ─ */}
+        <div className="flex items-center gap-4 px-3 py-2">
+          {/* Like */}
+          <div className="relative">
+            <ReelReactionPicker show={showReactions} onSelect={handleReaction} onClose={() => setShowReactions(false)} />
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+              className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
+              onClick={handleLike}
+              onPointerDown={handleReactionLongPressStart}
+              onPointerUp={handleReactionLongPressEnd}
+              onPointerLeave={handleReactionLongPressEnd}
+              aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
+              aria-pressed={liked}
+            >
+              {selectedReaction && selectedReaction !== '❤️' ? (
+                <span className="text-[22px] leading-none">{selectedReaction}</span>
+              ) : (
+                <Heart size={24} fill={liked ? 'currentColor' : 'none'} />
+              )}
+              {likesCount > 0 && (
+                <motion.span
+                  key={likesCount}
+                  initial={{ scale: 1.15 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 15, duration: 0.3 }}
+                  className="text-[13px] font-semibold text-stone-950"
+                >
+                  {abbreviateCount(likesCount)}
+                </motion.span>
+              )}
+            </motion.button>
+          </div>
+
+          {/* Comment */}
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+            className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
+            onClick={openComments}
+            aria-label={`Comentar · ${reelCommentsCount}`}
+          >
+            <MessageCircle size={24} />
+            {reelCommentsCount > 0 && <span className="text-[13px] font-semibold text-stone-950">{abbreviateCount(reelCommentsCount)}</span>}
+          </motion.button>
+
+          {/* Share */}
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 400 }}
+            className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
+            onClick={async () => {
+              trigger('light');
+              const reelId = reel.id || reel.reel_id || reel.post_id;
+              const url = `${window.location.origin}/posts/${reelId}`;
+              try {
+                if (navigator.share) { await navigator.share({ title: reel.caption || 'Reel', url }); }
+                else { await navigator.clipboard?.writeText(url); toast.success('Enlace copiado'); }
+              } catch { /* cancelled */ }
+              onShare?.(reelId);
+            }}
+            aria-label="Compartir"
+          >
+            <Send size={24} />
+          </motion.button>
+
+          {/* Save — right-aligned */}
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            className="ml-auto flex min-h-[44px] items-center bg-transparent border-none py-2.5 cursor-pointer text-stone-950"
+            onClick={async () => {
+              const next = !saved;
+              setSaved(next);
+              try {
+                const reelId = reel.id || reel.reel_id || reel.post_id;
+                await apiClient.post(`/reels/${reelId}/save`);
+              } catch { setSaved(!next); toast.error('Error al guardar'); }
+            }}
+            aria-label={saved ? 'Quitar guardado' : 'Guardar'}
+          >
+            <motion.div animate={{ scale: saved ? [1, 1.3, 1] : 1 }} transition={{ duration: 0.3, type: 'spring', stiffness: 500 }}>
+              <Bookmark size={22} fill={saved ? 'currentColor' : 'none'} className="transition-colors duration-200" />
+            </motion.div>
+          </motion.button>
+        </div>
+
+        {/* ─ Social proof (P-06) ─ */}
+        {likesCount > 0 && (() => {
+          const likedByArr = reel.liked_by_sample || reel.liked_by || reel.liked_by_users;
+          const firstUser = likedByArr?.[0];
+          if (firstUser) {
+            return (
+              <div className="px-3 pb-1">
+                <p className="text-xs text-stone-500">
+                  Le gusta a{' '}
+                  <button
+                    onClick={() => navigate(`/${firstUser.username || firstUser.id || firstUser.user_id}`)}
+                    className="font-semibold text-stone-950 bg-transparent border-none cursor-pointer p-0"
+                  >
+                    {firstUser.username || firstUser.name}
+                  </button>
+                  {likesCount > 1 && <> y <span className="font-semibold text-stone-950">{abbreviateCount(likesCount - 1)} más</span></>}
+                </p>
+              </div>
+            );
+          }
+          return (
+            <div className="px-3 pb-1">
+              <p className="text-xs text-stone-500">
+                <span className="font-semibold text-stone-950">{abbreviateCount(likesCount)} me gusta</span>
+              </p>
+            </div>
+          );
+        })()}
+
+        {/* ─ "Ver los X comentarios" link ─ */}
+        {reelCommentsCount > 0 && (
+          <button
+            className="block w-full px-3 bg-transparent border-none p-0 pb-1 text-left text-[13px] text-stone-500 cursor-pointer font-[inherit]"
+            onClick={openComments}
+          >
+            Ver {reelCommentsCount === 1 ? 'el comentario' : `los ${reelCommentsCount} comentarios`}
+          </button>
+        )}
+
+        {/* ─ Caption (P-04) ─ */}
+        {captionText && (
+          <div className="px-3 pb-3 text-sm leading-[1.45] text-stone-950 break-words">
+            <motion.div layout transition={{ duration: 0.2, ease: 'easeOut' }}>
+              <div className={shouldClampCaption ? 'line-clamp-3' : ''}>
+                <span className="mr-1 font-semibold">{userName}</span>
+                {captionText}
+              </div>
+              {shouldClampCaption && (
+                <button
+                  className="min-h-[44px] bg-transparent border-none p-0 py-1 text-sm text-stone-500 cursor-pointer font-[inherit]"
+                  onClick={() => setCaptionExpanded(true)}
+                >
+                  ... Ver más
+                </button>
+              )}
+            </motion.div>
+          </div>
+        )}
+
+        {/* ─ Product pills (P-05) ─ */}
+        {normalizedProducts.length > 0 && (
+          <div className="bg-stone-50 rounded-xl p-2 mx-3 mb-3">
+            <div className="scrollbar-hide flex gap-2 overflow-x-auto">
+              {normalizedProducts.slice(0, 3).map((p, idx) => {
+                const img = p.image || p.thumbnail || p.images?.[0];
+                const pid = p.product_id || p.id;
+                const pName = p.name || p.title;
+                const isLast = idx === Math.min(normalizedProducts.length, 3) - 1;
+                return (
+                  <div
+                    key={pid || idx}
+                    role="button"
+                    tabIndex={0}
+                    className="flex shrink-0 items-center gap-1.5 rounded-full bg-white py-1 pl-1 pr-2.5 border border-stone-200 cursor-pointer shadow-sm"
+                    onClick={() => { if (pid) navigate(`/products/${pid}`); }}
+                    onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && pid) navigate(`/products/${pid}`); }}
+                    aria-label={`Ver producto ${pName}`}
+                  >
+                    {img && <img src={img} alt={pName} loading="lazy" className="h-7 w-7 rounded-xl object-cover" />}
+                    <span className="max-w-[80px] truncate text-[11px] font-medium text-stone-950">{pName}</span>
+                    {p.price > 0 && <span className="whitespace-nowrap text-[11px] font-semibold text-stone-950">{formatPrice(p.price)}</span>}
+                    {isLast && normalizedProducts.length > 1 && <span className="text-[10px] font-semibold text-stone-500 whitespace-nowrap">Comprar</span>}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
+                      className="flex items-center justify-center w-8 h-8 min-w-[44px] min-h-[44px] rounded-full bg-stone-950 border-none cursor-pointer shrink-0 ml-0.5"
+                      aria-label={`Añadir ${pName} al carrito`}
+                    >
+                      <ShoppingBag size={12} className="text-white" />
+                    </button>
+                  </div>
+                );
+              })}
+              {normalizedProducts.length > 3 && (
+                <span className="flex shrink-0 items-center text-[11px] font-medium text-stone-500">+{normalizedProducts.length - 3} más</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ─ Inline caption edit overlay ─ */}
+        <AnimatePresence>
+          {showEditCaption && isOwner && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-3 pb-3">
+              <div className="bg-stone-50 rounded-xl p-3 flex flex-col gap-2">
+                <span className="text-xs font-semibold text-stone-500">Editar descripción</span>
+                <textarea
+                  value={editCaption}
+                  onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
+                  className="w-full bg-white text-stone-950 border border-stone-200 rounded-xl px-3 py-2.5 text-sm resize-none outline-none focus:border-stone-400 min-h-[60px] box-border"
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <button onClick={() => setShowEditCaption(false)} className="flex-1 bg-transparent text-stone-500 border border-stone-200 rounded-full py-2 text-[13px] cursor-pointer">Cancelar</button>
+                  <button onClick={handleEditSave} disabled={savingCaption} className="flex-1 bg-stone-950 text-white border-none rounded-full py-2 text-[13px] font-semibold cursor-pointer disabled:opacity-50">
+                    {savingCaption ? 'Guardando...' : 'Guardar'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ─ Delete confirmation ─ */}
+        <BottomSheet isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} maxHeight="50vh">
+          <div className="p-5 flex flex-col gap-3 text-center">
+            <p className="text-base font-semibold text-stone-950">¿Eliminar este reel?</p>
+            <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes.</p>
+            <div className="flex gap-3 mt-2">
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer">Cancelar</button>
+              <button onClick={handleDeleteReel} className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer">Eliminar</button>
+            </div>
+          </div>
+        </BottomSheet>
+
+        {/* ─ Comments bottom sheet ─ */}
+        <BottomSheet isOpen={showComments} onClose={closeComments} maxHeight="60vh">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100 shrink-0">
+              <span className="text-sm font-semibold text-stone-950">Comentarios</span>
+              <button onClick={closeComments} className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Cerrar">
+                <XIcon size={18} className="text-stone-400" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 py-2 min-h-[100px]">
+              {commentsLoading ? (
+                <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" /></div>
+              ) : comments.length === 0 ? (
+                <p className="text-center text-stone-400 text-sm py-8">Sé el primero en comentar</p>
+              ) : (
+                comments.slice(0, commentsPage * COMMENTS_PER_PAGE).map((c, i) => {
+                  const cId = c.comment_id || c.id || c._id;
+                  const cName = c.user?.name || c.user_name || c.username || 'Usuario';
+                  const isOwn = currentUser?.user_id === c.user_id;
+                  return (
+                    <div key={cId || i} className="flex gap-2.5 py-2.5 group">
+                      <div className="w-8 h-8 rounded-full bg-stone-100 shrink-0 flex items-center justify-center text-stone-500 text-[10px] font-semibold overflow-hidden">
+                        {(c.user?.avatar_url || c.user_profile_image || c.avatar_url) ? (
+                          <img src={c.user?.avatar_url || c.user_profile_image || c.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : cName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] text-stone-950 leading-[1.4]">
+                          <span className="font-semibold mr-1.5">{cName}</span>
+                          {c.text || c.content}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-[10px] text-stone-400">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
+                          <button onClick={() => handleReplyComment(cId, cName)} className="bg-transparent border-none cursor-pointer px-2 py-1 text-[10px] text-stone-400 font-semibold hover:text-stone-600 min-h-[44px] flex items-center">Responder</button>
+                          {isOwn && (
+                            <button onClick={() => handleDeleteComment(cId)} className="bg-transparent border-none cursor-pointer p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
+                              <Trash2 size={12} className="text-stone-300 hover:text-stone-500" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center justify-start pt-1 shrink-0">
+                        <button onClick={() => handleLikeComment(cId)} className="bg-transparent border-none cursor-pointer p-0 flex flex-col items-center gap-0.5" aria-label={likedComments.has(cId) ? 'Quitar me gusta del comentario' : 'Me gusta en comentario'}>
+                          <Heart size={14} fill={likedComments.has(cId) ? 'currentColor' : 'none'} className={likedComments.has(cId) ? 'text-stone-950' : 'text-stone-300'} strokeWidth={1.8} />
+                          {(c.likes_count || 0) > 0 && <span className="text-[10px] text-stone-400 leading-none">{c.likes_count}</span>}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              {!commentsLoading && comments.length > commentsPage * COMMENTS_PER_PAGE && (
+                <button onClick={() => setCommentsPage((p) => p + 1)} className="w-full py-2.5 text-center text-xs font-semibold text-stone-400 hover:text-stone-600 bg-transparent border-none cursor-pointer">
+                  Ver más comentarios ({comments.length - commentsPage * COMMENTS_PER_PAGE} restantes)
+                </button>
+              )}
+            </div>
+            {/* Emoji quick-react */}
+            <div className="flex items-center justify-between px-6 py-2.5 border-t border-stone-100 shrink-0">
+              {['❤️', '🙌', '🔥', '👏', '😢', '😍', '😮', '😂'].map((emoji) => (
+                <button key={emoji} onClick={() => setNewComment((prev) => prev + emoji)} className="text-[24px] leading-none bg-transparent border-none cursor-pointer p-1 active:scale-125 transition-transform min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={`Añadir ${emoji}`}>
+                  {emoji}
+                </button>
+              ))}
+            </div>
+            {/* Reply context */}
+            {replyTo && (
+              <div className="mx-4 mt-2 mb-1 shrink-0">
+                <div className="flex items-center justify-between bg-stone-50 rounded-xl px-3 py-2">
+                  <span className="text-xs text-stone-500">Respondiendo a <span className="font-semibold text-stone-700">@{replyTo.username}</span></span>
+                  <button onClick={() => { setReplyTo(null); setNewComment(''); }} className="w-6 h-6 rounded-full bg-transparent hover:bg-stone-100 border-none cursor-pointer flex items-center justify-center" aria-label="Cancelar respuesta">
+                    <XIcon size={12} className="text-stone-400" />
+                  </button>
+                </div>
+              </div>
+            )}
+            {/* Input */}
+            <div className="flex items-center gap-2 px-4 py-3 border-t border-stone-100 shrink-0">
+              {currentUser?.avatar_url && <img src={currentUser.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />}
+              <div className="relative flex-1">
+                {reelAutocomplete.isOpen && reelAutocomplete.trigger?.trigger === '@' && (
+                  <MentionDropdown suggestions={reelAutocomplete.suggestions} activeIndex={reelAutocomplete.activeIndex} onSelect={(u) => reelAutocomplete.selectSuggestion(u)} />
+                )}
+                <input
+                  ref={commentInputRef}
+                  value={newComment}
+                  onChange={(e) => reelAutocomplete.handleChange(e)}
+                  onSelect={(e) => reelAutocomplete.handleSelect(e)}
+                  onKeyDown={(e) => {
+                    if (reelAutocomplete.isOpen) { reelAutocomplete.handleKeyDown(e); if (e.defaultPrevented) return; }
+                    if (e.key === 'Enter') submitComment();
+                  }}
+                  placeholder="Añade un comentario..."
+                  className="w-full bg-stone-50 text-stone-950 border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-stone-400"
+                  aria-label="Escribir comentario"
+                />
+              </div>
+              <button
+                onClick={submitComment}
+                disabled={!newComment.trim() || sendingComment}
+                className={`w-11 h-11 rounded-full flex items-center justify-center border-none cursor-pointer transition-colors ${newComment.trim() ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-400'}`}
+                aria-label="Enviar comentario"
+              >
+                <Send size={16} />
+              </button>
+            </div>
+          </div>
+        </BottomSheet>
+      </article>
+    );
+  }
+
+  // ─── FULLSCREEN MODE (ReelsPage / non-embedded) ──────────────────────────
   return (
     <div
       ref={(node) => { containerRef.current = node; dwellRef.current = node; }}
-      className={`relative w-full bg-black overflow-hidden snap-start ${
-        embedded ? 'h-[340px] sm:h-[400px] md:h-[440px] rounded-2xl' : 'h-dvh'
-      }`}
+      className="relative w-full bg-black overflow-hidden snap-start h-dvh"
     >
       {/* Video */}
       {videoUrl ? (
@@ -777,9 +1344,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
 
       {/* Actions column */}
       <div
-        className={`absolute right-3 flex flex-col gap-5 items-center z-[2] ${
-          embedded ? 'bottom-20' : 'bottom-[100px]'
-        }`}
+        className="absolute right-3 flex flex-col gap-5 items-center z-[2] bottom-[100px]"
       >
         {/* Avatar + follow */}
         <div className="relative flex flex-col items-center">
@@ -867,6 +1432,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                 className="text-white"
               />
             )}
+            {!reel.hide_likes && (
             <motion.span
             key={likesCount}
             initial={{ scale: 1.15 }}
@@ -876,6 +1442,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           >
             {abbreviateCount(likesCount)}
           </motion.span>
+            )}
           </button>
         </div>
 
@@ -946,9 +1513,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
         className={`absolute left-4 right-20 z-[2] ${
-          embedded
-            ? product ? 'bottom-[76px]' : 'bottom-[50px]'
-            : product ? 'bottom-[76px]' : 'bottom-20'
+          product ? 'bottom-[76px]' : 'bottom-20'
         }`}
       >
         <button
@@ -974,14 +1539,6 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             <span>{abbreviateCount(reel.views || reel.view_count || reel.views_count || 0)}</span>
           </div>
         ) : null}
-        {embedded && reelCommentsCount > 0 && (
-          <button
-            onClick={(e) => { e.stopPropagation(); openComments(); }}
-            className="text-xs text-white/50 font-sans bg-transparent border-none p-0 cursor-pointer hover:text-white/70 transition-colors mt-1 text-left"
-          >
-            Ver {abbreviateCount(reelCommentsCount)} comentarios
-          </button>
-        )}
       </motion.div>
 
       {/* "Comprar" pill — shown when there are tagged products */}

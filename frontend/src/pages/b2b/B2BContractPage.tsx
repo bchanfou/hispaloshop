@@ -60,7 +60,7 @@ export default function B2BContractPage() {
       return data;
     } catch (err) {
       captureException(err);
-      setError(err.response?.data?.message || 'No se pudo cargar la operación');
+      setError(err.response?.data?.detail || err.response?.data?.message || 'No se pudo cargar la operación');
       return null;
     } finally {
       setLoading(false);
@@ -115,6 +115,7 @@ export default function B2BContractPage() {
   const isBuyer = operation?.buyer_id === userId;
   const myRole = isSeller ? 'seller' : isBuyer ? 'buyer' : null;
 
+  const lastOffer = operation?.offers?.length ? operation.offers[operation.offers.length - 1] : {};
   const sellerSigned = !!(operation?.contract?.seller_signature_at || operation?.contract?.seller_signed_at);
   const buyerSigned = !!(operation?.contract?.buyer_signature_at || operation?.contract?.buyer_signed_at);
   const bothSigned = sellerSigned && buyerSigned;
@@ -132,7 +133,7 @@ export default function B2BContractPage() {
       await fetchOperation();
     } catch (err) {
       captureException(err);
-      toast.error(err.response?.data?.message || 'Error al firmar');
+      toast.error(err.response?.data?.detail || err.response?.data?.message || 'Error al firmar');
     } finally {
       setSigning(false);
     }
@@ -232,7 +233,7 @@ export default function B2BContractPage() {
               <Check size={13} className="text-white" strokeWidth={3} />
             </div>
             <span className="text-white text-sm font-semibold">
-              Oferta v{operation.version ?? 1} aceptada
+              Oferta v{lastOffer.version ?? 1} aceptada
             </span>
           </div>
           <p className="text-white/70 text-xs mb-2.5">
@@ -335,72 +336,70 @@ export default function B2BContractPage() {
             </p>
 
             <div className="flex flex-col gap-2.5">
-              {/* Products */}
-              {(operation.products || operation.items) && (
+              {/* Product */}
+              {lastOffer.product_name && (
                 <div className="flex items-start gap-2.5">
                   <Package size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-[11px] text-stone-500 block">Productos</span>
+                    <span className="text-[11px] text-stone-500 block">Producto</span>
                     <span className="text-[13px] text-stone-950">
-                      {(operation.products || operation.items || []).map((p) =>
-                        `${p.name || p.product_name}${p.quantity ? ` (x${p.quantity})` : ''}`
-                      ).join(', ') || 'Ver contrato'}
+                      {lastOffer.product_name}{lastOffer.quantity ? ` (x${lastOffer.quantity} ${lastOffer.unit || ''})` : ''}
                     </span>
                   </div>
                 </div>
               )}
 
               {/* Pricing */}
-              {(operation.total_amount || operation.price) && (
+              {lastOffer.total_price > 0 && (
                 <div className="flex items-start gap-2.5">
                   <CreditCard size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="text-[11px] text-stone-500 block">Precio total</span>
                     <span className="text-[13px] text-stone-950 font-medium">
-                      {new Intl.NumberFormat('es-ES', { style: 'currency', currency: operation.currency || 'EUR' }).format(operation.total_amount || operation.price)}
+                      {new Intl.NumberFormat('es-ES', { style: 'currency', currency: lastOffer.currency || 'EUR' }).format(lastOffer.total_price)}
                     </span>
                   </div>
                 </div>
               )}
 
               {/* Delivery terms */}
-              {(operation.delivery_terms || operation.delivery_days) && (
+              {lastOffer.delivery_days > 0 && (
                 <div className="flex items-start gap-2.5">
                   <Truck size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="text-[11px] text-stone-500 block">Entrega</span>
                     <span className="text-[13px] text-stone-950">
-                      {operation.delivery_terms || `${operation.delivery_days} dias`}
+                      {lastOffer.delivery_days} días
                     </span>
                   </div>
                 </div>
               )}
 
               {/* Payment terms */}
-              {operation.payment_terms && (
+              {lastOffer.payment_terms && (
                 <div className="flex items-start gap-2.5">
                   <FileCheck size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="text-[11px] text-stone-500 block">Condiciones de pago</span>
                     <span className="text-[13px] text-stone-950">
-                      {operation.payment_terms === 'full_prepay' ? 'Pago completo por adelantado'
-                        : operation.payment_terms === 'letter_of_credit' ? 'Carta de credito (pago dividido)'
-                        : operation.payment_terms === 'net_30' ? 'Pago a 30 dias'
-                        : operation.payment_terms === 'net_60' ? 'Pago a 60 dias'
-                        : operation.payment_terms}
+                      {(lastOffer.payment_terms === 'prepaid' || lastOffer.payment_terms === 'full_prepay') ? 'Pago completo por adelantado'
+                        : lastOffer.payment_terms === 'letter_of_credit' ? 'Carta de crédito (pago dividido)'
+                        : lastOffer.payment_terms === 'net_30' ? 'Pago a 30 días'
+                        : lastOffer.payment_terms === 'net_60' ? 'Pago a 60 días'
+                        : lastOffer.payment_terms}
                     </span>
                   </div>
                 </div>
               )}
 
               {/* Incoterm */}
-              {operation.incoterm && (
+              {lastOffer.incoterm && (
                 <div className="flex items-start gap-2.5">
                   <FileText size={15} className="text-stone-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="text-[11px] text-stone-500 block">Incoterm</span>
                     <span className="text-[13px] text-stone-950 font-medium">
-                      {operation.incoterm}{operation.incoterm_city ? ` — ${operation.incoterm_city}` : ''}
+                      {lastOffer.incoterm}{lastOffer.incoterm_city ? ` — ${lastOffer.incoterm_city}` : ''}
                     </span>
                   </div>
                 </div>
@@ -581,7 +580,7 @@ export default function B2BContractPage() {
               </button>
 
               <button
-                onClick={() => navigate(`/b2b/operations/${operationId}`)}
+                onClick={() => navigate(`/b2b/tracking/${operationId}`)}
                 className="mt-2 w-full h-11 bg-white text-stone-950 border border-stone-200 rounded-full text-sm font-semibold cursor-pointer"
               >
                 Ir al seguimiento →

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Heart, MessageCircle, Bookmark, Send, Loader2, Trash2, MoreHorizontal, X, Pencil, Flag, UserMinus } from 'lucide-react';
+import { ChevronLeft, Heart, MessageCircle, Bookmark, Send, Loader2, Trash2, MoreHorizontal, X, Pencil, Flag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import { toast } from 'sonner';
@@ -437,7 +437,7 @@ export default function PostDetailPage() {
         </div>
 
         {/* Likes */}
-        {likesCount > 0 && (
+        {likesCount > 0 && !post?.hide_likes && (
           <p className="px-4 pb-1 text-[13px] font-semibold text-stone-950">
             {likesCount.toLocaleString()} Me gusta
           </p>
@@ -602,7 +602,7 @@ export default function PostDetailPage() {
       </div>
 
       {/* ── Sticky comment input ── */}
-      {isAuthenticated && (
+      {isAuthenticated && !post?.disable_comments && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-100" style={{ paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}>
           {replyTo && (
             <div className="flex items-center justify-between px-4 py-1.5 bg-stone-50 text-[12px] text-stone-500">

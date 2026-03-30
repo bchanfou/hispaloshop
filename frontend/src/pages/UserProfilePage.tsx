@@ -181,7 +181,7 @@ export default function UserProfilePage() {
   const handleDeletePost = useCallback((postId) => {
     setAllPosts(prev => prev.filter(p => (p.id || p.post_id) !== postId));
     setSelectedPost(null);
-    queryClient.invalidateQueries({ queryKey: userKeys.posts(profileLookupKey) });
+    tabsRef.current?.removePost(postId);
     queryClient.invalidateQueries({ queryKey: userKeys.profile(profileLookupKey) });
   }, [profileLookupKey, queryClient]);
 
@@ -338,6 +338,33 @@ export default function UserProfilePage() {
         onViewHighlight={handleViewHighlight}
         onCreateStory={() => navigate('/create/story')}
       />
+
+      {/* ── P-11: Mutual followers ── */}
+      {!isOwn && user.mutual_followers && user.mutual_followers.length > 0 && (
+        <div className="px-4 pb-2 flex items-center gap-2">
+          <div className="flex -space-x-2">
+            {user.mutual_followers.slice(0, 3).map((mf, i) => {
+              const img = mf.profile_image || mf.avatar_url || mf.avatar;
+              return img ? (
+                <img key={mf.user_id || mf.id || i} src={img} alt="" className="w-5 h-5 rounded-full border border-white object-cover" />
+              ) : (
+                <div key={mf.user_id || mf.id || i} className="w-5 h-5 rounded-full border border-white bg-stone-200 flex items-center justify-center text-[8px] font-bold text-stone-500">
+                  {(mf.name || mf.username || '?')[0].toUpperCase()}
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[12px] text-stone-500 flex-1 min-w-0 truncate">
+            Seguido por{' '}
+            <span className="font-semibold text-stone-700">
+              {user.mutual_followers.slice(0, 2).map(mf => mf.username || mf.name).join(', ')}
+            </span>
+            {user.mutual_followers.length > 2 && (
+              <span> y {user.mutual_followers.length - 2} más que sigues</span>
+            )}
+          </p>
+        </div>
+      )}
 
       {/* ── Store link for producers/importers ── */}
       {(user.role === 'producer' || user.role === 'importer') && (user.store_slug || user.store_id) && (

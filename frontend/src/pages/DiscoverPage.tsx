@@ -1,23 +1,48 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, ShoppingBag, AlertTriangle, ArrowRight, Bookmark, Store, ChefHat } from 'lucide-react';
+import { Search, MapPin, Package, Leaf, Cookie, CupSoda, Baby, PawPrint, Crown, ShoppingBag, AlertTriangle, ArrowRight, Bookmark, Store, ChefHat, Sun, Flame, X } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/SEO';
 import { CATEGORY_GROUPS } from '../constants/categories';
-/* ── constants ── */
 
+/* ── constants ── */
 const ELITE_FADE_MS = 400;
 
 /* ── icon map for category groups ── */
 const CATEGORY_ICON_MAP = { Leaf, Package, Cookie, CupSoda, Baby, PawPrint, Crown };
 const getCategoryIcon = (iconName) => CATEGORY_ICON_MAP[iconName] || Package;
 
-/* ── loading skeleton grid — defined outside DiscoverPage to keep stable identity ── */
+/* ── Seasonal map: month (1–12) → season metadata ── */
+const SEASONAL_MAP = {
+  1:  { label: 'Invierno',        emoji: '❄️', tag: 'naranja' },
+  2:  { label: 'Carnaval',        emoji: '🎭', tag: 'chocolate' },
+  3:  { label: 'Primavera',       emoji: '🌸', tag: 'fresa' },
+  4:  { label: 'Semana Santa',    emoji: '🌿', tag: 'bacalao' },
+  5:  { label: 'Mayo',            emoji: '🌷', tag: 'cereza' },
+  6:  { label: 'Verano',          emoji: '☀️', tag: 'gazpacho' },
+  7:  { label: 'Pleno verano',    emoji: '🌞', tag: 'melocotón' },
+  8:  { label: 'Final de verano', emoji: '🍅', tag: 'tomate' },
+  9:  { label: 'Otoño',           emoji: '🍂', tag: 'seta' },
+  10: { label: 'Octubre',         emoji: '🎃', tag: 'calabaza' },
+  11: { label: 'Noviembre',       emoji: '🌰', tag: 'castaña' },
+  12: { label: 'Navidad',         emoji: '🎄', tag: 'turrón' },
+};
+
+/* ── Dietary filter pills (P-05) ── */
+const DIETARY_FILTERS = [
+  { key: 'organic',     label: 'Ecológico'  },
+  { key: 'km0',         label: 'KM0'        },
+  { key: 'gluten_free', label: 'Sin gluten' },
+  { key: 'vegan',       label: 'Vegano'     },
+  { key: 'artisan',     label: 'Artesanal'  },
+];
+
+/* ── loading skeleton grid ── */
 function SkeletonGrid() {
   return (
     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
@@ -28,7 +53,91 @@ function SkeletonGrid() {
   );
 }
 
-/* ── Elite carousel — defined outside DiscoverPage to keep stable identity ── */
+/* ── P-01: Selección del día hero card ── */
+function SelectionDelDia({ product, navigate }) {
+  if (!product) return null;
+  const id = product.product_id || product.id;
+  const img = product.images?.[0] || product.image_url;
+  return (
+    <div className="px-4 pb-4">
+      <button
+        type="button"
+        onClick={() => id && navigate(`/products/${id}`)}
+        className="relative w-full overflow-hidden rounded-2xl bg-stone-950 cursor-pointer text-left flex h-[112px]"
+      >
+        <div className="flex flex-col justify-center px-5 py-4 flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Sun size={11} className="text-stone-400" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Selección del día</span>
+          </div>
+          <p className="text-[15px] font-bold text-white leading-snug line-clamp-2">{product.name}</p>
+          {product.price != null && (
+            <p className="mt-1.5 text-[13px] font-semibold text-stone-300">
+              {typeof product.display_price === 'string' ? product.display_price : `${Number(product.price).toFixed(2)} €`}
+            </p>
+          )}
+        </div>
+        {img && (
+          <div className="w-[112px] h-[112px] shrink-0 overflow-hidden">
+            <img src={img} alt={product.name || ''} className="w-full h-full object-cover" loading="lazy" />
+          </div>
+        )}
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent to-black/10" />
+      </button>
+    </div>
+  );
+}
+
+/* ── P-07: Limited stock horizontal strip ── */
+function LimitedStockStrip({ products, navigate }) {
+  if (!products || products.length === 0) return null;
+  return (
+    <div className="px-4 pb-4">
+      <div className="mb-2 flex items-center gap-1.5">
+        <Flame size={14} className="text-stone-950" />
+        <p className="text-[13px] font-bold text-stone-950">Últimas unidades</p>
+      </div>
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+        {products.map(p => {
+          const id = p.product_id || p.id;
+          const img = p.images?.[0] || p.image_url;
+          if (!id) return null;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => navigate(`/products/${id}`)}
+              className="w-[100px] shrink-0 text-left"
+            >
+              <div className="relative aspect-square overflow-hidden rounded-xl bg-stone-100">
+                {img ? (
+                  <img src={img} alt={p.name || ''} loading="lazy" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <ShoppingBag size={18} className="text-stone-300" />
+                  </div>
+                )}
+                {p.stock != null && p.stock <= 5 && (
+                  <span className="absolute bottom-1 left-1 right-1 text-center text-[9px] font-bold bg-stone-950 text-white rounded-full py-0.5 leading-none px-1">
+                    {p.stock} {p.stock === 1 ? 'unidad' : 'unidades'}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 truncate text-[12px] font-semibold text-stone-950 leading-tight">{p.name}</p>
+              {p.price != null && (
+                <p className="text-[12px] font-bold text-stone-950">
+                  {typeof p.display_price === 'string' ? p.display_price : `${Number(p.price).toFixed(2)} €`}
+                </p>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── Elite carousel ── */
 function EliteCarousel({ eliteStores, eliteIdx, eliteFading, goToElite, navigate }) {
   if (eliteStores.length === 0) return null;
   const store = eliteStores[eliteIdx];
@@ -104,10 +213,9 @@ function EliteCarousel({ eliteStores, eliteIdx, eliteFading, goToElite, navigate
   );
 }
 
-/* ── Explore grid item: square thumbnail, some span 2 rows ── */
+/* ── Explore grid item ── */
 function ExploreGridItem({ item, index, onClick }) {
   const img = item.images?.[0] || item.image_url || item.cover_image || null;
-  // Every 5th item (index 0, 5, 10...) spans 2 rows for visual variety
   const isLarge = index % 5 === 0;
 
   return (
@@ -149,6 +257,16 @@ export default function DiscoverPage() {
 
   /* ── ui states ── */
   const [activeCategory, setActiveCategory] = useState(null);
+  const [activeDietary, setActiveDietary] = useState(null);       // P-05
+  const [showProductsOnly, setShowProductsOnly] = useState(false); // P-14
+
+  /* ── search states (P-04) ── */
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchTimerRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const searchContainerRef = useRef(null);
 
   /* ── data states ── */
   const [loadingTrending, setLoadingTrending] = useState(true);
@@ -159,31 +277,36 @@ export default function DiscoverPage() {
   const [recommendedStores, setRecommendedStores] = useState([]);
   const [recommendedRecipes, setRecommendedRecipes] = useState([]);
   const [recommendedCommunities, setRecommendedCommunities] = useState([]);
+  const [limitedStockProducts, setLimitedStockProducts] = useState([]); // P-07
+  const [seasonalProducts, setSeasonalProducts] = useState([]);          // P-03
 
+  /* ── seasonal metadata ── */
+  const currentMonth = new Date().getMonth() + 1;
+  const seasonal = SEASONAL_MAP[currentMonth];
+
+  /* ── products from hook (category + dietary filter) ── */
   const { products, isLoading: loadingProducts } = useProducts({
     limit: '24',
     ...(activeCategory ? { category: activeCategory } : {}),
+    ...(activeDietary  ? { certifications: activeDietary } : {}),
   });
+
   /* ── elite carousel state ── */
   const [eliteIdx, setEliteIdx] = useState(0);
   const [eliteFading, setEliteFading] = useState(false);
   const eliteFadeTimer = useRef(null);
 
-  /* ── fetch data ── */
+  /* ── fetch all data ── */
   const fetchAllData = useCallback(() => {
     setLoadingTrending(true);
     setFetchError(false);
 
-    // Use explore endpoint as connectivity check; feeds error state if API is down
     apiClient.get('/discovery/explore')
       .catch(() => { setFetchError(true); })
       .finally(() => { setLoadingTrending(false); });
 
     apiClient.get('/stores', { params: { plan: 'elite', country: userCountry, limit: 10 } })
-      .then(data => {
-        const list = Array.isArray(data) ? data : data?.stores || [];
-        setEliteStores(list);
-      })
+      .then(data => { setEliteStores(Array.isArray(data) ? data : data?.stores || []); })
       .catch(() => {});
 
     apiClient.get('/discovery/recommended', { params: { limit: 6 } })
@@ -192,45 +315,38 @@ export default function DiscoverPage() {
         setRecommendedProducts(list.slice(0, 6));
       })
       .catch(() => {
-        // Fallback to products?recommended=true
         apiClient.get('/products', { params: { recommended: true, limit: 6 } })
-          .then(data => {
-            const list = Array.isArray(data) ? data : data?.products || [];
-            setRecommendedProducts(list.slice(0, 6));
-          })
+          .then(data => { setRecommendedProducts((Array.isArray(data) ? data : data?.products || []).slice(0, 6)); })
           .catch(() => {});
       });
 
     apiClient.get('/recipes', { params: { sort: 'popular', limit: 6 } })
-      .then(data => {
-        const list = Array.isArray(data) ? data : data?.recipes || [];
-        setRecipes(list.slice(0, 6));
-      })
+      .then(data => { setRecipes((Array.isArray(data) ? data : data?.recipes || []).slice(0, 6)); })
       .catch(() => {});
 
-    // Recommended stores
     apiClient.get('/stores', { params: { sort: 'popular', limit: 6 } })
-      .then(data => {
-        const list = Array.isArray(data) ? data : data?.stores || [];
-        setRecommendedStores(list.slice(0, 6));
-      })
+      .then(data => { setRecommendedStores((Array.isArray(data) ? data : data?.stores || []).slice(0, 6)); })
       .catch(() => {});
 
-    // Recommended recipes
     apiClient.get('/recipes', { params: { sort: 'newest', limit: 6 } })
-      .then(data => {
-        const list = Array.isArray(data) ? data : data?.recipes || [];
-        setRecommendedRecipes(list.slice(0, 6));
-      })
+      .then(data => { setRecommendedRecipes((Array.isArray(data) ? data : data?.recipes || []).slice(0, 6)); })
       .catch(() => {});
 
-    // Recommended communities
     apiClient.get('/communities', { params: { sort: 'popular', limit: 6 } })
-      .then(data => {
-        const list = Array.isArray(data) ? data : data?.communities || [];
-        setRecommendedCommunities(list.slice(0, 6));
-      })
+      .then(data => { setRecommendedCommunities((Array.isArray(data) ? data : data?.communities || []).slice(0, 6)); })
       .catch(() => {});
+
+    /* P-07 — limited stock */
+    apiClient.get('/products', { params: { low_stock: true, limit: 8 } })
+      .then(data => { setLimitedStockProducts((Array.isArray(data) ? data : data?.products || []).slice(0, 8)); })
+      .catch(() => {});
+
+    /* P-03 — seasonal */
+    if (seasonal?.tag) {
+      apiClient.get('/products', { params: { search: seasonal.tag, limit: 8 } })
+        .then(data => { setSeasonalProducts((Array.isArray(data) ? data : data?.products || []).slice(0, 8)); })
+        .catch(() => {});
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userCountry]);
 
@@ -239,14 +355,44 @@ export default function DiscoverPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userCountry, user?.user_id]);
 
+  /* ── P-04: debounced inline search ── */
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults([]); return; }
+    clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await apiClient.get('/discovery/search', { params: { q: searchQuery, limit: 5 } });
+        const items = res?.results || res?.products || res?.items || (Array.isArray(res) ? res : []);
+        setSearchResults(items.slice(0, 5));
+      } catch {
+        // Fallback to /products?search=
+        try {
+          const res2 = await apiClient.get('/products', { params: { search: searchQuery, limit: 5 } });
+          const items = Array.isArray(res2) ? res2 : res2?.products || res2?.items || [];
+          setSearchResults(items.slice(0, 5));
+        } catch { setSearchResults([]); }
+      }
+    }, 300);
+    return () => clearTimeout(searchTimerRef.current);
+  }, [searchQuery]);
+
+  /* click outside search container → close dropdown */
+  useEffect(() => {
+    const handlePointerDown = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setSearchFocused(false);
+      }
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, []);
+
   /* ── elite index guard ── */
   useEffect(() => {
-    if (eliteStores.length > 0 && eliteIdx >= eliteStores.length) {
-      setEliteIdx(0);
-    }
+    if (eliteStores.length > 0 && eliteIdx >= eliteStores.length) setEliteIdx(0);
   }, [eliteStores.length, eliteIdx]);
 
-  /* ── elite manual advance (dots) ── */
+  /* ── elite manual advance ── */
   const goToElite = useCallback((idx) => {
     if (idx === eliteIdx) return;
     setEliteFading(true);
@@ -256,12 +402,9 @@ export default function DiscoverPage() {
     }, ELITE_FADE_MS);
   }, [eliteIdx]);
 
-  /* cleanup fade timer on unmount */
-  useEffect(() => {
-    return () => { clearTimeout(eliteFadeTimer.current); };
-  }, []);
+  useEffect(() => { return () => { clearTimeout(eliteFadeTimer.current); }; }, []);
 
-  /* ── elite auto-rotation (max 3s) ── */
+  /* ── elite auto-rotation ── */
   useEffect(() => {
     if (eliteStores.length <= 1) return;
     const interval = setInterval(() => {
@@ -274,17 +417,21 @@ export default function DiscoverPage() {
     return () => { clearInterval(interval); clearTimeout(eliteFadeTimer.current); };
   }, [eliteStores.length]);
 
-  /* ── build explore grid items (products + recipes mixed) ── */
+  /* ── P-01: selección del día (deterministic, rotates daily) ── */
+  const selectionDelDia = useMemo(() => {
+    if (!recommendedProducts.length) return null;
+    const start = new Date(new Date().getFullYear(), 0, 0).getTime();
+    const dayOfYear = Math.floor((Date.now() - start) / 86_400_000);
+    return recommendedProducts[dayOfYear % recommendedProducts.length];
+  }, [recommendedProducts]);
+
+  /* ── build explore grid items ── */
   const exploreItems = useMemo(() => {
     const items = [];
     const allProducts = products || [];
     const allRecipes = recipes || [];
-
-    // Interleave products and recipes for variety
-    let pIdx = 0;
-    let rIdx = 0;
+    let pIdx = 0, rIdx = 0;
     while (pIdx < allProducts.length || rIdx < allRecipes.length) {
-      // Add 4 products then 1 recipe
       for (let i = 0; i < 4 && pIdx < allProducts.length; i++) {
         items.push({ ...allProducts[pIdx], _type: 'product' });
         pIdx++;
@@ -297,6 +444,12 @@ export default function DiscoverPage() {
     return items;
   }, [products, recipes]);
 
+  /* ── P-14: filtered explore items ── */
+  const filteredExploreItems = useMemo(() => {
+    if (showProductsOnly) return exploreItems.filter(i => i._type !== 'recipe');
+    return exploreItems;
+  }, [exploreItems, showProductsOnly]);
+
   /* ── handle explore item tap ── */
   const handleItemTap = useCallback((item) => {
     if (!item) return;
@@ -308,12 +461,16 @@ export default function DiscoverPage() {
     } else if (productId) {
       navigate(`/products/${productId}`);
     }
-    // else: silently ignore (no navigate to /undefined)
   }, [navigate]);
 
-  /* ── category filter — toggles local explore grid filter ── */
+  /* ── category filter toggle ── */
   const handleCategoryClick = useCallback((slug) => {
     setActiveCategory(prev => prev === slug ? null : slug);
+  }, []);
+
+  /* ── dietary filter toggle (P-05) ── */
+  const handleDietaryClick = useCallback((key) => {
+    setActiveDietary(prev => prev === key ? null : key);
   }, []);
 
   /* ── render ── */
@@ -322,19 +479,84 @@ export default function DiscoverPage() {
       <SEO title="Explorar — Hispaloshop" description="Descubre productos artesanales, tiendas verificadas y recetas de la comunidad." />
       <div className="mx-auto max-w-[1100px]">
 
-      {/* ─── SEARCH BAR (sticky) ─── */}
+      {/* ─── SEARCH BAR (sticky, P-04: inline with autocomplete) ─── */}
       <div className="sticky top-0 z-20 bg-white px-3 py-2 flex items-center gap-2">
-        <button
-          onClick={() => navigate('/search')}
-          aria-label="Buscar productos, tiendas, recetas"
-          role="search"
-          className="relative block flex-1 text-left"
-        >
-          <Search size={16} aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
-          <div className="flex h-9 w-full items-center rounded-full bg-stone-100 pl-10 pr-4 text-[13px] text-stone-400">
-            Buscar
-          </div>
-        </button>
+        <div ref={searchContainerRef} className="relative flex-1">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 z-10 pointer-events-none" />
+          <input
+            ref={searchInputRef}
+            type="search"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            placeholder="Buscar productos, tiendas, recetas..."
+            className="h-9 w-full rounded-full bg-stone-100 pl-10 pr-8 text-[13px] text-stone-950 placeholder:text-stone-400 outline-none border-none"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => { setSearchQuery(''); setSearchResults([]); searchInputRef.current?.focus(); }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 flex items-center justify-center"
+            >
+              <X size={14} />
+            </button>
+          )}
+
+          {/* ── Autocomplete dropdown ── */}
+          <AnimatePresence>
+            {searchFocused && searchQuery.trim().length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+                className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-2xl border border-stone-100 overflow-hidden z-50"
+              >
+                {searchResults.length === 0 ? (
+                  <div className="px-4 py-3.5 text-[13px] text-stone-400">Buscando…</div>
+                ) : (
+                  <>
+                    {searchResults.map(r => {
+                      const id = r.product_id || r.id;
+                      const img = r.images?.[0] || r.image_url;
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          onPointerDown={() => { navigate(`/products/${id}`); setSearchFocused(false); setSearchQuery(''); }}
+                          className="flex items-center gap-3 px-4 py-2.5 w-full text-left hover:bg-stone-50 transition-colors"
+                        >
+                          {img ? (
+                            <img src={img} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                          ) : (
+                            <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
+                              <ShoppingBag size={14} className="text-stone-300" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[13px] font-semibold text-stone-950 truncate">{r.name || r.title}</p>
+                            {r.price != null && <p className="text-[11px] text-stone-500">{Number(r.price).toFixed(2)} €</p>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onPointerDown={() => { navigate(`/search?q=${encodeURIComponent(searchQuery)}`); setSearchFocused(false); }}
+                      className="flex items-center gap-2 px-4 py-3 w-full text-left border-t border-stone-100 hover:bg-stone-50 transition-colors"
+                    >
+                      <Search size={14} className="text-stone-400 shrink-0" />
+                      <span className="text-[13px] font-medium text-stone-700 truncate">
+                        Ver todos los resultados de &ldquo;{searchQuery}&rdquo;
+                      </span>
+                    </button>
+                  </>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <button
           onClick={() => navigate('/saved')}
           aria-label="Guardados"
@@ -344,7 +566,7 @@ export default function DiscoverPage() {
         </button>
       </div>
 
-      {/* ─── FILTER PILLS ─── */}
+      {/* ─── CATEGORY FILTER PILLS ─── */}
       <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-3 py-2 scrollbar-hide lg:flex-wrap lg:overflow-x-visible">
         {CATEGORY_GROUPS.map(grp => {
           const Icon = getCategoryIcon(grp.icon);
@@ -369,6 +591,29 @@ export default function DiscoverPage() {
           );
         })}
       </div>
+
+      {/* ─── P-05: DIETARY FILTER PILLS ─── */}
+      <div className="flex gap-2 overflow-x-auto px-3 pb-2 scrollbar-hide">
+        {DIETARY_FILTERS.map(f => {
+          const isActive = activeDietary === f.key;
+          return (
+            <button
+              key={f.key}
+              onClick={() => handleDietaryClick(f.key)}
+              className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1 text-[12px] font-medium whitespace-nowrap transition-colors ${
+                isActive
+                  ? 'border-stone-950 bg-stone-950 text-white'
+                  : 'border-stone-200 bg-white text-stone-600 hover:border-stone-400'
+              }`}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ─── P-01: SELECCIÓN DEL DÍA ─── */}
+      {selectionDelDia && <SelectionDelDia product={selectionDelDia} navigate={navigate} />}
 
       {/* ─── PARA TI — Personalized row ─── */}
       {recommendedProducts.length > 0 && (
@@ -404,6 +649,47 @@ export default function DiscoverPage() {
           </div>
         </div>
       )}
+
+      {/* ─── P-03: DE TEMPORADA ─── */}
+      {seasonal && seasonalProducts.length > 0 && (
+        <div className="px-4 pb-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[13px] font-bold text-stone-950">
+              De temporada — {seasonal.label} {seasonal.emoji}
+            </p>
+            <Link to={`/products?search=${encodeURIComponent(seasonal.tag)}`} className="text-[13px] font-medium text-stone-500 no-underline transition-colors hover:text-stone-700 hover:underline">
+              Ver todo
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+            {seasonalProducts.map(p => {
+              const img = p.images?.[0] || p.image_url;
+              const id = p.product_id || p.id;
+              if (!id) return null;
+              return (
+                <Link key={id} to={`/products/${id}`} className="w-[140px] shrink-0 no-underline">
+                  <div className="aspect-square overflow-hidden rounded-xl bg-stone-100">
+                    {img ? (
+                      <img src={img} alt={p.name || ''} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <ShoppingBag size={20} className="text-stone-300" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-1.5 truncate text-[13px] font-medium text-stone-950">{p.name}</p>
+                  {p.price != null && (
+                    <p className="text-[13px] font-bold text-stone-950">{typeof p.display_price === 'string' ? p.display_price : `${Number(p.price).toFixed(2)} €`}</p>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ─── P-07: STOCK LIMITADO ─── */}
+      <LimitedStockStrip products={limitedStockProducts} navigate={navigate} />
 
       {/* ─── TIENDAS PARA TI ─── */}
       {recommendedStores.length > 0 && (
@@ -502,6 +788,21 @@ export default function DiscoverPage() {
         </div>
       )}
 
+      {/* ─── P-02: EDITORIAL COLLECTIONS LINK ─── */}
+      <div className="px-4 pb-4">
+        <Link
+          to="/collections"
+          className="flex items-center justify-between rounded-2xl bg-stone-950 px-5 py-4 no-underline group"
+        >
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-0.5">Editorial</p>
+            <p className="text-[15px] font-bold text-white">Colecciones curadas</p>
+            <p className="text-[12px] text-stone-400 mt-0.5">Selecciones de productos con historia</p>
+          </div>
+          <ArrowRight size={18} className="text-stone-400 group-hover:text-white transition-colors shrink-0" />
+        </Link>
+      </div>
+
       {/* ─── ELITE CAROUSEL ─── */}
       <EliteCarousel
         eliteStores={eliteStores}
@@ -511,38 +812,54 @@ export default function DiscoverPage() {
         navigate={navigate}
       />
 
-      {/* ─── EXPLORE GRID (Instagram-style 3-col) ─── */}
-      {fetchError && !loadingProducts && exploreItems.length === 0 ? (
+      {/* ─── EXPLORE GRID ─── */}
+      {fetchError && !loadingProducts && filteredExploreItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <AlertTriangle className="w-10 h-10 text-stone-300" />
           <p className="text-base font-semibold text-stone-950">Error al cargar</p>
           <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
-          <button onClick={fetchAllData} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors">
+          <button onClick={fetchAllData} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors border-none cursor-pointer">
             Reintentar
           </button>
         </div>
       ) : (loadingProducts && loadingTrending) ? (
         <SkeletonGrid />
-      ) : exploreItems.length > 0 ? (
+      ) : filteredExploreItems.length > 0 ? (
         <>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
-          {exploreItems.map((item, idx) => (
-            <ExploreGridItem
-              key={item.product_id || item.recipe_id || item.id || idx}
-              item={item}
-              index={idx}
-              onClick={handleItemTap}
-            />
-          ))}
-        </div>
-        {exploreItems.length >= 20 && (
-          <button
-            onClick={() => navigate('/products')}
-            className="w-full py-3 mt-4 text-sm font-semibold text-stone-950 bg-stone-50 rounded-full hover:bg-stone-100 transition-colors"
-          >
-            Ver más productos
-          </button>
-        )}
+          {/* P-14: products-only toggle */}
+          <div className="flex items-center justify-between px-4 pb-2">
+            <p className="text-[13px] font-bold text-stone-950">Explorar</p>
+            <button
+              onClick={() => setShowProductsOnly(prev => !prev)}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-medium transition-colors ${
+                showProductsOnly
+                  ? 'border-stone-950 bg-stone-950 text-white'
+                  : 'border-stone-200 bg-white text-stone-600 hover:border-stone-400'
+              }`}
+            >
+              <Package size={12} />
+              Solo productos
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+            {filteredExploreItems.map((item, idx) => (
+              <ExploreGridItem
+                key={item.product_id || item.recipe_id || item.id || idx}
+                item={item}
+                index={idx}
+                onClick={handleItemTap}
+              />
+            ))}
+          </div>
+          {filteredExploreItems.length >= 20 && (
+            <button
+              onClick={() => navigate('/products')}
+              className="w-full py-3 mt-4 text-sm font-semibold text-stone-950 bg-stone-50 rounded-full hover:bg-stone-100 transition-colors border-none cursor-pointer"
+            >
+              Ver más productos
+            </button>
+          )}
         </>
       ) : (
         <div className="flex flex-col items-center py-16 text-center">
@@ -552,7 +869,6 @@ export default function DiscoverPage() {
       )}
 
       </div>{/* end max-w container */}
-
     </div>
   );
 }

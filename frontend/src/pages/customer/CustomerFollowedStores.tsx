@@ -16,9 +16,13 @@ function FollowedStoreCard({ store, onUnfollow }) {
   const [unfollowing, setUnfollowing] = useState(false);
 
   const handleUnfollow = async () => {
+    if (!storeSlug) {
+      toast.error(t('common.error'));
+      return;
+    }
     setUnfollowing(true);
     try {
-      await apiClient.post(`/store/${store.store_id}/follow`, {});
+      await apiClient.delete(`/store/${storeSlug}/follow`);
       toast.success(t('followedStores.unfollowed', 'Has dejado de seguir esta tienda'));
       onUnfollow(store.store_id);
     } catch (error) {

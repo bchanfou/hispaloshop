@@ -84,6 +84,7 @@ export default function CreateStoryPage() {
   const [questionDraft, setQuestionDraft] = useState('');
   const [showTrashZone, setShowTrashZone] = useState(false);
   const [overTrash, setOverTrash] = useState(false);
+  const overTrashRef = useRef(false); // sync ref so onTouchEnd reads the latest value (state is async)
   const [drawMode, setDrawMode] = useState(false);
   const [drawColor, setDrawColor] = useState('#ffffff');
   const [drawWidth, setDrawWidth] = useState(4);
@@ -155,6 +156,12 @@ export default function CreateStoryPage() {
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const maxSize = file.type.startsWith('video/') ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error(`El archivo supera el límite de ${maxSize / (1024 * 1024)} MB.`);
+      e.target.value = '';
+      return;
+    }
     if (file.type.startsWith('video/')) {
       // Video story
       setVideoFile(file);
@@ -594,6 +601,7 @@ export default function CreateStoryPage() {
       queryClient.invalidateQueries({ queryKey: ['user-stories'] }); // broad invalidate — clears all user story caches
       if (navigator.vibrate) navigator.vibrate(50);
       try { localStorage.removeItem('story_draft'); } catch { /* ignore */ }
+      setPublishing(false);
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success('Historia publicada');
@@ -780,12 +788,15 @@ export default function CreateStoryPage() {
                 handleOverlayDragDOM(e.currentTarget, e);
                 // Check if over trash zone (bottom 15% of screen)
                 const touch = e.touches?.[0];
-                if (touch) setOverTrash(touch.clientY > window.innerHeight * 0.85);
+                const isOver = touch ? touch.clientY > window.innerHeight * 0.85 : false;
+                overTrashRef.current = isOver;
+                setOverTrash(isOver);
               }}
               onTouchEnd={() => {
                 setShowTrashZone(false);
-                if (overTrash && dragRef.current.active) {
+                if (overTrashRef.current && dragRef.current.active) {
                   setTextOverlays((prev) => prev.filter((item) => item.id !== t.id));
+                  overTrashRef.current = false;
                   setOverTrash(false);
                 } else if (dragRef.current.active) {
                   setTextOverlays((prev) => prev.map((item) => item.id === t.id ? { ...item, x: dragRef.current.lastX, y: dragRef.current.lastY } : item));
@@ -831,12 +842,15 @@ export default function CreateStoryPage() {
               onTouchMove={(e) => {
                 handleOverlayDragDOM(e.currentTarget, e);
                 const touch = e.touches?.[0];
-                if (touch) setOverTrash(touch.clientY > window.innerHeight * 0.85);
+                const isOver = touch ? touch.clientY > window.innerHeight * 0.85 : false;
+                overTrashRef.current = isOver;
+                setOverTrash(isOver);
               }}
               onTouchEnd={() => {
                 setShowTrashZone(false);
-                if (overTrash && dragRef.current.active) {
+                if (overTrashRef.current && dragRef.current.active) {
                   setStickerOverlays((prev) => prev.filter((item) => item.id !== s.id));
+                  overTrashRef.current = false;
                   setOverTrash(false);
                 } else if (dragRef.current.active) {
                   setStickerOverlays((prev) => prev.map((item) => item.id === s.id ? { ...item, x: dragRef.current.lastX, y: dragRef.current.lastY } : item));
@@ -922,6 +936,7 @@ export default function CreateStoryPage() {
               ref={drawCanvasRef}
               className="absolute inset-0 z-[8] cursor-crosshair touch-none"
               onPointerDown={(e) => {
+                if (!e.isPrimary) return; // ignore secondary touch points (multi-touch)
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -929,7 +944,7 @@ export default function CreateStoryPage() {
                 setCurrentPath({ points: [{ x, y }], color: drawColor, width: drawWidth });
               }}
               onPointerMove={(e) => {
-                if (!currentPath) return;
+                if (!e.isPrimary || !currentPath) return;
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -940,7 +955,8 @@ export default function CreateStoryPage() {
                   setCurrentPath(prev => prev ? { ...prev, points: [...drawPointsRef.current] } : prev);
                 });
               }}
-              onPointerUp={() => {
+              onPointerUp={(e) => {
+                if (!e.isPrimary) return; // ignore secondary touch points
                 if (drawRafRef.current) cancelAnimationFrame(drawRafRef.current);
                 if (currentPath && drawPointsRef.current.length > 1) {
                   setDrawPaths(prev => [...prev, { ...currentPath, points: [...drawPointsRef.current] }]);
@@ -1272,7 +1288,8 @@ export default function CreateStoryPage() {
               <button
                 onClick={() => {
                   if (!mentionDraft.trim()) return;
-                  addSticker(`@${mentionDraft}`, 'mention');
+                  // Strip leading @ if user typed it — stored without, displayed with
+                  addSticker(`@${mentionDraft.replace(/^@/, '')}`, 'mention');
                   setMentionDraft('');
                 }}
                 disabled={!mentionDraft.trim()}

@@ -118,17 +118,17 @@ async def discover_producers(
     tenant_id = getattr(current_user, 'country', None) or "ES"
     
     query = {
-        "role": {"$in": ["producer", "importer"]},
+        "role": "producer",
         "status": "active",
         "tenant_id": tenant_id
     }
-    
+
     if country:
         query["country"] = country
-    
+
     if verified_only:
         query["verified_producer"] = True
-    
+
     # Si se especifica categoría, buscar productores que tengan productos en esa categoría
     if category:
         # Encontrar productores con productos en esa categoría
@@ -190,7 +190,7 @@ async def get_producer_detail(
     
     producer = await db.users.find_one({
         "user_id": producer_id,
-        "role": {"$in": ["producer", "importer"]},
+        "role": "producer",
         "status": "active"
     })
     
@@ -300,7 +300,7 @@ async def _generate_basic_matches(importer_id: str, tenant_id: str) -> int:
     
     # Buscar productores
     producers = await db.users.find({
-        "role": {"$in": ["producer", "importer"]},
+        "role": "producer",
         "status": "active",
         "tenant_id": tenant_id
     }).to_list(length=100)

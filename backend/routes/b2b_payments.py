@@ -522,7 +522,7 @@ async def confirm_delivery(
     from services.b2b_chat_events import send_b2b_system_message
     await send_b2b_system_message(
         operation.get("conversation_id"),
-        "payment_received",
+        "delivery_confirmed",
         {"amount": f"{total_price:.2f}€"}
     )
 

@@ -3,8 +3,8 @@ import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, Check } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { AlertCircle, Check, TrendingUp, ShoppingBag, Heart } from 'lucide-react';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
 import PostDetailModal from './PostDetailModal';
@@ -13,10 +13,62 @@ import SuggestedUsersCard from './SuggestedUsersCard';
 import SponsoredProductCard from './SponsoredProductCard';
 import FeedRecipeCard from './FeedRecipeCard';
 import { useForYouFeed, useLikePost, feedKeys } from '../../features/feed/queries';
+import apiClient from '../../services/api/client';
 import { useHaptics } from '../../hooks/useHaptics';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import PullIndicator from '../../components/ui/PullIndicator';
 import { useSponsoredContent } from '../../hooks/useSponsoredContent';
+
+/* ── P-15: Weekly summary card (Sundays only) ── */
+function WeeklySummaryCard() {
+  const { t } = useTranslation();
+  const { data: weeklyStats } = useQuery({
+    queryKey: ['weekly-summary'],
+    queryFn: async () => {
+      try {
+        const res = await apiClient.get('/gamification/weekly-summary');
+        return res || {};
+      } catch { return {}; }
+    },
+    staleTime: 3_600_000,
+  });
+  const navigate = useNavigate();
+  const stats = weeklyStats || {};
+  const postsLiked = stats.posts_liked ?? stats.likes_given ?? 0;
+  const productsSaved = stats.products_saved ?? stats.saves ?? 0;
+  const ordersPlaced = stats.orders_placed ?? stats.orders ?? 0;
+
+  return (
+    <div className="mx-3 my-3 rounded-2xl bg-stone-950 p-5 text-white">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Tu semana en HispaloShop</p>
+      <p className="text-[15px] font-bold leading-snug mb-4">Resumen semanal</p>
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="flex flex-col items-center gap-1">
+          <Heart size={18} className="text-stone-300" />
+          <span className="text-lg font-bold">{postsLiked}</span>
+          <span className="text-[10px] text-stone-400">Likes</span>
+        </div>
+        <div className="flex flex-col items-center gap-1">
+          <ShoppingBag size={18} className="text-stone-300" />
+          <span className="text-lg font-bold">{productsSaved}</span>
+          <span className="text-[10px] text-stone-400">Guardados</span>
+        </div>
+        <div className="flex flex-col items-center gap-1">
+          <TrendingUp size={18} className="text-stone-300" />
+          <span className="text-lg font-bold">{ordersPlaced}</span>
+          <span className="text-[10px] text-stone-400">Pedidos</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => navigate('/discover')}
+        className="w-full rounded-full bg-white text-stone-950 py-2 text-[13px] font-semibold border-none cursor-pointer hover:bg-stone-100 transition-colors"
+      >
+        Descubrir más
+      </button>
+    </div>
+  );
+}
 
 /** Lightweight error boundary that silently hides a single broken feed item. */
 class FeedItemBoundary extends Component {
@@ -194,6 +246,10 @@ export default function ForYouFeed() {
             const shouldAnimate = index < 5;
             const animDelay = shouldAnimate ? index * 0.05 : 0;
 
+            // P-15: Weekly summary card on Sundays at position 3
+            const isSunday = new Date().getDay() === 0;
+            const showWeeklySummary = isSunday && index === 3;
+
             // Inject suggested users after every 5th post (position 4, 14, 24...) unless dismissed
             const showSuggestions = !dismissedSuggestions && (index === 4 || (index > 4 && (index - 4) % 10 === 0));
 
@@ -225,7 +281,8 @@ export default function ForYouFeed() {
             if (isReel) {
               return (
                 <FeedItemBoundary>
-                <div className="mb-3 mx-3 rounded-2xl overflow-hidden">
+                <div className="mx-3 mb-3">
+                  {showWeeklySummary && <WeeklySummaryCard />}
                   {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                   {showSponsored && (
                     <SponsoredProductCard
@@ -254,7 +311,10 @@ export default function ForYouFeed() {
                         shares: post.shares_count || 0,
                         productTag: post.product_tag,
                         products: Array.isArray(post.products) ? post.products : Array.isArray(post.tagged_products) ? post.tagged_products : [],
+                        created_at: post.created_at || null,
                         timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
+                        liked_by_sample: post.liked_by_sample || post.liked_by || null,
+                        is_following: post.is_following ?? safeUser?.is_followed_by_me ?? false,
                       }}
                       embedded
                       onLike={() => handleLike(post.id)}
@@ -272,6 +332,7 @@ export default function ForYouFeed() {
             return (
               <FeedItemBoundary>
               <div className="mb-2">
+                {showWeeklySummary && <WeeklySummaryCard />}
                 {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                 {showSponsored && (
                   <SponsoredProductCard

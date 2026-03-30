@@ -523,7 +523,7 @@ export default function InfluencerDashboard() {
           <p className="text-xs text-white/60 mb-1">Balance total</p>
           <p className="text-xl font-bold">{convertAndFormatPrice(
             asNumber(dashboard.available_balance) +
-            asNumber(dashboard.payment_schedule?.pending_amount) +
+            asNumber(dashboard.payment_schedule?.available_soon) +
             asNumber(dashboard.payment_schedule?.in_transit)
           )}</p>
 
@@ -535,7 +535,7 @@ export default function InfluencerDashboard() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-white/50">Pendiente 15 días</span>
-              <span className="text-sm font-semibold">{convertAndFormatPrice(asNumber(dashboard.payment_schedule?.pending_amount))}</span>
+              <span className="text-sm font-semibold">{convertAndFormatPrice(asNumber(dashboard.payment_schedule?.available_soon))}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-white/50">En tránsito</span>
@@ -1040,19 +1040,19 @@ export default function InfluencerDashboard() {
                 <p className="text-[10px] uppercase tracking-wider font-bold mb-3 text-stone-500">Cobros realizados</p>
                 <div className="space-y-2">
                   {payoutHistory.slice(0, 5).map((p, i) => (
-                    <div key={p.withdrawal_id || i} className={`flex items-center justify-between py-2 ${i < Math.min(payoutHistory.length, 5) - 1 ? 'border-b border-stone-200' : ''}`}>
+                    <div key={p.id || i} className={`flex items-center justify-between py-2 ${i < Math.min(payoutHistory.length, 5) - 1 ? 'border-b border-stone-200' : ''}`}>
                       <div>
                         <p className="text-xs font-medium text-stone-950">
-                          {p.created_at ? new Date(p.created_at).toLocaleDateString('es-ES') : '—'}
+                          {(p.paid_at || p.created_at) ? new Date(p.paid_at || p.created_at).toLocaleDateString('es-ES') : '—'}
                         </p>
                         <p className="text-[10px] text-stone-500">
-                          Bruto: {convertAndFormatPrice(Number(p.gross_amount || p.amount || 0))}
-                          {(p.withholding_amount || 0) > 0 && ` · Ret: ${convertAndFormatPrice(Number(p.withholding_amount || 0))}`}
+                          {p.commission_count > 0 && `${p.commission_count} ventas`}
+                          {(p.withholding_amount_eur || 0) > 0 && ` · Ret: ${convertAndFormatPrice(Number(p.withholding_amount_eur || 0))}`}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold text-stone-950">
-                          {convertAndFormatPrice(Number(p.net_amount || p.amount || 0))}
+                          {convertAndFormatPrice(Number(p.net_amount_eur || 0))}
                         </p>
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full bg-stone-100 ${p.status === 'completed' ? 'text-stone-950' : p.status === 'failed' ? 'text-stone-400' : 'text-stone-500'}`}>
                           {p.status === 'completed' ? 'Pagado' : p.status === 'failed' ? 'Fallido' : 'Procesando'}

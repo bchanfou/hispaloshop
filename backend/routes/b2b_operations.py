@@ -36,7 +36,7 @@ VALID_STATUSES = {
     "payment_confirmed", "in_transit", "delivered", "completed",
 }
 
-VALID_UNITS = {"kg", "units", "liters", "boxes", "pallets"}
+VALID_UNITS = {"kg", "units", "liters", "boxes", "pallets", "unidades", "litros", "cajas"}
 VALID_CURRENCIES = {"EUR", "USD"}
 VALID_PAYMENT_TERMS = {"prepaid", "net_30", "net_60", "letter_of_credit"}
 VALID_INCOTERMS = {"EXW", "FCA", "CPT", "CIP", "DAP", "DPU", "DDP", "FOB"}

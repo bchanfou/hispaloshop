@@ -3075,7 +3075,8 @@ async def send_new_order_email_to_producer(producer_id: str, order: dict, produc
 
 async def send_seller_shipped_email(order: dict, producer_id: str, tracking_number: str = None, shipping_carrier: str = None):
     """Send confirmation email to seller when order is marked as shipped"""
-    
+    import html as _html
+
     # Get seller info
     seller = await db.users.find_one({"user_id": producer_id}, {"_id": 0, "email": 1, "name": 1, "company_name": 1})
     if not seller or not seller.get("email"):

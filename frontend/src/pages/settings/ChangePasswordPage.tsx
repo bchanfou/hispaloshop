@@ -56,7 +56,7 @@ export default function ChangePasswordPage() {
       if (status === 401) {
         toast.error('Contrasena actual incorrecta');
       } else {
-        toast.error(err?.response?.data?.detail || 'Error al cambiar contrasena');
+        toast.error(err?.response?.data?.detail || 'Error al cambiar contraseña');
       }
     } finally {
       setSubmitting(false);
@@ -66,7 +66,7 @@ export default function ChangePasswordPage() {
   const eyeBtn = (show, toggle) => (
     <button
       onClick={toggle}
-      aria-label={show ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+      aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
       className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 flex"
     >
       {show ? <EyeOff size={18} className="text-stone-500" /> : <Eye size={18} className="text-stone-500" />}
@@ -94,8 +94,8 @@ export default function ChangePasswordPage() {
               Cuenta con Google
             </p>
             <p className="text-[13px] text-stone-500 leading-relaxed">
-              Tu cuenta usa Google para iniciar sesion. No tienes contrasena configurada.
-              Puedes anadir una a continuacion.
+              Tu cuenta usa Google para iniciar sesión. No tienes contraseña configurada.
+              Puedes añadir una a continuación.
             </p>
           </div>
         )}
@@ -121,7 +121,7 @@ export default function ChangePasswordPage() {
         {/* New password */}
         <div className="mb-5">
           <label className="text-[13px] font-semibold text-stone-950 mb-1.5 block">
-            Nueva contrasena
+            Nueva contraseña
           </label>
           <div className="relative">
             <input
@@ -157,7 +157,7 @@ export default function ChangePasswordPage() {
         {/* Confirm password */}
         <div className="mb-6">
           <label className="text-[13px] font-semibold text-stone-950 mb-1.5 block">
-            Repetir nueva contrasena
+            Repetir nueva contraseña
           </label>
           <div className="relative">
             <input
@@ -165,14 +165,14 @@ export default function ChangePasswordPage() {
               value={confirm}
               onChange={e => setConfirm(e.target.value)}
               className={`w-full h-12 px-3.5 pr-11 border rounded-xl text-sm text-stone-950 outline-none focus:border-stone-400 transition-colors box-border ${
-                mismatch ? 'border-red-600' : 'border-stone-200'
+                mismatch ? 'border-stone-950' : 'border-stone-200'
               }`}
             />
             {eyeBtn(showConfirm, () => setShowConfirm(!showConfirm))}
           </div>
           {mismatch && (
-            <p className="text-xs text-red-600 mt-1">
-              Las contrasenas no coinciden
+            <p className="text-xs text-stone-600 mt-1">
+              Las contraseñas no coinciden
             </p>
           )}
         </div>
@@ -192,7 +192,7 @@ export default function ChangePasswordPage() {
           ) : (
             <>
               <Lock size={18} />
-              {isGoogleUser ? 'Anadir contrasena' : 'Cambiar contrasena'}
+              {isGoogleUser ? 'Añadir contraseña' : 'Cambiar contraseña'}
             </>
           )}
         </button>
