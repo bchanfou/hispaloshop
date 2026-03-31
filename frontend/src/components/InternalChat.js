@@ -13,6 +13,7 @@ import {
   Search,
   Reply,
   Send,
+  Trash2,
   UserPlus,
   UtensilsCrossed,
   Video,
@@ -156,8 +157,15 @@ function ReplyPreviewInline({ preview }) {
   );
 }
 
-const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onReply }) {
-  const [reaction, setReaction]       = useState(null);
+const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onReply, onReact, onDelete, currentUserId }) {
+  // CH-04: Load existing reactions from message data
+  const existingReaction = useMemo(() => {
+    if (!message?.reactions?.length || !currentUserId) return null;
+    const mine = message.reactions.find(r => r.user_id === currentUserId);
+    return mine?.emoji || null;
+  }, [message?.reactions, currentUserId]);
+  const allReactions = message?.reactions || [];
+
   const [showPicker, setShowPicker]   = useState(false);
   const [showReplyBtn, setShowReplyBtn] = useState(false);
   const pressTimerRef                 = useRef(null);
@@ -177,10 +185,14 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
     clearTimeout(pressTimerRef.current);
   };
 
+  // CH-01: Persist reaction to backend — always send emoji, backend toggles (same = remove, diff = replace)
   const handleReact = (emoji) => {
-    setReaction((prev) => (prev === emoji ? null : emoji));
+    onReact?.(message.message_id, emoji);
     setShowPicker(false);
   };
+
+  // CH-02: Delete own message (within 5 min window)
+  const canDelete = isOwn && message?.created_at && (Date.now() - new Date(message.created_at).getTime() < 300_000);
 
   const hasReplyPreview = Boolean(message?.reply_to_preview);
 
@@ -249,12 +261,23 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
                     type="button"
                     onClick={() => handleReact(emoji)}
                     className={`flex h-9 w-9 items-center justify-center rounded-full text-[20px] transition-transform hover:scale-125 active:scale-110 ${
-                      reaction === emoji ? 'bg-stone-100' : ''
+                      existingReaction === emoji ? 'bg-stone-100' : ''
                     }`}
                   >
                     {emoji}
                   </button>
                 ))}
+                {/* CH-02: Delete button in long-press menu */}
+                {canDelete && (
+                  <button
+                    type="button"
+                    onClick={() => { setShowPicker(false); onDelete?.(message.message_id); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-stone-400 transition-transform hover:scale-110 hover:text-stone-700"
+                    aria-label="Eliminar mensaje"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </motion.div>
             </>
           ) : null}
@@ -299,23 +322,25 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
           ) : null}
         </div>
 
-        {/* Reaction pill */}
+        {/* Reaction pills — show all reactions from all users */}
         <AnimatePresence>
-          {reaction ? (
-            <motion.button
-              key={reaction}
-              type="button"
+          {allReactions.length > 0 ? (
+            <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              onClick={() => setReaction(null)}
-              className={`mt-1 flex w-fit items-center gap-1 rounded-full border border-stone-100 bg-white px-2 py-0.5 text-[14px] shadow-sm ${
+              className={`mt-1 flex w-fit items-center gap-0.5 rounded-full border border-stone-100 bg-white px-1.5 py-0.5 shadow-sm ${
                 isOwn ? 'ml-auto' : ''
               }`}
             >
-              {reaction}
-            </motion.button>
+              {[...new Set(allReactions.map(r => r.emoji))].map(emoji => (
+                <span key={emoji} className="text-[14px]">{emoji}</span>
+              ))}
+              {allReactions.length > 1 && (
+                <span className="text-[11px] text-stone-400 ml-0.5">{allReactions.length}</span>
+              )}
+            </motion.div>
           ) : null}
         </AnimatePresence>
 
@@ -709,6 +734,7 @@ export default function InternalChat({
     uploadImage,
     sendHttpMessage,
     startConversation,
+    deleteConversation,
     sendingMessage,
     uploadingImage,
   } = useInternalChatData();
@@ -737,13 +763,26 @@ export default function InternalChat({
   const wsRef = useRef(null);
   const virtuosoRef = useRef(null);
   const fileInputRef = useRef(null);
+  const docInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const typingClearRef = useRef(null);
   const activeConversationRef = useRef(null);
   const messagesCacheRef = useRef(new Map());
+  const MAX_CACHED_CONVERSATIONS = 20;
   const conversationsReloadTimeoutRef = useRef(null);
   const markIncomingReadRef = useRef(null);
   const scheduleReloadRef = useRef(null);
+
+  // CH-05: LRU eviction for message cache
+  const setCacheWithEviction = useCallback((key, value) => {
+    const cache = messagesCacheRef.current;
+    cache.delete(key); // remove to re-insert at end (Map preserves insertion order)
+    cache.set(key, value);
+    while (cache.size > MAX_CACHED_CONVERSATIONS) {
+      const oldest = cache.keys().next().value;
+      cache.delete(oldest);
+    }
+  }, []);
 
   const deferredSearchValue = useDeferredValue(searchValue);
   const deferredDirectorySearchValue = useDeferredValue(directorySearchValue);
@@ -815,7 +854,7 @@ export default function InternalChat({
     const value = rawValue.trim();
     if (!value) return null;
 
-    const normalized = value.startsWith('http') ? value : `https://hispaloshop.local/${value.replace(/^\/+/, '')}`;
+    const normalized = value.startsWith('http') ? value : `${window.location.origin}/${value.replace(/^\/+/, '')}`;
 
     try {
       const parsed = new URL(normalized);
@@ -931,12 +970,12 @@ export default function InternalChat({
             ? { ...message, status: 'read', read_at: new Date().toISOString() }
             : message
         );
-        messagesCacheRef.current.set(conversationId, nextMessages);
+        setCacheWithEviction(conversationId, nextMessages);
         return nextMessages;
       });
       scheduleReloadConversations();
     },
-    [scheduleReloadConversations, selectedConversationId, user?.user_id]
+    [scheduleReloadConversations, selectedConversationId, setCacheWithEviction, user?.user_id]
   );
 
   useEffect(() => {
@@ -969,7 +1008,7 @@ export default function InternalChat({
       try {
         const nextMessages = await fetchMessages(conversationId);
         const normalizedMessages = Array.isArray(nextMessages) ? nextMessages : [];
-        messagesCacheRef.current.set(conversationId, normalizedMessages);
+        setCacheWithEviction(conversationId, normalizedMessages);
         startConversationTransition(() => {
           setMessages(normalizedMessages);
         });
@@ -985,7 +1024,7 @@ export default function InternalChat({
         setLoadingMessages(false);
       }
     },
-    [fetchMessages, markIncomingMessagesAsRead]
+    [fetchMessages, markIncomingMessagesAsRead, setCacheWithEviction]
   );
 
   const startConversationWithUser = useCallback(
@@ -1064,7 +1103,7 @@ export default function InternalChat({
                     ? { ...message, status: 'read', read_at: payload.read_at || new Date().toISOString() }
                     : message
                 );
-                messagesCacheRef.current.set(changedConversation, nextMessages);
+                setCacheWithEviction(changedConversation, nextMessages);
                 return nextMessages;
               });
             }
@@ -1084,7 +1123,7 @@ export default function InternalChat({
                   return current;
                 }
                 const nextMessages = [...current, incomingMessage];
-                messagesCacheRef.current.set(incomingConversation, nextMessages);
+                setCacheWithEviction(incomingConversation, nextMessages);
                 return nextMessages;
               });
 
@@ -1128,7 +1167,7 @@ export default function InternalChat({
         wsRef.current = null;
       }
     };
-  }, [user?.user_id]);
+  }, [user?.user_id, setCacheWithEviction]);
 
   // Scroll to bottom is handled by Virtuoso followOutput="smooth".
   // This explicit scroll is a fallback for typing indicator toggling.
@@ -1208,6 +1247,56 @@ export default function InternalChat({
   const cancelReply = useCallback(() => {
     setReplyingTo(null);
   }, []);
+
+  // CH-01: Persist emoji reaction to backend (backend toggles: same emoji = remove, different = replace)
+  const handleReactToMessage = useCallback(async (messageId, emoji) => {
+    if (!messageId || !emoji) return;
+    try {
+      const res = await apiClient.post(`/chat/messages/${messageId}/react`, { emoji });
+      // Update local message with new reactions from server
+      setMessages(current => {
+        const next = current.map(m =>
+          m.message_id === messageId ? { ...m, reactions: res?.reactions || [] } : m
+        );
+        if (selectedConversationId) setCacheWithEviction(selectedConversationId, next);
+        return next;
+      });
+    } catch {
+      toast.error('Error al reaccionar');
+    }
+  }, [selectedConversationId, setCacheWithEviction]);
+
+  // CH-02: Delete own message
+  const handleDeleteMessage = useCallback(async (messageId) => {
+    if (!messageId || !selectedConversationId) return;
+    try {
+      await apiClient.delete(`/chat/messages/${messageId}`);
+      setMessages(current => {
+        const next = current.filter(m => m.message_id !== messageId);
+        setCacheWithEviction(selectedConversationId, next);
+        return next;
+      });
+      scheduleReloadConversations();
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || 'No se pudo eliminar el mensaje');
+    }
+  }, [selectedConversationId, setCacheWithEviction, scheduleReloadConversations]);
+
+  // CH-03: Delete entire conversation
+  const handleDeleteConversation = useCallback(async () => {
+    if (!selectedConversationId) return;
+    if (!window.confirm('¿Eliminar esta conversación? Se perderán todos los mensajes.')) return;
+    try {
+      await deleteConversation(selectedConversationId);
+      messagesCacheRef.current.delete(selectedConversationId);
+      setSelectedConversationId(null);
+      setMessages([]);
+      reloadConversations();
+      toast.success('Conversación eliminada');
+    } catch {
+      toast.error('Error al eliminar la conversación');
+    }
+  }, [selectedConversationId, deleteConversation, reloadConversations]);
 
   const openShareSheet = useCallback((type) => {
     setShareSheetType(type);
@@ -1293,7 +1382,7 @@ export default function InternalChat({
 
     setMessages((current) => {
       const nextMessages = [...current, optimisticMessage];
-      messagesCacheRef.current.set(selectedConversationId, nextMessages);
+      setCacheWithEviction(selectedConversationId, nextMessages);
       return nextMessages;
     });
     setComposerValue('');
@@ -1323,7 +1412,7 @@ export default function InternalChat({
       });
       setMessages((current) => {
         const nextMessages = current.map((message) => (message.message_id === optimisticId ? { ...saved, image_url: saved.image_url || message.image_url } : message));
-        messagesCacheRef.current.set(selectedConversationId, nextMessages);
+        setCacheWithEviction(selectedConversationId, nextMessages);
         return nextMessages;
       });
       if (imageToUpload?.previewUrl) {
@@ -1333,7 +1422,7 @@ export default function InternalChat({
     } catch (error) {
       setMessages((current) => {
         const nextMessages = current.filter((message) => message.message_id !== optimisticId);
-        messagesCacheRef.current.set(selectedConversationId, nextMessages);
+        setCacheWithEviction(selectedConversationId, nextMessages);
         return nextMessages;
       });
       if (imageToUpload?.previewUrl) {
@@ -1350,6 +1439,7 @@ export default function InternalChat({
     pendingSharedItem,
     replyingTo,
     scheduleReloadConversations,
+    setCacheWithEviction,
     selectedConversationId,
     sendHttpMessage,
     sendTyping,
@@ -1393,6 +1483,58 @@ export default function InternalChat({
     },
     [selectedConversationId]
   );
+
+  // CH-08: Document upload handler
+  const handleAttachDocument = useCallback(async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || !selectedConversationId) return;
+
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      toast.error('Solo se permiten archivos PDF, JPG, PNG o WebP.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('El archivo no puede superar 10 MB.');
+      return;
+    }
+
+    const optimisticId = `local-doc-${Date.now()}`;
+    const optimistic = {
+      message_id: optimisticId,
+      conversation_id: selectedConversationId,
+      sender_id: user?.user_id,
+      sender_name: user?.name,
+      content: `📎 ${file.name}`,
+      message_type: 'document',
+      status: 'sent',
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => { const next = [...prev, optimistic]; setCacheWithEviction(selectedConversationId, next); return next; });
+
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const uploadRes = await apiClient.post(`/chat/conversations/${selectedConversationId}/upload-document`, fd, { timeout: 30000 });
+      const fileUrl = uploadRes?.file_url;
+      if (!fileUrl) throw new Error('No file URL returned');
+
+      const saved = await sendHttpMessage({
+        conversation_id: selectedConversationId,
+        content: `📎 ${uploadRes.file_name || file.name}`,
+        file_url: fileUrl,
+        file_name: uploadRes.file_name || file.name,
+        file_type: uploadRes.file_type || file.type,
+        message_type: 'document',
+      });
+      setMessages(prev => { const next = prev.map(m => m.message_id === optimisticId ? { ...saved } : m); setCacheWithEviction(selectedConversationId, next); return next; });
+      scheduleReloadConversations();
+    } catch {
+      setMessages(prev => { const next = prev.filter(m => m.message_id !== optimisticId); setCacheWithEviction(selectedConversationId, next); return next; });
+      toast.error('Error al subir el documento.');
+    }
+  }, [selectedConversationId, user?.user_id, user?.name, sendHttpMessage, setCacheWithEviction, scheduleReloadConversations]);
 
   const visibleMessages = useMemo(() => messages.slice(-MAX_VISIBLE_MESSAGES), [messages]);
   const visibleTimeline = useMemo(() => {
@@ -1582,6 +1724,15 @@ export default function InternalChat({
                   </p>
                   {typingUserId ? (
                     <p className="text-[11px] text-stone-400">Escribiendo…</p>
+                  ) : activeConversation.is_online ? (
+                    <p className="text-[11px] text-stone-500 flex items-center gap-1">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone-950" />
+                      En línea
+                    </p>
+                  ) : activeConversation.last_seen ? (
+                    <p className="text-[11px] text-stone-400">
+                      Últ. vez {formatTime(activeConversation.last_seen)}
+                    </p>
                   ) : getRoleLabel(activeConversation.other_user_role) ? (
                     <p className="text-[11px] text-stone-400">
                       {getRoleLabel(activeConversation.other_user_role)}
@@ -1607,6 +1758,15 @@ export default function InternalChat({
                   aria-label="Videollamada (próximamente)"
                 >
                   <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
+                </button>
+                {/* CH-03: Delete conversation */}
+                <button
+                  type="button"
+                  onClick={handleDeleteConversation}
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100"
+                  aria-label="Eliminar conversación"
+                >
+                  <Trash2 className="h-[16px] w-[16px]" strokeWidth={1.8} />
                 </button>
                 {onClose ? (
                   <button
@@ -1641,7 +1801,10 @@ export default function InternalChat({
                         <MessageBubble
                           message={item.message}
                           isOwn={item.message.sender_id === user?.user_id}
+                          currentUserId={user?.user_id}
                           onReply={handleReply}
+                          onReact={handleReactToMessage}
+                          onDelete={handleDeleteMessage}
                         />
                       )}
                     </div>
@@ -1730,9 +1893,7 @@ export default function InternalChat({
                     <ComposerActionButton
                       icon={FileText}
                       label="Documento"
-                      badge="Soon"
-                      disabled
-                      onClick={() => handleComposerActionUnavailable('Documento')}
+                      onClick={() => { docInputRef.current?.click(); setIsComposerActionsOpen(false); }}
                     />
                     <ComposerActionButton
                       icon={Package}
@@ -1887,6 +2048,14 @@ export default function InternalChat({
                 accept="image/*"
                 className="hidden"
                 onChange={handleAttachImage}
+              />
+              {/* CH-08: Document upload input */}
+              <input
+                ref={docInputRef}
+                type="file"
+                accept=".pdf,image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAttachDocument}
               />
             </div>
           </>

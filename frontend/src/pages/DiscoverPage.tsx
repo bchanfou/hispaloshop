@@ -302,6 +302,10 @@ export default function DiscoverPage() {
     setFetchError(false);
 
     apiClient.get('/discovery/explore')
+      .then(data => {
+        if (data?.trending_products?.length) setRecommendedProducts(prev => prev.length ? prev : data.trending_products.slice(0, 6));
+        if (data?.growing_recipes?.length) setRecipes(prev => prev.length ? prev : data.growing_recipes.slice(0, 6));
+      })
       .catch(() => { setFetchError(true); })
       .finally(() => { setLoadingTrending(false); });
 

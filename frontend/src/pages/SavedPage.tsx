@@ -495,16 +495,27 @@ function RecipesGrid({ items }: { items: any[] }) {
                   <Bookmark size={14} className="text-stone-950" fill="currentColor" />
                 </span>
               </div>
-              <div className="px-1 pt-2 pb-1">
+              <div className="px-1 pt-2 pb-1.5">
                 <p className="text-sm font-semibold text-stone-950 line-clamp-2 leading-snug">
                   {recipe.title}
                 </p>
-                {cookTime > 0 && (
-                  <p className="mt-0.5 flex items-center gap-1 text-xs text-stone-500">
-                    <Clock size={12} />
-                    {cookTime} min
-                  </p>
-                )}
+                <div className="mt-1 flex items-center gap-2 flex-wrap">
+                  {cookTime > 0 && (
+                    <span className="flex items-center gap-0.5 text-[11px] text-stone-500">
+                      <Clock size={10} />
+                      {cookTime} min
+                    </span>
+                  )}
+                  {recipe.difficulty && (
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                      recipe.difficulty === 'hard' ? 'bg-stone-950 text-stone-50'
+                        : recipe.difficulty === 'medium' ? 'bg-stone-100 text-stone-700'
+                        : 'bg-stone-100 text-stone-600'
+                    }`}>
+                      {recipe.difficulty === 'easy' ? 'Fácil' : recipe.difficulty === 'medium' ? 'Media' : recipe.difficulty === 'hard' ? 'Difícil' : ''}
+                    </span>
+                  )}
+                </div>
                 {recipe.author_name && (
                   <p className="text-xs text-stone-500 mt-0.5 truncate">{recipe.author_name}</p>
                 )}

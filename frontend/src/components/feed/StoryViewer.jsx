@@ -626,7 +626,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
       setShareSearch('');
     } catch (err) { toast.error('Error al compartir'); }
     setShareSending(null);
-  }, [currentItem, shareSending]);
+  }, [currentItem, currentStory, shareSending]);
 
   const filteredShareConversations = shareConversations.filter((c) => {
     if (!shareSearch.trim()) return true;

@@ -316,7 +316,17 @@ export default function SearchPage() {
   }, []);
 
   const handleApplyFilters = useCallback(() => {
-    setAppliedFilters({ minPrice: filterMinPrice, maxPrice: filterMaxPrice, certs: [...filterCerts], inStock: filterInStock, freeShipping: filterFreeShipping });
+    // S-05: Validate price inputs
+    const min = filterMinPrice ? parseFloat(filterMinPrice) : NaN;
+    const max = filterMaxPrice ? parseFloat(filterMaxPrice) : NaN;
+    const validMin = !isNaN(min) && min >= 0 ? String(min) : '';
+    const validMax = !isNaN(max) && max >= 0 ? String(max) : '';
+    // Ensure min <= max when both provided
+    if (validMin && validMax && parseFloat(validMin) > parseFloat(validMax)) {
+      toast.error('El precio mínimo no puede ser mayor que el máximo');
+      return;
+    }
+    setAppliedFilters({ minPrice: validMin, maxPrice: validMax, certs: [...filterCerts], inStock: filterInStock, freeShipping: filterFreeShipping });
     setShowFilters(false);
   }, [filterMinPrice, filterMaxPrice, filterCerts, filterInStock, filterFreeShipping]);
 
@@ -341,7 +351,7 @@ export default function SearchPage() {
           .filter(Boolean);
         if (terms.length > 0) setTrending(terms);
       })
-      .catch(() => {});
+      .catch(() => { /* S-06: Fallback already set via TRENDING_FALLBACK default */ });
 
     apiClient.get('/discovery/trending', { params: { type: 'hashtags', limit: 8 } })
       .then((data) => {
@@ -350,7 +360,7 @@ export default function SearchPage() {
         );
         if (items.length > 0) setTrendingHashtags(items.slice(0, 8));
       })
-      .catch(() => {});
+      .catch(() => { /* S-06: Hashtags section simply hidden if empty */ });
   }, []);
 
   // Autocomplete suggestions (300ms debounce, >= 2 chars)
@@ -427,30 +437,8 @@ export default function SearchPage() {
     return () => clearTimeout(timer);
   }, [query, sortBy, appliedFilters, setSearchParams]);
 
-  const executeSearch = useCallback(async (q) => {
-    const reqId = ++searchIdRef.current;
-    setLoading(true);
-    try {
-      const sortParam = sortBy !== 'relevance' ? sortBy : undefined;
-      const params = { q, limit: 8, sort: sortParam };
-      if (appliedFilters.minPrice) params.min_price = appliedFilters.minPrice;
-      if (appliedFilters.maxPrice) params.max_price = appliedFilters.maxPrice;
-      if (appliedFilters.certs.length > 0) params.certifications = appliedFilters.certs.join(',');
-      if (appliedFilters.inStock) params.in_stock = true;
-      if (appliedFilters.freeShipping) params.free_shipping = true;
-      const data = await apiClient.get('/search', { params });
-      if (reqId !== searchIdRef.current) return;
-      setResults(data);
-      setSearchParams({ q }, { replace: true });
-    } catch {
-      if (reqId !== searchIdRef.current) return;
-      setResults(null);
-      toast.error('Error al buscar. Inténtalo de nuevo.');
-    } finally {
-      if (reqId === searchIdRef.current) setLoading(false);
-    }
-  }, [sortBy, appliedFilters, setSearchParams]);
-
+  // S-03: Single search function — useEffect above handles the actual search.
+  // handleSubmit just saves history and hides suggestions; the useEffect triggers on query/sort/filters change.
   const handleSubmit = useCallback((e) => {
     e?.preventDefault();
     if (!query.trim()) return;
@@ -458,8 +446,8 @@ export default function SearchPage() {
     setSuggestions(null);
     saveHistory(query.trim());
     setHistory(getHistory());
-    executeSearch(query.trim());
-  }, [query, executeSearch]);
+    // Search is triggered by the useEffect on [query, sortBy, appliedFilters]
+  }, [query]);
 
   const handleHistoryClick = (term) => {
     setQuery(term);
@@ -467,7 +455,7 @@ export default function SearchPage() {
     setSuggestions(null);
     saveHistory(term);
     setHistory(getHistory());
-    executeSearch(term);
+    // Search triggers via useEffect on query change
   };
 
   const handleRemoveHistoryItem = (term) => {
@@ -490,15 +478,9 @@ export default function SearchPage() {
   const totalCount = counts.products + counts.recipes + counts.stores + counts.creators;
   const hasResults = totalCount > 0;
 
-  const sortedProducts = useMemo(() => {
-    if (!results?.products) return [];
-    return [...results.products].sort((a, b) => {
-      if (sortBy === 'price_asc') return (a.price || 0) - (b.price || 0);
-      if (sortBy === 'price_desc') return (b.price || 0) - (a.price || 0);
-      if (sortBy === 'newest') return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-      return 0;
-    });
-  }, [results?.products, sortBy]);
+  // S-07: Backend handles sorting via `sort` param — no client-side re-sort needed.
+  // Kept as passthrough for downstream compatibility.
+  const sortedProducts = results?.products || [];
 
   const showProducts = (activeTab === 'all' || activeTab === 'products') && counts.products > 0;
   const showRecipes = (activeTab === 'all' || activeTab === 'recipes') && counts.recipes > 0;
@@ -943,7 +925,7 @@ export default function SearchPage() {
                 {trending.map((term, i) => (
                   <button
                     key={term}
-                    onClick={() => { setQuery(term); saveHistory(term); setHistory(getHistory()); executeSearch(term); }}
+                    onClick={() => { setQuery(term); saveHistory(term); setHistory(getHistory()); }}
                     className="flex items-center gap-3 py-3 text-left border-b border-stone-100 last:border-b-0"
                   >
                     <TrendingUp size={16} className="shrink-0 text-stone-300" />

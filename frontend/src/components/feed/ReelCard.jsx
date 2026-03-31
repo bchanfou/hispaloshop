@@ -89,7 +89,7 @@ function ReelReactionPicker({ show, onSelect, onClose }) {
   );
 }
 
-function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false, nextVideoUrl }) {
+function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false, nextVideoUrl, onExpand }) {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { addToCart } = useCart();
@@ -539,7 +539,13 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       // Immediately toggle play/pause
       const video = videoRef.current;
       if (embedded) {
-        // Track pre-tap play state so double-tap can restore it (same as non-embedded)
+        // Single tap on embedded reel → open fullscreen reel viewer (Instagram behavior)
+        if (onExpand) {
+          videoRef.current?.pause();
+          onExpand();
+          return;
+        }
+        // Fallback: toggle play/pause if no onExpand handler
         wasPlayingBeforeTap.current = !videoRef.current?.paused;
         if (videoRef.current?.paused) {
           videoRef.current.play().catch(() => {});
@@ -553,7 +559,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       wasPlayingBeforeTap.current = !video?.paused;
       togglePlay();
     }
-  }, [liked, handleLike, togglePlay, embedded]);
+  }, [liked, handleLike, togglePlay, embedded, onExpand]);
 
   const videoUrl = reel.video_url || reel.videoUrl;
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
@@ -631,7 +637,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             )}
           </div>
           {/* Follow button (P-07) */}
-          {!isOwner && !isFollowing && (
+          {!isOwner && !isFollowing && (reel.user?.id || reel.user?.user_id) && (
             <button
               onClick={async () => {
                 trigger('medium');
@@ -690,7 +696,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                     >
                       <Send size={16} /> Copiar enlace
                     </button>
-                    {isFollowing && (
+                    {isFollowing && (reel.user?.id || reel.user?.user_id) && (
                       <button
                         className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 active:bg-stone-100 text-left"
                         onClick={async () => {
@@ -1894,6 +1900,7 @@ const areReelPropsEqual = (prev, next) => {
     prev.onLike === next.onLike &&
     prev.onComment === next.onComment &&
     prev.onShare === next.onShare &&
+    prev.onExpand === next.onExpand &&
     prev.nextVideoUrl === next.nextVideoUrl
   );
 };

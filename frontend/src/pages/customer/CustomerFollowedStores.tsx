@@ -36,17 +36,17 @@ function FollowedStoreCard({ store, onUnfollow }) {
     <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow">
       {/* Hero Image */}
       <div className="h-24 bg-gradient-to-br from-stone-100 to-stone-200 relative">
-        {store.hero_image_url && (
+        {store.hero_image && (
           <img
-            src={store.hero_image_url}
+            src={store.hero_image}
             alt={store.name}
             className="w-full h-full object-cover"
           />
         )}
         {/* Logo */}
-        {store.logo_url && (
+        {store.logo && (
           <div className="absolute -bottom-6 left-4 w-12 h-12 rounded-full border-[3px] border-white bg-white overflow-hidden shadow-sm">
-            <img loading="lazy" src={store.logo_url} alt={store.name} className="w-full h-full object-cover" />
+            <img loading="lazy" src={store.logo} alt={store.name} className="w-full h-full object-cover" />
           </div>
         )}
       </div>

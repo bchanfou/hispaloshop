@@ -74,8 +74,8 @@ export default function ForImporters() {
               <h4 className="font-bold mb-2">Diferencias por plan</h4>
               <ul className="text-stone-700 text-[15px] space-y-2">
                 <li><b>Free:</b> Todas las funciones básicas, vender B2C, publicar productos, certificados QR, soporte estándar.</li>
-                <li><b>Pro:</b> Matching con influencers, dashboard avanzado, analítica de ventas, IA scouting de productos, soporte prioritario.</li>
-                <li><b>Elite:</b> Todo lo anterior + IA comercial avanzada, análisis de mercado internacional, generación automática de contratos, alertas de tendencias, manager dedicado, comisión más baja.</li>
+                <li><b>Pro:</b> Matching con influencers, dashboard avanzado, analítica de ventas, soporte prioritario.</li>
+                <li><b>Elite:</b> Todo lo anterior + IA comercial avanzada, análisis de mercado internacional, generación automática de contratos, comisión más baja.</li>
               </ul>
             </div>
           </div>
@@ -84,8 +84,7 @@ export default function ForImporters() {
             <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Colaboración con influencers locales (Pro y Elite)</div>
             <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Panel de gestión, pagos y logística unificados</div>
             <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Soporte por chat interno y email</div>
-            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />IA y analítica avanzada (Pro y Elite)</div>
-            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />Manager dedicado y alertas de tendencias (Elite)</div>
+            <div className="flex items-center gap-3"><Check size={18} className="text-stone-950" strokeWidth={2.5} />IA comercial avanzada y generación de contratos (Elite)</div>
           </div>
         </div>
       </Section>
@@ -112,8 +111,8 @@ export default function ForImporters() {
                 <li><b>¿Qué necesito para empezar?</b> Solo crear tu cuenta y subir tus productos.</li>
                 <li><b>¿Puedo vender tanto B2C como B2B?</b> Sí, puedes vender al consumidor final y también acceder a oportunidades B2B.</li>
                 <li><b>¿Qué comisiones se aplican?</b> Depende del plan: Free (20%), Pro (18%), Elite (15%).</li>
-                <li><b>¿Cómo es el soporte?</b> Siempre por chat interno y email, con prioridad en Pro y manager dedicado en Elite.</li>
-                <li><b>¿Qué ventajas tiene Elite?</b> IA comercial avanzada, manager dedicado, alertas de tendencias y comisión más baja.</li>
+                <li><b>¿Cómo es el soporte?</b> Siempre por chat interno y email, con prioridad en Pro y Elite.</li>
+                <li><b>¿Qué ventajas tiene Elite?</b> IA comercial avanzada, generación automática de contratos y comisión más baja (15%).</li>
               </ul>
             </div>
           </div>

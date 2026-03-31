@@ -61,6 +61,7 @@ function FeedContainer() {
 
   return (
     <div className="min-h-screen bg-white">
+      <div className="mx-auto md:max-w-[500px] lg:max-w-[470px]">
       {/* Header with tab toggle */}
       <HomeHeader activeTab={feedTab} onTabChange={setFeedTab} />
 
@@ -72,7 +73,7 @@ function FeedContainer() {
         <WeeklyGoalBar spent={gamifProfile.weekly_spent_cents} goal={gamifProfile.weekly_goal_cents} />
       )}
 
-      {/* Personalized product carousel — invisible magic, no "AI" label */}
+      {/* Personalized product carousel */}
       {Array.isArray(forYouProducts) && forYouProducts.length > 0 && (
         <div className="pb-2">
           <div className="flex items-center justify-between px-4 mb-2">
@@ -91,8 +92,8 @@ function FeedContainer() {
         </div>
       )}
 
-      {/* Tabbed Feed — centered on tablet to prevent full-width stretch */}
-      <div className="md:max-w-[500px] md:mx-auto lg:max-w-[470px]">
+      {/* Tabbed Feed */}
+      <div>
         <AnimatePresence mode="wait">
           {feedTab === 'foryou' ? (
             <motion.div
@@ -117,8 +118,9 @@ function FeedContainer() {
           )}
         </AnimatePresence>
       </div>
+      </div>{/* end max-w container */}
 
-      {/* Story Viewer (fullscreen modal) */}
+      {/* Story Viewer (fullscreen modal — outside max-w so it's truly fullscreen) */}
       <AnimatePresence>
         {storyViewer && (
           <StoryViewer

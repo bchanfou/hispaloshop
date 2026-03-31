@@ -101,6 +101,8 @@ export default function CreateCommunityPage() {
   const [coverPreview, setCoverPreview] = useState(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [slugStatus, setSlugStatus] = useState(null); // null | 'checking' | 'available' | 'taken'
+  const slugTimerRef = React.useRef(null);
 
   const canCreate = (user?.followers_count >= 100) || (user?.role === 'producer' || user?.role === 'importer');
 
@@ -143,6 +145,22 @@ export default function CreateCommunityPage() {
   }
 
   const update = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+  // C-07: Debounced slug availability check
+  useEffect(() => {
+    clearTimeout(slugTimerRef.current);
+    if (!form.slug || form.slug.length < 3) { setSlugStatus(null); return; }
+    setSlugStatus('checking');
+    slugTimerRef.current = setTimeout(async () => {
+      try {
+        await apiClient.get(`/communities/${form.slug}`);
+        setSlugStatus('taken');
+      } catch {
+        setSlugStatus('available');
+      }
+    }, 500);
+    return () => clearTimeout(slugTimerRef.current);
+  }, [form.slug]);
 
   // Revoke blob URL on unmount to prevent memory leaks
   useEffect(() => {
@@ -292,10 +310,15 @@ export default function CreateCommunityPage() {
               <input
                 value={form.slug}
                 onChange={e => update('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'))}
-                className="flex-1 px-3 py-2.5 bg-stone-100 border border-stone-200 border-l-0 rounded-r-xl outline-none text-stone-950 text-sm box-border"
+                className={`flex-1 px-3 py-2.5 bg-stone-100 border border-l-0 rounded-r-xl outline-none text-stone-950 text-sm box-border ${
+                  slugStatus === 'taken' ? 'border-stone-400' : 'border-stone-200'
+                }`}
                 placeholder="aceites-de-espana"
               />
             </div>
+            {slugStatus === 'checking' && <p className="text-[11px] text-stone-400 mt-1 m-0">Comprobando disponibilidad...</p>}
+            {slugStatus === 'available' && <p className="text-[11px] text-stone-600 mt-1 m-0">✓ URL disponible</p>}
+            {slugStatus === 'taken' && <p className="text-[11px] text-stone-600 mt-1 m-0">✗ Esta URL ya está en uso</p>}
           </FormField>
 
           {/* Description */}

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, ChevronDown, ChevronUp, Clock, ImagePlus, Loader2, Plus, Users, X, Salad, Flame, IceCreamCone, UtensilsCrossed, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Camera, Check, ChevronDown, ChevronUp, Clock, ImagePlus, Loader2, Plus, Users, X, Salad, Flame, IceCreamCone, UtensilsCrossed, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -137,12 +137,53 @@ export default function CreateRecipePage() {
     title: '',
     description: '',
     difficulty: 'easy',
+    meal_type: null,
     time_minutes: 30,
     servings: 4,
     ingredients: [],
     steps: [{ text: '', image_url: '' }],
     tags: [],
   });
+  const [publishSuccess, setPublishSuccess] = useState(false);
+  const [draftBanner, setDraftBanner] = useState(false);
+  const draftDebounceRef = useRef(null);
+
+  // R-05: Check for existing draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('recipe_draft');
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      const age = Date.now() - (draft.savedAt || 0);
+      if (age < 24 * 60 * 60 * 1000 && (draft.title || draft.ingredients?.length)) {
+        setDraftBanner(true);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // R-05: Auto-save draft on changes
+  useEffect(() => {
+    if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current);
+    draftDebounceRef.current = setTimeout(() => {
+      try {
+        if (recipe.title || recipe.ingredients.length || recipe.steps.some(s => s.text)) {
+          localStorage.setItem('recipe_draft', JSON.stringify({
+            title: recipe.title,
+            description: recipe.description,
+            difficulty: recipe.difficulty,
+            meal_type: recipe.meal_type,
+            time_minutes: recipe.time_minutes,
+            servings: recipe.servings,
+            ingredients: recipe.ingredients.map(({ product, ...rest }) => rest),
+            steps: recipe.steps.map(s => ({ text: s.text, image_url: '' })),
+            tags: recipe.tags,
+            savedAt: Date.now(),
+          }));
+        }
+      } catch { /* quota exceeded */ }
+    }, 500);
+    return () => { if (draftDebounceRef.current) clearTimeout(draftDebounceRef.current); };
+  }, [recipe.title, recipe.description, recipe.difficulty, recipe.time_minutes, recipe.servings, recipe.ingredients, recipe.steps, recipe.tags]);
 
   const selectedProducts = useMemo(
     () => recipe.ingredients.filter((ingredient) => ingredient.product_id),
@@ -238,6 +279,7 @@ export default function CreateRecipePage() {
 
   const handleStepImage = async (index, file) => {
     if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error(t('social.maxSize10', 'El tamaño máximo es 10MB')); return; }
     try { updateStep(index, 'image_url', await fileToDataUrl(file)); } catch { toast.error('No hemos podido cargar la imagen del paso'); }
   };
 
@@ -253,10 +295,14 @@ export default function CreateRecipePage() {
     setSubmitting(true);
     try {
       const data = await apiClient.post('/recipes', { ...recipe, title: recipe.title.trim(), description: recipe.description.trim(), ingredients: ci, steps: cs });
-      toast.success(t('recipes.published', 'Receta publicada'));
-      navigate(`/recipes/${data.recipe_id}`);
-    } catch (error) { toast.error(error.message || 'No hemos podido publicar la receta'); }
-    finally { setSubmitting(false); }
+      try { localStorage.removeItem('recipe_draft'); } catch { /* ignore */ }
+      if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
+      setPublishSuccess(true);
+      setTimeout(() => {
+        toast.success(t('recipes.published', 'Receta publicada'));
+        navigate(`/recipes/${data.recipe_id}`);
+      }, 1200);
+    } catch (error) { toast.error(error.message || 'No hemos podido publicar la receta'); setSubmitting(false); }
   };
 
   const diff = DIFFICULTY_MAP[recipe.difficulty];
@@ -274,7 +320,63 @@ export default function CreateRecipePage() {
         </button>
       </div>
 
+      {/* R-06: Publish success overlay */}
+      {publishSuccess && (
+        <div className="fixed inset-0 z-[70] bg-white flex flex-col items-center justify-center gap-4" style={{ animation: 'fadeIn 0.3s ease' }}>
+          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1)' }}>
+            <Check size={28} className="text-white" strokeWidth={2.5} />
+          </div>
+          <span className="text-base font-semibold text-stone-950">¡Receta publicada!</span>
+        </div>
+      )}
+      <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes scaleIn{from{transform:scale(0)}to{transform:scale(1)}}`}</style>
+
       <div className="mx-auto max-w-[480px] px-4 py-4 pb-8">
+        {/* R-05: Draft banner */}
+        {draftBanner && (
+          <div className="flex items-center justify-between gap-2 bg-stone-100 rounded-2xl p-3 mb-4">
+            <span className="text-[13px] text-stone-950 font-medium">Tienes un borrador de receta</span>
+            <div className="flex gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    const raw = localStorage.getItem('recipe_draft');
+                    if (raw) {
+                      const draft = JSON.parse(raw);
+                      setRecipe(prev => ({
+                        ...prev,
+                        title: draft.title || prev.title,
+                        description: draft.description || prev.description,
+                        difficulty: draft.difficulty || prev.difficulty,
+                        time_minutes: draft.time_minutes ?? prev.time_minutes,
+                        servings: draft.servings ?? prev.servings,
+                        ingredients: draft.ingredients?.length ? draft.ingredients : prev.ingredients,
+                        steps: draft.steps?.length ? draft.steps : prev.steps,
+                        tags: draft.tags?.length ? draft.tags : prev.tags,
+                      }));
+                    }
+                  } catch { /* ignore */ }
+                  setDraftBanner(false);
+                }}
+                className="text-[13px] font-semibold text-stone-950 bg-transparent border-none cursor-pointer p-0"
+              >
+                Restaurar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  try { localStorage.removeItem('recipe_draft'); } catch { /* ignore */ }
+                  setDraftBanner(false);
+                }}
+                className="text-[13px] text-stone-500 bg-transparent border-none cursor-pointer p-0"
+              >
+                Descartar
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Cover photo */}
         <div
           onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
@@ -359,6 +461,33 @@ export default function CreateRecipePage() {
               <input type="number" value={recipe.servings} onChange={(e) => updateRecipe('servings', Number(e.target.value) || 1)} data-testid="recipe-servings" aria-label="Número de raciones" className="w-7 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
               <span className="text-[10px] text-stone-400">personas</span>
             </div>
+          </div>
+        </div>
+
+        {/* Meal type (optional) */}
+        <div className="mb-6">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-stone-500">Momento del día</p>
+          <div className="flex gap-2">
+            {[
+              { key: 'breakfast', label: 'Desayuno', icon: '🌅' },
+              { key: 'lunch', label: 'Almuerzo', icon: '☀️' },
+              { key: 'snack', label: 'Merienda', icon: '🍵' },
+              { key: 'dinner', label: 'Cena', icon: '🌙' },
+            ].map(mt => (
+              <button
+                key={mt.key}
+                type="button"
+                onClick={() => updateRecipe('meal_type', recipe.meal_type === mt.key ? null : mt.key)}
+                className={`flex-1 rounded-xl py-2 text-center cursor-pointer transition-colors ${
+                  recipe.meal_type === mt.key
+                    ? 'bg-stone-950 text-white border-none'
+                    : 'bg-white text-stone-700 border border-stone-200'
+                }`}
+              >
+                <div className="text-base mb-0.5">{mt.icon}</div>
+                <div className="text-[11px] font-medium">{mt.label}</div>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -574,7 +703,13 @@ export default function CreateRecipePage() {
         currentText={recipe.description || recipe.title}
         productIds={selectedProducts.map(p => p.product_id)}
         onUseCaption={(text) => { setRecipe(prev => ({ ...prev, description: text })); setShowAIPanel(false); }}
-        onAddHashtags={(tags) => { setRecipe(prev => ({ ...prev, description: (prev.description || '') + ' ' + tags })); setShowAIPanel(false); }}
+        onAddHashtags={(tags) => {
+          const newTags = (typeof tags === 'string' ? tags.split(/\s+/) : Array.isArray(tags) ? tags : [])
+            .map(t => t.replace(/^#/, '').trim())
+            .filter(t => t.length > 0);
+          setRecipe(prev => ({ ...prev, tags: [...new Set([...prev.tags, ...newTags])] }));
+          setShowAIPanel(false);
+        }}
       />
     </div>
   );

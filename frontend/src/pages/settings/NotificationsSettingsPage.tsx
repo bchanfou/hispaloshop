@@ -93,6 +93,8 @@ export default function NotificationsSettingsPage() {
   }, [serverPrefs]);
 
   const toastTimer = useRef(null);
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
+
   const handleToggle = async (key, val) => {
     setPrefs(p => ({ ...p, [key]: val }));
     try {

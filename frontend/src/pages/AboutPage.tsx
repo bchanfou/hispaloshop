@@ -25,10 +25,10 @@ import {
 export default function AboutPage() {
   const [founderAvatarError, setFounderAvatarError] = useState(false);
   const stats = [
-    { value: '65+', label: 'Países activos' },
-    { value: '100%', label: 'Productos verificados' },
-    { value: '24-48h', label: 'Ventana de entrega' },
-    { value: '80+', label: 'Categorías' },
+    { value: '✓', label: 'Productores verificados' },
+    { value: '✓', label: 'Venta directa' },
+    { value: '✓', label: 'Envío gestionado por productor' },
+    { value: '✓', label: 'Trazabilidad completa' },
   ];
 
   const features = [

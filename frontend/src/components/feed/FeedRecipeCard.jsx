@@ -1,26 +1,33 @@
-import React, { useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, lazy, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, ShoppingCart, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const RecipeOverlay = lazy(() => import('../recipes/RecipeOverlay'));
 
 /**
  * Recipe preview card inserted into the feed at intervals.
  * P-09: "Comprar ingredientes" expandable section with search links.
+ * R-10: Opens RecipeOverlay on click instead of navigating.
  */
 export default function FeedRecipeCard({ recipe }) {
   const [showIngredients, setShowIngredients] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   const navigate = useNavigate();
 
   if (!recipe) return null;
 
   const image = recipe.image_url || recipe.images?.[0]?.url || recipe.images?.[0] || '';
   const title = recipe.title || recipe.name || 'Receta';
-  const prepTime = recipe.prep_time || recipe.cooking_time;
+  const prepTime = recipe.prep_time || recipe.cooking_time || recipe.time_minutes;
   const ingredients = recipe.ingredients || [];
+  const authorName = recipe.author_name || '';
+  const difficulty = recipe.difficulty;
+  const DIFF_LABELS = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' };
 
   return (
     <div className="mx-3 my-3 rounded-2xl shadow-sm bg-white overflow-hidden lg:hover:shadow-md lg:hover:-translate-y-0.5 transition-all duration-200">
-      <Link to={`/recipes/${recipe.id}`} className="block">
+      <div className="cursor-pointer" onClick={() => setShowOverlay(true)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setShowOverlay(true); }}>
         {/* Recipe image */}
         {image ? (
           <div className="aspect-[3/4] w-full overflow-hidden relative">
@@ -49,13 +56,32 @@ export default function FeedRecipeCard({ recipe }) {
           <p className="text-[14px] font-semibold text-stone-950 leading-tight line-clamp-2">
             {title}
           </p>
+          {(authorName || difficulty) && (
+            <div className="mt-1 flex items-center gap-2 flex-wrap">
+              {authorName && <span className="text-xs text-stone-500 truncate max-w-[140px]">{authorName}</span>}
+              {difficulty && DIFF_LABELS[difficulty] && (
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                  difficulty === 'hard' ? 'bg-stone-950 text-stone-50' : 'bg-stone-100 text-stone-600'
+                }`}>
+                  {DIFF_LABELS[difficulty]}
+                </span>
+              )}
+            </div>
+          )}
           <div className="mt-2.5">
             <span className="rounded-full bg-stone-950 px-4 py-1.5 text-[12px] font-semibold text-white">
               Ver receta
             </span>
           </div>
         </div>
-      </Link>
+      </div>
+
+      {/* R-10: Recipe overlay */}
+      {showOverlay && (
+        <Suspense fallback={null}>
+          <RecipeOverlay recipe={recipe} onClose={() => setShowOverlay(false)} />
+        </Suspense>
+      )}
 
       {/* P-09: Ingredient shopping section */}
       {ingredients.length > 0 && (

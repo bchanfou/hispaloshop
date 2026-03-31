@@ -22,25 +22,6 @@ export default function ForInfluencers() {
         </div>
       </section>
 
-      {/* VIDEO INSTITUCIONAL */}
-      <section className="info-video bg-stone-50 py-16 px-4">
-        <div className="max-w-[900px] mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6">¿Por qué Hispaloshop es diferente?</h2>
-          <div className="video-wrapper flex justify-center mb-6">
-            <iframe
-              width="560"
-              height="315"
-              src="https://www.youtube.com/embed/2g811Eo7K8U"
-              title="Video institucional Hispaloshop"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-          <p className="text-stone-600 text-lg">No eres un número más. Aquí tu comunidad importa y tu trabajo deja huella.</p>
-        </div>
-      </section>
-
       {/* PASOS SIMPLIFICADOS */}
       <section className="info-steps bg-white py-16 px-4">
         <div className="max-w-[900px] mx-auto">

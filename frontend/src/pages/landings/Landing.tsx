@@ -81,9 +81,9 @@ const FEATURES = [
    Social proof stats
    ───────────────────────────────────────────── */
 const STATS = [
-  { value: 12847, label: 'productores' },
-  { value: 89321, label: 'pedidos' },
-  { value: 4.9, label: 'valoraci\u00f3n media', format: (n) => n.toFixed(1) },
+  { label: 'Productores verificados' },
+  { label: 'Venta directa sin intermediarios' },
+  { label: 'Trazabilidad completa' },
 ];
 
 /* ─────────────────────────────────────────────
@@ -140,15 +140,7 @@ export default function Landing() {
           {STATS.map((s, i) => (
             <React.Fragment key={s.label}>
               {i > 0 && <span className="hidden sm:inline text-stone-300">&middot;</span>}
-              <span>
-                <AnimatedNumber
-                  value={s.value}
-                  duration={800}
-                  format={s.format}
-                  className="font-semibold text-stone-600"
-                />{' '}
-                {s.label}
-              </span>
+              <span className="font-semibold text-stone-600">{s.label}</span>
             </React.Fragment>
           ))}
         </motion.div>

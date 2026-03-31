@@ -18,6 +18,34 @@ from core.auth import get_current_user, require_role, get_optional_user
 from services.cloudinary_storage import upload_image as cloudinary_upload
 
 logger = logging.getLogger(__name__)
+
+# S-06: Approximate coordinates for common Spanish/European cities (offline geocode fallback)
+_CITY_COORDS = {
+    "madrid": (40.4168, -3.7038), "sevilla": (37.3891, -5.9845), "barcelona": (41.3874, 2.1686),
+    "valencia": (39.4699, -0.3763), "málaga": (36.7213, -4.4214), "malaga": (36.7213, -4.4214),
+    "granada": (37.1773, -3.5986), "córdoba": (37.8882, -4.7794), "cordoba": (37.8882, -4.7794),
+    "jaén": (37.7796, -3.7849), "jaen": (37.7796, -3.7849), "huelva": (37.2614, -6.9447),
+    "cádiz": (36.5271, -6.2886), "cadiz": (36.5271, -6.2886), "almería": (36.8340, -2.4637),
+    "bilbao": (43.2630, -2.9350), "zaragoza": (41.6488, -0.8891), "murcia": (37.9922, -1.1307),
+    "palma": (39.5696, 2.6502), "las palmas": (28.1235, -15.4363), "alicante": (38.3452, -0.4810),
+    "valladolid": (41.6523, -4.7245), "vigo": (42.2406, -8.7207), "gijón": (43.5453, -5.6615),
+    "lisboa": (38.7223, -9.1393), "porto": (41.1579, -8.6291), "paris": (48.8566, 2.3522),
+    "london": (51.5074, -0.1278), "berlin": (52.5200, 13.4050), "roma": (41.9028, 12.4964),
+    "amsterdam": (52.3676, 4.9041), "bruselas": (50.8503, 4.3517), "méxico": (19.4326, -99.1332),
+    "bogotá": (4.7110, -74.0721), "buenos aires": (-34.6037, -58.3816), "lima": (-12.0464, -77.0428),
+    "santiago": (-33.4489, -70.6693), "são paulo": (-23.5505, -46.6333),
+}
+
+def _approx_coords(location_str: str):
+    """Try to match a location string to known city coordinates."""
+    if not location_str:
+        return None
+    normalized = unicodedata.normalize("NFKD", location_str.lower()).encode("ascii", "ignore").decode()
+    for city, coords in _CITY_COORDS.items():
+        city_norm = unicodedata.normalize("NFKD", city).encode("ascii", "ignore").decode()
+        if city_norm in normalized:
+            return {"lat": coords[0], "lng": coords[1]}
+    return None
 router = APIRouter()
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.hispaloshop.com')
@@ -67,6 +95,7 @@ async def get_all_stores(
     producer_id: Optional[str] = None,
     plan: Optional[str] = None,
     limit: Optional[int] = None,
+    skip: int = 0,
 ):
     """Get all public store profiles with optional filtering"""
     # Build query
@@ -95,32 +124,88 @@ async def get_all_stores(
     
     max_results = min(limit, 1000) if limit else 1000
     stores = await db.store_profiles.find(query, {"_id": 0}).to_list(max_results)
-    
+
     # Filter by search if provided
     if search:
         search_lower = search.lower()
         stores = [
-            s for s in stores 
-            if search_lower in (s.get("name") or "").lower() 
+            s for s in stores
+            if search_lower in (s.get("name") or "").lower()
             or search_lower in (s.get("location") or "").lower()
             or search_lower in (s.get("tagline") or "").lower()
         ]
-    
-    # Enrich stores with product and follower counts
+
+    # Apply skip for pagination (S-07)
+    if skip > 0:
+        stores = stores[skip:]
+
+    # Batch-fetch producer info for verified + plan (S-04)
+    producer_ids = list({s.get("producer_id") for s in stores if s.get("producer_id")})
+    producer_map = {}
+    if producer_ids:
+        producers = await db.users.find(
+            {"user_id": {"$in": producer_ids}},
+            {"_id": 0, "user_id": 1, "approved": 1, "subscription_plan": 1}
+        ).to_list(len(producer_ids))
+        producer_map = {p["user_id"]: p for p in producers}
+
+    # Enrich stores with product count, follower count, rating, verified, plan
     for store in stores:
-        # Get product count
+        pid = store.get("producer_id")
+        # Product count
         product_count = await db.products.count_documents({
-            "producer_id": store.get("producer_id"),
+            "producer_id": pid,
             **_public_product_filter(),
         })
         store["product_count"] = product_count
-        
-        # Get follower count
+
+        # Follower count
         follower_count = await db.store_followers.count_documents({
             "store_id": store.get("store_id")
         })
         store["follower_count"] = follower_count
-    
+
+        # Verified + plan from producer user (S-04)
+        producer = producer_map.get(pid, {})
+        store["verified"] = producer.get("approved", False)
+        store["producer_verified"] = store["verified"]
+        store["plan"] = producer.get("subscription_plan", "free")
+
+        # S-06: Approximate coordinates for stores without them
+        if not store.get("coordinates") or not store["coordinates"].get("lat"):
+            approx = _approx_coords(store.get("location") or store.get("full_address") or "")
+            if approx:
+                store["coordinates"] = approx
+
+        # Rating from product reviews (S-04)
+        if product_count > 0:
+            product_ids = [p["product_id"] for p in await db.products.find(
+                {"producer_id": pid, **_public_product_filter()},
+                {"_id": 0, "product_id": 1}
+            ).to_list(100)]
+            if product_ids:
+                pipeline = [
+                    {"$match": {"product_id": {"$in": product_ids}, "approved": True}},
+                    {"$group": {"_id": None, "avg": {"$avg": "$rating"}, "count": {"$sum": 1}}},
+                ]
+                try:
+                    agg = await db.reviews.aggregate(pipeline).to_list(1)
+                    if agg:
+                        store["rating"] = round(agg[0]["avg"], 1)
+                        store["review_count"] = agg[0]["count"]
+                    else:
+                        store["rating"] = 0
+                        store["review_count"] = 0
+                except Exception:
+                    store["rating"] = 0
+                    store["review_count"] = 0
+            else:
+                store["rating"] = 0
+                store["review_count"] = 0
+        else:
+            store["rating"] = 0
+            store["review_count"] = 0
+
     return stores
 
 @router.get("/store/{slug}")
@@ -138,7 +223,9 @@ async def get_store_by_slug(slug: str):
     if producer:
         store["producer_name"] = producer.get("name", store["name"])
         store["producer_verified"] = producer.get("approved", False)
+        store["verified"] = store["producer_verified"]
         store["owner_role"] = producer.get("role", "producer")
+        store["plan"] = producer.get("subscription_plan", "free")
     
     # Ensure owner_type is set (backward compatibility)
     if "owner_type" not in store:
@@ -151,6 +238,8 @@ async def get_store_by_slug(slug: str):
     ).to_list(1000)
     product_ids = [p["product_id"] for p in products if p.get("product_id")]
 
+    store["rating"] = 0
+    store["review_count"] = 0
     if product_ids:
         reviews = await db.reviews.find(
             {"product_id": {"$in": product_ids}, "approved": True}
@@ -158,7 +247,7 @@ async def get_store_by_slug(slug: str):
         if reviews:
             store["rating"] = round(sum(r.get("rating", 0) for r in reviews) / len(reviews), 1)
             store["review_count"] = len(reviews)
-    
+
     # Get follower count for Instagram-style display
     follower_count = await db.store_followers.count_documents({"store_id": store.get("store_id")})
     store["follower_count"] = follower_count

@@ -110,18 +110,19 @@ async def create_conversation(input: NewConversationInput, user: User = Depends(
     if not sender_can_chat or not receiver_can_chat:
         raise HTTPException(status_code=403, detail="El chat solo está disponible entre productores e influencers")
 
-    # Check if conversation already exists
-    existing = await db.internal_chats.find_one({
+    # CH-10: Atomic upsert to prevent race condition (find_one + insert_one gap)
+    conv_filter = {
         "$or": [
             {"user1_id": user.user_id, "user2_id": input.other_user_id},
             {"user1_id": input.other_user_id, "user2_id": user.user_id}
         ]
-    }, {"_id": 0})
-    
+    }
+    existing = await db.internal_chats.find_one(conv_filter, {"_id": 0})
+
     if existing:
         return existing
-    
-    # Create new conversation
+
+    # Create new conversation with unique index safety
     conversation = {
         "conversation_id": f"conv_{uuid.uuid4().hex[:12]}",
         "user1_id": user.user_id,
@@ -130,8 +131,15 @@ async def create_conversation(input: NewConversationInput, user: User = Depends(
         "last_message": None,
         "last_message_at": None
     }
-    
-    await db.internal_chats.insert_one(conversation)
+
+    try:
+        await db.internal_chats.insert_one(conversation)
+    except Exception:
+        # If concurrent insert happened, find the existing one
+        existing = await db.internal_chats.find_one(conv_filter, {"_id": 0})
+        if existing:
+            return existing
+        raise
     
     # Return with other user info
     return {

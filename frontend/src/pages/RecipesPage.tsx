@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ChefHat, Clock, Loader2, Plus, X, Bookmark, AlertTriangle } from 'lucide-react';
+import { Search, ChefHat, Clock, Heart, Loader2, Plus, Star, X, Bookmark, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
@@ -79,13 +79,30 @@ function RecipeCard({ recipe }) {
           )}
         </div>
         {/* Info */}
-        <div className="px-1 pt-2 pb-1">
+        <div className="px-1 pt-2 pb-1.5">
           <p className="line-clamp-2 text-sm font-semibold leading-snug text-stone-950">
             {recipe.title}
           </p>
-          {cookTime > 0 && (
-            <p className="mt-0.5 flex items-center gap-1 text-xs text-stone-500">
-              <Clock size={11} /> {cookTime} min
+          <div className="mt-1 flex items-center gap-2 flex-wrap">
+            {cookTime > 0 && (
+              <span className="flex items-center gap-0.5 text-[11px] text-stone-500">
+                <Clock size={10} /> {cookTime} min
+              </span>
+            )}
+            {recipe.difficulty && DIFFICULTY_CLASSES[recipe.difficulty] && (
+              <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${DIFFICULTY_CLASSES[recipe.difficulty].pill}`}>
+                {DIFFICULTY_CLASSES[recipe.difficulty].label}
+              </span>
+            )}
+            {recipe.avg_rating > 0 && (
+              <span className="flex items-center gap-0.5 text-[11px] text-stone-500">
+                <Star size={10} fill="currentColor" /> {recipe.avg_rating}
+              </span>
+            )}
+          </div>
+          {recipe.likes_count > 0 && (
+            <p className="mt-0.5 flex items-center gap-0.5 text-[10px] text-stone-400">
+              <Heart size={9} /> {recipe.likes_count}
             </p>
           )}
         </div>

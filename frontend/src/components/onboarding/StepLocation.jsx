@@ -38,10 +38,49 @@ export default function StepLocation({ data, onUpdate, onNext, onBack }) {
   };
 
   const useCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setZipCode('28001');
+      setCity('Madrid');
+      return;
+    }
     setLoadingLocation(true);
-    setZipCode('28001');
-    setCity('Madrid');
-    setLoadingLocation(false);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          // Reverse geocode via free Nominatim API
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=es`, {
+            headers: { 'User-Agent': 'HispaloShop/1.0 (https://hispaloshop.com)' },
+          });
+          const geo = await res.json();
+          if (geo.error) throw new Error(geo.error);
+          const addr = geo.address || {};
+          const detectedCity = addr.city || addr.town || addr.village || addr.municipality || '';
+          const detectedZip = addr.postcode || '';
+          if (detectedZip) setZipCode(detectedZip);
+          if (detectedCity) setCity(detectedCity);
+          try { localStorage.setItem('hsp_user_coords', JSON.stringify({ lat: latitude, lng: longitude })); } catch { /* ignore */ }
+          onUpdate({ zipCode: detectedZip, city: detectedCity, coordinates: { lat: latitude, lng: longitude } });
+        } catch {
+          setZipCode('28001');
+          setCity('Madrid');
+        } finally {
+          setLoadingLocation(false);
+        }
+      },
+      (err) => {
+        setLoadingLocation(false);
+        if (err.code === 1) {
+          // PERMISSION_DENIED — user said no
+          // Don't fallback to Madrid, let them type manually
+        } else {
+          // POSITION_UNAVAILABLE or TIMEOUT — fallback
+          setZipCode('28001');
+          setCity('Madrid');
+        }
+      },
+      { timeout: 15000, enableHighAccuracy: false }
+    );
   };
 
   const handleNext = () => {

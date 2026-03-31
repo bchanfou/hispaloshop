@@ -50,7 +50,7 @@ export default function StorePage() {
 
   const recipesQuery = useQuery({
     queryKey: ['store', storeSlug, 'recipes', store?.producer_id],
-    queryFn: () => apiClient.get(`/users/${store.producer_id}/recipes`),
+    queryFn: () => apiClient.get(`/users/${store?.producer_id}/recipes`),
     enabled: Boolean(store?.producer_id),
   });
 

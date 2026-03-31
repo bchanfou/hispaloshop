@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Query
 import re
 
 from core.database import db
-from core.auth import get_current_user, require_role
+from core.auth import get_current_user, get_optional_user, require_role
 from core.models import User, ReviewCreateInput
 from utils.images import extract_product_image
 
@@ -137,6 +137,11 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
         ingredients.append(item)
 
     recipe_id = f"recipe_{uuid.uuid4().hex[:12]}"
+    # Validate meal_type if provided
+    meal_type = body.get("meal_type")
+    if meal_type and meal_type not in ("breakfast", "lunch", "snack", "dinner"):
+        meal_type = None
+
     recipe = {
         "recipe_id": recipe_id,
         "title": body.get("title", ""),
@@ -147,6 +152,7 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
         "difficulty": body.get("difficulty", "easy"),
         "time_minutes": body.get("time_minutes", 30),
         "servings": body.get("servings", 4),
+        "meal_type": meal_type,
         "ingredients": ingredients,
         "steps": body.get("steps", []),
         "image_url": body.get("image_url"),
@@ -161,37 +167,88 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
 
 @router.get("/recipes")
 async def get_recipes(
+    request: Request,
     q: Optional[str] = None,
     tag: Optional[str] = None,
+    hashtag: Optional[str] = None,
     difficulty: Optional[str] = None,
     limit: int = 20,
+    skip: int = 0,
     exclude: Optional[str] = None,
+    saved: Optional[bool] = None,
 ):
     """Get recipes with filters. `exclude` omits a single recipe by recipe_id or ObjectId."""
     from bson import ObjectId
 
     query = {"status": "active"}
+
+    # Filter to user's saved recipes only
+    if saved:
+        current_user = await get_optional_user(request)
+        if not current_user:
+            return []
+        saved_docs = await db.saved_recipes.find(
+            {"user_id": current_user.user_id},
+            {"_id": 0, "recipe_id": 1},
+        ).to_list(200)
+        saved_ids = [d["recipe_id"] for d in saved_docs]
+        if not saved_ids:
+            return []
+        query["recipe_id"] = {"$in": saved_ids}
+
     if q:
         query["title"] = {"$regex": re.escape(q), "$options": "i"}
-    if tag:
-        query["tags"] = tag
+    effective_tag = tag or hashtag
+    if effective_tag:
+        query["tags"] = {"$regex": re.escape(effective_tag), "$options": "i"}
     if difficulty:
         query["difficulty"] = difficulty
     if exclude:
-        # Try ObjectId first; fall back to recipe_id string match
         exclude_filter: dict = {}
         try:
             exclude_filter = {"_id": {"$ne": ObjectId(exclude)}}
         except Exception:
-            # Not a valid ObjectId — treat as recipe_id string
             exclude_filter = {"recipe_id": {"$ne": exclude}}
         query.update(exclude_filter)
     try:
-        recipes = await db.recipes.find(query, {"_id": 0}).sort("likes_count", -1).limit(limit).to_list(limit)
-        return recipes
+        recipes = await db.recipes.find(query, {"_id": 0}).sort("likes_count", -1).skip(skip).limit(limit).to_list(limit)
     except Exception as exc:
         logger.warning(f"[RECIPES] Falling back to empty list due to data source error: {exc}")
         return []
+
+    # Hydrate is_saved for authenticated user (R-01)
+    current_user = await get_optional_user(request)
+    recipe_ids = [r.get("recipe_id") for r in recipes if r.get("recipe_id")]
+
+    if current_user and recipe_ids:
+        saved_rows = await db.saved_recipes.find(
+            {"user_id": current_user.user_id, "recipe_id": {"$in": recipe_ids}},
+            {"_id": 0, "recipe_id": 1},
+        ).to_list(len(recipe_ids))
+        saved_set = {r["recipe_id"] for r in saved_rows}
+        for r in recipes:
+            r["is_saved"] = r.get("recipe_id") in saved_set
+    else:
+        for r in recipes:
+            r["is_saved"] = False
+
+    # Hydrate avg_rating per recipe from reviews collection
+    if recipe_ids:
+        pipeline = [
+            {"$match": {"recipe_id": {"$in": recipe_ids}, "visible": True}},
+            {"$group": {"_id": "$recipe_id", "avg": {"$avg": "$rating"}, "count": {"$sum": 1}}},
+        ]
+        try:
+            agg = await db.recipe_reviews.aggregate(pipeline).to_list(len(recipe_ids))
+            rating_map = {row["_id"]: {"avg": round(row["avg"], 1), "count": row["count"]} for row in agg}
+        except Exception:
+            rating_map = {}
+        for r in recipes:
+            info = rating_map.get(r.get("recipe_id"), {})
+            r["avg_rating"] = info.get("avg", 0)
+            r["review_count"] = info.get("count", 0)
+
+    return recipes
 
 @router.get("/recipes/ingredient-suggestions")
 async def get_ingredient_suggestions(q: str = Query(..., min_length=1), limit: int = Query(default=4, ge=1, le=8)):
@@ -209,8 +266,102 @@ async def get_ingredient_suggestions(q: str = Query(..., min_length=1), limit: i
         ][:limit]
     }
 
+MEAL_TIME_RANGES = {
+    "breakfast": (6, 10),
+    "lunch":    (11, 15),
+    "snack":    (16, 18),
+    "dinner":   (19, 23),
+}
+
+# Allergen keyword map: user allergen key → ingredient name substrings (Spanish)
+ALLERGEN_KEYWORDS = {
+    "nuts": ["almendra", "nuez", "nueces", "avellana", "pistacho", "anacardo", "cacahuete", "frutos secos"],
+    "lactose": ["leche", "nata", "queso", "yogur", "mantequilla", "crema", "lácteo"],
+    "shellfish": ["gamba", "langostino", "cangrejo", "marisco", "mejillón", "calamar", "pulpo"],
+    "eggs": ["huevo", "yema", "clara de huevo"],
+    "soy": ["soja", "tofu", "edamame"],
+    "wheat": ["trigo", "harina", "pan ", "pasta", "sémola"],
+    "fish": ["pescado", "salmón", "atún", "merluza", "bacalao", "sardina", "anchoa"],
+    "sesame": ["sésamo", "tahini"],
+    "gluten": ["trigo", "harina", "cebada", "centeno", "avena", "espelta"],
+}
+
+
+def _recipe_has_allergen(recipe: dict, allergen_key: str) -> bool:
+    """Check if any recipe ingredient name contains allergen keywords."""
+    keywords = ALLERGEN_KEYWORDS.get(allergen_key, [])
+    if not keywords:
+        return False
+    for ing in recipe.get("ingredients", []):
+        name = (ing.get("name") or "").lower()
+        for kw in keywords:
+            if kw in name:
+                return True
+    return False
+
+
+@router.get("/recipes/featured")
+async def get_featured_recipe(
+    request: Request,
+    tz_offset: int = 0,
+):
+    """Return a single contextual recipe based on time of day + user dietary preferences."""
+    # Determine local hour from UTC + client offset (offset in minutes, e.g. -120 for UTC+2)
+    utc_now = datetime.now(timezone.utc)
+    local_hour = (utc_now.hour + (-tz_offset // 60)) % 24
+
+    # Find meal type for current hour
+    meal_type = None
+    for mt, (start, end) in MEAL_TIME_RANGES.items():
+        if start <= local_hour <= end:
+            meal_type = mt
+            break
+
+    # 0:00–5:59 → no recipe
+    if meal_type is None:
+        return None
+
+    # Get user preferences if authenticated
+    user = await get_optional_user(request)
+    user_allergens = []
+    user_diet = []
+    if user:
+        user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "allergens": 1, "diet_preferences": 1})
+        if user_doc:
+            user_allergens = user_doc.get("allergens") or []
+            user_diet = user_doc.get("diet_preferences") or []
+
+    # Query: active recipes with matching meal_type, sorted by popularity
+    query = {"status": "active", "meal_type": meal_type}
+    candidates = await db.recipes.find(query, {"_id": 0}).sort("likes_count", -1).limit(20).to_list(20)
+
+    # No fallback — if no recipes match this meal_type, don't show the ring
+    if not candidates:
+        return None
+
+    # Filter out recipes containing user allergens
+    if user_allergens:
+        safe = [r for r in candidates if not any(_recipe_has_allergen(r, a) for a in user_allergens)]
+        if safe:
+            candidates = safe
+
+    # Score: boost recipes whose tags match user diet preferences
+    if user_diet:
+        diet_set = set(d.lower() for d in user_diet)
+        def score(r):
+            tags = set(t.lower() for t in (r.get("tags") or []))
+            return len(tags & diet_set)
+        candidates.sort(key=lambda r: (-score(r), -(r.get("likes_count") or 0)))
+
+    result = candidates[0] if candidates else None
+    if result:
+        result["_meal_type_label"] = {"breakfast": "Desayuno", "lunch": "Almuerzo", "snack": "Merienda", "dinner": "Cena"}.get(meal_type, "")
+
+    return result
+
+
 @router.get("/recipes/{recipe_id}")
-async def get_recipe(recipe_id: str):
+async def get_recipe(recipe_id: str, request: Request):
     """Get a single recipe with ingredient-product mapping."""
     try:
         recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0})
@@ -219,7 +370,7 @@ async def get_recipe(recipe_id: str):
         recipe = None
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
-    
+
     # Map ingredients to actual products
     enriched_ingredients = []
     for ing in recipe.get("ingredients", []):
@@ -239,8 +390,17 @@ async def get_recipe(recipe_id: str):
                 "image": extract_product_image(prod),
             }
         enriched_ingredients.append(mapped)
-    
+
     recipe["ingredients"] = enriched_ingredients
+
+    # Hydrate is_saved (R-01)
+    current_user = await get_optional_user(request)
+    if current_user:
+        saved = await db.saved_recipes.find_one({"user_id": current_user.user_id, "recipe_id": recipe_id})
+        recipe["is_saved"] = bool(saved)
+    else:
+        recipe["is_saved"] = False
+
     return recipe
 
 @router.post("/recipes/{recipe_id}/save")
@@ -264,6 +424,93 @@ async def unsave_recipe(recipe_id: str, user: User = Depends(get_current_user)):
     """Remove a recipe from the user's saved list."""
     await db.saved_recipes.delete_one({"user_id": user.user_id, "recipe_id": recipe_id})
     return {"saved": False}
+
+
+@router.patch("/recipes/{recipe_id}")
+async def update_recipe(recipe_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Update own recipe fields (R-02)."""
+    recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0, "author_id": 1})
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    if recipe.get("author_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not your recipe")
+
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    allowed = {"title", "description", "difficulty", "time_minutes", "servings", "ingredients", "steps", "image_url", "tags", "meal_type"}
+    update = {}
+    for key in allowed:
+        if key in body:
+            value = body[key]
+            if key == "title":
+                value = (value or "").strip()
+                if not value:
+                    raise HTTPException(status_code=400, detail="Title cannot be empty")
+            if key == "difficulty" and value not in ("easy", "medium", "hard"):
+                value = "easy"
+            if key == "meal_type" and value not in (None, "breakfast", "lunch", "snack", "dinner"):
+                value = None
+            if key == "time_minutes":
+                value = max(0, int(value or 0))
+            if key == "servings":
+                value = max(1, int(value or 1))
+            update[key] = value
+    if not update:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    # Auto-match ingredients to products (same as POST /recipes)
+    if "ingredients" in update and isinstance(update["ingredients"], list):
+        matched = []
+        for ing in update["ingredients"]:
+            item = dict(ing) if isinstance(ing, dict) else {"name": str(ing)}
+            if not item.get("product_id") and item.get("name"):
+                prod = await _match_ingredient_product(item["name"])
+                if prod:
+                    item["product_id"] = prod.get("product_id")
+                    item["suggested_product"] = {
+                        "product_id": prod.get("product_id"),
+                        "name": prod.get("name", ""),
+                        "price": prod.get("price", 0),
+                        "image": extract_product_image(prod),
+                    }
+            matched.append(item)
+        update["ingredients"] = matched
+
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.recipes.update_one({"recipe_id": recipe_id}, {"$set": update})
+    updated = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0})
+    return updated
+
+
+@router.delete("/recipes/{recipe_id}")
+async def delete_recipe(recipe_id: str, user: User = Depends(get_current_user)):
+    """Delete own recipe (R-03). Soft-delete by setting status to 'deleted'."""
+    recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0, "author_id": 1})
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    if recipe.get("author_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not your recipe")
+
+    await db.recipes.update_one({"recipe_id": recipe_id}, {"$set": {"status": "deleted", "deleted_at": datetime.now(timezone.utc).isoformat()}})
+    # Clean up saved references
+    await db.saved_recipes.delete_many({"recipe_id": recipe_id})
+    return {"status": "deleted"}
+
+
+@router.delete("/recipes/{recipe_id}/reviews/{review_id}")
+async def delete_recipe_review(recipe_id: str, review_id: str, user: User = Depends(get_current_user)):
+    """Delete own recipe review (R-04)."""
+    review = await db.recipe_reviews.find_one({"review_id": review_id, "recipe_id": recipe_id}, {"_id": 0, "user_id": 1})
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+    if review.get("user_id") != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not your review")
+
+    await db.recipe_reviews.delete_one({"review_id": review_id})
+    return {"status": "deleted"}
+
 
 @router.get("/recipes/{recipe_id}/shopping-list-preview")
 async def get_shopping_list_preview(recipe_id: str, servings: Optional[int] = Query(default=None)):
@@ -402,9 +649,9 @@ async def create_recipe_review(recipe_id: str, request: Request, user: User = De
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    # Check duplicate
+    # Check duplicate (only visible reviews block re-submission — hidden reviews allow retry)
     existing = await db.recipe_reviews.find_one(
-        {"recipe_id": recipe_id, "user_id": user.user_id},
+        {"recipe_id": recipe_id, "user_id": user.user_id, "visible": True},
         {"_id": 0}
     )
     if existing:

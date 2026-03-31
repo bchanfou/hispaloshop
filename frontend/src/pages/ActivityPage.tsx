@@ -1,7 +1,7 @@
 // @ts-nocheck
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   ArrowLeft, Heart, MessageCircle, UserPlus, Bookmark,
   AlertTriangle, Clock, RefreshCw, Flame,
@@ -136,21 +136,32 @@ export default function ActivityPage() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterKey>('all');
 
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['notifications', 'all', { page: 1 }],
-    queryFn: () => apiClient.get('/notifications', { params: { page: 1, limit: 50 } }),
+  const { data, isLoading, isError, refetch, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteQuery({
+    queryKey: ['activity-feed'],
+    queryFn: ({ pageParam = 1 }) => apiClient.get('/notifications', { params: { page: pageParam, limit: 30 } }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage?.has_more ? (lastPage?.page || 1) + 1 : undefined,
     staleTime: 30_000,
   });
 
-  // Extract notification items from paginated or flat response
+  // Infinite scroll sentinel
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [handleObserver]);
+
+  // Extract notification items from paginated response
   const rawItems: ActivityItem[] = useMemo(() => {
-    if (!data) return [];
-    // Infinite query shape: { pages: [...] }
-    if (data.pages) {
-      return data.pages.flatMap((p: any) => p.notifications || p.items || p.data || []);
-    }
-    // Flat response
-    return data.notifications || data.items || data.data || (Array.isArray(data) ? data : []);
+    if (!data?.pages) return [];
+    return data.pages.flatMap((p: any) => p.notifications || p.items || p.data || []);
   }, [data]);
 
   // Filter to social/activity types only
@@ -260,12 +271,9 @@ export default function ActivityPage() {
                         key={key}
                         className="flex items-center gap-3 py-3 rounded-xl hover:bg-stone-50 transition-colors px-2 -mx-2"
                       >
-                        {/* Type icon */}
                         <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center shrink-0">
                           <Icon size={18} className="text-stone-600" />
                         </div>
-
-                        {/* Description + time */}
                         <div className="flex-1 min-w-0">
                           <p className="text-[14px] text-stone-950 m-0 leading-snug line-clamp-2">
                             {item.message || item.title || item.type}
@@ -274,8 +282,6 @@ export default function ActivityPage() {
                             {timeAgo(item.created_at)}
                           </p>
                         </div>
-
-                        {/* Thumbnail */}
                         {thumb && (
                           <img
                             src={thumb}
@@ -289,6 +295,14 @@ export default function ActivityPage() {
                 </div>
               </section>
             ))}
+
+            {/* Infinite scroll sentinel */}
+            {hasNextPage && <div ref={sentinelRef} className="h-16" />}
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-4">
+                <div className="w-6 h-6 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
+              </div>
+            )}
           </div>
         )}
       </div>

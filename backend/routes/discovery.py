@@ -95,6 +95,50 @@ async def get_ranked_feed(
     }
 
 
+# ── Quick search (alias for /search, used by DiscoverPage autocomplete) ────────
+
+@router.get("/discovery/search")
+async def discovery_search(
+    q: str = Query("", min_length=0, max_length=100),
+    limit: int = Query(5, ge=1, le=20),
+    request: Request = None,
+):
+    """Autocomplete search for DiscoverPage — returns mixed results."""
+    if not q.strip():
+        return {"products": [], "recipes": [], "stores": [], "creators": [], "total": 0}
+    import re
+    safe_q = re.escape(q.strip()[:100])
+    try:
+        products, recipes, stores, creators = await asyncio.gather(
+            db.products.find(
+                {"name": {"$regex": safe_q, "$options": "i"}, "$or": [{"status": "active"}, {"approved": True}]},
+                {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1},
+            ).limit(limit).to_list(limit),
+            db.recipes.find(
+                {"title": {"$regex": safe_q, "$options": "i"}, "status": "active"},
+                {"_id": 0, "recipe_id": 1, "title": 1, "image_url": 1},
+            ).limit(limit).to_list(limit),
+            db.store_profiles.find(
+                {"name": {"$regex": safe_q, "$options": "i"}},
+                {"_id": 0, "store_id": 1, "name": 1, "slug": 1, "logo": 1, "location": 1},
+            ).limit(limit).to_list(limit),
+            db.users.find(
+                {"name": {"$regex": safe_q, "$options": "i"}, "role": {"$in": ["producer", "influencer", "importer"]}},
+                {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "role": 1},
+            ).limit(limit).to_list(limit),
+            return_exceptions=True,
+        )
+        return {
+            "products": products if not isinstance(products, Exception) else [],
+            "recipes": recipes if not isinstance(recipes, Exception) else [],
+            "stores": stores if not isinstance(stores, Exception) else [],
+            "creators": creators if not isinstance(creators, Exception) else [],
+            "total": sum(len(x) for x in [products, recipes, stores, creators] if not isinstance(x, Exception)),
+        }
+    except Exception:
+        return {"products": [], "recipes": [], "stores": [], "creators": [], "total": 0}
+
+
 # ── Explore sections ───────────────────────────────────────────────────────────
 
 @router.get("/discovery/explore")
@@ -195,18 +239,25 @@ async def get_related_products(
 
 @router.get("/discovery/trending")
 async def get_trending(
-    type: str = Query("products", pattern="^(products|recipes|creators)$"),
+    type: str = Query("products", pattern="^(products|recipes|creators|hashtags)$"),
     country: Optional[str] = Query(None),
     limit: int = Query(10, le=20),
     user: Optional[User] = Depends(get_current_user),
 ):
-    """Trending entities: products | recipes | creators."""
+    """Trending entities: products | recipes | creators | hashtags."""
     resolved_country = country or _country_of(user)
 
     if type == "products":
         items = await get_trending_products(country=resolved_country, limit=limit)
     elif type == "recipes":
         items = await get_trending_recipes(country=resolved_country, limit=limit)
+    elif type == "hashtags":
+        # S-01: Trending hashtags by post_count
+        items = await db.hashtags.find(
+            {"post_count": {"$gt": 0}}
+        ).sort("post_count", -1).limit(limit).to_list(limit)
+        for item in items:
+            item.pop("_id", None)
     else:
         uid = user.user_id if user else None
         items = await get_suggested_creators(user_id=uid, country=resolved_country, limit=limit)
@@ -216,6 +267,29 @@ async def get_trending(
         "country": resolved_country,
         "items": [_s(item) for item in items],
     }
+
+
+# ── S-02: Discovery search — lightweight proxy to /search for DiscoverPage autocomplete ──
+
+@router.get("/discovery/search")
+async def discovery_search(
+    q: str = Query("", min_length=1, max_length=100),
+    limit: int = Query(5, le=20),
+    user: Optional[User] = Depends(get_current_user),
+):
+    """Quick search for DiscoverPage autocomplete dropdown."""
+    import re as _re
+    sanitized = _re.escape(q.strip()[:100])
+    if not sanitized:
+        return {"results": []}
+
+    country = _country_of(user)
+    query = {"status": {"$in": ["active", "approved"]}, "name": {"$regex": sanitized, "$options": "i"}}
+    if country:
+        query["$or"] = [{"target_markets": country}, {"target_markets": {"$exists": False}}]
+
+    products = await db.products.find(query, {"_id": 0}).sort("stats.orders_count", -1).limit(limit).to_list(limit)
+    return {"results": products}
 
 
 # ── Interaction tracking ───────────────────────────────────────────────────────

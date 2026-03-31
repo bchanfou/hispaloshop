@@ -19,31 +19,15 @@ import SEO from '../../components/SEO';
    Social proof stats
    ───────────────────────────────────────────── */
 const STATS = [
-  { target: 1200, suffix: '+', label: 'productores' },
-  { target: 65, suffix: '+', label: 'países' },
-  { target: 100, suffix: '%', label: 'verificados' },
+  { label: 'Productores verificados' },
+  { label: 'Venta directa' },
+  { label: 'Trazabilidad completa' },
 ];
 
 /* ─────────────────────────────────────────────
    Testimonials
    ───────────────────────────────────────────── */
-const TESTIMONIALS = [
-  {
-    quote: 'Este marketplace cambió mi negocio',
-    name: 'María',
-    role: 'Productora de aceite',
-  },
-  {
-    quote: 'Descubrí productos que no encontraba en ningún lado',
-    name: 'Carlos',
-    role: 'Consumidor',
-  },
-  {
-    quote: 'Gano comisiones recomendando lo que me gusta',
-    name: 'Ana',
-    role: 'Influencer',
-  },
-];
+const TESTIMONIALS = [];
 
 /* ─────────────────────────────────────────────
    Animated counter hook
@@ -363,9 +347,11 @@ export default function QueEsPage() {
           6. SOCIAL PROOF STATS
          ════════════════════════════════════════ */}
       <section className="px-6 py-16 md:py-20 bg-white">
-        <div className="max-w-3xl mx-auto grid grid-cols-3 gap-6">
+        <div className="max-w-3xl mx-auto grid grid-cols-3 gap-6 text-center">
           {STATS.map((s) => (
-            <AnimatedStat key={s.label} target={s.target} suffix={s.suffix} label={s.label} />
+            <div key={s.label}>
+              <p className="text-sm font-semibold text-stone-950">{s.label}</p>
+            </div>
           ))}
         </div>
       </section>
@@ -415,47 +401,7 @@ export default function QueEsPage() {
         </div>
       </motion.section>
 
-      {/* ════════════════════════════════════════
-          8. TESTIMONIALS
-         ════════════════════════════════════════ */}
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="px-6 py-20 md:py-28 bg-stone-50"
-      >
-        <div className="max-w-5xl mx-auto">
-          <p className="text-xs font-semibold tracking-[0.2em] text-stone-400 uppercase mb-3 text-center">
-            TESTIMONIOS
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-stone-950 leading-tight mb-14 text-center">
-            Lo que dicen quienes ya est&aacute;n dentro
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t, index) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="rounded-2xl bg-stone-50 border border-stone-200 p-6"
-              >
-                <Quote size={20} className="text-stone-300 mb-3" />
-                <p className="text-sm italic text-stone-700 leading-relaxed mb-4">
-                  &laquo;{t.quote}&raquo;
-                </p>
-                <div>
-                  <p className="text-xs font-semibold text-stone-950">{t.name}</p>
-                  <p className="text-xs text-stone-500">{t.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
+      {/* Testimonials section — hidden until real testimonials are collected */}
 
       {/* ════════════════════════════════════════
           9. CTA

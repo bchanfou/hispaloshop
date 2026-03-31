@@ -120,9 +120,20 @@ function StoreMap({ stores }) {
   useEffect(() => {
     if (!L || !mapRef.current || mapInstanceRef.current) return;
 
+    // S-09: Try to center on user's saved location, fallback to Spain center
+    let initialCenter = [40.4168, -3.7038];
+    let initialZoom = 5;
+    try {
+      const saved = localStorage.getItem('hsp_user_coords');
+      if (saved) {
+        const coords = JSON.parse(saved);
+        if (typeof coords.lat === 'number' && typeof coords.lng === 'number' && Math.abs(coords.lat) <= 90 && Math.abs(coords.lng) <= 180) { initialCenter = [coords.lat, coords.lng]; initialZoom = 8; }
+      }
+    } catch { /* ignore */ }
+
     const map = L.map(mapRef.current, {
-      center: [40.4168, -3.7038],
-      zoom: 5,
+      center: initialCenter,
+      zoom: initialZoom,
       zoomControl: false,
       attributionControl: false,
     });
@@ -183,13 +194,17 @@ function StoreMap({ stores }) {
       );
 
       const slug = store.slug || store.store_slug;
+      const ratingHtml = store.rating > 0 ? `<span style="font-size:10px;color:#78716c">★ ${Number(store.rating).toFixed(1)}</span>` : '';
+      const productsHtml = store.product_count > 0 ? `<span style="font-size:10px;color:#78716c">${store.product_count} productos</span>` : '';
+      const metaHtml = (ratingHtml || productsHtml) ? `<p style="margin:0 0 4px;display:flex;gap:6px">${ratingHtml}${productsHtml}</p>` : '';
       marker.bindPopup(
         `<div style="font-family:inherit;min-width:140px;padding:2px 0">` +
         `<p style="font-size:13px;font-weight:600;color:#0c0a09;margin:0 0 2px">${escapeHtml(store.name)}</p>` +
-        (store.location ? `<p style="font-size:11px;color:#78716c;margin:0 0 6px">${escapeHtml(store.location)}</p>` : '') +
+        (store.location ? `<p style="font-size:11px;color:#78716c;margin:0 0 4px">${escapeHtml(store.location)}</p>` : '') +
+        metaHtml +
         `<a href="/store/${encodeURIComponent(slug)}" style="font-size:11px;font-weight:600;color:#0c0a09;text-decoration:none">Ver tienda \u2192</a>` +
         `</div>`,
-        { closeButton: false, className: 'hs-popup', maxWidth: 200 }
+        { closeButton: false, className: 'hs-popup', maxWidth: 220 }
       );
 
       group.addLayer(marker);
@@ -259,7 +274,7 @@ function StoreCard({ store }) {
               <span className="text-lg font-bold text-stone-400">{(store.name || 'T')[0]}</span>
             )}
           </div>
-          {store.is_verified && (
+          {(store.verified || store.producer_verified) && (
             <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-stone-950">
               <Check size={10} className="text-white" strokeWidth={3} />
             </span>
@@ -273,11 +288,18 @@ function StoreCard({ store }) {
         </div>
       </div>
 
+      {/* Location */}
+      {store.location && (
+        <p className="mt-1.5 truncate text-[11px] text-stone-400 flex items-center gap-1">
+          <MapPin size={9} className="shrink-0" /> {store.location}
+        </p>
+      )}
+
       {/* Meta row */}
-      <div className="mt-2 flex items-center gap-3 text-[11px] text-stone-500">
+      <div className="mt-1 flex items-center gap-3 text-[11px] text-stone-500">
         {store.product_count > 0 && (
           <span className="flex items-center gap-1">
-            <Package size={10} /> {store.product_count} productos
+            <Package size={10} /> {store.product_count}
           </span>
         )}
         {rating > 0 && (

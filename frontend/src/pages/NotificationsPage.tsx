@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -289,6 +289,23 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   const navigate = useNavigate();
   const notifKey = notif.notification_id || notif._id;
 
+  // N-05: Auto mark-as-read when notification enters viewport
+  const rowRef = useRef(null);
+  const markedRef = useRef(isRead);
+  useEffect(() => {
+    if (markedRef.current || isRead) return;
+    const el = rowRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !markedRef.current) {
+        markedRef.current = true;
+        onRead(notifKey);
+      }
+    }, { threshold: 0.5 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isRead, notifKey, onRead]);
+
   // Swipe-to-delete state
   const [showDelete, setShowDelete] = useState(false);
   const SWIPE_THRESHOLD = -60;
@@ -340,7 +357,7 @@ function NotifRow({ notif, onRead, onDelete, followedIds, setFollowedIds }) {
   const showThumbPlaceholder = ['post', 'product', 'reel'].includes(notif.entity_type) && !thumb;
 
   return (
-    <div className="relative overflow-hidden">
+    <div ref={rowRef} className="relative overflow-hidden">
       {/* Delete zone (revealed on swipe) */}
       <div className="absolute inset-y-0 right-0 flex items-center justify-center w-[72px] bg-stone-800">
         <button
@@ -473,7 +490,7 @@ export default function NotificationsPage() {
   // Tab state
   const [activeTab, setActiveTab] = useState('all');
 
-  // Follow state (Set of notification ids that have been followed)
+  // Follow state — initialize from notification data (is_following field)
   const [followedIds, setFollowedIds] = useState(new Set());
 
   const {
@@ -488,10 +505,42 @@ export default function NotificationsPage() {
 
   const unreadCount = unreadData?.unread_count ?? 0;
 
+  // N-06: Seed followedIds from notification data on load
+  useEffect(() => {
+    if (!data?.pages) return;
+    const alreadyFollowing = new Set();
+    data.pages.forEach(p => {
+      (p.notifications ?? p.items ?? []).forEach(n => {
+        const aid = n.actor_id || n.data?.actor_id || n.sender_id;
+        if (aid && (n.is_following || n.data?.is_following)) alreadyFollowing.add(aid);
+      });
+    });
+    if (alreadyFollowing.size > 0) {
+      setFollowedIds(prev => {
+        const merged = new Set(prev);
+        alreadyFollowing.forEach(id => merged.add(id));
+        return merged;
+      });
+    }
+  }, [data]);
+
   // Flatten pages
   const notifications = data?.pages?.flatMap(
     (p) => p.notifications ?? p.items ?? p ?? []
   ) ?? [];
+
+  // N-07: Unread count per tab
+  const unreadByTab = useMemo(() => {
+    const counts = { all: 0, interactions: 0, orders: 0, following: 0 };
+    notifications.forEach(n => {
+      if (n.read_at) return;
+      counts.all++;
+      if (INTERACTION_TYPES.has(n.type)) counts.interactions++;
+      if (ORDER_TYPES.has(n.type)) counts.orders++;
+      if (FOLLOWING_TYPES.has(n.type)) counts.following++;
+    });
+    return counts;
+  }, [notifications]);
 
   // Apply tab filter
   const tabFiltered = filterByTab(notifications, activeTab);
@@ -503,8 +552,8 @@ export default function NotificationsPage() {
   const handleClearAll = async () => {
     try {
       await apiClient.delete('/notifications/all');
-      refetch();
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
+      await refetch();
+      await queryClient.invalidateQueries({ queryKey: ['notifications', 'unread'] });
       toast.success('Notificaciones eliminadas');
     } catch {
       toast.error('No se pudieron eliminar las notificaciones');
@@ -584,17 +633,23 @@ export default function NotificationsPage() {
         <div className="flex border-b border-stone-200">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.key;
+            const tabUnread = unreadByTab[tab.key] || 0;
             return (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 py-3 min-h-[44px] transition-colors text-[13px] bg-transparent border-none border-b-2 cursor-pointer whitespace-nowrap px-3 ${
+                className={`relative flex-1 py-3 min-h-[44px] transition-colors text-[13px] bg-transparent border-none border-b-2 cursor-pointer whitespace-nowrap px-3 ${
                   isActive
                     ? 'font-semibold text-stone-950 border-stone-950'
                     : 'font-normal text-stone-500 border-transparent'
                 }`}
               >
                 {tab.label}
+                {tabUnread > 0 && !isActive && (
+                  <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-stone-950 text-white text-[10px] font-bold px-1">
+                    {tabUnread > 99 ? '99+' : tabUnread}
+                  </span>
+                )}
               </button>
             );
           })}

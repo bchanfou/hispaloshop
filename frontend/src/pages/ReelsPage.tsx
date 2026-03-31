@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Film } from 'lucide-react';
 import ReelCard from '../components/feed/ReelCard';
 import SlideTabIndicator from '../components/motion/SlideTabIndicator';
@@ -15,11 +15,14 @@ const VALID_TABS = new Set(REEL_TABS.map((t) => t.key));
 
 export default function ReelsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const startReelId = searchParams.get('id');
   const [reels, setReels] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const scrolledToStartRef = useRef(false);
   const [activeTab, setActiveTab] = useState(() => {
     const stored = localStorage.getItem('reels_tab');
     return stored && VALID_TABS.has(stored) ? stored : 'foryou';
@@ -83,6 +86,23 @@ export default function ReelsPage() {
     fetchReels(1);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
+
+  // Deep-link: scroll to specific reel when ?id=X is present
+  useEffect(() => {
+    if (!startReelId || scrolledToStartRef.current || reels.length === 0) return;
+    const idx = reels.findIndex(r => (r.id || r.post_id || r.reel_id) === startReelId);
+    if (idx >= 0) {
+      scrolledToStartRef.current = true;
+      setActiveIndex(idx);
+      // Wait for DOM to render, then scroll
+      requestAnimationFrame(() => {
+        const container = containerRef.current;
+        if (!container) return;
+        const el = container.querySelector(`[data-index="${idx}"]`);
+        el?.scrollIntoView({ behavior: 'instant' });
+      });
+    }
+  }, [startReelId, reels]);
 
   // Intersection observer to detect active reel
   // Re-observe when reels change so newly loaded items are tracked

@@ -182,8 +182,8 @@ export default function ContactPage() {
           <div>
             {[
               { q: '¿Cuánto cuesta usar HispaloShop?', a: 'Para compradores es gratis. Productores tienen planes desde 0€. Influencers ganan comisiones.' },
-              { q: '¿Cómo recibo mis pedidos?', a: 'Los productores envían directamente. Entrega en 24-72h en España peninsular.' },
-              { q: '¿Puedo vender internacionalmente?', a: 'Sí. HispaloShop opera en 65+ países con soporte multi-idioma y multi-divisa.' },
+              { q: '¿Cómo recibo mis pedidos?', a: 'Los productores gestionan el envío directamente. Los plazos dependen de cada productor y destino.' },
+              { q: '¿Puedo vender internacionalmente?', a: 'Sí. HispaloShop soporta múltiples idiomas y divisas para venta internacional.' },
               { q: '¿Cómo se verifican los productores?', a: 'Verificamos identidad, certificaciones y calidad antes de aprobar cada productor.' },
               { q: '¿Cómo funciona el programa de influencers?', a: 'Genera enlaces de afiliado, comparte, y cobra comisiones del 3-7%.' },
             ].map((faq, i) => (

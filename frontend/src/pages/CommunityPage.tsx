@@ -373,6 +373,7 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
     queryKey: ['community-feed', communityId],
     queryFn: ({ pageParam = 1 }) =>
       apiClient.get(`/communities/${communityId}/posts?page=${pageParam}&limit=10`),
+    initialPageParam: 1,
     getNextPageParam: last => last?.has_more ? (last?.page || 1) + 1 : undefined,
     enabled: !!communityId,
   });
@@ -431,7 +432,7 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
       ) : (
         <>
           {posts.map(post => (
-            <CommunityPostCard key={post.id || post._id} post={post} isAdmin={isAdmin} onDelete={refetchFeed} />
+            <CommunityPostCard key={post.id || post._id} post={post} isAdmin={isAdmin} onDelete={refetchFeed} onRefresh={refetchFeed} />
           ))}
           {hasNextPage && (
             <button onClick={() => fetchNextPage()}
@@ -552,12 +553,14 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
   );
 };
 
-/* ── Post Card ── */
-const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
-  // G4 — pinned indicator rendered above the card wrapper
+/* ── Post Card (C-01: comments, C-08: share, C-09: pin) ── */
+const CommunityPostCard = ({ post, isAdmin, onDelete, onRefresh }) => {
   const { user } = useAuth();
   const [liked, setLiked] = useState(post.is_liked);
   const [likes, setLikes] = useState(post.likes_count || 0);
+  const [showComments, setShowComments] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(post.comments_count || 0);
+  const [showMenu, setShowMenu] = useState(false);
   const isOwn = (user?.user_id || user?.id) === post.author_id;
   const postId = post.id || post._id;
 
@@ -579,6 +582,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
   };
 
   const deletePost = async () => {
+    setShowMenu(false);
     if (!window.confirm('¿Eliminar este post?')) return;
     try {
       await apiClient.delete(`/community-posts/${postId}`);
@@ -589,9 +593,19 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
     }
   };
 
+  const togglePin = async () => {
+    setShowMenu(false);
+    try {
+      await apiClient.patch(`/community-posts/${postId}/pin`);
+      toast.success(post.is_pinned ? 'Post desfijado' : 'Post fijado');
+      onRefresh?.();
+    } catch {
+      toast.error('Error al fijar post');
+    }
+  };
+
   return (
     <div>
-      {/* Pinned indicator */}
       {(post.pinned || post.is_pinned) && (
         <div className="flex items-center gap-1.5 mb-1">
           <span className="bg-stone-100 text-stone-600 text-[11px] rounded-full px-2 py-0.5 inline-flex items-center gap-1">
@@ -600,7 +614,6 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
         </div>
       )}
     <div className="bg-white rounded-2xl shadow-sm mb-2.5 overflow-hidden">
-      {/* Author */}
       <div className="flex items-center justify-between px-3.5 py-3">
         <Link to={`/${post.author_username}`}
           className="flex gap-2.5 items-center no-underline text-inherit">
@@ -623,16 +636,40 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
             </p>
           </div>
         </Link>
+        {/* C-09: Menu with pin + delete */}
         {(isOwn || isAdmin) && (
-          <button onClick={deletePost}
-            aria-label="Eliminar post"
-            className="bg-transparent border-none cursor-pointer text-base text-stone-500 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
-            ···
-          </button>
+          <div className="relative">
+            <button onClick={() => setShowMenu(v => !v)}
+              aria-label="Opciones del post"
+              className="bg-transparent border-none cursor-pointer text-base text-stone-500 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center">
+              ···
+            </button>
+            <AnimatePresence>
+              {showMenu && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="absolute right-0 top-full z-20 bg-white rounded-xl shadow-lg border border-stone-100 overflow-hidden min-w-[160px]"
+                >
+                  {isAdmin && (
+                    <button onClick={togglePin}
+                      className="flex items-center gap-2 w-full px-3.5 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
+                      <Pin size={14} />
+                      {post.is_pinned || post.pinned ? 'Desfijar' : 'Fijar arriba'}
+                    </button>
+                  )}
+                  <button onClick={deletePost}
+                    className="flex items-center gap-2 w-full px-3.5 py-2.5 text-[13px] text-stone-700 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left">
+                    🗑️ Eliminar
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
       </div>
 
-      {/* Content */}
       {post.text && (
         <div className="px-3.5 pb-3">
           <p className="text-sm leading-relaxed text-stone-950 m-0">
@@ -659,18 +696,22 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
           {likes > 0 && likes}
         </motion.button>
 
-        <span className="flex items-center gap-[5px] text-[13px] text-stone-500">
+        {/* C-01: Comment button */}
+        <button
+          onClick={() => setShowComments(v => !v)}
+          aria-label="Comentarios"
+          className="bg-transparent border-none cursor-pointer flex items-center gap-[5px] text-[13px] text-stone-500 p-0">
           <span className="text-lg">💬</span>
-          {post.comments_count > 0 && post.comments_count}
-        </span>
+          {commentsCount > 0 && commentsCount}
+        </button>
 
         <button
           onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(`${window.location.origin}/community-posts/${postId}`);
-              toast.success('Enlace copiado');
-            } catch {
-              toast.error('No se pudo copiar el enlace');
+            const url = `${window.location.origin}/community-posts/${postId}`;
+            if (navigator.share) {
+              try { await navigator.share({ title: post.text?.slice(0, 60) || 'Post de comunidad', url }); } catch { /* cancelled */ }
+            } else {
+              try { await navigator.clipboard.writeText(url); toast.success('Enlace copiado'); } catch { /* silent */ }
             }
           }}
           aria-label="Compartir post"
@@ -678,8 +719,121 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
           <span className="text-lg">↗️</span>
         </button>
       </div>
+
+      {/* C-01: Comments section */}
+      <AnimatePresence>
+        {showComments && (
+          <CommentsSection postId={postId} onCountChange={setCommentsCount} />
+        )}
+      </AnimatePresence>
     </div>
     </div>
+  );
+};
+
+/* ── C-01: Comments Section ── */
+const CommentsSection = ({ postId, onCountChange }) => {
+  const { user } = useAuth();
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [text, setText] = useState('');
+  const [posting, setPosting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+
+  const fetchComments = useCallback(async (p = 1) => {
+    try {
+      const res = await apiClient.get(`/community-posts/${postId}/comments?page=${p}&limit=20`);
+      const items = res?.comments || [];
+      if (p === 1) setComments(items);
+      else setComments(prev => [...prev, ...items]);
+      setHasMore(res?.has_more || false);
+      setPage(p);
+    } catch { /* silent */ }
+    finally { setLoading(false); }
+  }, [postId]);
+
+  useEffect(() => { fetchComments(1); }, [fetchComments]);
+
+  const submitComment = async () => {
+    if (!text.trim() || posting) return;
+    setPosting(true);
+    try {
+      await apiClient.post(`/community-posts/${postId}/comments`, { text: text.trim() });
+      setText('');
+      await fetchComments(1);
+      onCountChange?.(c => c + 1);
+    } catch {
+      toast.error('Error al comentar');
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: 'auto', opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="overflow-hidden border-t border-stone-100"
+    >
+      <div className="px-3.5 py-3 max-h-[280px] overflow-y-auto space-y-3">
+        {loading ? (
+          <div className="flex justify-center py-3">
+            <div className="w-5 h-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
+          </div>
+        ) : comments.length === 0 ? (
+          <p className="text-[13px] text-stone-400 text-center py-2 m-0">Sin comentarios aún</p>
+        ) : (
+          <>
+            {comments.map(c => (
+              <div key={c.id || c._id} className="flex gap-2">
+                <img
+                  src={c.author_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.author_username || 'U')}&size=28&background=e7e5e4&color=78716c`}
+                  className="w-7 h-7 rounded-full shrink-0 object-cover"
+                  alt="" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] m-0">
+                    <span className="font-semibold text-stone-950">{c.author_username}</span>{' '}
+                    <span className="text-stone-700">{c.text}</span>
+                  </p>
+                  <p className="text-[10px] text-stone-400 m-0 mt-0.5">{formatRelativeTime(c.created_at)}</p>
+                </div>
+              </div>
+            ))}
+            {hasMore && (
+              <button onClick={() => fetchComments(page + 1)}
+                className="text-[12px] text-stone-500 font-medium bg-transparent border-none cursor-pointer p-0 hover:underline">
+                Ver más comentarios
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Comment input */}
+      {user && (
+        <div className="flex items-center gap-2 px-3.5 py-2.5 border-t border-stone-100">
+          <input
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') submitComment(); }}
+            placeholder="Escribe un comentario..."
+            maxLength={500}
+            className="flex-1 h-8 rounded-full bg-stone-100 border-none px-3 text-[13px] text-stone-950 outline-none placeholder:text-stone-400"
+          />
+          <button
+            onClick={submitComment}
+            disabled={!text.trim() || posting}
+            className={`text-[13px] font-semibold bg-transparent border-none cursor-pointer p-0 ${
+              text.trim() ? 'text-stone-950' : 'text-stone-300'
+            }`}>
+            {posting ? '...' : 'Enviar'}
+          </button>
+        </div>
+      )}
+    </motion.div>
   );
 };
 
@@ -815,11 +969,15 @@ const CommunityAbout = ({ community }) => (
       ))}
     </div>
 
-    {community.categories?.length > 0 && (
+    {/* C-06: handle both singular category (string) and plural categories (array) */}
+    {(community.category || community.categories?.length > 0) && (
       <div className="mb-5">
-        <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">Categorías</h3>
+        <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">Categoría</h3>
         <div className="flex gap-1.5 flex-wrap">
-          {community.categories.map(cat => (
+          {(Array.isArray(community.categories) && community.categories.length > 0
+            ? community.categories
+            : community.category ? [community.category] : []
+          ).map(cat => (
             <span key={cat} className="text-xs px-3 py-[5px] rounded-full bg-white border border-stone-200 text-stone-950 font-medium">
               {cat}
             </span>

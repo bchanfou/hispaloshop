@@ -245,7 +245,7 @@ export default function CommunitiesExplorePage() {
               </p>
               {canCreate && (
                 <button
-                  onClick={() => navigate('/communities/create')}
+                  onClick={() => navigate('/communities/new')}
                   className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
                 >
                   Crear comunidad
@@ -282,22 +282,36 @@ export default function CommunitiesExplorePage() {
 }
 
 /* ── My Community Pill (horizontal scroll) ── */
-const MyCommunityPill = ({ community }) => (
-  <Link to={`/communities/${community.slug || community.id || community._id}`} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5 no-underline">
-    <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-stone-200 ${
-      community.cover_image ? 'bg-stone-100' : stoneBg(community.name)
-    }`}>
-      {community.cover_image ? (
-        <img src={community.cover_image} alt={community.name || ''} loading="lazy" className="h-full w-full object-cover" />
-      ) : (
-        <span className="text-2xl">{community.emoji || '🌿'}</span>
-      )}
-    </div>
-    <span className="max-w-[72px] truncate text-center text-[11px] font-medium text-stone-950">
-      {community.name}
-    </span>
-  </Link>
-);
+const MyCommunityPill = ({ community }) => {
+  // C-10: Check if community has unread posts since last visit
+  const cid = community.id || community._id;
+  const lastVisit = cid ? localStorage.getItem(`community_last_visit_${cid}`) : null;
+  const hasUnread = community.unread_posts > 0 || (
+    lastVisit && community.last_post_at && new Date(community.last_post_at).getTime() > Number(lastVisit)
+  );
+
+  return (
+    <Link to={`/communities/${community.slug || cid}`} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5 no-underline">
+      <div className="relative">
+        <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 ${
+          hasUnread ? 'border-stone-950' : 'border-stone-200'
+        } ${community.cover_image ? 'bg-stone-100' : stoneBg(community.name)}`}>
+          {community.cover_image ? (
+            <img src={community.cover_image} alt={community.name || ''} loading="lazy" className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-2xl">{community.emoji || '🌿'}</span>
+          )}
+        </div>
+        {hasUnread && (
+          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-stone-950 rounded-full border-2 border-stone-50" />
+        )}
+      </div>
+      <span className="max-w-[72px] truncate text-center text-[11px] font-medium text-stone-950">
+        {community.name}
+      </span>
+    </Link>
+  );
+};
 
 /* ── Member Preview Avatars ── */
 const MemberAvatars = ({ community }) => {

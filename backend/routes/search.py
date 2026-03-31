@@ -22,19 +22,52 @@ def _sanitize_search(q: str) -> str:
 router = APIRouter()
 
 
-async def _search_products(db, q: str, limit: int, country: Optional[str]):
+async def _search_products(
+    db, q: str, limit: int, country: Optional[str],
+    sort: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    certifications: Optional[str] = None,
+    in_stock: Optional[bool] = None,
+    free_shipping: Optional[bool] = None,
+):
+    match_stage = {
+        "$or": [
+            {"name": {"$regex": q, "$options": "i"}},
+            {"description": {"$regex": q, "$options": "i"}},
+            {"category": {"$regex": q, "$options": "i"}},
+        ],
+        "status": {"$in": ["active", "approved"]},
+    }
+    if country:
+        match_stage["target_markets"] = country
+    # S-05/S-07: Price range filters
+    if min_price is not None:
+        match_stage.setdefault("price", {})["$gte"] = min_price
+    if max_price is not None:
+        match_stage.setdefault("price", {})["$lte"] = max_price
+    # Certification filter
+    if certifications:
+        cert_list = [c.strip() for c in certifications.split(",") if c.strip()]
+        if cert_list:
+            match_stage["certifications"] = {"$in": cert_list}
+    if in_stock:
+        match_stage["stock"] = {"$gt": 0}
+    if free_shipping:
+        match_stage["free_shipping"] = True
+
+    # S-07: Sort by backend
+    sort_stage = {"$sort": {"_id": -1}}  # default: relevance (insertion order)
+    if sort == "price_asc":
+        sort_stage = {"$sort": {"price": 1}}
+    elif sort == "price_desc":
+        sort_stage = {"$sort": {"price": -1}}
+    elif sort == "newest":
+        sort_stage = {"$sort": {"created_at": -1}}
+
     pipeline = [
-        {
-            "$match": {
-                "$or": [
-                    {"name": {"$regex": q, "$options": "i"}},
-                    {"description": {"$regex": q, "$options": "i"}},
-                    {"category": {"$regex": q, "$options": "i"}},
-                ],
-                "status": {"$in": ["active", "approved"]},
-                **({"target_markets": country} if country else {}),
-            }
-        },
+        {"$match": match_stage},
+        sort_stage,
         {"$limit": limit},
         {
             "$project": {
@@ -147,6 +180,12 @@ async def _search_users(db, q: str, limit: int):
 async def unified_search(
     q: str = Query(..., min_length=1, max_length=100),
     limit: int = Query(default=6, ge=1, le=20),
+    sort: Optional[str] = Query(default=None),
+    min_price: Optional[float] = Query(default=None),
+    max_price: Optional[float] = Query(default=None),
+    certifications: Optional[str] = Query(default=None),
+    in_stock: Optional[bool] = Query(default=None),
+    free_shipping: Optional[bool] = Query(default=None),
     db=Depends(get_db),
     current_user=Depends(get_current_user_optional),
 ):
@@ -165,7 +204,9 @@ async def unified_search(
     # Fetch limit+1 per category so we can detect if there are more results
     fetch_limit = limit + 1
     products, recipes, stores, creators = await asyncio.gather(
-        _search_products(db, safe_q, fetch_limit, country),
+        _search_products(db, safe_q, fetch_limit, country,
+                         sort=sort, min_price=min_price, max_price=max_price,
+                         certifications=certifications, in_stock=in_stock, free_shipping=free_shipping),
         _search_recipes(db, safe_q, fetch_limit),
         _search_stores(db, safe_q, fetch_limit),
         _search_users(db, safe_q, fetch_limit),

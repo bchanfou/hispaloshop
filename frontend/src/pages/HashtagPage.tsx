@@ -6,6 +6,7 @@ import { ArrowLeft, Hash, AlertTriangle, Image, Play, ChefHat, Clock, Bell, Bell
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
+import { resolveUserImage } from '../features/user/queries';
 import SEO from '../components/SEO';
 
 const TABS = [
@@ -237,7 +238,7 @@ export default function HashtagPage() {
                       className="relative aspect-square bg-stone-100 overflow-hidden group cursor-pointer border-none p-0"
                     >
                       {img ? (
-                        <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        <img src={resolveUserImage(img)} alt="" className="w-full h-full object-cover" loading="lazy" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Image className="w-8 h-8 text-stone-300" />
@@ -293,7 +294,7 @@ export default function HashtagPage() {
                       className="relative aspect-[9/16] bg-stone-100 overflow-hidden group cursor-pointer border-none p-0"
                     >
                       {thumb ? (
-                        <img src={thumb} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        <img src={resolveUserImage(thumb)} alt="" className="w-full h-full object-cover" loading="lazy" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-stone-900">
                           <Play className="w-8 h-8 text-stone-500" />
@@ -357,7 +358,7 @@ export default function HashtagPage() {
                     >
                       <div className="relative aspect-[4/5] overflow-hidden bg-stone-100">
                         {recipe.image_url ? (
-                          <img src={recipe.image_url} alt={recipe.title || ''} className="w-full h-full object-cover" loading="lazy" />
+                          <img src={resolveUserImage(recipe.image_url)} alt={recipe.title || ''} className="w-full h-full object-cover" loading="lazy" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <ChefHat size={32} className="text-stone-300" />

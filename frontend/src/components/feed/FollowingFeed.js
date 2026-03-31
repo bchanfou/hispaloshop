@@ -302,6 +302,7 @@ function FollowingFeed() {
                           onLike={() => handleLike(post.id)}
                           onComment={() => handleComment(post.id)}
                           onShare={() => handleShare(post.id)}
+                          onExpand={() => navigate(`/reels?id=${post.id}`)}
                           priority={index < 2}
                           nextVideoUrl={nextReelUrlByIndex[index]}
                         />

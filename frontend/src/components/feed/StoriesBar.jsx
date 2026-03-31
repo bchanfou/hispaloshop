@@ -41,15 +41,17 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
   const navigate = useNavigate();
   const [loadingUserId, setLoadingUserId] = useState(null);
 
-  // P-10: Featured recipe of the day
+  // P-10: Contextual recipe ring — time of day + user diet preferences
+  const tzOffset = new Date().getTimezoneOffset(); // minutes, e.g. -120 for UTC+2
   const { data: featuredRecipe } = useQuery({
-    queryKey: ['featured-recipe'],
+    queryKey: ['featured-recipe', tzOffset],
     queryFn: async () => {
-      const res = await apiClient.get('/recipes', { params: { sort: 'popular', limit: 1 } });
-      const list = Array.isArray(res) ? res : res?.recipes || [];
-      return list[0] || null;
+      const res = await apiClient.get('/recipes/featured', { params: { tz_offset: tzOffset } });
+      // Backend returns null (empty response) if no recipe fits
+      if (!res || !res.recipe_id) return null;
+      return res;
     },
-    staleTime: 300_000,
+    staleTime: 600_000, // 10 min — meal slot doesn't change that fast
   });
 
   const { data: storiesData, isLoading: loading, isError: error, refetch } = useQuery({
@@ -199,7 +201,9 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
                 )}
               </div>
             </div>
-            <span className="w-full truncate text-center text-[10px] text-stone-500 leading-tight">Receta</span>
+            <span className="w-full truncate text-center text-[10px] text-stone-500 leading-tight">
+              {featuredRecipe._meal_type_label || 'Receta'}
+            </span>
           </button>
         </div>
       )}
