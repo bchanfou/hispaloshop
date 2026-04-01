@@ -366,13 +366,19 @@ export default function DiscoverPage() {
     searchTimerRef.current = setTimeout(async () => {
       try {
         const res = await apiClient.get('/discovery/search', { params: { q: searchQuery, limit: 5 } });
-        const items = res?.results || res?.products || res?.items || (Array.isArray(res) ? res : []);
-        setSearchResults(items.slice(0, 5));
+        // /discovery/search returns { products: [], recipes: [], stores: [], creators: [] }
+        const items = [
+          ...(res?.products || []).map(p => ({ ...p, _type: 'product' })),
+          ...(res?.recipes || []).map(r => ({ ...r, _type: 'recipe' })),
+          ...(res?.stores || []).map(s => ({ ...s, _type: 'store' })),
+          ...(res?.creators || []).map(c => ({ ...c, _type: 'creator' })),
+        ];
+        setSearchResults(items.slice(0, 8));
       } catch {
         // Fallback to /products?search=
         try {
           const res2 = await apiClient.get('/products', { params: { search: searchQuery, limit: 5 } });
-          const items = Array.isArray(res2) ? res2 : res2?.products || res2?.items || [];
+          const items = Array.isArray(res2) ? res2 : res2?.products || [];
           setSearchResults(items.slice(0, 5));
         } catch { setSearchResults([]); }
       }
@@ -520,18 +526,27 @@ export default function DiscoverPage() {
                   <div className="px-4 py-3.5 text-[13px] text-stone-400">Buscando…</div>
                 ) : (
                   <>
-                    {searchResults.map(r => {
-                      const id = r.product_id || r.id;
-                      const img = r.images?.[0] || r.image_url;
+                    {searchResults.map((r, idx) => {
+                      const type = r._type || 'product';
+                      const id = type === 'recipe' ? (r.recipe_id || r.id)
+                        : type === 'store' ? (r.slug || r.store_id || r.id)
+                        : type === 'creator' ? (r.username || r.user_id || r.id)
+                        : (r.product_id || r.id);
+                      const img = r.images?.[0] || r.image_url || r.logo || r.profile_image;
+                      const label = type === 'recipe' ? 'Receta' : type === 'store' ? 'Tienda' : type === 'creator' ? r.role || 'Creador' : null;
+                      const route = type === 'recipe' ? `/recipes/${r.recipe_id || r.id}`
+                        : type === 'store' ? `/store/${r.slug || r.store_id}`
+                        : type === 'creator' ? `/${r.username || r.user_id}`
+                        : `/products/${r.product_id || r.id}`;
                       return (
                         <button
-                          key={id}
+                          key={`${type}-${id || idx}`}
                           type="button"
-                          onPointerDown={() => { navigate(`/products/${id}`); setSearchFocused(false); setSearchQuery(''); }}
+                          onPointerDown={() => { navigate(route); setSearchFocused(false); setSearchQuery(''); }}
                           className="flex items-center gap-3 px-4 py-2.5 w-full text-left hover:bg-stone-50 transition-colors"
                         >
                           {img ? (
-                            <img src={img} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                            <img src={img} alt="" className={`w-8 h-8 object-cover shrink-0 ${type === 'creator' ? 'rounded-full' : 'rounded-lg'}`} />
                           ) : (
                             <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
                               <ShoppingBag size={14} className="text-stone-300" />
@@ -539,7 +554,9 @@ export default function DiscoverPage() {
                           )}
                           <div className="flex-1 min-w-0">
                             <p className="text-[13px] font-semibold text-stone-950 truncate">{r.name || r.title}</p>
-                            {r.price != null && <p className="text-[11px] text-stone-500">{Number(r.price).toFixed(2)} €</p>}
+                            <p className="text-[11px] text-stone-400">
+                              {r.price != null ? `${Number(r.price).toFixed(2)} €` : label || ''}
+                            </p>
                           </div>
                         </button>
                       );

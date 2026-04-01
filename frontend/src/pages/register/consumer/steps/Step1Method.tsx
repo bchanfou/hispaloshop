@@ -11,7 +11,7 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
       <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={() => navigate('/register/new')}
+          onClick={() => navigate('/register')}
           aria-label="Volver a selección de rol"
           className="rounded-full p-2 transition-colors hover:bg-stone-100"
         >

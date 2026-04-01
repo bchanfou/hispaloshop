@@ -180,6 +180,11 @@ async def _follow_users_for_user(user_id: str, data: dict) -> Dict[str, Any]:
 
 
 async def _complete_onboarding_for_user(user_id: str) -> Dict[str, Any]:
+    # Idempotency: only update onboarding_completed_at if not already completed
+    user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "onboarding_completed": 1})
+    if user_doc and user_doc.get("onboarding_completed"):
+        return {"success": True, "message": "Onboarding already completed", "redirect_url": "/dashboard"}
+
     await db.users.update_one(
         {"user_id": user_id},
         {

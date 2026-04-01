@@ -59,8 +59,8 @@ const MiniCart = ({ isOpen, onClose }) => {
     ? Math.min(...stores.map(s => (s.free_threshold_cents || s.threshold_cents || 3000))) / 100
     : 30;
   const discountEur = appliedDiscount?.discount_cents ? appliedDiscount.discount_cents / 100 : 0;
-  // MiniCart shows subtotal only — shipping is calculated on CartPage for accuracy
-  const total = Math.max(0, subtotal - discountEur);
+  // Include shipping in total when available, otherwise show subtotal only
+  const total = Math.max(0, subtotal + (shippingKnown ? shipping : 0) - discountEur);
 
   // Group items by producer
   const groupedItems = useMemo(() => {

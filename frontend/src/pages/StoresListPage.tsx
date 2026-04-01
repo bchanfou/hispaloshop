@@ -644,7 +644,7 @@ export default function StoresListPage() {
                 <span className="block text-[10px] font-semibold uppercase tracking-[0.06em] text-stone-500 mb-3">Destacadas</span>
                 <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
                   {eliteStores.map(store => (
-                    <FeaturedCard key={store.store_id || store.slug} store={store} />
+                    <FeaturedCard key={store.store_id ?? store.slug} store={store} />
                   ))}
                 </div>
               </div>
@@ -695,7 +695,7 @@ export default function StoresListPage() {
                 <>
                   <div className="stores-grid">
                     {visibleStores.map(store => (
-                      <StoreCard key={store.store_id || store.slug || store.id} store={store} />
+                      <StoreCard key={store.store_id ?? store.slug ?? store.id} store={store} />
                     ))}
                   </div>
                   {visibleCount < filteredStores.length && (

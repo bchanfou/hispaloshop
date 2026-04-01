@@ -81,7 +81,7 @@ export default function PayoutSettingsPage() {
       }));
       toast.success('Datos bancarios guardados');
     } catch (err) {
-      toast.error(err?.detail || 'Error al guardar datos bancarios');
+      toast.error(err?.response?.data?.detail || err?.detail || 'Error al guardar datos bancarios');
     } finally {
       setSaving(false);
     }
@@ -100,7 +100,7 @@ export default function PayoutSettingsPage() {
         >
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span className="text-[17px] font-bold text-stone-950">Metodo de cobro</span>
+        <span className="text-[17px] font-bold text-stone-950">Método de cobro</span>
       </div>
 
       <div className="max-w-[600px] mx-auto px-4 pt-6 pb-[100px]">
@@ -139,7 +139,7 @@ export default function PayoutSettingsPage() {
                 <div className="flex-1">
                   <p className="text-[15px] font-semibold text-stone-950">Stripe Connect</p>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Cobros instantaneos - Comision 0,25eur/pago
+                    Cobros instantáneos - Comisión 0,25€/pago
                   </p>
                 </div>
                 {stripeConnected && method === 'stripe' && (
@@ -164,7 +164,7 @@ export default function PayoutSettingsPage() {
                 <div className="flex-1">
                   <p className="text-[15px] font-semibold text-stone-950">Transferencia SEPA</p>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Sin comision - 2-3 dias laborables
+                    Sin comisión - 2-3 días laborables
                   </p>
                 </div>
                 {sepaConfigured && method === 'sepa' && (
@@ -195,7 +195,7 @@ export default function PayoutSettingsPage() {
                 ) : (
                   <>
                     <p className="text-[13px] text-stone-500 mb-4 leading-relaxed">
-                      Conecta tu cuenta de Stripe para recibir pagos directamente. Seras redirigido al proceso de verificacion de Stripe.
+                      Conecta tu cuenta de Stripe para recibir pagos directamente. Serás redirigido al proceso de verificación de Stripe.
                     </p>
                     <button
                       onClick={handleStripeConnect}

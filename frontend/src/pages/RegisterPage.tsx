@@ -392,7 +392,10 @@ export default function RegisterPage() {
           <button
             key={role.key}
             type="button"
-            onClick={() => setActiveRole(role.key)}
+            onClick={() => {
+              if (role.key === 'customer') { navigate('/register/consumer'); return; }
+              setActiveRole(role.key);
+            }}
             aria-label={`Registrarse como ${role.label}`}
             aria-pressed={activeRole === role.key}
             className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors ${

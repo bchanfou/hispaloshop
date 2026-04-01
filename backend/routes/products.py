@@ -55,6 +55,8 @@ async def get_products(
     sort: Optional[str] = None,
     origin_country: Optional[str] = None,
     free_shipping: Optional[str] = None,
+    low_stock: Optional[bool] = None,
+    recommended: Optional[bool] = None,
     page: int = 1,
     limit: int = 50,
 ):
@@ -134,6 +136,14 @@ async def get_products(
             ]
         })
     
+    # Low stock filter: stock between 1 and 10
+    if low_stock:
+        and_conditions.append({"stock": {"$gt": 0, "$lte": 10}})
+
+    # Recommended: sort by orders + rating (handled in sort below)
+    if recommended:
+        sort = sort or "rating"
+
     # Text search on name and description
     if search:
         and_conditions.append({

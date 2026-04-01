@@ -96,11 +96,7 @@ export default function LoginPage() {
           return;
         }
 
-        if (intendedRoute) {
-          navigate(intendedRoute, { replace: true });
-          return;
-        }
-
+        // O-01: Check onboarding BEFORE intendedRoute to prevent bypassing setup
         if (!data.user.role) {
           navigate('/onboarding', { replace: true });
           return;
@@ -108,6 +104,11 @@ export default function LoginPage() {
 
         if (data.user.role === 'customer' && !data.user.onboarding_completed) {
           navigate('/onboarding', { replace: true });
+          return;
+        }
+
+        if (intendedRoute) {
+          navigate(intendedRoute, { replace: true });
           return;
         }
 

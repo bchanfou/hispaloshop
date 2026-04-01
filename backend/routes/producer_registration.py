@@ -1,11 +1,14 @@
 from datetime import datetime, timezone
 import json
+import logging
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from core.database import db
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -55,17 +58,15 @@ def _iter_existing_leads():
 )
 async def register_producer_lead(payload: ProducerLeadRequest, request: Request):
     """Submit a new producer registration lead."""
-    existing = _iter_existing_leads()
     normalized_email = payload.email.strip().lower()
 
-    for lead in existing:
-        if str(lead.get("email", "")).strip().lower() == normalized_email:
-            return ProducerLeadResponse(
-                ok=True,
-                message="Ya habiamos recibido este contacto. Te escribiremos pronto.",
-            )
-
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    # Check duplicate in DB first
+    existing = await db.producer_leads.find_one({"email": normalized_email})
+    if existing:
+        return ProducerLeadResponse(
+            ok=True,
+            message="Ya habiamos recibido este contacto. Te escribiremos pronto.",
+        )
 
     record = {
         "name": payload.name,
@@ -80,13 +81,16 @@ async def register_producer_lead(payload: ProducerLeadRequest, request: Request)
     }
 
     try:
-        with LEADS_FILE.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
-    except OSError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="No se pudo guardar el registro del productor.",
-        ) from exc
+        await db.producer_leads.insert_one(record)
+    except Exception as exc:
+        logger.warning(f"[PRODUCER_REG] DB insert failed, falling back to file: {exc}")
+        # Fallback to file-based storage
+        try:
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            with LEADS_FILE.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except OSError:
+            raise HTTPException(status_code=500, detail="No se pudo guardar el registro del productor.")
 
     return ProducerLeadResponse(
         ok=True,

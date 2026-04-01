@@ -463,7 +463,7 @@ export default function SignatureSettingsPage() {
             )}
 
             <p className="text-[11px] text-stone-500 pt-1 leading-relaxed">
-              Se superpondra sobre la firma en los contratos.
+              Se superpondrá sobre la firma en los contratos.
             </p>
           </div>
         </div>

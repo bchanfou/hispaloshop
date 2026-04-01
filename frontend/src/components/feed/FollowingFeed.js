@@ -264,7 +264,7 @@ function FollowingFeed() {
               if (isReel) {
                 return (
                   <FeedItemBoundary>
-                    <div className="mx-3 mb-3">
+                    <div className="mb-2">
                       {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                       {showSponsored && (
                         <SponsoredProductCard

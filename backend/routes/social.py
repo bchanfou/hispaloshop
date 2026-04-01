@@ -2745,8 +2745,16 @@ async def get_social_feed(
         following_ids = set()
 
     try:
-        posts_cursor = db.user_posts.find(base_query, {"_id": 0}).sort("created_at", -1).limit(200)
+        # Limit to recent posts (7 days) to avoid loading entire collection
+        feed_since = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        feed_query = {**base_query, "created_at": {"$gte": feed_since}}
+        posts_cursor = db.user_posts.find(feed_query, {"_id": 0}).sort("created_at", -1).limit(200)
         all_posts = await posts_cursor.to_list(200)
+        # If too few recent posts, extend to 30 days
+        if len(all_posts) < limit * 2:
+            feed_since_30d = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+            feed_query_30d = {**base_query, "created_at": {"$gte": feed_since_30d}}
+            all_posts = await db.user_posts.find(feed_query_30d, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
     except Exception as exc:
         logger.warning(f"[SOCIAL] Mongo unavailable for /feed, fallback to PostgreSQL: {exc}")
         return await _fallback_feed_from_postgres(skip=skip, limit=limit)

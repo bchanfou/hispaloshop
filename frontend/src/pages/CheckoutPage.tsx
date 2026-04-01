@@ -235,6 +235,12 @@ export default function CheckoutPage() {
         },
         origin: window.location.origin,
       });
+      if (!response?.url) {
+        toast.error('No se pudo iniciar el pago. Inténtalo de nuevo.');
+        payingRef.current = false;
+        setPaying(false);
+        return;
+      }
       window.location.href = response.url;
     } catch (error) {
       if (error?.data?.detail?.issues) {

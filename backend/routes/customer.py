@@ -310,8 +310,8 @@ async def update_customer_profile(data: dict, user: User = Depends(get_current_u
             username = username[1:]
         # Only allow alphanumeric, underscores, dots
         import re
-        if not re.match(r'^[a-z0-9_.]+$', username):
-            raise HTTPException(status_code=400, detail="Username solo puede contener letras, numeros, puntos y guiones bajos")
+        if not re.match(r'^[a-z0-9_.\-]+$', username):
+            raise HTTPException(status_code=400, detail="Username solo puede contener letras, números, puntos, guiones bajos y guiones")
         if len(username) < 3:
             raise HTTPException(status_code=400, detail="Username debe tener al menos 3 caracteres")
         if len(username) > 30:
@@ -341,12 +341,14 @@ async def update_customer_profile(data: dict, user: User = Depends(get_current_u
     return {"message": "Perfil actualizado"}
 
 @router.put("/customer/password")
-async def change_customer_password(data: dict = Body(...), user: User = Depends(get_current_user)):
+async def change_customer_password(request: Request, data: dict = Body(...), user: User = Depends(get_current_user)):
     """Change customer password"""
     current_password = data.get("current_password")
     new_password = data.get("new_password")
     if not current_password or not new_password:
         raise HTTPException(status_code=400, detail="La contraseña actual y la nueva son obligatorias")
+    if len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 8 caracteres")
 
     user_doc = await db.users.find_one({"user_id": user.user_id})
     if not user_doc:
@@ -356,6 +358,35 @@ async def change_customer_password(data: dict = Body(...), user: User = Depends(
         raise HTTPException(status_code=400, detail="La contraseña actual es incorrecta")
 
     await db.users.update_one({"user_id": user.user_id}, {"$set": {"password_hash": hash_password(new_password)}})
+
+    # PS-01: Invalidate all other sessions (keep current one)
+    current_token = None
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Bearer "):
+        current_token = auth_header[7:]
+    if current_token:
+        import hashlib
+        current_hash = hashlib.sha256(current_token.encode()).hexdigest()
+        await db.user_sessions.delete_many({
+            "user_id": user.user_id,
+            "token_hash": {"$ne": current_hash},
+        })
+    else:
+        await db.user_sessions.delete_many({"user_id": user.user_id})
+
+    # PS-05: Send email notification about password change
+    try:
+        email = user_doc.get("email")
+        if email:
+            from services.auth_helpers import send_email
+            send_email(
+                to=email,
+                subject="Tu contraseña ha sido cambiada — HispaloShop",
+                html=f"<p>Hola {user_doc.get('name', '')},</p><p>Tu contraseña ha sido cambiada correctamente. Si no has sido tú, contacta con soporte inmediatamente.</p>",
+            )
+    except Exception:
+        pass  # Best-effort, don't block password change
+
     return {"message": "Contraseña actualizada"}
 
 @router.get("/customer/stats")
@@ -421,23 +452,29 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
     user_id = user.user_id
     
     # ── Common cleanup for ALL roles ──
-    # Sessions, follows, social, notifications, wishlists, communities
     await db.user_sessions.delete_many({"user_id": user_id})
     await db.user_follows.delete_many({"$or": [{"follower_id": user_id}, {"following_id": user_id}]})
     await db.post_likes.delete_many({"user_id": user_id})
+    await db.post_reactions.delete_many({"user_id": user_id})
     await db.post_comments.update_many({"user_id": user_id}, {"$set": {"user_name": "Deleted User", "user_id": "deleted"}})
     await db.wishlists.delete_many({"user_id": user_id})
     await db.notifications.delete_many({"user_id": user_id})
+    await db.user_notification_preferences.delete_many({"user_id": user_id})
+    await db.user_preferences.delete_many({"user_id": user_id})
     await db.community_members.delete_many({"user_id": user_id})
+    await db.follow_requests.delete_many({"$or": [{"from_user_id": user_id}, {"to_user_id": user_id}]})
+    await db.blocked_users.delete_many({"$or": [{"blocker_id": user_id}, {"blocked_id": user_id}]})
+    await db.push_subscriptions.delete_many({"user_id": user_id})
     await db.carts.delete_many({"user_id": user_id})
     await db.cart_discounts.delete_many({"user_id": user_id})
     await db.stock_holds.delete_many({"user_id": user_id})
     await db.customer_influencer_attribution.delete_many({"consumer_id": user_id})
+    await db.saved_recipes.delete_many({"user_id": user_id})
+    await db.ai_profiles.delete_one({"user_id": user_id})
+    await db.user_inferred_insights.delete_one({"user_id": user_id})
 
     if user.role == "customer":
         await db.cart.delete_many({"user_id": user_id})
-        await db.ai_profiles.delete_one({"user_id": user_id})
-        await db.user_inferred_insights.delete_one({"user_id": user_id})
         await db.chat_messages.delete_many({"user_id": user_id})
         await db.orders.update_many(
             {"user_id": user_id},
@@ -468,7 +505,6 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
         )
 
     elif user.role == "influencer":
-        # Deactivate discount codes owned by this influencer
         await db.discount_codes.update_many(
             {"influencer_id": user_id},
             {"$set": {"active": False}}
@@ -481,6 +517,9 @@ async def delete_account(request: Request, user: User = Depends(get_current_user
             {"influencer_id": user_id, "status": "scheduled"},
             {"$set": {"status": "cancelled", "cancel_reason": "account_deleted"}}
         )
+        # PS-02: Clean up influencer record and commissions
+        await db.influencers.delete_one({"user_id": user_id})
+        await db.influencer_commissions.delete_many({"influencer_id": user_id})
 
     await db.users.delete_one({"user_id": user_id})
     return {"message": "Cuenta eliminada correctamente"}

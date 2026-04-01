@@ -158,9 +158,9 @@ export default function EditProfilePage() {
   };
 
   const usernameBorderClass = usernameStatus === 'taken'
-    ? 'border-stone-950'
+    ? 'border-stone-400'
     : usernameStatus === 'available'
-      ? 'border-stone-950'
+      ? 'border-stone-600'
       : 'border-stone-200';
 
   return (

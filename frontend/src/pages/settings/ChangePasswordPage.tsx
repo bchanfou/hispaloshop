@@ -49,12 +49,12 @@ export default function ChangePasswordPage() {
           new_password: newPw,
         });
       }
-      toast.success('Contrasena actualizada');
+      toast.success('Contraseña actualizada');
       navigate('/settings');
     } catch (err) {
       const status = err?.response?.status;
       if (status === 401) {
-        toast.error('Contrasena actual incorrecta');
+        toast.error('Contraseña actual incorrecta');
       } else {
         toast.error(err?.response?.data?.detail || 'Error al cambiar contraseña');
       }
@@ -83,7 +83,7 @@ export default function ChangePasswordPage() {
         >
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span className="text-[17px] font-bold text-stone-950">Contrasena</span>
+        <span className="text-[17px] font-bold text-stone-950">Contraseña</span>
       </div>
 
       <div className="max-w-[400px] mx-auto px-4 pt-6 pb-[100px]">
@@ -104,7 +104,7 @@ export default function ChangePasswordPage() {
         {!isGoogleUser && (
           <div className="mb-5">
             <label className="text-[13px] font-semibold text-stone-950 mb-1.5 block">
-              Contrasena actual
+              Contraseña actual
             </label>
             <div className="relative">
               <input

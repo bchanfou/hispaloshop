@@ -348,7 +348,7 @@ export default function HashtagPage() {
               <div className="grid grid-cols-2 gap-3">
                 {allRecipes.map((recipe, idx) => {
                   const recipeId = recipe.recipe_id || recipe.id;
-                  const cookTime = recipe.cook_time || recipe.time_minutes || 0;
+                  const cookTime = recipe.cook_time || recipe.time_minutes || recipe.prep_time || recipe.prep_time_minutes || 0;
                   if (!recipeId) return null;
                   return (
                     <button

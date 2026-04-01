@@ -13,9 +13,9 @@ import apiClient from '../services/api/client';
 const TOTAL_STEPS = 3;
 
 const INTERESTS = [
-  'Aceites', 'Mieles', 'Quesos', 'Vinos', 'Conservas', 'Embutidos',
-  'Especias', 'Frutas', 'Verduras', 'Panadería', 'Repostería', 'Bebidas',
-  'Snacks', 'Superfoods', 'Bio/Ecológico', 'Sin gluten',
+  'Aceites', 'Miel', 'Conservas', 'Panadería', 'Quesos', 'Embutidos',
+  'Salsas', 'Especias', 'Legumbres', 'Frutos secos', 'Infusiones',
+  'Vinos', 'Frutas', 'Verduras', 'Repostería', 'Bebidas',
 ];
 
 const ROLE_WELCOME_SUBTITLES = {
@@ -127,6 +127,17 @@ export default function OnboardingPage() {
   const handlePhotoSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // O-04: Validate type and size before accepting
+    if (!file.type.startsWith('image/')) {
+      toast.error('Solo se permiten imágenes');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('La imagen no puede superar 5 MB');
+      e.target.value = '';
+      return;
+    }
     setProfilePhoto(file);
     const reader = new FileReader();
     reader.onload = (ev) => setProfilePhotoPreview(ev.target.result);
@@ -145,7 +156,7 @@ export default function OnboardingPage() {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
         } catch {
-          // non-blocking
+          toast.error('No se pudo subir la foto de perfil, pero tu cuenta se creará igualmente.');
         }
       }
 
@@ -155,7 +166,7 @@ export default function OnboardingPage() {
       if (bio.trim()) patchData.bio = bio.trim();
       if (location.trim()) patchData.location = location.trim();
       if (selectedInterests.length > 0) {
-        patchData.food_preferences = selectedInterests.map(i => i.toLowerCase().replace(/\//g, '-'));
+        patchData.food_preferences = selectedInterests.map(i => i.toLowerCase().replace(/[\s\/]+/g, '-'));
       }
 
       await apiClient.patch('/users/me', patchData);
@@ -166,7 +177,7 @@ export default function OnboardingPage() {
       const roleDestinations = {
         producer:   '/producer/verification',
         influencer: '/influencer/fiscal-setup',
-        importer:   '/producer/verification',
+        importer:   '/importer/onboarding',
         customer:   '/discover',
       };
       navigate(roleDestinations[role] || '/', { replace: true });
@@ -327,11 +338,11 @@ export default function OnboardingPage() {
           })}
         </div>
 
-        {selectedInterests.length > 0 && (
-          <p className="text-sm text-stone-500 mt-4">
-            {selectedInterests.length} seleccionados
-          </p>
-        )}
+        <p className="text-sm text-stone-500 mt-4">
+          {selectedInterests.length < 3
+            ? `Selecciona al menos 3 categorías (${selectedInterests.length}/3)`
+            : `${selectedInterests.length} seleccionados`}
+        </p>
       </div>
 
       <div className="mt-8">

@@ -80,7 +80,23 @@ async function refreshSession() {
   const data = response?.data;
   const newToken = data?.session_token || data?.access_token || null;
   if (newToken) {
+    // Read old token BEFORE setToken overwrites it
+    const prevToken = localStorage.getItem('hsp_token');
     setToken(newToken, data.refresh_token);
+    // Sync refreshed token into hsp_accounts so account switcher uses fresh token
+    try {
+      const raw = localStorage.getItem('hsp_accounts');
+      if (raw) {
+        const accounts = JSON.parse(raw);
+        if (Array.isArray(accounts)) {
+          const idx = accounts.findIndex(a => a.token === prevToken);
+          if (idx >= 0) {
+            accounts[idx].token = newToken;
+            localStorage.setItem('hsp_accounts', JSON.stringify(accounts));
+          }
+        }
+      }
+    } catch { /* best-effort */ }
     return newToken;
   }
 

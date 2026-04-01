@@ -6,8 +6,10 @@ import {
   HelpCircle, MessageSquare, Star, FileText, LogOut, Trash2,
   Link2, Receipt, CreditCard, Store, Globe, Check,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { removeToken } from '../../lib/auth';
+import apiClient from '../../services/api/client';
 
 /* ── Section header ── */
 function SectionLabel({ children }) {
@@ -110,7 +112,7 @@ function ToggleSwitch({ value, onChange, disabled }) {
 
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, logoutAccount } = useAuth();
   const [isPrivate, setIsPrivate] = useState(user?.is_private || false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -125,18 +127,25 @@ export default function SettingsPage() {
   const handleTogglePrivate = async (val) => {
     setIsPrivate(val);
     try {
-      const apiClient = (await import('../../services/api/client')).default;
       await apiClient.put('/customer/profile', { is_private: val });
-      const { toast } = await import('sonner');
       toast.success(val ? 'Cuenta privada activada' : 'Cuenta pública activada');
     } catch {
       setIsPrivate(!val);
-      const { toast } = await import('sonner');
       toast.error('Error al cambiar la privacidad');
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (logoutAccount) {
+      // Use multi-account aware logout — switches to fallback account if available
+      const result = await logoutAccount(user);
+      if (result?.switched && result?.user) {
+        toast.success('Sesión cerrada. Cambiado a otra cuenta.');
+        navigate(result.user.username ? `/${result.user.username}` : '/', { replace: true });
+        return;
+      }
+    }
+    // Fallback: full logout (no other accounts or logoutAccount not available)
     removeToken();
     localStorage.removeItem('hsp_accounts');
     logout();
@@ -147,14 +156,12 @@ export default function SettingsPage() {
     if (deleteEmail !== user?.email) return;
     setDeleting(true);
     try {
-      const apiClient = (await import('../../services/api/client')).default;
       await apiClient.delete('/account/delete', { data: { email_confirmation: deleteEmail } });
       removeToken();
       localStorage.removeItem('hsp_accounts');
       logout();
       navigate('/login', { replace: true });
     } catch (e) {
-      const { toast } = await import('sonner');
       toast.error(e?.response?.data?.detail || 'Error al eliminar la cuenta');
       setDeleting(false);
     }

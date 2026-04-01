@@ -600,7 +600,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     return (
       <article
         ref={(node) => { containerRef.current = node; dwellRef.current = node; }}
-        className="bg-white rounded-2xl shadow-sm overflow-hidden"
+        className="bg-white rounded-2xl shadow-sm mx-3 mb-3 overflow-hidden"
       >
         {/* ─ Header (P-01, P-07) ─ */}
         <div className="flex items-center gap-2.5 px-3 py-2">
@@ -721,7 +721,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
 
         {/* ─ Video area ─ */}
         <div
-          className="relative aspect-[9/16] max-h-[480px] bg-black overflow-hidden cursor-pointer"
+          className="relative aspect-[4/5] bg-black overflow-hidden cursor-pointer"
           onClick={handleVideoTap}
         >
           {videoUrl ? (
@@ -780,6 +780,12 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           >
             {muted ? <VolumeX size={14} className="text-white" /> : <Volume2 size={14} className="text-white" />}
           </button>
+
+          {/* Reel badge */}
+          <div className="absolute top-3 left-3 z-[2] bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5 flex items-center gap-1">
+            <Play size={10} className="text-white fill-white" />
+            <span className="text-[11px] text-white font-semibold">Reel</span>
+          </div>
 
           {/* Duration badge */}
           {videoDuration > 0 && !playing && (

@@ -111,8 +111,9 @@ export default function StorePage() {
 
   const handleChat = async () => {
     if (!user) { toast.error('Inicia sesión para enviar un mensaje'); return; }
+    const storeUserId = store?.user_id || store?.producer_id;
+    if (!storeUserId) { toast.error('Esta tienda no tiene chat disponible'); return; }
     try {
-      const storeUserId = store.user_id || store.producer_id;
       const conv = await openConversation(storeUserId, 'b2c');
       const conversationId = conv?.id || conv?.conversation_id;
       if (conversationId) navigate(`/messages/${conversationId}`);
@@ -289,8 +290,14 @@ export default function StorePage() {
           <span className="text-stone-500">·</span>
           <span>{store.follower_count || 0} seguidores</span>
           <span className="text-stone-500">·</span>
-          <Star size={13} fill="#0c0a09" stroke="#0c0a09" />
-          <span>{Number(avgRating || 0).toFixed(1)}</span>
+          {avgRating > 0 ? (
+            <>
+              <Star size={13} fill="#0c0a09" stroke="#0c0a09" />
+              <span>{Number(avgRating).toFixed(1)}</span>
+            </>
+          ) : (
+            <span className="text-stone-400">Sin reseñas</span>
+          )}
         </div>
 
         {/* 3 Action buttons */}
@@ -409,9 +416,12 @@ export default function StorePage() {
             </div>
           ) : recipes.length > 0 ? (
             <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-              {recipes.map((recipe) => (
-                <button key={recipe.post_id || recipe.id || recipe.recipe_id} type="button"
-                  onClick={() => navigate(`/recipes/${recipe.recipe_id || recipe.post_id || recipe.id}`)}
+              {recipes.map((recipe) => {
+                const recipeId = recipe.recipe_id || recipe.post_id || recipe.id;
+                if (!recipeId) return null;
+                return (
+                <button key={recipeId} type="button"
+                  onClick={() => navigate(`/recipes/${recipeId}`)}
                   className="block w-full overflow-hidden bg-white shadow-sm rounded-[14px] cursor-pointer p-0 text-left"
                 >
                   {recipe.image_url && (
@@ -427,7 +437,8 @@ export default function StorePage() {
                     </div>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <EmptyState text="Esta tienda no ha compartido recetas aún" />

@@ -14,6 +14,7 @@ GET  /discovery/producer-insights
 """
 
 import asyncio
+import re
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 
@@ -22,7 +23,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from core.auth import get_current_user
-from core.database import get_db
+from core.database import db, get_db
 from core.models import User
 from services.feed_algorithm import feed_algorithm
 from utils.images import extract_product_image
@@ -106,7 +107,6 @@ async def discovery_search(
     """Autocomplete search for DiscoverPage — returns mixed results."""
     if not q.strip():
         return {"products": [], "recipes": [], "stores": [], "creators": [], "total": 0}
-    import re
     safe_q = re.escape(q.strip()[:100])
     try:
         products, recipes, stores, creators = await asyncio.gather(
@@ -268,28 +268,6 @@ async def get_trending(
         "items": [_s(item) for item in items],
     }
 
-
-# ── S-02: Discovery search — lightweight proxy to /search for DiscoverPage autocomplete ──
-
-@router.get("/discovery/search")
-async def discovery_search(
-    q: str = Query("", min_length=1, max_length=100),
-    limit: int = Query(5, le=20),
-    user: Optional[User] = Depends(get_current_user),
-):
-    """Quick search for DiscoverPage autocomplete dropdown."""
-    import re as _re
-    sanitized = _re.escape(q.strip()[:100])
-    if not sanitized:
-        return {"results": []}
-
-    country = _country_of(user)
-    query = {"status": {"$in": ["active", "approved"]}, "name": {"$regex": sanitized, "$options": "i"}}
-    if country:
-        query["$or"] = [{"target_markets": country}, {"target_markets": {"$exists": False}}]
-
-    products = await db.products.find(query, {"_id": 0}).sort("stats.orders_count", -1).limit(limit).to_list(limit)
-    return {"results": products}
 
 
 # ── Interaction tracking ───────────────────────────────────────────────────────
@@ -525,31 +503,45 @@ async def get_growth_analytics(
         db.growth_interactions.aggregate(creator_impact_pipeline).to_list(length=10),
     )
 
-    # Enrich product stats with names
-    enriched_products = []
+    # Batch-enrich product stats with names (avoid N+1)
+    product_oids = []
     for item in product_clicks_raw:
         try:
-            p = await db.products.find_one(
-                {"_id": ObjectId(item["_id"])}, {"name": 1, "price": 1}
-            )
-            enriched_products.append({
-                "product_id": item["_id"],
-                "name": p.get("name", "—") if p else "—",
-                "price": p.get("price", 0) if p else 0,
-                "clicks": item["clicks"],
-                "cart_adds": item["cart_adds"],
-                "purchases": item["purchases"],
-            })
+            product_oids.append(ObjectId(item["_id"]))
         except Exception:
             pass
+    product_map = {}
+    if product_oids:
+        products_docs = await db.products.find(
+            {"_id": {"$in": product_oids}}, {"name": 1, "price": 1}
+        ).to_list(len(product_oids))
+        product_map = {str(p["_id"]): p for p in products_docs}
 
-    # Enrich creator stats with names
+    enriched_products = []
+    for item in product_clicks_raw:
+        p = product_map.get(item["_id"])
+        enriched_products.append({
+            "product_id": item["_id"],
+            "name": p.get("name", "—") if p else "—",
+            "price": p.get("price", 0) if p else 0,
+            "clicks": item["clicks"],
+            "cart_adds": item["cart_adds"],
+            "purchases": item["purchases"],
+        })
+
+    # Batch-enrich creator stats with names (avoid N+1)
+    creator_ids = [item["_id"] for item in creator_impact_raw if item.get("_id")]
+    creator_map = {}
+    if creator_ids:
+        creators_docs = await db.users.find(
+            {"user_id": {"$in": creator_ids}},
+            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "role": 1},
+        ).to_list(len(creator_ids))
+        creator_map = {c["user_id"]: c for c in creators_docs}
+
     enriched_creators = []
     for item in creator_impact_raw:
-        u = await db.users.find_one(
-            {"user_id": item["_id"]},
-            {"name": 1, "username": 1, "role": 1, "avatar": 1},
-        )
+        u = creator_map.get(item["_id"])
         enriched_creators.append({
             "creator_id": item["_id"],
             "name": u.get("name", "—") if u else "—",
@@ -627,24 +619,32 @@ async def get_influencer_insights(
         for day in sorted(daily_map.keys()):
             daily_earnings.append({"date": day, "amount": daily_map[day]})
 
-    top_products = []
+    # Batch-enrich products (avoid N+1)
+    top_product_oids = []
     for item in top_products_raw:
         try:
-            p = await db.products.find_one(
-                {"_id": ObjectId(item["_id"])},
-                {"name": 1, "images": 1, "price": 1},
-            )
-            if p:
-                top_products.append({
-                    "product_id": item["_id"],
-                    "name": p.get("name", "—"),
-                    "image": extract_product_image(p),
-                    "price": p.get("price", 0),
-                    "clicks": item["clicks"],
-                    "score": item["score"],
-                })
+            top_product_oids.append(ObjectId(item["_id"]))
         except Exception:
             pass
+    tp_map = {}
+    if top_product_oids:
+        tp_docs = await db.products.find(
+            {"_id": {"$in": top_product_oids}}, {"name": 1, "images": 1, "price": 1}
+        ).to_list(len(top_product_oids))
+        tp_map = {str(p["_id"]): p for p in tp_docs}
+
+    top_products = []
+    for item in top_products_raw:
+        p = tp_map.get(item["_id"])
+        if p:
+            top_products.append({
+                "product_id": item["_id"],
+                "name": p.get("name", "—"),
+                "image": extract_product_image(p),
+                "price": p.get("price", 0),
+                "clicks": item["clicks"],
+                "score": item["score"],
+            })
 
     return {
         "period_days": days,

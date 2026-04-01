@@ -164,6 +164,10 @@ export default function CartPage() {
   // Allow guests to view their cart — checkout button will prompt login
   const isGuest = !authLoading && !user;
 
+  // CT-05: Shared checkout disable logic (used by desktop + mobile buttons)
+  const checkoutDisabled = !isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || !getSelectedAddress() || showNewAddressForm);
+  const checkoutEnabled = isGuest || !checkoutDisabled;
+
   // Shipping data now comes from GET /cart response (cartSummary.shipping_breakdown)
   // No separate shipping preview call needed
 
@@ -224,6 +228,11 @@ export default function CartPage() {
     const trimmedCode = discountCode.trim().toUpperCase();
     if (!trimmedCode) {
       toast.error('Introduce un código de descuento');
+      return;
+    }
+    // CT-06: Check if same code already applied
+    if (appliedDiscount?.code?.toUpperCase() === trimmedCode) {
+      toast.error('Este código ya está aplicado');
       return;
     }
     setDiscountLoading(true);
@@ -905,8 +914,8 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={!isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || !getSelectedAddress() || showNewAddressForm)}
-                className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${isGuest || (!checkoutLoading && emailVerified && stockIssues.length === 0 && getSelectedAddress() && !showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+                disabled={checkoutDisabled}
+                className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${checkoutEnabled ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
                 data-testid="checkout-button"
               >
                 {isGuest
@@ -946,8 +955,8 @@ export default function CartPage() {
             whileTap={{ scale: 0.96 }}
             type="button"
             onClick={handleCheckout}
-            disabled={!isGuest && (checkoutLoading || !emailVerified || stockIssues.length > 0 || !getSelectedAddress() || showNewAddressForm)}
-            className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${isGuest || (!checkoutLoading && emailVerified && stockIssues.length === 0 && getSelectedAddress() && !showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
+            disabled={checkoutDisabled}
+            className={`w-full h-12 rounded-full text-[15px] font-semibold transition-colors ${checkoutEnabled ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
           >
             {isGuest ? 'Iniciar sesión para comprar' : checkoutLoading ? t('common.loading') : t('cart.checkout')}
           </motion.button>

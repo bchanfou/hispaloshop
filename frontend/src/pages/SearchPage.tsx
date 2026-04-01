@@ -469,18 +469,22 @@ export default function SearchPage() {
     setHistory([]);
   };
 
+  const safeProducts = Array.isArray(results?.products) ? results.products : [];
+  const safeRecipes = Array.isArray(results?.recipes) ? results.recipes : [];
+  const safeStores = Array.isArray(results?.stores) ? results.stores : [];
+  const safeCreators = Array.isArray(results?.creators) ? results.creators : [];
   const counts = {
-    products: results?.products?.length || 0,
-    recipes: results?.recipes?.length || 0,
-    stores: results?.stores?.length || 0,
-    creators: results?.creators?.length || 0,
+    products: safeProducts.length,
+    recipes: safeRecipes.length,
+    stores: safeStores.length,
+    creators: safeCreators.length,
   };
   const totalCount = counts.products + counts.recipes + counts.stores + counts.creators;
   const hasResults = totalCount > 0;
 
   // S-07: Backend handles sorting via `sort` param — no client-side re-sort needed.
   // Kept as passthrough for downstream compatibility.
-  const sortedProducts = results?.products || [];
+  const sortedProducts = safeProducts;
 
   const showProducts = (activeTab === 'all' || activeTab === 'products') && counts.products > 0;
   const showRecipes = (activeTab === 'all' || activeTab === 'recipes') && counts.recipes > 0;
@@ -535,7 +539,17 @@ export default function SearchPage() {
 
           <button
             type="button"
-            onClick={() => setShowFilters(prev => !prev)}
+            onClick={() => {
+              if (!showFilters) {
+                // Sync input states from applied filters when opening
+                setFilterMinPrice(appliedFilters.minPrice);
+                setFilterMaxPrice(appliedFilters.maxPrice);
+                setFilterCerts([...appliedFilters.certs]);
+                setFilterInStock(appliedFilters.inStock);
+                setFilterFreeShipping(appliedFilters.freeShipping);
+              }
+              setShowFilters(prev => !prev);
+            }}
             aria-label="Filtros"
             className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white transition-colors hover:bg-stone-50 lg:hidden"
           >
@@ -837,21 +851,21 @@ export default function SearchPage() {
               <section>
                 <SectionHeader icon={ChefHat} label="Recetas" count={counts.recipes} />
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {results.recipes.map(r => <RecipeCard key={r.recipe_id || r.id} r={r} />)}
+                  {safeRecipes.map(r => <RecipeCard key={r.recipe_id || r.id} r={r} />)}
                 </div>
               </section>
             )}
             {showCreators && (
               <section>
                 <SectionHeader icon={Users} label="Creadores" count={counts.creators} />
-                {results.creators.map(c => <PersonRow key={c.user_id || c.id} person={c} linkBase="/" />)}
+                {safeCreators.map(c => <PersonRow key={c.user_id || c.id} person={c} linkBase="/" />)}
               </section>
             )}
             {showStores && (
               <section>
                 <SectionHeader icon={Store} label="Tiendas" count={counts.stores} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {results.stores.map(s => <PersonRow key={s.store_id || s.id} person={s} linkBase="/store/" />)}
+                  {safeStores.map(s => <PersonRow key={s.store_id || s.id} person={s} linkBase="/store/" />)}
                 </div>
               </section>
             )}

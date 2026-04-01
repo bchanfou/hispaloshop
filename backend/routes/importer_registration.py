@@ -1,12 +1,15 @@
 from datetime import datetime, timezone
 import json
+import logging
 import re
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
+from core.database import db
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -90,24 +93,23 @@ def _read_existing_applications():
 )
 async def register_importer_application(payload: ImporterApplicationRequest, request: Request):
     """Submit a new importer registration application."""
-    existing = _read_existing_applications()
     normalized_email = payload.email.strip().lower()
 
-    for application in existing:
-        if str(application.get("email", "")).strip().lower() == normalized_email:
-            return ImporterApplicationResponse(
-                ok=True,
-                message="Ya habiamos recibido esta solicitud. Si sigue pendiente, la revisaremos en 24-48h.",
-                status=str(application.get("status", "pending")),
-            )
-        if str(application.get("cif", "")).strip().upper() == payload.cif:
-            return ImporterApplicationResponse(
-                ok=True,
-                message="Ya existe una solicitud para este CIF. Nuestro equipo la revisara antes de duplicarla.",
-                status=str(application.get("status", "pending")),
-            )
-
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    # Check duplicates in DB
+    existing_email = await db.importer_applications.find_one({"email": normalized_email})
+    if existing_email:
+        return ImporterApplicationResponse(
+            ok=True,
+            message="Ya habiamos recibido esta solicitud. Si sigue pendiente, la revisaremos en 24-48h.",
+            status=str(existing_email.get("status", "pending")),
+        )
+    existing_cif = await db.importer_applications.find_one({"cif": payload.cif})
+    if existing_cif:
+        return ImporterApplicationResponse(
+            ok=True,
+            message="Ya existe una solicitud para este CIF. Nuestro equipo la revisara antes de duplicarla.",
+            status=str(existing_cif.get("status", "pending")),
+        )
 
     record = {
         "application_id": f"imp_app_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}",
@@ -129,13 +131,15 @@ async def register_importer_application(payload: ImporterApplicationRequest, req
     }
 
     try:
-        with APPLICATIONS_FILE.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
-    except OSError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="No se pudo guardar la solicitud del importador.",
-        ) from exc
+        await db.importer_applications.insert_one(record)
+    except Exception as exc:
+        logger.warning(f"[IMPORTER_REG] DB insert failed, falling back to file: {exc}")
+        try:
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            with APPLICATIONS_FILE.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except OSError:
+            raise HTTPException(status_code=500, detail="No se pudo guardar la solicitud del importador.")
 
     return ImporterApplicationResponse(
         ok=True,

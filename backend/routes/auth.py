@@ -357,6 +357,7 @@ async def register(input: RegisterInput, request: Request):
             },
         })
     
+    influencer_data = None
     if input.role == "influencer":
         audience_size = int(str(input.followers or "0").replace(".", "").replace(",", "") or 0)
         user_data.update({
@@ -399,10 +400,21 @@ async def register(input: RegisterInput, request: Request):
             },
             "created_at": datetime.now(timezone.utc).isoformat()
         }
-        await db.influencers.insert_one(influencer_data)
-    
-    await db.users.insert_one(user_data)
-    
+    try:
+        await db.users.insert_one(user_data)
+    except Exception as insert_err:
+        # Handle race condition: duplicate email/username from concurrent registration
+        if "duplicate key" in str(insert_err).lower() or "E11000" in str(insert_err):
+            raise HTTPException(status_code=400, detail="Este email ya está registrado")
+        raise
+
+    # Insert influencer record AFTER user insert succeeds (avoid orphaned records)
+    if input.role == "influencer" and influencer_data:
+        try:
+            await db.influencers.insert_one(influencer_data)
+        except Exception as inf_err:
+            logger.warning(f"[AUTH] Failed to create influencer record for {user_id}: {inf_err}")
+
     # Generate 6-digit verification code
     verification_code = generate_verification_code()
     await db.email_verifications.insert_one({

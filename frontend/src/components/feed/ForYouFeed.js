@@ -281,7 +281,7 @@ export default function ForYouFeed() {
             if (isReel) {
               return (
                 <FeedItemBoundary>
-                <div className="mx-3 mb-3">
+                <div className="mb-2">
                   {showWeeklySummary && <WeeklySummaryCard />}
                   {showSuggestions && <SuggestedUsersCard onDismiss={() => setDismissedSuggestions(true)} />}
                   {showSponsored && (

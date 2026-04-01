@@ -49,8 +49,8 @@ const ConsumerRegister = () => {
         purchase_frequency: data.step4?.frequency || 'weekly',
       };
       await register(payload);
-      clearProgress();
       navigate('/onboarding', { replace: true });
+      clearProgress();
     } catch (error) {
       toast.error(error?.response?.data?.detail || 'Error al crear la cuenta. Inténtalo de nuevo.');
     } finally {

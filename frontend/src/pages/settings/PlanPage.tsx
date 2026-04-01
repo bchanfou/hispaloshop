@@ -34,15 +34,15 @@ const PLANS = [
   {
     id: 'elite',
     name: 'ELITE',
-    price: '149€/mes',
+    price: '249€/mes',
     features: [
       'Todo lo de PRO',
       'Tienda destacada',
-      'Account manager dedicado',
-      'API avanzada',
+      'IA comercial avanzada',
+      'Generación de contratos',
       'B2B marketplace',
       'Firma digital ilimitada',
-      'Consultoría estratégica',
+      'Comisión 15%',
     ],
   },
 ];

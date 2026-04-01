@@ -93,6 +93,7 @@ async def _search_recipes(db, q: str, limit: int):
     pipeline = [
         {
             "$match": {
+                "status": "active",
                 "$or": [
                     {"title": {"$regex": q, "$options": "i"}},
                     {"description": {"$regex": q, "$options": "i"}},
@@ -106,9 +107,11 @@ async def _search_recipes(db, q: str, limit: int):
             "$project": {
                 "recipe_id": {"$toString": "$_id"},
                 "title": 1,
-                "cover_image": 1,
+                "cover_image": "$image_url",
+                "image_url": 1,
                 "likes_count": 1,
-                "prep_time_minutes": 1,
+                "prep_time_minutes": "$time_minutes",
+                "time_minutes": 1,
                 "_id": 0,
             }
         },

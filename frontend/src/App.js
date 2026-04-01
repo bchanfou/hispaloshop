@@ -187,8 +187,7 @@ const ChatToastContainer = lazy(() => import('./components/notifications/ChatToa
 
 // Checkout
 
-// Role-based onboarding
-const RoleOnboardingPage = lazy(() => import('./pages/auth/RoleOnboardingPage'));
+// Role-based onboarding (REMOVED — dead code, no flow navigates here)
 
 // Landing pages
 const LandingPage = lazy(() => import('./pages/landings/Landing'));
@@ -482,7 +481,7 @@ function AppRouter() {
                   </ProtectedRoute>
                 )}
               />
-              <Route path="/onboarding/:role" element={<RoleOnboardingPage />} />
+              {/* /onboarding/:role removed — dead code */}
               <Route path="/verify-email" element={<AuthLayout><VerifyEmailPage /></AuthLayout>} />
               <Route path="/forgot-password" element={<AuthLayout><ForgotPasswordPage /></AuthLayout>} />
               <Route path="/reset-password" element={<AuthLayout><ResetPasswordPage /></AuthLayout>} />

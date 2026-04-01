@@ -66,7 +66,7 @@ export default function CheckoutSuccessPage() {
           if (!cancelled) {
             queryClient.invalidateQueries({ queryKey: ['cart'] });
             queryClient.invalidateQueries({ queryKey: ['cart-pricing'] });
-            fetchCart();
+            try { await fetchCart(); } catch { /* cart refresh is best-effort */ }
             setStatus('success');
           }
         } else if (!cancelled) {
@@ -134,8 +134,8 @@ export default function CheckoutSuccessPage() {
     ? `#HSP-${String(orderId).slice(-8).toUpperCase()}`
     : tempRef;
   const orderCurrency = order?.currency || 'EUR';
-  const total = order?.total_amount ?? (order?.total_cents ? order.total_cents / 100 : 0);
-  const totalPaid = total ? convertAndFormatPrice(Number(total), orderCurrency) : '';
+  const total = order?.total_amount ?? (order?.total_cents != null ? order.total_cents / 100 : null);
+  const totalPaid = total != null ? convertAndFormatPrice(Number(total), orderCurrency) : '';
   const email = order?.user_email || order?.customer_email || order?.email || '';
   const allItems = order?.items || order?.line_items || [];
   const visibleItems = allItems.slice(0, 5);
@@ -264,14 +264,12 @@ export default function CheckoutSuccessPage() {
           transition={{ delay: 0.65 }}
           className="flex flex-col gap-2.5"
         >
-          {orderId && (
-            <Link
-              to={`/dashboard/orders/${orderId}`}
-              className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors"
-            >
-              Ver mi pedido
-            </Link>
-          )}
+          <Link
+            to={orderId ? `/dashboard/orders/${orderId}` : '/orders'}
+            className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors"
+          >
+            {orderId ? 'Ver mi pedido' : 'Ver mis pedidos'}
+          </Link>
           <Link
             to="/discover"
             className="flex items-center justify-center h-12 bg-white text-stone-950 border border-stone-200 rounded-full text-[15px] font-semibold no-underline hover:bg-stone-50 transition-colors"

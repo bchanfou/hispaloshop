@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { MapPin, Navigation } from 'lucide-react';
+import { toast } from 'sonner';
 
 const SPAIN_ZIP_CODES = {
   '28001': 'Madrid',
@@ -64,6 +65,7 @@ export default function StepLocation({ data, onUpdate, onNext, onBack }) {
         } catch {
           setZipCode('28001');
           setCity('Madrid');
+          toast('No pudimos detectar tu ubicación. Puedes introducirla manualmente.', { icon: '📍' });
         } finally {
           setLoadingLocation(false);
         }
@@ -77,6 +79,7 @@ export default function StepLocation({ data, onUpdate, onNext, onBack }) {
           // POSITION_UNAVAILABLE or TIMEOUT — fallback
           setZipCode('28001');
           setCity('Madrid');
+          toast('No pudimos obtener tu ubicación. Hemos puesto Madrid por defecto.', { icon: '📍' });
         }
       },
       { timeout: 15000, enableHighAccuracy: false }
