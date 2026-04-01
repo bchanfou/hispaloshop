@@ -312,15 +312,14 @@ export default function CreatePostPage() {
 
   const handlePublish = async () => {
     if (publishing) return;
-    if (!selectedFiles.length && !caption.trim()) {
-      toast.error('Añade al menos una imagen o escribe algo');
+    if (!selectedFiles.length) {
+      toast.error('Añade al menos una imagen para publicar');
       return;
     }
     if (caption.length > 2200) {
       toast.error('La descripción es demasiado larga');
       return;
     }
-    if (!selectedFiles.length) return;
     setPublishing(true);
     setPublishError(false);
     setUploadProgress(0);

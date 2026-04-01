@@ -17,12 +17,9 @@ from core.database import db
 from core.auth import get_current_user, get_optional_user, require_role
 from core.models import User, ProductInput
 from core.sanitize import strip_mongo_operators
-from core.constants import SUPPORTED_LANGUAGES
+from core.constants import SUPPORTED_LANGUAGES, TRANSLATION_LANGUAGES
 from services.markets import get_product_target_markets, is_product_available_in_country, normalize_market_code, normalize_markets
 from services.translation import TranslationService
-
-# Translation languages - must match server.py
-TRANSLATION_LANGUAGES = ['en', 'es', 'fr', 'de', 'pt', 'ar', 'hi', 'zh', 'ja', 'ko', 'ru']
 
 logger = logging.getLogger(__name__)
 

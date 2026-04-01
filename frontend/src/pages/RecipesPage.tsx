@@ -153,6 +153,8 @@ export default function RecipesPage() {
   const sentinelRef = useRef(null);
 
   const debouncedSearch = useDebounce(searchInput, 400);
+  // Stable string key from Set for use in dependency arrays (Set reference changes on every update)
+  const allergenKey = useMemo(() => [...allergenFilters].sort().join(','), [allergenFilters]);
 
   useEffect(() => {
     let active = true;
@@ -174,7 +176,7 @@ export default function RecipesPage() {
       if (difficulty !== 'all' && r.difficulty !== difficulty) return false;
       if (timeFilter !== 'all') {
         const max = parseInt(timeFilter, 10);
-        if ((r.time_minutes || 999) > max) return false;
+        if ((r.time_minutes ?? 999) > max) return false;
       }
       if (dietFilter !== 'all') {
         const tags = (r.tags || []).map(t => t.toLowerCase());
@@ -199,9 +201,11 @@ export default function RecipesPage() {
       }
       return true;
     });
-  }, [recipes, debouncedSearch, difficulty, timeFilter, dietFilter, allergenFilters]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipes, debouncedSearch, difficulty, timeFilter, dietFilter, allergenKey]);
 
-  useEffect(() => { setVisibleCount(12); }, [debouncedSearch, difficulty, timeFilter, dietFilter, allergenFilters]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setVisibleCount(12); }, [debouncedSearch, difficulty, timeFilter, dietFilter, allergenKey]);
 
   /* Infinite scroll */
   useEffect(() => {

@@ -30,22 +30,10 @@ RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 EMAIL_FROM = os.environ.get('EMAIL_FROM', 'Hispaloshop <onboarding@resend.dev>')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
-# Supported languages and countries
-SUPPORTED_LANGUAGES = {
-    'es': 'Español',
-    'en': 'English',
-    'fr': 'Français',
-    'de': 'Deutsch',
-    'pt': 'Português',
-    'ar': 'العربية',
-    'hi': 'हिन्दी',
-    'zh': '中文',
-    'ja': '日本語',
-    'ko': '한국어',
-    'ru': 'Русский'
-}
+# Supported languages and countries — import from central constants
+from core.constants import SUPPORTED_LANGUAGES as _LANGS, TRANSLATION_LANGUAGES
 
-TRANSLATION_LANGUAGES = ['es', 'en', 'fr', 'de', 'pt', 'ar', 'hi', 'zh', 'ja', 'ko', 'ru']
+SUPPORTED_LANGUAGES = {code: info["native"] for code, info in _LANGS.items()}
 
 SUPPORTED_COUNTRIES = {
     'ES': {'name': 'Spain', 'currency': 'EUR', 'language': 'es'},

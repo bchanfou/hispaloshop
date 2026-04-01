@@ -12,6 +12,7 @@ from core.database import db
 from core.auth import get_current_user, get_optional_user, require_role
 from core.models import User, ReviewCreateInput
 from utils.images import extract_product_image
+from services.translation import TranslationService
 
 logger = logging.getLogger(__name__)
 
@@ -361,8 +362,8 @@ async def get_featured_recipe(
 
 
 @router.get("/recipes/{recipe_id}")
-async def get_recipe(recipe_id: str, request: Request):
-    """Get a single recipe with ingredient-product mapping."""
+async def get_recipe(recipe_id: str, request: Request, lang: Optional[str] = None):
+    """Get a single recipe with ingredient-product mapping and optional translation."""
     try:
         recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0})
     except Exception as exc:
@@ -392,6 +393,40 @@ async def get_recipe(recipe_id: str, request: Request):
         enriched_ingredients.append(mapped)
 
     recipe["ingredients"] = enriched_ingredients
+
+    # Translate recipe fields if lang differs from source
+    if lang:
+        source_lang = recipe.get("source_language", "es")
+        if lang != source_lang:
+            # Translate title, description, steps
+            fields = ["title", "description"]
+            translated = await TranslationService.translate_document_fields(
+                collection_name="recipes",
+                doc_id_field="recipe_id",
+                doc_id=recipe_id,
+                fields_to_translate=fields,
+                target_lang=lang,
+                document=recipe,
+            )
+            if translated:
+                recipe["original_title"] = recipe.get("title")
+                recipe["original_description"] = recipe.get("description")
+                recipe["title"] = translated.get("title", recipe.get("title"))
+                recipe["description"] = translated.get("description", recipe.get("description"))
+                recipe["translated_from"] = source_lang
+
+            # Translate steps separately (list of strings)
+            if recipe.get("steps"):
+                steps = recipe["steps"]
+                if isinstance(steps, list) and all(isinstance(s, str) for s in steps):
+                    recipe["original_steps"] = steps
+                    recipe["steps"] = await TranslationService.translate_list(steps, source_lang, lang)
+
+            # Translate ingredient names
+            for ing in recipe.get("ingredients", []):
+                if ing.get("name"):
+                    ing["original_name"] = ing["name"]
+                    ing["name"] = await TranslationService.translate_text(ing["name"], source_lang, lang)
 
     # Hydrate is_saved (R-01)
     current_user = await get_optional_user(request)
@@ -615,7 +650,7 @@ async def create_shopping_list(recipe_id: str, request: Request, user: User = De
 # ============================================================================
 
 @router.get("/recipes/{recipe_id}/reviews")
-async def get_recipe_reviews(recipe_id: str):
+async def get_recipe_reviews(recipe_id: str, lang: Optional[str] = None):
     """Get visible reviews and average rating for a recipe (public)."""
     reviews = await db.recipe_reviews.find(
         {"recipe_id": recipe_id, "visible": True},
@@ -626,6 +661,25 @@ async def get_recipe_reviews(recipe_id: str):
     average_rating = 0
     if total_reviews > 0:
         average_rating = round(sum(r["rating"] for r in reviews) / total_reviews, 1)
+
+    # Translate review texts if requested
+    if lang:
+        for review in reviews:
+            if review.get("text"):
+                source_lang = review.get("source_language", "es")
+                if lang != source_lang:
+                    translated = await TranslationService.translate_document_fields(
+                        collection_name="recipe_reviews",
+                        doc_id_field="review_id",
+                        doc_id=review.get("review_id", ""),
+                        fields_to_translate=["text"],
+                        target_lang=lang,
+                        document=review,
+                    )
+                    if translated:
+                        review["original_text"] = review["text"]
+                        review["text"] = translated.get("text", review["text"])
+                        review["translated_from"] = source_lang
 
     return {
         "reviews": reviews,
@@ -670,24 +724,53 @@ async def create_recipe_review(recipe_id: str, request: Request, user: User = De
     }
     await db.recipe_reviews.insert_one(review)
     review.pop("_id", None)
+
+    # Calculate updated average to include in response
+    agg = await db.recipe_reviews.aggregate([
+        {"$match": {"recipe_id": recipe_id, "visible": True}},
+        {"$group": {"_id": None, "avg": {"$avg": "$rating"}, "count": {"$sum": 1}}},
+    ]).to_list(1)
+    if agg:
+        review["avg_rating"] = round(agg[0]["avg"], 1)
+        review["total_reviews"] = agg[0]["count"]
+
     return review
 
 
 @router.get("/products/{product_id}/reviews")
-async def get_product_reviews(product_id: str):
+async def get_product_reviews(product_id: str, lang: Optional[str] = None):
     """Get visible reviews and average rating for a product (public)"""
     # Get visible reviews for the product
     reviews = await db.reviews.find(
         {"product_id": product_id, "visible": True},
         {"_id": 0}
     ).sort("created_at", -1).to_list(100)
-    
+
     # Calculate average rating
     total_reviews = len(reviews)
     average_rating = 0
     if total_reviews > 0:
         average_rating = round(sum(r["rating"] for r in reviews) / total_reviews, 1)
-    
+
+    # Translate review texts if requested
+    if lang:
+        for review in reviews:
+            if review.get("text"):
+                source_lang = review.get("source_language", "es")
+                if lang != source_lang:
+                    translated = await TranslationService.translate_document_fields(
+                        collection_name="reviews",
+                        doc_id_field="review_id",
+                        doc_id=review.get("review_id", ""),
+                        fields_to_translate=["text"],
+                        target_lang=lang,
+                        document=review,
+                    )
+                    if translated:
+                        review["original_text"] = review["text"]
+                        review["text"] = translated.get("text", review["text"])
+                        review["translated_from"] = source_lang
+
     return {
         "reviews": reviews,
         "average_rating": average_rating,

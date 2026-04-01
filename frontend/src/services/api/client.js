@@ -121,8 +121,19 @@ httpClient.interceptors.request.use((config) => {
     nextConfig.headers['X-Request-ID'] = generateRequestId();
   }
 
-  // CSRF double-submit: send cookie value as header on mutating requests
+  // Auto-append lang parameter to GET requests for dynamic content translation
   const method = (nextConfig.method || '').toUpperCase();
+  if (method === 'GET') {
+    const lang = localStorage.getItem('hispaloshop_language');
+    if (lang && lang !== 'es') {
+      nextConfig.params = nextConfig.params || {};
+      if (!nextConfig.params.lang) {
+        nextConfig.params.lang = lang;
+      }
+    }
+  }
+
+  // CSRF double-submit: send cookie value as header on mutating requests
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
     const csrfToken = getCsrfToken();
     if (csrfToken) {

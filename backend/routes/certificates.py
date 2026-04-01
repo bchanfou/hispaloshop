@@ -17,9 +17,7 @@ import base64
 from core.database import db
 from core.models import User, CertificateInput, TranslateProductInput, TranslateCertificateInput
 from core.auth import get_current_user, require_role
-from core.constants import SUPPORTED_LANGUAGES
-
-TRANSLATION_LANGUAGES = ['en', 'es', 'fr', 'de', 'pt', 'ar', 'hi', 'zh', 'ja', 'ko', 'ru']
+from core.constants import SUPPORTED_LANGUAGES, TRANSLATION_LANGUAGES
 from services.translation import TranslationService
 from utils.images import extract_product_image
 

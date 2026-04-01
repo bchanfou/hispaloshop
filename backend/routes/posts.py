@@ -4,9 +4,11 @@ Fase 3: Social Feed
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from datetime import datetime, timezone
+from typing import Optional
 import logging
 
 from services.feed_algorithm import feed_algorithm
+from services.translation import TranslationService
 
 logger = logging.getLogger(__name__)
 from core.database import get_db
@@ -20,6 +22,7 @@ async def get_feed(
     type: str = Query("for_you"),
     page: int = 1,
     limit: int = Query(20, le=50),
+    lang: Optional[str] = None,
     current_user = Depends(get_current_user)
 ):
     """Feed social personalizado"""
@@ -30,14 +33,32 @@ async def get_feed(
         limit=limit,
         feed_type=type
     )
-    
+
     posts = []
     for item in feed_items:
         post = item["post"]
         post["score_reason"] = item.get("reason", "Personalizado")
         post["id"] = str(post.pop("_id", ""))
         posts.append(post)
-    
+
+    # Translate post text if lang differs from source
+    if lang:
+        for post in posts:
+            source_lang = post.get("source_language", "es")
+            if lang != source_lang and post.get("text"):
+                translated = await TranslationService.translate_document_fields(
+                    collection_name="user_posts",
+                    doc_id_field="post_id",
+                    doc_id=post.get("post_id") or post.get("id"),
+                    fields_to_translate=["text"],
+                    target_lang=lang,
+                    document=post,
+                )
+                if translated:
+                    post["original_text"] = post["text"]
+                    post["text"] = translated.get("text", post["text"])
+                    post["translated_from"] = source_lang
+
     # Loguear views
     for post in posts:
         await feed_algorithm.log_interaction(
@@ -46,7 +67,7 @@ async def get_feed(
             action_type="view_post",
             post_id=post.get("id")
         )
-    
+
     return {
         "success": True,
         "data": {

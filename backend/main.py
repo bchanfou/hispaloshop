@@ -90,6 +90,7 @@ from routes.experiments import router as experiments_router
 from routes.gamification import router as gamification_router
 from routes.loyalty import router as loyalty_router
 from routes.invoices import router as invoices_router
+from routes.translation import router as translation_router
 
 logger = logging.getLogger(__name__)
 
@@ -249,6 +250,9 @@ app.include_router(loyalty_router, prefix="/api", tags=["loyalty"])
 
 # Invoice Routes (Ciclo 10)
 app.include_router(invoices_router, prefix="/api", tags=["invoices"])
+
+# Translation Routes (i18n universal)
+app.include_router(translation_router, prefix="/api", tags=["translation"])
 
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])

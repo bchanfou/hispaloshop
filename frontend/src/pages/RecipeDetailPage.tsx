@@ -104,6 +104,18 @@ export default function RecipeDetailPage() {
   useEffect(() => {
     let active = true;
     setLoading(true);
+    // Reset all state when navigating between recipes
+    setReviews([]);
+    setAvgRating(0);
+    setTotalReviews(0);
+    setHasReviewed(false);
+    setSimilarRecipes([]);
+    setShowAllReviews(false);
+    setReviewRating(0);
+    setReviewText('');
+    setPortions(1);
+    setSaved(false);
+    window.scrollTo(0, 0);
     apiClient.get(`/recipes/${recipeId}`)
       .then(data => { if (active) { setRecipe(data || null); setPortions(data?.servings || 1); setSaved(data?.is_saved || false); } })
       .catch(() => { if (active) { setRecipe(null); toast.error('Receta no encontrada'); } })
@@ -132,7 +144,7 @@ export default function RecipeDetailPage() {
         setReviews(list);
         setAvgRating(data?.average_rating || 0);
         setTotalReviews(data?.total_reviews || 0);
-        if (user && list.some((r: any) => r.user_id === user.user_id)) {
+        if (user && list.some((r: any) => String(r.user_id) === String(user.user_id))) {
           setHasReviewed(true);
         }
       })
@@ -157,18 +169,27 @@ export default function RecipeDetailPage() {
   );
 
   const handleAddAllToCart = async () => {
-    if (taggedIngredients.length >= 2) { // batch add for 2+ linked products
+    if (taggedIngredients.length >= 2) {
       setAddingAll(true);
-      try {
-        for (const ing of taggedIngredients) {
-          const productId = ing.product?.product_id || ing.product_id;
-          if (productId) await addToCart(productId, 1);
+      let added = 0;
+      let failed = 0;
+      for (const ing of taggedIngredients) {
+        const productId = ing.product?.product_id || ing.product_id;
+        if (!productId) continue;
+        try {
+          await addToCart(productId, 1);
+          added++;
+        } catch {
+          failed++;
         }
-        toast.success(`${taggedIngredients.length} ingredientes añadidos al carrito`);
-      } catch {
-        toast.error('Error al añadir productos');
-      } finally {
-        setAddingAll(false);
+      }
+      setAddingAll(false);
+      if (failed === 0) {
+        toast.success(`${added} ingredientes añadidos al carrito`);
+      } else if (added > 0) {
+        toast.error(`${added} añadidos, ${failed} fallaron`);
+      } else {
+        toast.error('Error al añadir productos al carrito');
       }
     } else {
       setShowShoppingList(true);
@@ -214,8 +235,10 @@ export default function RecipeDetailPage() {
         existing.push({ name: ingredient.name, display: name, added_at: Date.now() });
         localStorage.setItem('shopping_list', JSON.stringify(existing));
       }
-    } catch { /* localStorage unavailable */ }
-    toast.success('Añadido a la lista');
+      toast.success('Añadido a la lista');
+    } catch {
+      toast.error('No se pudo guardar en la lista');
+    }
   };
 
   const handleSubmitReview = async () => {
@@ -227,9 +250,16 @@ export default function RecipeDetailPage() {
         text: reviewText,
       });
       setReviews(prev => [newReview, ...prev]);
-      setTotalReviews(prev => prev + 1);
-      const newTotal = totalReviews + 1;
-      setAvgRating(Math.round(((avgRating * totalReviews) + reviewRating) / newTotal * 10) / 10);
+      // Use server-returned stats if available, otherwise calculate locally
+      if (newReview?.avg_rating != null) {
+        setAvgRating(Number(newReview.avg_rating));
+        if (newReview.total_reviews != null) setTotalReviews(newReview.total_reviews);
+        else setTotalReviews(prev => prev + 1);
+      } else {
+        setTotalReviews(prev => prev + 1);
+        const newTotal = totalReviews + 1;
+        setAvgRating(Math.round(((avgRating * totalReviews) + reviewRating) / newTotal * 10) / 10);
+      }
       setHasReviewed(true);
       setReviewRating(0);
       setReviewText('');

@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { translations, defaultLanguage, supportedLanguages } from './index';
+import { translations, defaultLanguage, supportedLanguages, RTL_LANGUAGES } from './index';
 
 // Create resources object from translations
 const resources = {};
@@ -63,12 +63,12 @@ i18n
 i18n.on('languageChanged', (lng) => {
   localStorage.setItem('hispaloshop_language', lng);
   // Update document direction for RTL languages
-  document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.dir = RTL_LANGUAGES.includes(lng) ? 'rtl' : 'ltr';
   document.documentElement.lang = lng;
 });
 
 // Set initial direction
-document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+document.documentElement.dir = RTL_LANGUAGES.includes(i18n.language) ? 'rtl' : 'ltr';
 document.documentElement.lang = i18n.language;
 
 export default i18n;

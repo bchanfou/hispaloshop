@@ -1,6 +1,6 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef, ReactNode } from 'react';
-import { Globe, Languages, DollarSign, Check, ChevronDown, LucideIcon } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo, ReactNode } from 'react';
+import { Globe, Languages, DollarSign, Check, ChevronDown, Search, LucideIcon } from 'lucide-react';
 import { useLocale } from '../context/LocaleContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -55,6 +55,7 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
   const [showLanguageDialog, setShowLanguageDialog] = useState(false);
   const [showCurrencyDialog, setShowCurrencyDialog] = useState(false);
 
+  const [langSearch, setLangSearch] = useState('');
   const [showCountryWarning, setShowCountryWarning] = useState(false);
   const [pendingCountry, setPendingCountry] = useState<string | null>(null);
   const [unavailableItems, setUnavailableItems] = useState<any[]>([]);
@@ -137,6 +138,18 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
       console.error('Error applying country change:', error);
     }
   };
+
+  // Filter languages by search term
+  const filteredLanguages = useMemo(() => {
+    const entries = Object.entries(languages);
+    if (!langSearch.trim()) return entries;
+    const q = langSearch.toLowerCase();
+    return entries.filter(([code, data]: [string, any]) =>
+      code.toLowerCase().includes(q) ||
+      (data.native || '').toLowerCase().includes(q) ||
+      (data.name || '').toLowerCase().includes(q)
+    );
+  }, [languages, langSearch]);
 
   const handleLanguageChange = async (code: string) => {
     await updateLanguage(code);
@@ -289,20 +302,42 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
             )}
           />
 
-          <MobileDialogSelector
-            isOpen={showLanguageDialog}
-            onClose={setShowLanguageDialog}
-            title={t('locale.selectLanguage')}
-            items={Object.entries(languages)}
-            selectedValue={language}
-            onSelect={handleLanguageChange}
-            renderItem={(code: string, data: any) => (
-              <>
-                <span className="uppercase font-bold text-sm w-8 text-stone-600">{code}</span>
-                <span className="flex-1 text-left font-medium">{data.native}</span>
-              </>
-            )}
-          />
+          <Dialog open={showLanguageDialog} onOpenChange={(open) => { setShowLanguageDialog(open); if (!open) setLangSearch(''); }}>
+            {/* @ts-expect-error React 19 + shadcn forwardRef children type mismatch */}
+            <DialogContent className="max-w-sm max-h-[80vh] bg-stone-50">
+              <DialogHeader>
+                <DialogTitle className="text-lg">{t('locale.selectLanguage')}</DialogTitle>
+              </DialogHeader>
+              <div className="relative mb-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                <input
+                  type="text"
+                  value={langSearch}
+                  onChange={(e) => setLangSearch(e.target.value)}
+                  placeholder={t('common.search') || 'Search...'}
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-stone-200 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                />
+              </div>
+              <div className="overflow-y-auto max-h-[55vh] py-2">
+                <div className="space-y-1">
+                  {filteredLanguages.map(([code, data]: [string, any]) => (
+                    <button
+                      key={code}
+                      onClick={() => { handleLanguageChange(code); setLangSearch(''); }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors ${
+                        language === code ? 'bg-stone-100 border border-stone-200' : 'hover:bg-stone-100'
+                      }`}
+                      data-testid={`mobile-option-${code}`}
+                    >
+                      <span className="uppercase font-bold text-sm w-8 text-stone-600">{code}</span>
+                      <span className="flex-1 text-left font-medium">{data.native}</span>
+                      {language === code && <Check className="w-5 h-5 text-stone-950 ml-auto" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <MobileDialogSelector
             isOpen={showCurrencyDialog}
@@ -390,10 +425,20 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
           </DesktopMenu>
 
           <DesktopMenu isOpen={desktopMenu === 'language'} title={t('locale.selectLanguage')}>
-            {Object.entries(languages).map(([code, data]: [string, any]) => (
+            <div className="relative mb-2">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
+              <input
+                type="text"
+                value={langSearch}
+                onChange={(e) => setLangSearch(e.target.value)}
+                placeholder={t('common.search') || 'Search...'}
+                className="w-full pl-8 pr-2 py-1.5 rounded-xl border border-stone-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-stone-400"
+              />
+            </div>
+            {filteredLanguages.map(([code, data]: [string, any]) => (
               <button
                 key={code}
-                onClick={() => handleLanguageChange(code)}
+                onClick={() => { handleLanguageChange(code); setLangSearch(''); }}
                 className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-2xl text-left text-sm ${language === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
                 data-testid={`language-option-${code}`}
               >

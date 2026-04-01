@@ -94,6 +94,11 @@ class Settings(BaseSettings):
     # ============================================
     OPENAI_API_KEY: Optional[str] = Field(default=None)
     OPENAI_ORG_ID: Optional[str] = Field(default=None)
+
+    # ============================================
+    # GOOGLE CLOUD TRANSLATION
+    # ============================================
+    GOOGLE_TRANSLATE_API_KEY: Optional[str] = Field(default=None)
     
     # ============================================
     # VALIDADORES

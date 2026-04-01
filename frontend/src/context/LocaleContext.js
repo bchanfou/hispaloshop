@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
-import { translations, defaultLanguage, supportedLanguages } from '../locales';
+import { translations, defaultLanguage, supportedLanguages, RTL_LANGUAGES } from '../locales';
 import { convertPrice, formatCurrency, getExchangeRate } from '../utils/currency';
 import apiClient from '../services/api/client';
 import i18n from '../locales/i18n';
@@ -175,8 +175,8 @@ export function LocaleProvider({ children }) {
     // Auto-detect language from browser/device
     const browserLangs = navigator.languages || [navigator.language];
     
-    // Map common browser languages to supported languages
-    const supportedLangs = ['en', 'es', 'fr', 'de', 'pt', 'ar', 'hi', 'zh', 'ja', 'ko', 'ru'];
+    // Use the full list from locales/index.js
+    const supportedLangs = supportedLanguages;
     
     let detectedLang = 'en'; // Default to English if device language not supported
     
@@ -235,7 +235,7 @@ export function LocaleProvider({ children }) {
     }
     
     // Update document direction for RTL languages
-    document.documentElement.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = RTL_LANGUAGES.includes(newLanguage) ? 'rtl' : 'ltr';
     document.documentElement.lang = newLanguage;
     
     // Save to backend if user is logged in
@@ -354,11 +354,15 @@ export function LocaleProvider({ children }) {
     };
   };
 
+  // RTL status derived from current language
+  const isRTL = RTL_LANGUAGES.includes(language);
+
   const value = useMemo(() => ({
     // Current state
     country,
     language,
     currency,
+    isRTL,
 
     // Configuration
     countries,
@@ -389,7 +393,7 @@ export function LocaleProvider({ children }) {
     t,
 
     loading,
-  }), [country, language, currency, countries, languages, currencies, exchangeRates, ratesLoading, updateCountry, updateLanguage, updateCurrency, getCountryFlag, getCurrencySymbol, getLanguageName, convertAndFormatPrice, getConvertedPrice, formatPrice, getExchangeRateDisplay, t, loading]);
+  }), [country, language, currency, isRTL, countries, languages, currencies, exchangeRates, ratesLoading, updateCountry, updateLanguage, updateCurrency, getCountryFlag, getCurrencySymbol, getLanguageName, convertAndFormatPrice, getConvertedPrice, formatPrice, getExchangeRateDisplay, t, loading]);
 
   return (
     <LocaleContext.Provider value={value}>
