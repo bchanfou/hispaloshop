@@ -31,52 +31,24 @@ EMAIL_FROM = os.environ.get('EMAIL_FROM', 'Hispaloshop <onboarding@resend.dev>')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # Supported languages and countries — import from central constants
-from core.constants import SUPPORTED_LANGUAGES as _LANGS, TRANSLATION_LANGUAGES
+from core.constants import (
+    SUPPORTED_LANGUAGES as _LANGS,
+    SUPPORTED_COUNTRIES as _COUNTRIES,
+    SUPPORTED_CURRENCIES as _CURRENCIES,
+    TRANSLATION_LANGUAGES,
+)
 
 SUPPORTED_LANGUAGES = {code: info["native"] for code, info in _LANGS.items()}
 
+# Derive legacy format from central constants (backwards compat)
 SUPPORTED_COUNTRIES = {
-    'ES': {'name': 'Spain', 'currency': 'EUR', 'language': 'es'},
-    'US': {'name': 'United States', 'currency': 'USD', 'language': 'en'},
-    'GB': {'name': 'United Kingdom', 'currency': 'GBP', 'language': 'en'},
-    'FR': {'name': 'France', 'currency': 'EUR', 'language': 'fr'},
-    'DE': {'name': 'Germany', 'currency': 'EUR', 'language': 'de'},
-    'IT': {'name': 'Italy', 'currency': 'EUR', 'language': 'it'},
-    'PT': {'name': 'Portugal', 'currency': 'EUR', 'language': 'pt'},
-    'MX': {'name': 'Mexico', 'currency': 'MXN', 'language': 'es'},
-    'AR': {'name': 'Argentina', 'currency': 'ARS', 'language': 'es'},
-    'CO': {'name': 'Colombia', 'currency': 'COP', 'language': 'es'},
-    'CL': {'name': 'Chile', 'currency': 'CLP', 'language': 'es'},
-    'BR': {'name': 'Brazil', 'currency': 'BRL', 'language': 'pt'},
-    'JP': {'name': 'Japan', 'currency': 'JPY', 'language': 'ja'},
-    'KR': {'name': 'South Korea', 'currency': 'KRW', 'language': 'ko'},
-    'CN': {'name': 'China', 'currency': 'CNY', 'language': 'zh'},
-    'IN': {'name': 'India', 'currency': 'INR', 'language': 'hi'},
-    'AE': {'name': 'United Arab Emirates', 'currency': 'AED', 'language': 'ar'},
-    'SA': {'name': 'Saudi Arabia', 'currency': 'SAR', 'language': 'ar'},
-    'RU': {'name': 'Russia', 'currency': 'RUB', 'language': 'ru'},
-    'CA': {'name': 'Canada', 'currency': 'CAD', 'language': 'en'},
-    'AU': {'name': 'Australia', 'currency': 'AUD', 'language': 'en'}
+    code: {"name": info["name"], "currency": info["currency"], "language": info["languages"][0]}
+    for code, info in _COUNTRIES.items()
 }
 
 SUPPORTED_CURRENCIES = {
-    'EUR': {'symbol': '€', 'name': 'Euro'},
-    'USD': {'symbol': '$', 'name': 'US Dollar'},
-    'GBP': {'symbol': '£', 'name': 'British Pound'},
-    'MXN': {'symbol': '$', 'name': 'Mexican Peso'},
-    'ARS': {'symbol': '$', 'name': 'Argentine Peso'},
-    'COP': {'symbol': '$', 'name': 'Colombian Peso'},
-    'CLP': {'symbol': '$', 'name': 'Chilean Peso'},
-    'BRL': {'symbol': 'R$', 'name': 'Brazilian Real'},
-    'JPY': {'symbol': '¥', 'name': 'Japanese Yen'},
-    'KRW': {'symbol': '₩', 'name': 'South Korean Won'},
-    'CNY': {'symbol': '¥', 'name': 'Chinese Yuan'},
-    'INR': {'symbol': '₹', 'name': 'Indian Rupee'},
-    'AED': {'symbol': 'د.إ', 'name': 'UAE Dirham'},
-    'SAR': {'symbol': '﷼', 'name': 'Saudi Riyal'},
-    'RUB': {'symbol': '₽', 'name': 'Russian Ruble'},
-    'CAD': {'symbol': '$', 'name': 'Canadian Dollar'},
-    'AUD': {'symbol': '$', 'name': 'Australian Dollar'}
+    code: {"symbol": info["symbol"], "name": info["name"]}
+    for code, info in _CURRENCIES.items()
 }
 
 # Exchange rates (base: EUR)
