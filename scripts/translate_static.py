@@ -1,14 +1,25 @@
 """
-Batch translate static UI JSON files using Google Cloud Translation API v2.
+Batch translate static UI JSON files for HispaloShop.
+
+Supports 3 translation backends (all free or low-cost):
+
+1. MyMemory API (FREE, no key needed, 5000 chars/day):
+   python scripts/translate_static.py --engine mymemory
+
+2. Google Cloud Translation (FREE tier: 500K chars/month):
+   set GOOGLE_TRANSLATE_API_KEY=your-key
+   python scripts/translate_static.py --engine google
+
+3. LibreTranslate (FREE, self-hosted):
+   python scripts/translate_static.py --engine libre --libre-url http://localhost:5000
 
 Usage:
-    pip install google-cloud-translate
-    export GOOGLE_TRANSLATE_API_KEY=your-key
-    python scripts/translate_static.py
+   python scripts/translate_static.py [--engine ENGINE] [LANG1 LANG2 ...]
 
-Modes:
-    - Delta: for languages with partial translations (fr, de, pt, zh, ja, hi, ar, ru)
-    - Full: for brand new languages (it, nl, pl, tr, sv, ro, cs, el, hu, uk, th, vi, id, tl, bn, ta, ur, fa, sw)
+   Examples:
+   python scripts/translate_static.py fr de          # translate only French and German
+   python scripts/translate_static.py                # translate all missing languages
+   python scripts/translate_static.py --engine google # use Google API for all
 """
 
 import json
@@ -16,6 +27,8 @@ import os
 import re
 import sys
 import time
+import urllib.request
+import urllib.parse
 from pathlib import Path
 
 LOCALES_DIR = Path(__file__).resolve().parent.parent / "frontend" / "src" / "locales"
@@ -23,25 +36,21 @@ SOURCE_FILE = LOCALES_DIR / "es.json"
 
 # All 30 target languages (excludes 'es' which is the source)
 ALL_LANGUAGES = [
-    "en", "fr", "de", "pt", "zh", "ja", "ko", "hi", "ar", "ru",  # existing
-    "it", "nl", "pl", "tr", "sv", "ro", "cs", "el", "hu", "uk",  # new EU
-    "th", "vi", "id", "tl",                                        # new SE Asia
-    "bn", "ta", "ur", "fa",                                        # new South Asia / ME
-    "sw",                                                           # new Africa
+    "en", "fr", "de", "pt", "zh", "ja", "ko", "hi", "ar", "ru",
+    "it", "nl", "pl", "tr", "sv", "ro", "cs", "el", "hu", "uk",
+    "th", "vi", "id", "tl", "bn", "ta", "ur", "fa", "sw",
 ]
 
-# Languages that already have partial JSON files
 PARTIAL_LANGUAGES = {"fr", "de", "pt", "zh", "ja", "hi", "ar", "ru"}
+COMPLETE_LANGUAGES = {"en", "ko"}  # skip these
 
-# Placeholder pattern: {{variableName}}
 PLACEHOLDER_RE = re.compile(r"\{\{(\w+)\}\}")
+BATCH_SIZE = 50
 
-# Google Translate API batch limit
-BATCH_SIZE = 128
 
+# ── Flatten / Unflatten JSON ──
 
 def flatten_json(obj, prefix=""):
-    """Flatten nested JSON into dot-separated key-value pairs."""
     items = []
     if isinstance(obj, dict):
         for k, v in obj.items():
@@ -49,32 +58,28 @@ def flatten_json(obj, prefix=""):
             items.extend(flatten_json(v, new_key))
     elif isinstance(obj, list):
         for i, v in enumerate(obj):
-            new_key = f"{prefix}[{i}]"
-            items.extend(flatten_json(v, new_key))
+            items.extend(flatten_json(v, f"{prefix}[{i}]"))
     else:
         items.append((prefix, obj))
     return items
 
 
 def unflatten_json(pairs):
-    """Reconstruct nested JSON from dot-separated key-value pairs."""
     result = {}
     for key, value in pairs:
         parts = []
         for part in re.split(r"\.(?![^\[]*\])", key):
-            match = re.match(r"^(.+)\[(\d+)\]$", part)
-            if match:
-                parts.append(match.group(1))
-                parts.append(int(match.group(2)))
+            m = re.match(r"^(.+)\[(\d+)\]$", part)
+            if m:
+                parts.append(m.group(1))
+                parts.append(int(m.group(2)))
             else:
                 parts.append(part)
-
         current = result
         for i, part in enumerate(parts[:-1]):
-            next_part = parts[i + 1]
-            if isinstance(next_part, int):
-                if part not in current:
-                    current[part] = []
+            nxt = parts[i + 1]
+            if isinstance(nxt, int):
+                current.setdefault(part, [])
                 current = current[part]
             else:
                 if isinstance(current, list):
@@ -84,10 +89,8 @@ def unflatten_json(pairs):
                         current[part] = {}
                     current = current[part]
                 else:
-                    if part not in current:
-                        current[part] = {}
+                    current.setdefault(part, {})
                     current = current[part]
-
         last = parts[-1]
         if isinstance(current, list):
             while len(current) <= last:
@@ -95,29 +98,25 @@ def unflatten_json(pairs):
             current[last] = value
         else:
             current[last] = value
-
     return result
 
 
+# ── Placeholder protection ──
+
 def protect_placeholders(text):
-    """Replace {{var}} with numbered tokens __PH0__ etc. Returns (modified_text, mapping)."""
     if not isinstance(text, str):
         return text, {}
     mapping = {}
     counter = [0]
-
     def replacer(match):
-        token = f"__PH{counter[0]}__"
+        token = f"XPHX{counter[0]}XPHX"
         mapping[token] = match.group(0)
         counter[0] += 1
         return token
-
-    protected = PLACEHOLDER_RE.sub(replacer, text)
-    return protected, mapping
+    return PLACEHOLDER_RE.sub(replacer, text), mapping
 
 
 def restore_placeholders(text, mapping):
-    """Restore __PH0__ tokens back to {{var}}."""
     if not mapping or not isinstance(text, str):
         return text
     for token, original in mapping.items():
@@ -125,102 +124,148 @@ def restore_placeholders(text, mapping):
     return text
 
 
-def translate_batch_google(texts, target_lang, api_key):
-    """Translate a batch of texts using Google Cloud Translation API v2 REST."""
-    import urllib.request
-    import urllib.parse
+# ── Translation Engines ──
 
-    url = f"https://translation.googleapis.com/language/translate/v2?key={api_key}"
-
+def translate_mymemory(texts, source_lang, target_lang):
+    """Free MyMemory API - no key needed. 5000 chars/day, 500 chars/request."""
     results = []
-    # Process in chunks of BATCH_SIZE
-    for i in range(0, len(texts), BATCH_SIZE):
-        chunk = texts[i:i + BATCH_SIZE]
-
-        payload = json.dumps({
-            "q": chunk,
-            "source": "es",
-            "target": target_lang,
-            "format": "text"
-        }).encode("utf-8")
-
-        req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
-
+    for text in texts:
+        if not text or not text.strip():
+            results.append(text)
+            continue
         try:
-            with urllib.request.urlopen(req) as resp:
+            params = urllib.parse.urlencode({
+                "q": text[:500],
+                "langpair": f"{source_lang}|{target_lang}",
+            })
+            url = f"https://api.mymemory.translated.net/get?{params}"
+            req = urllib.request.Request(url, headers={"User-Agent": "HispaloShop/1.0"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                translations = data["data"]["translations"]
-                results.extend([t["translatedText"] for t in translations])
+                translated = data.get("responseData", {}).get("translatedText", text)
+                if translated.isupper() and not text.isupper():
+                    translated = text
+                results.append(translated)
         except Exception as e:
-            print(f"  ERROR translating chunk {i}-{i+len(chunk)} to {target_lang}: {e}")
-            results.extend(chunk)  # fallback: keep original
-
-        # Respect rate limits
-        if i + BATCH_SIZE < len(texts):
-            time.sleep(0.2)
-
+            print(f"    MyMemory error: {e}")
+            results.append(text)
+        time.sleep(0.5)
     return results
 
 
-def get_missing_keys(source_obj, existing_obj, prefix=""):
-    """Get top-level sections that are missing from existing."""
-    missing_sections = set()
-    if isinstance(source_obj, dict):
-        for k in source_obj:
-            if k not in existing_obj:
-                top_section = prefix.split(".")[0] if prefix else k
-                missing_sections.add(top_section if not prefix else k)
-    return missing_sections
+def translate_google(texts, source_lang, target_lang, api_key):
+    """Google Cloud Translation API v2."""
+    results = []
+    for i in range(0, len(texts), 128):
+        chunk = texts[i:i + 128]
+        try:
+            url = f"https://translation.googleapis.com/language/translate/v2?key={api_key}"
+            payload = json.dumps({
+                "q": chunk, "source": source_lang,
+                "target": target_lang, "format": "text"
+            }).encode("utf-8")
+            req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                results.extend([t["translatedText"] for t in data["data"]["translations"]])
+        except Exception as e:
+            print(f"    Google error: {e}")
+            results.extend(chunk)
+        if i + 128 < len(texts):
+            time.sleep(0.1)
+    return results
 
 
-def translate_language(source_data, target_lang, api_key, existing_data=None):
-    """Translate source JSON to target language. Merge with existing if provided."""
-    if existing_data:
-        # Delta mode: find missing top-level sections
-        missing_sections = {k for k in source_data if k not in existing_data}
-        if not missing_sections:
-            print(f"  {target_lang}: already complete, skipping")
-            return existing_data
-        print(f"  {target_lang}: translating {len(missing_sections)} missing sections: {', '.join(sorted(missing_sections)[:10])}...")
-        subset = {k: v for k, v in source_data.items() if k in missing_sections}
+def translate_libre(texts, source_lang, target_lang, libre_url):
+    """LibreTranslate (self-hosted, free)."""
+    results = []
+    for text in texts:
+        if not text or not text.strip():
+            results.append(text)
+            continue
+        try:
+            payload = json.dumps({
+                "q": text, "source": source_lang,
+                "target": target_lang, "format": "text"
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                f"{libre_url}/translate", data=payload,
+                headers={"Content-Type": "application/json"}
+            )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                results.append(data.get("translatedText", text))
+        except Exception as e:
+            print(f"    LibreTranslate error: {e}")
+            results.append(text)
+    return results
+
+
+def translate_batch(texts, source_lang, target_lang, engine, **kwargs):
+    if engine == "google":
+        return translate_google(texts, source_lang, target_lang, kwargs["api_key"])
+    elif engine == "libre":
+        return translate_libre(texts, source_lang, target_lang, kwargs["libre_url"])
     else:
-        # Full mode
+        return translate_mymemory(texts, source_lang, target_lang)
+
+
+# ── Core logic ──
+
+def translate_language(source_data, target_lang, engine, **kwargs):
+    target_file = LOCALES_DIR / f"{target_lang}.json"
+    existing_data = None
+
+    if target_lang in COMPLETE_LANGUAGES:
+        print(f"  [{target_lang}] SKIP (already complete)")
+        return None
+
+    if target_file.exists():
+        try:
+            with open(target_file, "r", encoding="utf-8-sig") as f:
+                existing_data = json.load(f)
+            if not isinstance(existing_data, dict) or len(existing_data) <= 1:
+                existing_data = None
+        except Exception:
+            existing_data = None
+
+    if existing_data and target_lang in PARTIAL_LANGUAGES:
+        missing = {k: v for k, v in source_data.items() if k not in existing_data}
+        if not missing:
+            print(f"  [{target_lang}] Already complete ({len(existing_data)} sections)")
+            return None
+        print(f"  [{target_lang}] DELTA: {len(missing)} missing sections...")
+        subset = missing
+    else:
+        print(f"  [{target_lang}] FULL: {len(source_data)} sections...")
         subset = source_data
-        print(f"  {target_lang}: full translation")
 
-    # Flatten to key-value pairs
     flat = flatten_json(subset)
-
-    # Only translate string values
     string_entries = [(k, v) for k, v in flat if isinstance(v, str)]
     non_string_entries = [(k, v) for k, v in flat if not isinstance(v, str)]
 
-    # Protect placeholders
-    protected_texts = []
+    protected = []
     mappings = []
     for _, text in string_entries:
-        ptext, mapping = protect_placeholders(text)
-        protected_texts.append(ptext)
-        mappings.append(mapping)
+        p, m = protect_placeholders(text)
+        protected.append(p)
+        mappings.append(m)
 
-    # Translate
-    if protected_texts:
-        translated_texts = translate_batch_google(protected_texts, target_lang, api_key)
-    else:
-        translated_texts = []
+    print(f"    {len(protected)} strings to translate...")
 
-    # Restore placeholders
-    restored = []
-    for text, mapping in zip(translated_texts, mappings):
-        restored.append(restore_placeholders(text, mapping))
+    translated = []
+    for i in range(0, len(protected), BATCH_SIZE):
+        chunk = protected[i:i + BATCH_SIZE]
+        batch_result = translate_batch(chunk, "es", target_lang, engine, **kwargs)
+        translated.extend(batch_result)
+        done = min(i + BATCH_SIZE, len(protected))
+        print(f"    [{done}/{len(protected)}]")
 
-    # Reconstruct
-    translated_pairs = [(string_entries[i][0], restored[i]) for i in range(len(string_entries))]
-    translated_pairs.extend(non_string_entries)
+    restored = [restore_placeholders(t, m) for t, m in zip(translated, mappings)]
+    pairs = [(string_entries[i][0], restored[i]) for i in range(len(string_entries))]
+    pairs.extend(non_string_entries)
+    translated_obj = unflatten_json(pairs)
 
-    translated_obj = unflatten_json(translated_pairs)
-
-    # Merge with existing
     if existing_data:
         merged = dict(existing_data)
         merged.update(translated_obj)
@@ -229,52 +274,46 @@ def translate_language(source_data, target_lang, api_key, existing_data=None):
 
 
 def main():
-    api_key = os.environ.get("GOOGLE_TRANSLATE_API_KEY")
-    if not api_key:
-        print("ERROR: Set GOOGLE_TRANSLATE_API_KEY environment variable")
-        sys.exit(1)
+    import argparse
+    parser = argparse.ArgumentParser(description="Translate HispaloShop UI to 30 languages")
+    parser.add_argument("langs", nargs="*", help="Languages to translate (default: all)")
+    parser.add_argument("--engine", default="mymemory", choices=["mymemory", "google", "libre"])
+    parser.add_argument("--libre-url", default="http://localhost:5000")
+    args = parser.parse_args()
 
-    # Load source
-    print(f"Loading source: {SOURCE_FILE}")
+    kwargs = {}
+    if args.engine == "google":
+        api_key = os.environ.get("GOOGLE_TRANSLATE_API_KEY")
+        if not api_key:
+            print("ERROR: Set GOOGLE_TRANSLATE_API_KEY")
+            sys.exit(1)
+        kwargs["api_key"] = api_key
+    elif args.engine == "libre":
+        kwargs["libre_url"] = args.libre_url
+
+    print(f"Engine: {args.engine}")
+    print(f"Source: {SOURCE_FILE}\n")
+
     with open(SOURCE_FILE, "r", encoding="utf-8-sig") as f:
         source_data = json.load(f)
 
-    total_sections = len(source_data)
     flat = flatten_json(source_data)
     total_keys = len([k for k, v in flat if isinstance(v, str)])
-    print(f"Source: {total_sections} sections, {total_keys} translatable strings\n")
+    print(f"Source: {len(source_data)} sections, {total_keys} strings\n")
 
-    # Determine which languages to process
-    langs = sys.argv[1:] if len(sys.argv) > 1 else ALL_LANGUAGES
+    langs = args.langs if args.langs else [l for l in ALL_LANGUAGES if l != "es"]
 
     for lang in langs:
         if lang == "es":
             continue
+        result = translate_language(source_data, lang, args.engine, **kwargs)
+        if result:
+            target_file = LOCALES_DIR / f"{lang}.json"
+            with open(target_file, "w", encoding="utf-8") as f:
+                json.dump(result, f, ensure_ascii=False, indent=2)
+            print(f"    Wrote {target_file.name} ({len(result)} sections)\n")
 
-        target_file = LOCALES_DIR / f"{lang}.json"
-        existing_data = None
-
-        if target_file.exists() and lang in PARTIAL_LANGUAGES:
-            with open(target_file, "r", encoding="utf-8-sig") as f:
-                existing_data = json.load(f)
-            existing_sections = len(existing_data)
-            print(f"\n[DELTA] {lang}: {existing_sections}/{total_sections} sections present")
-        elif target_file.exists() and lang in {"en", "ko"}:
-            # en and ko are already complete, skip
-            print(f"\n[SKIP] {lang}: already complete")
-            continue
-        else:
-            print(f"\n[FULL] {lang}: creating from scratch")
-
-        translated = translate_language(source_data, lang, api_key, existing_data)
-
-        # Write output
-        with open(target_file, "w", encoding="utf-8") as f:
-            json.dump(translated, f, ensure_ascii=False, indent=2)
-
-        print(f"  Wrote {target_file.name} ({len(translated)} sections)")
-
-    print("\nDone! All translations generated.")
+    print("\nDone!")
 
 
 if __name__ == "__main__":
