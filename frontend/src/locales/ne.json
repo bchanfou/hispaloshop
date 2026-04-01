@@ -90,7 +90,7 @@
   },
   "home": {
     "heroTitle": "स्थानीय व्यवसायहरूलाई बढावा दिनुहोस्, आफ्नो समुदायलाई रूपान्तरण गर्नुहोस्",
-    "heroDescription": "तपाईंसँग १,००० भन्दा बढी फलोअरहरू छन्। आफ्नो अद्वितीय कोड उत्पन्न गर्नुहोस्, पहिलो खरिदमा १०% छुट दिनुहोस्, र १८ महिनाको लागि टियर कमिसन कमाउनुहोस्।",
+    "heroDescription": "Have more than 1,000 followers? Create your unique code, offer 10% on first purchase, and earn tier-based commissions for 18 months.",
     "shopNow": "उत्पादनहरू अन्वेषण गर्नुहोस्",
     "becomeSeller": "निर्माता हुनु",
     "becomeInfluencer": "प्रभावकारी व्यक्ति बन्नु",
@@ -194,8 +194,8 @@
     "resendVerification": "प्रमाणीकरण इमेल पुन: पठाउनुहोस्",
     "fillRequiredFields": "कृपया सबै आवश्यक क्षेत्रहरू पूरा गर्नुहोस्।",
     "orContinueWith": "वा जारी राख्नुहोस्",
-    "signInWithGoogle": "गुगल मार्फत साइन इन गर्नुहोस्",
-    "signUpWithGoogle": "गुगलमा साइन अप गर्नुहोस्",
+    "signInWithGoogle": "Sign in with Google",
+    "signUpWithGoogle": "Sign up with Google",
     "welcomeBack": "स्वागत छ।",
     "signInToAccount": "आफ्नो खाता पहुँच गर्न लग इन गर्नुहोस्",
     "areYouProducer": "के तपाईं निर्माता हुनुहुन्छ? यहाँ दर्ता गर्नुहोस्।"
@@ -1314,7 +1314,7 @@
     "newsletter": "समाचारपत्र",
     "newsletterDesc": "समाचार र विशेष अफरहरू प्राप्त गर्न सदस्यता लिनुहोस्",
     "subscribe": "सदस्यता लिनुहोस्",
-    "emailPlaceholder": "your@email.com मा इमेल गर्नुहोस्।"
+    "emailPlaceholder": "tu@email.com मा इमेल गर्नुहोस्।"
   },
   "breadcrumbs": {
     "home": "सुरु गर्नुहोस्",

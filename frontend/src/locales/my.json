@@ -90,7 +90,7 @@
   },
   "home": {
     "heroTitle": "ဒေသခံစီးပွားရေးလုပ်ငန်းများကို မြှင့်တင်ပါ၊ သင့်ရပ်ရွာကို ပြောင်းလဲပါ",
-    "heroDescription": "သင့်မှာ follower ၁၀၀၀ ကျော်ရှိပါတယ်။ သင့်ရဲ့ထူးခြားတဲ့ code ကိုထုတ်လုပ်ပြီး ပထမဆုံးဝယ်ယူမှုအတွက် ၁၀% လျှော့စျေးနဲ့ ၁၈ လကြာ tier commissions ရယူလိုက်ပါ။",
+    "heroDescription": "Have more than 1,000 followers? Create your unique code, offer 10% on first purchase, and earn tier-based commissions for 18 months.",
     "shopNow": "ထုတ်ကုန်များကို စူးစမ်းလေ့လာပါ",
     "becomeSeller": "ထုတ်လုပ်သူဖြစ်ခြင်း",
     "becomeInfluencer": "သြဇာလွှမ်းမိုးသူတစ်ဦးဖြစ်ခြင်း",
@@ -1314,7 +1314,7 @@
     "newsletter": "သတင်းလွှာ",
     "newsletterDesc": "သတင်းများနှင့် အထူးလျှော့ဈေးများရယူရန် စာရင်းသွင်းပါ",
     "subscribe": "စာရင်းသွင်းပါ",
-    "emailPlaceholder": "your@email.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "စတင်ပါ",

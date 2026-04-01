@@ -1314,7 +1314,7 @@
     "newsletter": "Bilten",
     "newsletterDesc": "Pretplatite se za primanje novosti i ekskluzivnih ponuda",
     "subscribe": "Pretplatite se",
-    "emailPlaceholder": "your@email.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "Start",
@@ -1459,7 +1459,7 @@
     "commissionFeature1": "Uključuje siguran sustav za plaćanje (Stripe)",
     "commissionFeature2": "Provjerljivi certifikati proizvoda",
     "commissionFeature3": "Tehnička podrška i korisnička služba",
-    "commissionFeature4": "Davidov pristup umjetnoj inteligenciji za producente",
+    "commissionFeature4": "David AI access for producers",
     "howItWorksTitle": "Kako započeti prodaju",
     "step1Title": "Registar",
     "step1Desc": "Izradite svoj producentski račun s podacima o vašoj tvrtki ili samozaposlenom",

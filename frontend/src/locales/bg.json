@@ -1314,7 +1314,7 @@
     "newsletter": "Бюлетин",
     "newsletterDesc": "Абонирайте се, за да получавате новини и ексклузивни оферти",
     "subscribe": "Абонирайте се",
-    "emailPlaceholder": "your@email.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "Старт",
@@ -2113,7 +2113,7 @@
     "step4": "Печелете на продажба",
     "step4Desc": "Комисионна за 18 месеца",
     "calculator": "Колко бихте могли да спечелите",
-    "monthlyGMV": "Месечно генерирана нетна обща стойност на общата стойност на преференциалните пазарни цени (GMV)",
+    "monthlyGMV": "Monthly NET GMV generated",
     "yourCommission": "Вашата месечна комисионна (Персей 3%)",
     "gmvNote": "НЕТО GMV = общи продажби - доставка - данъци",
     "tierSystem": "Система от нива",

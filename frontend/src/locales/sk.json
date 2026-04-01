@@ -194,7 +194,7 @@
     "resendVerification": "Znovu odoslať overovací e-mail",
     "fillRequiredFields": "Vyplňte všetky požadované polia",
     "orContinueWith": "alebo pokračujte s",
-    "signInWithGoogle": "Prihlásiť sa pomocou Googlu",
+    "signInWithGoogle": "Sign in with Google",
     "signUpWithGoogle": "Zaregistrujte sa cez Google",
     "welcomeBack": "Vitaj späť",
     "signInToAccount": "Prihláste sa pre prístup k svojmu účtu",
@@ -1314,7 +1314,7 @@
     "newsletter": "Spravodaj",
     "newsletterDesc": "Prihláste sa na odber noviniek a exkluzívnych ponúk",
     "subscribe": "Prihlásiť sa na odber",
-    "emailPlaceholder": "your@email.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "Štart",

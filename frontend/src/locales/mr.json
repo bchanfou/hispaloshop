@@ -90,7 +90,7 @@
   },
   "home": {
     "heroTitle": "स्थानिक व्यवसायांना चालना द्या, आपल्या समाजात परिवर्तन घडवा",
-    "heroDescription": "तुमचे १,००० पेक्षा जास्त फॉलोअर्स आहेत. तुमचा युनिक कोड तयार करा, पहिल्या खरेदीवर १०% सूट द्या आणि १८ महिन्यांसाठी टियर कमिशन मिळवा.",
+    "heroDescription": "Have more than 1,000 followers? Create your unique code, offer 10% on first purchase, and earn tier-based commissions for 18 months.",
     "shopNow": "उत्पादने शोधा",
     "becomeSeller": "निर्माता असणे",
     "becomeInfluencer": "एक प्रभावक असणे",
@@ -194,8 +194,8 @@
     "resendVerification": "पडताळणी ईमेल पुन्हा पाठवा",
     "fillRequiredFields": "कृपया सर्व आवश्यक रकाने भरा.",
     "orContinueWith": "किंवा पुढे चालू ठेवा",
-    "signInWithGoogle": "गुगलने साइन इन करा",
-    "signUpWithGoogle": "गुगलद्वारे साइन अप करा",
+    "signInWithGoogle": "Sign in with Google",
+    "signUpWithGoogle": "Sign up with Google",
     "welcomeBack": "पुन्हा स्वागत आहे",
     "signInToAccount": "तुमच्या खात्यात प्रवेश करण्यासाठी लॉग इन करा.",
     "areYouProducer": "तुम्ही निर्माते आहात का? येथे नोंदणी करा."
@@ -1314,7 +1314,7 @@
     "newsletter": "वृत्तपत्र",
     "newsletterDesc": "बातम्या आणि विशेष ऑफर्स मिळवण्यासाठी सबस्क्राईब करा.",
     "subscribe": "सदस्यता घ्या",
-    "emailPlaceholder": "तुमचे@ईमेल.कॉम"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "सुरुवात करा",

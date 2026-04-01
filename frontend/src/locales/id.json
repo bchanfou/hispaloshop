@@ -1314,7 +1314,7 @@
     "newsletter": "Buletin",
     "newsletterDesc": "Berlangganan untuk menerima berita dan penawaran eksklusif.",
     "subscribe": "Berlangganan",
-    "emailPlaceholder": "email Anda"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "Awal",
@@ -1459,7 +1459,7 @@
     "commissionFeature1": "Termasuk gerbang pembayaran yang aman (Stripe)",
     "commissionFeature2": "Sertifikat produk yang dapat diverifikasi",
     "commissionFeature3": "Dukungan teknis dan layanan pelanggan",
-    "commissionFeature4": "Akses AI David untuk para produsen",
+    "commissionFeature4": "David AI access for producers",
     "howItWorksTitle": "Cara memulai penjualan",
     "step1Title": "Daftar",
     "step1Desc": "Buat akun produser Anda dengan detail perusahaan atau wiraswasta Anda.",

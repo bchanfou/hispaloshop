@@ -194,8 +194,8 @@
     "resendVerification": "ચકાસણી ઇમેઇલ ફરીથી મોકલો",
     "fillRequiredFields": "કૃપા કરીને બધા જરૂરી ફીલ્ડ ભરો.",
     "orContinueWith": "અથવા ચાલુ રાખો",
-    "signInWithGoogle": "ગુગલ સાથે સાઇન ઇન કરો",
-    "signUpWithGoogle": "ગુગલ સાથે સાઇન અપ કરો",
+    "signInWithGoogle": "Sign in with Google",
+    "signUpWithGoogle": "Sign up with Google",
     "welcomeBack": "ફરી સ્વાગત છે",
     "signInToAccount": "તમારા એકાઉન્ટને ઍક્સેસ કરવા માટે લોગ ઇન કરો",
     "areYouProducer": "શું તમે નિર્માતા છો? અહીં નોંધણી કરાવો."
@@ -1314,7 +1314,7 @@
     "newsletter": "ન્યૂઝલેટર",
     "newsletterDesc": "સમાચાર અને વિશિષ્ટ ઑફર્સ મેળવવા માટે સબ્સ્ક્રાઇબ કરો",
     "subscribe": "સબ્સ્ક્રાઇબ કરો",
-    "emailPlaceholder": "your@email.com પર ઇમેઇલ મોકલો."
+    "emailPlaceholder": "tu@email.com પર ઇમેઇલ મોકલો."
   },
   "breadcrumbs": {
     "home": "શરૂઆત",

@@ -90,7 +90,7 @@
   },
   "home": {
     "heroTitle": "স্থানীয় ব্যবসাকে উৎসাহিত করুন, আপনার সম্প্রদায়কে রূপান্তরিত করুন",
-    "heroDescription": "আপনার ১,০০০-এর বেশি ফলোয়ার আছে। আপনার নিজস্ব কোড তৈরি করুন, প্রথম কেনাকাটায় ১০% ছাড় দিন এবং ১৮ মাস ধরে স্তরভিত্তিক কমিশন উপার্জন করুন।",
+    "heroDescription": "Have more than 1,000 followers? Create your unique code, offer 10% on first purchase, and earn tier-based commissions for 18 months.",
     "shopNow": "পণ্যগুলি অন্বেষণ করুন",
     "becomeSeller": "একজন প্রযোজক হওয়া",
     "becomeInfluencer": "একজন ইনফ্লুয়েন্সার হওয়া",
@@ -1314,7 +1314,7 @@
     "newsletter": "নিউজলেটার",
     "newsletterDesc": "খবর ও বিশেষ অফার পেতে সাবস্ক্রাইব করুন।",
     "subscribe": "সাবস্ক্রাইব করুন",
-    "emailPlaceholder": "your@email.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "শুরু করুন",
@@ -1858,7 +1858,7 @@
       "socialDesc": "কার্টে যোগ করুন। ফিড থেকে বের না হয়েই।",
       "community": "প্রতিটি পণ্যের পেছনে একটি গল্প থাকে।",
       "communityDesc": "প্রযোজকের সাথে পরিচিত হন, পর্যালোচনা পড়ুন, সনদপত্রগুলো দেখুন।",
-      "howItWorks": "এক, দুই, তিনের মতোই সহজ",
+      "howItWorks": "As easy as 1, 2, 3",
       "startToday": "আজই শুরু করুন। এটি বিনামূল্যে।",
       "startDesc": "৩০ সেকেন্ডে আপনার অ্যাকাউন্ট তৈরি করুন।",
       "createFree": "একটি বিনামূল্যে অ্যাকাউন্ট তৈরি করুন",

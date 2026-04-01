@@ -90,7 +90,7 @@
   },
   "home": {
     "heroTitle": "发现值得信赖的食品",
-    "heroDescription": "认证、透明食品的高端市场。每件产品都有可验证的证书支持。",
+    "heroDescription": "Have more than 1,000 followers? Create your unique code, offer 10% on first purchase, and earn tier-based commissions for 18 months.",
     "shopNow": "立即购买",
     "becomeProducer": "成为生产商",
     "whyHispaloshop": "为什么选择 Hispaloshop？",
@@ -838,7 +838,7 @@
     "send": "发送",
     "typing": "David AI 正在输入...",
     "error": "抱歉，无法处理。请重试。",
-    "noProducts": "未找到匹配的产品。",
+    "noProducts": "I couldn't find products matching your request.",
     "recommendations": "这是我的推荐",
     "addedToCart": "已加入购物车",
     "cartCleared": "购物车已清空",
@@ -1303,7 +1303,7 @@
   },
   "contentManagement": {
     "title": "内容管理",
-    "subtitle": "管理平台产品和证书",
+    "subtitle": "Manage platform products and certificates",
     "searchPlaceholder": "按名称或制作人搜索……",
     "noProductsFound": "未找到任何产品。",
     "noCertificatesFound": "未找到任何证书",

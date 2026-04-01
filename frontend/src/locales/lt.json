@@ -1314,7 +1314,7 @@
     "newsletter": "Naujienlaiškis",
     "newsletterDesc": "Prenumeruokite, kad gautumėte naujienas ir išskirtinius pasiūlymus",
     "subscribe": "Prenumeruoti",
-    "emailPlaceholder": "jūsų@el.paštas.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "Pradėti",
@@ -1459,7 +1459,7 @@
     "commissionFeature1": "Apima saugų mokėjimo šliuzą („Stripe“)",
     "commissionFeature2": "Patikrinami produktų sertifikatai",
     "commissionFeature3": "Techninė pagalba ir klientų aptarnavimas",
-    "commissionFeature4": "Prieiga prie dirbtinio intelekto Davidui prodiuseriams",
+    "commissionFeature4": "David AI access for producers",
     "howItWorksTitle": "Kaip pradėti pardavinėti",
     "step1Title": "Registruotis",
     "step1Desc": "Sukurkite savo gamintojo paskyrą su savo įmonės arba savarankiškai dirbančio asmens duomenimis",

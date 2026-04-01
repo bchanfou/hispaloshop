@@ -1314,7 +1314,7 @@
     "newsletter": "Surat Berita",
     "newsletterDesc": "Langgan untuk menerima berita dan tawaran eksklusif",
     "subscribe": "Langgan",
-    "emailPlaceholder": "emel anda@emel.com"
+    "emailPlaceholder": "emel tu@email.com"
   },
   "breadcrumbs": {
     "home": "Mula",
@@ -1459,7 +1459,7 @@
     "commissionFeature1": "Termasuk gerbang pembayaran selamat (Stripe)",
     "commissionFeature2": "Sijil produk yang boleh disahkan",
     "commissionFeature3": "Sokongan teknikal dan khidmat pelanggan",
-    "commissionFeature4": "Akses AI David untuk penerbit",
+    "commissionFeature4": "David AI access for producers",
     "howItWorksTitle": "Cara mula menjual",
     "step1Title": "Daftar",
     "step1Desc": "Cipta akaun pengeluar anda dengan butiran syarikat atau pekerja sendiri anda",

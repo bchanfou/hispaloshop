@@ -195,7 +195,7 @@
     "fillRequiredFields": "කරුණාකර අවශ්‍ය සියලුම ක්ෂේත්‍ර සම්පූර්ණ කරන්න.",
     "orContinueWith": "නැතහොත් ඉදිරියට යන්න",
     "signInWithGoogle": "Google සමඟ පුරන්න",
-    "signUpWithGoogle": "ගූගල් සමඟ ලියාපදිංචි වන්න",
+    "signUpWithGoogle": "Sign up with Google",
     "welcomeBack": "ආපසු සාදරයෙන් පිළිගනිමු",
     "signInToAccount": "ඔබගේ ගිණුමට ප්‍රවේශ වීමට ලොග් වන්න",
     "areYouProducer": "ඔබ නිෂ්පාදකයෙක්ද? මෙතනින් ලියාපදිංචි වන්න."
@@ -1314,7 +1314,7 @@
     "newsletter": "පුවත් ලිපිය",
     "newsletterDesc": "පුවත් සහ සුවිශේෂී දීමනා ලබා ගැනීමට දායක වන්න",
     "subscribe": "දායක වන්න",
-    "emailPlaceholder": "ඔබේ@ඊමේල්.කොම්"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "ආරම්භ කරන්න",

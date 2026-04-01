@@ -90,7 +90,7 @@
   },
   "home": {
     "heroTitle": "کسب و کارهای محلی را رونق دهید، جامعه خود را متحول کنید",
-    "heroDescription": "شما بیش از ۱۰۰۰ فالوور دارید. کد منحصر به فرد خود را ایجاد کنید، ۱۰٪ تخفیف برای اولین خرید ارائه دهید و به مدت ۱۸ ماه پورسانت دریافت کنید.",
+    "heroDescription": "Have more than 1,000 followers? Create your unique code, offer 10% on first purchase, and earn tier-based commissions for 18 months.",
     "shopNow": "محصولات را کاوش کنید",
     "becomeSeller": "تهیه‌کننده بودن",
     "becomeInfluencer": "اینفلوئنسر بودن",
@@ -1314,7 +1314,7 @@
     "newsletter": "خبرنامه",
     "newsletterDesc": "برای دریافت اخبار و پیشنهادات ویژه مشترک شوید",
     "subscribe": "اشتراک",
-    "emailPlaceholder": "your@email.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "شروع",

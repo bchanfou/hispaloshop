@@ -194,8 +194,8 @@
     "resendVerification": "Znovu odeslat ověřovací e-mail",
     "fillRequiredFields": "Vyplňte prosím všechna povinná pole",
     "orContinueWith": "nebo pokračujte s",
-    "signInWithGoogle": "Přihlásit se pomocí Googlu",
-    "signUpWithGoogle": "Zaregistrujte se u Googlu",
+    "signInWithGoogle": "Sign in with Google",
+    "signUpWithGoogle": "Sign up with Google",
     "welcomeBack": "Vítej zpět",
     "signInToAccount": "Přihlaste se pro přístup ke svému účtu",
     "areYouProducer": "Jste producent? Zaregistrujte se zde."
@@ -1314,7 +1314,7 @@
     "newsletter": "Bulletin",
     "newsletterDesc": "Přihlaste se k odběru novinek a exkluzivních nabídek",
     "subscribe": "Upsat",
-    "emailPlaceholder": "your@email.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "Start",

@@ -277,7 +277,7 @@
     "priceRange": "Árkategória",
     "clearFilters": "Tiszta",
     "noProducts": "Nem található termék",
-    "tryDifferentFilters": "Próbáljon ki más szűrőket",
+    "tryDifferentFilters": "Próbáljon ki több szűrőket",
     "filters": "Szűrők",
     "originCountry": "Származási ország",
     "reviews": "vélemények",
@@ -1314,7 +1314,7 @@
     "newsletter": "Hírlevél",
     "newsletterDesc": "Iratkozzon fel, hogy híreket és exkluzív ajánlatokat kapjon",
     "subscribe": "Feliratkozás",
-    "emailPlaceholder": "your@email.com"
+    "emailPlaceholder": "tu@email.com"
   },
   "breadcrumbs": {
     "home": "Indul",
@@ -1471,7 +1471,7 @@
     "step4Desc": "Fogadja a rendeléseket, és kapja meg a kifizetéseket közvetlenül a számlájára.",
     "ctaTitle": "Készen áll a kezdésre",
     "ctaText": "Csatlakozzon több száz termelőhöz, akik már megbíznak a Hispaloshopban, hogy termékeiket világszerte eljuttassák vásárlóikhoz.",
-    "viewProducts": "Tekintse meg más gyártók termékeit",
+    "viewProducts": "Tekintse meg több gyártók termékeit",
     "faqTitle": "Gyakran ismételt kérdések",
     "faq1Q": "Ki árulhat a Hispaloshopon?",
     "faq1A": "Bármely termelő, kézműves vagy kisvállalkozás, aki minőségi élelmiszereket állít elő. Becsületes, az átláthatóság iránt elkötelezett termelőket keresünk.",
@@ -1537,7 +1537,7 @@
     "otherAllergens": "Vagy írjon le további allergéneket:",
     "otherAllergensPlaceholder": "Egyéb allergének vesszővel elválasztva...",
     "certifications": "Tanúsítványok",
-    "otherCertifications": "Vagy írjon más tanúsítványokat:",
+    "otherCertifications": "Vagy írjon több tanúsítványokat:",
     "otherCertificationsPlaceholder": "Egyéb tanúsítványok vesszővel elválasztva...",
     "approvalNote": "Az új termékekhez rendszergazdai jóváhagyás szükséges, mielőtt láthatóvá válnának az ügyfelek számára.",
     "updateProduct": "Termék frissítése",
