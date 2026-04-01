@@ -26,7 +26,7 @@
     "viewAll": "Skatīt visu",
     "seeOriginal": "Skatīt oriģinālu",
     "seeTranslation": "Skatīt tulkojumu",
-    "translatedFrom": "Tulkots no XPHB0XPHX",
+    "translatedFrom": "Tulkots no {{language}}",
     "details": "Sīkāka informācija",
     "status": "Štats",
     "active": "Aktīvs",
@@ -267,7 +267,7 @@
     "soldOut": "Izsmelts",
     "onlyLeft": "Atlikušas tikai {0}",
     "lowStock": "Paliek tikai {{count}}",
-    "byProducer": "Autors: XPHBX0XPHX",
+    "byProducer": "Autors: {{producer}}",
     "origin": "Izcelsme",
     "price": "Cena",
     "category": "Kategorija",
@@ -452,8 +452,8 @@
     "state": "Province",
     "zip": "Pasta indekss",
     "country": "Valsts",
-    "chargeCurrency": "No jums tiks iekasēta maksa XPHB0XPHX apmērā.",
-    "displayCurrency": "Cenas norādītas vietnē XPHBX0XPHX",
+    "chargeCurrency": "No jums tiks iekasēta maksa {{currency}} apmērā.",
+    "displayCurrency": "Cenas norādītas vietnē {{currency}}",
     "exchangeRate": "Valūtas kurss",
     "fullName": "Pilns vārds",
     "useShippingAddress": "Izmantot piegādes adresi rēķina apmaksai",
@@ -604,7 +604,7 @@
     "accountPending": "Konts gaida apstiprinājumu",
     "accountPendingDesc": "Jūsu ražotāja konts gaida administratora apstiprinājumu. Jūs varat izveidot produktus un sertifikātus, taču tie nebūs redzami klientiem, kamēr jūsu konts netiks apstiprināts.",
     "totalProducts": "Kopējais produktu skaits",
-    "approvedProducts": "XPHB0XPHX apstiprināts",
+    "approvedProducts": "{{count}} apstiprināts",
     "followers": "Sekotāji",
     "ofYourStore": "no jūsu veikala",
     "totalSold": "Kopā pārdots",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Izvēlieties valsti",
-        "countryAnalysis": "XPHD0XPHX analīze",
+        "countryAnalysis": "XPHD0{{country}} analīze",
         "totalUsers": "Kopējais lietotāju skaits",
         "ordersThisMonth": "Pasūtījumi šomēnes",
         "averageSpend": "Vidējie izdevumi",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Drīzumā pieejams",
     "inNext7Days": "Nākamo 7 dienu laikā",
     "nextPaymentDate": "Nākamais maksājums pieejams",
-    "daysLeft": "Atlikušas XPHB0XPHX dienas",
+    "daysLeft": "Atlikušas {{days}} dienas",
     "noPendingPayments": "Nav nesamaksātu maksājumu",
     "paymentPolicy": "Maksājumu politika",
     "paymentPolicyDesc": "Iegūtās komisijas maksas var tikt iekasētas 15 dienas pēc katra pārdošanas darījuma, lai garantētu pasūtījuma piegādi.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Kļūda, ielādējot ražotājus",
-      "statusUpdated": "Pārdevējs XPHBX0XPHX"
+      "statusUpdated": "Pārdevējs {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Kopā",
       "status": "Štats",
       "date": "Datums",
-      "itemsCount": "XPHB0XPHX raksti"
+      "itemsCount": "{{count}} raksti"
     },
     "paymentsTable": {
       "transactionId": "Darījuma ID",
@@ -2225,7 +2225,7 @@
     "publish": "Publicēt recepti",
     "published": "Publicēta recepte",
     "addToCart": "Iegādājieties sastāvdaļas",
-    "addedToCart": "XPHB0XPHX sastāvdaļas pievienotas grozam",
+    "addedToCart": "{{count}} sastāvdaļas pievienotas grozam",
     "by": "Autors",
     "min": "min",
     "portions": "porcijas",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Komentārs dzēsts",
     "edited": "rediģēts",
     "likes": "Man patīk",
-    "viewComments": "Skatīt XPHBX0XPHX komentāru",
-    "viewCommentsPlural": "Skatīt XPHBX0XPHX komentārus",
+    "viewComments": "Skatīt {{count}} komentāru",
+    "viewCommentsPlural": "Skatīt {{count}} komentārus",
     "loginToLike": "Piesakieties, lai atzīmētu ar “Patīk”.",
     "loginToSave": "Piesakieties, lai saglabātu",
     "loginToFollow": "Piesakieties, lai sekotu lietotājiem",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Jūs vairs nesekojat šim lietotājam",
     "nowFollowing": "Jūs tagad sekojat šim lietotājam",
     "profileUpdated": "Atjaunināts profila attēls",
-    "memberSince": "Dalībnieks kopš XPHBX0XPHX",
+    "memberSince": "Dalībnieks kopš {{date}}",
     "verifiedSeller": "Pārbaudīts pārdevējs",
     "viewStore": "Skatīt veikalu",
     "sendMessage": "Sūtīt ziņojumu",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Aprakstiet, kāds saturs jums nepieciešams..."
   },
   "predictions": {
-    "purchased": "Iegādāts XPHBX0XPHXx"
+    "purchased": "Iegādāts {{count}}"
   },
   "wishlist": {
     "title": "Vēlmju saraksts",

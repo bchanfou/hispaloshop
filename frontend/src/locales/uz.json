@@ -26,7 +26,7 @@
     "viewAll": "Barchasini ko'rish",
     "seeOriginal": "Asl nusxasini ko'rish",
     "seeTranslation": "Tarjimani ko'ring",
-    "translatedFrom": "XPHB0XPHX dan tarjima qilingan",
+    "translatedFrom": "{{language}} dan tarjima qilingan",
     "details": "Tafsilotlar",
     "status": "Shtat",
     "active": "Aktiv",
@@ -267,7 +267,7 @@
     "soldOut": "Charchagan",
     "onlyLeft": "Faqat {0} qoldi",
     "lowStock": "Faqat {{count}} qoldi",
-    "byProducer": "XPHBX0XPHX tomonidan",
+    "byProducer": "{{producer}} tomonidan",
     "origin": "Kelib chiqishi",
     "price": "Narxi",
     "category": "Kategoriya",
@@ -452,8 +452,8 @@
     "state": "Viloyat",
     "zip": "Pochta indeksi",
     "country": "Mamlakat",
-    "chargeCurrency": "Sizdan XPHB0XPHX miqdorida to'lov olinadi",
-    "displayCurrency": "XPHBX0XPHX da ko'rsatilgan narxlar",
+    "chargeCurrency": "Sizdan {{currency}} miqdorida to'lov olinadi",
+    "displayCurrency": "da ko'rsatilgan {{currency}} narxlar",
     "exchangeRate": "Valyuta kursi",
     "fullName": "To'liq ism",
     "useShippingAddress": "To'lov uchun yetkazib berish manzilidan foydalaning",
@@ -604,7 +604,7 @@
     "accountPending": "Hisob tasdiqlanishi kutilmoqda",
     "accountPendingDesc": "Ishlab chiqaruvchi hisobingiz administrator tomonidan tasdiqlanishi kutilmoqda. Siz mahsulotlar va sertifikatlar yaratishingiz mumkin, ammo ular hisobingiz tasdiqlanmaguncha mijozlarga ko'rinmaydi.",
     "totalProducts": "Jami mahsulotlar",
-    "approvedProducts": "XPHB0XPHX tasdiqlangan",
+    "approvedProducts": "{{count}} tasdiqlangan",
     "followers": "Kuzatuvchilar",
     "ofYourStore": "do'koningizdan",
     "totalSold": "Jami sotilgan",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Mamlakatni tanlang",
-        "countryAnalysis": "XPHD0XPHX tahlili",
+        "countryAnalysis": "XPHD0{{country}} tahlili",
         "totalUsers": "Jami foydalanuvchilar",
         "ordersThisMonth": "Bu oydagi buyurtmalar",
         "averageSpend": "O'rtacha xarajat",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Tez orada sotuvga chiqariladi",
     "inNext7Days": "Keyingi 7 kun ichida",
     "nextPaymentDate": "Keyingi to'lov mavjud",
-    "daysLeft": "XPHB0XPHX kun qoldi",
+    "daysLeft": "{{days}} kun qoldi",
     "noPendingPayments": "Qarzdor to'lovlar yo'q",
     "paymentPolicy": "To'lov siyosati",
     "paymentPolicyDesc": "Buyurtmaning yetkazib berilishini kafolatlash uchun har bir savdodan 15 kun o'tgach, hosil bo'lgan komissiyalarni yig'ish mumkin.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Ishlab chiqaruvchilarni yuklashda xatolik yuz berdi",
-      "statusUpdated": "Sotuvchi XPHBX0XPHX"
+      "statusUpdated": "Sotuvchi {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Jami",
       "status": "Shtat",
       "date": "Sana",
-      "itemsCount": "XPHB0XPHX maqolalari"
+      "itemsCount": "{{count}} maqolalari"
     },
     "paymentsTable": {
       "transactionId": "Tranzaksiya identifikatori",
@@ -2225,7 +2225,7 @@
     "publish": "Retseptni nashr eting",
     "published": "Nashr qilingan retsept",
     "addToCart": "Masalliqlarni sotib oling",
-    "addedToCart": "XPHB0XPHX masalliqlari savatga qo'shildi",
+    "addedToCart": "{{count}} masalliqlari savatga qo'shildi",
     "by": "Muallif:",
     "min": "daqiqa",
     "portions": "porsiyalar",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Izoh o'chirildi",
     "edited": "tahrirlangan",
     "likes": "Menga yoqadi",
-    "viewComments": "XPHBX0XPHX izohiga qarang",
-    "viewCommentsPlural": "XPHBX0XPHX izohlarini ko'ring",
+    "viewComments": "{{count}} izohiga qarang",
+    "viewCommentsPlural": "{{count}} izohlarini ko'ring",
     "loginToLike": "Yoqtirish uchun tizimga kiring",
     "loginToSave": "Saqlash uchun tizimga kiring",
     "loginToFollow": "Foydalanuvchilarni kuzatish uchun tizimga kiring",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Siz ushbu foydalanuvchini kuzatishni bekor qildingiz",
     "nowFollowing": "Siz hozir ushbu foydalanuvchini kuzatib bormoqdasiz",
     "profileUpdated": "Profil rasmi yangilandi",
-    "memberSince": "XPHBX0XPHX dan beri a'zo",
+    "memberSince": "dan beri {{date}} a'zo",
     "verifiedSeller": "Tasdiqlangan sotuvchi",
     "viewStore": "Do'konni ko'rish",
     "sendMessage": "Xabar yuborish",

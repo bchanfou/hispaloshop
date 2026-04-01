@@ -26,7 +26,7 @@
     "viewAll": "ເບິ່ງທັງໝົດ",
     "seeOriginal": "ເບິ່ງຕົ້ນສະບັບ",
     "seeTranslation": "ເບິ່ງການແປພາສາ",
-    "translatedFrom": "ແປຈາກ XPHB0XPHX",
+    "translatedFrom": "ແປຈາກ {{language}}",
     "details": "ລາຍລະອຽດ",
     "status": "ລັດ",
     "active": "ຊັບສິນ",
@@ -267,7 +267,7 @@
     "soldOut": "ໝົດແຮງແລ້ວ",
     "onlyLeft": "ຍັງເຫຼືອພຽງ {0} ເທົ່ານັ້ນ",
     "lowStock": "ຍັງເຫຼືອພຽງ {{count}} ເທົ່ານັ້ນ",
-    "byProducer": "ໂດຍ XPHBX0XPHX",
+    "byProducer": "ໂດຍ {{producer}}",
     "origin": "ຕົ້ນກຳເນີດ",
     "price": "ລາຄາ",
     "category": "ໝວດໝູ່",
@@ -452,8 +452,8 @@
     "state": "ແຂວງ",
     "zip": "ລະຫັດໄປສະນີ",
     "country": "ປະເທດ",
-    "chargeCurrency": "ທ່ານຈະຖືກຄິດຄ່າທຳນຽມເປັນ XPHB0XPHX",
-    "displayCurrency": "ລາຄາສະແດງຢູ່ໃນ XPHBX0XPHX",
+    "chargeCurrency": "ທ່ານຈະຖືກຄິດຄ່າທຳນຽມເປັນ {{currency}}",
+    "displayCurrency": "ລາຄາສະແດງຢູ່ໃນ {{currency}}",
     "exchangeRate": "ອັດຕາແລກປ່ຽນ",
     "fullName": "ຊື່ເຕັມ",
     "useShippingAddress": "ໃຊ້ທີ່ຢູ່ຈັດສົ່ງສຳລັບການຮຽກເກັບເງິນ",
@@ -604,7 +604,7 @@
     "accountPending": "ບັນຊີລໍຖ້າການອະນຸມັດ",
     "accountPendingDesc": "ບັນຊີຜູ້ຜະລິດຂອງທ່ານກຳລັງລໍຖ້າການອະນຸມັດຈາກຜູ້ເບິ່ງແຍງລະບົບ. ທ່ານສາມາດສ້າງຜະລິດຕະພັນ ແລະ ໃບຢັ້ງຢືນໄດ້, ແຕ່ພວກມັນຈະບໍ່ສະແດງໃຫ້ລູກຄ້າເຫັນຈົນກວ່າບັນຊີຂອງທ່ານຈະໄດ້ຮັບການອະນຸມັດ.",
     "totalProducts": "ຜະລິດຕະພັນທັງໝົດ",
-    "approvedProducts": "ອະນຸມັດ XPHB0XPHX ແລ້ວ",
+    "approvedProducts": "ອະນຸມັດ {{count}} ແລ້ວ",
     "followers": "ຜູ້ຕິດຕາມ",
     "ofYourStore": "ຈາກຮ້ານຂອງທ່ານ",
     "totalSold": "ຍອດຂາຍທັງໝົດ",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "ເລືອກປະເທດ",
-        "countryAnalysis": "ການວິເຄາະຂອງ XPHD0XPHX",
+        "countryAnalysis": "ການວິເຄາະຂອງ {{country}} XPHD0",
         "totalUsers": "ຜູ້ໃຊ້ທັງໝົດ",
         "ordersThisMonth": "ການສັ່ງຊື້ເດືອນນີ້",
         "averageSpend": "ລາຍຈ່າຍສະເລ່ຍ",
@@ -1058,7 +1058,7 @@
     "availableSoon": "ມີໃຫ້ບໍລິການໃນໄວໆນີ້",
     "inNext7Days": "ໃນ 7 ມື້ຕໍ່ໄປ",
     "nextPaymentDate": "ມີການຈ່າຍເງິນຄັ້ງຕໍ່ໄປໃຫ້",
-    "daysLeft": "ຍັງເຫຼືອ XPHB0XPHX ມື້",
+    "daysLeft": "ຍັງເຫຼືອ {{days}} ມື້",
     "noPendingPayments": "ບໍ່ມີການຈ່າຍເງິນຄ້າງຊຳລະ",
     "paymentPolicy": "ນະໂຍບາຍການຈ່າຍເງິນ",
     "paymentPolicyDesc": "ຄ່ານາຍໜ້າທີ່ສາມາດເກັບໄດ້ສາມາດເກັບໄດ້ 15 ມື້ຫຼັງຈາກການຂາຍແຕ່ລະຄັ້ງເພື່ອຮັບປະກັນການຈັດສົ່ງສິນຄ້າ.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "ເກີດຄວາມຜິດພາດໃນການໂຫຼດຜູ້ຜະລິດ",
-      "statusUpdated": "ຜູ້ຂາຍ XPHBX0XPHX"
+      "statusUpdated": "ຜູ້ຂາຍ {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "ທັງໝົດ",
       "status": "ລັດ",
       "date": "ວັນທີ",
-      "itemsCount": "ບົດຄວາມ XPHB0XPHX"
+      "itemsCount": "ບົດຄວາມ {{count}}"
     },
     "paymentsTable": {
       "transactionId": "ລະຫັດທຸລະກຳ",
@@ -2225,7 +2225,7 @@
     "publish": "ເຜີຍແຜ່ສູດອາຫານ",
     "published": "ສູດອາຫານທີ່ເຜີຍແຜ່ແລ້ວ",
     "addToCart": "ຊື້ສ່ວນປະກອບ",
-    "addedToCart": "ເພີ່ມສ່ວນປະກອບ XPHB0XPHX ໃສ່ກະຕ່າແລ້ວ",
+    "addedToCart": "ເພີ່ມສ່ວນປະກອບ {{count}} ໃສ່ກະຕ່າແລ້ວ",
     "by": "ໂດຍ",
     "min": "ນາທີ",
     "portions": "ສ່ວນຕ່າງໆ",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "ຄຳເຫັນຖືກລຶບແລ້ວ",
     "edited": "ແກ້ໄຂແລ້ວ",
     "likes": "ຂ້ອຍມັກ",
-    "viewComments": "ເບິ່ງຄຳເຫັນ XPHBX0XPHX",
-    "viewCommentsPlural": "ເບິ່ງຄຳເຫັນ XPHBX0XPHX",
+    "viewComments": "ເບິ່ງຄຳເຫັນ {{count}}",
+    "viewCommentsPlural": "ເບິ່ງຄຳເຫັນ {{count}}",
     "loginToLike": "ເຂົ້າສູ່ລະບົບເພື່ອກົດໄລ້ຄ໌",
     "loginToSave": "ເຂົ້າສູ່ລະບົບເພື່ອບັນທຶກ",
     "loginToFollow": "ເຂົ້າສູ່ລະບົບເພື່ອຕິດຕາມຜູ້ໃຊ້",
@@ -2316,7 +2316,7 @@
     "unfollowed": "ທ່ານໄດ້ເຊົາຕິດຕາມຜູ້ໃຊ້ນີ້ແລ້ວ",
     "nowFollowing": "ຕອນນີ້ທ່ານກຳລັງຕິດຕາມຜູ້ໃຊ້ນີ້",
     "profileUpdated": "ຮູບໂປຣໄຟລ໌ທີ່ອັບເດດແລ້ວ",
-    "memberSince": "ສະມາຊິກຕັ້ງແຕ່ XPHBX0XPHX",
+    "memberSince": "ສະມາຊິກຕັ້ງແຕ່ {{date}}",
     "verifiedSeller": "ຜູ້ຂາຍທີ່ຢືນຢັນແລ້ວ",
     "viewStore": "ເບິ່ງຮ້ານຄ້າ",
     "sendMessage": "ສົ່ງຂໍ້ຄວາມ",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "ອະທິບາຍເນື້ອຫາທີ່ທ່ານຕ້ອງການ..."
   },
   "predictions": {
-    "purchased": "ຊື້ XPHBX0XPHXx ແລ້ວ"
+    "purchased": "ຊື້ {{count}} ແລ້ວ"
   },
   "wishlist": {
     "title": "ລາຍການສິ່ງທີ່ຢາກໄດ້",

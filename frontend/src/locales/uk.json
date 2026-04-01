@@ -26,7 +26,7 @@
     "viewAll": "Переглянути всі",
     "seeOriginal": "Переглянути оригінал",
     "seeTranslation": "Див. переклад",
-    "translatedFrom": "Перекладено з XPHB0XPHX",
+    "translatedFrom": "Перекладено з {{language}}",
     "details": "Деталі",
     "status": "Штат",
     "active": "Актив",
@@ -267,7 +267,7 @@
     "soldOut": "Виснажений",
     "onlyLeft": "Залишилося лише {0}",
     "lowStock": "Залишився лише {{count}}",
-    "byProducer": "від XPHBX0XPHX",
+    "byProducer": "від {{producer}}",
     "origin": "Походження",
     "price": "Ціна",
     "category": "Категорія",
@@ -452,8 +452,8 @@
     "state": "Провінція",
     "zip": "Поштовий індекс",
     "country": "Країна",
-    "chargeCurrency": "З вас буде стягнуто плату в XPHB0XPHX",
-    "displayCurrency": "Ціни, що відображаються на XPHBX0XPHX",
+    "chargeCurrency": "З вас буде стягнуто плату в {{currency}}",
+    "displayCurrency": "Ціни, що відображаються {{currency}} на",
     "exchangeRate": "Обмінний курс",
     "fullName": "Повне ім'я",
     "useShippingAddress": "Використовуйте адресу доставки для оплати",
@@ -604,7 +604,7 @@
     "accountPending": "Обліковий запис очікує схвалення",
     "accountPendingDesc": "Ваш обліковий запис виробника очікує на схвалення адміністратора. Ви можете створювати продукти та сертифікати, але вони не будуть видимі для клієнтів, доки ваш обліковий запис не буде схвалено.",
     "totalProducts": "Всього товарів",
-    "approvedProducts": "Схвалено XPHB0XPHX",
+    "approvedProducts": "Схвалено {{count}}",
     "followers": "Підписники",
     "ofYourStore": "з вашого магазину",
     "totalSold": "Всього продано",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Виберіть країну",
-        "countryAnalysis": "Аналіз XPHD0XPHX",
+        "countryAnalysis": "Аналіз XPHD0{{country}}",
         "totalUsers": "Загальна кількість користувачів",
         "ordersThisMonth": "Замовлення цього місяця",
         "averageSpend": "Середні витрати",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Доступно незабаром",
     "inNext7Days": "У наступні 7 днів",
     "nextPaymentDate": "Наступний платіж доступний",
-    "daysLeft": "Залишилося XPHB0XPHX днів",
+    "daysLeft": "Залишилося {{days}} днів",
     "noPendingPayments": "Немає непогашених платежів",
     "paymentPolicy": "Політика оплати",
     "paymentPolicyDesc": "Отримані комісійні можуть бути стягнуті через 15 днів після кожного продажу, щоб гарантувати доставку замовлення.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Помилка завантаження продюсерів",
-      "statusUpdated": "Продавець XPHBX0XPHX"
+      "statusUpdated": "Продавець {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Всього",
       "status": "Штат",
       "date": "Дата",
-      "itemsCount": "Статті XPHB0XPHX"
+      "itemsCount": "Статті {{count}}"
     },
     "paymentsTable": {
       "transactionId": "Ідентифікатор транзакції",
@@ -2225,7 +2225,7 @@
     "publish": "Опублікувати рецепт",
     "published": "Опублікований рецепт",
     "addToCart": "Купити інгредієнти",
-    "addedToCart": "Інгредієнти XPHB0XPHX додано до кошика",
+    "addedToCart": "Інгредієнти {{count}} додано до кошика",
     "by": "Від",
     "min": "хв",
     "portions": "порції",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Коментар видалено",
     "edited": "відредаговано",
     "likes": "Мені подобається",
-    "viewComments": "Див. коментар XPHBX0XPHX",
-    "viewCommentsPlural": "Дивіться коментарі XPHBX0XPHX",
+    "viewComments": "Див. {{count}} коментар",
+    "viewCommentsPlural": "Дивіться {{count}} коментарі",
     "loginToLike": "Увійдіть, щоб поставити лайк",
     "loginToSave": "Увійдіть, щоб зберегти",
     "loginToFollow": "Увійдіть, щоб слідкувати за користувачами",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Ви скасували підписку на цього користувача",
     "nowFollowing": "Тепер ви стежите за цим користувачем",
     "profileUpdated": "Оновлене зображення профілю",
-    "memberSince": "Учасник з XPHBX0XPHX",
+    "memberSince": "Учасник з {{date}}",
     "verifiedSeller": "Перевірений продавець",
     "viewStore": "Переглянути магазин",
     "sendMessage": "Надіслати повідомлення",

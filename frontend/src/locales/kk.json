@@ -26,7 +26,7 @@
     "viewAll": "Барлығын қарау",
     "seeOriginal": "Түпнұсқаны қарау",
     "seeTranslation": "Аударманы қараңыз",
-    "translatedFrom": "XPHB0XPHX тілінен аударылған",
+    "translatedFrom": "{{language}} тілінен аударылған",
     "details": "Мәліметтер",
     "status": "Штат",
     "active": "Актив",
@@ -267,7 +267,7 @@
     "soldOut": "Шаршаған",
     "onlyLeft": "Тек {0} қалды",
     "lowStock": "Тек {{count}} қалды",
-    "byProducer": "XPHBX0XPHX бойынша",
+    "byProducer": "{{producer}} бойынша",
     "origin": "Шығу тегі",
     "price": "Бағасы",
     "category": "Санат",
@@ -452,8 +452,8 @@
     "state": "Провинция",
     "zip": "Пошта индексі",
     "country": "Ел",
-    "chargeCurrency": "Сізден XPHB0XPHX төлем алынады",
-    "displayCurrency": "XPHBX0XPHX сайтында көрсетілген бағалар",
+    "chargeCurrency": "Сізден {{currency}} төлем алынады",
+    "displayCurrency": "сайтында көрсетілген {{currency}} бағалар",
     "exchangeRate": "Валюта бағамы",
     "fullName": "Толық аты-жөні",
     "useShippingAddress": "Төлем жасау үшін жеткізу мекенжайын пайдаланыңыз",
@@ -604,7 +604,7 @@
     "accountPending": "Тіркелгінің бекітілуі күтілуде",
     "accountPendingDesc": "Өндіруші аккаунтыңыз әкімшінің мақұлдауын күтуде. Сіз өнімдер мен сертификаттар жасай аласыз, бірақ олар аккаунтыңыз мақұлданғанша тұтынушыларға көрінбейді.",
     "totalProducts": "Жалпы өнімдер",
-    "approvedProducts": "XPHB0XPHX мақұлданды",
+    "approvedProducts": "{{count}} мақұлданды",
     "followers": "Оқырмандар",
     "ofYourStore": "сіздің дүкеніңізден",
     "totalSold": "Жалпы сатылған сома",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Елді таңдаңыз",
-        "countryAnalysis": "XPHD0XPHX талдауы",
+        "countryAnalysis": "XPHD0{{country}} талдауы",
         "totalUsers": "Жалпы пайдаланушылар",
         "ordersThisMonth": "Осы айдағы тапсырыстар",
         "averageSpend": "Орташа шығын",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Жақында қолжетімді болады",
     "inNext7Days": "Келесі 7 күнде",
     "nextPaymentDate": "Келесі төлем қолжетімді",
-    "daysLeft": "XPHB0XPHX күн қалды",
+    "daysLeft": "{{days}} күн қалды",
     "noPendingPayments": "Төленбеген төлемдер жоқ",
     "paymentPolicy": "Төлем саясаты",
     "paymentPolicyDesc": "Тапсырыстың жеткізілуін қамтамасыз ету үшін комиссияларды әрбір сатылымнан кейін 15 күн ішінде алуға болады.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Продюсерлерді жүктеу кезінде қате пайда болды",
-      "statusUpdated": "Сатушы XPHBX0XPHX"
+      "statusUpdated": "Сатушы {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Барлығы",
       "status": "Штат",
       "date": "Күні",
-      "itemsCount": "XPHB0XPHX мақалалары"
+      "itemsCount": "{{count}} мақалалары"
     },
     "paymentsTable": {
       "transactionId": "Транзакция идентификаторы",
@@ -2225,7 +2225,7 @@
     "publish": "Рецептті жариялау",
     "published": "Жарияланған рецепт",
     "addToCart": "Ингредиенттерді сатып алыңыз",
-    "addedToCart": "XPHB0XPHX ингредиенттері себетке қосылды",
+    "addedToCart": "{{count}} ингредиенттері себетке қосылды",
     "by": "Авторы",
     "min": "мин",
     "portions": "порциялар",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Пікір жойылды",
     "edited": "өңделген",
     "likes": "Маған ұнайды",
-    "viewComments": "XPHBX0XPHX түсініктемесін қараңыз",
-    "viewCommentsPlural": "XPHBX0XPHX түсініктемелерін қараңыз",
+    "viewComments": "{{count}} түсініктемесін қараңыз",
+    "viewCommentsPlural": "{{count}} түсініктемелерін қараңыз",
     "loginToLike": "Ұнату үшін жүйеге кіріңіз",
     "loginToSave": "Сақтау үшін жүйеге кіріңіз",
     "loginToFollow": "Пайдаланушыларды бақылау үшін жүйеге кіріңіз",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Сіз бұл пайдаланушыны бақылаудан шығардыңыз",
     "nowFollowing": "Сіз қазір осы пайдаланушыны бақылап отырсыз",
     "profileUpdated": "Профиль суреті жаңартылды",
-    "memberSince": "XPHBX0XPHX бастап мүше",
+    "memberSince": "бастап {{date}} мүше",
     "verifiedSeller": "Расталған сатушы",
     "viewStore": "Дүкенді қарау",
     "sendMessage": "Хабарлама жіберу",

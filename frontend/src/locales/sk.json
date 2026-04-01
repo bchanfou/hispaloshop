@@ -26,7 +26,7 @@
     "viewAll": "Zobraziť všetko",
     "seeOriginal": "Zobraziť originál",
     "seeTranslation": "Zobraziť preklad",
-    "translatedFrom": "Preložené z XPHB0XPHX",
+    "translatedFrom": "Preložené z {{language}}",
     "details": "Detaily",
     "status": "Štát",
     "active": "Aktívum",
@@ -267,7 +267,7 @@
     "soldOut": "Vyčerpaný",
     "onlyLeft": "Zostáva už len {0}",
     "lowStock": "Zostávajú už len {{count}}",
-    "byProducer": "od XPHBX0XPHX",
+    "byProducer": "od {{producer}}",
     "origin": "Pôvod",
     "price": "Cena",
     "category": "Kategória",
@@ -452,8 +452,8 @@
     "state": "Provincia",
     "zip": "PSČ",
     "country": "Krajina",
-    "chargeCurrency": "Bude vám účtovaná suma XPHB0XPHX",
-    "displayCurrency": "Ceny zobrazené na XPHBX0XPHX",
+    "chargeCurrency": "Bude vám účtovaná suma {{currency}}",
+    "displayCurrency": "Ceny zobrazené na {{currency}}",
     "exchangeRate": "Výmenný kurz",
     "fullName": "Celé meno",
     "useShippingAddress": "Použiť dodaciu adresu na fakturáciu",
@@ -604,7 +604,7 @@
     "accountPending": "Účet čaká na schválenie",
     "accountPendingDesc": "Váš producentský účet čaká na schválenie správcom. Môžete vytvárať produkty a certifikáty, ale pre zákazníkov nebudú viditeľné, kým nebude váš účet schválený.",
     "totalProducts": "Celkový počet produktov",
-    "approvedProducts": "Schválené XPHB0XPHX",
+    "approvedProducts": "Schválené {{count}}",
     "followers": "Sledovatelia",
     "ofYourStore": "z vášho obchodu",
     "totalSold": "Celkový počet predaných",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Vyberte krajinu",
-        "countryAnalysis": "Analýza XPHD0XPHX",
+        "countryAnalysis": "Analýza XPHD0{{country}}",
         "totalUsers": "Celkový počet používateľov",
         "ordersThisMonth": "Objednávky tento mesiac",
         "averageSpend": "Priemerné výdavky",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Čoskoro k dispozícii",
     "inNext7Days": "V nasledujúcich 7 dňoch",
     "nextPaymentDate": "Ďalšia platba k dispozícii",
-    "daysLeft": "Zostávajúce dni XPHB0XPHX",
+    "daysLeft": "Zostávajúce dni {{days}}",
     "noPendingPayments": "Žiadne neuhradené platby",
     "paymentPolicy": "Platobná politika",
     "paymentPolicyDesc": "Vygenerované provízie je možné vyzbierať 15 dní po každom predaji, aby sa zaručilo doručenie objednávky.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Chyba pri načítavaní producentov",
-      "statusUpdated": "Predajca XPHBX0XPHX"
+      "statusUpdated": "Predajca {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Celkom",
       "status": "Štát",
       "date": "Dátum",
-      "itemsCount": "Články XPHB0XPHX"
+      "itemsCount": "Články {{count}}"
     },
     "paymentsTable": {
       "transactionId": "ID transakcie",
@@ -2225,7 +2225,7 @@
     "publish": "Publikovať recept",
     "published": "Zverejnený recept",
     "addToCart": "Kúpiť ingrediencie",
-    "addedToCart": "XPHB0XPHX ingrediencie pridané do košíka",
+    "addedToCart": "{{count}} ingrediencie pridané do košíka",
     "by": "Od",
     "min": "min.",
     "portions": "porcie",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Komentár bol odstránený",
     "edited": "upravené",
     "likes": "Páči sa mi",
-    "viewComments": "Pozri komentár XPHBX0XPHX",
-    "viewCommentsPlural": "Pozri komentáre XPHBX0XPHX",
+    "viewComments": "Pozri {{count}} komentár",
+    "viewCommentsPlural": "Pozri {{count}} komentáre",
     "loginToLike": "Prihláste sa, ak chcete dať lajk",
     "loginToSave": "Prihláste sa pre uloženie",
     "loginToFollow": "Prihláste sa a sledujte používateľov",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Prestali ste sledovať tohto používateľa",
     "nowFollowing": "Teraz sledujete tohto používateľa",
     "profileUpdated": "Aktualizovaný profilový obrázok",
-    "memberSince": "Člen od XPHBX0XPHX",
+    "memberSince": "Člen od {{date}}",
     "verifiedSeller": "Overený predajca",
     "viewStore": "Zobraziť obchod",
     "sendMessage": "Odoslať správu",

@@ -26,7 +26,7 @@
     "viewAll": "Se alle",
     "seeOriginal": "Se originalen",
     "seeTranslation": "Se oversettelsen",
-    "translatedFrom": "Oversatt fra XPHB0XPHX",
+    "translatedFrom": "Oversatt fra {{language}}",
     "details": "Detaljer",
     "status": "Tilstand",
     "active": "Eiendel",
@@ -267,7 +267,7 @@
     "soldOut": "Utmattet",
     "onlyLeft": "Bare {0} igjen",
     "lowStock": "Bare {{count}} er igjen",
-    "byProducer": "av XPHBX0XPHX",
+    "byProducer": "av {{producer}}",
     "origin": "Opprinnelse",
     "price": "Pris",
     "category": "Kategori",
@@ -452,8 +452,8 @@
     "state": "Provins",
     "zip": "Postnummer",
     "country": "Land",
-    "chargeCurrency": "Du vil bli belastet i XPHB0XPHX",
-    "displayCurrency": "Priser vist på XPHBX0XPHX",
+    "chargeCurrency": "Du vil bli belastet i {{currency}}",
+    "displayCurrency": "Priser vist på {{currency}}",
     "exchangeRate": "Valutakurs",
     "fullName": "Fullt navn",
     "useShippingAddress": "Bruk leveringsadresse for fakturering",
@@ -604,7 +604,7 @@
     "accountPending": "Konto venter på godkjenning",
     "accountPendingDesc": "Produsentkontoen din venter på godkjenning fra administrator. Du kan opprette produkter og sertifikater, men de vil ikke være synlige for kunder før kontoen din er godkjent.",
     "totalProducts": "Totalt antall produkter",
-    "approvedProducts": "XPHB0XPHX-godkjent",
+    "approvedProducts": "{{count}}-godkjent",
     "followers": "Følgere",
     "ofYourStore": "fra butikken din",
     "totalSold": "Totalt solgt",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Velg et land",
-        "countryAnalysis": "Analyse av XPHD0XPHX",
+        "countryAnalysis": "Analyse av {{country}} XPHD0",
         "totalUsers": "Totalt antall brukere",
         "ordersThisMonth": "Bestillinger denne måneden",
         "averageSpend": "Gjennomsnittlige utgifter",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Tilgjengelig snart",
     "inNext7Days": "I løpet av de neste 7 dagene",
     "nextPaymentDate": "Neste betaling tilgjengelig",
-    "daysLeft": "XPHB0XPHX dager igjen",
+    "daysLeft": "{{days}} dager igjen",
     "noPendingPayments": "Ingen utestående betalinger",
     "paymentPolicy": "Betalingsregler",
     "paymentPolicyDesc": "Provisjonene som genereres kan innkreves 15 dager etter hvert salg for å garantere levering av bestillingen.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Feil ved lasting av produsenter",
-      "statusUpdated": "Selger XPHBX0XPHX"
+      "statusUpdated": "Selger {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Total",
       "status": "Tilstand",
       "date": "Dato",
-      "itemsCount": "XPHB0XPHX-artikler"
+      "itemsCount": "{{count}}-artikler"
     },
     "paymentsTable": {
       "transactionId": "Transaksjons-ID",
@@ -2225,7 +2225,7 @@
     "publish": "Publiser oppskrift",
     "published": "Publisert oppskrift",
     "addToCart": "Kjøp ingredienser",
-    "addedToCart": "XPHB0XPHX ingredienser lagt til i handlekurven",
+    "addedToCart": "{{count}} ingredienser lagt til i handlekurven",
     "by": "Ved",
     "min": "min",
     "portions": "porsjoner",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Kommentar slettet",
     "edited": "redigert",
     "likes": "Jeg liker",
-    "viewComments": "Se XPHBX0XPHX-kommentar",
-    "viewCommentsPlural": "Se XPHBX0XPHX-kommentarer",
+    "viewComments": "Se -kommentar {{count}}",
+    "viewCommentsPlural": "Se -kommentarer {{count}}",
     "loginToLike": "Logg inn for å like",
     "loginToSave": "Logg inn for å lagre",
     "loginToFollow": "Logg inn for å følge brukere",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Du har sluttet å følge denne brukeren",
     "nowFollowing": "Du følger nå denne brukeren",
     "profileUpdated": "Oppdatert profilbilde",
-    "memberSince": "Medlem siden XPHBX0XPHX",
+    "memberSince": "Medlem siden {{date}}",
     "verifiedSeller": "Verifisert selger",
     "viewStore": "Se butikken",
     "sendMessage": "Send melding",

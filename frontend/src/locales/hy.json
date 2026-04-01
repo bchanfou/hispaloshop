@@ -26,7 +26,7 @@
     "viewAll": "Դիտել բոլորը",
     "seeOriginal": "Դիտել բնօրինակը",
     "seeTranslation": "Տեսնել թարգմանությունը",
-    "translatedFrom": "Թարգմանված է XPHB0XPHX-ից",
+    "translatedFrom": "Թարգմանված է {{language}}-ից",
     "details": "Մանրամասներ",
     "status": "Պետություն",
     "active": "Ակտիվ",
@@ -267,7 +267,7 @@
     "soldOut": "Հյուծված",
     "onlyLeft": "Մնացել է միայն {0}",
     "lowStock": "Մնացել է միայն {{count}}-ը",
-    "byProducer": "XPHBX0XPHX-ի կողմից",
+    "byProducer": "-ի {{producer}} կողմից",
     "origin": "Ծագումը",
     "price": "Գինը",
     "category": "Կատեգորիա",
@@ -452,8 +452,8 @@
     "state": "Մարզ",
     "zip": "Փոստային ինդեքս",
     "country": "Երկիր",
-    "chargeCurrency": "Ձեզանից կգանձվի XPHB0XPHX",
-    "displayCurrency": "Գները ներկայացված են XPHBX0XPHX-ում",
+    "chargeCurrency": "Ձեզանից կգանձվի {{currency}}",
+    "displayCurrency": "Գները ներկայացված են -ում {{currency}}",
     "exchangeRate": "Փոխարժեք",
     "fullName": "Անուն, ազգանուն",
     "useShippingAddress": "Օգտագործեք առաքման հասցեն հաշիվ-ապրանքագրերի համար",
@@ -604,7 +604,7 @@
     "accountPending": "Հաշիվը սպասում է հաստատման",
     "accountPendingDesc": "Ձեր պրոդյուսերի հաշիվը սպասում է ադմինիստրատորի հաստատմանը: Դուք կարող եք ստեղծել ապրանքներ և վկայականներ, բայց դրանք տեսանելի չեն լինի հաճախորդների համար, մինչև ձեր հաշիվը չհաստատվի:",
     "totalProducts": "Ընդհանուր ապրանքներ",
-    "approvedProducts": "XPHB0XPHX-ը հաստատված է",
+    "approvedProducts": "{{count}}-ը հաստատված է",
     "followers": "Հետևորդներ",
     "ofYourStore": "ձեր խանութից",
     "totalSold": "Ընդհանուր վաճառված",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Ընտրեք երկիր",
-        "countryAnalysis": "XPHD0XPHX-ի վերլուծություն",
+        "countryAnalysis": "XPHD0-ի վերլուծություն {{country}}",
         "totalUsers": "Ընդհանուր օգտատերեր",
         "ordersThisMonth": "Այս ամսվա պատվերները",
         "averageSpend": "Միջին ծախս",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Շուտով հասանելի է",
     "inNext7Days": "Հաջորդ 7 օրվա ընթացքում",
     "nextPaymentDate": "Հաջորդ վճարումը հասանելի է",
-    "daysLeft": "Մնացել է XPHB0XPHX օր",
+    "daysLeft": "Մնացել է {{days}} օր",
     "noPendingPayments": "Չվճարված վճարումներ չկան",
     "paymentPolicy": "Վճարման քաղաքականություն",
     "paymentPolicyDesc": "Ստացված միջնորդավճարները կարող են գանձվել յուրաքանչյուր վաճառքից 15 օր հետո՝ պատվերի առաքումը երաշխավորելու համար։",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Սխալ առաջացավ արտադրողների բեռնման ժամանակ։",
-      "statusUpdated": "Վաճառող XPHBX0XPHX"
+      "statusUpdated": "Վաճառող {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Ընդհանուր",
       "status": "Պետություն",
       "date": "Ամսաթիվ",
-      "itemsCount": "XPHB0XPHX հոդվածներ"
+      "itemsCount": "{{count}} հոդվածներ"
     },
     "paymentsTable": {
       "transactionId": "Գործարքի ID",
@@ -2225,7 +2225,7 @@
     "publish": "Հրապարակել բաղադրատոմսը",
     "published": "Հրապարակված բաղադրատոմս",
     "addToCart": "Գնել բաղադրիչներ",
-    "addedToCart": "XPHB0XPHX բաղադրիչները ավելացվել են զամբյուղում",
+    "addedToCart": "{{count}} բաղադրիչները ավելացվել են զամբյուղում",
     "by": "Հեղինակ՝",
     "min": "րոպե",
     "portions": "մասեր",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Մեկնաբանությունը ջնջված է",
     "edited": "խմբագրված",
     "likes": "Ինձ դուր է գալիս",
-    "viewComments": "Տես XPHBX0XPHX մեկնաբանությունը",
-    "viewCommentsPlural": "Տես XPHBX0XPHX մեկնաբանությունները",
+    "viewComments": "Տես {{count}} մեկնաբանությունը",
+    "viewCommentsPlural": "Տես {{count}} մեկնաբանությունները",
     "loginToLike": "Մուտք գործեք՝ հավանելու համար",
     "loginToSave": "Մուտք գործեք՝ պահպանելու համար",
     "loginToFollow": "Մուտք գործեք օգտատերերին հետևելու համար",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Դուք դադարեցրել եք այս օգտատիրոջը հետևելը",
     "nowFollowing": "Դուք այժմ հետևում եք այս օգտատիրոջը",
     "profileUpdated": "Թարմացված պրոֆիլի նկար",
-    "memberSince": "Անդամ XPHBX0XPHX-ից",
+    "memberSince": "Անդամ -ից {{date}}",
     "verifiedSeller": "Հաստատված վաճառող",
     "viewStore": "Դիտել խանութը",
     "sendMessage": "Ուղարկել հաղորդագրություն",

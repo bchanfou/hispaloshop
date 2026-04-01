@@ -26,7 +26,7 @@
     "viewAll": "ሁሉንም ይመልከቱ",
     "seeOriginal": "የመጀመሪያውን ይመልከቱ",
     "seeTranslation": "ትርጉሙን ይመልከቱ",
-    "translatedFrom": "ከ XPHB0XPHX የተተረጎመ",
+    "translatedFrom": "ከ {{language}} የተተረጎመ",
     "details": "ዝርዝሮች",
     "status": "ግዛት",
     "active": "ንብረት",
@@ -267,7 +267,7 @@
     "soldOut": "ደክሞኛል",
     "onlyLeft": "{0} ብቻ ነው የቀረው",
     "lowStock": "{{count}} ብቻ ነው የቀረው",
-    "byProducer": "በ XPHBX0XPHX",
+    "byProducer": "በ {{producer}}",
     "origin": "መነሻ",
     "price": "ዋጋ",
     "category": "ምድብ",
@@ -452,8 +452,8 @@
     "state": "ክፍለ ሀገር",
     "zip": "አካባቢያዊ መለያ ቁጥር",
     "country": "አገር",
-    "chargeCurrency": "በ XPHB0XPHX ይከፍላሉ",
-    "displayCurrency": "ዋጋዎች በ XPHBX0XPHX ላይ ይታያሉ",
+    "chargeCurrency": "በ {{currency}} ይከፍላሉ",
+    "displayCurrency": "ዋጋዎች በ {{currency}} ላይ ይታያሉ",
     "exchangeRate": "የምንዛሪ ተመን",
     "fullName": "ሙሉ ስም",
     "useShippingAddress": "ለሂሳብ አከፋፈል የመላኪያ አድራሻውን ይጠቀሙ",
@@ -604,7 +604,7 @@
     "accountPending": "የአካውንት ማጽደቂያ በመጠባበቅ ላይ",
     "accountPendingDesc": "የአምራች መለያዎ የአስተዳዳሪ ይሁንታ እየጠበቀ ነው። ምርቶችን እና የምስክር ወረቀቶችን መፍጠር ይችላሉ፣ ነገር ግን መለያዎ እስኪፀድቅ ድረስ ለደንበኞች አይታዩም።",
     "totalProducts": "ጠቅላላ ምርቶች",
-    "approvedProducts": "XPHB0XPHX ጸድቋል",
+    "approvedProducts": "{{count}} ጸድቋል",
     "followers": "ተከታዮች",
     "ofYourStore": "ከሱቅዎ",
     "totalSold": "ጠቅላላ የተሸጠ",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "አገር ይምረጡ",
-        "countryAnalysis": "የ XPHD0XPHX ትንተና",
+        "countryAnalysis": "የ XPHD0{{country}} ትንተና",
         "totalUsers": "ጠቅላላ ተጠቃሚዎች",
         "ordersThisMonth": "በዚህ ወር ትዕዛዞች",
         "averageSpend": "አማካይ ወጪ",
@@ -1058,7 +1058,7 @@
     "availableSoon": "በቅርቡ ይገኛል",
     "inNext7Days": "በሚቀጥሉት 7 ቀናት ውስጥ",
     "nextPaymentDate": "የሚቀጥለው ክፍያ ይገኛል",
-    "daysLeft": "XPHB0XPHX ቀናት ቀርተዋል",
+    "daysLeft": "{{days}} ቀናት ቀርተዋል",
     "noPendingPayments": "ምንም ያልተከፈሉ ክፍያዎች የሉም",
     "paymentPolicy": "የክፍያ መመሪያ",
     "paymentPolicyDesc": "የተፈጠሩት ኮሚሽኖች ከእያንዳንዱ ሽያጭ በኋላ በ15 ቀናት ውስጥ መሰብሰብ ይችላሉ፤ ይህም ትዕዛዙ እንዲደርስ ዋስትና ይሰጣል።",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "አምራቾችን በመጫን ላይ ስህተት",
-      "statusUpdated": "ሻጭ XPHBX0XPHX"
+      "statusUpdated": "ሻጭ {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "ጠቅላላ",
       "status": "ግዛት",
       "date": "ቀን",
-      "itemsCount": "XPHB0XPHX ጽሑፎች"
+      "itemsCount": "{{count}} ጽሑፎች"
     },
     "paymentsTable": {
       "transactionId": "የግብይት መታወቂያ",
@@ -2225,7 +2225,7 @@
     "publish": "የምግብ አሰራርን አትም",
     "published": "የታተመ የምግብ አሰራር",
     "addToCart": "ግብዓቶችን ይግዙ",
-    "addedToCart": "የ XPHB0XPHX ግብዓቶች ወደ ጋሪ ተጨምረዋል",
+    "addedToCart": "የ {{count}} ግብዓቶች ወደ ጋሪ ተጨምረዋል",
     "by": "በ",
     "min": "ደቂቃ",
     "portions": "ክፍሎች",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "አስተያየት ተሰርዟል",
     "edited": "አርትዖት የተደረገበት",
     "likes": "እወዳለሁ",
-    "viewComments": "የ XPHBX0XPHX አስተያየትን ይመልከቱ",
-    "viewCommentsPlural": "የ XPHBX0XPHX አስተያየቶችን ይመልከቱ",
+    "viewComments": "የ {{count}} አስተያየትን ይመልከቱ",
+    "viewCommentsPlural": "የ {{count}} አስተያየቶችን ይመልከቱ",
     "loginToLike": "ለመውደድ ይግቡ",
     "loginToSave": "ለማስቀመጥ ይግቡ",
     "loginToFollow": "ተጠቃሚዎችን ለመከተል ይግቡ",
@@ -2316,7 +2316,7 @@
     "unfollowed": "ይህንን ተጠቃሚ መከተል አቁመዋል",
     "nowFollowing": "አሁን ይህንን ተጠቃሚ እየተከተሉ ነው",
     "profileUpdated": "የዘመነ የመገለጫ ስዕል",
-    "memberSince": "አባል ከ XPHBX0XPHX ጀምሮ",
+    "memberSince": "አባል ከ {{date}} ጀምሮ",
     "verifiedSeller": "የተረጋገጠ ሻጭ",
     "viewStore": "መደብርን ይመልከቱ",
     "sendMessage": "መልእክት ላክ",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "ምን አይነት ይዘት እንደሚያስፈልግዎ ይግለጹ..."
   },
   "predictions": {
-    "purchased": "XPHBX0XPHXx ገዝቷል"
+    "purchased": "{{count}} ገዝቷል"
   },
   "wishlist": {
     "title": "የምኞት ዝርዝር",

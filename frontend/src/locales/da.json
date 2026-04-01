@@ -26,7 +26,7 @@
     "viewAll": "Se alle",
     "seeOriginal": "Se originalen",
     "seeTranslation": "Se oversættelse",
-    "translatedFrom": "Oversat fra XPHB0XPHX",
+    "translatedFrom": "Oversat fra {{language}}",
     "details": "Detaljer",
     "status": "Tilstand",
     "active": "Aktiv",
@@ -267,7 +267,7 @@
     "soldOut": "Udmattet",
     "onlyLeft": "Kun {0} tilbage",
     "lowStock": "Kun {{count}} er tilbage",
-    "byProducer": "af XPHBX0XPHX",
+    "byProducer": "af {{producer}}",
     "origin": "Oprindelse",
     "price": "Pris",
     "category": "Kategori",
@@ -452,8 +452,8 @@
     "state": "Provins",
     "zip": "Postnummer",
     "country": "Land",
-    "chargeCurrency": "Du vil blive opkrævet i XPHB0XPHX",
-    "displayCurrency": "Priser vist på XPHBX0XPHX",
+    "chargeCurrency": "Du vil blive opkrævet i {{currency}}",
+    "displayCurrency": "Priser vist på {{currency}}",
     "exchangeRate": "Valutakurs",
     "fullName": "Fulde navn",
     "useShippingAddress": "Brug leveringsadresse til fakturering",
@@ -604,7 +604,7 @@
     "accountPending": "Konto afventer godkendelse",
     "accountPendingDesc": "Din producentkonto afventer godkendelse fra administrator. Du kan oprette produkter og certifikater, men de vil ikke være synlige for kunder, før din konto er godkendt.",
     "totalProducts": "Samlede produkter",
-    "approvedProducts": "XPHB0XPHX godkendt",
+    "approvedProducts": "{{count}} godkendt",
     "followers": "Følgere",
     "ofYourStore": "fra din butik",
     "totalSold": "Total solgt",
@@ -718,7 +718,7 @@
     "discountCodes": "Rabatkoder",
     "influencers": "Influencere",
     "pending": "Ørering",
-    "pendingCount": "XPHX0XPX afventer",
+    "pendingCount": "{{count}} afventer",
     "approved": "Godkendt",
     "rejected": "Afvist",
     "approve": "Godkende",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Vælg et land",
-        "countryAnalysis": "Analyse af XPHD0XPHX",
+        "countryAnalysis": "Analyse af {{country}} XPHD0",
         "totalUsers": "Samlede brugere",
         "ordersThisMonth": "Ordrer denne måned",
         "averageSpend": "Gennemsnitlige udgifter",
@@ -1058,12 +1058,12 @@
     "availableSoon": "Tilgængelig snart",
     "inNext7Days": "I løbet af de næste 7 dage",
     "nextPaymentDate": "Næste betaling tilgængelig",
-    "daysLeft": "XPHB0XPHX dage tilbage",
+    "daysLeft": "{{days}} dage tilbage",
     "noPendingPayments": "Ingen udestående betalinger",
     "paymentPolicy": "Betalingspolitik",
     "paymentPolicyDesc": "De genererede provisioner kan opkræves 15 dage efter hvert salg for at garantere levering af ordren.",
     "alreadyPassed15Days": "15 dage er allerede gået",
-    "needMore": "Du skal bruge XPHX0XPX mere for at nå minimumsudbetalingen",
+    "needMore": "Du skal bruge {{amount}} mere for at nå minimumsudbetalingen",
     "connectStripeToWithdraw": "Forbind din Stripe-konto for at hæve dine provisioner",
     "paymentAvailable": "Betaling tilgængelig",
     "collected": "Indsamlet",
@@ -1514,7 +1514,7 @@
     "imagesCount": "Produktbilleder ({{current}}/{{max}})",
     "imagesSupported": "Understøttede formater: JPEG, PNG, WebP, GIF (maks. 5 MB hver)",
     "upload": "Øge",
-    "maxImagesError": "Maksimalt tilladte XPHX0XPX-billeder",
+    "maxImagesError": "Maksimalt {{max}} tilladte -billeder",
     "uploadSuccess": "Billedet er uploadet",
     "notAnImage": "{{name}} er ikke et billede",
     "fileTooLarge": "{{name}} er meget stor (maks. 5 MB)",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Fejl ved indlæsning af producenter",
-      "statusUpdated": "Sælger XPHBX0XPHX"
+      "statusUpdated": "Sælger {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Total",
       "status": "Tilstand",
       "date": "Dato",
-      "itemsCount": "XPHB0XPHX-artikler"
+      "itemsCount": "{{count}}-artikler"
     },
     "paymentsTable": {
       "transactionId": "Transaktions-ID",
@@ -2225,7 +2225,7 @@
     "publish": "Udgiv opskrift",
     "published": "Udgivet opskrift",
     "addToCart": "Køb ingredienser",
-    "addedToCart": "XPHB0XPHX ingredienser tilføjet til kurv",
+    "addedToCart": "{{count}} ingredienser tilføjet til kurv",
     "by": "Ved",
     "min": "min.",
     "portions": "portioner",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Kommentar slettet",
     "edited": "redigeret",
     "likes": "Jeg kan godt lide",
-    "viewComments": "Se XPHBX0XPHX kommentar",
-    "viewCommentsPlural": "Se XPHBX0XPHX kommentarer",
+    "viewComments": "Se {{count}} kommentar",
+    "viewCommentsPlural": "Se {{count}} kommentarer",
     "loginToLike": "Log ind for at synes godt om",
     "loginToSave": "Log ind for at gemme",
     "loginToFollow": "Log ind for at følge brugere",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Du har ikke længere fulgt denne bruger",
     "nowFollowing": "Du følger nu denne bruger",
     "profileUpdated": "Opdateret profilbillede",
-    "memberSince": "Medlem siden XPHBX0XPHX",
+    "memberSince": "Medlem siden {{date}}",
     "verifiedSeller": "Bekræftet sælger",
     "viewStore": "Se butik",
     "sendMessage": "Send besked",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Beskriv hvilket indhold du har brug for..."
   },
   "predictions": {
-    "purchased": "Købt XPHBX0XPHXx"
+    "purchased": "Købt {{count}}"
   },
   "wishlist": {
     "title": "Ønskeliste",

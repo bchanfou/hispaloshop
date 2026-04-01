@@ -26,7 +26,7 @@
     "viewAll": "Hamısına baxın",
     "seeOriginal": "Orijinala baxın",
     "seeTranslation": "Tərcüməyə baxın",
-    "translatedFrom": "XPHB0XPHX-dən tərcümə olunub",
+    "translatedFrom": "{{language}}-dən tərcümə olunub",
     "details": "Təfərrüatlar",
     "status": "Dövlət",
     "active": "Aktiv",
@@ -267,7 +267,7 @@
     "soldOut": "Yorğun",
     "onlyLeft": "Yalnız {0} qalır",
     "lowStock": "Yalnız {{count}} qalır",
-    "byProducer": "XPHBX0XPHX tərəfindən",
+    "byProducer": "{{producer}} tərəfindən",
     "origin": "Mənşəyi",
     "price": "Qiymət",
     "category": "Kateqoriya",
@@ -452,8 +452,8 @@
     "state": "Vilayət",
     "zip": "Poçt kodu",
     "country": "Ölkə",
-    "chargeCurrency": "Sizdən XPHB0XPHX məbləğində ödəniş tələb olunacaq",
-    "displayCurrency": "XPHBX0XPHX saytında göstərilən qiymətlər",
+    "chargeCurrency": "Sizdən {{currency}} məbləğində ödəniş tələb olunacaq",
+    "displayCurrency": "saytında göstərilən {{currency}} qiymətlər",
     "exchangeRate": "Valyuta məzənnəsi",
     "fullName": "Tam adı",
     "useShippingAddress": "Faktura üçün çatdırılma ünvanından istifadə edin",
@@ -604,7 +604,7 @@
     "accountPending": "Hesab Təsdiqi Gözlənilir",
     "accountPendingDesc": "İstehsalçı hesabınız administrator tərəfindən təsdiqlənmək üçün gözlənilir. Məhsullar və sertifikatlar yarada bilərsiniz, lakin hesabınız təsdiqlənənə qədər onlar müştərilərə görünməyəcək.",
     "totalProducts": "Ümumi Məhsullar",
-    "approvedProducts": "XPHB0XPHX təsdiqləndi",
+    "approvedProducts": "{{count}} təsdiqləndi",
     "followers": "İzləyicilər",
     "ofYourStore": "mağazanızdan",
     "totalSold": "Ümumi Satış",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Ölkə seçin",
-        "countryAnalysis": "XPHD0XPHX-in təhlili",
+        "countryAnalysis": "XPHD0-in {{country}} təhlili",
         "totalUsers": "Ümumi İstifadəçilər",
         "ordersThisMonth": "Bu Ay Sifarişləri",
         "averageSpend": "Orta Xərc",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Tezliklə əlçatandır",
     "inNext7Days": "Növbəti 7 gün ərzində",
     "nextPaymentDate": "Növbəti ödəniş mümkündür",
-    "daysLeft": "XPHB0XPHX gün qalıb",
+    "daysLeft": "{{days}} gün qalıb",
     "noPendingPayments": "Ödənilməmiş ödənişlər yoxdur",
     "paymentPolicy": "Ödəniş siyasəti",
     "paymentPolicyDesc": "Sifarişin çatdırılmasını təmin etmək üçün hər satışdan 15 gün sonra əldə edilən komissiyalar toplana bilər.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Prodüserləri yükləmə xətası",
-      "statusUpdated": "Satıcı XPHBX0XPHX"
+      "statusUpdated": "Satıcı {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Cəmi",
       "status": "Dövlət",
       "date": "Tarix",
-      "itemsCount": "XPHB0XPHX məqalələri"
+      "itemsCount": "{{count}} məqalələri"
     },
     "paymentsTable": {
       "transactionId": "Əməliyyat ID-si",
@@ -2225,7 +2225,7 @@
     "publish": "Resepti dərc edin",
     "published": "Dərc olunmuş resept",
     "addToCart": "Tərkib hissələri alın",
-    "addedToCart": "XPHB0XPHX tərkib hissələri səbətə əlavə edildi",
+    "addedToCart": "{{count}} tərkib hissələri səbətə əlavə edildi",
     "by": "Tərəfindən",
     "min": "dəq",
     "portions": "porsiyalar",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Şərh silindi",
     "edited": "redaktə edilib",
     "likes": "Mən xoşlayıram",
-    "viewComments": "XPHBX0XPHX şərhinə baxın",
-    "viewCommentsPlural": "XPHBX0XPHX şərhlərinə baxın",
+    "viewComments": "{{count}} şərhinə baxın",
+    "viewCommentsPlural": "{{count}} şərhlərinə baxın",
     "loginToLike": "Bəyənmək üçün daxil olun",
     "loginToSave": "Yadda saxlamaq üçün daxil olun",
     "loginToFollow": "İstifadəçiləri izləmək üçün daxil olun",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Bu istifadəçini izləməmisiniz",
     "nowFollowing": "Artıq bu istifadəçini izləyirsiniz",
     "profileUpdated": "Yenilənmiş profil şəkli",
-    "memberSince": "XPHBX0XPHX-dən bəri üzv",
+    "memberSince": "-dən {{date}} bəri üzv",
     "verifiedSeller": "Təsdiqlənmiş satıcı",
     "viewStore": "Mağazaya baxın",
     "sendMessage": "Mesaj göndərin",

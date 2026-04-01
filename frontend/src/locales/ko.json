@@ -83,7 +83,10 @@
     "orders": "ì£¼ë¬¸",
     "visits": "ë°©ë¬¸",
     "products": "ì œí’ˆ",
-    "accountPending": "ê³„ì • ìŠ¹ì¸ ëŒ€ê¸° ì¤‘"
+    "accountPending": "ê³„ì • ìŠ¹ì¸ ëŒ€ê¸° ì¤‘",
+    "seeOriginal": "Ver original",
+    "seeTranslation": "Ver traducción",
+    "translatedFrom": "Traducido del {{language}}"
   },
   "home": {
     "heroTitle": "ì§€ì—­ ìƒì—…ì„ ê°•í™”í•˜ê³ , ì»¤ë®¤ë‹ˆí‹°ë¥¼ ë³€í™”ì‹œí‚¤ì„¸ìš”",
@@ -195,7 +198,8 @@
     "signUpWithGoogle": "Googleë¡œ ê°€ìž…",
     "welcomeBack": "ë‹¤ì‹œ ì˜¤ì‹  ê²ƒì„ í™˜ì˜í•©ë‹ˆë‹¤",
     "signInToAccount": "ê³„ì •ì— ë¡œê·¸ì¸í•˜ì„¸ìš”",
-    "areYouProducer": "ìƒì‚°ìžì´ì‹ ê°€ìš”? ì—¬ê¸°ì„œ ê°€ìž…í•˜ì„¸ìš”"
+    "areYouProducer": "ìƒì‚°ìžì´ì‹ ê°€ìš”? ì—¬ê¸°ì„œ ê°€ìž…í•˜ì„¸ìš”",
+    "emailOrUseráname": "Email o @usuario"
   },
   "forgotPassword": {
     "title": "ë¹„ë°€ë²ˆí˜¸ë¥¼ ìžŠìœ¼ì…¨ë‚˜ìš”?",
@@ -956,7 +960,8 @@
     "suspend": "ì •ì§€",
     "reactivate": "ìž¬í™œì„±í™”",
     "visits": "ë°©ë¬¸",
-    "pendingPayouts": "ëŒ€ê¸° ì¤‘ì¸ ì§€ê¸‰"
+    "pendingPayouts": "ëŒ€ê¸° ì¤‘ì¸ ì§€ê¸‰",
+    "unlímited": "Ilimitado"
   },
   "userManagement": {
     "title": "ì‚¬ìš©ìž ê´€ë¦¬",
@@ -1144,7 +1149,9 @@
         "seasonalPatterns": "ê³„ì ˆ íŒ¨í„´",
         "recommendations": "ì „ëžµì  ê¶Œìž¥ ì‚¬í•­",
         "growth": "ì„±ìž¥",
-        "decline": "ê°ì†Œ"
+        "decline": "ê°ì†Œ",
+        "emergingInterestás": "Intereses Emergentes",
+        "decliningInterestás": "Intereses en Declive"
       },
       "compliance": {
         "title": "GDPR ê·œì • ì¤€ìˆ˜ ëŒ€ì‹œë³´ë“œ",
@@ -1335,7 +1342,8 @@
     "productNotAvailable": "ì´ ì œí’ˆì€ í•´ë‹¹ ì§€ì—­ì—ì„œ ì´ìš©í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤",
     "incorrectPassword": "ë¹„ë°€ë²ˆí˜¸ê°€ ì˜¬ë°”ë¥´ì§€ ì•ŠìŠµë‹ˆë‹¤",
     "emailExists": "ì´ë¯¸ ë“±ë¡ëœ ì´ë©”ì¼",
-    "usernameTaken": "ì´ë¯¸ ì‚¬ìš© ì¤‘ì¸ ì‚¬ìš©ìž ì´ë¦„"
+    "usernameTaken": "ì´ë¯¸ ì‚¬ìš© ì¤‘ì¸ ì‚¬ìš©ìž ì´ë¦„",
+    "useránameTaken": "Nombre de usuario ya existe"
   },
   "success": {
     "saved": "ì €ìž¥ë˜ì—ˆìŠµë‹ˆë‹¤",
@@ -1556,7 +1564,8 @@
     "reviews": "ë¦¬ë·°",
     "ctaTitle": "ì§€ì—­ ìƒì‚°ìžì´ì‹ ê°€ìš”?",
     "ctaText": "íŒë§¤ìž ì»¤ë®¤ë‹ˆí‹°ì— ê°€ìž…í•˜ì—¬ ì „ ì„¸ê³„ì˜ ì˜ì‹ ìžˆëŠ” ê³ ê°ì—ê²Œ ì œí’ˆì„ ì „ë‹¬í•˜ì„¸ìš”.",
-    "ctaButton": "Hispaloshopì—ì„œ íŒë§¤í•˜ê¸°"
+    "ctaButton": "Hispaloshopì—ì„œ íŒë§¤í•˜ê¸°",
+    "autónomousCommunity": "Comunidad Autónoma"
   },
   "countries": {
     "ES": "ìŠ¤íŽ˜ì¸",
@@ -1611,7 +1620,9 @@
     "SouthAfrica": "ë‚¨ì•„í”„ë¦¬ì¹´",
     "Israel": "ì´ìŠ¤ë¼ì—˜",
     "Lebanon": "ë ˆë°”ë…¼",
-    "Iran": "ì´ëž€"
+    "Iran": "ì´ëž€",
+    "Canadá": "Canadá",
+    "SouthÁfrica": "Sudáfrica"
   },
   "becomeSeller": {
     "badge": "íŒë§¤ìž í”„ë¡œê·¸ëž¨",
@@ -2359,7 +2370,8 @@
     "europe": "ìœ ëŸ½",
     "americas": "ì•„ë©”ë¦¬ì¹´",
     "asiaOceania": "ì•„ì‹œì•„ ë° ì˜¤ì„¸ì•„ë‹ˆì•„",
-    "africaMiddleEast": "ì•„í”„ë¦¬ì¹´ ë° ì¤‘ë™"
+    "africaMiddleEast": "ì•„í”„ë¦¬ì¹´ ë° ì¤‘ë™",
+    "asiaOceanía": "Asia y Oceanía"
   },
   "aiPrefs": {
     "title": "David AI í™˜ê²½ì„¤ì •",
@@ -2412,7 +2424,8 @@
     "loadError": "í™˜ê²½ì„¤ì • ë¡œë“œ ì˜¤ë¥˜",
     "noProfile": "í™˜ê²½ì„¤ì •ì„ ë¶ˆëŸ¬ì˜¬ ìˆ˜ ì—†ìŠµë‹ˆë‹¤",
     "privacyNote": "í™˜ê²½ì„¤ì •ì€ ì•ˆì „í•˜ê²Œ ì €ìž¥ë˜ë©° ì¶”ì²œ ê°œì¸í™”ì—ë§Œ ì‚¬ìš©ë©ë‹ˆë‹¤.",
-    "privacyNote2": "ì „ì²´ ëŒ€í™” ë‚´ìš©ì´ë‚˜ ë¯¼ê°í•œ ì˜ë£Œ ë°ì´í„°ëŠ” ì €ìž¥í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤."
+    "privacyNote2": "ì „ì²´ ëŒ€í™” ë‚´ìš©ì´ë‚˜ ë¯¼ê°í•œ ì˜ë£Œ ë°ì´í„°ëŠ” ì €ìž¥í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.",
+    "digestión": "Mejor digestión"
   },
   "sellerAI": {
     "title": "Hispalo íŒë§¤ AI",

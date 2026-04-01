@@ -26,7 +26,7 @@
     "viewAll": "مشاهده همه",
     "seeOriginal": "مشاهده نسخه اصلی",
     "seeTranslation": "ترجمه را ببینید",
-    "translatedFrom": "ترجمه شده از XPHB0XPHX",
+    "translatedFrom": "ترجمه شده از {{language}}",
     "details": "جزئیات",
     "status": "ایالت",
     "active": "دارایی",
@@ -267,7 +267,7 @@
     "soldOut": "خسته",
     "onlyLeft": "فقط {0} باقی مانده است",
     "lowStock": "فقط {{count}} باقی مانده است",
-    "byProducer": "توسط XPHBX0XPHX",
+    "byProducer": "توسط {{producer}}",
     "origin": "مبدا",
     "price": "قیمت",
     "category": "دسته بندی",
@@ -452,8 +452,8 @@
     "state": "استان",
     "zip": "کد پستی",
     "country": "کشور",
-    "chargeCurrency": "هزینه از شما به صورت XPHB0XPHX کسر خواهد شد",
-    "displayCurrency": "قیمت‌های نمایش داده شده در XPHBX0XPHX",
+    "chargeCurrency": "هزینه از شما به صورت {{currency}} کسر خواهد شد",
+    "displayCurrency": "قیمت‌های نمایش داده شده {{currency}} در",
     "exchangeRate": "نرخ ارز",
     "fullName": "نام و نام خانوادگی",
     "useShippingAddress": "استفاده از آدرس ارسال برای صورتحساب",
@@ -604,7 +604,7 @@
     "accountPending": "حساب کاربری در انتظار تأیید",
     "accountPendingDesc": "حساب تولیدکننده شما در انتظار تأیید مدیر است. می‌توانید محصولات و گواهی‌ها را ایجاد کنید، اما تا زمانی که حساب شما تأیید نشود، برای مشتریان قابل مشاهده نخواهند بود.",
     "totalProducts": "کل محصولات",
-    "approvedProducts": "XPHB0XPHX تایید شده است",
+    "approvedProducts": "{{count}} تایید شده است",
     "followers": "دنبال‌کنندگان",
     "ofYourStore": "از فروشگاه شما",
     "totalSold": "کل فروخته شده",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "یک کشور را انتخاب کنید",
-        "countryAnalysis": "تحلیل XPHD0XPHX",
+        "countryAnalysis": "تحلیل XPHD0{{country}}",
         "totalUsers": "کل کاربران",
         "ordersThisMonth": "سفارشات این ماه",
         "averageSpend": "میانگین هزینه‌ها",
@@ -1058,7 +1058,7 @@
     "availableSoon": "به زودی موجود است",
     "inNext7Days": "در ۷ روز آینده",
     "nextPaymentDate": "پرداخت بعدی موجود است",
-    "daysLeft": "روزهای باقیمانده XPHB0XPHX",
+    "daysLeft": "روزهای باقیمانده {{days}}",
     "noPendingPayments": "بدون پرداخت معوقه",
     "paymentPolicy": "سیاست پرداخت",
     "paymentPolicyDesc": "پورسانت‌های دریافتی می‌توانند ۱۵ روز پس از هر فروش جمع‌آوری شوند تا تحویل سفارش تضمین شود.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "خطا در بارگیری تولیدکنندگان",
-      "statusUpdated": "فروشنده XPHBX0XPHX"
+      "statusUpdated": "فروشنده {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "مجموع",
       "status": "ایالت",
       "date": "تاریخ",
-      "itemsCount": "مقالات XPHB0XPHX"
+      "itemsCount": "مقالات {{count}}"
     },
     "paymentsTable": {
       "transactionId": "شناسه تراکنش",
@@ -2225,7 +2225,7 @@
     "publish": "دستور پخت را منتشر کنید",
     "published": "دستور پخت منتشر شده",
     "addToCart": "خرید مواد اولیه",
-    "addedToCart": "مواد تشکیل دهنده XPHB0XPHX به سبد خرید اضافه شد",
+    "addedToCart": "مواد تشکیل دهنده {{count}} به سبد خرید اضافه شد",
     "by": "توسط",
     "min": "دقیقه",
     "portions": "بخش‌ها",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "نظر حذف شد",
     "edited": "ویرایش شده",
     "likes": "من دوست دارم",
-    "viewComments": "نظر XPHBX0XPHX را ببینید",
-    "viewCommentsPlural": "نظرات XPHBX0XPHX را ببینید",
+    "viewComments": "نظر {{count}} را ببینید",
+    "viewCommentsPlural": "نظرات {{count}} را ببینید",
     "loginToLike": "برای لایک کردن وارد شوید",
     "loginToSave": "برای ذخیره وارد شوید",
     "loginToFollow": "برای دنبال کردن کاربران وارد شوید",
@@ -2316,7 +2316,7 @@
     "unfollowed": "شما این کاربر را آنفالو کرده‌اید",
     "nowFollowing": "شما اکنون این کاربر را دنبال می‌کنید",
     "profileUpdated": "تصویر پروفایل به‌روزرسانی شده",
-    "memberSince": "عضو از XPHBX0XPHX",
+    "memberSince": "عضو از {{date}}",
     "verifiedSeller": "فروشنده تأیید شده",
     "viewStore": "مشاهده فروشگاه",
     "sendMessage": "ارسال پیام",

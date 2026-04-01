@@ -26,7 +26,7 @@
     "viewAll": "Tazama zote",
     "seeOriginal": "Tazama asili",
     "seeTranslation": "Tazama tafsiri",
-    "translatedFrom": "Imetafsiriwa kutoka XPB0XPHX",
+    "translatedFrom": "Imetafsiriwa kutoka {{language}} XPB0",
     "details": "Maelezo",
     "status": "Jimbo",
     "active": "Mali",
@@ -267,7 +267,7 @@
     "soldOut": "Nimechoka",
     "onlyLeft": "Imebaki {0} pekee",
     "lowStock": "Imebaki {{count}} pekee",
-    "byProducer": "by XPHBX0XPHX",
+    "byProducer": "by {{producer}}",
     "origin": "Asili",
     "price": "Bei",
     "category": "Kategoria",
@@ -452,8 +452,8 @@
     "state": "Mkoa",
     "zip": "Msimbo wa posta",
     "country": "Nchi",
-    "chargeCurrency": "Utatozwa kwa XPHB0XPHX",
-    "displayCurrency": "Bei zinazoonyeshwa kwenye XPBX0XPHX",
+    "chargeCurrency": "Utatozwa kwa {{currency}}",
+    "displayCurrency": "Bei zinazoonyeshwa kwenye {{currency}} XPBX0",
     "exchangeRate": "Kiwango cha ubadilishaji",
     "fullName": "Jina Kamili",
     "useShippingAddress": "Tumia anwani ya usafirishaji kwa ajili ya bili",
@@ -604,7 +604,7 @@
     "accountPending": "Akaunti Inasubiri Kuidhinishwa",
     "accountPendingDesc": "Akaunti yako ya mtayarishaji inasubiri idhini ya msimamizi. Unaweza kuunda bidhaa na vyeti, lakini havitaonekana kwa wateja hadi akaunti yako itakapoidhinishwa.",
     "totalProducts": "Jumla ya Bidhaa",
-    "approvedProducts": "Imeidhinishwa na XPB0XPHX",
+    "approvedProducts": "Imeidhinishwa {{count}} na XPB0",
     "followers": "Wafuasi",
     "ofYourStore": "kutoka dukani kwako",
     "totalSold": "Jumla ya Mauzo",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Chagua nchi",
-        "countryAnalysis": "Uchambuzi wa XPHD0XPHX",
+        "countryAnalysis": "Uchambuzi wa {{country}} XPHD0",
         "totalUsers": "Jumla ya Watumiaji",
         "ordersThisMonth": "Maagizo ya Mwezi Huu",
         "averageSpend": "Matumizi ya Wastani",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Inapatikana hivi karibuni",
     "inNext7Days": "Katika siku 7 zijazo",
     "nextPaymentDate": "Malipo yanayofuata yanapatikana",
-    "daysLeft": "Siku zilizobaki za XPB0XPHX",
+    "daysLeft": "Siku {{days}} zilizobaki za XPB0",
     "noPendingPayments": "Hakuna malipo yaliyosalia",
     "paymentPolicy": "Sera ya malipo",
     "paymentPolicyDesc": "Kamisheni zinazozalishwa zinaweza kukusanywa siku 15 baada ya kila mauzo ili kuhakikisha uwasilishaji wa oda.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Hitilafu ya kupakia wazalishaji",
-      "statusUpdated": "Muuzaji XPHBX0XPHX"
+      "statusUpdated": "Muuzaji {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Jumla",
       "status": "Jimbo",
       "date": "Tarehe",
-      "itemsCount": "Makala ya XPB0XPHX"
+      "itemsCount": "Makala {{count}} ya XPB0"
     },
     "paymentsTable": {
       "transactionId": "Kitambulisho cha muamala",
@@ -2225,7 +2225,7 @@
     "publish": "Chapisha mapishi",
     "published": "Mapishi yaliyochapishwa",
     "addToCart": "Nunua viungo",
-    "addedToCart": "Viungo vya XPB0XPHX vimeongezwa kwenye kikapu",
+    "addedToCart": "Viungo {{count}} vya XPB0vimeongezwa kwenye kikapu",
     "by": "Kwa",
     "min": "dakika",
     "portions": "sehemu",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Maoni yamefutwa",
     "edited": "imehaririwa",
     "likes": "Napenda",
-    "viewComments": "Tazama maoni ya XPBX0XPHX",
-    "viewCommentsPlural": "Tazama maoni ya XPBX0XPHX",
+    "viewComments": "Tazama {{count}} maoni ya XPBX0",
+    "viewCommentsPlural": "Tazama {{count}} maoni ya XPBX0",
     "loginToLike": "Ingia ili upende",
     "loginToSave": "Ingia ili uhifadhi",
     "loginToFollow": "Ingia ili kuwafuata watumiaji",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Umeacha kumfuata mtumiaji huyu",
     "nowFollowing": "Sasa unamfuata mtumiaji huyu",
     "profileUpdated": "Picha ya wasifu iliyosasishwa",
-    "memberSince": "Mwanachama tangu XPBX0XPHX",
+    "memberSince": "Mwanachama tangu {{date}} XPBX0",
     "verifiedSeller": "Muuzaji aliyethibitishwa",
     "viewStore": "Tazama duka",
     "sendMessage": "Tuma ujumbe",

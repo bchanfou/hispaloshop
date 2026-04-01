@@ -26,7 +26,7 @@
     "viewAll": "Prikaži sve",
     "seeOriginal": "Prikaži original",
     "seeTranslation": "Pogledajte prijevod",
-    "translatedFrom": "Prevedeno s XPHB0XPHX",
+    "translatedFrom": "Prevedeno s {{language}}",
     "details": "Detalji",
     "status": "Stanje",
     "active": "Imovina",
@@ -267,7 +267,7 @@
     "soldOut": "Iscrpljen/a",
     "onlyLeft": "Preostalo je samo {0}",
     "lowStock": "Ostaje samo {{count}}",
-    "byProducer": "od XPHBX0XPHX",
+    "byProducer": "od {{producer}}",
     "origin": "Podrijetlo",
     "price": "Cijena",
     "category": "Kategorija",
@@ -452,8 +452,8 @@
     "state": "Pokrajina",
     "zip": "Poštanski broj",
     "country": "Zemlja",
-    "chargeCurrency": "Bit će vam naplaćeno u XPHB0XPHX",
-    "displayCurrency": "Cijene prikazane na XPHBX0XPHX",
+    "chargeCurrency": "Bit će vam naplaćeno u {{currency}}",
+    "displayCurrency": "Cijene prikazane na {{currency}}",
     "exchangeRate": "Tečaj",
     "fullName": "Puno ime",
     "useShippingAddress": "Koristite adresu za dostavu za naplatu",
@@ -604,7 +604,7 @@
     "accountPending": "Račun čeka odobrenje",
     "accountPendingDesc": "Vaš producentski račun čeka odobrenje administratora. Možete izrađivati proizvode i certifikate, ali oni neće biti vidljivi kupcima dok vaš račun ne bude odobren.",
     "totalProducts": "Ukupno proizvoda",
-    "approvedProducts": "Odobreno za XPHB0XPHX",
+    "approvedProducts": "Odobreno za {{count}}",
     "followers": "Pratitelji",
     "ofYourStore": "iz vaše trgovine",
     "totalSold": "Ukupno prodano",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Odaberite državu",
-        "countryAnalysis": "Analiza XPHD0XPHX",
+        "countryAnalysis": "Analiza XPHD0{{country}}",
         "totalUsers": "Ukupno korisnika",
         "ordersThisMonth": "Narudžbe ovog mjeseca",
         "averageSpend": "Prosječni izdaci",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Dostupno uskoro",
     "inNext7Days": "U sljedećih 7 dana",
     "nextPaymentDate": "Sljedeće plaćanje dostupno",
-    "daysLeft": "Preostali su XPHB0XPHX dana",
+    "daysLeft": "Preostali su {{days}} dana",
     "noPendingPayments": "Nema nepodmirenih plaćanja",
     "paymentPolicy": "Pravila plaćanja",
     "paymentPolicyDesc": "Ostvarene provizije mogu se naplatiti 15 dana nakon svake prodaje kako bi se zajamčila isporuka narudžbe.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Pogreška pri učitavanju producenata",
-      "statusUpdated": "Prodavač XPHBX0XPHX"
+      "statusUpdated": "Prodavač {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Ukupno",
       "status": "Stanje",
       "date": "Datum",
-      "itemsCount": "Članci XPHB0XPHX"
+      "itemsCount": "Članci {{count}}"
     },
     "paymentsTable": {
       "transactionId": "ID transakcije",
@@ -2225,7 +2225,7 @@
     "publish": "Objavite recept",
     "published": "Objavljeni recept",
     "addToCart": "Kupite sastojke",
-    "addedToCart": "Sastojci XPHB0XPHX dodani su u košaricu",
+    "addedToCart": "Sastojci {{count}} dodani su u košaricu",
     "by": "Po",
     "min": "min",
     "portions": "porcije",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Komentar izbrisan",
     "edited": "uređeno",
     "likes": "Sviđa mi se",
-    "viewComments": "Pogledajte komentar XPHBX0XPHX",
-    "viewCommentsPlural": "Pogledajte komentare XPHBX0XPHX",
+    "viewComments": "Pogledajte {{count}} komentar",
+    "viewCommentsPlural": "Pogledajte {{count}} komentare",
     "loginToLike": "Prijavite se da biste označili \"sviđa mi se\"",
     "loginToSave": "Prijavite se za spremanje",
     "loginToFollow": "Prijavite se da biste pratili korisnike",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Prestali ste pratiti ovog korisnika",
     "nowFollowing": "Sada pratite ovog korisnika",
     "profileUpdated": "Ažurirana profilna slika",
-    "memberSince": "Član od XPHBX0XPHX",
+    "memberSince": "Član od {{date}}",
     "verifiedSeller": "Potvrđeni prodavatelj",
     "viewStore": "Pogledajte trgovinu",
     "sendMessage": "Pošalji poruku",

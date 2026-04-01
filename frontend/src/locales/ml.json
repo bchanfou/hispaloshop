@@ -26,7 +26,7 @@
     "viewAll": "എല്ലാം കാണുക",
     "seeOriginal": "ഒറിജിനൽ കാണുക",
     "seeTranslation": "വിവർത്തനം കാണുക",
-    "translatedFrom": "XPHB0XPHX ൽ നിന്ന് വിവർത്തനം ചെയ്തത്",
+    "translatedFrom": "{{language}} ൽ നിന്ന് വിവർത്തനം ചെയ്തത്",
     "details": "വിശദാംശങ്ങൾ",
     "status": "സംസ്ഥാനം",
     "active": "ആസ്തി",
@@ -267,7 +267,7 @@
     "soldOut": "ക്ഷീണിച്ചു",
     "onlyLeft": "{0} മാത്രമേ ശേഷിക്കുന്നുള്ളൂ",
     "lowStock": "{{count}} മാത്രമേ ശേഷിക്കുന്നുള്ളൂ",
-    "byProducer": "XPHBX0XPHX എഴുതിയത്",
+    "byProducer": "{{producer}} എഴുതിയത്",
     "origin": "ഉത്ഭവം",
     "price": "വില",
     "category": "വിഭാഗം",
@@ -452,8 +452,8 @@
     "state": "പ്രവിശ്യ",
     "zip": "തപാൽ കോഡ്",
     "country": "രാജ്യം",
-    "chargeCurrency": "നിങ്ങളിൽ നിന്ന് XPHB0XPHX-ൽ നിരക്ക് ഈടാക്കും.",
-    "displayCurrency": "XPHBX0XPHX-ൽ കാണിച്ചിരിക്കുന്ന വിലകൾ",
+    "chargeCurrency": "നിങ്ങളിൽ നിന്ന് {{currency}}-ൽ നിരക്ക് ഈടാക്കും.",
+    "displayCurrency": "-ൽ കാണിച്ചിരിക്കുന്ന {{currency}} വിലകൾ",
     "exchangeRate": "വിനിമയ നിരക്ക്",
     "fullName": "പൂർണ്ണമായ പേര്",
     "useShippingAddress": "ബില്ലിംഗിനായി ഷിപ്പിംഗ് വിലാസം ഉപയോഗിക്കുക",
@@ -604,7 +604,7 @@
     "accountPending": "അക്കൗണ്ട് അംഗീകാരം തീർപ്പുകൽപ്പിച്ചിട്ടില്ല",
     "accountPendingDesc": "നിങ്ങളുടെ പ്രൊഡ്യൂസർ അക്കൗണ്ട് അഡ്മിനിസ്ട്രേറ്ററുടെ അംഗീകാരത്തിനായി കാത്തിരിക്കുകയാണ്. നിങ്ങൾക്ക് ഉൽപ്പന്നങ്ങളും സർട്ടിഫിക്കറ്റുകളും സൃഷ്ടിക്കാൻ കഴിയും, എന്നാൽ നിങ്ങളുടെ അക്കൗണ്ട് അംഗീകരിക്കപ്പെടുന്നതുവരെ അവ ഉപഭോക്താക്കൾക്ക് ദൃശ്യമാകില്ല.",
     "totalProducts": "ആകെ ഉൽപ്പന്നങ്ങൾ",
-    "approvedProducts": "XPHB0XPHX അംഗീകരിച്ചു",
+    "approvedProducts": "{{count}} അംഗീകരിച്ചു",
     "followers": "അനുയായികൾ",
     "ofYourStore": "നിങ്ങളുടെ കടയിൽ നിന്ന്",
     "totalSold": "ആകെ വിറ്റത്",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "ഒരു രാജ്യം തിരഞ്ഞെടുക്കുക",
-        "countryAnalysis": "XPHD0XPHX ന്റെ വിശകലനം",
+        "countryAnalysis": "XPHD0ന്റെ {{country}} വിശകലനം",
         "totalUsers": "ആകെ ഉപയോക്താക്കൾ",
         "ordersThisMonth": "ഈ മാസത്തെ ഓർഡറുകൾ",
         "averageSpend": "ശരാശരി ചെലവ്",
@@ -1058,7 +1058,7 @@
     "availableSoon": "ഉടൻ ലഭ്യമാകും",
     "inNext7Days": "അടുത്ത 7 ദിവസത്തിനുള്ളിൽ",
     "nextPaymentDate": "അടുത്ത പേയ്‌മെന്റ് ലഭ്യമാണ്",
-    "daysLeft": "XPHB0XPHX ദിവസങ്ങൾ ശേഷിക്കുന്നു",
+    "daysLeft": "{{days}} ദിവസങ്ങൾ ശേഷിക്കുന്നു",
     "noPendingPayments": "കുടിശ്ശിക പേയ്‌മെന്റുകളൊന്നുമില്ല",
     "paymentPolicy": "പേയ്‌മെന്റ് നയം",
     "paymentPolicyDesc": "ഓർഡർ ഡെലിവറി ചെയ്യുന്നുവെന്ന് ഉറപ്പാക്കാൻ, ഓരോ വിൽപ്പനയ്ക്കും 15 ദിവസത്തിന് ശേഷം ലഭിക്കുന്ന കമ്മീഷൻ ശേഖരിക്കാവുന്നതാണ്.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "നിർമ്മാതാക്കളെ ലോഡ് ചെയ്യുന്നതിൽ പിശക്",
-      "statusUpdated": "വിൽപ്പനക്കാരൻ XPHBX0XPHX"
+      "statusUpdated": "വിൽപ്പനക്കാരൻ {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "ആകെ",
       "status": "സംസ്ഥാനം",
       "date": "തീയതി",
-      "itemsCount": "XPHB0XPHX ലേഖനങ്ങൾ"
+      "itemsCount": "{{count}} ലേഖനങ്ങൾ"
     },
     "paymentsTable": {
       "transactionId": "ഇടപാട് ഐഡി",
@@ -2225,7 +2225,7 @@
     "publish": "പാചകക്കുറിപ്പ് പ്രസിദ്ധീകരിക്കുക",
     "published": "പ്രസിദ്ധീകരിച്ച പാചകക്കുറിപ്പ്",
     "addToCart": "ചേരുവകൾ വാങ്ങുക",
-    "addedToCart": "XPHB0XPHX ചേരുവകൾ കാർട്ടിലേക്ക് ചേർത്തു.",
+    "addedToCart": "{{count}} ചേരുവകൾ കാർട്ടിലേക്ക് ചേർത്തു.",
     "by": "എഴുതിയത്",
     "min": "മിനിറ്റ്",
     "portions": "ഭാഗങ്ങൾ",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "കമന്റ് ഇല്ലാതാക്കി",
     "edited": "എഡിറ്റ് ചെയ്തത്",
     "likes": "എനിക്ക് ഇഷ്ടമാണ്",
-    "viewComments": "XPHBX0XPHX കമന്റ് കാണുക",
-    "viewCommentsPlural": "XPHBX0XPHX കമന്റുകൾ കാണുക",
+    "viewComments": "{{count}} കമന്റ് കാണുക",
+    "viewCommentsPlural": "{{count}} കമന്റുകൾ കാണുക",
     "loginToLike": "ലൈക്ക് ചെയ്യാൻ ലോഗിൻ ചെയ്യുക",
     "loginToSave": "സംരക്ഷിക്കാൻ ലോഗിൻ ചെയ്യുക",
     "loginToFollow": "ഉപയോക്താക്കളെ പിന്തുടരാൻ ലോഗിൻ ചെയ്യുക",
@@ -2316,7 +2316,7 @@
     "unfollowed": "നിങ്ങൾ ഈ ഉപയോക്താവിനെ പിന്തുടരുന്നത് നിർത്തി.",
     "nowFollowing": "നിങ്ങൾ ഇപ്പോൾ ഈ ഉപയോക്താവിനെ പിന്തുടരുന്നു.",
     "profileUpdated": "പ്രൊഫൈൽ ചിത്രം അപ്ഡേറ്റ് ചെയ്തു",
-    "memberSince": "XPHBX0XPHX മുതൽ അംഗം",
+    "memberSince": "മുതൽ {{date}} അംഗം",
     "verifiedSeller": "പരിശോധിച്ചുറപ്പിച്ച വിൽപ്പനക്കാരൻ",
     "viewStore": "സ്റ്റോർ കാണുക",
     "sendMessage": "സന്ദേശം അയയ്ക്കുക",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "നിങ്ങൾക്ക് എന്ത് ഉള്ളടക്കം വേണമെന്ന് വിവരിക്കുക..."
   },
   "predictions": {
-    "purchased": "XPHBX0XPHXx വാങ്ങി"
+    "purchased": "{{count}} വാങ്ങി"
   },
   "wishlist": {
     "title": "വിഷ് ലിസ്റ്റ്",

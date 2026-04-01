@@ -26,7 +26,7 @@
     "viewAll": "Kuva kõik",
     "seeOriginal": "Kuva originaal",
     "seeTranslation": "Vaata tõlget",
-    "translatedFrom": "Tõlgitud XPHB0XPHX-ist",
+    "translatedFrom": "Tõlgitud {{language}}-ist",
     "details": "Detailid",
     "status": "Riik",
     "active": "Vara",
@@ -267,7 +267,7 @@
     "soldOut": "Kurnatud",
     "onlyLeft": "Ainult {0} on jäänud",
     "lowStock": "Ainult {{count}} on alles",
-    "byProducer": "XPHBX0XPHX poolt",
+    "byProducer": "{{producer}} poolt",
     "origin": "Päritolu",
     "price": "Hind",
     "category": "Kategooria",
@@ -452,8 +452,8 @@
     "state": "Provints",
     "zip": "Postiindeks",
     "country": "Riik",
-    "chargeCurrency": "Teilt võetakse tasu XPHB0XPHX-s",
-    "displayCurrency": "Hinnad kuvatakse XPHBX0XPHX-is",
+    "chargeCurrency": "Teilt võetakse tasu {{currency}}-s",
+    "displayCurrency": "Hinnad kuvatakse -is {{currency}}",
     "exchangeRate": "Vahetuskurss",
     "fullName": "Täisnimi",
     "useShippingAddress": "Kasutage arvelduse jaoks saatmisaadressi",
@@ -604,7 +604,7 @@
     "accountPending": "Konto ootab kinnitust",
     "accountPendingDesc": "Teie tootjakonto ootab administraatori kinnitust. Saate luua tooteid ja sertifikaate, kuid need ei ole klientidele nähtavad enne, kui teie konto on kinnitatud.",
     "totalProducts": "Toodete koguarv",
-    "approvedProducts": "XPHB0XPHX heakskiidetud",
+    "approvedProducts": "{{count}} heakskiidetud",
     "followers": "Jälgijad",
     "ofYourStore": "teie poest",
     "totalSold": "Kokku müüdud",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Valige riik",
-        "countryAnalysis": "XPHD0XPHX analüüs",
+        "countryAnalysis": "XPHD0{{country}} analüüs",
         "totalUsers": "Kasutajate koguarv",
         "ordersThisMonth": "Selle kuu tellimused",
         "averageSpend": "Keskmine kulu",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Varsti saadaval",
     "inNext7Days": "Järgmise 7 päeva jooksul",
     "nextPaymentDate": "Järgmine makse on saadaval",
-    "daysLeft": "XPHB0XPHX päeva jäänud",
+    "daysLeft": "{{days}} päeva jäänud",
     "noPendingPayments": "Maksmata makseid pole",
     "paymentPolicy": "Maksepoliitika",
     "paymentPolicyDesc": "Teenitud komisjonitasusid saab koguda 15 päeva pärast iga müüki, et tagada tellimuse kohaletoimetamine.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Viga tootjate laadimisel",
-      "statusUpdated": "Müüja XPHBX0XPHX"
+      "statusUpdated": "Müüja {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Kokku",
       "status": "Riik",
       "date": "Kuupäev",
-      "itemsCount": "XPHB0XPHX artiklid"
+      "itemsCount": "{{count}} artiklid"
     },
     "paymentsTable": {
       "transactionId": "Tehingu ID",
@@ -2225,7 +2225,7 @@
     "publish": "Avalda retsept",
     "published": "Avaldatud retsept",
     "addToCart": "Osta koostisosi",
-    "addedToCart": "Koostisosad lisatud ostukorvi XPHB0XPHX",
+    "addedToCart": "Koostisosad lisatud ostukorvi {{count}}",
     "by": "Autor",
     "min": "minuti",
     "portions": "portsjonid",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Kommentaar kustutatud",
     "edited": "redigeeritud",
     "likes": "Mulle meeldib",
-    "viewComments": "Vaata XPHBX0XPHX kommentaari",
-    "viewCommentsPlural": "Vaadake XPHBX0XPHX kommentaare",
+    "viewComments": "Vaata {{count}} kommentaari",
+    "viewCommentsPlural": "Vaadake {{count}} kommentaare",
     "loginToLike": "Meeldimiseks logi sisse",
     "loginToSave": "Salvestamiseks logi sisse",
     "loginToFollow": "Kasutajate jälgimiseks logi sisse",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Sa lõpetasid selle kasutaja jälgimise",
     "nowFollowing": "Sa jälgid nüüd seda kasutajat",
     "profileUpdated": "Värskendatud profiilipilt",
-    "memberSince": "Liikmeks alates XPHBX0XPHX",
+    "memberSince": "Liikmeks alates {{date}}",
     "verifiedSeller": "Kinnitatud müüja",
     "viewStore": "Vaata poodi",
     "sendMessage": "Saada sõnum",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Kirjelda, millist sisu sa vajad..."
   },
   "predictions": {
-    "purchased": "Ostetud XPHBX0XPHXx"
+    "purchased": "Ostetud {{count}}"
   },
   "wishlist": {
     "title": "Soovide nimekiri",

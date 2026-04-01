@@ -26,7 +26,7 @@
     "viewAll": "সব দেখুন",
     "seeOriginal": "মূল দেখুন",
     "seeTranslation": "অনুবাদ দেখুন",
-    "translatedFrom": "XPHB0XPHX থেকে অনূদিত",
+    "translatedFrom": "{{language}} থেকে অনূদিত",
     "details": "বিস্তারিত",
     "status": "রাজ্য",
     "active": "সম্পদ",
@@ -267,7 +267,7 @@
     "soldOut": "ক্লান্ত",
     "onlyLeft": "শুধুমাত্র {0} অবশিষ্ট আছে",
     "lowStock": "শুধুমাত্র {{count}} অবশিষ্ট আছে",
-    "byProducer": "XPHBX0XPHX দ্বারা",
+    "byProducer": "{{producer}} দ্বারা",
     "origin": "উৎপত্তি",
     "price": "মূল্য",
     "category": "বিভাগ",
@@ -452,8 +452,8 @@
     "state": "প্রদেশ",
     "zip": "জিপ কোড",
     "country": "দেশ",
-    "chargeCurrency": "আপনাকে XPHB0XPHX-এ চার্জ করা হবে।",
-    "displayCurrency": "XPHBX0XPHX-এ দেখানো মূল্য",
+    "chargeCurrency": "আপনাকে {{currency}}-এ চার্জ করা হবে।",
+    "displayCurrency": "-এ দেখানো {{currency}} মূল্য",
     "exchangeRate": "বিনিময় হার",
     "fullName": "পুরো নাম",
     "useShippingAddress": "বিলিংয়ের জন্য শিপিং ঠিকানা ব্যবহার করুন",
@@ -604,7 +604,7 @@
     "accountPending": "অ্যাকাউন্ট অনুমোদনের অপেক্ষায়",
     "accountPendingDesc": "আপনার প্রযোজক অ্যাকাউন্টটি প্রশাসকের অনুমোদনের অপেক্ষায় রয়েছে। আপনি পণ্য এবং সার্টিফিকেট তৈরি করতে পারবেন, কিন্তু আপনার অ্যাকাউন্ট অনুমোদিত না হওয়া পর্যন্ত সেগুলি গ্রাহকদের কাছে দৃশ্যমান হবে না।",
     "totalProducts": "মোট পণ্য",
-    "approvedProducts": "XPHB0XPHX অনুমোদিত",
+    "approvedProducts": "{{count}} অনুমোদিত",
     "followers": "অনুসারীরা",
     "ofYourStore": "আপনার দোকান থেকে",
     "totalSold": "মোট বিক্রিত",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "একটি দেশ নির্বাচন করুন",
-        "countryAnalysis": "XPHD0XPHX এর বিশ্লেষণ",
+        "countryAnalysis": "XPHD0এর {{country}} বিশ্লেষণ",
         "totalUsers": "মোট ব্যবহারকারী",
         "ordersThisMonth": "এই মাসের অর্ডার",
         "averageSpend": "গড় ব্যয়",
@@ -1058,7 +1058,7 @@
     "availableSoon": "শীঘ্রই পাওয়া যাবে",
     "inNext7Days": "আগামী ৭ দিনের মধ্যে",
     "nextPaymentDate": "পরবর্তী পেমেন্ট উপলব্ধ",
-    "daysLeft": "XPHB0XPHX বাকি দিন",
+    "daysLeft": "{{days}} বাকি দিন",
     "noPendingPayments": "কোন বকেয়া পরিশোধ নেই",
     "paymentPolicy": "অর্থপ্রদান নীতি",
     "paymentPolicyDesc": "অর্ডারের ডেলিভারি নিশ্চিত করার জন্য, প্রতিটি বিক্রয়ের ১৫ দিন পর অর্জিত কমিশন সংগ্রহ করা যেতে পারে।",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "প্রযোজকদের লোড করতে ত্রুটি",
-      "statusUpdated": "বিক্রেতা XPHBX0XPHX"
+      "statusUpdated": "বিক্রেতা {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "মোট",
       "status": "রাজ্য",
       "date": "তারিখ",
-      "itemsCount": "XPHB0XPHX নিবন্ধগুলি"
+      "itemsCount": "{{count}} নিবন্ধগুলি"
     },
     "paymentsTable": {
       "transactionId": "লেনদেন আইডি",
@@ -2225,7 +2225,7 @@
     "publish": "রেসিপি প্রকাশ করুন",
     "published": "প্রকাশিত রেসিপি",
     "addToCart": "উপকরণ কিনুন",
-    "addedToCart": "XPHB0XPHX উপাদানগুলো কার্টে যোগ করা হয়েছে",
+    "addedToCart": "{{count}} উপাদানগুলো কার্টে যোগ করা হয়েছে",
     "by": "দ্বারা",
     "min": "মিনিট",
     "portions": "অংশ",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "মন্তব্য মুছে ফেলা হয়েছে",
     "edited": "সম্পাদিত",
     "likes": "আমি পছন্দ করি",
-    "viewComments": "XPHBX0XPHX মন্তব্যটি দেখুন",
-    "viewCommentsPlural": "XPHBX0XPHX-এর মন্তব্যগুলি দেখুন",
+    "viewComments": "{{count}} মন্তব্যটি দেখুন",
+    "viewCommentsPlural": "-এর {{count}} মন্তব্যগুলি দেখুন",
     "loginToLike": "লাইক করতে লগ ইন করুন",
     "loginToSave": "সংরক্ষণ করতে লগ ইন করুন",
     "loginToFollow": "ব্যবহারকারীদের অনুসরণ করতে লগ ইন করুন",
@@ -2316,7 +2316,7 @@
     "unfollowed": "আপনি এই ব্যবহারকারীকে আনফলো করেছেন",
     "nowFollowing": "আপনি এখন এই ব্যবহারকারীকে অনুসরণ করছেন।",
     "profileUpdated": "আপডেট করা প্রোফাইল ছবি",
-    "memberSince": "XPHBX0XPHX থেকে সদস্য",
+    "memberSince": "থেকে {{date}} সদস্য",
     "verifiedSeller": "যাচাইকৃত বিক্রেতা",
     "viewStore": "স্টোর দেখুন",
     "sendMessage": "বার্তা পাঠান",

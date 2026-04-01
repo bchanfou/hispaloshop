@@ -26,7 +26,7 @@
     "viewAll": "બધા જુઓ",
     "seeOriginal": "મૂળ જુઓ",
     "seeTranslation": "અનુવાદ જુઓ",
-    "translatedFrom": "XPHB0XPHX માંથી અનુવાદિત",
+    "translatedFrom": "{{language}} માંથી અનુવાદિત",
     "details": "વિગતો",
     "status": "રાજ્ય",
     "active": "સંપત્તિ",
@@ -267,7 +267,7 @@
     "soldOut": "થાકેલું",
     "onlyLeft": "ફક્ત {0} બાકી છે",
     "lowStock": "ફક્ત {{count}} બાકી છે",
-    "byProducer": "by XPHBX0XPHX",
+    "byProducer": "by {{producer}}",
     "origin": "મૂળ",
     "price": "કિંમત",
     "category": "શ્રેણી",
@@ -452,8 +452,8 @@
     "state": "પ્રાંત",
     "zip": "ઝિપ કોડ",
     "country": "દેશ",
-    "chargeCurrency": "તમારી પાસેથી XPHB0XPHX માં શુલ્ક લેવામાં આવશે.",
-    "displayCurrency": "XPHBX0XPHX પર દર્શાવેલ કિંમતો",
+    "chargeCurrency": "તમારી પાસેથી {{currency}} માં શુલ્ક લેવામાં આવશે.",
+    "displayCurrency": "પર દર્શાવેલ {{currency}} કિંમતો",
     "exchangeRate": "વિનિમય દર",
     "fullName": "પૂરું નામ",
     "useShippingAddress": "બિલિંગ માટે શિપિંગ સરનામાંનો ઉપયોગ કરો",
@@ -604,7 +604,7 @@
     "accountPending": "એકાઉન્ટની મંજૂરી બાકી છે",
     "accountPendingDesc": "તમારા નિર્માતા એકાઉન્ટ માટે એડમિનિસ્ટ્રેટરની મંજૂરી બાકી છે. તમે ઉત્પાદનો અને પ્રમાણપત્રો બનાવી શકો છો, પરંતુ જ્યાં સુધી તમારું એકાઉન્ટ મંજૂર ન થાય ત્યાં સુધી તે ગ્રાહકોને દેખાશે નહીં.",
     "totalProducts": "કુલ ઉત્પાદનો",
-    "approvedProducts": "XPHB0XPHX મંજૂર",
+    "approvedProducts": "{{count}} મંજૂર",
     "followers": "અનુયાયીઓ",
     "ofYourStore": "તમારા સ્ટોરમાંથી",
     "totalSold": "કુલ વેચાણ",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "દેશ પસંદ કરો",
-        "countryAnalysis": "XPHD0XPHX નું વિશ્લેષણ",
+        "countryAnalysis": "XPHD0નું {{country}} વિશ્લેષણ",
         "totalUsers": "કુલ વપરાશકર્તાઓ",
         "ordersThisMonth": "આ મહિનાના ઓર્ડર",
         "averageSpend": "સરેરાશ ખર્ચ",
@@ -1058,7 +1058,7 @@
     "availableSoon": "ટૂંક સમયમાં ઉપલબ્ધ થશે",
     "inNext7Days": "આગામી 7 દિવસમાં",
     "nextPaymentDate": "આગામી ચુકવણી ઉપલબ્ધ છે",
-    "daysLeft": "XPHB0XPHX દિવસ બાકી",
+    "daysLeft": "{{days}} દિવસ બાકી",
     "noPendingPayments": "કોઈ બાકી ચુકવણી નથી",
     "paymentPolicy": "ચુકવણી નીતિ",
     "paymentPolicyDesc": "ઓર્ડરની ડિલિવરીની ખાતરી આપવા માટે દરેક વેચાણના 15 દિવસ પછી જનરેટ થયેલ કમિશન એકત્રિત કરી શકાય છે.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "નિર્માતાઓ લોડ કરવામાં ભૂલ",
-      "statusUpdated": "વિક્રેતા XPHBX0XPHX"
+      "statusUpdated": "વિક્રેતા {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "કુલ",
       "status": "રાજ્ય",
       "date": "તારીખ",
-      "itemsCount": "XPHB0XPHX લેખો"
+      "itemsCount": "{{count}} લેખો"
     },
     "paymentsTable": {
       "transactionId": "ટ્રાન્ઝેક્શન ID",
@@ -2225,7 +2225,7 @@
     "publish": "રેસીપી પ્રકાશિત કરો",
     "published": "પ્રકાશિત રેસીપી",
     "addToCart": "ઘટકો ખરીદો",
-    "addedToCart": "XPHB0XPHX ઘટકો કાર્ટમાં ઉમેર્યા",
+    "addedToCart": "{{count}} ઘટકો કાર્ટમાં ઉમેર્યા",
     "by": "દ્વારા",
     "min": "મિનિટ",
     "portions": "ભાગો",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "ટિપ્પણી કાઢી નાખી",
     "edited": "સંપાદિત",
     "likes": "મને ગમે છે",
-    "viewComments": "XPHBX0XPHX ટિપ્પણી જુઓ",
-    "viewCommentsPlural": "XPHBX0XPHX ટિપ્પણીઓ જુઓ",
+    "viewComments": "{{count}} ટિપ્પણી જુઓ",
+    "viewCommentsPlural": "{{count}} ટિપ્પણીઓ જુઓ",
     "loginToLike": "લાઈક કરવા માટે લોગ ઇન કરો",
     "loginToSave": "સાચવવા માટે લોગ ઇન કરો",
     "loginToFollow": "વપરાશકર્તાઓને ફોલો કરવા માટે લોગ ઇન કરો",
@@ -2316,7 +2316,7 @@
     "unfollowed": "તમે આ વપરાશકર્તાને અનફૉલો કર્યો છે.",
     "nowFollowing": "તમે હવે આ વપરાશકર્તાને અનુસરી રહ્યા છો",
     "profileUpdated": "અપડેટ કરેલ પ્રોફાઇલ ચિત્ર",
-    "memberSince": "XPHBX0XPHX થી સભ્ય",
+    "memberSince": "થી {{date}} સભ્ય",
     "verifiedSeller": "ચકાસાયેલ વિક્રેતા",
     "viewStore": "સ્ટોર જુઓ",
     "sendMessage": "સંદેશ મોકલો",

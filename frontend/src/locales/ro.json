@@ -26,7 +26,7 @@
     "viewAll": "Vezi toate",
     "seeOriginal": "Vizualizați originalul",
     "seeTranslation": "Vezi traducerea",
-    "translatedFrom": "Tradus din XPHB0XPHX",
+    "translatedFrom": "Tradus din {{language}}",
     "details": "Detalii",
     "status": "Stat",
     "active": "Activ",
@@ -267,7 +267,7 @@
     "soldOut": "Epuizat",
     "onlyLeft": "Au mai rămas doar {0}",
     "lowStock": "Au mai rămas doar {{count}}",
-    "byProducer": "de XPHBX0XPHX",
+    "byProducer": "de {{producer}}",
     "origin": "Origine",
     "price": "Preţ",
     "category": "Categorie",
@@ -452,8 +452,8 @@
     "state": "Provincie",
     "zip": "Cod poștal",
     "country": "Ţară",
-    "chargeCurrency": "Veți fi taxat în XPHB0XPHX",
-    "displayCurrency": "Prețurile afișate pe XPHBX0XPHX",
+    "chargeCurrency": "Veți fi taxat în {{currency}}",
+    "displayCurrency": "Prețurile afișate pe {{currency}}",
     "exchangeRate": "Rata de schimb",
     "fullName": "Numele complet",
     "useShippingAddress": "Folosește adresa de livrare pentru facturare",
@@ -604,7 +604,7 @@
     "accountPending": "Cont în așteptarea aprobării",
     "accountPendingDesc": "Contul dvs. de producător este în așteptarea aprobării administratorului. Puteți crea produse și certificate, dar acestea nu vor fi vizibile clienților până când contul dvs. nu este aprobat.",
     "totalProducts": "Produse totale",
-    "approvedProducts": "Aprobat de XPHB0XPHX",
+    "approvedProducts": "Aprobat de {{count}}",
     "followers": "Urmăritori",
     "ofYourStore": "din magazinul tău",
     "totalSold": "Total vândut",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Selectați o țară",
-        "countryAnalysis": "Analiza XPHD0XPHX",
+        "countryAnalysis": "Analiza XPHD0{{country}}",
         "totalUsers": "Total utilizatori",
         "ordersThisMonth": "Comenzile din această lună",
         "averageSpend": "Cheltuieli medii",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Disponibil în curând",
     "inNext7Days": "În următoarele 7 zile",
     "nextPaymentDate": "Următoarea plată disponibilă",
-    "daysLeft": "XPHB0XPHX zile rămase",
+    "daysLeft": "{{days}} zile rămase",
     "noPendingPayments": "Nicio plată restantă",
     "paymentPolicy": "Politica de plată",
     "paymentPolicyDesc": "Comisioanele generate pot fi colectate la 15 zile după fiecare vânzare pentru a garanta livrarea comenzii.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Eroare la încărcarea producătorilor",
-      "statusUpdated": "Vânzător XPHBX0XPHX"
+      "statusUpdated": "Vânzător {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Total",
       "status": "Stat",
       "date": "Data",
-      "itemsCount": "Articole XPHB0XPHX"
+      "itemsCount": "Articole {{count}}"
     },
     "paymentsTable": {
       "transactionId": "ID-ul tranzacției",
@@ -2225,7 +2225,7 @@
     "publish": "Publică rețeta",
     "published": "Rețetă publicată",
     "addToCart": "Cumpără ingrediente",
-    "addedToCart": "Ingrediente XPHB0XPHX adăugate în coș",
+    "addedToCart": "Ingrediente {{count}} adăugate în coș",
     "by": "De",
     "min": "min",
     "portions": "porții",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Comentariu șters",
     "edited": "editat",
     "likes": "Îmi place",
-    "viewComments": "Vezi comentariul XPHBX0XPHX",
-    "viewCommentsPlural": "Vedeți comentariile XPHBX0XPHX",
+    "viewComments": "Vezi {{count}} comentariul",
+    "viewCommentsPlural": "Vedeți {{count}} comentariile",
     "loginToLike": "Conectează-te pentru a aprecia",
     "loginToSave": "Conectați-vă pentru a salva",
     "loginToFollow": "Conectați-vă pentru a urmări utilizatorii",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Ai anulat urmărirea acestui utilizator",
     "nowFollowing": "Acum urmărești acest utilizator",
     "profileUpdated": "Fotografie de profil actualizată",
-    "memberSince": "Membru din XPHBX0XPHX",
+    "memberSince": "Membru din {{date}}",
     "verifiedSeller": "Vânzător verificat",
     "viewStore": "Vizualizare magazin",
     "sendMessage": "Trimite mesaj",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Descrieți de ce conținut aveți nevoie..."
   },
   "predictions": {
-    "purchased": "A cumpărat XPHBX0XPHXx"
+    "purchased": "A cumpărat {{count}}"
   },
   "wishlist": {
     "title": "Listă de dorințe",

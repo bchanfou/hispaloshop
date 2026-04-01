@@ -26,7 +26,7 @@
     "viewAll": "Tümünü görüntüle",
     "seeOriginal": "Orijinalini görüntüle",
     "seeTranslation": "Çeviriye bakın",
-    "translatedFrom": "XPHB0XPHX'ten çevrilmiştir.",
+    "translatedFrom": "{{language}}'ten çevrilmiştir.",
     "details": "Detaylar",
     "status": "Durum",
     "active": "Varlık",
@@ -267,7 +267,7 @@
     "soldOut": "Yorgun",
     "onlyLeft": "Yalnızca {0} kaldı",
     "lowStock": "Yalnızca {{count}} kaldı.",
-    "byProducer": "XPHBX0XPHX tarafından",
+    "byProducer": "{{producer}} tarafından",
     "origin": "Köken",
     "price": "Fiyat",
     "category": "Kategori",
@@ -452,8 +452,8 @@
     "state": "Vilayet",
     "zip": "Posta kodu",
     "country": "Ülke",
-    "chargeCurrency": "Sizden XPHB0XPHX tutarında ücret alınacaktır.",
-    "displayCurrency": "XPHBX0XPHX'te gösterilen fiyatlar",
+    "chargeCurrency": "Sizden {{currency}} tutarında ücret alınacaktır.",
+    "displayCurrency": "'te gösterilen {{currency}} fiyatlar",
     "exchangeRate": "Döviz kuru",
     "fullName": "Ad Soyad",
     "useShippingAddress": "Fatura için gönderim adresini kullanın.",
@@ -604,7 +604,7 @@
     "accountPending": "Hesap Onay Bekliyor",
     "accountPendingDesc": "Üretici hesabınız yönetici onayını bekliyor. Ürünler ve sertifikalar oluşturabilirsiniz, ancak hesabınız onaylanana kadar bunlar müşteriler tarafından görülemez.",
     "totalProducts": "Toplam Ürünler",
-    "approvedProducts": "XPHB0XPHX onaylı",
+    "approvedProducts": "{{count}} onaylı",
     "followers": "Takipçiler",
     "ofYourStore": "mağazanızdan",
     "totalSold": "Toplam Satış",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Bir ülke seçin",
-        "countryAnalysis": "XPHD0XPHX'in Analizi",
+        "countryAnalysis": "XPHD0'in {{country}} Analizi",
         "totalUsers": "Toplam Kullanıcılar",
         "ordersThisMonth": "Bu Ayki Siparişler",
         "averageSpend": "Ortalama Harcama",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Yakında satışa sunulacak.",
     "inNext7Days": "Önümüzdeki 7 gün içinde",
     "nextPaymentDate": "Sonraki ödeme imkanı",
-    "daysLeft": "XPHB0XPHX kalan gün sayısı",
+    "daysLeft": "{{days}} kalan gün sayısı",
     "noPendingPayments": "Ödenmemiş borç yok.",
     "paymentPolicy": "Ödeme politikası",
     "paymentPolicyDesc": "Siparişin teslimatını garanti altına almak için, elde edilen komisyonlar her satıştan 15 gün sonra tahsil edilebilir.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Üreticiler yüklenirken hata oluştu.",
-      "statusUpdated": "Satıcı XPHBX0XPHX"
+      "statusUpdated": "Satıcı {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Toplam",
       "status": "Durum",
       "date": "Tarih",
-      "itemsCount": "XPHB0XPHX makaleleri"
+      "itemsCount": "{{count}} makaleleri"
     },
     "paymentsTable": {
       "transactionId": "İşlem Kimliği",
@@ -2225,7 +2225,7 @@
     "publish": "Tarifi yayınla",
     "published": "Yayınlanmış tarif",
     "addToCart": "Malzemeleri satın alın",
-    "addedToCart": "XPHB0XPHX malzemeleri sepete eklendi",
+    "addedToCart": "{{count}} malzemeleri sepete eklendi",
     "by": "İle",
     "min": "dakika",
     "portions": "bölümler",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Yorum silindi",
     "edited": "düzenlendi",
     "likes": "Severim",
-    "viewComments": "XPHBX0XPHX yorumuna bakın.",
-    "viewCommentsPlural": "XPHBX0XPHX yorumlarına bakın.",
+    "viewComments": "{{count}} yorumuna bakın.",
+    "viewCommentsPlural": "{{count}} yorumlarına bakın.",
     "loginToLike": "Beğenmek için giriş yapın",
     "loginToSave": "Kaydetmek için giriş yapın",
     "loginToFollow": "Kullanıcıları takip etmek için giriş yapın.",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Bu kullanıcıyı takip etmeyi bıraktınız.",
     "nowFollowing": "Şu anda bu kullanıcıyı takip ediyorsunuz.",
     "profileUpdated": "Profil fotoğrafı güncellendi.",
-    "memberSince": "Üyelik tarihi: XPHBX0XPHX",
+    "memberSince": "Üyelik tarihi: {{date}}",
     "verifiedSeller": "Doğrulanmış satıcı",
     "viewStore": "Mağazayı görüntüle",
     "sendMessage": "Mesaj gönder",

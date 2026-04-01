@@ -26,7 +26,7 @@
     "viewAll": "सबै हेर्नुहोस्",
     "seeOriginal": "मूल हेर्नुहोस्",
     "seeTranslation": "अनुवाद हेर्नुहोस्",
-    "translatedFrom": "XPHB0XPHX बाट अनुवादित",
+    "translatedFrom": "{{language}} बाट अनुवादित",
     "details": "विवरणहरू",
     "status": "राज्य",
     "active": "सम्पत्ति",
@@ -267,7 +267,7 @@
     "soldOut": "थकित",
     "onlyLeft": "केवल {0} बाँकी छन्",
     "lowStock": "केवल {{count}} बाँकी छ",
-    "byProducer": "XPHBX0XPHX द्वारा",
+    "byProducer": "{{producer}} द्वारा",
     "origin": "उत्पत्ति",
     "price": "मूल्य",
     "category": "कोटी",
@@ -452,8 +452,8 @@
     "state": "प्रान्त",
     "zip": "जिप कोड",
     "country": "देश",
-    "chargeCurrency": "तपाईंलाई XPHB0XPHX मा शुल्क लगाइनेछ।",
-    "displayCurrency": "XPHBX0XPHX मा देखाइएका मूल्यहरू",
+    "chargeCurrency": "तपाईंलाई {{currency}} मा शुल्क लगाइनेछ।",
+    "displayCurrency": "मा देखाइएका {{currency}} मूल्यहरू",
     "exchangeRate": "विनिमय दर",
     "fullName": "पूरा नाम",
     "useShippingAddress": "बिलिङको लागि ढुवानी ठेगाना प्रयोग गर्नुहोस्",
@@ -604,7 +604,7 @@
     "accountPending": "खाता स्वीकृत हुन बाँकी छ",
     "accountPendingDesc": "तपाईंको निर्माता खाता प्रशासकको स्वीकृति पाउन बाँकी छ। तपाईं उत्पादन र प्रमाणपत्रहरू सिर्जना गर्न सक्नुहुन्छ, तर तपाईंको खाता स्वीकृत नभएसम्म ती ग्राहकहरूले देख्न सक्ने छैनन्।",
     "totalProducts": "कुल उत्पादनहरू",
-    "approvedProducts": "XPHB0XPHX स्वीकृत भयो",
+    "approvedProducts": "{{count}} स्वीकृत भयो",
     "followers": "अनुयायीहरू",
     "ofYourStore": "तपाईंको पसलबाट",
     "totalSold": "कुल बिक्री",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "देश छान्नुहोस्",
-        "countryAnalysis": "XPHD0XPHX को विश्लेषण",
+        "countryAnalysis": "XPHD0को {{country}} विश्लेषण",
         "totalUsers": "कुल प्रयोगकर्ताहरू",
         "ordersThisMonth": "यस महिनाका अर्डरहरू",
         "averageSpend": "औसत खर्च",
@@ -1058,7 +1058,7 @@
     "availableSoon": "चाँडै उपलब्ध हुनेछ",
     "inNext7Days": "आगामी ७ दिनमा",
     "nextPaymentDate": "अर्को भुक्तानी उपलब्ध छ",
-    "daysLeft": "XPHB0XPHX दिन बाँकी",
+    "daysLeft": "{{days}} दिन बाँकी",
     "noPendingPayments": "कुनै बाँकी भुक्तानी छैन",
     "paymentPolicy": "भुक्तानी नीति",
     "paymentPolicyDesc": "अर्डरको डेलिभरी सुनिश्चित गर्न प्रत्येक बिक्री पछि १५ दिनमा उत्पन्न हुने कमिसनहरू सङ्कलन गर्न सकिन्छ।",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "निर्माताहरू लोड गर्दा त्रुटि भयो",
-      "statusUpdated": "बिक्रेता XPHBX0XPHX"
+      "statusUpdated": "बिक्रेता {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "जम्मा",
       "status": "राज्य",
       "date": "मिति",
-      "itemsCount": "XPHB0XPHX लेखहरू"
+      "itemsCount": "{{count}} लेखहरू"
     },
     "paymentsTable": {
       "transactionId": "कारोबार आईडी",
@@ -2225,7 +2225,7 @@
     "publish": "रेसिपी प्रकाशित गर्नुहोस्",
     "published": "प्रकाशित रेसिपी",
     "addToCart": "सामग्रीहरू किन्नुहोस्",
-    "addedToCart": "XPHB0XPHX सामग्रीहरू कार्टमा थपियो",
+    "addedToCart": "{{count}} सामग्रीहरू कार्टमा थपियो",
     "by": "द्वारा",
     "min": "न्यूनतम",
     "portions": "भागहरू",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "टिप्पणी मेटाइयो",
     "edited": "सम्पादन गरिएको",
     "likes": "मलाई मन पर्छ",
-    "viewComments": "XPHBX0XPHX टिप्पणी हेर्नुहोस्",
-    "viewCommentsPlural": "XPHBX0XPHX टिप्पणीहरू हेर्नुहोस्",
+    "viewComments": "{{count}} टिप्पणी हेर्नुहोस्",
+    "viewCommentsPlural": "{{count}} टिप्पणीहरू हेर्नुहोस्",
     "loginToLike": "लाइक गर्न लग इन गर्नुहोस्",
     "loginToSave": "बचत गर्न लग इन गर्नुहोस्",
     "loginToFollow": "प्रयोगकर्ताहरूलाई फलो गर्न लग इन गर्नुहोस्",
@@ -2316,7 +2316,7 @@
     "unfollowed": "तपाईंले यस प्रयोगकर्तालाई अनफलो गर्नुभएको छ।",
     "nowFollowing": "तपाईं अहिले यो प्रयोगकर्तालाई पछ्याउँदै हुनुहुन्छ।",
     "profileUpdated": "अद्यावधिक गरिएको प्रोफाइल तस्वीर",
-    "memberSince": "XPHBX0XPHX देखि सदस्य",
+    "memberSince": "देखि {{date}} सदस्य",
     "verifiedSeller": "प्रमाणित विक्रेता",
     "viewStore": "स्टोर हेर्नुहोस्",
     "sendMessage": "सन्देश पठाउनुहोस्",

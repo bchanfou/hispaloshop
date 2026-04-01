@@ -26,7 +26,7 @@
     "viewAll": "Вижте всички",
     "seeOriginal": "Преглед на оригинала",
     "seeTranslation": "Вижте превода",
-    "translatedFrom": "Преведено от XPHB0XPHX",
+    "translatedFrom": "Преведено от {{language}}",
     "details": "Детайли",
     "status": "Щат",
     "active": "Актив",
@@ -267,7 +267,7 @@
     "soldOut": "Изтощен",
     "onlyLeft": "Остават само {0}",
     "lowStock": "Остават само {{count}}",
-    "byProducer": "от XPHBX0XPHX",
+    "byProducer": "от {{producer}}",
     "origin": "Произход",
     "price": "Цена",
     "category": "Категория",
@@ -452,8 +452,8 @@
     "state": "Провинция",
     "zip": "Пощенски код",
     "country": "Държава",
-    "chargeCurrency": "Ще бъдете таксувани в XPHB0XPHX",
-    "displayCurrency": "Цените са показани на XPHBX0XPHX",
+    "chargeCurrency": "Ще бъдете таксувани в {{currency}}",
+    "displayCurrency": "Цените са показани на {{currency}}",
     "exchangeRate": "Валутен курс",
     "fullName": "Пълно име",
     "useShippingAddress": "Използвайте адрес за доставка за фактуриране",
@@ -604,7 +604,7 @@
     "accountPending": "Профилът чака одобрение",
     "accountPendingDesc": "Вашият акаунт на производител очаква одобрение от администратор. Можете да създавате продукти и сертификати, но те няма да бъдат видими за клиентите, докато акаунтът ви не бъде одобрен.",
     "totalProducts": "Общо продукти",
-    "approvedProducts": "Одобрен XPHB0XPHX",
+    "approvedProducts": "Одобрен {{count}}",
     "followers": "Последователи",
     "ofYourStore": "от вашия магазин",
     "totalSold": "Общо продадени",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Изберете държава",
-        "countryAnalysis": "Анализ на XPHD0XPHX",
+        "countryAnalysis": "Анализ на {{country}} XPHD0",
         "totalUsers": "Общо потребители",
         "ordersThisMonth": "Поръчки този месец",
         "averageSpend": "Среден разход",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Налично скоро",
     "inNext7Days": "В следващите 7 дни",
     "nextPaymentDate": "Следващото плащане е налично",
-    "daysLeft": "XPHB0XPHX оставащи дни",
+    "daysLeft": "{{days}} оставащи дни",
     "noPendingPayments": "Няма неизплатени плащания",
     "paymentPolicy": "Политика за плащане",
     "paymentPolicyDesc": "Генерираните комисионни могат да бъдат събрани 15 дни след всяка продажба, за да се гарантира доставката на поръчката.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Грешка при зареждане на производителите",
-      "statusUpdated": "Продавач XPHBX0XPHX"
+      "statusUpdated": "Продавач {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Общо",
       "status": "Щат",
       "date": "Дата",
-      "itemsCount": "Статии от XPHB0XPHX"
+      "itemsCount": "Статии от {{count}}"
     },
     "paymentsTable": {
       "transactionId": "Идентификационен номер на транзакцията",
@@ -2225,7 +2225,7 @@
     "publish": "Публикуване на рецепта",
     "published": "Публикувана рецепта",
     "addToCart": "Купете съставки",
-    "addedToCart": "Съставките на XPHB0XPHX са добавени в количката",
+    "addedToCart": "Съставките на {{count}} са добавени в количката",
     "by": "От",
     "min": "мин.",
     "portions": "порции",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Коментарът е изтрит",
     "edited": "редактиран",
     "likes": "Харесвам",
-    "viewComments": "Вижте коментара на XPHBX0XPHX",
-    "viewCommentsPlural": "Вижте коментарите на XPHBX0XPHX",
+    "viewComments": "Вижте {{count}} коментара на",
+    "viewCommentsPlural": "Вижте {{count}} коментарите на",
     "loginToLike": "Влезте, за да харесате",
     "loginToSave": "Влезте, за да запазите",
     "loginToFollow": "Влезте, за да следвате потребители",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Прекратихте следенето на този потребител",
     "nowFollowing": "Вече следвате този потребител",
     "profileUpdated": "Актуализирана профилна снимка",
-    "memberSince": "Член от XPHBX0XPHX",
+    "memberSince": "Член от {{date}}",
     "verifiedSeller": "Проверен продавач",
     "viewStore": "Преглед на магазина",
     "sendMessage": "Изпрати съобщение",

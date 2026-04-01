@@ -26,7 +26,7 @@
     "viewAll": "Näytä kaikki",
     "seeOriginal": "Näytä alkuperäinen",
     "seeTranslation": "Katso käännös",
-    "translatedFrom": "Käännetty XPHB0XPHX:stä",
+    "translatedFrom": "Käännetty {{language}}:stä",
     "details": "Tiedot",
     "status": "Osavaltio",
     "active": "Omaisuus",
@@ -267,7 +267,7 @@
     "soldOut": "Uupunut",
     "onlyLeft": "Vain {0} jäljellä",
     "lowStock": "Vain {{count}} jäljellä",
-    "byProducer": "XPHBX0XPHX:n tekijä",
+    "byProducer": ":n {{producer}} tekijä",
     "origin": "Alkuperä",
     "price": "Hinta",
     "category": "Kategoria",
@@ -452,8 +452,8 @@
     "state": "Provinssi",
     "zip": "Postinumero",
     "country": "Maa",
-    "chargeCurrency": "Sinulta veloitetaan summa XPHB0XPHX",
-    "displayCurrency": "Hinnat näkyvät XPHBX0XPHX:ssä",
+    "chargeCurrency": "Sinulta veloitetaan summa {{currency}}",
+    "displayCurrency": "Hinnat näkyvät :ssä {{currency}}",
     "exchangeRate": "Vaihtokurssi",
     "fullName": "Koko nimi",
     "useShippingAddress": "Käytä toimitusosoitetta laskutuksessa",
@@ -604,7 +604,7 @@
     "accountPending": "Tili odottaa hyväksyntää",
     "accountPendingDesc": "Tuottajatilisi odottaa järjestelmänvalvojan hyväksyntää. Voit luoda tuotteita ja sertifikaatteja, mutta ne eivät näy asiakkaille ennen kuin tilisi on hyväksytty.",
     "totalProducts": "Tuotteita yhteensä",
-    "approvedProducts": "XPHB0XPHX-hyväksytty",
+    "approvedProducts": "{{count}}-hyväksytty",
     "followers": "Seuraajat",
     "ofYourStore": "kaupastasi",
     "totalSold": "Myyty yhteensä",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Valitse maa",
-        "countryAnalysis": "XPHD0XPHX:n analyysi",
+        "countryAnalysis": "XPHD0:n {{country}} analyysi",
         "totalUsers": "Käyttäjiä yhteensä",
         "ordersThisMonth": "Tilaukset tässä kuussa",
         "averageSpend": "Keskimääräiset menot",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Saatavilla pian",
     "inNext7Days": "Seuraavien 7 päivän aikana",
     "nextPaymentDate": "Seuraava maksu saatavilla",
-    "daysLeft": "XPHB0XPHX päivää jäljellä",
+    "daysLeft": "{{days}} päivää jäljellä",
     "noPendingPayments": "Ei maksamatta olevia maksuja",
     "paymentPolicy": "Maksukäytäntö",
     "paymentPolicyDesc": "Kertyneet palkkiot voidaan kerätä 15 päivää kunkin myynnin jälkeen tilauksen toimituksen takaamiseksi.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Virhe ladattaessa tuottajia",
-      "statusUpdated": "Myyjä XPHBX0XPHX"
+      "statusUpdated": "Myyjä {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Kokonais",
       "status": "Osavaltio",
       "date": "Päivämäärä",
-      "itemsCount": "XPHB0XPHX-artikkelit"
+      "itemsCount": "{{count}}-artikkelit"
     },
     "paymentsTable": {
       "transactionId": "Tapahtumatunnus",
@@ -2225,7 +2225,7 @@
     "publish": "Julkaise resepti",
     "published": "Julkaistu resepti",
     "addToCart": "Osta aineksia",
-    "addedToCart": "XPHB0XPHX-ainekset lisätty ostoskoriin",
+    "addedToCart": "{{count}}-ainekset lisätty ostoskoriin",
     "by": "Tekijä",
     "min": "min",
     "portions": "annokset",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Kommentti poistettu",
     "edited": "muokattu",
     "likes": "Pidän",
-    "viewComments": "Katso XPHBX0XPHX-kommentti",
-    "viewCommentsPlural": "Katso XPHBX0XPHX-kommentit",
+    "viewComments": "Katso {{count}} -kommentti",
+    "viewCommentsPlural": "Katso {{count}} -kommentit",
     "loginToLike": "Kirjaudu sisään tykätäksesi",
     "loginToSave": "Kirjaudu sisään tallentaaksesi",
     "loginToFollow": "Kirjaudu sisään seurataksesi käyttäjiä",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Olet lopettanut tämän käyttäjän seuraamisen",
     "nowFollowing": "Seuraat nyt tätä käyttäjää",
     "profileUpdated": "Päivitetty profiilikuva",
-    "memberSince": "Jäsen vuodesta XPHBX0XPHX",
+    "memberSince": "Jäsen vuodesta {{date}}",
     "verifiedSeller": "Vahvistettu myyjä",
     "viewStore": "Näytä myymälä",
     "sendMessage": "Lähetä viesti",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Kerro, mitä sisältöä tarvitset..."
   },
   "predictions": {
-    "purchased": "Ostettu XPHBX0XPHXx"
+    "purchased": "Ostettu {{count}}"
   },
   "wishlist": {
     "title": "Toivelista",

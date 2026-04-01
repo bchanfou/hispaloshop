@@ -26,7 +26,7 @@
     "viewAll": "تمام دیکھیں",
     "seeOriginal": "اصل دیکھیں",
     "seeTranslation": "ترجمہ دیکھیں",
-    "translatedFrom": "XPHB0XPHX سے ترجمہ شدہ",
+    "translatedFrom": "{{language}} سے ترجمہ شدہ",
     "details": "تفصیلات",
     "status": "ریاست",
     "active": "اثاثہ",
@@ -267,7 +267,7 @@
     "soldOut": "تھک گیا۔",
     "onlyLeft": "صرف {0} باقی ہیں۔",
     "lowStock": "صرف {{count}} باقی ہے۔",
-    "byProducer": "XPHBX0XPHX کے ذریعے",
+    "byProducer": "{{producer}} کے ذریعے",
     "origin": "اصل",
     "price": "قیمت",
     "category": "زمرہ",
@@ -452,8 +452,8 @@
     "state": "صوبہ",
     "zip": "زپ کوڈ",
     "country": "ملک",
-    "chargeCurrency": "آپ سے XPHB0XPHX میں چارج کیا جائے گا۔",
-    "displayCurrency": "قیمتیں XPHBX0XPHX پر دکھائی گئی ہیں۔",
+    "chargeCurrency": "آپ سے {{currency}} میں چارج کیا جائے گا۔",
+    "displayCurrency": "قیمتیں پر دکھائی {{currency}} گئی ہیں۔",
     "exchangeRate": "شرح تبادلہ",
     "fullName": "پورا نام",
     "useShippingAddress": "بلنگ کے لیے شپنگ ایڈریس استعمال کریں۔",
@@ -604,7 +604,7 @@
     "accountPending": "اکاؤنٹ کی منظوری زیر التواء ہے۔",
     "accountPendingDesc": "آپ کا پروڈیوسر اکاؤنٹ منتظم کی منظوری کے لیے زیر التوا ہے۔ آپ پروڈکٹس اور سرٹیفکیٹس بنا سکتے ہیں، لیکن وہ صارفین کو اس وقت تک نظر نہیں آئیں گے جب تک کہ آپ کا اکاؤنٹ منظور نہیں ہو جاتا۔",
     "totalProducts": "کل مصنوعات",
-    "approvedProducts": "XPHB0XPHX منظور شدہ",
+    "approvedProducts": "{{count}} منظور شدہ",
     "followers": "پیروکار",
     "ofYourStore": "آپ کی دکان سے",
     "totalSold": "کل فروخت",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "ایک ملک منتخب کریں۔",
-        "countryAnalysis": "XPHD0XPHX کا تجزیہ",
+        "countryAnalysis": "XPHD0{{country}} کا تجزیہ",
         "totalUsers": "کل صارفین",
         "ordersThisMonth": "اس مہینے کا آرڈر",
         "averageSpend": "اوسط اخراجات",
@@ -1058,7 +1058,7 @@
     "availableSoon": "جلد ہی دستیاب ہے۔",
     "inNext7Days": "اگلے 7 دنوں میں",
     "nextPaymentDate": "اگلی ادائیگی دستیاب ہے۔",
-    "daysLeft": "XPHB0XPHX دن باقی ہیں۔",
+    "daysLeft": "{{days}} دن باقی ہیں۔",
     "noPendingPayments": "کوئی بقایا ادائیگیاں نہیں۔",
     "paymentPolicy": "ادائیگی کی پالیسی",
     "paymentPolicyDesc": "آرڈر کی ترسیل کی ضمانت کے لیے ہر فروخت کے 15 دن بعد پیدا ہونے والے کمیشن کو جمع کیا جا سکتا ہے۔",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "پروڈیوسرز کو لوڈ کرنے میں خرابی۔",
-      "statusUpdated": "بیچنے والا XPHBX0XPHX"
+      "statusUpdated": "بیچنے والا {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "کل",
       "status": "ریاست",
       "date": "تاریخ",
-      "itemsCount": "XPHB0XPHX مضامین"
+      "itemsCount": "{{count}} مضامین"
     },
     "paymentsTable": {
       "transactionId": "ٹرانزیکشن ID",
@@ -2225,7 +2225,7 @@
     "publish": "نسخہ شائع کریں۔",
     "published": "شائع شدہ نسخہ",
     "addToCart": "اجزاء خریدیں۔",
-    "addedToCart": "XPHB0XPHX اجزاء کارٹ میں شامل کیے گئے۔",
+    "addedToCart": "{{count}} اجزاء کارٹ میں شامل کیے گئے۔",
     "by": "کی طرف سے",
     "min": "منٹ",
     "portions": "حصے",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "تبصرہ حذف کر دیا گیا۔",
     "edited": "ترمیم شدہ",
     "likes": "مجھے پسند ہے۔",
-    "viewComments": "XPHBX0XPHX تبصرہ دیکھیں",
-    "viewCommentsPlural": "XPHBX0XPHX تبصرے دیکھیں",
+    "viewComments": "{{count}} تبصرہ دیکھیں",
+    "viewCommentsPlural": "{{count}} تبصرے دیکھیں",
     "loginToLike": "پسند کرنے کے لیے لاگ ان کریں۔",
     "loginToSave": "محفوظ کرنے کے لیے لاگ ان کریں۔",
     "loginToFollow": "صارفین کو فالو کرنے کے لیے لاگ ان کریں۔",
@@ -2316,7 +2316,7 @@
     "unfollowed": "آپ نے اس صارف کی پیروی ختم کردی ہے۔",
     "nowFollowing": "اب آپ اس صارف کی پیروی کر رہے ہیں۔",
     "profileUpdated": "اپ ڈیٹ شدہ پروفائل تصویر",
-    "memberSince": "XPHBX0XPHX سے ممبر",
+    "memberSince": "سے {{date}} ممبر",
     "verifiedSeller": "تصدیق شدہ بیچنے والا",
     "viewStore": "اسٹور دیکھیں",
     "sendMessage": "پیغام بھیجیں۔",

@@ -26,7 +26,7 @@
     "viewAll": "සියල්ල බලන්න",
     "seeOriginal": "මුල් පිටපත බලන්න",
     "seeTranslation": "පරිවර්තනය බලන්න",
-    "translatedFrom": "XPHB0XPHX වෙතින් පරිවර්තනය කරන ලදී.",
+    "translatedFrom": "{{language}} වෙතින් පරිවර්තනය කරන ලදී.",
     "details": "විස්තර",
     "status": "රජයේ",
     "active": "වත්කම",
@@ -267,7 +267,7 @@
     "soldOut": "වෙහෙසට පත්",
     "onlyLeft": "ඉතිරිව ඇත්තේ {0} පමණි.",
     "lowStock": "{{count}} පමණක් ඉතිරිව ඇත.",
-    "byProducer": "XPHBX0XPHX විසින්",
+    "byProducer": "{{producer}} විසින්",
     "origin": "සම්භවය",
     "price": "මිල",
     "category": "ප්‍රවර්ගය",
@@ -452,8 +452,8 @@
     "state": "පළාත",
     "zip": "සිප් කේතය",
     "country": "රට",
-    "chargeCurrency": "ඔබෙන් XPHB0XPHX වලින් අය කෙරේ.",
-    "displayCurrency": "XPHBX0XPHX හි මිල ගණන් පෙන්වා ඇත.",
+    "chargeCurrency": "ඔබෙන් {{currency}} වලින් අය කෙරේ.",
+    "displayCurrency": "හි මිල ගණන් {{currency}} පෙන්වා ඇත.",
     "exchangeRate": "විනිමය අනුපාතය",
     "fullName": "සම්පූර්ණ නම",
     "useShippingAddress": "බිල්පත් කිරීම සඳහා නැව්ගත කිරීමේ ලිපිනය භාවිතා කරන්න",
@@ -604,7 +604,7 @@
     "accountPending": "ගිණුමේ අනුමැතිය පොරොත්තුයි",
     "accountPendingDesc": "ඔබේ නිෂ්පාදක ගිණුම පරිපාලක අනුමැතිය බලාපොරොත්තුවෙන් සිටී. ඔබට නිෂ්පාදන සහ සහතික නිර්මාණය කළ හැකිය, නමුත් ඔබේ ගිණුම අනුමත වන තුරු ඒවා පාරිභෝගිකයින්ට දෘශ්‍යමාන නොවේ.",
     "totalProducts": "මුළු නිෂ්පාදන",
-    "approvedProducts": "XPHB0XPHX අනුමත කර ඇත",
+    "approvedProducts": "{{count}} අනුමත කර ඇත",
     "followers": "අනුගාමිකයින්",
     "ofYourStore": "ඔබේ වෙළඳසැලෙන්",
     "totalSold": "මුළු අලෙවිය",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "රටක් තෝරන්න",
-        "countryAnalysis": "XPHD0XPHX විශ්ලේෂණය",
+        "countryAnalysis": "XPHD0{{country}} විශ්ලේෂණය",
         "totalUsers": "මුළු පරිශීලකයින්",
         "ordersThisMonth": "මෙම මාසයේ ඇණවුම්",
         "averageSpend": "සාමාන්‍ය වියදම",
@@ -1058,7 +1058,7 @@
     "availableSoon": "ඉක්මනින් ලබා ගත හැකිය",
     "inNext7Days": "ඉදිරි දින 7 තුළ",
     "nextPaymentDate": "ඊළඟ ගෙවීම ලබා ගත හැකිය",
-    "daysLeft": "ඉතිරි දින XPHB0XPHX",
+    "daysLeft": "ඉතිරි දින {{days}}",
     "noPendingPayments": "හිඟ ගෙවීම් නොමැත",
     "paymentPolicy": "ගෙවීම් ප්‍රතිපත්තිය",
     "paymentPolicyDesc": "ඇණවුම ලබා දීම සහතික කිරීම සඳහා, සෑම අලෙවියෙන් දින 15 කට පසු ජනනය වන කොමිස් මුදල් එකතු කර ගත හැක.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "නිෂ්පාදකයින් පූරණය කිරීමේ දෝෂයකි",
-      "statusUpdated": "විකුණුම්කරු XPHBX0XPHX"
+      "statusUpdated": "විකුණුම්කරු {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "සමස්ත",
       "status": "රජයේ",
       "date": "දිනය",
-      "itemsCount": "XPHB0XPHX ලිපි"
+      "itemsCount": "{{count}} ලිපි"
     },
     "paymentsTable": {
       "transactionId": "ගනුදෙනු හැඳුනුම්පත",
@@ -2225,7 +2225,7 @@
     "publish": "වට්ටෝරුව ප්‍රකාශයට පත් කරන්න",
     "published": "ප්‍රකාශිත වට්ටෝරුව",
     "addToCart": "අමුද්‍රව්‍ය මිලදී ගන්න",
-    "addedToCart": "XPHB0XPHX අමුද්‍රව්‍ය කරත්තයට එකතු කරන ලදී.",
+    "addedToCart": "{{count}} අමුද්‍රව්‍ය කරත්තයට එකතු කරන ලදී.",
     "by": "විසින්",
     "min": "මිනි",
     "portions": "කොටස්",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "අදහස මකා දමන ලදී",
     "edited": "සංස්කරණය කරන ලදී",
     "likes": "මම කැමතියි",
-    "viewComments": "XPHBX0XPHX අදහස බලන්න",
-    "viewCommentsPlural": "XPHBX0XPHX අදහස් බලන්න",
+    "viewComments": "{{count}} අදහස බලන්න",
+    "viewCommentsPlural": "{{count}} අදහස් බලන්න",
     "loginToLike": "කැමති වීමට ලොග් වන්න",
     "loginToSave": "සුරැකීමට ලොග් වන්න",
     "loginToFollow": "පරිශීලකයින් අනුගමනය කිරීමට ලොග් වන්න",
@@ -2316,7 +2316,7 @@
     "unfollowed": "ඔබ මෙම පරිශීලකයා අනුගමනය කිරීම නවතා ඇත.",
     "nowFollowing": "ඔබ දැන් මෙම පරිශීලකයා අනුගමනය කරමින් සිටී.",
     "profileUpdated": "යාවත්කාලීන කළ පැතිකඩ පින්තූරය",
-    "memberSince": "XPHBX0XPHX සිට සාමාජිකයෙකි",
+    "memberSince": "සිට සාමාජිකයෙකි {{date}}",
     "verifiedSeller": "සත්‍යාපිත විකුණුම්කරු",
     "viewStore": "වෙළඳසැල බලන්න",
     "sendMessage": "පණිවිඩය යවන්න",

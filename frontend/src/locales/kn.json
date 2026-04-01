@@ -26,7 +26,7 @@
     "viewAll": "ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ",
     "seeOriginal": "ಮೂಲವನ್ನು ವೀಕ್ಷಿಸಿ",
     "seeTranslation": "ಅನುವಾದ ನೋಡಿ",
-    "translatedFrom": "XPHB0XPHX ನಿಂದ ಅನುವಾದಿಸಲಾಗಿದೆ",
+    "translatedFrom": "{{language}} ನಿಂದ ಅನುವಾದಿಸಲಾಗಿದೆ",
     "details": "ವಿವರಗಳು",
     "status": "ರಾಜ್ಯ",
     "active": "ಆಸ್ತಿ",
@@ -267,7 +267,7 @@
     "soldOut": "ದಣಿದಿದೆ",
     "onlyLeft": "ಕೇವಲ {0} ಮಾತ್ರ ಉಳಿದಿದೆ",
     "lowStock": "ಕೇವಲ {{count}} ಮಾತ್ರ ಉಳಿದಿದೆ",
-    "byProducer": "XPHBX0XPHX ಅವರಿಂದ",
+    "byProducer": "{{producer}} ಅವರಿಂದ",
     "origin": "ಮೂಲ",
     "price": "ಬೆಲೆ",
     "category": "ವರ್ಗ",
@@ -452,8 +452,8 @@
     "state": "ಪ್ರಾಂತ್ಯ",
     "zip": "ಪಿನ್ ಕೋಡ್",
     "country": "ದೇಶ",
-    "chargeCurrency": "ನಿಮಗೆ XPHB0XPHX ನಲ್ಲಿ ಶುಲ್ಕ ವಿಧಿಸಲಾಗುತ್ತದೆ.",
-    "displayCurrency": "XPHBX0XPHX ನಲ್ಲಿ ತೋರಿಸಿರುವ ಬೆಲೆಗಳು",
+    "chargeCurrency": "ನಿಮಗೆ {{currency}} ನಲ್ಲಿ ಶುಲ್ಕ ವಿಧಿಸಲಾಗುತ್ತದೆ.",
+    "displayCurrency": "ನಲ್ಲಿ ತೋರಿಸಿರುವ {{currency}} ಬೆಲೆಗಳು",
     "exchangeRate": "ವಿನಿಮಯ ದರ",
     "fullName": "ಪೂರ್ಣ ಹೆಸರು",
     "useShippingAddress": "ಬಿಲ್ಲಿಂಗ್‌ಗಾಗಿ ಶಿಪ್ಪಿಂಗ್ ವಿಳಾಸವನ್ನು ಬಳಸಿ",
@@ -604,7 +604,7 @@
     "accountPending": "ಖಾತೆ ಅನುಮೋದನೆ ಬಾಕಿ ಇದೆ",
     "accountPendingDesc": "ನಿಮ್ಮ ನಿರ್ಮಾಪಕ ಖಾತೆಯು ನಿರ್ವಾಹಕರ ಅನುಮೋದನೆಗಾಗಿ ಬಾಕಿ ಇದೆ. ನೀವು ಉತ್ಪನ್ನಗಳು ಮತ್ತು ಪ್ರಮಾಣಪತ್ರಗಳನ್ನು ರಚಿಸಬಹುದು, ಆದರೆ ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಅನುಮೋದಿಸುವವರೆಗೆ ಅವು ಗ್ರಾಹಕರಿಗೆ ಗೋಚರಿಸುವುದಿಲ್ಲ.",
     "totalProducts": "ಒಟ್ಟು ಉತ್ಪನ್ನಗಳು",
-    "approvedProducts": "XPHB0XPHX ಅನುಮೋದಿಸಲಾಗಿದೆ",
+    "approvedProducts": "{{count}} ಅನುಮೋದಿಸಲಾಗಿದೆ",
     "followers": "ಅನುಯಾಯಿಗಳು",
     "ofYourStore": "ನಿಮ್ಮ ಅಂಗಡಿಯಿಂದ",
     "totalSold": "ಒಟ್ಟು ಮಾರಾಟ",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "ದೇಶವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
-        "countryAnalysis": "XPHD0XPHX ನ ವಿಶ್ಲೇಷಣೆ",
+        "countryAnalysis": "XPHD0ನ {{country}} ವಿಶ್ಲೇಷಣೆ",
         "totalUsers": "ಒಟ್ಟು ಬಳಕೆದಾರರು",
         "ordersThisMonth": "ಈ ತಿಂಗಳ ಆರ್ಡರ್‌ಗಳು",
         "averageSpend": "ಸರಾಸರಿ ಖರ್ಚು",
@@ -1058,7 +1058,7 @@
     "availableSoon": "ಶೀಘ್ರದಲ್ಲೇ ಲಭ್ಯವಾಗುತ್ತದೆ",
     "inNext7Days": "ಮುಂದಿನ 7 ದಿನಗಳಲ್ಲಿ",
     "nextPaymentDate": "ಮುಂದಿನ ಪಾವತಿ ಲಭ್ಯವಿದೆ",
-    "daysLeft": "XPHB0XPHX ದಿನಗಳು ಉಳಿದಿವೆ",
+    "daysLeft": "{{days}} ದಿನಗಳು ಉಳಿದಿವೆ",
     "noPendingPayments": "ಯಾವುದೇ ಬಾಕಿ ಪಾವತಿಗಳಿಲ್ಲ",
     "paymentPolicy": "ಪಾವತಿ ನೀತಿ",
     "paymentPolicyDesc": "ಆರ್ಡರ್‌ನ ವಿತರಣೆಯನ್ನು ಖಾತರಿಪಡಿಸಿಕೊಳ್ಳಲು ಪ್ರತಿ ಮಾರಾಟದ 15 ದಿನಗಳ ನಂತರ ಉತ್ಪತ್ತಿಯಾಗುವ ಕಮಿಷನ್‌ಗಳನ್ನು ಸಂಗ್ರಹಿಸಬಹುದು.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "ನಿರ್ಮಾಪಕರನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ",
-      "statusUpdated": "ಮಾರಾಟಗಾರ XPHBX0XPHX"
+      "statusUpdated": "ಮಾರಾಟಗಾರ {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "ಒಟ್ಟು",
       "status": "ರಾಜ್ಯ",
       "date": "ದಿನಾಂಕ",
-      "itemsCount": "XPHB0XPHX ಲೇಖನಗಳು"
+      "itemsCount": "{{count}} ಲೇಖನಗಳು"
     },
     "paymentsTable": {
       "transactionId": "ವಹಿವಾಟು ಐಡಿ",
@@ -2225,7 +2225,7 @@
     "publish": "ಪಾಕವಿಧಾನ ಪ್ರಕಟಿಸಿ",
     "published": "ಪ್ರಕಟಿತ ಪಾಕವಿಧಾನ",
     "addToCart": "ಪದಾರ್ಥಗಳನ್ನು ಖರೀದಿಸಿ",
-    "addedToCart": "XPHB0XPHX ಪದಾರ್ಥಗಳನ್ನು ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ",
+    "addedToCart": "{{count}} ಪದಾರ್ಥಗಳನ್ನು ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ",
     "by": "ಇವರಿಂದ",
     "min": "ನಿಮಿಷ",
     "portions": "ಭಾಗಗಳು",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "ಕಾಮೆಂಟ್ ಅಳಿಸಲಾಗಿದೆ",
     "edited": "ಸಂಪಾದಿಸಲಾಗಿದೆ",
     "likes": "ನನಗೆ ಇಷ್ಟ",
-    "viewComments": "XPHBX0XPHX ಕಾಮೆಂಟ್ ನೋಡಿ",
-    "viewCommentsPlural": "XPHBX0XPHX ಕಾಮೆಂಟ್‌ಗಳನ್ನು ನೋಡಿ",
+    "viewComments": "{{count}} ಕಾಮೆಂಟ್ ನೋಡಿ",
+    "viewCommentsPlural": "{{count}} ಕಾಮೆಂಟ್‌ಗಳನ್ನು ನೋಡಿ",
     "loginToLike": "ಇಷ್ಟಪಡಲು ಲಾಗಿನ್ ಮಾಡಿ",
     "loginToSave": "ಉಳಿಸಲು ಲಾಗಿನ್ ಮಾಡಿ",
     "loginToFollow": "ಬಳಕೆದಾರರನ್ನು ಅನುಸರಿಸಲು ಲಾಗಿನ್ ಮಾಡಿ",
@@ -2316,7 +2316,7 @@
     "unfollowed": "ನೀವು ಈ ಬಳಕೆದಾರರನ್ನು ಅನುಸರಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿದ್ದೀರಿ.",
     "nowFollowing": "ನೀವು ಈಗ ಈ ಬಳಕೆದಾರರನ್ನು ಅನುಸರಿಸುತ್ತಿದ್ದೀರಿ.",
     "profileUpdated": "ಪ್ರೊಫೈಲ್ ಚಿತ್ರವನ್ನು ನವೀಕರಿಸಲಾಗಿದೆ",
-    "memberSince": "XPHBX0XPHX ರಿಂದ ಸದಸ್ಯ",
+    "memberSince": "ರಿಂದ {{date}} ಸದಸ್ಯ",
     "verifiedSeller": "ಪರಿಶೀಲಿಸಿದ ಮಾರಾಟಗಾರ",
     "viewStore": "ಅಂಗಡಿಯನ್ನು ವೀಕ್ಷಿಸಿ",
     "sendMessage": "ಸಂದೇಶ ಕಳುಹಿಸಿ",

@@ -26,7 +26,7 @@
     "viewAll": "Žiūrėti visus",
     "seeOriginal": "Žiūrėti originalą",
     "seeTranslation": "Žr. vertimą",
-    "translatedFrom": "Išversta iš XPHB0XPHX",
+    "translatedFrom": "Išversta iš {{language}}",
     "details": "Išsami informacija",
     "status": "Valstija",
     "active": "Turtas",
@@ -267,7 +267,7 @@
     "soldOut": "Išsekęs",
     "onlyLeft": "Liko tik {0}",
     "lowStock": "Liko tik {{count}}",
-    "byProducer": "pateikė XPHBX0XPHX",
+    "byProducer": "pateikė {{producer}}",
     "origin": "Kilmė",
     "price": "Kaina",
     "category": "Kategorija",
@@ -452,8 +452,8 @@
     "state": "Provincija",
     "zip": "Pašto kodas",
     "country": "Šalis",
-    "chargeCurrency": "Jums bus nuskaičiuota XPHB0XPHX",
-    "displayCurrency": "Kainos rodomos XPHBX0XPHX",
+    "chargeCurrency": "Jums bus nuskaičiuota {{currency}}",
+    "displayCurrency": "Kainos rodomos {{currency}}",
     "exchangeRate": "Valiutos kursas",
     "fullName": "Pilnas vardas",
     "useShippingAddress": "Naudoti pristatymo adresą atsiskaitymui",
@@ -604,7 +604,7 @@
     "accountPending": "Laukiama patvirtinimo paskyroje",
     "accountPendingDesc": "Jūsų gamintojo paskyra laukia administratoriaus patvirtinimo. Galite kurti produktus ir sertifikatus, tačiau jie nebus matomi klientams, kol jūsų paskyra nebus patvirtinta.",
     "totalProducts": "Iš viso produktų",
-    "approvedProducts": "XPHB0XPHX patvirtinta",
+    "approvedProducts": "{{count}} patvirtinta",
     "followers": "Sekėjai",
     "ofYourStore": "iš jūsų parduotuvės",
     "totalSold": "Iš viso parduota",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Pasirinkite šalį",
-        "countryAnalysis": "XPHD0XPHX analizė",
+        "countryAnalysis": "XPHD0{{country}} analizė",
         "totalUsers": "Iš viso naudotojų",
         "ordersThisMonth": "Užsakymai šį mėnesį",
         "averageSpend": "Vidutinės išlaidos",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Netrukus bus galima įsigyti",
     "inNext7Days": "Per ateinančias 7 dienas",
     "nextPaymentDate": "Kitas galimas mokėjimas",
-    "daysLeft": "Liko XPHB0XPHX dienų",
+    "daysLeft": "Liko {{days}} dienų",
     "noPendingPayments": "Nėra neapmokėtų mokėjimų",
     "paymentPolicy": "Mokėjimo politika",
     "paymentPolicyDesc": "Sugeneruoti komisiniai gali būti renkami praėjus 15 dienų po kiekvieno pardavimo, siekiant užtikrinti užsakymo pristatymą.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Įkeliant gamintojus įvyko klaida",
-      "statusUpdated": "Pardavėjas XPHBX0XPHX"
+      "statusUpdated": "Pardavėjas {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Iš viso",
       "status": "Valstija",
       "date": "Data",
-      "itemsCount": "XPHB0XPHX straipsniai"
+      "itemsCount": "{{count}} straipsniai"
     },
     "paymentsTable": {
       "transactionId": "Operacijos ID",
@@ -2225,7 +2225,7 @@
     "publish": "Paskelbti receptą",
     "published": "Paskelbtas receptas",
     "addToCart": "Pirkite ingredientus",
-    "addedToCart": "XPHB0XPHX ingredientai įdėti į krepšelį",
+    "addedToCart": "{{count}} ingredientai įdėti į krepšelį",
     "by": "Pagal",
     "min": "min.",
     "portions": "porcijos",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Komentaras ištrintas",
     "edited": "redaguota",
     "likes": "Man patinka",
-    "viewComments": "Žr. XPHBX0XPHX komentarą",
-    "viewCommentsPlural": "Žr. XPHBX0XPHX komentarus",
+    "viewComments": "Žr. {{count}} komentarą",
+    "viewCommentsPlural": "Žr. {{count}} komentarus",
     "loginToLike": "Prisijunkite, kad pamėgtumėte",
     "loginToSave": "Prisijunkite, kad išsaugotumėte",
     "loginToFollow": "Prisijunkite, kad galėtumėte sekti naudotojus",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Jūs nebesekėte šio vartotojo",
     "nowFollowing": "Dabar sekate šį vartotoją",
     "profileUpdated": "Atnaujinta profilio nuotrauka",
-    "memberSince": "Narys nuo XPHBX0XPHX",
+    "memberSince": "Narys nuo {{date}}",
     "verifiedSeller": "Patvirtintas pardavėjas",
     "viewStore": "Peržiūrėti parduotuvę",
     "sendMessage": "Siųsti žinutę",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Aprašykite, kokio turinio jums reikia..."
   },
   "predictions": {
-    "purchased": "Įsigytas XPHBX0XPHXx"
+    "purchased": "Įsigytas {{count}}"
   },
   "wishlist": {
     "title": "Pageidavimų sąrašas",

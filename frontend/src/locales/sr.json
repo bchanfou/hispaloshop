@@ -26,7 +26,7 @@
     "viewAll": "Прикажи све",
     "seeOriginal": "Прикажи оригинал",
     "seeTranslation": "Погледајте превод",
-    "translatedFrom": "Преведено са XPHB0XPHX",
+    "translatedFrom": "Преведено са {{language}}",
     "details": "Детаљи",
     "status": "Држава",
     "active": "Средство",
@@ -267,7 +267,7 @@
     "soldOut": "Исцрпљен",
     "onlyLeft": "Само {0} је остало",
     "lowStock": "Остаје само {{count}}",
-    "byProducer": "од стране XPHBX0XPHX",
+    "byProducer": "од стране {{producer}}",
     "origin": "Порекло",
     "price": "Цена",
     "category": "Категорија",
@@ -452,8 +452,8 @@
     "state": "Провинција",
     "zip": "Поштански број",
     "country": "Земља",
-    "chargeCurrency": "Биће вам наплаћено у XPHB0XPHX",
-    "displayCurrency": "Цене приказане на XPHBX0XPHX",
+    "chargeCurrency": "Биће вам наплаћено у {{currency}}",
+    "displayCurrency": "Цене приказане на {{currency}}",
     "exchangeRate": "Девизни курс",
     "fullName": "Пуно име",
     "useShippingAddress": "Користите адресу за испоруку за наплату",
@@ -604,7 +604,7 @@
     "accountPending": "Налог чека одобрење",
     "accountPendingDesc": "Ваш налог произвођача чека одобрење администратора. Можете креирати производе и сертификате, али они неће бити видљиви купцима док ваш налог не буде одобрен.",
     "totalProducts": "Укупно производа",
-    "approvedProducts": "Одобрено XPHB0XPHX",
+    "approvedProducts": "Одобрено {{count}}",
     "followers": "Пратиоци",
     "ofYourStore": "из ваше продавнице",
     "totalSold": "Укупно продато",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Изаберите земљу",
-        "countryAnalysis": "Анализа XPHD0XPHX",
+        "countryAnalysis": "Анализа XPHD0{{country}}",
         "totalUsers": "Укупан број корисника",
         "ordersThisMonth": "Поруџбине овог месеца",
         "averageSpend": "Просечни расходи",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Доступно ускоро",
     "inNext7Days": "У наредних 7 дана",
     "nextPaymentDate": "Следећа уплата је доступна",
-    "daysLeft": "Преостало XPHB0XPHX дана",
+    "daysLeft": "Преостало {{days}} дана",
     "noPendingPayments": "Нема неизмирених плаћања",
     "paymentPolicy": "Политика плаћања",
     "paymentPolicyDesc": "Остварене провизије могу се наплатити 15 дана након сваке продаје како би се гарантовала испорука поруџбине.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Грешка при учитавању произвођача",
-      "statusUpdated": "Продавац XPHBX0XPHX"
+      "statusUpdated": "Продавац {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Укупно",
       "status": "Држава",
       "date": "Датум",
-      "itemsCount": "Чланци XPHB0XPHX"
+      "itemsCount": "Чланци {{count}}"
     },
     "paymentsTable": {
       "transactionId": "ИД трансакције",
@@ -2225,7 +2225,7 @@
     "publish": "Објави рецепт",
     "published": "Објављени рецепт",
     "addToCart": "Купите састојке",
-    "addedToCart": "Састојци XPHB0XPHX су додати у корпу",
+    "addedToCart": "Састојци {{count}} су додати у корпу",
     "by": "Од стране",
     "min": "мин",
     "portions": "порције",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Коментар је обрисан",
     "edited": "измењено",
     "likes": "Свиђа ми се",
-    "viewComments": "Погледајте коментар XPHBX0XPHX",
-    "viewCommentsPlural": "Погледајте коментаре XPHBX0XPHX",
+    "viewComments": "Погледајте {{count}} коментар",
+    "viewCommentsPlural": "Погледајте {{count}} коментаре",
     "loginToLike": "Пријавите се да бисте лајковали",
     "loginToSave": "Пријавите се да бисте сачували",
     "loginToFollow": "Пријавите се да бисте пратили кориснике",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Престали сте да пратите овог корисника",
     "nowFollowing": "Сада пратите овог корисника",
     "profileUpdated": "Ажурирана слика профила",
-    "memberSince": "Члан од XPHBX0XPHX",
+    "memberSince": "Члан од {{date}}",
     "verifiedSeller": "Верификовани продавац",
     "viewStore": "Погледајте продавницу",
     "sendMessage": "Пошаљи поруку",

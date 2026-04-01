@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "loading": "Loading...",
     "save": "Save",
@@ -198,7 +198,8 @@
     "signUpWithGoogle": "Sign up with Google",
     "welcomeBack": "Welcome Back",
     "signInToAccount": "Sign in to access your account",
-    "areYouProducer": "Are you a seller? Sign up here"
+    "areYouProducer": "Are you a seller? Sign up here",
+    "emailOrUseráname": "Email o @usuario"
   },
   "forgotPassword": {
     "title": "Forgot Password?",
@@ -1018,7 +1019,8 @@
     "suspend": "Suspend",
     "reactivate": "Reactivate",
     "visits": "Visits",
-    "pendingPayouts": "Pending payouts"
+    "pendingPayouts": "Pending payouts",
+    "unlímited": "Ilimitado"
   },
   "userManagement": {
     "title": "User Management",
@@ -1206,7 +1208,9 @@
         "seasonalPatterns": "Seasonal Patterns",
         "recommendations": "Strategic Recommendations",
         "growth": "Growth",
-        "decline": "Decline"
+        "decline": "Decline",
+        "emergingInterestás": "Intereses Emergentes",
+        "decliningInterestás": "Intereses en Declive"
       },
       "compliance": {
         "title": "GDPR Compliance Dashboard",
@@ -1397,7 +1401,8 @@
     "productNotAvailable": "This product is not available in your region",
     "incorrectPassword": "Incorrect password",
     "emailExists": "Email already registered",
-    "usernameTaken": "Username already taken"
+    "usernameTaken": "Username already taken",
+    "useránameTaken": "Nombre de usuario ya existe"
   },
   "success": {
     "saved": "Saved successfully",
@@ -1618,7 +1623,8 @@
     "reviews": "reviews",
     "ctaTitle": "Are you a local seller?",
     "ctaText": "Join our seller community and bring your products to conscious customers worldwide.",
-    "ctaButton": "Sell on Hispaloshop"
+    "ctaButton": "Sell on Hispaloshop",
+    "autónomousCommunity": "Comunidad Autónoma"
   },
   "countries": {
     "ES": "Spain",
@@ -1673,7 +1679,8 @@
     "SouthAfrica": "South Africa",
     "Israel": "Israel",
     "Lebanon": "Lebanon",
-    "Iran": "Iran"
+    "Iran": "Iran",
+    "SouthÁfrica": "Sudáfrica"
   },
   "becomeSeller": {
     "badge": "Seller Program",
@@ -2295,7 +2302,6 @@
     "deleted": "Post deleted",
     "saved": "Saved",
     "unsaved": "Removed from saved",
-    "published": "Published",
     "editComment": "Edit",
     "deleteComment": "Delete",
     "commentUpdated": "Comment updated",
@@ -2334,9 +2340,7 @@
     "errorBuy": "Error buying",
     "addedToCart": "Added to cart",
     "searchProduct": "Search product...",
-    "photo": "Photo",
     "product": "Product",
-    "whatThinking": "What are you thinking?",
     "delete": "Delete",
     "quantity": "Quantity",
     "cart": "Cart",
@@ -2360,7 +2364,8 @@
     "europe": "Europe",
     "americas": "Americas",
     "asiaOceania": "Asia & Oceania",
-    "africaMiddleEast": "Africa & Middle East"
+    "africaMiddleEast": "Africa & Middle East",
+    "asiaOceanía": "Asia y Oceanía"
   },
   "aiPrefs": {
     "title": "David AI Preferences",
@@ -2413,7 +2418,8 @@
     "loadError": "Error loading preferences",
     "noProfile": "Could not load preferences",
     "privacyNote": "Your preferences are saved securely and only used to personalize your recommendations.",
-    "privacyNote2": "We do not store complete conversations or sensitive medical data."
+    "privacyNote2": "We do not store complete conversations or sensitive medical data.",
+    "digestión": "Mejor digestión"
   },
   "sellerAI": {
     "title": "Hispalo Sales AI",
@@ -2494,5 +2500,3 @@
     "explorerDesc": "You followed 5 stores"
   }
 }
-
-

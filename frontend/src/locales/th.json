@@ -26,7 +26,7 @@
     "viewAll": "ดูทั้งหมด",
     "seeOriginal": "ดูต้นฉบับ",
     "seeTranslation": "ดูคำแปล",
-    "translatedFrom": "แปลจาก XPHB0XPHX",
+    "translatedFrom": "แปลจาก {{language}}",
     "details": "รายละเอียด",
     "status": "สถานะ",
     "active": "สินทรัพย์",
@@ -267,7 +267,7 @@
     "soldOut": "เหนื่อย",
     "onlyLeft": "เหลือเพียง {0} เท่านั้น",
     "lowStock": "เหลือเพียง {{count}} เท่านั้น",
-    "byProducer": "โดย XPHBX0XPHX",
+    "byProducer": "โดย {{producer}}",
     "origin": "ต้นทาง",
     "price": "ราคา",
     "category": "หมวดหมู่",
@@ -452,8 +452,8 @@
     "state": "จังหวัด",
     "zip": "รหัสไปรษณีย์",
     "country": "ประเทศ",
-    "chargeCurrency": "คุณจะถูกเรียกเก็บเงินใน XPHB0XPHX",
-    "displayCurrency": "ราคาที่แสดงบน XPHBX0XPHX",
+    "chargeCurrency": "คุณจะถูกเรียกเก็บเงินใน {{currency}}",
+    "displayCurrency": "ราคาที่แสดงบน {{currency}}",
     "exchangeRate": "อัตราแลกเปลี่ยน",
     "fullName": "ชื่อเต็ม",
     "useShippingAddress": "ใช้ที่อยู่จัดส่งสินค้าสำหรับการเรียกเก็บเงิน",
@@ -604,7 +604,7 @@
     "accountPending": "บัญชีอยู่ระหว่างรอการอนุมัติ",
     "accountPendingDesc": "บัญชีผู้ผลิตของคุณอยู่ระหว่างรอการอนุมัติจากผู้ดูแลระบบ คุณสามารถสร้างผลิตภัณฑ์และใบรับรองได้ แต่ลูกค้าจะไม่สามารถมองเห็นได้จนกว่าบัญชีของคุณจะได้รับการอนุมัติ",
     "totalProducts": "ผลิตภัณฑ์ทั้งหมด",
-    "approvedProducts": "XPHB0XPHX ได้รับการอนุมัติ",
+    "approvedProducts": "{{count}} ได้รับการอนุมัติ",
     "followers": "ผู้ติดตาม",
     "ofYourStore": "จากร้านค้าของคุณ",
     "totalSold": "ยอดขายทั้งหมด",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "เลือกประเทศ",
-        "countryAnalysis": "การวิเคราะห์ XPHD0XPHX",
+        "countryAnalysis": "การวิเคราะห์ {{country}} XPHD0",
         "totalUsers": "ผู้ใช้ทั้งหมด",
         "ordersThisMonth": "ยอดสั่งซื้อในเดือนนี้",
         "averageSpend": "ค่าใช้จ่ายเฉลี่ย",
@@ -1058,7 +1058,7 @@
     "availableSoon": "เร็วๆ นี้",
     "inNext7Days": "ในอีก 7 วันข้างหน้า",
     "nextPaymentDate": "การชำระเงินครั้งต่อไปพร้อมให้บริการ",
-    "daysLeft": "เหลือเวลา XPHB0XPHX วัน",
+    "daysLeft": "เหลือเวลา {{days}} วัน",
     "noPendingPayments": "ไม่มีการชำระเงินค้างชำระ",
     "paymentPolicy": "นโยบายการชำระเงิน",
     "paymentPolicyDesc": "ค่าคอมมิชชั่นที่ได้รับจะถูกเรียกเก็บ 15 วันหลังจากการขายแต่ละครั้ง เพื่อรับประกันการจัดส่งสินค้า",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ผลิต",
-      "statusUpdated": "ผู้ขาย XPHBX0XPHX"
+      "statusUpdated": "ผู้ขาย {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "ทั้งหมด",
       "status": "สถานะ",
       "date": "วันที่",
-      "itemsCount": "บทความ XPHB0XPHX"
+      "itemsCount": "บทความ {{count}}"
     },
     "paymentsTable": {
       "transactionId": "รหัสธุรกรรม",
@@ -2225,7 +2225,7 @@
     "publish": "เผยแพร่สูตรอาหาร",
     "published": "สูตรอาหารที่เผยแพร่",
     "addToCart": "ซื้อส่วนผสม",
-    "addedToCart": "เพิ่มส่วนประกอบ XPHB0XPHX ลงในตะกร้าแล้ว",
+    "addedToCart": "เพิ่มส่วนประกอบ {{count}} ลงในตะกร้าแล้ว",
     "by": "โดย",
     "min": "นาที",
     "portions": "ส่วนต่างๆ",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "ความคิดเห็นถูกลบ",
     "edited": "แก้ไขแล้ว",
     "likes": "ฉันชอบ",
-    "viewComments": "ดูความคิดเห็น XPHBX0XPHX",
-    "viewCommentsPlural": "ดูความคิดเห็นของ XPHBX0XPHX",
+    "viewComments": "ดูความคิดเห็น {{count}}",
+    "viewCommentsPlural": "ดูความคิดเห็นของ {{count}}",
     "loginToLike": "เข้าสู่ระบบเพื่อกดไลค์",
     "loginToSave": "เข้าสู่ระบบเพื่อบันทึก",
     "loginToFollow": "เข้าสู่ระบบเพื่อติดตามผู้ใช้",
@@ -2316,7 +2316,7 @@
     "unfollowed": "คุณได้เลิกติดตามผู้ใช้รายนี้แล้ว",
     "nowFollowing": "ขณะนี้คุณกำลังติดตามผู้ใช้รายนี้",
     "profileUpdated": "รูปโปรไฟล์ที่อัปเดตแล้ว",
-    "memberSince": "เป็นสมาชิกตั้งแต่ XPHBX0XPHX",
+    "memberSince": "เป็นสมาชิกตั้งแต่ {{date}}",
     "verifiedSeller": "ผู้ขายที่ได้รับการยืนยัน",
     "viewStore": "ดูร้านค้า",
     "sendMessage": "ส่งข้อความ",

@@ -26,7 +26,7 @@
     "viewAll": "Alles bekijken",
     "seeOriginal": "Bekijk origineel",
     "seeTranslation": "Zie vertaling",
-    "translatedFrom": "Vertaald van XPHB0XPHX",
+    "translatedFrom": "Vertaald van {{language}}",
     "details": "Details",
     "status": "Staat",
     "active": "Bezit",
@@ -267,7 +267,7 @@
     "soldOut": "Uitgeput",
     "onlyLeft": "Alleen {0} blijven over",
     "lowStock": "Alleen {{count}} blijft over",
-    "byProducer": "door XPHBX0XPHX",
+    "byProducer": "door {{producer}}",
     "origin": "Oorsprong",
     "price": "Prijs",
     "category": "Categorie",
@@ -452,8 +452,8 @@
     "state": "Provincie",
     "zip": "Postcode",
     "country": "Land",
-    "chargeCurrency": "U wordt gefactureerd in XPHB0XPHX",
-    "displayCurrency": "Prijzen weergegeven op XPHBX0XPHX",
+    "chargeCurrency": "U wordt gefactureerd in {{currency}}",
+    "displayCurrency": "Prijzen weergegeven op {{currency}}",
     "exchangeRate": "Wisselkoers",
     "fullName": "Volledige naam",
     "useShippingAddress": "Gebruik het verzendadres voor de facturering.",
@@ -604,7 +604,7 @@
     "accountPending": "Account in afwachting van goedkeuring",
     "accountPendingDesc": "Uw producentenaccount wacht op goedkeuring van de beheerder. U kunt producten en certificaten aanmaken, maar deze zijn pas zichtbaar voor klanten nadat uw account is goedgekeurd.",
     "totalProducts": "Totale producten",
-    "approvedProducts": "XPHB0XPHX goedgekeurd",
+    "approvedProducts": "{{count}} goedgekeurd",
     "followers": "Volgers",
     "ofYourStore": "uit uw winkel",
     "totalSold": "Totaal verkocht",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Selecteer een land",
-        "countryAnalysis": "Analyse van XPHD0XPHX",
+        "countryAnalysis": "Analyse van {{country}} XPHD0",
         "totalUsers": "Totaal aantal gebruikers",
         "ordersThisMonth": "Bestellingen deze maand",
         "averageSpend": "Gemiddelde uitgaven",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Binnenkort beschikbaar",
     "inNext7Days": "In de komende 7 dagen",
     "nextPaymentDate": "Volgende beschikbare betaling",
-    "daysLeft": "XPHB0XPHX dagen resterend",
+    "daysLeft": "{{days}} dagen resterend",
     "noPendingPayments": "Geen openstaande betalingen",
     "paymentPolicy": "Betalingsbeleid",
     "paymentPolicyDesc": "De gegenereerde commissies kunnen 15 dagen na elke verkoop worden geïnd om de levering van de bestelling te garanderen.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Fout bij het laden van producenten",
-      "statusUpdated": "Verkoper XPHBX0XPHX"
+      "statusUpdated": "Verkoper {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Totaal",
       "status": "Staat",
       "date": "Datum",
-      "itemsCount": "XPHB0XPHX-artikelen"
+      "itemsCount": "{{count}}-artikelen"
     },
     "paymentsTable": {
       "transactionId": "Transactie-ID",
@@ -2225,7 +2225,7 @@
     "publish": "Recept publiceren",
     "published": "Gepubliceerd recept",
     "addToCart": "Ingrediënten kopen",
-    "addedToCart": "Ingrediënten van XPHB0XPHX toegevoegd aan winkelwagen",
+    "addedToCart": "Ingrediënten van {{count}} toegevoegd aan winkelwagen",
     "by": "Door",
     "min": "min",
     "portions": "porties",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Reactie verwijderd",
     "edited": "bewerkt",
     "likes": "Ik vind het leuk",
-    "viewComments": "Zie de opmerking van XPHBX0XPHX",
-    "viewCommentsPlural": "Zie de opmerkingen van XPHBX0XPHX",
+    "viewComments": "Zie de {{count}} opmerking van",
+    "viewCommentsPlural": "Zie de {{count}} opmerkingen van",
     "loginToLike": "Log in om te liken",
     "loginToSave": "Log in om op te slaan",
     "loginToFollow": "Log in om gebruikers te volgen",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Je volgt deze gebruiker niet meer.",
     "nowFollowing": "Je volgt nu deze gebruiker.",
     "profileUpdated": "Bijgewerkte profielfoto",
-    "memberSince": "Lid sinds XPHBX0XPHX",
+    "memberSince": "Lid sinds {{date}}",
     "verifiedSeller": "Geverifieerde verkoper",
     "viewStore": "Bekijk de winkel",
     "sendMessage": "Bericht verzenden",

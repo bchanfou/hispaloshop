@@ -26,7 +26,7 @@
     "viewAll": "Zobrazit vše",
     "seeOriginal": "Zobrazit originál",
     "seeTranslation": "Zobrazit překlad",
-    "translatedFrom": "Přeloženo z XPHB0XPHX",
+    "translatedFrom": "Přeloženo z {{language}}",
     "details": "Podrobnosti",
     "status": "Stát",
     "active": "Aktivum",
@@ -267,7 +267,7 @@
     "soldOut": "Vyčerpaný",
     "onlyLeft": "Zbývá už jen {0}",
     "lowStock": "Zbývá jen {{count}}",
-    "byProducer": "od XPHBX0XPHX",
+    "byProducer": "od {{producer}}",
     "origin": "Původ",
     "price": "Cena",
     "category": "Kategorie",
@@ -452,8 +452,8 @@
     "state": "Provincie",
     "zip": "PSČ",
     "country": "Země",
-    "chargeCurrency": "Bude vám účtována částka XPHB0XPHX",
-    "displayCurrency": "Ceny zobrazené na XPHBX0XPHX",
+    "chargeCurrency": "Bude vám účtována částka {{currency}}",
+    "displayCurrency": "Ceny zobrazené na {{currency}}",
     "exchangeRate": "Kurz",
     "fullName": "Celé jméno",
     "useShippingAddress": "Použít dodací adresu pro fakturaci",
@@ -604,7 +604,7 @@
     "accountPending": "Účet čeká na schválení",
     "accountPendingDesc": "Váš producentský účet čeká na schválení administrátorem. Můžete vytvářet produkty a certifikáty, ale pro zákazníky nebudou viditelné, dokud nebude váš účet schválen.",
     "totalProducts": "Celkem produktů",
-    "approvedProducts": "Schváleno XPHB0XPHX",
+    "approvedProducts": "Schváleno {{count}}",
     "followers": "Sledující",
     "ofYourStore": "z vašeho obchodu",
     "totalSold": "Celkem prodaných",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Vyberte zemi",
-        "countryAnalysis": "Analýza XPHD0XPHX",
+        "countryAnalysis": "Analýza XPHD0{{country}}",
         "totalUsers": "Celkový počet uživatelů",
         "ordersThisMonth": "Objednávky tento měsíc",
         "averageSpend": "Průměrné výdaje",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Brzy k dispozici",
     "inNext7Days": "V příštích 7 dnech",
     "nextPaymentDate": "Další platba k dispozici",
-    "daysLeft": "Zbývá XPHB0XPHX dní",
+    "daysLeft": "Zbývá {{days}} dní",
     "noPendingPayments": "Žádné neuhrazené platby",
     "paymentPolicy": "Platební politika",
     "paymentPolicyDesc": "Vygenerované provize lze vybírat 15 dní po každém prodeji, aby bylo zaručeno doručení objednávky.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Chyba při načítání producentů",
-      "statusUpdated": "Prodejce XPHBX0XPHX"
+      "statusUpdated": "Prodejce {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Celkový",
       "status": "Stát",
       "date": "Datum",
-      "itemsCount": "Články XPHB0XPHX"
+      "itemsCount": "Články {{count}}"
     },
     "paymentsTable": {
       "transactionId": "ID transakce",
@@ -2225,7 +2225,7 @@
     "publish": "Publikovat recept",
     "published": "Zveřejněný recept",
     "addToCart": "Kupte si ingredience",
-    "addedToCart": "Ingredience XPHB0XPHX byly přidány do košíku",
+    "addedToCart": "Ingredience {{count}} byly přidány do košíku",
     "by": "Podle",
     "min": "min.",
     "portions": "porce",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Komentář smazán",
     "edited": "upraveno",
     "likes": "Mám rád/a",
-    "viewComments": "Viz komentář XPHBX0XPHX",
-    "viewCommentsPlural": "Viz komentáře XPHBX0XPHX",
+    "viewComments": "Viz {{count}} komentář",
+    "viewCommentsPlural": "Viz {{count}} komentáře",
     "loginToLike": "Přihlaste se pro označení „To se mi líbí“",
     "loginToSave": "Přihlaste se pro uložení",
     "loginToFollow": "Přihlaste se pro sledování uživatelů",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Zrušili jste sledování tohoto uživatele",
     "nowFollowing": "Nyní sledujete tohoto uživatele",
     "profileUpdated": "Aktualizovaný profilový obrázek",
-    "memberSince": "Člen od XPHBX0XPHX",
+    "memberSince": "Člen od {{date}}",
     "verifiedSeller": "Ověřený prodejce",
     "viewStore": "Zobrazit obchod",
     "sendMessage": "Odeslat zprávu",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Popište, jaký obsah potřebujete..."
   },
   "predictions": {
-    "purchased": "Zakoupeno XPHBX0XPHXx"
+    "purchased": "Zakoupeno {{count}}"
   },
   "wishlist": {
     "title": "Seznam přání",

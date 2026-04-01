@@ -26,7 +26,7 @@
     "viewAll": "ყველას ნახვა",
     "seeOriginal": "ორიგინალის ნახვა",
     "seeTranslation": "იხილეთ თარგმანი",
-    "translatedFrom": "თარგმნილია XPHB0XPHX-დან",
+    "translatedFrom": "თარგმნილია {{language}}-დან",
     "details": "დეტალები",
     "status": "შტატი",
     "active": "აქტივი",
@@ -267,7 +267,7 @@
     "soldOut": "დაღლილი",
     "onlyLeft": "მხოლოდ {0} დარჩა",
     "lowStock": "მხოლოდ {{count}} დარჩა",
-    "byProducer": "XPHBX0XPHX-ის მიერ",
+    "byProducer": "-ის {{producer}} მიერ",
     "origin": "წარმოშობა",
     "price": "ფასი",
     "category": "კატეგორია",
@@ -452,8 +452,8 @@
     "state": "პროვინცია",
     "zip": "საფოსტო ინდექსი",
     "country": "ქვეყანა",
-    "chargeCurrency": "თანხა XPHB0XPHX-ში ჩამოგეჭრებათ",
-    "displayCurrency": "ფასები ნაჩვენებია XPHBX0XPHX-ზე",
+    "chargeCurrency": "თანხა {{currency}}-ში ჩამოგეჭრებათ",
+    "displayCurrency": "ფასები ნაჩვენებია -ზე {{currency}}",
     "exchangeRate": "გაცვლითი კურსი",
     "fullName": "სრული სახელი",
     "useShippingAddress": "გადახდისთვის გამოიყენეთ მიწოდების მისამართი",
@@ -604,7 +604,7 @@
     "accountPending": "ანგარიშის დამტკიცების მოლოდინში",
     "accountPendingDesc": "თქვენი პროდიუსერის ანგარიში ადმინისტრატორის დამტკიცებას ელოდება. თქვენ შეგიძლიათ შექმნათ პროდუქტები და სერტიფიკატები, მაგრამ ისინი მომხმარებლებისთვის ხილული არ იქნება თქვენი ანგარიშის დამტკიცებამდე.",
     "totalProducts": "სულ პროდუქტები",
-    "approvedProducts": "XPHB0XPHX დამტკიცებულია",
+    "approvedProducts": "{{count}} დამტკიცებულია",
     "followers": "მიმდევრები",
     "ofYourStore": "თქვენი მაღაზიიდან",
     "totalSold": "სულ გაყიდული",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "აირჩიეთ ქვეყანა",
-        "countryAnalysis": "XPHD0XPHX-ის ანალიზი",
+        "countryAnalysis": "XPHD0-ის {{country}} ანალიზი",
         "totalUsers": "მომხმარებლების საერთო რაოდენობა",
         "ordersThisMonth": "ამ თვის შეკვეთები",
         "averageSpend": "საშუალო ხარჯი",
@@ -1058,7 +1058,7 @@
     "availableSoon": "მალე ხელმისაწვდომი",
     "inNext7Days": "მომდევნო 7 დღეში",
     "nextPaymentDate": "შემდეგი გადახდა ხელმისაწვდომია",
-    "daysLeft": "XPHB0XPHX დღე დარჩა",
+    "daysLeft": "{{days}} დღე დარჩა",
     "noPendingPayments": "დავალიანება არ არის",
     "paymentPolicy": "გადახდის პოლიტიკა",
     "paymentPolicyDesc": "შეკვეთის მიწოდების გარანტირებისთვის გენერირებული საკომისიოების შეგროვება შესაძლებელია თითოეული გაყიდვიდან 15 დღის შემდეგ.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "შეცდომა პროდიუსერების ჩატვირთვისას მოხდა. შეცდომა მოხდა პროდიუსერების ჩატვირთვისას.",
-      "statusUpdated": "გამყიდველი XPHBX0XPHX"
+      "statusUpdated": "გამყიდველი {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "სულ",
       "status": "შტატი",
       "date": "თარიღი",
-      "itemsCount": "XPHB0XPHX სტატიები"
+      "itemsCount": "{{count}} სტატიები"
     },
     "paymentsTable": {
       "transactionId": "ტრანზაქციის ID",
@@ -2225,7 +2225,7 @@
     "publish": "რეცეპტის გამოქვეყნება",
     "published": "გამოქვეყნებული რეცეპტი",
     "addToCart": "ინგრედიენტების შეძენა",
-    "addedToCart": "XPHB0XPHX ინგრედიენტები დაემატა კალათას",
+    "addedToCart": "{{count}} ინგრედიენტები დაემატა კალათას",
     "by": "ავტორი",
     "min": "წთ",
     "portions": "პორციები",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "კომენტარი წაშლილია",
     "edited": "რედაქტირებულია",
     "likes": "მომწონს",
-    "viewComments": "იხილეთ XPHBX0XPHX კომენტარი",
-    "viewCommentsPlural": "იხილეთ XPHBX0XPHX კომენტარები",
+    "viewComments": "იხილეთ {{count}} კომენტარი",
+    "viewCommentsPlural": "იხილეთ {{count}} კომენტარები",
     "loginToLike": "მოწონებისთვის შედით სისტემაში",
     "loginToSave": "შედით სისტემაში შესანახად",
     "loginToFollow": "მომხმარებლების თვალყურის დევნებისთვის შედით სისტემაში",
@@ -2316,7 +2316,7 @@
     "unfollowed": "თქვენ ამ მომხმარებლის თვალყურის დევნება გააუქმეთ",
     "nowFollowing": "თქვენ ახლა ამ მომხმარებელს ადევნებთ თვალყურს",
     "profileUpdated": "განახლებული პროფილის სურათი",
-    "memberSince": "წევრი XPHBX0XPHX-დან",
+    "memberSince": "წევრი -დან {{date}}",
     "verifiedSeller": "დადასტურებული გამყიდველი",
     "viewStore": "მაღაზიის ნახვა",
     "sendMessage": "შეტყობინების გაგზავნა",

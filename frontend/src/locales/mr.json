@@ -26,7 +26,7 @@
     "viewAll": "सर्व पहा",
     "seeOriginal": "मूळ पहा",
     "seeTranslation": "भाषांतर पहा",
-    "translatedFrom": "XPHB0XPHX वरून अनुवादित",
+    "translatedFrom": "{{language}} वरून अनुवादित",
     "details": "तपशील",
     "status": "राज्य",
     "active": "मालमत्ता",
@@ -267,7 +267,7 @@
     "soldOut": "थकलेले",
     "onlyLeft": "फक्त {0} शिल्लक राहिले",
     "lowStock": "फक्त {{count}} शिल्लक राहिले.",
-    "byProducer": "XHBX0XPHX द्वारे",
+    "byProducer": "XHBX0{{producer}} द्वारे",
     "origin": "मूळ",
     "price": "किंमत",
     "category": "श्रेणी",
@@ -452,8 +452,8 @@
     "state": "प्रांत",
     "zip": "पिन कोड",
     "country": "देश",
-    "chargeCurrency": "तुमच्याकडून XPHB0XPHX मध्ये शुल्क आकारले जाईल.",
-    "displayCurrency": "XPHBX0XPHX वर दाखवलेल्या किमती",
+    "chargeCurrency": "तुमच्याकडून {{currency}} मध्ये शुल्क आकारले जाईल.",
+    "displayCurrency": "वर दाखवलेल्या {{currency}} किमती",
     "exchangeRate": "विनिमय दर",
     "fullName": "पूर्ण नाव",
     "useShippingAddress": "बिलिंगसाठी शिपिंग पत्ता वापरा",
@@ -604,7 +604,7 @@
     "accountPending": "खाते मंजुरीच्या प्रतीक्षेत आहे",
     "accountPendingDesc": "तुमचे निर्माता खाते प्रशासकीय मंजुरीच्या प्रतीक्षेत आहे. तुम्ही उत्पादने आणि प्रमाणपत्रे तयार करू शकता, परंतु जोपर्यंत तुमच्या खात्याला मंजुरी मिळत नाही तोपर्यंत ती ग्राहकांना दिसणार नाहीत.",
     "totalProducts": "एकूण उत्पादने",
-    "approvedProducts": "XPHB0XPHX मंजूर",
+    "approvedProducts": "{{count}} मंजूर",
     "followers": "अनुयायी",
     "ofYourStore": "तुमच्या दुकानातून",
     "totalSold": "एकूण विक्री",
@@ -718,7 +718,7 @@
     "discountCodes": "सवलत कोड",
     "influencers": "प्रभावक",
     "pending": "कानातले",
-    "pendingCount": "XPX0XPHX प्रलंबित",
+    "pendingCount": "XPX0{{count}} प्रलंबित",
     "approved": "मंजूर",
     "rejected": "नकार दिला",
     "approve": "मंजूर करा",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "देश निवडा",
-        "countryAnalysis": "XPHD0XPHX चे विश्लेषण",
+        "countryAnalysis": "XPHD0चे {{country}} विश्लेषण",
         "totalUsers": "एकूण वापरकर्ते",
         "ordersThisMonth": "या महिन्यातील ऑर्डर",
         "averageSpend": "सरासरी खर्च",
@@ -1058,7 +1058,7 @@
     "availableSoon": "लवकरच उपलब्ध होईल",
     "inNext7Days": "पुढील ७ दिवसांत",
     "nextPaymentDate": "पुढील पेमेंट उपलब्ध आहे",
-    "daysLeft": "XPHB0XPHX दिवस शिल्लक",
+    "daysLeft": "{{days}} दिवस शिल्लक",
     "noPendingPayments": "कोणतीही थकबाकी नाही",
     "paymentPolicy": "पेमेंट धोरण",
     "paymentPolicyDesc": "ऑर्डरची डिलिव्हरी सुनिश्चित करण्यासाठी, प्रत्येक विक्रीनंतर १५ दिवसांनी मिळणारे कमिशन गोळा केले जाऊ शकते.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "उत्पादक लोड करण्यात त्रुटी",
-      "statusUpdated": "विक्रेता XHBX0XPHX"
+      "statusUpdated": "विक्रेता {{status}} XHBX0"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "एकूण",
       "status": "राज्य",
       "date": "तारीख",
-      "itemsCount": "XPHB0XPHX लेख"
+      "itemsCount": "{{count}} लेख"
     },
     "paymentsTable": {
       "transactionId": "व्यवहार आयडी",
@@ -2225,7 +2225,7 @@
     "publish": "पाककृती प्रकाशित करा",
     "published": "प्रकाशित पाककृती",
     "addToCart": "साहित्य खरेदी करा",
-    "addedToCart": "XPHB0XPHX घटक कार्टमध्ये जोडले.",
+    "addedToCart": "{{count}} घटक कार्टमध्ये जोडले.",
     "by": "द्वारे",
     "min": "किमान",
     "portions": "भाग",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "टिप्पणी हटवली",
     "edited": "संपादित",
     "likes": "मला आवडते",
-    "viewComments": "XHBX0XPHX यांची टिप्पणी पहा",
-    "viewCommentsPlural": "XPHXX0XPHX टिप्पण्या पहा",
+    "viewComments": "XHBX0{{count}} यांची टिप्पणी पहा",
+    "viewCommentsPlural": "{{count}} टिप्पण्या पहा",
     "loginToLike": "लाईक करण्यासाठी लॉग इन करा",
     "loginToSave": "सेव्ह करण्यासाठी लॉग इन करा",
     "loginToFollow": "वापरकर्त्यांना फॉलो करण्यासाठी लॉग इन करा",
@@ -2316,7 +2316,7 @@
     "unfollowed": "तुम्ही या वापरकर्त्याला अनफॉलो केले आहे.",
     "nowFollowing": "तुम्ही आता या वापरकर्त्याला फॉलो करत आहात.",
     "profileUpdated": "अपडेट केलेला प्रोफाइल फोटो",
-    "memberSince": "XHBX0XPHX पासून सदस्य",
+    "memberSince": "XHBX0पासून {{date}} सदस्य",
     "verifiedSeller": "सत्यापित विक्रेता",
     "viewStore": "स्टोअर पहा",
     "sendMessage": "संदेश पाठवा",
@@ -2338,7 +2338,7 @@
     "cart": "कार्ट",
     "buyNow": "आता खरेदी करा",
     "soldOut": "थकलेले",
-    "remaining": "XPX0XPHX शिल्लक आहेत",
+    "remaining": "XPX0{{count}} शिल्लक आहेत",
     "buy": "खरेदी करा",
     "imagesOnly": "फक्त प्रतिमांना परवानगी आहे",
     "maxSize5": "कमाल ५ एमबी",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "तुम्हाला कोणत्या सामग्रीची आवश्यकता आहे याचे वर्णन करा..."
   },
   "predictions": {
-    "purchased": "XPHBX0XPHXx खरेदी केले"
+    "purchased": "{{count}} खरेदी केले"
   },
   "wishlist": {
     "title": "इच्छा सूची",

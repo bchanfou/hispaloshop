@@ -26,7 +26,7 @@
     "viewAll": "Lihat semua",
     "seeOriginal": "Lihat aslinya",
     "seeTranslation": "Lihat terjemahan",
-    "translatedFrom": "Diterjemahkan dari XPHB0XPHX",
+    "translatedFrom": "Diterjemahkan dari {{language}}",
     "details": "Detail",
     "status": "Negara",
     "active": "Aset",
@@ -267,7 +267,7 @@
     "soldOut": "Lelah",
     "onlyLeft": "Hanya {0} yang tersisa",
     "lowStock": "Hanya {{count}} yang tersisa",
-    "byProducer": "oleh XPHBX0XPHX",
+    "byProducer": "oleh {{producer}}",
     "origin": "Asal",
     "price": "Harga",
     "category": "Kategori",
@@ -452,8 +452,8 @@
     "state": "Propinsi",
     "zip": "Kode pos",
     "country": "Negara",
-    "chargeCurrency": "Anda akan dikenakan biaya dalam kode pos XPHB0XPHX",
-    "displayCurrency": "Harga yang ditampilkan pada XPHBX0XPHX",
+    "chargeCurrency": "Anda akan dikenakan biaya dalam kode pos {{currency}}",
+    "displayCurrency": "Harga yang ditampilkan pada {{currency}}",
     "exchangeRate": "Kurs",
     "fullName": "Nama Lengkap",
     "useShippingAddress": "Gunakan alamat pengiriman untuk penagihan.",
@@ -604,7 +604,7 @@
     "accountPending": "Akun Menunggu Persetujuan",
     "accountPendingDesc": "Akun produsen Anda sedang menunggu persetujuan administrator. Anda dapat membuat produk dan sertifikat, tetapi produk dan sertifikat tersebut tidak akan terlihat oleh pelanggan sampai akun Anda disetujui.",
     "totalProducts": "Total Produk",
-    "approvedProducts": "XPHB0XPHX disetujui",
+    "approvedProducts": "{{count}} disetujui",
     "followers": "Pengikut",
     "ofYourStore": "dari toko Anda",
     "totalSold": "Total Terjual",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Pilih negara",
-        "countryAnalysis": "Analisis XPHD0XPHX",
+        "countryAnalysis": "Analisis XPHD0{{country}}",
         "totalUsers": "Jumlah Pengguna",
         "ordersThisMonth": "Pesanan Bulan Ini",
         "averageSpend": "Pengeluaran Rata-rata",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Segera tersedia",
     "inNext7Days": "Dalam 7 hari ke depan",
     "nextPaymentDate": "Pembayaran selanjutnya tersedia",
-    "daysLeft": "XPHB0XPHX hari tersisa",
+    "daysLeft": "{{days}} hari tersisa",
     "noPendingPayments": "Tidak ada pembayaran yang tertunggak",
     "paymentPolicy": "Kebijakan pembayaran",
     "paymentPolicyDesc": "Komisi yang dihasilkan dapat dikumpulkan 15 hari setelah setiap penjualan untuk menjamin pengiriman pesanan.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Terjadi kesalahan saat memuat produsen.",
-      "statusUpdated": "Penjual XPHBX0XPHX"
+      "statusUpdated": "Penjual {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Total",
       "status": "Negara",
       "date": "Tanggal",
-      "itemsCount": "Artikel XPHB0XPHX"
+      "itemsCount": "Artikel {{count}}"
     },
     "paymentsTable": {
       "transactionId": "ID Transaksi",
@@ -2225,7 +2225,7 @@
     "publish": "Publikasikan resep",
     "published": "Resep yang dipublikasikan",
     "addToCart": "Beli bahan-bahan",
-    "addedToCart": "Bahan XPHB0XPHX ditambahkan ke keranjang",
+    "addedToCart": "Bahan {{count}} ditambahkan ke keranjang",
     "by": "Oleh",
     "min": "menit",
     "portions": "bagian",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Komentar dihapus",
     "edited": "diedit",
     "likes": "Saya suka",
-    "viewComments": "Lihat komentar XPHBX0XPHX",
-    "viewCommentsPlural": "Lihat komentar XPHBX0XPHX",
+    "viewComments": "Lihat {{count}} komentar",
+    "viewCommentsPlural": "Lihat {{count}} komentar",
     "loginToLike": "Masuk untuk menyukai",
     "loginToSave": "Masuk untuk menyimpan",
     "loginToFollow": "Masuk untuk mengikuti pengguna",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Anda telah berhenti mengikuti pengguna ini.",
     "nowFollowing": "Anda sekarang mengikuti pengguna ini.",
     "profileUpdated": "Foto profil diperbarui",
-    "memberSince": "Anggota sejak XPHBX0XPHX",
+    "memberSince": "Anggota sejak {{date}}",
     "verifiedSeller": "Penjual terverifikasi",
     "viewStore": "Lihat toko",
     "sendMessage": "Kirim pesan",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Jelaskan konten apa yang Anda butuhkan..."
   },
   "predictions": {
-    "purchased": "XPHBX0XPHXx dibeli"
+    "purchased": "{{count}} dibeli"
   },
   "wishlist": {
     "title": "Daftar keinginan",

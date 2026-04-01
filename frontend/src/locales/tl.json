@@ -26,7 +26,7 @@
     "viewAll": "Tingnan lahat",
     "seeOriginal": "Tingnan ang orihinal",
     "seeTranslation": "Tingnan ang pagsasalin",
-    "translatedFrom": "Isinalin mula sa XPHB0XPHX",
+    "translatedFrom": "Isinalin mula sa {{language}}",
     "details": "Mga Detalye",
     "status": "Estado",
     "active": "Ari-arian",
@@ -267,7 +267,7 @@
     "soldOut": "Pagod na pagod",
     "onlyLeft": "{0} na lang ang natitira",
     "lowStock": "{{count}} na lang ang natitira",
-    "byProducer": "ni XPHBX0XPHX",
+    "byProducer": "ni {{producer}}",
     "origin": "Pinagmulan",
     "price": "Presyo",
     "category": "Kategorya",
@@ -452,8 +452,8 @@
     "state": "Lalawigan",
     "zip": "Zip code",
     "country": "Bansa",
-    "chargeCurrency": "Sisingilin ka ng XPHB0XPHX",
-    "displayCurrency": "Mga presyong ipinapakita sa XPHBX0XPHX",
+    "chargeCurrency": "Sisingilin ka ng {{currency}}",
+    "displayCurrency": "Mga presyong ipinapakita {{currency}} sa",
     "exchangeRate": "Halaga ng palitan",
     "fullName": "Buong Pangalan",
     "useShippingAddress": "Gamitin ang address ng pagpapadala para sa pagsingil",
@@ -604,7 +604,7 @@
     "accountPending": "Nakabinbin ang Pag-apruba ng Account",
     "accountPendingDesc": "Nakabinbin ang pag-apruba ng administrator sa iyong producer account. Maaari kang gumawa ng mga produkto at certificate, ngunit hindi ito makikita ng mga customer hangga't hindi naaaprubahan ang iyong account.",
     "totalProducts": "Kabuuang Produkto",
-    "approvedProducts": "Naaprubahan ang XPHB0XPHX",
+    "approvedProducts": "Naaprubahan ang {{count}}",
     "followers": "Mga Tagasunod",
     "ofYourStore": "mula sa iyong tindahan",
     "totalSold": "Kabuuang Nabenta",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Pumili ng bansa",
-        "countryAnalysis": "Pagsusuri ng XPHD0XPHX",
+        "countryAnalysis": "Pagsusuri ng {{country}} XPHD0",
         "totalUsers": "Kabuuang mga Gumagamit",
         "ordersThisMonth": "Mga Order Ngayong Buwan",
         "averageSpend": "Karaniwang Gastos",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Malapit nang maging available",
     "inNext7Days": "Sa susunod na 7 araw",
     "nextPaymentDate": "Magagamit ang susunod na bayad",
-    "daysLeft": "XPHB0XPHX mga araw na natitira",
+    "daysLeft": "{{days}} mga araw na natitira",
     "noPendingPayments": "Walang natitirang bayad",
     "paymentPolicy": "Patakaran sa pagbabayad",
     "paymentPolicyDesc": "Ang mga komisyon na nalikom ay maaaring kolektahin 15 araw pagkatapos ng bawat benta upang matiyak ang paghahatid ng order.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Nagka-error sa paglo-load ng mga producer",
-      "statusUpdated": "Nagbebenta XPHBX0XPHX"
+      "statusUpdated": "Nagbebenta {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Kabuuan",
       "status": "Estado",
       "date": "Petsa",
-      "itemsCount": "Mga artikulo ng XPHB0XPHX"
+      "itemsCount": "Mga artikulo ng {{count}}"
     },
     "paymentsTable": {
       "transactionId": "ID ng Transaksyon",
@@ -2225,7 +2225,7 @@
     "publish": "I-publish ang resipe",
     "published": "Na-publish na resipe",
     "addToCart": "Bumili ng mga sangkap",
-    "addedToCart": "Mga sangkap na XPHB0XPHX na idinagdag sa cart",
+    "addedToCart": "Mga sangkap na {{count}} na idinagdag sa cart",
     "by": "Ni",
     "min": "minuto",
     "portions": "mga bahagi",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Nabura ang komento",
     "edited": "na-edit",
     "likes": "Gusto ko",
-    "viewComments": "Tingnan ang komento ng XPHBX0XPHX",
-    "viewCommentsPlural": "Tingnan ang mga komento ng XPHBX0XPHX",
+    "viewComments": "Tingnan {{count}} ang komento ng",
+    "viewCommentsPlural": "Tingnan {{count}} ang mga komento ng",
     "loginToLike": "Mag-log in para magustuhan",
     "loginToSave": "Mag-log in para i-save",
     "loginToFollow": "Mag-log in para sundan ang mga user",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Na-unfollow mo na ang user na ito",
     "nowFollowing": "Sinusundan mo na ngayon ang user na ito",
     "profileUpdated": "Na-update na larawan sa profile",
-    "memberSince": "Miyembro simula noong XPHBX0XPHX",
+    "memberSince": "Miyembro simula noong {{date}}",
     "verifiedSeller": "Na-verify na nagbebenta",
     "viewStore": "Tingnan ang tindahan",
     "sendMessage": "Magpadala ng mensahe",

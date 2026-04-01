@@ -26,7 +26,7 @@
     "viewAll": "មើលទាំងអស់",
     "seeOriginal": "មើល​ឯកសារ​ដើម",
     "seeTranslation": "មើលការបកប្រែ",
-    "translatedFrom": "បកប្រែពី XPHB0XPHX",
+    "translatedFrom": "បកប្រែពី {{language}}",
     "details": "ព័ត៌មានលម្អិត",
     "status": "រដ្ឋ",
     "active": "ទ្រព្យសកម្ម",
@@ -267,7 +267,7 @@
     "soldOut": "អស់កម្លាំង",
     "onlyLeft": "នៅសល់តែ {0} ប៉ុណ្ណោះ",
     "lowStock": "មានតែ {{count}} ប៉ុណ្ណោះដែលនៅសល់",
-    "byProducer": "ដោយ XPHBX0XPHX",
+    "byProducer": "ដោយ {{producer}}",
     "origin": "ប្រភពដើម",
     "price": "តម្លៃ",
     "category": "ប្រភេទ",
@@ -452,8 +452,8 @@
     "state": "ខេត្ត",
     "zip": "លេខកូដប្រៃសណីយ៍",
     "country": "ប្រទេស",
-    "chargeCurrency": "អ្នកនឹងត្រូវបានគិតប្រាក់ក្នុងរយៈពេល XPHB0XPHX",
-    "displayCurrency": "តម្លៃដែលបង្ហាញនៅលើ XPHBX0XPHX",
+    "chargeCurrency": "អ្នកនឹងត្រូវបានគិតប្រាក់ក្នុងរយៈពេល {{currency}}",
+    "displayCurrency": "តម្លៃដែលបង្ហាញនៅលើ {{currency}}",
     "exchangeRate": "អត្រាប្តូរប្រាក់",
     "fullName": "ឈ្មោះពេញ",
     "useShippingAddress": "ប្រើអាសយដ្ឋានដឹកជញ្ជូនសម្រាប់វិក្កយបត្រ",
@@ -604,7 +604,7 @@
     "accountPending": "គណនីកំពុងរង់ចាំការអនុម័ត",
     "accountPendingDesc": "គណនីអ្នកផលិតរបស់អ្នកកំពុងរង់ចាំការយល់ព្រមពីអ្នកគ្រប់គ្រង។ អ្នកអាចបង្កើតផលិតផល និងវិញ្ញាបនបត្រ ប៉ុន្តែពួកវានឹងមើលមិនឃើញដោយអតិថិជនទេ រហូតដល់គណនីរបស់អ្នកត្រូវបានអនុម័ត។",
     "totalProducts": "ផលិតផលសរុប",
-    "approvedProducts": "បានអនុម័ត XPHB0XPHX",
+    "approvedProducts": "បានអនុម័ត {{count}}",
     "followers": "អ្នកតាមដាន",
     "ofYourStore": "ពីហាងរបស់អ្នក",
     "totalSold": "សរុបលក់បាន",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "ជ្រើសរើសប្រទេសមួយ",
-        "countryAnalysis": "ការវិភាគ XPHD0XPHX",
+        "countryAnalysis": "ការវិភាគ XPHD0{{country}}",
         "totalUsers": "អ្នកប្រើប្រាស់សរុប",
         "ordersThisMonth": "ការបញ្ជាទិញក្នុងខែនេះ",
         "averageSpend": "ការចំណាយជាមធ្យម",
@@ -1058,7 +1058,7 @@
     "availableSoon": "មានឆាប់ៗនេះ",
     "inNext7Days": "ក្នុងរយៈពេល ៧ ថ្ងៃបន្ទាប់",
     "nextPaymentDate": "ការទូទាត់បន្ទាប់អាចរកបាន",
-    "daysLeft": "នៅសល់ XPHB0XPHX ថ្ងៃទៀត",
+    "daysLeft": "នៅសល់ {{days}} ថ្ងៃទៀត",
     "noPendingPayments": "គ្មានការទូទាត់ដែលមិនទាន់បានបង់",
     "paymentPolicy": "គោលការណ៍ទូទាត់",
     "paymentPolicyDesc": "កម្រៃជើងសារដែលបង្កើតឡើងអាចត្រូវបានប្រមូលបាន 15 ថ្ងៃបន្ទាប់ពីការលក់នីមួយៗ ដើម្បីធានាការដឹកជញ្ជូនការបញ្ជាទិញ។",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "មានបញ្ហាក្នុងការផ្ទុកអ្នកផលិត",
-      "statusUpdated": "អ្នកលក់ XPHBX0XPHX"
+      "statusUpdated": "អ្នកលក់ {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "សរុប",
       "status": "រដ្ឋ",
       "date": "កាលបរិច្ឆេទ",
-      "itemsCount": "អត្ថបទ XPHB0XPHX"
+      "itemsCount": "អត្ថបទ {{count}}"
     },
     "paymentsTable": {
       "transactionId": "លេខសម្គាល់ប្រតិបត្តិការ",
@@ -2225,7 +2225,7 @@
     "publish": "បោះពុម្ពផ្សាយរូបមន្ត",
     "published": "រូបមន្តដែលបានបោះពុម្ពផ្សាយ",
     "addToCart": "ទិញគ្រឿងផ្សំ",
-    "addedToCart": "គ្រឿងផ្សំ XPHB0XPHX ត្រូវបានបន្ថែមទៅក្នុងរទេះ",
+    "addedToCart": "គ្រឿងផ្សំ {{count}} ត្រូវបានបន្ថែមទៅក្នុងរទេះ",
     "by": "ដោយ",
     "min": "នាទី",
     "portions": "ចំណែក",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "បានលុបមតិយោបល់",
     "edited": "កែសម្រួល",
     "likes": "ខ្ញុំចូលចិត្ត",
-    "viewComments": "សូមមើលមតិយោបល់ XPHBX0XPHX",
-    "viewCommentsPlural": "មើលមតិយោបល់ XPHBX0XPHX",
+    "viewComments": "សូមមើលមតិយោបល់ {{count}}",
+    "viewCommentsPlural": "មើលមតិយោបល់ {{count}}",
     "loginToLike": "ចូលដើម្បីចូលចិត្ត",
     "loginToSave": "ចូលដើម្បីរក្សាទុក",
     "loginToFollow": "ចូលដើម្បីតាមដានអ្នកប្រើប្រាស់",
@@ -2316,7 +2316,7 @@
     "unfollowed": "អ្នកបានឈប់តាមដានអ្នកប្រើប្រាស់នេះ",
     "nowFollowing": "ឥឡូវនេះអ្នកកំពុងតាមដានអ្នកប្រើប្រាស់នេះ",
     "profileUpdated": "រូបភាពប្រវត្តិរូបដែលបានធ្វើបច្ចុប្បន្នភាព",
-    "memberSince": "សមាជិកចាប់តាំងពី XPHBX0XPHX",
+    "memberSince": "សមាជិកចាប់តាំងពី {{date}}",
     "verifiedSeller": "អ្នកលក់ដែលបានផ្ទៀងផ្ទាត់",
     "viewStore": "មើលហាង",
     "sendMessage": "ផ្ញើសារ",

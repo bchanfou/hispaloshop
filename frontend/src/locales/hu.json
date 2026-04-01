@@ -26,7 +26,7 @@
     "viewAll": "Összes megtekintése",
     "seeOriginal": "Eredeti megtekintése",
     "seeTranslation": "Lásd a fordítást",
-    "translatedFrom": "XPHB0XPHX forrásból fordítva",
+    "translatedFrom": "{{language}} forrásból fordítva",
     "details": "Részletek",
     "status": "Állami",
     "active": "Eszköz",
@@ -267,7 +267,7 @@
     "soldOut": "Kimerült",
     "onlyLeft": "Csak {0} maradt",
     "lowStock": "Csak {{count}} maradt",
-    "byProducer": "XPHBX0XPHX által",
+    "byProducer": "{{producer}} által",
     "origin": "Származás",
     "price": "Ár",
     "category": "Kategória",
@@ -452,8 +452,8 @@
     "state": "Tartomány",
     "zip": "Irányítószám",
     "country": "Ország",
-    "chargeCurrency": "XPHB0XPHX összegben fogjuk terhelni.",
-    "displayCurrency": "Az árak az XPHBX0XPHX oldalon láthatók.",
+    "chargeCurrency": "{{currency}} összegben fogjuk terhelni.",
+    "displayCurrency": "Az árak az oldalon {{currency}} láthatók.",
     "exchangeRate": "Árfolyam",
     "fullName": "Teljes név",
     "useShippingAddress": "Szállítási cím használata számlázáshoz",
@@ -604,7 +604,7 @@
     "accountPending": "Fiók jóváhagyásra vár",
     "accountPendingDesc": "A termelői fiókod adminisztrátori jóváhagyásra vár. Létrehozhatsz termékeket és tanúsítványokat, de ezek csak a fiókod jóváhagyása után lesznek láthatóak az ügyfelek számára.",
     "totalProducts": "Összes termék",
-    "approvedProducts": "XPHB0XPHX által jóváhagyott",
+    "approvedProducts": "{{count}} által jóváhagyott",
     "followers": "Követők",
     "ofYourStore": "az üzletedből",
     "totalSold": "Összesen eladott",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Válasszon egy országot",
-        "countryAnalysis": "Az XPHD0XPHX elemzése",
+        "countryAnalysis": "Az XPHD0{{country}} elemzése",
         "totalUsers": "Összes felhasználó",
         "ordersThisMonth": "Rendelések ebben a hónapban",
         "averageSpend": "Átlagos kiadás",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Hamarosan elérhető",
     "inNext7Days": "A következő 7 napban",
     "nextPaymentDate": "Következő fizetés elérhető",
-    "daysLeft": "XPHB0XPHX nap van hátra",
+    "daysLeft": "{{days}} nap van hátra",
     "noPendingPayments": "Nincsenek fennálló befizetések",
     "paymentPolicy": "Fizetési szabályzat",
     "paymentPolicyDesc": "A keletkezett jutalékok minden eladás után 15 nappal szedhetők be a megrendelés kézbesítésének garantálása érdekében.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Hiba a termelők betöltése során",
-      "statusUpdated": "Eladó XPHBX0XPHX"
+      "statusUpdated": "Eladó {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Teljes",
       "status": "Állami",
       "date": "Dátum",
-      "itemsCount": "XPHB0XPHX cikkek"
+      "itemsCount": "{{count}} cikkek"
     },
     "paymentsTable": {
       "transactionId": "Tranzakcióazonosító",
@@ -2225,7 +2225,7 @@
     "publish": "Recept közzététele",
     "published": "Közzétett recept",
     "addToCart": "Hozzávalók vásárlása",
-    "addedToCart": "XPHB0XPHX hozzávalók hozzáadva a kosárhoz",
+    "addedToCart": "{{count}} hozzávalók hozzáadva a kosárhoz",
     "by": "Által",
     "min": "perc",
     "portions": "adagok",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Hozzászólás törölve",
     "edited": "szerkesztett",
     "likes": "Szeretem",
-    "viewComments": "Lásd az XPHBX0XPHX hozzászólást",
-    "viewCommentsPlural": "Lásd az XPHBX0XPHX hozzászólásait",
+    "viewComments": "Lásd az {{count}} hozzászólást",
+    "viewCommentsPlural": "Lásd az {{count}} hozzászólásait",
     "loginToLike": "Jelentkezz be, hogy lájkolhasd",
     "loginToSave": "Jelentkezzen be a mentéshez",
     "loginToFollow": "Jelentkezz be, hogy követhesd a felhasználókat",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Leiratkoztál ennek a felhasználónak a követéséről",
     "nowFollowing": "Mostantól követed ezt a felhasználót",
     "profileUpdated": "Frissített profilkép",
-    "memberSince": "Tag XPHBX0XPHX óta",
+    "memberSince": "Tag {{date}} óta",
     "verifiedSeller": "Ellenőrzött eladó",
     "viewStore": "Áruház megtekintése",
     "sendMessage": "Üzenet küldése",

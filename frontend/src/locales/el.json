@@ -26,7 +26,7 @@
     "viewAll": "Δείτε όλα",
     "seeOriginal": "Προβολή πρωτότυπου",
     "seeTranslation": "Δείτε τη μετάφραση",
-    "translatedFrom": "Μεταφράστηκε από XPHB0XPHX",
+    "translatedFrom": "Μεταφράστηκε από {{language}}",
     "details": "Καθέκαστα",
     "status": "Κατάσταση",
     "active": "Κεφάλαιο",
@@ -267,7 +267,7 @@
     "soldOut": "Εξαντλημένος",
     "onlyLeft": "Μόνο {0} απομένουν",
     "lowStock": "Μόνο τα {{count}} απομένουν",
-    "byProducer": "από XPHBX0XPHX",
+    "byProducer": "από {{producer}}",
     "origin": "Προέλευση",
     "price": "Τιμή",
     "category": "Κατηγορία",
@@ -452,8 +452,8 @@
     "state": "Επαρχία",
     "zip": "Τ.Κ",
     "country": "Χώρα",
-    "chargeCurrency": "Θα χρεωθείτε σε XPHB0XPHX",
-    "displayCurrency": "Οι τιμές εμφανίζονται στο XPHBX0XPHX",
+    "chargeCurrency": "Θα χρεωθείτε σε {{currency}}",
+    "displayCurrency": "Οι τιμές εμφανίζονται στο {{currency}}",
     "exchangeRate": "Συναλλαγματική ισοτιμία",
     "fullName": "Ονοματεπώνυμο",
     "useShippingAddress": "Χρησιμοποιήστε τη διεύθυνση αποστολής για χρέωση",
@@ -604,7 +604,7 @@
     "accountPending": "Λογαριασμός σε εκκρεμότητα έγκρισης",
     "accountPendingDesc": "Ο λογαριασμός παραγωγού σας εκκρεμεί έγκριση από τον διαχειριστή. Μπορείτε να δημιουργήσετε προϊόντα και πιστοποιητικά, αλλά δεν θα είναι ορατά στους πελάτες μέχρι να εγκριθεί ο λογαριασμός σας.",
     "totalProducts": "Σύνολο προϊόντων",
-    "approvedProducts": "Εγκεκριμένο από XPHB0XPHX",
+    "approvedProducts": "Εγκεκριμένο από {{count}}",
     "followers": "Ακόλουθοι",
     "ofYourStore": "από το κατάστημά σας",
     "totalSold": "Σύνολο Πωληθέντων",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Επιλέξτε μια χώρα",
-        "countryAnalysis": "Ανάλυση του XPHD0XPHX",
+        "countryAnalysis": "Ανάλυση του {{country}} XPHD0",
         "totalUsers": "Σύνολο χρηστών",
         "ordersThisMonth": "Παραγγελίες αυτόν τον μήνα",
         "averageSpend": "Μέση Δαπάνη",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Σύντομα διαθέσιμο",
     "inNext7Days": "Στις επόμενες 7 ημέρες",
     "nextPaymentDate": "Η επόμενη πληρωμή είναι διαθέσιμη",
-    "daysLeft": "Απομένουν XPHB0XPHX ημέρες",
+    "daysLeft": "Απομένουν {{days}} ημέρες",
     "noPendingPayments": "Δεν υπάρχουν εκκρεμείς πληρωμές",
     "paymentPolicy": "Πολιτική πληρωμών",
     "paymentPolicyDesc": "Οι προμήθειες που δημιουργούνται μπορούν να εισπραχθούν 15 ημέρες μετά από κάθε πώληση για να εγγυηθούν την παράδοση της παραγγελίας.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Σφάλμα κατά τη φόρτωση των παραγωγών ...",
-      "statusUpdated": "Πωλητής XPHBX0XPHX"
+      "statusUpdated": "Πωλητής {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Σύνολο",
       "status": "Κατάσταση",
       "date": "Ημερομηνία",
-      "itemsCount": "Άρθρα XPHB0XPHX"
+      "itemsCount": "Άρθρα {{count}}"
     },
     "paymentsTable": {
       "transactionId": "Αναγνωριστικό συναλλαγής",
@@ -2225,7 +2225,7 @@
     "publish": "Δημοσίευση συνταγής",
     "published": "Δημοσιευμένη συνταγή",
     "addToCart": "Αγοράστε συστατικά",
-    "addedToCart": "Συστατικά XPHB0XPHX προστέθηκαν στο καλάθι",
+    "addedToCart": "Συστατικά {{count}} προστέθηκαν στο καλάθι",
     "by": "Με",
     "min": "λεπτά",
     "portions": "μερίδες",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Το σχόλιο διαγράφηκε",
     "edited": "επεξεργασμένο",
     "likes": "Μου αρέσει",
-    "viewComments": "Δείτε το σχόλιο του XPHBX0XPHX",
-    "viewCommentsPlural": "Δείτε τα σχόλια του XPHBX0XPHX",
+    "viewComments": "Δείτε {{count}} το σχόλιο του",
+    "viewCommentsPlural": "Δείτε {{count}} τα σχόλια του",
     "loginToLike": "Συνδεθείτε για να κάνετε like",
     "loginToSave": "Συνδεθείτε για να αποθηκεύσετε",
     "loginToFollow": "Συνδεθείτε για να ακολουθήσετε χρήστες",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Έχετε σταματήσει να ακολουθείτε αυτόν τον χρήστη",
     "nowFollowing": "Ακολουθείτε αυτόν τον χρήστη τώρα",
     "profileUpdated": "Ενημερωμένη εικόνα προφίλ",
-    "memberSince": "Μέλος από XPHBX0XPHX",
+    "memberSince": "Μέλος από {{date}}",
     "verifiedSeller": "Επαληθευμένος πωλητής",
     "viewStore": "Δείτε το κατάστημα",
     "sendMessage": "Αποστολή μηνύματος",

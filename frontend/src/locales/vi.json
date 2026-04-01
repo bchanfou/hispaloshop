@@ -26,7 +26,7 @@
     "viewAll": "Xem tất cả",
     "seeOriginal": "Xem bản gốc",
     "seeTranslation": "Xem bản dịch",
-    "translatedFrom": "Dịch từ XPHB0XPHX",
+    "translatedFrom": "Dịch từ {{language}}",
     "details": "Chi tiết",
     "status": "Tình trạng",
     "active": "Tài sản",
@@ -267,7 +267,7 @@
     "soldOut": "Kiệt sức",
     "onlyLeft": "Chỉ còn lại {0}",
     "lowStock": "Chỉ còn {{count}}",
-    "byProducer": "bởi XPHBX0XPHX",
+    "byProducer": "bởi {{producer}}",
     "origin": "Nguồn gốc",
     "price": "Giá",
     "category": "Loại",
@@ -452,8 +452,8 @@
     "state": "Tỉnh",
     "zip": "Mã bưu điện",
     "country": "Quốc gia",
-    "chargeCurrency": "Bạn sẽ bị tính phí bằng mã vùng XPHB0XPHX.",
-    "displayCurrency": "Giá hiển thị trên XPHBX0XPHX",
+    "chargeCurrency": "Bạn sẽ bị tính phí bằng mã vùng {{currency}}.",
+    "displayCurrency": "Giá hiển thị trên {{currency}}",
     "exchangeRate": "Tỷ giá hối đoái",
     "fullName": "Họ và tên đầy đủ",
     "useShippingAddress": "Sử dụng địa chỉ giao hàng để thanh toán.",
@@ -604,7 +604,7 @@
     "accountPending": "Tài khoản đang chờ phê duyệt",
     "accountPendingDesc": "Tài khoản nhà sản xuất của bạn đang chờ quản trị viên phê duyệt. Bạn có thể tạo sản phẩm và chứng chỉ, nhưng chúng sẽ không hiển thị cho khách hàng cho đến khi tài khoản của bạn được phê duyệt.",
     "totalProducts": "Tổng sản phẩm",
-    "approvedProducts": "XPHB0XPHX đã được phê duyệt",
+    "approvedProducts": "{{count}} đã được phê duyệt",
     "followers": "Người theo dõi",
     "ofYourStore": "từ cửa hàng của bạn",
     "totalSold": "Tổng số lượng đã bán",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Chọn một quốc gia",
-        "countryAnalysis": "Phân tích XPHD0XPHX",
+        "countryAnalysis": "Phân tích {{country}} XPHD0",
         "totalUsers": "Tổng số người dùng",
         "ordersThisMonth": "Đơn hàng tháng này",
         "averageSpend": "Chi tiêu bình quân",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Sắp có",
     "inNext7Days": "Trong 7 ngày tới",
     "nextPaymentDate": "Khoản thanh toán tiếp theo có sẵn",
-    "daysLeft": "XPHB0XPHX ngày còn lại",
+    "daysLeft": "{{days}} ngày còn lại",
     "noPendingPayments": "Không có khoản thanh toán nào chưa thanh toán",
     "paymentPolicy": "Chính sách thanh toán",
     "paymentPolicyDesc": "Hoa hồng thu được có thể được thu sau 15 ngày kể từ mỗi giao dịch bán hàng để đảm bảo việc giao hàng đúng hạn.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Lỗi khi tải nhà sản xuất",
-      "statusUpdated": "Người bán XPHBX0XPHX"
+      "statusUpdated": "Người bán {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Tổng cộng",
       "status": "Tình trạng",
       "date": "Ngày",
-      "itemsCount": "Bài viết XPHB0XPHX"
+      "itemsCount": "Bài viết {{count}}"
     },
     "paymentsTable": {
       "transactionId": "Mã giao dịch",
@@ -2225,7 +2225,7 @@
     "publish": "Đăng tải công thức",
     "published": "Công thức đã được công bố",
     "addToCart": "Mua nguyên liệu",
-    "addedToCart": "Các thành phần XPHB0XPHX đã được thêm vào giỏ hàng",
+    "addedToCart": "Các thành phần {{count}} đã được thêm vào giỏ hàng",
     "by": "Qua",
     "min": "phút",
     "portions": "phần",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Bình luận đã bị xóa",
     "edited": "đã chỉnh sửa",
     "likes": "Tôi thích",
-    "viewComments": "Xem bình luận XPHBX0XPHX",
-    "viewCommentsPlural": "Xem bình luận XPHBX0XPHX",
+    "viewComments": "Xem bình {{count}} luận",
+    "viewCommentsPlural": "Xem {{count}} bình luận",
     "loginToLike": "Đăng nhập để thích",
     "loginToSave": "Đăng nhập để lưu",
     "loginToFollow": "Đăng nhập để theo dõi người dùng",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Bạn đã hủy theo dõi người dùng này.",
     "nowFollowing": "Bạn hiện đang theo dõi người dùng này.",
     "profileUpdated": "Ảnh đại diện đã được cập nhật",
-    "memberSince": "Thành viên từ XPHBX0XPHX",
+    "memberSince": "Thành viên từ {{date}}",
     "verifiedSeller": "Người bán đã được xác minh",
     "viewStore": "Xem cửa hàng",
     "sendMessage": "Gửi tin nhắn",

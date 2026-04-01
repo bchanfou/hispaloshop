@@ -26,7 +26,7 @@
     "viewAll": "ਸਾਰੇ ਵੇਖੋ",
     "seeOriginal": "ਮੂਲ ਵੇਖੋ",
     "seeTranslation": "ਅਨੁਵਾਦ ਦੇਖੋ",
-    "translatedFrom": "XPHB0XPHX ਤੋਂ ਅਨੁਵਾਦ ਕੀਤਾ ਗਿਆ",
+    "translatedFrom": "{{language}} ਤੋਂ ਅਨੁਵਾਦ ਕੀਤਾ ਗਿਆ",
     "details": "ਵੇਰਵੇ",
     "status": "ਰਾਜ",
     "active": "ਸੰਪਤੀ",
@@ -267,7 +267,7 @@
     "soldOut": "ਥੱਕਿਆ ਹੋਇਆ",
     "onlyLeft": "ਸਿਰਫ਼ {0} ਬਾਕੀ ਹਨ",
     "lowStock": "ਸਿਰਫ਼ {{count}} ਬਾਕੀ ਹੈ",
-    "byProducer": "ਵੱਲੋਂ zyb",
+    "byProducer": "ਵੱਲੋਂ {{producer}} zyb",
     "origin": "ਮੂਲ",
     "price": "ਕੀਮਤ",
     "category": "ਸ਼੍ਰੇਣੀ",
@@ -452,8 +452,8 @@
     "state": "ਸੂਬਾ",
     "zip": "ਜ਼ਿਪ ਕੋਡ",
     "country": "ਦੇਸ਼",
-    "chargeCurrency": "ਤੁਹਾਡੇ ਤੋਂ XPHB0XPHX ਵਿੱਚ ਖਰਚਾ ਲਿਆ ਜਾਵੇਗਾ।",
-    "displayCurrency": "XPHBX0XPHX 'ਤੇ ਦਿਖਾਈਆਂ ਗਈਆਂ ਕੀਮਤਾਂ",
+    "chargeCurrency": "ਤੁਹਾਡੇ ਤੋਂ {{currency}} ਵਿੱਚ ਖਰਚਾ ਲਿਆ ਜਾਵੇਗਾ।",
+    "displayCurrency": "'ਤੇ ਦਿਖਾਈਆਂ {{currency}} ਗਈਆਂ ਕੀਮਤਾਂ",
     "exchangeRate": "ਐਕਸਚੇਂਜ ਦਰ",
     "fullName": "ਪੂਰਾ ਨਾਂਮ",
     "useShippingAddress": "ਬਿਲਿੰਗ ਲਈ ਸ਼ਿਪਿੰਗ ਪਤਾ ਵਰਤੋ",
@@ -604,7 +604,7 @@
     "accountPending": "ਖਾਤੇ ਦੀ ਪ੍ਰਵਾਨਗੀ ਲੰਬਿਤ ਹੈ",
     "accountPendingDesc": "ਤੁਹਾਡਾ ਨਿਰਮਾਤਾ ਖਾਤਾ ਪ੍ਰਸ਼ਾਸਕ ਦੀ ਮਨਜ਼ੂਰੀ ਲਈ ਵਿਚਾਰ-ਅਧੀਨ ਹੈ। ਤੁਸੀਂ ਉਤਪਾਦ ਅਤੇ ਸਰਟੀਫਿਕੇਟ ਬਣਾ ਸਕਦੇ ਹੋ, ਪਰ ਉਹ ਗਾਹਕਾਂ ਨੂੰ ਉਦੋਂ ਤੱਕ ਨਹੀਂ ਦਿਖਾਈ ਦੇਣਗੇ ਜਦੋਂ ਤੱਕ ਤੁਹਾਡਾ ਖਾਤਾ ਮਨਜ਼ੂਰ ਨਹੀਂ ਹੋ ਜਾਂਦਾ।",
     "totalProducts": "ਕੁੱਲ ਉਤਪਾਦ",
-    "approvedProducts": "XPHB0XPHX ਮਨਜ਼ੂਰ ਕੀਤਾ ਗਿਆ",
+    "approvedProducts": "{{count}} ਮਨਜ਼ੂਰ ਕੀਤਾ ਗਿਆ",
     "followers": "ਫਾਲੋਅਰ",
     "ofYourStore": "ਤੁਹਾਡੇ ਸਟੋਰ ਤੋਂ",
     "totalSold": "ਕੁੱਲ ਵਿਕਰੀ",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "ਕੋਈ ਦੇਸ਼ ਚੁਣੋ",
-        "countryAnalysis": "XPHD0XPHX ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ",
+        "countryAnalysis": "XPHD0ਦਾ {{country}} ਵਿਸ਼ਲੇਸ਼ਣ",
         "totalUsers": "ਕੁੱਲ ਵਰਤੋਂਕਾਰ",
         "ordersThisMonth": "ਇਸ ਮਹੀਨੇ ਦੇ ਆਰਡਰ",
         "averageSpend": "ਔਸਤ ਖਰਚ",
@@ -1058,7 +1058,7 @@
     "availableSoon": "ਜਲਦੀ ਹੀ ਉਪਲਬਧ ਹੋਵੇਗਾ",
     "inNext7Days": "ਅਗਲੇ 7 ਦਿਨਾਂ ਵਿੱਚ",
     "nextPaymentDate": "ਅਗਲਾ ਭੁਗਤਾਨ ਉਪਲਬਧ ਹੈ",
-    "daysLeft": "XPHB0XPHX ਦਿਨ ਬਾਕੀ",
+    "daysLeft": "{{days}} ਦਿਨ ਬਾਕੀ",
     "noPendingPayments": "ਕੋਈ ਬਕਾਇਆ ਭੁਗਤਾਨ ਨਹੀਂ",
     "paymentPolicy": "ਭੁਗਤਾਨ ਨੀਤੀ",
     "paymentPolicyDesc": "ਆਰਡਰ ਦੀ ਡਿਲੀਵਰੀ ਦੀ ਗਰੰਟੀ ਲਈ ਹਰੇਕ ਵਿਕਰੀ ਤੋਂ 15 ਦਿਨਾਂ ਬਾਅਦ ਤਿਆਰ ਕੀਤੇ ਕਮਿਸ਼ਨ ਇਕੱਠੇ ਕੀਤੇ ਜਾ ਸਕਦੇ ਹਨ।",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "ਨਿਰਮਾਤਾਵਾਂ ਨੂੰ ਲੋਡ ਕਰਨ ਵਿੱਚ ਗੜਬੜ ਹੋਈ",
-      "statusUpdated": "ਵਿਕਰੇਤਾ XPHBX0XPHX"
+      "statusUpdated": "ਵਿਕਰੇਤਾ {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "ਕੁੱਲ",
       "status": "ਰਾਜ",
       "date": "ਮਿਤੀ",
-      "itemsCount": "XPHB0XPHX ਲੇਖ"
+      "itemsCount": "{{count}} ਲੇਖ"
     },
     "paymentsTable": {
       "transactionId": "ਲੈਣ-ਦੇਣ ਆਈਡੀ",
@@ -2225,7 +2225,7 @@
     "publish": "ਪਕਵਾਨ-ਵਿਧੀ ਪ੍ਰਕਾਸ਼ਿਤ ਕਰੋ",
     "published": "ਪ੍ਰਕਾਸ਼ਿਤ ਵਿਅੰਜਨ",
     "addToCart": "ਸਮੱਗਰੀ ਖਰੀਦੋ",
-    "addedToCart": "XPHB0XPHX ਸਮੱਗਰੀ ਕਾਰਟ ਵਿੱਚ ਸ਼ਾਮਲ ਕੀਤੀ ਗਈ",
+    "addedToCart": "{{count}} ਸਮੱਗਰੀ ਕਾਰਟ ਵਿੱਚ ਸ਼ਾਮਲ ਕੀਤੀ ਗਈ",
     "by": "ਨਾਲ",
     "min": "ਮਿੰਟ",
     "portions": "ਹਿੱਸੇ",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "ਟਿੱਪਣੀ ਮਿਟਾਈ ਗਈ",
     "edited": "ਸੋਧਿਆ ਗਿਆ",
     "likes": "ਮੈਨੂੰ ਪਸੰਦ ਹੈ",
-    "viewComments": "XPHBX0XPHX ਟਿੱਪਣੀ ਵੇਖੋ",
-    "viewCommentsPlural": "XPHBX0XPHX ਟਿੱਪਣੀਆਂ ਵੇਖੋ",
+    "viewComments": "{{count}} ਟਿੱਪਣੀ ਵੇਖੋ",
+    "viewCommentsPlural": "{{count}} ਟਿੱਪਣੀਆਂ ਵੇਖੋ",
     "loginToLike": "ਪਸੰਦ ਕਰਨ ਲਈ ਲੌਗਇਨ ਕਰੋ",
     "loginToSave": "ਸੇਵ ਕਰਨ ਲਈ ਲੌਗਇਨ ਕਰੋ",
     "loginToFollow": "ਉਪਭੋਗਤਾਵਾਂ ਨੂੰ ਫਾਲੋ ਕਰਨ ਲਈ ਲੌਗ ਇਨ ਕਰੋ",
@@ -2316,7 +2316,7 @@
     "unfollowed": "ਤੁਸੀਂ ਇਸ ਉਪਭੋਗਤਾ ਨੂੰ ਅਨਫਾਲੋ ਕਰ ਦਿੱਤਾ ਹੈ।",
     "nowFollowing": "ਤੁਸੀਂ ਹੁਣ ਇਸ ਉਪਭੋਗਤਾ ਦਾ ਅਨੁਸਰਣ ਕਰ ਰਹੇ ਹੋ।",
     "profileUpdated": "ਅੱਪਡੇਟ ਕੀਤੀ ਪ੍ਰੋਫਾਈਲ ਤਸਵੀਰ",
-    "memberSince": "XPHBX0XPHX ਤੋਂ ਮੈਂਬਰ",
+    "memberSince": "ਤੋਂ {{date}} ਮੈਂਬਰ",
     "verifiedSeller": "ਪ੍ਰਮਾਣਿਤ ਵਿਕਰੇਤਾ",
     "viewStore": "ਸਟੋਰ ਵੇਖੋ",
     "sendMessage": "ਸੁਨੇਹਾ ਭੇਜੋ",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "ਦੱਸੋ ਕਿ ਤੁਹਾਨੂੰ ਕਿਹੜੀ ਸਮੱਗਰੀ ਦੀ ਲੋੜ ਹੈ..."
   },
   "predictions": {
-    "purchased": "XPHBX0XPHXx ਖਰੀਦਿਆ"
+    "purchased": "{{count}} ਖਰੀਦਿਆ"
   },
   "wishlist": {
     "title": "ਇੱਛਾ ਸੂਚੀ",

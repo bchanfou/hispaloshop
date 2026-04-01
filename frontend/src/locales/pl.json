@@ -26,7 +26,7 @@
     "viewAll": "Zobacz wszystko",
     "seeOriginal": "Zobacz oryginał",
     "seeTranslation": "Zobacz tłumaczenie",
-    "translatedFrom": "Przetłumaczone z XPHB0XPHX",
+    "translatedFrom": "Przetłumaczone z {{language}}",
     "details": "Bliższe dane",
     "status": "Państwo",
     "active": "Zaleta",
@@ -267,7 +267,7 @@
     "soldOut": "Wyczerpany",
     "onlyLeft": "Pozostało tylko {0}",
     "lowStock": "Pozostał tylko {{count}}",
-    "byProducer": "przez XPHBX0XPHX",
+    "byProducer": "przez {{producer}}",
     "origin": "Pochodzenie",
     "price": "Cena",
     "category": "Kategoria",
@@ -452,8 +452,8 @@
     "state": "Województwo",
     "zip": "Kod pocztowy",
     "country": "Kraj",
-    "chargeCurrency": "Zostaniesz obciążony kwotą XPHB0XPHX",
-    "displayCurrency": "Ceny pokazane na XPHBX0XPHX",
+    "chargeCurrency": "Zostaniesz obciążony kwotą {{currency}}",
+    "displayCurrency": "Ceny pokazane na {{currency}}",
     "exchangeRate": "Kurs wymiany",
     "fullName": "Pełne imię i nazwisko",
     "useShippingAddress": "Użyj adresu wysyłki do rozliczeń",
@@ -604,7 +604,7 @@
     "accountPending": "Konto oczekujące na zatwierdzenie",
     "accountPendingDesc": "Twoje konto producenta oczekuje na zatwierdzenie przez administratora. Możesz tworzyć produkty i certyfikaty, ale nie będą one widoczne dla klientów, dopóki Twoje konto nie zostanie zatwierdzone.",
     "totalProducts": "Łączna liczba produktów",
-    "approvedProducts": "XPHB0XPHX zatwierdzony",
+    "approvedProducts": "{{count}} zatwierdzony",
     "followers": "Świta",
     "ofYourStore": "z twojego sklepu",
     "totalSold": "Całkowita sprzedaż",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Wybierz kraj",
-        "countryAnalysis": "Analiza XPHD0XPHX",
+        "countryAnalysis": "Analiza XPHD0{{country}}",
         "totalUsers": "Łączna liczba użytkowników",
         "ordersThisMonth": "Zamówienia w tym miesiącu",
         "averageSpend": "Średnie wydatki",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Dostępne wkrótce",
     "inNext7Days": "W ciągu następnych 7 dni",
     "nextPaymentDate": "Następna dostępna płatność",
-    "daysLeft": "XPHB0XPHX pozostałe dni",
+    "daysLeft": "{{days}} pozostałe dni",
     "noPendingPayments": "Brak zaległych płatności",
     "paymentPolicy": "Polityka płatności",
     "paymentPolicyDesc": "Wygenerowane prowizje można odebrać w ciągu 15 dni od daty każdej sprzedaży, co gwarantuje dostawę zamówienia.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Błąd ładowania producentów",
-      "statusUpdated": "Sprzedawca XPHBX0XPHX"
+      "statusUpdated": "Sprzedawca {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Całkowity",
       "status": "Państwo",
       "date": "Data",
-      "itemsCount": "Artykuły XPHB0XPHX"
+      "itemsCount": "Artykuły {{count}}"
     },
     "paymentsTable": {
       "transactionId": "Identyfikator transakcji",
@@ -2225,7 +2225,7 @@
     "publish": "Opublikuj przepis",
     "published": "Opublikowany przepis",
     "addToCart": "Kup składniki",
-    "addedToCart": "Składniki XPHB0XPHX dodane do koszyka",
+    "addedToCart": "Składniki {{count}} dodane do koszyka",
     "by": "Przez",
     "min": "min",
     "portions": "porcje",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Komentarz usunięty",
     "edited": "edytowany",
     "likes": "Lubię",
-    "viewComments": "Zobacz komentarz XPHBX0XPHX",
-    "viewCommentsPlural": "Zobacz komentarze XPHBX0XPHX",
+    "viewComments": "Zobacz {{count}} komentarz",
+    "viewCommentsPlural": "Zobacz {{count}} komentarze",
     "loginToLike": "Zaloguj się, aby polubić",
     "loginToSave": "Zaloguj się, aby zapisać",
     "loginToFollow": "Zaloguj się, aby obserwować użytkowników",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Przestałeś obserwować tego użytkownika",
     "nowFollowing": "Teraz obserwujesz tego użytkownika",
     "profileUpdated": "Zaktualizowane zdjęcie profilowe",
-    "memberSince": "Członek od XPHBX0XPHX",
+    "memberSince": "Członek od {{date}}",
     "verifiedSeller": "Zweryfikowany sprzedawca",
     "viewStore": "Zobacz sklep",
     "sendMessage": "Wyślij wiadomość",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "Opisz jakiej treści potrzebujesz..."
   },
   "predictions": {
-    "purchased": "Zakupiono XPHBX0XPHXx"
+    "purchased": "Zakupiono {{count}}"
   },
   "wishlist": {
     "title": "Lista życzeń",

@@ -26,7 +26,7 @@
     "viewAll": "Bekyk alles",
     "seeOriginal": "Bekyk oorspronklike",
     "seeTranslation": "Sien vertaling",
-    "translatedFrom": "Vertaal uit XPHB0XPHX",
+    "translatedFrom": "Vertaal uit {{language}}",
     "details": "Besonderhede",
     "status": "Staat",
     "active": "Bate",
@@ -267,7 +267,7 @@
     "soldOut": "Uitgeput",
     "onlyLeft": "Slegs {0} oor",
     "lowStock": "Slegs {{count}} bly oor",
-    "byProducer": "deur XPHBX0XPHX",
+    "byProducer": "deur {{producer}}",
     "origin": "Oorsprong",
     "price": "Prys",
     "category": "Kategorie",
@@ -452,8 +452,8 @@
     "state": "Provinsie",
     "zip": "Poskode",
     "country": "Land",
-    "chargeCurrency": "Jy sal gehef word in XPHB0XPHX",
-    "displayCurrency": "Pryse word op XPHBX0XPHX getoon",
+    "chargeCurrency": "Jy sal gehef word in {{currency}}",
+    "displayCurrency": "Pryse word op {{currency}} getoon",
     "exchangeRate": "Wisselkoers",
     "fullName": "Volle Naam",
     "useShippingAddress": "Gebruik afleweringsadres vir fakturering",
@@ -604,7 +604,7 @@
     "accountPending": "Rekening wag op goedkeuring",
     "accountPendingDesc": "Jou produsentrekening wag op goedkeuring deur administrateur. Jy kan produkte en sertifikate skep, maar hulle sal nie vir kliënte sigbaar wees totdat jou rekening goedgekeur is nie.",
     "totalProducts": "Totale Produkte",
-    "approvedProducts": "XPHB0XPHX goedgekeur",
+    "approvedProducts": "{{count}} goedgekeur",
     "followers": "Volgelinge",
     "ofYourStore": "van jou winkel",
     "totalSold": "Totaal Verkoop",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "Kies 'n land",
-        "countryAnalysis": "Analise van XPHD0XPHX",
+        "countryAnalysis": "Analise van {{country}} XPHD0",
         "totalUsers": "Totale gebruikers",
         "ordersThisMonth": "Bestellings Hierdie Maand",
         "averageSpend": "Gemiddelde Uitgawes",
@@ -1058,7 +1058,7 @@
     "availableSoon": "Binnekort beskikbaar",
     "inNext7Days": "In die volgende 7 dae",
     "nextPaymentDate": "Volgende betaling beskikbaar",
-    "daysLeft": "XPHB0XPHX dae oor",
+    "daysLeft": "{{days}} dae oor",
     "noPendingPayments": "Geen uitstaande betalings nie",
     "paymentPolicy": "Betalingsbeleid",
     "paymentPolicyDesc": "Die gegenereerde kommissies kan 15 dae na elke verkoop ingevorder word om die aflewering van die bestelling te waarborg.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "Fout by die laai van produsente",
-      "statusUpdated": "Verkoper XPHBX0XPHX"
+      "statusUpdated": "Verkoper {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "Totaal",
       "status": "Staat",
       "date": "Datum",
-      "itemsCount": "XPHB0XPHX artikels"
+      "itemsCount": "{{count}} artikels"
     },
     "paymentsTable": {
       "transactionId": "Transaksie-ID",
@@ -2225,7 +2225,7 @@
     "publish": "Publiseer resep",
     "published": "Gepubliseerde resep",
     "addToCart": "Koop bestanddele",
-    "addedToCart": "XPHB0XPHX bestanddele by mandjie gevoeg",
+    "addedToCart": "{{count}} bestanddele by mandjie gevoeg",
     "by": "Deur",
     "min": "min",
     "portions": "porsies",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "Kommentaar uitgevee",
     "edited": "geredigeer",
     "likes": "Ek hou van",
-    "viewComments": "Sien XPHBX0XPHX kommentaar",
-    "viewCommentsPlural": "Sien XPHBX0XPHX kommentaar",
+    "viewComments": "Sien {{count}} kommentaar",
+    "viewCommentsPlural": "Sien {{count}} kommentaar",
     "loginToLike": "Meld aan om te like",
     "loginToSave": "Meld aan om te stoor",
     "loginToFollow": "Meld aan om gebruikers te volg",
@@ -2316,7 +2316,7 @@
     "unfollowed": "Jy het hierdie gebruiker ontvolg",
     "nowFollowing": "Jy volg nou hierdie gebruiker",
     "profileUpdated": "Opgedateerde profielfoto",
-    "memberSince": "Lid sedert XPHBX0XPHX",
+    "memberSince": "Lid sedert {{date}}",
     "verifiedSeller": "Geverifieerde verkoper",
     "viewStore": "Bekyk winkel",
     "sendMessage": "Stuur boodskap",

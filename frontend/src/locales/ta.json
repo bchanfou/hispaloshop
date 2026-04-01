@@ -26,7 +26,7 @@
     "viewAll": "அனைத்தையும் காண்க",
     "seeOriginal": "அசல் பதிப்பைக் காண்க",
     "seeTranslation": "மொழிபெயர்ப்பைக் காண்க",
-    "translatedFrom": "XPHB0XPHX இலிருந்து மொழிபெயர்க்கப்பட்டது",
+    "translatedFrom": "{{language}} இலிருந்து மொழிபெயர்க்கப்பட்டது",
     "details": "விவரங்கள்",
     "status": "மாநிலம்",
     "active": "சொத்து",
@@ -267,7 +267,7 @@
     "soldOut": "சோர்வடைந்த",
     "onlyLeft": "{0} மட்டுமே மீதமுள்ளது",
     "lowStock": "{{count}} மட்டுமே மீதமுள்ளது",
-    "byProducer": "XPHBX0XPHX ஆல்",
+    "byProducer": "{{producer}} ஆல்",
     "origin": "தோற்றம்",
     "price": "விலை",
     "category": "வகை",
@@ -452,8 +452,8 @@
     "state": "மாகாணம்",
     "zip": "அஞ்சல் குறியீடு",
     "country": "நாடு",
-    "chargeCurrency": "XPHB0XPHX இல் உங்களுக்குக் கட்டணம் விதிக்கப்படும்",
-    "displayCurrency": "XPHBX0XPHX இல் காட்டப்பட்டுள்ள விலைகள்",
+    "chargeCurrency": "{{currency}} இல் உங்களுக்குக் கட்டணம் விதிக்கப்படும்",
+    "displayCurrency": "இல் காட்டப்பட்டுள்ள {{currency}} விலைகள்",
     "exchangeRate": "பரிமாற்ற விகிதம்",
     "fullName": "முழு பெயர்",
     "useShippingAddress": "பில்லிங்கிற்கு ஷிப்பிங் முகவரியைப் பயன்படுத்தவும்",
@@ -604,7 +604,7 @@
     "accountPending": "கணக்கு ஒப்புதலுக்காகக் காத்திருக்கிறது",
     "accountPendingDesc": "உங்கள் தயாரிப்பாளர் கணக்கு நிர்வாகியின் ஒப்புதலுக்காகக் காத்திருக்கிறது. நீங்கள் தயாரிப்புகளையும் சான்றிதழ்களையும் உருவாக்கலாம், ஆனால் உங்கள் கணக்கு அங்கீகரிக்கப்படும் வரை அவை வாடிக்கையாளர்களுக்குத் தெரியாது.",
     "totalProducts": "மொத்த தயாரிப்புகள்",
-    "approvedProducts": "XPHB0XPHX அங்கீகரிக்கப்பட்டது",
+    "approvedProducts": "{{count}} அங்கீகரிக்கப்பட்டது",
     "followers": "பின்தொடர்பவர்கள்",
     "ofYourStore": "உங்கள் கடையில் இருந்து",
     "totalSold": "மொத்தமாக விற்கப்பட்டது",
@@ -935,7 +935,7 @@
       },
       "countries": {
         "selectCountry": "ஒரு நாட்டைத் தேர்ந்தெடுக்கவும்",
-        "countryAnalysis": "XPHD0XPHX இன் பகுப்பாய்வு",
+        "countryAnalysis": "XPHD0இன் {{country}} பகுப்பாய்வு",
         "totalUsers": "மொத்த பயனர்கள்",
         "ordersThisMonth": "இந்த மாத ஆர்டர்கள்",
         "averageSpend": "சராசரி செலவினம்",
@@ -1058,7 +1058,7 @@
     "availableSoon": "விரைவில்",
     "inNext7Days": "அடுத்த 7 நாட்களில்",
     "nextPaymentDate": "அடுத்த கட்டணம் கிடைக்கும்",
-    "daysLeft": "XPHB0XPHX நாட்கள் மீதமுள்ளன",
+    "daysLeft": "{{days}} நாட்கள் மீதமுள்ளன",
     "noPendingPayments": "நிலுவையில் உள்ள கொடுப்பனவுகள் இல்லை",
     "paymentPolicy": "கட்டணக் கொள்கை",
     "paymentPolicyDesc": "ஆர்டர் டெலிவரி செய்யப்படுவதை உறுதி செய்வதற்காக, ஒவ்வொரு விற்பனைக்குப் பிறகும் 15 நாட்களில் உருவாக்கப்படும் கமிஷன் தொகையைப் பெற்றுக்கொள்ளலாம்.",
@@ -1632,7 +1632,7 @@
     },
     "messages": {
       "loadError": "உற்பத்தியாளர்களை ஏற்றுவதில் பிழை",
-      "statusUpdated": "விற்பனையாளர் XPHBX0XPHX"
+      "statusUpdated": "விற்பனையாளர் {{status}}"
     }
   },
   "adminProducts": {
@@ -1704,7 +1704,7 @@
       "total": "மொத்தம்",
       "status": "மாநிலம்",
       "date": "தேதி",
-      "itemsCount": "XPHB0XPHX கட்டுரைகள்"
+      "itemsCount": "{{count}} கட்டுரைகள்"
     },
     "paymentsTable": {
       "transactionId": "பரிவர்த்தனை ஐடி",
@@ -2225,7 +2225,7 @@
     "publish": "சமையல் குறிப்பை வெளியிடவும்",
     "published": "வெளியிடப்பட்ட செய்முறை",
     "addToCart": "தேவையான பொருட்களை வாங்கவும்",
-    "addedToCart": "XPHB0XPHX பொருட்கள் கூடையில் சேர்க்கப்பட்டன",
+    "addedToCart": "{{count}} பொருட்கள் கூடையில் சேர்க்கப்பட்டன",
     "by": "மூலம்",
     "min": "நிமிடம்",
     "portions": "பகுதிகள்",
@@ -2300,8 +2300,8 @@
     "commentDeleted": "கருத்து நீக்கப்பட்டது",
     "edited": "திருத்தப்பட்டது",
     "likes": "எனக்கு பிடிக்கும்",
-    "viewComments": "XPHBX0XPHX கருத்தைப் பார்க்கவும்",
-    "viewCommentsPlural": "XPHBX0XPHX கருத்துகளைப் பார்க்கவும்",
+    "viewComments": "{{count}} கருத்தைப் பார்க்கவும்",
+    "viewCommentsPlural": "{{count}} கருத்துகளைப் பார்க்கவும்",
     "loginToLike": "லைக் செய்ய உள்நுழையவும்",
     "loginToSave": "சேமிக்க உள்நுழையவும்",
     "loginToFollow": "பயனர்களைப் பின்தொடர உள்நுழையவும்",
@@ -2316,7 +2316,7 @@
     "unfollowed": "நீங்கள் இந்தப் பயனரைப் பின்தொடர்வதை நிறுத்திவிட்டீர்கள்.",
     "nowFollowing": "நீங்கள் இப்போது இந்தப் பயனரைப் பின்தொடர்கிறீர்கள்.",
     "profileUpdated": "புதுப்பிக்கப்பட்ட சுயவிவரப் படம்",
-    "memberSince": "XPHBX0XPHX முதல் உறுப்பினர்",
+    "memberSince": "முதல் உறுப்பினர் {{date}}",
     "verifiedSeller": "சரிபார்க்கப்பட்ட விற்பனையாளர்",
     "viewStore": "கடைகளைப் பார்க்கவும்",
     "sendMessage": "செய்திகளை அனுப்பு",
@@ -2448,7 +2448,7 @@
     "inputPlaceholder": "உங்களுக்கு என்ன உள்ளடக்கம் தேவை என்பதை விவரிக்கவும்..."
   },
   "predictions": {
-    "purchased": "XPHBX0XPHXx வாங்கப்பட்டது"
+    "purchased": "{{count}} வாங்கப்பட்டது"
   },
   "wishlist": {
     "title": "விருப்பப் பட்டியல்",
