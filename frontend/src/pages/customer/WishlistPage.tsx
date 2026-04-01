@@ -36,13 +36,22 @@ export default function WishlistPage() {
 
   const handleAddAllToCart = async () => {
     setBatchAdding(true);
-    try {
-      for (const item of items) {
+    let added = 0;
+    let failed = 0;
+    for (const item of items) {
+      try {
         await addToCart(item.product_id, 1);
-      }
-      toast.success(`${items.length} productos añadidos al carrito`);
-    } catch { toast.error('Error al añadir productos'); }
-    finally { setBatchAdding(false); }
+        added++;
+      } catch { failed++; }
+    }
+    setBatchAdding(false);
+    if (failed === 0) {
+      toast.success(`${added} productos añadidos al carrito`);
+    } else if (added > 0) {
+      toast.error(`${added} añadidos, ${failed} fallaron`);
+    } else {
+      toast.error('Error al añadir productos al carrito');
+    }
   };
 
   const handleMoveToCart = async (item) => {
@@ -125,7 +134,8 @@ export default function WishlistPage() {
           return (
             <div key={item.product_id} className="flex items-center gap-3 bg-white border border-stone-200 rounded-2xl p-3 hover:shadow-sm transition-shadow" data-testid={`wishlist-item-${item.product_id}`}>
               <Link to={productPath} className="shrink-0 w-16 h-16 rounded-2xl overflow-hidden bg-stone-100">
-                {img ? <img loading="lazy" src={img} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} /> : <ShoppingBag className="w-6 h-6 text-stone-300 m-auto mt-5" />}
+                {img ? <img loading="lazy" src={img} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src = ''; e.target.style.display = 'none'; e.target.parentElement.querySelector('.fallback-icon')?.classList.remove('hidden'); }} /> : null}
+                <ShoppingBag className={`w-6 h-6 text-stone-300 m-auto mt-5 fallback-icon ${img ? 'hidden' : ''}`} />
               </Link>
               <div className="flex-1 min-w-0">
                 <Link to={productPath} className="text-sm font-medium text-stone-900 hover:underline line-clamp-1">{item.name}</Link>

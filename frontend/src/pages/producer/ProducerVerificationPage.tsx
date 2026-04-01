@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import {
   ArrowLeft, Check, Upload, Loader2, AlertCircle, Clock,
   Building2, Camera, Award, Plus, X, ChevronRight, ShieldCheck,
@@ -166,8 +167,9 @@ export default function ProducerVerificationPage() {
       fd.append('file', file);
       const res = await apiClient.post('/verification/cif-nif', fd);
       await fetchStatus();
+      toast.success('Documento CIF/NIF subido correctamente');
     } catch {
-      // handled silently
+      toast.error('Error al subir el documento CIF/NIF');
     } finally {
       setCifUploading(false);
     }
@@ -180,8 +182,9 @@ export default function ProducerVerificationPage() {
       fd.append('file', file);
       await apiClient.post('/verification/facility-photo', fd);
       await fetchStatus();
+      toast.success('Foto de instalaciones subida correctamente');
     } catch {
-      // handled silently
+      toast.error('Error al subir la foto de instalaciones');
     } finally {
       setFacilityUploading(false);
     }
@@ -195,8 +198,9 @@ export default function ProducerVerificationPage() {
       fd.append('cert_type', selectedCertType);
       await apiClient.post('/verification/certificate', fd);
       await fetchStatus();
+      toast.success('Certificado subido correctamente');
     } catch {
-      // handled silently
+      toast.error('Error al subir el certificado');
     } finally {
       setCertUploading(false);
     }

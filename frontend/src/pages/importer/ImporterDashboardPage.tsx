@@ -120,7 +120,10 @@ function ImporterPlanCard({ plan }) {
 
 function formatRelativeTime(dateStr) {
   if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const diff = Date.now() - d.getTime();
+  if (diff < 0) return 'ahora';
   const mins = Math.floor(diff / 60000);
   if (mins < 60) return `hace ${mins}m`;
   const hours = Math.floor(mins / 60);

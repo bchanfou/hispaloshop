@@ -855,6 +855,111 @@ async def create_stripe_login_link(user: User = Depends(get_current_user)):
         raise HTTPException(status_code=400, detail=f"Stripe error: {str(e)}")
 
 # ============================================
+# PAYOUT METHOD (Stripe Connect or Bank Transfer)
+# ============================================
+
+@router.get("/producer/payout-method")
+async def get_payout_method(user: User = Depends(get_current_user)):
+    """Get producer's payout method and bank details."""
+    await require_role(user, ["producer", "importer"])
+    doc = await db.users.find_one(
+        {"user_id": user.user_id},
+        {"_id": 0, "payout_method": 1, "bank_details": 1,
+         "stripe_account_id": 1, "stripe_connect_status": 1,
+         "stripe_payouts_enabled": 1},
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "payout_method": doc.get("payout_method", "stripe"),
+        "bank_details": doc.get("bank_details"),
+        "stripe_connected": doc.get("stripe_connect_status") == "connected",
+        "stripe_payouts_enabled": doc.get("stripe_payouts_enabled", False),
+    }
+
+
+@router.put("/producer/payout-method")
+async def update_payout_method(request: Request, user: User = Depends(get_current_user)):
+    """Update payout method: 'stripe' or 'bank_transfer'."""
+    await require_role(user, ["producer", "importer"])
+    body = await request.json()
+    method = body.get("payout_method")
+
+    if method not in ("stripe", "bank_transfer"):
+        raise HTTPException(status_code=400, detail="payout_method must be 'stripe' or 'bank_transfer'")
+
+    update = {"payout_method": method}
+
+    # If switching to bank_transfer, save bank details
+    if method == "bank_transfer":
+        bank = body.get("bank_details", {})
+        required = ["account_holder", "bank_name", "country"]
+        for field in required:
+            if not bank.get(field):
+                raise HTTPException(status_code=400, detail=f"bank_details.{field} is required")
+
+        # Must have IBAN or account_number
+        if not bank.get("iban") and not bank.get("account_number"):
+            raise HTTPException(status_code=400, detail="IBAN or account_number is required")
+
+        update["bank_details"] = {
+            "account_holder": bank["account_holder"].strip(),
+            "bank_name": bank["bank_name"].strip(),
+            "country": bank["country"].strip().upper(),
+            "iban": (bank.get("iban") or "").strip(),
+            "account_number": (bank.get("account_number") or "").strip(),
+            "swift_bic": (bank.get("swift_bic") or "").strip(),
+            "routing_number": (bank.get("routing_number") or "").strip(),
+            "currency": (bank.get("currency") or "EUR").strip().upper(),
+            "notes": (bank.get("notes") or "").strip()[:200],
+        }
+
+    await db.users.update_one({"user_id": user.user_id}, {"$set": update})
+    return {"success": True, "payout_method": method}
+
+
+@router.post("/producer/request-payout")
+async def request_manual_payout(request: Request, user: User = Depends(get_current_user)):
+    """Request a manual bank transfer payout."""
+    await require_role(user, ["producer", "importer"])
+    body = await request.json()
+    amount = body.get("amount")
+
+    if not amount or float(amount) <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be > 0")
+
+    doc = await db.users.find_one(
+        {"user_id": user.user_id},
+        {"_id": 0, "payout_method": 1, "bank_details": 1, "name": 1, "email": 1},
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not doc.get("bank_details"):
+        raise HTTPException(status_code=400, detail="Bank details not configured. Please set up your payout method first.")
+
+    import uuid
+    payout_id = f"payout_{uuid.uuid4().hex[:12]}"
+    payout = {
+        "payout_id": payout_id,
+        "producer_id": user.user_id,
+        "producer_name": doc.get("name", ""),
+        "producer_email": doc.get("email", ""),
+        "amount": round(float(amount), 2),
+        "currency": doc["bank_details"].get("currency", "EUR"),
+        "bank_details": doc["bank_details"],
+        "status": "pending",
+        "requested_at": datetime.now(timezone.utc).isoformat(),
+        "processed_at": None,
+        "admin_notes": "",
+    }
+    await db.manual_payouts.insert_one(payout)
+
+    return {"success": True, "payout_id": payout_id, "status": "pending"}
+
+
+# ============================================
 # ANALYTICS, SALES CHART & ALERTS
 # ============================================
 

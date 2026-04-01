@@ -372,10 +372,10 @@ export default function PayoutsPage() {
               >
                 <div>
                   <p className="text-sm font-semibold text-stone-950">
-                    {new Date(payout.paid_at || payout.created_at).toLocaleDateString('es-ES', {
-                      month: 'long',
-                      year: 'numeric',
-                    })}
+                    {(() => {
+                      const d = new Date(payout.paid_at || payout.created_at || 0);
+                      return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                    })()}
                   </p>
                   <p className="text-xs text-stone-500">
                     {payout.commission_count} ventas

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, ExternalLink, Link2, Search, Loader2, Send, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -9,12 +9,15 @@ import { useLocale } from '../../context/LocaleContext';
 
 function AffiliateLinkCard({ link, convertAndFormatPrice }) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef(null);
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(link.url);
     setCopied(true);
     toast.success('Link copiado');
-    setTimeout(() => setCopied(false), 2000);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -337,7 +340,9 @@ export default function AffiliateLinksPage() {
               if (sortBy === 'revenue') return Number(b.commission_eur || 0) - Number(a.commission_eur || 0);
               if (sortBy === 'clicks') return Number(b.clicks || 0) - Number(a.clicks || 0);
               // recent — newest first by created_at
-              return (new Date(b.created_at || 0)).getTime() - (new Date(a.created_at || 0)).getTime();
+              const bTime = new Date(b.created_at || 0).getTime() || 0;
+              const aTime = new Date(a.created_at || 0).getTime() || 0;
+              return bTime - aTime;
             }).map((link) => (
               <AffiliateLinkCard key={link.link_id || link.id} link={link} convertAndFormatPrice={convertAndFormatPrice} />
             ))}

@@ -72,10 +72,10 @@ export default function ProducerProfile() {
       });
 
       if (data.office_address) {
-        setOfficeAddress(data.office_address);
+        setOfficeAddress(prev => ({ ...prev, ...data.office_address }));
       }
       if (data.warehouse_address) {
-        setWarehouseAddress(data.warehouse_address);
+        setWarehouseAddress(prev => ({ ...prev, ...data.warehouse_address }));
       }
     } catch {
       setError(true);

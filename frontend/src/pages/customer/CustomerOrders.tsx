@@ -1,9 +1,9 @@
 // @ts-nocheck
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
-import { ShoppingBag, ChevronRight, Clock, Check, ExternalLink, RotateCcw } from 'lucide-react';
+import { ShoppingBag, ChevronRight, Clock, Check, ExternalLink, RotateCcw, Loader2 } from 'lucide-react';
 
 import { asNumber } from '../../utils/safe';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
@@ -136,21 +136,25 @@ export default function CustomerOrders() {
   }, [page]);
 
   useEffect(() => {
+    if (refreshingRef.current) return; // Skip — handleRefresh already fetched
     fetchOrders();
   }, [fetchOrders]);
 
+  const refreshingRef = useRef(false);
   const handleRefresh = useCallback(async () => {
-    setPage(1);
+    refreshingRef.current = true;
     setLoading(true);
     try {
       const data = await apiClient.get(`/customer/orders?limit=${LIMIT}&skip=0`);
       const fetched = Array.isArray(data) ? data : data?.orders || [];
       setOrders(fetched);
+      setPage(1);
       setHasMore(data?.has_more ?? fetched.length >= LIMIT);
     } catch {
       toast.error('Error al actualizar los pedidos');
     } finally {
       setLoading(false);
+      refreshingRef.current = false;
     }
   }, []);
   const { refreshing, progress, handlers } = usePullToRefresh(handleRefresh);
@@ -345,7 +349,7 @@ export default function CustomerOrders() {
                           className="inline-flex items-center gap-1.5 border border-stone-200 rounded-full px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-stone-50 transition-colors disabled:opacity-50"
                           data-testid={`reorder-${order.order_id}`}
                         >
-                          <RotateCcw size={14} /> Volver a pedir
+                          {reorderingId === order.order_id ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />} {reorderingId === order.order_id ? 'Añadiendo...' : 'Volver a pedir'}
                         </button>
                       )}
                     </div>

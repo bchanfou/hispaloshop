@@ -1822,3 +1822,80 @@ async def admin_dashboard_stats(user: User = Depends(get_current_user)):
         "expiring_certificates": expiring_certs,
         "top_products": top_products,
     }
+
+
+# ============================================
+# MANUAL PAYOUTS MANAGEMENT
+# ============================================
+
+@router.get("/admin/payouts/pending")
+async def get_pending_payouts(user: User = Depends(get_current_user)):
+    """List all pending manual payout requests."""
+    await require_role(user, ["admin", "superadmin"])
+    payouts = await db.manual_payouts.find(
+        {"status": "pending"}, {"_id": 0}
+    ).sort("requested_at", -1).to_list(200)
+    return {"payouts": payouts, "total": len(payouts)}
+
+
+@router.get("/admin/payouts")
+async def get_all_payouts(
+    user: User = Depends(get_current_user),
+    status: Optional[str] = None,
+    limit: int = 50,
+    skip: int = 0,
+):
+    """List all manual payout requests with optional status filter."""
+    await require_role(user, ["admin", "superadmin"])
+    query = {}
+    if status:
+        query["status"] = status
+    payouts = await db.manual_payouts.find(
+        query, {"_id": 0}
+    ).sort("requested_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.manual_payouts.count_documents(query)
+    return {"payouts": payouts, "total": total}
+
+
+@router.put("/admin/payouts/{payout_id}/process")
+async def process_payout(payout_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Mark a payout as processed (paid) or rejected."""
+    await require_role(user, ["admin", "superadmin"])
+    body = await request.json()
+    new_status = body.get("status")
+
+    if new_status not in ("completed", "rejected"):
+        raise HTTPException(status_code=400, detail="status must be 'completed' or 'rejected'")
+
+    payout = await db.manual_payouts.find_one({"payout_id": payout_id}, {"_id": 0})
+    if not payout:
+        raise HTTPException(status_code=404, detail="Payout not found")
+    if payout["status"] != "pending":
+        raise HTTPException(status_code=400, detail=f"Payout already {payout['status']}")
+
+    update = {
+        "status": new_status,
+        "processed_at": datetime.now(timezone.utc).isoformat(),
+        "processed_by": user.user_id,
+        "admin_notes": (body.get("notes") or "").strip()[:500],
+        "transfer_reference": (body.get("transfer_reference") or "").strip()[:100],
+    }
+
+    await db.manual_payouts.update_one({"payout_id": payout_id}, {"$set": update})
+
+    # If completed, mark the corresponding order splits as paid_out
+    if new_status == "completed":
+        producer_id = payout["producer_id"]
+        amount = payout["amount"]
+        # Insert notification for producer
+        await db.notifications.insert_one({
+            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+            "user_id": producer_id,
+            "type": "payout_completed",
+            "title": "Pago procesado",
+            "message": f"Se ha transferido {amount} {payout.get('currency', 'EUR')} a tu cuenta bancaria.",
+            "read": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+
+    return {"success": True, "payout_id": payout_id, "status": new_status}

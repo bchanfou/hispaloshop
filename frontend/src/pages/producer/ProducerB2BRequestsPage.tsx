@@ -122,8 +122,9 @@ function RequestCard({ request, onAction }) {
   const [processing, setProcessing] = useState(false);
 
   const confirm = async () => {
-    if (!confirmedPrice || parseFloat(confirmedPrice) <= 0) {
-      toast.error('Introduce el precio por unidad');
+    const parsedPrice = parseFloat(confirmedPrice);
+    if (!confirmedPrice || isNaN(parsedPrice) || parsedPrice <= 0) {
+      toast.error('Introduce un precio válido por unidad');
       return;
     }
     setProcessing(true);
@@ -136,6 +137,10 @@ function RequestCard({ request, onAction }) {
       });
       toast.success('Oferta enviada al importador');
       setShowConfirm(false);
+      setConfirmedPrice(request.unit_price || '');
+      setNotes('');
+      setEstimatedDays(7);
+      setEstimatedDeliveryDate('');
       onAction();
     } catch {
       toast.error('Error al confirmar');
@@ -158,7 +163,8 @@ function RequestCard({ request, onAction }) {
   };
 
   const totalEstimado = request.quantity * (request.unit_price || 0);
-  const totalConfirmado = request.quantity * parseFloat(confirmedPrice || 0);
+  const parsedConfirmedPrice = parseFloat(confirmedPrice || '0');
+  const totalConfirmado = request.quantity * (isNaN(parsedConfirmedPrice) ? 0 : parsedConfirmedPrice);
 
   return (
     <div className={`bg-white rounded-2xl border ${request.status === 'pending' ? 'border-stone-950' : 'border-stone-200'} overflow-hidden mb-3`}>
@@ -238,7 +244,7 @@ function RequestCard({ request, onAction }) {
                 <input
                   type="number"
                   value={estimatedDays}
-                  onChange={e => setEstimatedDays(parseInt(e.target.value) || 7)}
+                  onChange={e => { const v = parseInt(e.target.value, 10); setEstimatedDays(isNaN(v) ? 7 : Math.max(0, v)); }}
                   min="1"
                   max="90"
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:border-stone-950"

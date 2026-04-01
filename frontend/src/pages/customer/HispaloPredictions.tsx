@@ -47,13 +47,12 @@ function PredictionCard({ prediction, onReorder, reordering, t }) {
             src={prediction.image}
             alt={prediction.product_name}
             className="w-14 h-14 rounded-2xl object-cover flex-shrink-0"
-            onError={e => { e.target.style.display = 'none'; }}
+            onError={e => { e.target.onerror = null; e.target.style.display = 'none'; e.target.parentElement.querySelector('.pred-fallback')?.classList.remove('hidden'); }}
           />
-        ) : (
-          <div className="w-14 h-14 rounded-2xl bg-stone-200 flex items-center justify-center flex-shrink-0">
-            <ShoppingCart className="w-6 h-6 text-stone-400" />
-          </div>
-        )}
+        ) : null}
+        <div className={`w-14 h-14 rounded-2xl bg-stone-200 flex items-center justify-center flex-shrink-0 pred-fallback ${prediction.image ? 'hidden' : ''}`}>
+          <ShoppingCart className="w-6 h-6 text-stone-400" />
+        </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-medium text-sm text-stone-900 truncate">{prediction.product_name}</h3>
@@ -120,6 +119,7 @@ export default function HispaloPredictions() {
   };
 
   const handleReorder = async (productId) => {
+    if (!productId) { toast.error('Producto no disponible'); return; }
     setReordering(productId);
     try {
       await addToCart(productId, 1);
@@ -196,7 +196,7 @@ export default function HispaloPredictions() {
         </div>
         {actionable.length > 0 && (
           <span className="px-2.5 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-semibold" data-testid="predictions-action-badge">
-            {actionable.length} requieren accion
+            {actionable.length} requieren acción
           </span>
         )}
       </div>
@@ -224,7 +224,7 @@ export default function HispaloPredictions() {
       <div className="space-y-2">
         {predictions.map(p => (
           <PredictionCard
-            key={p.product_id}
+            key={p.product_id || p.id || `pred-${p.product_name}`}
             prediction={p}
             onReorder={handleReorder}
             reordering={reordering}

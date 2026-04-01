@@ -56,9 +56,10 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
       await apiClient.delete(
         `/producer/products/${product.product_id}/variants/${variantId}`
       );
-      setVariants(variants.filter(v => v.variant_id !== variantId));
+      const remaining = variants.filter(v => v.variant_id !== variantId);
+      setVariants(remaining);
       if (expandedVariant === variantId) {
-        setExpandedVariant(variants.length > 1 ? variants[0].variant_id : null);
+        setExpandedVariant(remaining.length > 0 ? remaining[0].variant_id : null);
       }
       toast.success('Variant deleted');
       onUpdate?.();
@@ -68,8 +69,11 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
   };
 
   const handleAddPack = async (variantId) => {
-    if (!newPack.label.trim() || !newPack.price || !newPack.stock) {
-      toast.error('Please fill all pack fields');
+    const parsedPrice = parseFloat(newPack.price);
+    const parsedStock = parseInt(newPack.stock, 10);
+    const parsedUnits = parseInt(newPack.units, 10);
+    if (!newPack.label.trim() || isNaN(parsedPrice) || parsedPrice <= 0 || isNaN(parsedStock) || parsedStock < 0) {
+      toast.error('Rellena todos los campos del pack con valores válidos');
       return;
     }
 
@@ -80,14 +84,13 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
         {
           variant_id: variantId,
           label: newPack.label.trim(),
-          units: parseInt(newPack.units) || 1,
-          price: parseFloat(newPack.price),
-          stock: parseInt(newPack.stock)
+          units: isNaN(parsedUnits) || parsedUnits < 1 ? 1 : parsedUnits,
+          price: parsedPrice,
+          stock: parsedStock,
         }
       );
 
-      // Update local state
-      setVariants(variants.map(v => {
+      setVariants(prev => prev.map(v => {
         if (v.variant_id === variantId) {
           return { ...v, packs: [...(v.packs || []), response] };
         }
@@ -112,8 +115,8 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
         updates
       );
 
-      // Update local state
-      setVariants(variants.map(v => ({
+      // Update local state with functional setter to avoid stale closure
+      setVariants(prev => prev.map(v => ({
         ...v,
         packs: v.packs?.map(p =>
           p.pack_id === packId ? { ...p, ...updates } : p
@@ -135,8 +138,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
         `/producer/products/${product.product_id}/packs/${packId}`
       );
 
-      // Update local state
-      setVariants(variants.map(v => ({
+      setVariants(prev => prev.map(v => ({
         ...v,
         packs: v.packs?.filter(p => p.pack_id !== packId)
       })));

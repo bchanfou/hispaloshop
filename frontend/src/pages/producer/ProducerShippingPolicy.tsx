@@ -56,7 +56,7 @@ export default function ProducerShippingPolicy() {
       const payload = {
         enabled: !!policy.enabled,
         base_cost_cents: Math.max(0, policy.base_cost_cents || 0),
-        free_threshold_cents: policy.free_threshold_cents === null ? null : Math.max(0, policy.free_threshold_cents),
+        free_threshold_cents: policy.free_threshold_cents == null ? null : Math.max(0, Number(policy.free_threshold_cents) || 0),
         per_item_cents: Math.max(0, policy.per_item_cents || 0),
         local_pickup_enabled: !!policy.local_pickup_enabled,
       };

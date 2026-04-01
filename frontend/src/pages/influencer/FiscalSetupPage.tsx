@@ -184,7 +184,7 @@ export default function FiscalSetupPage() {
           setSavingPayout(false);
           return;
         }
-        body.iban = iban.trim();
+        body.iban = ibanClean;
         body.account_name = accountName.trim();
       }
       const res = await apiClient.post('/influencer/fiscal/payout-method', body);

@@ -273,14 +273,16 @@ export default function ProducerOrders() {
 
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [quickUpdatingId, setQuickUpdatingId] = useState(null);
+  // Unified busy check — prevents both quick and full update from firing simultaneously
+  const isOrderBusy = (orderId) => updatingOrderId === orderId || quickUpdatingId === orderId;
 
   const handleUpdateStatus = async (order, newStatus) => {
-    if (updatingOrderId) return; // prevent double-click
+    if (isOrderBusy(order.order_id)) return;
     setUpdatingOrderId(order.order_id);
     try {
       await apiClient.put(`/orders/${order.order_id}/status`, { status: newStatus });
       toast.success(`${t('orders.orderUpdatedTo')}: ${statusLabels[newStatus]}`);
-      setOrders(orders.map(o =>
+      setOrders(prev => prev.map(o =>
         o.order_id === order.order_id
           ? { ...o, status: newStatus, updated_at: new Date().toISOString() }
           : o
@@ -295,7 +297,7 @@ export default function ProducerOrders() {
 
   // Quick inline status update using PATCH endpoint
   const handleQuickStatus = async (order, newStatus) => {
-    if (quickUpdatingId === order.order_id) return;
+    if (isOrderBusy(order.order_id)) return;
     if (newStatus === 'shipped') {
       // Open the ship modal for tracking URL
       handleShipOrder(order);
@@ -305,7 +307,7 @@ export default function ProducerOrders() {
     try {
       await apiClient.patch(`/producer/orders/${order.order_id}/status`, { status: newStatus });
       toast.success(`${t('orders.orderUpdatedTo')}: ${statusLabels[newStatus] || newStatus}`);
-      setOrders(orders.map(o =>
+      setOrders(prev => prev.map(o =>
         o.order_id === order.order_id
           ? { ...o, status: newStatus, updated_at: new Date().toISOString() }
           : o
@@ -319,7 +321,7 @@ export default function ProducerOrders() {
   };
 
   const handleShipSuccess = (orderId, shipData) => {
-    setOrders(orders.map(o =>
+    setOrders(prev => prev.map(o =>
       o.order_id === orderId
         ? {
             ...o,
@@ -483,7 +485,7 @@ export default function ProducerOrders() {
                     {order.status === 'pending' && (
                       <button
                         onClick={() => handleQuickStatus(order, 'confirmed')}
-                        disabled={quickUpdatingId === order.order_id}
+                        disabled={isOrderBusy(order.order_id)}
                         className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full border border-stone-200 hover:bg-stone-50 transition-colors disabled:opacity-50"
                         data-testid={`quick-confirm-${order.order_id}`}
                       >
@@ -498,7 +500,7 @@ export default function ProducerOrders() {
                     {order.status === 'confirmed' && (
                       <button
                         onClick={() => handleQuickStatus(order, 'shipped')}
-                        disabled={quickUpdatingId === order.order_id}
+                        disabled={isOrderBusy(order.order_id)}
                         className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full border border-stone-200 hover:bg-stone-50 transition-colors disabled:opacity-50"
                         data-testid={`quick-ship-inline-${order.order_id}`}
                       >
@@ -523,7 +525,7 @@ export default function ProducerOrders() {
                         ) : order.status === 'shipped' ? (
                           <button
                             onClick={() => handleUpdateStatus(order, 'delivered')}
-                            disabled={updatingOrderId === order.order_id}
+                            disabled={isOrderBusy(order.order_id)}
                             className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                             data-testid={`deliver-order-${order.order_id}`}
                           >
@@ -533,7 +535,7 @@ export default function ProducerOrders() {
                         ) : (
                           <button
                             onClick={() => handleUpdateStatus(order, nextStatus)}
-                            disabled={updatingOrderId === order.order_id}
+                            disabled={isOrderBusy(order.order_id)}
                             className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-2xl transition-colors"
                             data-testid={`update-order-${order.order_id}`}
                           >

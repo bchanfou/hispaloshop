@@ -62,7 +62,7 @@ function CaseDetail({ caseData, onBack, onMessageSent }) {
       onMessageSent(caseData.case_id, msg);
       setReply('');
     } catch (err) {
-      toast.error(err.message || 'No se pudo enviar el mensaje');
+      toast.error(err?.response?.data?.detail || err?.message || 'No se pudo enviar el mensaje');
     } finally {
       setSending(false);
     }

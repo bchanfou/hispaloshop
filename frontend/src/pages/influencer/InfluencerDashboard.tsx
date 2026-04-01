@@ -291,12 +291,14 @@ function CreateCodeCard({ onCodeCreated }) {
 // Discount Codes List Component
 function DiscountCodesList({ codes, convertAndFormatPrice }) {
   const [copiedCode, setCopiedCode] = useState(null);
+  const copyTimerRef = React.useRef(null);
 
   const handleCopy = useCallback((code) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     toast.success('Código copiado');
-    setTimeout(() => setCopiedCode(null), 2000);
+    clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = setTimeout(() => setCopiedCode(null), 2000);
   }, []);
 
   if (!codes || codes.length === 0) {
@@ -390,8 +392,10 @@ export default function InfluencerDashboard() {
 
   useEffect(() => {
     let active = true;
+    let errCount = 0;
     const logFetchErr = () => () => {
-      // Sentry captures fetch errors automatically
+      errCount++;
+      if (errCount >= 3 && active) toast.error('Algunos datos no se pudieron cargar');
     };
     apiClient.get('/collaborations').then(d => {
       if (active) setCollabs(d?.collaborations || []);
@@ -425,6 +429,8 @@ export default function InfluencerDashboard() {
 
     return () => {
       active = false;
+      clearTimeout(copyTimerRef.current);
+      clearTimeout(discountCopyTimerRef.current);
     };
   }, []);
 
@@ -445,12 +451,14 @@ export default function InfluencerDashboard() {
     withdrawalSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
+  const discountCopyTimerRef = React.useRef(null);
   const copyDiscountCode = useCallback(() => {
     if (dashboard?.discount_code) {
       navigator.clipboard.writeText(dashboard.discount_code);
       setCopied(true);
       toast.success(t('influencer.codeCopied', '¡Código copiado!'));
-      setTimeout(() => setCopied(false), 2000);
+      clearTimeout(discountCopyTimerRef.current);
+      discountCopyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     }
   }, [dashboard?.discount_code, t]);
 
@@ -899,21 +907,22 @@ export default function InfluencerDashboard() {
                 {/* Next payment date */}
                 <div className="text-center p-4 bg-white rounded-xl shadow-sm">
                   <p className="text-sm mb-1 text-stone-500">{t('influencer.nextPaymentDate')}</p>
-                  {dashboard.payment_schedule.next_payment_date ? (
+                  {(() => {
+                    const npd = dashboard.payment_schedule.next_payment_date ? new Date(dashboard.payment_schedule.next_payment_date) : null;
+                    const npdValid = npd && !isNaN(npd.getTime());
+                    return npdValid ? (
                     <>
                       <p className="text-xl font-bold text-stone-500">
-                        {new Date(dashboard.payment_schedule.next_payment_date).toLocaleDateString('es-ES', {
-                          day: 'numeric',
-                          month: 'short'
-                        })}
+                        {npd.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                       </p>
                       <p className="text-xs mt-1 text-stone-500">
-                        {t('influencer.daysLeft', { days: Math.max(0, Math.ceil((new Date(dashboard.payment_schedule.next_payment_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) })}
+                        {t('influencer.daysLeft', { days: Math.max(0, Math.ceil((npd.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) })}
                       </p>
                     </>
                   ) : (
                     <p className="text-lg text-stone-500">{t('influencer.noPendingPayments')}</p>
-                  )}
+                  );
+                  })()}
                 </div>
               </div>
 
@@ -1122,7 +1131,8 @@ export default function InfluencerDashboard() {
                   </thead>
                   <tbody>
                     {dashboard.recent_commissions.map((comm) => {
-                      const paymentDate = comm.payment_available_date ? new Date(comm.payment_available_date) : null;
+                      const rawDate = comm.payment_available_date ? new Date(comm.payment_available_date) : null;
+                      const paymentDate = rawDate && !isNaN(rawDate.getTime()) ? rawDate : null;
                       const now = new Date();
                       const isAvailable = paymentDate && paymentDate <= now;
                       const daysLeft = paymentDate ? Math.ceil((paymentDate - now) / (1000 * 60 * 60 * 24)) : null;
@@ -1161,7 +1171,7 @@ export default function InfluencerDashboard() {
                             )}
                           </td>
                           <td className="py-3 px-4 text-sm text-stone-500">
-                            {new Date(comm.created_at).toLocaleDateString('es-ES')}
+                            {comm.created_at ? new Date(comm.created_at).toLocaleDateString('es-ES') : '—'}
                           </td>
                         </tr>
                       );

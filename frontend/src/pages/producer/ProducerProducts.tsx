@@ -355,18 +355,26 @@ export default function ProducerProducts() {
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
     setBulkDeleting(true);
-    try {
-      const ids = Array.from(selectedIds);
-      await Promise.all(ids.map(id => apiClient.delete(`/producer/products/${id}`)));
-      toast.success(`${ids.length} producto${ids.length > 1 ? 's' : ''} eliminado${ids.length > 1 ? 's' : ''}`);
-      setSelectedIds(new Set());
-      setShowDeleteModal(false);
-      await refetchProducts();
-    } catch (err) {
-      toast.error(err?.message || 'Error al eliminar productos');
-    } finally {
-      setBulkDeleting(false);
+    const ids = Array.from(selectedIds);
+    let deleted = 0;
+    let failed = 0;
+    for (const id of ids) {
+      try {
+        await apiClient.delete(`/producer/products/${id}`);
+        deleted++;
+      } catch { failed++; }
     }
+    if (failed === 0) {
+      toast.success(`${deleted} producto${deleted > 1 ? 's' : ''} eliminado${deleted > 1 ? 's' : ''}`);
+    } else if (deleted > 0) {
+      toast.error(`${deleted} eliminado${deleted > 1 ? 's' : ''}, ${failed} fallaron`);
+    } else {
+      toast.error('Error al eliminar productos');
+    }
+    setSelectedIds(new Set());
+    setShowDeleteModal(false);
+    await refetchProducts();
+    setBulkDeleting(false);
   };
   
   // Enhanced form data with new fields
@@ -476,7 +484,8 @@ export default function ProducerProducts() {
       const nutritionalInfo = {};
       Object.entries(formData.nutritional_info).forEach(([key, value]) => {
         if (value !== '' && value !== null && value !== undefined) {
-          nutritionalInfo[key] = parseFloat(value);
+          const parsed = parseFloat(value);
+          if (!isNaN(parsed)) nutritionalInfo[key] = parsed;
         }
       });
       
@@ -513,17 +522,17 @@ export default function ProducerProducts() {
         parent_product_id: formData.parent_product_id || null,
         packs: packsData.length > 0 ? packsData : null,
         // Shipping fields
-        shipping_cost: formData.shipping_cost ? parseFloat(formData.shipping_cost) : null,
-        free_shipping_min_qty: formData.free_shipping_min_qty ? parseInt(formData.free_shipping_min_qty) : null,
-        stock: formData.stock !== '' ? parseInt(formData.stock) : 0,
+        shipping_cost: formData.shipping_cost ? (isNaN(parseFloat(formData.shipping_cost)) ? null : parseFloat(formData.shipping_cost)) : null,
+        free_shipping_min_qty: formData.free_shipping_min_qty ? (isNaN(parseInt(formData.free_shipping_min_qty, 10)) ? null : parseInt(formData.free_shipping_min_qty, 10)) : null,
+        stock: formData.stock !== '' && !isNaN(parseInt(formData.stock, 10)) ? parseInt(formData.stock, 10) : 0,
         // B2B wholesale
         b2b_enabled: formData.b2b_enabled || false,
-        b2b_moq: formData.b2b_moq ? parseInt(formData.b2b_moq) : null,
+        b2b_moq: formData.b2b_moq && !isNaN(parseInt(formData.b2b_moq, 10)) ? parseInt(formData.b2b_moq, 10) : null,
         b2b_tiers: formData.b2b_enabled && formData.b2b_tiers.length > 0
           ? formData.b2b_tiers.filter(tier => tier.min_quantity && tier.unit_price).map(tier => ({
-              min_quantity: parseInt(tier.min_quantity),
-              unit_price: parseFloat(tier.unit_price),
-            }))
+              min_quantity: parseInt(tier.min_quantity, 10) || 1,
+              unit_price: parseFloat(tier.unit_price) || 0,
+            })).filter(t => !isNaN(t.min_quantity) && !isNaN(t.unit_price))
           : null,
       };
 
@@ -591,7 +600,7 @@ export default function ProducerProducts() {
       name: product.name,
       category_id: product.category_id,
       description: product.description,
-      price: product.price.toString(),
+      price: (product.price ?? 0).toString(),
       images: productImages,
       country_origin: product.country_origin,
       ingredients: product.ingredients?.map(i => typeof i === 'string' ? {name: i, origin: ''} : i) || [],

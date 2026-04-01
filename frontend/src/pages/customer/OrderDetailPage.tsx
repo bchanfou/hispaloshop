@@ -102,31 +102,28 @@ export default function OrderDetailPage() {
     setInvoiceLoading(true);
     try {
       const data = await apiClient.get(`/invoices/order/${orderId}`);
-      const lines = [
-        `RESUMEN DE PEDIDO ${data.invoice_number}`,
-        '(Este documento NO es una factura fiscal)',
-        `Fecha: ${new Date(data.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`,
-        '',
-        `Cliente: ${data.customer?.name || ''}`,
-        `Email: ${data.customer?.email || ''}`,
-        '',
-        'PRODUCTOS',
-        '─'.repeat(40),
-        ...data.items.map(it => `${it.name}  x${it.quantity}  ${convertAndFormatPrice(Number(it.unit_price), order?.currency || 'EUR')}  →  ${convertAndFormatPrice(Number(it.total), order?.currency || 'EUR')}`),
-        '─'.repeat(40),
-        `Subtotal: ${convertAndFormatPrice(Number(data.subtotal), order?.currency || 'EUR')}`,
-        `Envío: ${convertAndFormatPrice(Number(data.shipping), order?.currency || 'EUR')}`,
-        `IVA: ${convertAndFormatPrice(Number(data.tax), order?.currency || 'EUR')}`,
-        `TOTAL: ${convertAndFormatPrice(Number(data.total), order?.currency || 'EUR')}`,
-        '',
-        `Estado: ${INVOICE_STATUS_ES[data.status] || data.status}`,
-        `Método de pago: ${data.payment_method}`,
-      ];
-      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const cur = order?.currency || 'EUR';
+      const itemsHtml = (data.items || []).map(it =>
+        `<tr><td style="padding:6px 12px">${it.name}</td><td style="padding:6px 12px;text-align:center">x${it.quantity}</td><td style="padding:6px 12px;text-align:right">${convertAndFormatPrice(Number(it.total), cur)}</td></tr>`
+      ).join('');
+      const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Pedido ${data.invoice_number}</title>
+<style>body{font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;color:#1c1917}h1{font-size:20px}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #e7e5e4}th{text-align:left;padding:8px 12px;font-size:13px;color:#78716c}tfoot td{font-weight:600;border-top:2px solid #1c1917}.meta{color:#78716c;font-size:13px}</style></head>
+<body><h1>Resumen de pedido ${data.invoice_number}</h1>
+<p class="meta">Este documento NO es una factura fiscal</p>
+<p class="meta">Fecha: ${new Date(data.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+<p class="meta">Cliente: ${data.customer?.name || ''} · ${data.customer?.email || ''}</p>
+<table><thead><tr><th>Producto</th><th style="text-align:center">Cant.</th><th style="text-align:right">Total</th></tr></thead>
+<tbody>${itemsHtml}</tbody>
+<tfoot><tr><td colspan="2" style="padding:6px 12px">Subtotal</td><td style="padding:6px 12px;text-align:right">${convertAndFormatPrice(Number(data.subtotal), cur)}</td></tr>
+<tr><td colspan="2" style="padding:6px 12px">Envío</td><td style="padding:6px 12px;text-align:right">${convertAndFormatPrice(Number(data.shipping), cur)}</td></tr>
+<tr><td colspan="2" style="padding:6px 12px">IVA</td><td style="padding:6px 12px;text-align:right">${convertAndFormatPrice(Number(data.tax), cur)}</td></tr>
+<tr><td colspan="2" style="padding:6px 12px;font-size:16px">TOTAL</td><td style="padding:6px 12px;text-align:right;font-size:16px">${convertAndFormatPrice(Number(data.total), cur)}</td></tr></tfoot></table>
+<p class="meta" style="margin-top:20px">Estado: ${INVOICE_STATUS_ES[data.status] || data.status} · Pago: ${data.payment_method}</p></body></html>`;
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `resumen_pedido_${orderId}.txt`;
+      a.download = `resumen_pedido_${orderId}.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

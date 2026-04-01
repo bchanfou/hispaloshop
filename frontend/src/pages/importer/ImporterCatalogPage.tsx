@@ -260,8 +260,8 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
   const selectedTier = product.b2b_prices?.slice().reverse()
     .find(t => quantity >= t.min_quantity);
   const unitPrice = selectedTier
-    ? selectedTier.unit_price_cents / 100
-    : product.price || 0;
+    ? (Number(selectedTier.unit_price_cents) || 0) / 100
+    : Number(product.price) || 0;
   const totalPrice = quantity * unitPrice;
   const moq = product.moq || 1;
 

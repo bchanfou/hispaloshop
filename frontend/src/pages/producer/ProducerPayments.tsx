@@ -64,7 +64,8 @@ function MonthlyChart({ data }) {
     );
   }
 
-  const chartData = [...data].reverse().slice(-6).map(item => ({
+  // Take last 6 months (most recent) from chronologically-sorted data
+  const chartData = [...data].slice(-6).map(item => ({
     month: item.month.slice(5),  // "02" from "2026-02"
     Bruto: item.gross,
     Neto: item.net,
@@ -165,8 +166,10 @@ export default function ProducerPayments() {
     setOpeningDashboard(true);
     try {
       const response = await apiClient.post('/producer/stripe/create-login-link', {});
-      if (response.url) {
+      if (response?.url) {
         window.open(response.url, '_blank');
+      } else {
+        toast.error('No se pudo obtener el enlace de Stripe');
       }
     } catch (error) {
       toast.error('Error al abrir el dashboard de Stripe');
@@ -407,8 +410,8 @@ export default function ProducerPayments() {
             <button
               onClick={() => {
                 const rows = [['Mes', 'Pedidos', 'Bruto (€)', 'Neto (€)']];
-                data.monthly_summary.forEach(m => {
-                  rows.push([m.month, m.orders, m.gross.toFixed(2), m.net.toFixed(2)]);
+                (data.monthly_summary || []).forEach(m => {
+                  rows.push([m.month || '', m.orders || 0, Number(m.gross || 0).toFixed(2), Number(m.net || 0).toFixed(2)]);
                 });
                 const csv = rows.map(r => r.join(',')).join('\n');
                 const blob = new Blob([csv], { type: 'text/csv' });

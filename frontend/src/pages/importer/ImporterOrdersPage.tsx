@@ -37,7 +37,10 @@ function B2BOrderStatusBadge({ status }) {
 
 function formatRelativeTime(dateStr) {
   if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const diff = Date.now() - d.getTime();
+  if (diff < 0) return 'ahora';
   const mins = Math.floor(diff / 60000);
   if (mins < 60) return `hace ${mins}m`;
   const hours = Math.floor(mins / 60);
@@ -53,9 +56,11 @@ function B2BOrderCard({ order, onRefresh }) {
   const [confirming, setConfirming] = useState(false);
 
   const handleConfirmDelivery = async () => {
+    const opId = order.operation_id || order.id;
+    if (!opId) { toast.error('ID de operación no disponible'); return; }
     setConfirming(true);
     try {
-      await apiClient.patch(`/b2b/operations/${order.operation_id || order.id}`, { status: 'delivered' });
+      await apiClient.patch(`/b2b/operations/${opId}`, { status: 'delivered' });
       toast.success('Recepción confirmada');
       onRefresh();
     } catch {
@@ -66,6 +71,7 @@ function B2BOrderCard({ order, onRefresh }) {
   };
 
   const handleApproveAndPay = async () => {
+    if (!order.id) { toast.error('ID de pedido no disponible'); return; }
     setProcessing(true);
     try {
       const data = await apiClient.post(`/b2b/orders/${order.id}/approve-and-pay`, {});
@@ -83,6 +89,7 @@ function B2BOrderCard({ order, onRefresh }) {
   };
 
   const handleReject = async () => {
+    if (!order.id) { toast.error('ID de pedido no disponible'); return; }
     if (!window.confirm('¿Rechazar esta solicitud?')) return;
     try {
       await apiClient.post(`/b2b/orders/${order.id}/reject`, {});
@@ -126,12 +133,12 @@ function B2BOrderCard({ order, onRefresh }) {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-stone-950 truncate">{order.product_name}</p>
             <p className="text-xs text-stone-500">
-              {order.quantity || '—'} {order.unit || 'uds'} × {(order.unit_price || 0).toFixed(2)}€
+              {order.quantity || '—'} {order.unit || 'uds'} × {Number(order.unit_price || 0).toFixed(2)}€
             </p>
           </div>
           <div className="text-right shrink-0">
             <p className="text-base font-extrabold text-stone-950">
-              {(order.total || 0).toFixed(2)}€
+              {Number(order.total || 0).toFixed(2)}€
             </p>
             <p className="text-[11px] text-stone-400">{formatRelativeTime(order.created_at)}</p>
           </div>
@@ -160,11 +167,11 @@ function B2BOrderCard({ order, onRefresh }) {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-stone-950 truncate">{item.name || 'Producto'}</p>
                         <p className="text-[11px] text-stone-500">
-                          {item.quantity || 1} × {(item.unit_price || 0).toFixed(2)}€
+                          {item.quantity || 1} × {Number(item.unit_price || 0).toFixed(2)}€
                         </p>
                       </div>
                       <span className="text-xs font-bold text-stone-950">
-                        {((item.quantity || 1) * (item.unit_price || 0)).toFixed(2)}€
+                        {(Number(item.quantity || 1) * Number(item.unit_price || 0)).toFixed(2)}€
                       </span>
                     </div>
                   ))}
@@ -187,7 +194,7 @@ function B2BOrderCard({ order, onRefresh }) {
               {/* Total + payment status */}
               <div className="flex items-center justify-between mb-3 px-1">
                 <span className="text-xs text-stone-500">Total</span>
-                <span className="text-sm font-bold text-stone-950">{(order.total || 0).toFixed(2)}€</span>
+                <span className="text-sm font-bold text-stone-950">{Number(order.total || 0).toFixed(2)}€</span>
               </div>
               {order.payment_status && (
                 <div className="flex items-center justify-between mb-3 px-1">
@@ -253,7 +260,7 @@ function B2BOrderCard({ order, onRefresh }) {
               ✓ El productor confirmó disponibilidad
             </p>
             <p className="text-xs text-stone-500 mb-2">
-              Precio final: {(order.confirmed_unit_price || order.unit_price || 0).toFixed(2)}€/{order.unit || 'ud'}
+              Precio final: {Number(order.confirmed_unit_price || order.unit_price || 0).toFixed(2)}€/{order.unit || 'ud'}
               {order.producer_notes && (
                 <span className="block mt-1">Nota: "{order.producer_notes}"</span>
               )}
