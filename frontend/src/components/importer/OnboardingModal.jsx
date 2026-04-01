@@ -23,7 +23,7 @@ const STORAGE_KEY = 'hispaloshop_importer_onboarding_v2';
 const PLAN_META = {
   free: { name: 'FREE', price: '0€/mes', badge: 'Empieza hoy', commission: '20%', summary: 'Validación de mercado y primeras ventas.' },
   pro: { name: 'PRO', price: '79€ + IVA/mes', badge: 'Recomendado', commission: '18%', summary: 'IA, pricing y matching local.' },
-  elite: { name: 'ELITE', price: '149€ + IVA/mes', badge: 'Empresas', commission: '17%', summary: 'Análisis global y prioridad total.' },
+  elite: { name: 'ELITE', price: '249€ + IVA/mes', badge: 'Empresas', commission: '15%', summary: 'IA comercial avanzada y generación de contratos.' },
 };
 const PHONE_PREFIXES = [
   { value: '+34', label: 'ES +34' },

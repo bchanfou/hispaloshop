@@ -293,8 +293,13 @@ async def get_customer_profile(user: User = Depends(get_current_user)):
 @router.put("/customer/profile")
 async def update_customer_profile(data: dict, user: User = Depends(get_current_user)):
     """Update customer profile"""
-    allowed_fields = ["name", "country", "username", "bio", "website", "location", "avatar_url", "profile_image", "company_name", "store_description", "is_private", "phone"]
+    allowed_fields = ["name", "country", "username", "bio", "website", "location", "avatar_url", "profile_image", "company_name", "company_cif", "store_description", "is_private", "phone"]
     update_data = {k: v for k, v in data.items() if k in allowed_fields and v is not None}
+    # CIF is immutable once verified — block edits after verification
+    if "company_cif" in update_data:
+        user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "verification_status": 1})
+        if (user_doc or {}).get("verification_status") == "verified":
+            del update_data["company_cif"]
     # Handle social_links separately (dict not in allowed_fields scalar check)
     if "social_links" in data and isinstance(data["social_links"], dict):
         update_data["social_links"] = {

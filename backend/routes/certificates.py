@@ -27,6 +27,12 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+def _cert_url(product_id: str) -> str:
+    """Build public certificate verification URL for QR codes (configurable via FRONTEND_URL env)."""
+    base = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com").rstrip("/")
+    return f"{base}/certificate/{product_id}?scan=1"
+
+
 def _public_product_filter() -> dict:
     return {
         "$or": [
@@ -110,18 +116,29 @@ async def verify_certificate(cert_id: str, lang: Optional[str] = "es"):
         {"$or": [{"certificate_id": cert_id}, {"product_id": cert_id}]},
         {"_id": 0}
     )
+    target_collection = db.certificates
     if not cert:
         cert = await db.product_certificates.find_one(
             {"$or": [{"certificate_id": cert_id}, {"product_id": cert_id}]},
             {"_id": 0}
         )
+        target_collection = db.product_certificates
     if not cert:
         raise HTTPException(status_code=404, detail="Certificate not found")
+
+    # Increment verification scan counter (fire-and-forget)
+    try:
+        await target_collection.update_one(
+            {"$or": [{"certificate_id": cert_id}, {"product_id": cert_id}]},
+            {"$inc": {"scan_count": 1}, "$set": {"last_scanned_at": datetime.now(timezone.utc).isoformat()}},
+        )
+    except Exception:
+        pass
 
     # Get product info for enrichment
     product = await db.products.find_one(
         {"product_id": cert.get("product_id")},
-        {"_id": 0, "name": 1, "images": 1, "description": 1, "country_origin": 1}
+        {"_id": 0, "name": 1, "images": 1, "description": 1, "short_description": 1, "country_origin": 1, "region": 1, "ingredients": 1, "allergens": 1, "nutritional_info": 1, "nutrition_info": 1, "certifications": 1, "producer_name": 1}
     )
 
     # Get producer info
@@ -153,6 +170,14 @@ async def verify_certificate(cert_id: str, lang: Optional[str] = "es"):
     if producer:
         cert["producer_name"] = producer.get("company_name") or producer.get("full_name", "")
 
+    # Enrich with store info for producer story
+    store = await db.store_profiles.find_one(
+        {"producer_id": cert.get("producer_id") or cert.get("seller_id")},
+        {"_id": 0, "name": 1, "slug": 1, "story": 1, "tagline": 1, "logo": 1},
+    )
+    if store:
+        cert["store_info"] = store
+
     return cert
 
 
@@ -164,7 +189,7 @@ async def create_certificate(input: CertificateInput, user: User = Depends(get_c
         raise HTTPException(status_code=404, detail="Product not found")
     certificate_id = f"cert_{uuid.uuid4().hex[:12]}"
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr_url = f"https://www.hispaloshop.com/certificate/{input.product_id}"
+    qr_url = _cert_url(input.product_id)
     qr.add_data(qr_url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
@@ -175,7 +200,14 @@ async def create_certificate(input: CertificateInput, user: User = Depends(get_c
         "certificate_id": certificate_id,
         "product_id": input.product_id,
         "product_name": product["name"],
-        "data": input.data,
+        "data": {
+            "ingredients": product.get("ingredients", []),
+            "allergens": product.get("allergens", []),
+            "nutritional_info": product.get("nutritional_info") or product.get("nutrition_info"),
+            "certifications": product.get("certifications", []),
+            "origin_country": product.get("country_origin", ""),
+            **(input.data or {}),
+        },
         "qr_url": qr_url,
         "qr_code": qr_base64,
         "approved": user.role == "admin",
@@ -216,7 +248,7 @@ async def auto_generate_certificate(request: Request, user: User = Depends(get_c
     certificate_id = f"cert_{uuid.uuid4().hex[:12]}"
     cert_number = f"HSP-{datetime.now(timezone.utc).strftime('%Y')}-{uuid.uuid4().hex[:6].upper()}"
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(f"https://www.hispaloshop.com/certificate/{product_id}")
+    qr.add_data(_cert_url(product_id))
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
     buffer = io.BytesIO()
@@ -226,15 +258,15 @@ async def auto_generate_certificate(request: Request, user: User = Depends(get_c
         "certificate_id": certificate_id, "certificate_number": cert_number,
         "product_id": product_id, "product_name": product["name"], "seller_id": product.get("producer_id"),
         "certificate_type": "food_safety" if "food_safety" in requirements else "origin",
-        "data": {"origin_country": product.get("country_origin", ""), "ingredients": product.get("ingredients", []), "allergens": product.get("allergens", []), "compliance_requirements": requirements, "target_markets": markets},
-        "qr_code": qr_base64, "approved": False, "status": "auto_generated",
+        "data": {"origin_country": product.get("country_origin", ""), "ingredients": product.get("ingredients", []), "allergens": product.get("allergens", []), "nutritional_info": product.get("nutritional_info") or product.get("nutrition_info"), "certifications": product.get("certifications", []), "compliance_requirements": requirements, "target_markets": markets},
+        "qr_code": qr_base64, "approved": False, "status": "pending_review",
         "issue_date": datetime.now(timezone.utc).isoformat(), "expiry_date": (datetime.now(timezone.utc) + timedelta(days=365)).isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat(), "source_language": product.get("source_language", "es"), "translated_fields": {},
     }
     await db.certificates.insert_one(certificate)
     await db.products.update_one({"product_id": product_id}, {"$set": {"certificate_id": certificate_id}})
     logger.info(f"[CERT] Auto-generated {cert_number} for {product_id}")
-    return {"certificate_id": certificate_id, "certificate_number": cert_number, "requirements": requirements, "status": "auto_generated"}
+    return {"certificate_id": certificate_id, "certificate_number": cert_number, "requirements": requirements, "status": "pending_review"}
 
 
 @router.get("/certificates/{certificate_id}/qr")
@@ -248,7 +280,7 @@ async def download_certificate_qr(certificate_id: str):
     if not qr_base64:
         # Backfill QR when old certificates don't have it yet
         product_id = cert.get("product_id")
-        qr_url = f"https://www.hispaloshop.com/certificate/{product_id}"
+        qr_url = _cert_url(product_id)
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
         qr.add_data(qr_url)
         qr.make(fit=True)
@@ -319,6 +351,23 @@ async def download_certificate_pdf(certificate_id: str):
     if origin:
         elements.append(Paragraph(f"Origen: {origin}", body_style))
 
+    # Producer info
+    producer = await db.users.find_one(
+        {"user_id": cert.get("seller_id") or cert.get("producer_id")},
+        {"_id": 0, "company_name": 1, "name": 1},
+    )
+    if producer:
+        producer_name = producer.get("company_name") or producer.get("name", "")
+        if producer_name:
+            elements.append(Paragraph(f"Productor: {producer_name}", body_style))
+
+    # Scan count
+    scan_count = cert.get("scan_count", 0)
+    if scan_count > 0:
+        elements.append(Paragraph(f"Verificado {scan_count} veces", body_style))
+
+    elements.append(Spacer(1, 6))
+
     # Certifications
     certs_list = (product or {}).get("certifications") or cert.get("data", {}).get("certifications") or []
     if certs_list:
@@ -340,11 +389,13 @@ async def download_certificate_pdf(certificate_id: str):
 
     # Nutritional info
     nutrition = (product or {}).get("nutritional_info") or cert.get("data", {}).get("nutritional_info") or {}
+    _PDF_UNITS = {"calories": "kcal", "energy": "kcal", "protein": "g", "carbs": "g", "carbohydrates": "g", "sugars": "g", "fat": "g", "saturated_fat": "g", "fiber": "g", "sodium": "mg", "salt": "g"}
     if nutrition and isinstance(nutrition, dict):
         elements.append(Paragraph("Información nutricional (por 100 g)", heading_style))
         table_data = [["Nutriente", "Valor"]]
         for k, v in nutrition.items():
-            table_data.append([k.replace("_", " ").capitalize(), str(v)])
+            unit = _PDF_UNITS.get(k.lower().replace(" ", "_"), "")
+            table_data.append([k.replace("_", " ").capitalize(), f"{v} {unit}".strip()])
         t = Table(table_data, colWidths=[8 * cm, 5 * cm])
         t.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0c0a09")),
@@ -366,7 +417,7 @@ async def download_certificate_pdf(certificate_id: str):
         qr_buf = io.BytesIO(qr_bytes)
         qr_image = RLImage(qr_buf, width=3 * cm, height=3 * cm)
         elements.append(qr_image)
-        verify_url = cert.get("qr_url") or f"https://www.hispaloshop.com/certificate/{product_id}"
+        verify_url = cert.get("qr_url") or _cert_url(product_id)
         elements.append(Paragraph(f"<font size=8 color='#78716c'>{verify_url}</font>", body_style))
 
     doc.build(elements)
@@ -544,8 +595,10 @@ async def run_batch_translation(job_id: str):
         translation_jobs[job_id]["error"] = str(e)
 
 @router.get("/translate/batch-status/{job_id}")
-async def get_batch_translation_status(job_id: str):
-    """Get status of a batch translation job"""
+async def get_batch_translation_status(job_id: str, user: User = Depends(get_current_user)):
+    """Get status of a batch translation job (admin only)"""
+    if user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Admin access required")
     if job_id not in translation_jobs:
         raise HTTPException(status_code=404, detail="Job not found")
     return translation_jobs[job_id]

@@ -108,10 +108,16 @@ export default function EditProfilePage() {
       toast.error('El nombre de usuario no está disponible');
       return;
     }
-    // Auto-prepend https:// to website if user typed a bare domain
+    // Auto-prepend https:// to website if user typed a bare domain; block dangerous protocols
     let website = form.website.trim();
-    if (website && !/^https?:\/\//i.test(website)) {
-      website = 'https://' + website;
+    if (website) {
+      if (/^(javascript|data|ftp|file):/i.test(website)) {
+        toast.error('URL no válida');
+        return;
+      }
+      if (!/^https?:\/\//i.test(website)) {
+        website = 'https://' + website;
+      }
     }
     setSaving(true);
     try {

@@ -171,7 +171,10 @@ export default function PostDetailPage() {
     }
   };
 
+  const likingCommentRef = React.useRef(new Set());
   const handleLikeComment = async (commentId) => {
+    if (likingCommentRef.current.has(commentId)) return;
+    likingCommentRef.current.add(commentId);
     const wasLiked = likedComments.has(commentId);
     setLikedComments(prev => {
       const next = new Set(prev);
@@ -198,6 +201,8 @@ export default function PostDetailPage() {
         if (cId !== commentId) return c;
         return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1)) };
       }));
+    } finally {
+      likingCommentRef.current.delete(commentId);
     }
   };
 
@@ -383,20 +388,21 @@ export default function PostDetailPage() {
             >
               Copiar enlace
             </button>
-            {!isOwner && (
+            {!isOwner && ['inappropriate', 'spam', 'harassment'].map(reason => (
               <button
+                key={reason}
                 className="flex items-center gap-3 w-full py-3.5 text-[15px] font-medium text-stone-950 bg-transparent border-none cursor-pointer"
                 onClick={async () => {
                   try {
-                    await apiClient.post(`/posts/${postId}/report`, { reason: 'inappropriate' });
+                    await apiClient.post(`/posts/${postId}/report`, { reason });
                     toast.success('Reporte enviado');
                   } catch (err) { toast.error('Error al reportar'); }
                   setShowMenu(false);
                 }}
               >
-                <Flag size={20} /> Reportar
+                <Flag size={20} /> {reason === 'inappropriate' ? 'Contenido inapropiado' : reason === 'spam' ? 'Spam' : 'Acoso'}
               </button>
-            )}
+            ))}
           </div>
         </BottomSheet>
 

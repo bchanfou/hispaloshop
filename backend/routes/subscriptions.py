@@ -496,6 +496,37 @@ async def change_plan(request: Request, user: User = Depends(get_current_user)):
     return {"message": f"Plan actualizado a {new_plan}", "commission_rate": get_seller_commission_rate(new_plan)}
 
 
+# ── Stripe billing portal ──────────────────────────────────────
+
+@router.get("/billing/portal-url")
+async def get_billing_portal_url(request: Request, user: User = Depends(get_current_user)):
+    """Generate a Stripe Billing Portal URL for the current user to manage subscription."""
+    stripe_key = os.environ.get("STRIPE_SECRET_KEY")
+    if not stripe_key:
+        raise HTTPException(status_code=503, detail="Billing no configurado")
+    stripe.api_key = stripe_key
+
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "subscription": 1})
+    customer_id = (user_doc or {}).get("subscription", {}).get("stripe_customer_id")
+    if not customer_id:
+        raise HTTPException(status_code=400, detail="No tienes una suscripción activa con Stripe")
+
+    origin = request.headers.get("origin") or request.headers.get("referer", "").split("?")[0].rstrip("/")
+    if not origin:
+        origin = os.environ.get("FRONTEND_URL", "https://hispaloshop.com")
+    return_url = f"{origin}/settings/plan"
+
+    try:
+        session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=return_url,
+        )
+        return {"url": session.url}
+    except stripe.error.StripeError as e:
+        logger.warning(f"[BILLING] Stripe portal error: {e}")
+        raise HTTPException(status_code=502, detail="Error al conectar con Stripe")
+
+
 # ── Stripe webhook for subscriptions ──────────────────────────
 
 @router.post("/webhooks/stripe-billing")

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Bookmark, Plus, Star, Leaf, Shield, Award } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from './ui/ProductImage.tsx';
@@ -33,6 +33,8 @@ const getProductId = (product) => product?.product_id || product?.id || null;
 function AddButton({ onAdd, isDisabled, testId }) {
   const [confirmed, setConfirmed] = useState(false);
   const { trigger } = useHaptics();
+  const timerRef = useRef(null);
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   const handleClick = async (e) => {
     e.preventDefault();
@@ -41,7 +43,8 @@ function AddButton({ onAdd, isDisabled, testId }) {
     trigger('light');
     await onAdd(e);
     setConfirmed(true);
-    setTimeout(() => setConfirmed(false), 1200);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setConfirmed(false), 1200);
   };
 
   return (
@@ -69,6 +72,7 @@ function AddButton({ onAdd, isDisabled, testId }) {
 }
 
 function ProductCard({ product, variant = 'default', showAddButton = true }) {
+  const navigate = useNavigate();
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice, t } = useLocale();
@@ -100,7 +104,7 @@ function ProductCard({ product, variant = 'default', showAddButton = true }) {
 
     if (!user) {
       toast.error(t('errors.loginRequired', 'Inicia sesión para añadir productos'), {
-        action: { label: t('auth.login', 'Entrar'), onClick: () => { window.location.href = '/login'; } },
+        action: { label: t('auth.login', 'Entrar'), onClick: () => navigate('/login') },
       });
       return;
     }

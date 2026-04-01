@@ -480,12 +480,12 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
           setComments(prev => [...prev, ...items]);
           setLikedComments(prev => {
             const next = new Set(prev);
-            items.forEach(c => { if (c.is_liked && c.comment_id) next.add(c.comment_id); });
+            items.forEach(c => { const cid = c.comment_id || c.id; if (c.is_liked && cid) next.add(cid); });
             return next;
           });
         } else {
           setComments(items);
-          setLikedComments(new Set(items.filter(c => c.is_liked && c.comment_id).map(c => c.comment_id)));
+          setLikedComments(new Set(items.filter(c => c.is_liked && (c.comment_id || c.id)).map(c => c.comment_id || c.id)));
         }
         setHasMoreComments(items.length >= COMMENTS_PAGE_SIZE);
         setCommentsPage(page);
@@ -558,9 +558,12 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
   }, []);
 
   const handleDelete = useCallback((commentId) => {
-    // Optimistically hide the comment
-    const deletedComment = comments.find(c => (c.comment_id || c.id) === commentId);
-    setComments(prev => prev.filter(c => (c.comment_id || c.id) !== commentId));
+    // Capture deleted comment from current state via setter callback
+    let deletedComment = null;
+    setComments(prev => {
+      deletedComment = prev.find(c => (c.comment_id || c.id) === commentId);
+      return prev.filter(c => (c.comment_id || c.id) !== commentId);
+    });
     setPost(prev => prev ? { ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) } : prev);
 
     // Undo toast — 3s before actual API call
@@ -584,7 +587,6 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
       try {
         await apiClient.delete(`/posts/${postId}/comments/${commentId}`);
       } catch (err) {
-        // Restore on error
         if (deletedComment) {
           setComments(prev => [deletedComment, ...prev]);
           setPost(prev => prev ? { ...prev, comments_count: (prev.comments_count || 0) + 1 } : prev);
@@ -592,16 +594,18 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
         toast.error('Error al eliminar');
       }
     }, 3500);
-  }, [comments, postId]);
+  }, [postId]);
 
+  const likingCommentRef = useRef(new Set());
   const handleLikeComment = async (commentId) => {
+    if (likingCommentRef.current.has(commentId)) return;
+    likingCommentRef.current.add(commentId);
     const wasLiked = likedComments.has(commentId);
     setLikedComments(prev => {
       const next = new Set(prev);
       next.has(commentId) ? next.delete(commentId) : next.add(commentId);
       return next;
     });
-    // Optimistic update likes_count locally — use captured wasLiked, not stale closure
     setComments(prev => prev.map(c => {
       const cId = c.comment_id || c.id;
       if (cId !== commentId) return c;
@@ -610,7 +614,6 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
     try {
       await apiClient.post(`/posts/${postId}/comments/${commentId}/like`);
     } catch (err) {
-      // Rollback optimistic update
       setLikedComments(prev => {
         const next = new Set(prev);
         wasLiked ? next.add(commentId) : next.delete(commentId);
@@ -621,6 +624,8 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
         return { ...c, likes_count: Math.max(0, (c.likes_count || 0) + (wasLiked ? 1 : -1)) };
       }));
       toast.error('Error al dar me gusta');
+    } finally {
+      likingCommentRef.current.delete(commentId);
     }
   };
 

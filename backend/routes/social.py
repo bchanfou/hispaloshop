@@ -33,6 +33,26 @@ from middleware.rate_limit import rate_limiter
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+# Preference-aware notification types (maps notification type → preference key)
+_NOTIF_PREF_KEY = {
+    "new_like": "likes", "like": "likes", "post_liked": "likes", "story_like": "likes",
+    "new_comment": "comments", "comment": "comments", "post_commented": "comments", "story_reply": "comments",
+    "new_follower": "new_followers", "follow": "new_followers",
+    "new_follow_request": "new_followers", "follow_request_accepted": "new_followers",
+    "mentioned": "mentions", "mention": "mentions",
+}
+
+async def _insert_notification_if_allowed(notif: dict):
+    """Insert notification only if user preferences allow it."""
+    user_id = notif.get("user_id")
+    notif_type = notif.get("type", "")
+    pref_key = _NOTIF_PREF_KEY.get(notif_type)
+    if pref_key and user_id:
+        prefs = await db.user_notification_preferences.find_one({"user_id": user_id}, {"_id": 0, pref_key: 1})
+        if prefs and prefs.get(pref_key) is False:
+            return  # User opted out of this notification type
+    await db.notifications.insert_one(notif)
+
 
 def _public_product_filter() -> dict:
     return {
@@ -773,7 +793,7 @@ async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
         if owner_id and owner_id != user.user_id:
             try:
                 now = datetime.now(timezone.utc)
-                await db.notifications.insert_one({
+                await _insert_notification_if_allowed({
                     "user_id": owner_id,
                     "type": "new_like",
                     "title": "Nuevo me gusta",
@@ -872,7 +892,7 @@ async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(
             now = datetime.now(timezone.utc)
             snippet = comment["text"][:60] + ("…" if len(comment["text"]) > 60 else "")
             sender_name = getattr(user, "name", None) or getattr(user, "username", None) or "Alguien"
-            await db.notifications.insert_one({
+            await _insert_notification_if_allowed({
                 "user_id": owner_id,
                 "type": "new_comment",
                 "title": "Nuevo comentario",
@@ -984,7 +1004,8 @@ async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(
         result = await db.reel_comment_likes.delete_one({"comment_id": comment_id, "user_id": user_id})
         if result.deleted_count > 0:
             await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
-            return {"liked": False}
+            updated = await db.reel_comments.find_one({"comment_id": comment_id}, {"_id": 0, "likes_count": 1})
+            return {"liked": False, "likes_count": (updated or {}).get("likes_count", 0)}
 
         upsert_result = await db.reel_comment_likes.update_one(
             {"comment_id": comment_id, "user_id": user_id},
@@ -993,7 +1014,8 @@ async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(
         )
         if upsert_result.upserted_id:
             await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
-        return {"liked": True}
+        updated = await db.reel_comments.find_one({"comment_id": comment_id}, {"_id": 0, "likes_count": 1})
+        return {"liked": True, "likes_count": (updated or {}).get("likes_count", 0)}
 
     # Post comment
     comment = await db.post_comments.find_one({"comment_id": comment_id, "post_id": post_id})
@@ -1009,7 +1031,8 @@ async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(
     result = await db.comment_likes.delete_one({"comment_id": comment_id, "user_id": user_id})
     if result.deleted_count > 0:
         await db.post_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
-        return {"liked": False}
+        updated = await db.post_comments.find_one({"comment_id": comment_id}, {"_id": 0, "likes_count": 1})
+        return {"liked": False, "likes_count": (updated or {}).get("likes_count", 0)}
 
     upsert_result = await db.comment_likes.update_one(
         {"comment_id": comment_id, "user_id": user_id},
@@ -1018,7 +1041,8 @@ async def like_post_comment(post_id: str, comment_id: str, user: User = Depends(
     )
     if upsert_result.upserted_id:
         await db.post_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
-    return {"liked": True}
+    updated = await db.post_comments.find_one({"comment_id": comment_id}, {"_id": 0, "likes_count": 1})
+    return {"liked": True, "likes_count": (updated or {}).get("likes_count", 0)}
 
 
 @router.patch("/reels/{reel_id}")
@@ -1314,7 +1338,7 @@ async def handle_follow_request(
         # Create the actual follow relationship
         await db.user_follows.update_one(
             {"follower_id": req["requester_id"], "following_id": user.user_id},
-            {"$setOnInsert": {"follower_id": req["requester_id"], "following_id": user.user_id, "created_at": datetime.now(timezone.utc)}},
+            {"$setOnInsert": {"follower_id": req["requester_id"], "following_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
             upsert=True,
         )
         await db.users.update_one({"user_id": req["requester_id"]}, {"$inc": {"following_count": 1}})
@@ -1322,7 +1346,7 @@ async def handle_follow_request(
         # Notify requester that their follow request was accepted (fire-and-forget)
         try:
             now = datetime.now(timezone.utc)
-            await db.notifications.insert_one({
+            await _insert_notification_if_allowed({
                 "user_id": req["requester_id"],
                 "type": "follow_request_accepted",
                 "title": "Solicitud aceptada",
@@ -1518,7 +1542,7 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
         # Notify target of the follow request (fire-and-forget)
         try:
             now = datetime.now(timezone.utc)
-            await db.notifications.insert_one({
+            await _insert_notification_if_allowed({
                 "user_id": user_id,
                 "type": "new_follow_request",
                 "title": "Solicitud de seguimiento",
@@ -1549,7 +1573,7 @@ async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     # Notify followed user (fire-and-forget)
     try:
         now = datetime.now(timezone.utc)
-        await db.notifications.insert_one({
+        await _insert_notification_if_allowed({
             "user_id": user_id,
             "type": "new_follower",
             "title": "Nuevo seguidor",
@@ -2183,7 +2207,7 @@ async def like_post(post_id: str, user: User = Depends(get_current_user)):
             if owner_id and owner_id != user.user_id:
                 try:
                     now = datetime.now(timezone.utc)
-                    await db.notifications.insert_one({
+                    await _insert_notification_if_allowed({
                         "user_id": owner_id,
                         "type": "new_like",
                         "title": "Nuevo me gusta",
@@ -2232,7 +2256,7 @@ async def like_post(post_id: str, user: User = Depends(get_current_user)):
     if owner_id and owner_id != user.user_id:
         try:
             now = datetime.now(timezone.utc)
-            await db.notifications.insert_one({
+            await _insert_notification_if_allowed({
                 "user_id": owner_id,
                 "type": "new_like",
                 "title": "Nuevo me gusta",
@@ -2379,7 +2403,7 @@ async def add_comment(post_id: str, request: Request, user: User = Depends(get_c
             content_type = "reel" if is_reel else "post"
             action_url = f"/posts/{post_id}"
             snippet = comment["text"][:60] + ("…" if len(comment["text"]) > 60 else "")
-            await db.notifications.insert_one({
+            await _insert_notification_if_allowed({
                 "user_id": owner_id,
                 "type": "new_comment",
                 "title": "Nuevo comentario",
@@ -2531,57 +2555,9 @@ async def update_username(request: Request, user: User = Depends(get_current_use
     await db.users.update_one({"user_id": user.user_id}, {"$set": {"username": username}})
     return {"status": "ok", "username": username}
 
-@router.delete("/users/me/account")
-async def delete_own_account(request: Request, user: User = Depends(get_current_user)):
-    """Delete own account completely — zero residue."""
-    body = await request.json()
-    password = body.get("password", "")
-    
-    # Verify password
-    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "password_hash": 1})
-    if not user_doc:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    from services.auth_helpers import verify_password
-    if not verify_password(password, user_doc["password_hash"]):
-        raise HTTPException(status_code=400, detail="Incorrect password")
-    
-    uid = user.user_id
-    # Delete ALL user data (zero residue)
-    await db.users.delete_one({"user_id": uid})
-    await db.user_sessions.delete_many({"user_id": uid})
-    await db.user_follows.delete_many({"$or": [{"follower_id": uid}, {"following_id": uid}]})
-    await db.user_posts.delete_many({"user_id": uid})
-    await db.post_likes.delete_many({"user_id": uid})
-    await db.post_comments.delete_many({"user_id": uid})
-    await db.post_bookmarks.delete_many({"user_id": uid})
-    await db.carts.delete_many({"user_id": uid})
-    await db.cart_discounts.delete_many({"user_id": uid})
-    await db.social_events.delete_many({"user_id": uid})
-    await db.chat_messages.delete_many({"sender_id": uid})
-    await db.internal_chats.delete_many({"$or": [{"user1_id": uid}, {"user2_id": uid}]})
-    await db.internal_messages.delete_many({"sender_id": uid})
-    await db.internal_conversations.delete_many({"participants.user_id": uid})
-    await db.ai_profiles.delete_many({"user_id": uid})
-    await db.notifications.delete_many({"user_id": uid})
-    await db.store_followers.delete_many({"user_id": uid})
-    await db.scheduled_payouts.delete_many({"influencer_id": uid})
-    
-    # If seller, delete products and store
-    await db.products.delete_many({"producer_id": uid})
-    await db.store_profiles.delete_many({"producer_id": uid})
-    await db.certificates.delete_many({"seller_id": uid})
-    
-    # Audit log
-    await db.audit_log.insert_one({
-        "action": "SELF_DELETE",
-        "actor": {"user_id": uid, "role": user.role},
-        "target": {"type": "user", "id": uid},
-        "severity": "critical",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    })
-    
-    return {"status": "deleted", "message": "Account deleted permanently"}
+# DELETE /users/me/account REMOVED — use DELETE /account/delete (customer.py) instead.
+# The customer.py version requires email confirmation, preserves order history,
+# and does role-aware cleanup (producer products, influencer commissions, etc.).
 
 
 

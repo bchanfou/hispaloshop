@@ -177,6 +177,7 @@ export default function CreatePostPage() {
   const [showProductSearch, setShowProductSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [location, setLocation] = useState('');
   const [audience, setAudience] = useState('public'); // 'public' | 'followers'
   const [hideLikes, setHideLikes] = useState(false);
@@ -241,11 +242,14 @@ export default function CreatePostPage() {
 
   /* ── product search ── */
   const searchProducts = useCallback(async (q) => {
-    if (!q.trim()) { setSearchResults([]); return; }
+    if (!q.trim()) { setSearchResults([]); setSearchLoading(false); return; }
+    setSearchLoading(true);
+    setSearchResults([]);
     try {
       const res = await apiClient.get(`/products?search=${encodeURIComponent(q)}&limit=10`);
       setSearchResults(Array.isArray(res) ? res : res?.products || []);
     } catch { setSearchResults([]); }
+    finally { setSearchLoading(false); }
   }, []);
 
   useEffect(() => {
@@ -1186,6 +1190,11 @@ export default function CreatePostPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-2">
+              {searchLoading && (
+                <div className="flex justify-center py-4">
+                  <div className="w-5 h-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
+                </div>
+              )}
               {searchResults.map((p) => {
                 const pid = p.product_id || p.id || p._id;
                 return (

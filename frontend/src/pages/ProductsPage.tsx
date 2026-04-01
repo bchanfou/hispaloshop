@@ -1,8 +1,8 @@
 // @ts-nocheck
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List, Globe, Check, AlertTriangle, Package } from 'lucide-react';
+import { ChevronDown, Search, SlidersHorizontal, Truck, X, LayoutGrid, List, Globe, Check, AlertTriangle, Package, Loader2 } from 'lucide-react';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CATEGORY_GROUPS, getCategoriesByGroup } from '../constants/categories';
 import ProductCard from '../components/ProductCard';
@@ -60,6 +60,7 @@ const flattenCatalogPages = (pages = []) =>
   });
 
 export default function ProductsPage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { country, currency, language } = useLocale();
   const { t, i18n } = useTranslation();
@@ -222,14 +223,14 @@ export default function ProductsPage() {
     }));
   };
 
-  const renderOriginSelect = () => {
+  const renderOriginSelect = (buttonClassName) => {
     const selectedCountry = allCountries.find((item) => item.code === filters.origin_country);
     return (
       <div className="relative" ref={countryDropdownRef}>
         <button
           type="button"
           onClick={() => setShowCountryDropdown((prev) => !prev)}
-          className={`flex min-w-[160px] items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all duration-150 ease-out ${
+          className={buttonClassName || `flex min-w-[160px] items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all duration-150 ease-out ${
             filters.origin_country
               ? 'border-stone-950 bg-stone-950 text-white'
               : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
@@ -578,10 +579,10 @@ export default function ProductsPage() {
                   <div
                     key={product.product_id}
                     className="flex items-center gap-4 bg-white rounded-2xl border border-stone-100 p-3 hover:border-stone-200 transition-colors cursor-pointer"
-                    onClick={() => window.location.href = `/products/${product.product_id}`}
+                    onClick={() => navigate(`/products/${product.product_id}`)}
                     role="link"
                     tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter') window.location.href = `/products/${product.product_id}`; }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/products/${product.product_id}`); }}
                   >
                     <div className="w-20 h-20 rounded-2xl bg-stone-100 overflow-hidden flex-shrink-0">
                       {(product.images?.[0] || product.image_url || product.thumbnail) && (
@@ -620,7 +621,9 @@ export default function ProductsPage() {
                   disabled={catalogQuery.isFetchingNextPage}
                   className="rounded-full bg-stone-950 px-6 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
                 >
-                  {catalogQuery.isFetchingNextPage ? t('common.loading', 'Cargando...') : t('products.loadMore', 'Cargar más')}
+                  {catalogQuery.isFetchingNextPage ? (
+                    <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" />{t('common.loading', 'Cargando...')}</span>
+                  ) : t('products.loadMore', 'Cargar más')}
                 </button>
               </div>
             ) : null}

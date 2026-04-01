@@ -60,13 +60,13 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
   const [deleting, setDeleting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to clicked post on mount
+  // Scroll to target post on mount and when currentIndex changes
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
     const target = container.querySelector(`[data-post-index="${currentIndex}"]`);
     if (target) (target as HTMLElement).scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentIndex]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

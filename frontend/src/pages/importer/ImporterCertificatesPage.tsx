@@ -60,7 +60,7 @@ function CertificateRow({ cert }) {
       <div className="flex gap-1.5 shrink-0">
         {cert.certificate_id && (
           <a
-            href={`/certificados/${cert.certificate_id}`}
+            href={`/certificate/${cert.product_id || cert.certificate_id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-2.5 py-1.5 border border-stone-200 rounded-2xl text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"

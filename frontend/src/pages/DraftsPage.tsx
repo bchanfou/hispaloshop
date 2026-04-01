@@ -60,6 +60,7 @@ export default function DraftsPage() {
   }, [loadDrafts]);
 
   const handleDelete = (key) => {
+    if (!window.confirm('¿Eliminar este borrador?')) return;
     try { localStorage.removeItem(key); } catch { /* ignore */ }
     loadDrafts();
   };

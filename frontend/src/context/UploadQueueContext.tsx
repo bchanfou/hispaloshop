@@ -40,14 +40,11 @@ async function publishSocialContent({ publishData, onProgress }: { publishData: 
     fd.append('tagged_products_json', JSON.stringify(publishData.products.map((p: any) => ({ product_id: p.id || p }))));
   }
   if (publishData.location) fd.append('location', publishData.location);
-  onProgress?.(50);
-
   // Route to correct endpoint based on content type
   const type = publishData.contentType || 'post';
   let endpoint = '/posts';
   if (type === 'reel') {
     endpoint = '/reels';
-    // Reels expect 'file' not 'files'
     const firstFile = publishData.files?.[0];
     if (firstFile) { fd.delete('files'); fd.append('file', firstFile); }
   } else if (type === 'story') {
@@ -56,7 +53,11 @@ async function publishSocialContent({ publishData, onProgress }: { publishData: 
     if (firstFile) { fd.delete('files'); fd.append('file', firstFile); }
   }
 
-  const res = await apiClient.post(endpoint, fd);
+  const res = await apiClient.post(endpoint, fd, {
+    onUploadProgress: (e) => {
+      if (e.total) onProgress?.(Math.round((e.loaded / e.total) * 95));
+    },
+  });
   onProgress?.(100);
   return res;
 }
@@ -134,7 +135,7 @@ export function UploadQueueProvider({ children }: UploadQueueProviderProps) {
     (publishData: PublishData): string => {
       const id = enqueue(publishData);
       // Start processing on next tick
-      setTimeout(() => processQueue(), 0);
+      setTimeout(processQueue, 0);
       return id;
     },
     [enqueue, processQueue]
@@ -145,7 +146,7 @@ export function UploadQueueProvider({ children }: UploadQueueProviderProps) {
       setQueue((prev) =>
         prev.map((e) => (e.id === entryId ? { ...e, status: 'pending' as UploadStatus, error: null, progress: 0 } : e))
       );
-      setTimeout(() => processQueue(), 0);
+      setTimeout(processQueue, 0);
     },
     [processQueue]
   );

@@ -186,6 +186,10 @@ class NotificationDispatcher:
         """
         Enviar notificación push via FCM
         """
+        # Respect quiet hours for push notifications (same as email)
+        if self._is_quiet_hours(prefs):
+            raise Exception("Quiet hours active — push notification deferred")
+
         tokens = prefs.get("push_tokens", [])
         if not tokens:
             raise Exception("No push tokens registered")

@@ -32,23 +32,44 @@ self.addEventListener('notificationclick', (event) => {
   // Resolve URL based on notification type
   let url = data.action_url || data.url || '/';
   if (!url || url === '/') {
-    if (data.type === 'chat' && data.conversation_id) {
+    const t = data.type;
+    if (t === 'chat' && data.conversation_id) {
       url = '/dashboard?openChat=true';
-    } else if (data.type === 'order_confirmed' || data.type === 'new_order') {
+    // Orders
+    } else if (t === 'order_confirmed' || t === 'new_order') {
       url = '/producer/orders';
-    } else if (data.type === 'commission_earned') {
-      url = '/influencer/dashboard';
-    } else if (data.type === 'order_shipped') {
+    } else if (t === 'order_shipped' || t === 'order_preparing' || t === 'order_delivered' || t === 'order_review_request') {
       url = '/orders';
-    } else if (data.type === 'verification_approved' || data.type === 'verification_rejected') {
-      url = '/producer/verification';
-    } else if (data.type === 'b2b_offer_received' || data.type === 'b2b_offer_accepted') {
+    } else if (t === 'order_payment_failed') {
+      url = '/orders';
+    // Influencer
+    } else if (t === 'commission_earned' || t === 'tier_upgraded' || t === 'payout_sent') {
+      url = '/influencer/dashboard';
+    // B2B
+    } else if (t === 'b2b_offer_received' || t === 'b2b_offer_accepted' || t === 'b2b_request_rejected') {
       url = '/b2b/operations';
-    } else if (data.type === 'collab_proposal') {
-      url = '/collaborations';
-    } else if (data.type === 'new_follower' || data.type === 'post_liked' || data.type === 'post_commented') {
+    } else if (t === 'b2b_contract_ready' || t === 'b2b_contract_signed') {
+      url = data.operation_id ? '/b2b/contract/' + data.operation_id : '/b2b/operations';
+    } else if (t === 'b2b_payment_received') {
+      url = '/b2b/operations';
+    // Verification
+    } else if (t === 'verification_approved' || t === 'verification_rejected') {
+      url = '/producer/verification';
+    // Social
+    } else if (t === 'new_follower' || t === 'follow_request_accepted' || t === 'new_follow_request') {
       url = '/notifications';
-    } else if (data.type === 'story_like' || data.type === 'story_reply') {
+    } else if (t === 'post_liked' || t === 'post_commented' || t === 'new_like' || t === 'new_comment' || t === 'mentioned') {
+      url = '/notifications';
+    } else if (t === 'story_like' || t === 'story_reply') {
+      url = '/notifications';
+    // System
+    } else if (t === 'support_reply') {
+      url = '/settings';
+    } else if (t === 'certificate_expiring') {
+      url = '/producer/certificates';
+    } else if (t === 'collab_proposal') {
+      url = '/collaborations';
+    } else if (t === 'new_product') {
       url = '/notifications';
     }
   }

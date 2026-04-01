@@ -73,7 +73,7 @@ export const PRODUCER_PLANS = {
     badge: 'Exporta al mundo',
     price: '249€ + IVA / mes',
     chargeLabel: '249€ + IVA (301,29€) mensuales',
-    commission: '17%',
+    commission: '15%',
     accentClass: 'border-stone-500 bg-white',
     buttonClass: 'bg-stone-950 text-white hover:bg-stone-800',
     summary: 'Para cooperativas y productores con ambición global.',

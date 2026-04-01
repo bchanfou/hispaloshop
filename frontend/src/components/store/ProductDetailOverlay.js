@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
-import { AlertTriangle, Award, ChevronLeft, ChevronRight, Plus, Star, X } from 'lucide-react';
+import { AlertTriangle, Award, ChevronLeft, ChevronRight, MessageSquare, Plus, ShieldCheck, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from '../ui/ProductImage.tsx';
 import { useAuth } from '../../context/AuthContext';
@@ -123,8 +123,8 @@ export default function ProductDetailOverlay({
   // Reset image index when product changes
   useEffect(() => { setImageIndex(0); setDescExpanded(false); }, [productId]);
 
-  const { reviews: fetchedReviews } = useProductReviewsHook(reviews.length === 0 ? productId : null);
-  const { data: certData } = useProductCertificate(certificates.length === 0 ? productId : null);
+  const { reviews: fetchedReviews, isLoading: loadingReviews } = useProductReviewsHook(reviews.length === 0 ? productId : null);
+  const { data: certData, isLoading: loadingCerts } = useProductCertificate(certificates.length === 0 ? productId : null);
 
   const effectiveReviews = reviews.length > 0 ? reviews : (fetchedReviews ?? []);
   const fetchedCertArray = certData ? [{ ...certData, product_id: productId, product_name: product?.name }] : [];
@@ -336,7 +336,12 @@ export default function ProductDetailOverlay({
               ) : null}
             </div>
 
-            {relatedCertificates.length > 0 ? (
+            {loadingCerts ? (
+              <div className="mt-3 flex gap-2">
+                <div className="h-6 w-20 animate-pulse rounded-full bg-stone-100" />
+                <div className="h-6 w-24 animate-pulse rounded-full bg-stone-100" />
+              </div>
+            ) : relatedCertificates.length > 0 ? (
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {relatedCertificates.map((cert) => (
                   <span
@@ -349,7 +354,10 @@ export default function ProductDetailOverlay({
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-[13px] text-stone-400">Sin certificados visibles.</p>
+              <div className="mt-3 flex items-center gap-2 text-stone-400">
+                <ShieldCheck size={16} />
+                <p className="text-[13px] m-0">Este producto aún no tiene certificados verificados.</p>
+              </div>
             )}
           </section>
 
@@ -360,14 +368,29 @@ export default function ProductDetailOverlay({
               <span className="text-[12px] text-stone-400">{relatedReviews.length}</span>
             </div>
 
-            {relatedReviews.length > 0 ? (
+            {loadingReviews ? (
+              <div className="mt-3 space-y-2">
+                {[0, 1].map(i => (
+                  <div key={i} className="flex gap-2">
+                    <div className="h-8 w-8 animate-pulse rounded-full bg-stone-100 shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <div className="h-3 w-1/3 animate-pulse rounded-full bg-stone-100" />
+                      <div className="h-3 w-2/3 animate-pulse rounded-full bg-stone-100" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : relatedReviews.length > 0 ? (
               <div className="mt-3 space-y-2.5">
                 {relatedReviews.map((review) => (
                   <ReviewRow key={review.review_id || `${review.user_id}-${review.created_at}`} review={review} />
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-[13px] text-stone-400">Sin reseñas todavía.</p>
+              <div className="mt-3 flex items-center gap-2 text-stone-400">
+                <MessageSquare size={16} />
+                <p className="text-[13px] m-0">Sé el primero en opinar sobre este producto.</p>
+              </div>
             )}
           </section>
         </div>

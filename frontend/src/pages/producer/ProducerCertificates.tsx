@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import {
   FileCheck, Plus, ArrowLeft, ArrowRight, CheckCircle, Clock, XCircle,
-  Upload, FileText, Info, Check, Save, Send, AlertCircle,
+  Upload, FileText, Info, Check, Save, Send, AlertCircle, Eye, ExternalLink,
   Leaf, Sprout, Wheat, Handshake, MapPin, Dna, ClipboardList
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -597,6 +597,39 @@ export default function ProducerCertificates() {
         </button>
       </div>
 
+      {/* Scan analytics summary */}
+      {!loading && certificates.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+          <div className="bg-white rounded-2xl border border-stone-200 p-4 text-center">
+            <p className="text-2xl font-bold text-stone-950">{certificates.length}</p>
+            <p className="text-xs text-stone-500 mt-0.5">Certificados</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-stone-200 p-4 text-center">
+            <p className="text-2xl font-bold text-stone-950">{certificates.filter(c => c.approved).length}</p>
+            <p className="text-xs text-stone-500 mt-0.5">Aprobados</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-stone-200 p-4 text-center">
+            <div className="flex items-center justify-center gap-1.5">
+              <Eye className="h-4 w-4 text-stone-400" />
+              <p className="text-2xl font-bold text-stone-950">{certificates.reduce((sum, c) => sum + (c.scan_count || 0), 0)}</p>
+            </div>
+            <p className="text-xs text-stone-500 mt-0.5">Escaneos totales</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-stone-200 p-4 text-center">
+            <p className="text-2xl font-bold text-stone-950">
+              {(() => {
+                const withScans = certificates.filter(c => c.last_scanned_at);
+                if (withScans.length === 0) return '—';
+                const latest = withScans.sort((a, b) => (b.last_scanned_at || '').localeCompare(a.last_scanned_at || ''))[0];
+                const d = new Date(latest.last_scanned_at);
+                return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+              })()}
+            </p>
+            <p className="text-xs text-stone-500 mt-0.5">Último escaneo</p>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-stone-500">
@@ -626,6 +659,9 @@ export default function ProducerCertificates() {
                   </th>
                   <th className="text-left px-4 md:px-6 py-4 text-sm font-medium text-stone-600">
                     {t('certificates.status', 'Estado')}
+                  </th>
+                  <th className="text-left px-4 md:px-6 py-4 text-sm font-medium text-stone-600 hidden sm:table-cell">
+                    {t('certificates.scans', 'Escaneos')}
                   </th>
                   <th className="text-left px-4 md:px-6 py-4 text-sm font-medium text-stone-600 hidden sm:table-cell">
                     {t('certificates.created', 'Creado')}
@@ -681,11 +717,46 @@ export default function ProducerCertificates() {
                         {showRenew && (
                           <button
                             type="button"
-                            onClick={() => setShowCreateForm(true)}
+                            onClick={() => {
+                              // Prefill renewal form with previous certificate data
+                              setFormData({
+                                product_id: cert.product_id || '',
+                                certificate_type: cert.certificate_type || '',
+                                custom_type: '',
+                                document_url: '',
+                                document_name: '',
+                                data: {
+                                  claims: Array.isArray(cert.data?.claims) ? cert.data.claims.join(', ') : (cert.data?.claims || ''),
+                                  dietary_flags: Array.isArray(cert.data?.dietary_flags) ? cert.data.dietary_flags.join(', ') : (cert.data?.dietary_flags || ''),
+                                  nutrition_info: cert.data?.nutrition_info || '',
+                                  ingredient_origins: cert.data?.ingredient_origins || '',
+                                  certifying_body: cert.data?.certifying_body || '',
+                                  expiry_date: '',
+                                },
+                              });
+                              setCurrentStep(2); // Skip to details step
+                              setShowCreateForm(true);
+                            }}
                             className="mt-1.5 px-3 py-1 text-xs font-medium bg-stone-950 text-white rounded-full hover:bg-stone-800 transition-colors"
                           >
                             Renovar
                           </button>
+                        )}
+                      </td>
+                      <td className="px-4 md:px-6 py-4 hidden sm:table-cell">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 text-sm text-stone-700">
+                            <Eye className="h-3.5 w-3.5 text-stone-400" />
+                            <span className="font-medium">{cert.scan_count || 0}</span>
+                          </div>
+                          {cert.approved && (
+                            <a href={`/certificate/${cert.product_id}`} target="_blank" rel="noopener noreferrer" className="text-stone-400 hover:text-stone-700 transition-colors">
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                        </div>
+                        {cert.last_scanned_at && (
+                          <p className="text-[10px] text-stone-400 mt-0.5">{new Date(cert.last_scanned_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</p>
                         )}
                       </td>
                       <td className="px-4 md:px-6 py-4 hidden sm:table-cell">

@@ -16,6 +16,7 @@ const PLANS = [
       'Perfil de tienda básico',
       'Soporte por email',
       'Analíticas básicas',
+      'Comisión 20%',
     ],
   },
   {
@@ -27,8 +28,9 @@ const PLANS = [
       'Perfil de tienda completo',
       'Soporte prioritario',
       'Analíticas avanzadas',
-      'Envío optimizado',
+      'Envío gratis desde 30€',
       'Certificados digitales',
+      'Comisión 18%',
     ],
   },
   {
@@ -53,9 +55,10 @@ export default function PlanPage() {
   const [loading, setLoading] = useState(false);
   const [downgradeTarget, setDowngradeTarget] = useState(null);
 
-  const currentPlan = (user?.subscription_plan || user?.plan || 'free').toLowerCase();
-  const trialDays = user?.trial_days_remaining;
-  const nextBilling = user?.next_billing_date;
+  const currentPlan = (user?.subscription_plan || user?.subscription?.plan || user?.plan || 'free').toLowerCase();
+  const trialEndsAt = user?.subscription?.trial_ends_at || user?.trial_ends_at;
+  const trialDays = trialEndsAt ? Math.max(0, Math.ceil((new Date(trialEndsAt) - Date.now()) / 86400000)) : 0;
+  const nextBilling = user?.subscription?.next_billing_date || user?.next_billing_date;
 
   const handleManageBilling = async () => {
     setLoading(true);

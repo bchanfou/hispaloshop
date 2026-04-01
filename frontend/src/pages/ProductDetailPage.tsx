@@ -233,15 +233,22 @@ export default function ProductDetailPage() {
     }
   };
 
+  const [askingProducer, setAskingProducer] = React.useState(false);
   const handleAskProducer = async () => {
+    const producerId = product?.producer_id;
+    if (!producerId) { toast.error('Chat no disponible para este producto'); return; }
+    if (askingProducer) return;
+    setAskingProducer(true);
     try {
-      const conv = await openConversation(product.producer_id, 'b2c');
+      const conv = await openConversation(producerId, 'b2c');
       const conversationId = conv?.id || conv?.conversation_id;
       if (conversationId) {
         navigate(`/messages/${conversationId}?prefill=${encodeURIComponent(`Hola, tengo una pregunta sobre ${product.name}`)}`);
       }
     } catch {
       toast.error('No se pudo abrir el chat');
+    } finally {
+      setAskingProducer(false);
     }
   };
 
@@ -781,10 +788,11 @@ export default function ProductDetailPage() {
           <button
             type="button"
             onClick={handleAskProducer}
-            className="inline-flex items-center gap-1.5 py-2 text-[13px] font-medium text-stone-950 hover:underline"
+            disabled={askingProducer}
+            className="inline-flex items-center gap-1.5 py-2 text-[13px] font-medium text-stone-950 hover:underline disabled:opacity-50"
             aria-label="Mensaje al vendedor"
           >
-            <MessageCircle size={14} /> Preguntar al productor
+            <MessageCircle size={14} className={askingProducer ? 'animate-pulse' : ''} /> {askingProducer ? 'Abriendo chat...' : 'Preguntar al productor'}
           </button>
         </div>
       )}
@@ -1279,11 +1287,16 @@ export default function ProductDetailPage() {
             <button
               type="button"
               onClick={async () => {
-                if (isOutOfStock) return;
-                await addToCart(productId, quantity, selectedVariant?.variant_id, selectedPack?.pack_id);
-                navigate('/cart');
+                if (addingRef.current || isOutOfStock) return;
+                addingRef.current = true;
+                try {
+                  const success = await addToCart(productId, quantity, selectedVariant?.variant_id, selectedPack?.pack_id);
+                  if (success && success !== 'redirect') navigate('/cart');
+                } finally {
+                  addingRef.current = false;
+                }
               }}
-              disabled={isOutOfStock || addingRef.current}
+              disabled={isOutOfStock}
               className="flex-1 h-11 bg-white text-stone-950 border border-stone-950 rounded-full text-sm font-semibold transition-colors hover:bg-stone-50 disabled:opacity-50"
             >
               Comprar ahora

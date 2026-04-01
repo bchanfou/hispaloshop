@@ -633,7 +633,8 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         if any(k in cat_slug for k in ["fruta", "fruit", "verdura"]):
             requirements.extend(["food_safety", "origin_traceability"])
         
-        qr_url = f"https://www.hispaloshop.com/certificate/{product_id}"
+        frontend_base = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com").rstrip("/")
+        qr_url = f"{frontend_base}/certificate/{product_id}?scan=1"
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
         qr.add_data(qr_url)
         qr.make(fit=True)
@@ -647,7 +648,15 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
             "product_id": product_id, "product_name": product["name"],
             "seller_id": user.user_id,
             "certificate_type": "food_safety" if "food_safety" in requirements else "origin",
-            "data": {"origin_country": product.get("country_origin", ""), "compliance_requirements": requirements, "target_markets": markets},
+            "data": {
+                "origin_country": product.get("country_origin", ""),
+                "compliance_requirements": requirements,
+                "target_markets": markets,
+                "ingredients": product.get("ingredients", []),
+                "allergens": product.get("allergens", []),
+                "nutritional_info": product.get("nutritional_info") or product.get("nutrition_info"),
+                "certifications": product.get("certifications", []),
+            },
             "qr_url": qr_url,
             "qr_code": qr_base64,
             "approved": False, "status": "pending_review",
@@ -693,7 +702,7 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    if user.role in ("producer", "importer") and product["producer_id"] != user.user_id:
+    if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     # Run alcohol moderation check on name/description changes
@@ -892,8 +901,36 @@ async def delete_product(product_id: str, user: User = Depends(get_current_user)
         raise HTTPException(status_code=404, detail="Product not found")
     if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not your product")
-    
-    # Clean up orphaned references
+
+    # P-06: Check for active orders referencing this product
+    active_orders = await db.orders.count_documents({
+        "line_items.product_id": product_id,
+        "status": {"$in": ["pending", "paid", "processing", "confirmed", "preparing", "shipped"]}
+    })
+    if active_orders > 0:
+        # Soft delete — mark as deleted but preserve for order history
+        await db.products.update_one(
+            {"product_id": product_id},
+            {"$set": {"status": "deleted", "visible": False, "deleted_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        # Clean carts and stock holds
+        await db.cart_items.delete_many({"product_id": product_id})
+        await db.stock_holds.delete_many({"product_id": product_id})
+        await db.carts.update_many(
+            {"items.product_id": product_id},
+            {"$pull": {"items": {"product_id": product_id}}}
+        )
+        await db.audit_log.insert_one({
+            "action": "PRODUCT_SOFT_DELETE",
+            "actor": {"user_id": user.user_id, "role": user.role},
+            "target": {"type": "product", "id": product_id},
+            "reason": f"{active_orders} active orders",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info(f"[SOFT_DELETE] Product {product_id} soft-deleted ({active_orders} active orders) by {user.user_id}")
+        return {"message": "Producto archivado (hay pedidos activos)", "soft_deleted": True}
+
+    # Hard delete — no active orders, safe to remove completely
     await db.cart_items.delete_many({"product_id": product_id})
     await db.stock_holds.delete_many({"product_id": product_id})
 
@@ -904,7 +941,6 @@ async def delete_product(product_id: str, user: User = Depends(get_current_user)
     except Exception as e:
         logger.warning(f"[PRODUCT_DELETE] Cloudinary cleanup failed for {product_id}: {e}")
 
-    # Delete product and ALL related data (zero residue)
     await db.products.delete_one({"product_id": product_id})
     await db.reviews.delete_many({"product_id": product_id})
     await db.certificates.delete_many({"product_id": product_id})

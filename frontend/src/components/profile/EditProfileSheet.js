@@ -49,6 +49,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
   const { uploadingAvatar, uploadAvatar } = useUserAvatar(userId);
   const avatarInputRef = useRef(null);
 
+  const isProducer = profile?.role === 'producer' || profile?.role === 'importer';
   const [draft, setDraft] = useState({
     name:     '',
     username: '',
@@ -58,6 +59,8 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
     instagram: '',
     tiktok:    '',
     youtube:   '',
+    company_name: '',
+    store_description: '',
   });
 
   // Reset draft when opening
@@ -73,6 +76,8 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
         instagram: sl.instagram || profile.instagram || '',
         tiktok:    sl.tiktok    || profile.tiktok    || '',
         youtube:   sl.youtube   || profile.youtube   || '',
+        company_name: profile.company_name || '',
+        store_description: profile.store_description || '',
       });
     }
   }, [isOpen, profile]);
@@ -91,7 +96,9 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
       draft.location !== (profile.location || profile.city || '') ||
       draft.instagram !== (sl.instagram || profile.instagram || '') ||
       draft.tiktok !== (sl.tiktok || profile.tiktok || '') ||
-      draft.youtube !== (sl.youtube || profile.youtube || '')
+      draft.youtube !== (sl.youtube || profile.youtube || '') ||
+      draft.company_name !== (profile.company_name || '') ||
+      draft.store_description !== (profile.store_description || '')
     );
   }, [draft, profile]);
 
@@ -132,10 +139,15 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
       toast.error('El nombre de usuario debe tener al menos 3 caracteres');
       return;
     }
-    // Auto-prepend https:// if user typed a bare domain — build into payload only, never mutate state
-    const website = (draft.website && !/^https?:\/\//i.test(draft.website))
-      ? 'https://' + draft.website
-      : draft.website;
+    // Block dangerous protocols
+    let website = draft.website.trim();
+    if (website && /^(javascript|data|ftp|file):/i.test(website)) {
+      toast.error('URL no válida');
+      return;
+    }
+    if (website && !/^https?:\/\//i.test(website)) {
+      website = 'https://' + website;
+    }
 
     const payload = {
       ...draft,
@@ -149,6 +161,11 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
     delete payload.instagram;
     delete payload.tiktok;
     delete payload.youtube;
+    // Only include producer fields for producer/importer roles
+    if (!isProducer) {
+      delete payload.company_name;
+      delete payload.store_description;
+    }
 
     mutate(payload, {
       onSuccess: () => {
@@ -410,6 +427,30 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                   />
                 </div>
               </div>
+
+              {/* Producer fields */}
+              {isProducer && (
+                <>
+                  <div className="px-5 pt-4 pb-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">
+                      Empresa
+                    </p>
+                  </div>
+                  <div className="divide-y divide-stone-100">
+                    <div className="px-5 py-3.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Nombre de empresa</p>
+                      <input type="text" value={draft.company_name} onChange={set('company_name')} placeholder="Nombre comercial" maxLength={120} className="mt-1 w-full bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400" />
+                    </div>
+                    <div className="px-5 py-3.5">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Descripción de tienda</p>
+                        <p className={`text-[11px] tabular-nums ${draft.store_description.length > 450 ? 'font-bold text-stone-950' : 'text-stone-400'}`}>{draft.store_description.length}/500</p>
+                      </div>
+                      <textarea value={draft.store_description} onChange={set('store_description')} placeholder="Describe tu tienda…" rows={3} maxLength={500} className="mt-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-stone-950 outline-none placeholder:text-stone-400" />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </motion.div>
         </>

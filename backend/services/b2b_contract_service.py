@@ -389,6 +389,24 @@ async def notify_contract_ready(operation: dict, db):
                     f"[B2B_CONTRACT] Failed to send contract-ready email "
                     f"to {user.get('email')}: {e}"
                 )
+        # In-app notification (so it appears in notification center)
+        if user and user.get("user_id"):
+            try:
+                await db.notifications.insert_one({
+                    "user_id": user["user_id"],
+                    "type": "b2b_contract_ready",
+                    "title": "Contrato listo para firmar",
+                    "body": f"El contrato {operation_id_str} está listo para tu firma.",
+                    "action_url": f"/b2b/contract/{operation_id}",
+                    "data": {"operation_id": operation_id},
+                    "channels": ["in_app"],
+                    "status_by_channel": {"in_app": "sent"},
+                    "read_at": None,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                })
+            except Exception:
+                pass
 
 
 # ============================= 4. notify_contract_signed ===================
@@ -437,6 +455,24 @@ async def notify_contract_signed(operation: dict, db):
                     f"[B2B_CONTRACT] Failed to send contract-signed email "
                     f"to {user.get('email')}: {e}"
                 )
+        # In-app notification
+        if user and user.get("user_id"):
+            try:
+                await db.notifications.insert_one({
+                    "user_id": user["user_id"],
+                    "type": "b2b_contract_signed",
+                    "title": "Contrato firmado",
+                    "body": f"El contrato {operation_id_str} ha sido firmado por ambas partes.",
+                    "action_url": f"/b2b/contract/{operation_id}",
+                    "data": {"operation_id": operation_id},
+                    "channels": ["in_app"],
+                    "status_by_channel": {"in_app": "sent"},
+                    "read_at": None,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                })
+            except Exception:
+                pass
 
 
 # ===========================================================================
