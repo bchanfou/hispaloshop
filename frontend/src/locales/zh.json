@@ -128,7 +128,7 @@
     "discoverProfiles": "Descubre perfiles",
     "whatIsHispaloshop": "¿Qué es Hispaloshop?",
     "marketplace": "Marketplace + Social Commerce",
-    "commissionMulti": "Comisión 18%  Multi-país",
+    "commissionMulti": "Comisión 18% Multi-país",
     "influencerPayouts": "Atribución 18 meses · Retiro mínimo 50€",
     "meat": "Carnes",
     "cheese": "Quesos",
@@ -667,7 +667,7 @@
     "accessDenied": "Acceso Denegado",
     "insights": {
       "title": "Insights de Clientes",
-      "subtitle": "Análisis agregado compatible con GDPR  Umbral de anonimato: {{threshold}} usuarios",
+      "subtitle": "Análisis agregado compatible con GDPR Umbral de anonimato: {{threshold}} usuarios",
       "refresh": "Actualizar",
       "config": "Configurar",
       "dataRefreshed": "Datos actualizados",
@@ -1225,7 +1225,7 @@
     "myOrders": "我的订单",
     "followedStores": "关注的商店",
     "profile": "轮廓",
-    "aiPreferences": "大卫·艾",
+    "aiPreferences": "David AI",
     "continueShopping": "继续购物",
     "recentOrders": "近期订单",
     "noOrders": "您没有订单",
@@ -1780,7 +1780,7 @@
   "floatingIsland": {
     "messages": "消息",
     "directChat": "直接聊天",
-    "hispaloAI": "大卫·艾",
+    "hispaloAI": "David AI",
     "aiAssistant": "人工智能助手"
   },
   "discover": {

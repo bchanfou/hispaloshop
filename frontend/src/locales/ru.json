@@ -128,7 +128,7 @@
     "discoverProfiles": "Descubre perfiles",
     "whatIsHispaloshop": "¿Qué es Hispaloshop?",
     "marketplace": "Marketplace + Social Commerce",
-    "commissionMulti": "Comisión 18%  Multi-país",
+    "commissionMulti": "Comisión 18% Multi-país",
     "influencerPayouts": "Atribución 18 meses · Retiro mínimo 50€",
     "meat": "Carnes",
     "cheese": "Quesos",
@@ -667,7 +667,7 @@
     "accessDenied": "Acceso Denegado",
     "insights": {
       "title": "Insights de Clientes",
-      "subtitle": "Análisis agregado compatible con GDPR  Umbral de anonimato: {{threshold}} usuarios",
+      "subtitle": "Análisis agregado compatible con GDPR Umbral de anonimato: {{threshold}} usuarios",
       "refresh": "Actualizar",
       "config": "Configurar",
       "dataRefreshed": "Datos actualizados",
@@ -1154,8 +1154,8 @@
     "nichePlaceholder": "Примеры: Здоровое питание, Фитнес, Образ жизни...",
     "followers": "Количество подписчиков",
     "followersHelp": "Требуется минимум 1000 подписчиков.",
-    "instagram": "Инстаграм",
-    "tiktok": "ТикТок",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
     "youtube": "YouTube",
     "twitter": "Twitter/X",
     "createAccount": "Зарегистрироваться",
@@ -1225,7 +1225,7 @@
     "myOrders": "Мои заказы",
     "followedStores": "Магазины, за которыми ведется наблюдение",
     "profile": "Профиль",
-    "aiPreferences": "Дэвид АЙ",
+    "aiPreferences": "David AI",
     "continueShopping": "Продолжить покупки",
     "recentOrders": "Последние заказы",
     "noOrders": "У вас нет заказов.",
@@ -1466,7 +1466,7 @@
     "commissionFeature1": "Включает в себя защищенный платежный шлюз (Stripe).",
     "commissionFeature2": "Подтверждаемые сертификаты продукции",
     "commissionFeature3": "Техническая поддержка и обслуживание клиентов",
-    "commissionFeature4": "Доступ к искусственному интеллекту для производителей от Дэвида",
+    "commissionFeature4": "Доступ к David AI интеллекту для производителей от Дэвида",
     "howItWorksTitle": "Как начать продавать",
     "step1Title": "Регистрация",
     "step1Desc": "Создайте свой аккаунт продюсера, указав данные вашей компании или информацию о себе как о самозанятом.",
@@ -1780,7 +1780,7 @@
   "floatingIsland": {
     "messages": "Сообщения",
     "directChat": "Прямой чат",
-    "hispaloAI": "Дэвид АЙ",
+    "hispaloAI": "David AI",
     "aiAssistant": "ИИ-помощник"
   },
   "discover": {
@@ -1950,7 +1950,7 @@
     "afterCommission": "После комиссии",
     "platformFee": "Платформенная комиссия",
     "pendingPayout": "к оплате",
-    "stripeConnected": "Полоса подключена",
+    "stripeConnected": "Stripe connected",
     "connectStripe": "Подключить Stripe",
     "monthlySales": "Ежемесячные продажи",
     "recentOrders": "Последние заказы",
@@ -2366,7 +2366,7 @@
     "africaMiddleEast": "Африка и Ближний Восток"
   },
   "aiPrefs": {
-    "title": "Настройки Дэвида ИИ",
+    "title": "David AI Preferences",
     "subtitle": "David AI использует эти предпочтения для персонализации вашего опыта покупок.",
     "communicationStyle": "Стиль общения",
     "toneLabel": "Как бы вы предпочли, чтобы я вам ответил?",

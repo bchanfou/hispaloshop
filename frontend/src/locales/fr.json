@@ -128,7 +128,7 @@
     "discoverProfiles": "Descubre perfiles",
     "whatIsHispaloshop": "¿Qué es Hispaloshop?",
     "marketplace": "Marketplace + Social Commerce",
-    "commissionMulti": "Comisión 18%  Multi-país",
+    "commissionMulti": "Comisión 18% Multi-país",
     "influencerPayouts": "Atribución 18 meses · Retiro mínimo 50€",
     "meat": "Carnes",
     "cheese": "Quesos",
@@ -679,7 +679,7 @@
     "accessDenied": "Acceso Denegado",
     "insights": {
       "title": "Insights de Clientes",
-      "subtitle": "Análisis agregado compatible con GDPR  Umbral de anonimato: {{threshold}} usuarios",
+      "subtitle": "Análisis agregado compatible con GDPR Umbral de anonimato: {{threshold}} usuarios",
       "refresh": "Actualizar",
       "config": "Configurar",
       "dataRefreshed": "Datos actualizados",
@@ -1237,7 +1237,7 @@
     "myOrders": "Mes commandes",
     "followedStores": "Les magasins ont suivi",
     "profile": "Profil",
-    "aiPreferences": "David IA",
+    "aiPreferences": "David AI",
     "continueShopping": "Continuer vos achats",
     "recentOrders": "Commandes récentes",
     "noOrders": "Vous n'avez aucune commande",
@@ -1478,7 +1478,7 @@
     "commissionFeature1": "Inclut une passerelle de paiement sécurisée (Stripe)",
     "commissionFeature2": "Certificats de produits vérifiables",
     "commissionFeature3": "Assistance technique et service client",
-    "commissionFeature4": "Accès à l'IA de David pour les producteurs",
+    "commissionFeature4": "Accès David AI l'IA de David pour les producteurs",
     "howItWorksTitle": "Comment commencer à vendre",
     "step1Title": "Registre",
     "step1Desc": "Créez votre compte producteur avec les informations relatives à votre entreprise ou à votre activité indépendante.",
@@ -1792,7 +1792,7 @@
   "floatingIsland": {
     "messages": "Messages",
     "directChat": "Discussion directe",
-    "hispaloAI": "David IA",
+    "hispaloAI": "David AI",
     "aiAssistant": "Assistant IA"
   },
   "discover": {

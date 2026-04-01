@@ -694,7 +694,7 @@
     "myOrders": "I miei ordini",
     "followedStores": "Negozi seguiti",
     "profile": "Profilo",
-    "aiPreferences": "Davide AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Continua lo shopping",
     "recentOrders": "Ordini recenti",
     "noOrders": "Non hai ordini",
@@ -1459,7 +1459,7 @@
     "commissionFeature1": "Include un gateway di pagamento sicuro (Stripe)",
     "commissionFeature2": "Certificati di prodotto verificabili",
     "commissionFeature3": "Supporto tecnico e servizio clienti",
-    "commissionFeature4": "Accesso all'IA David per i produttori",
+    "commissionFeature4": "Accesso all'David AI per i produttori",
     "howItWorksTitle": "Come iniziare a vendere",
     "step1Title": "Registro",
     "step1Desc": "Crea il tuo account produttore con i dati della tua azienda o del tuo lavoratore autonomo.",
@@ -1773,7 +1773,7 @@
   "floatingIsland": {
     "messages": "Messaggi",
     "directChat": "Chat diretta",
-    "hispaloAI": "Davide AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "Assistente AI"
   },
   "discover": {

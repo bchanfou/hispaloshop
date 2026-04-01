@@ -128,7 +128,7 @@
     "discoverProfiles": "Descubre perfiles",
     "whatIsHispaloshop": "¿Qué es Hispaloshop?",
     "marketplace": "Marketplace + Social Commerce",
-    "commissionMulti": "Comisión 18%  Multi-país",
+    "commissionMulti": "Comisión 18% Multi-país",
     "influencerPayouts": "Atribución 18 meses · Retiro mínimo 50€",
     "meat": "Carnes",
     "cheese": "Quesos",
@@ -667,7 +667,7 @@
     "accessDenied": "Acceso Denegado",
     "insights": {
       "title": "Insights de Clientes",
-      "subtitle": "Análisis agregado compatible con GDPR  Umbral de anonimato: {{threshold}} usuarios",
+      "subtitle": "Análisis agregado compatible con GDPR Umbral de anonimato: {{threshold}} usuarios",
       "refresh": "Actualizar",
       "config": "Configurar",
       "dataRefreshed": "Datos actualizados",
@@ -2366,7 +2366,7 @@
     "africaMiddleEast": "Afrika und der Nahe Osten"
   },
   "aiPrefs": {
-    "title": "Davids KI-Präferenzen",
+    "title": "David AI Preferences",
     "subtitle": "David AI nutzt diese Präferenzen, um Ihr Einkaufserlebnis zu personalisieren.",
     "communicationStyle": "Kommunikationsstil",
     "toneLabel": "Wie soll ich Ihnen antworten?",

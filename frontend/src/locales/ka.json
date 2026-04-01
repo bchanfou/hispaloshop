@@ -239,8 +239,8 @@
     "nichePlaceholder": "მაგალითები: ჯანსაღი საკვები, ფიტნესი, ცხოვრების წესი...",
     "followers": "მიმდევრების რაოდენობა",
     "followersHelp": "საჭიროა მინიმუმ 1000 გამომწერი",
-    "instagram": "ინსტაგრამი",
-    "tiktok": "ტიკტოკი",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
     "youtube": "YouTube",
     "twitter": "Twitter/X",
     "createAccount": "ანგარიშის შექმნა",
@@ -694,7 +694,7 @@
     "myOrders": "ჩემი შეკვეთები",
     "followedStores": "თვალყურის დევნებული მაღაზიები",
     "profile": "პროფილი",
-    "aiPreferences": "დავით AI",
+    "aiPreferences": "David AI",
     "continueShopping": "განაგრძეთ შოპინგი",
     "recentOrders": "ბოლო შეკვეთები",
     "noOrders": "შეკვეთები არ გაქვთ",
@@ -1074,10 +1074,10 @@
     "stripeError": "შეცდომა Stripe-თან დაკავშირებისას მოხდა. შეცდომა მოხდა Stripe-თან დაკავშირებისას."
   },
   "ai": {
-    "greeting": "გამარჯობა! მე ვარ დევიდ აი, თქვენი პირადი შოპინგის ასისტენტი. რას ეძებთ დღეს?",
+    "greeting": "Hello! I'm David AI, your personal shopping assistant. What are you looking for today?",
     "placeholder": "მკითხეთ ჩვენი პროდუქციის შესახებ...",
     "send": "გაგზავნა",
-    "typing": "დევიდ აი წერს...",
+    "typing": "David AI is typing...",
     "error": "ბოდიშს გიხდით, ვერ დავამუშავე. გთხოვთ, სცადოთ ხელახლა.",
     "noProducts": "ვერ ვიპოვე თქვენი ძიების შესაბამისი პროდუქტები.",
     "recommendations": "აქ არის ჩემი რეკომენდაციები",
@@ -1459,7 +1459,7 @@
     "commissionFeature1": "მოიცავს უსაფრთხო გადახდის კარიბჭეს (Stripe)",
     "commissionFeature2": "დამოწმებადი პროდუქტის სერტიფიკატები",
     "commissionFeature3": "ტექნიკური მხარდაჭერა და მომხმარებელთა მომსახურება",
-    "commissionFeature4": "დევიდის ხელოვნური ინტელექტის წვდომა პროდიუსერებისთვის",
+    "commissionFeature4": "დევიდის ხელოვნური David AI წვდომა პროდიუსერებისთვის",
     "howItWorksTitle": "როგორ დავიწყოთ გაყიდვა",
     "step1Title": "რეგისტრაცია",
     "step1Desc": "შექმენით თქვენი პროდიუსერის ანგარიში თქვენი კომპანიის ან თვითდასაქმებულის დეტალებით",
@@ -1773,7 +1773,7 @@
   "floatingIsland": {
     "messages": "შეტყობინებები",
     "directChat": "პირდაპირი ჩატი",
-    "hispaloAI": "დავით AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "ხელოვნური ინტელექტის ასისტენტი"
   },
   "discover": {
@@ -1943,7 +1943,7 @@
     "afterCommission": "დაქირავების შემდეგ",
     "platformFee": "პლატფორმის კომისია",
     "pendingPayout": "გადასახდელი გადახდა",
-    "stripeConnected": "ზოლი დაკავშირებულია",
+    "stripeConnected": "Stripe connected",
     "connectStripe": "Connect Stripe",
     "monthlySales": "ყოველთვიური გაყიდვები",
     "recentOrders": "ბოლო შეკვეთები",
@@ -2359,7 +2359,7 @@
     "africaMiddleEast": "აფრიკა და ახლო აღმოსავლეთი"
   },
   "aiPrefs": {
-    "title": "დევიდ AI-ის პრეფერენციები",
+    "title": "David AI Preferences",
     "subtitle": "David AI იყენებს ამ პარამეტრებს თქვენი სავაჭრო გამოცდილების პერსონალიზებისთვის.",
     "communicationStyle": "კომუნიკაციის სტილი",
     "toneLabel": "როგორ გირჩევნია, გიპასუხო?",
@@ -2383,7 +2383,7 @@
     "soy": "სოია",
     "wheat": "ხორბალი",
     "fish": "თევზი",
-    "allergyNote": "დევიდ აი არასდროს გირჩევს ამ ალერგენების შემცველ პროდუქტებს.",
+    "allergyNote": "David AI will never recommend products containing these allergens.",
     "goals": "გოლები",
     "selectGoals": "რა მიზნები გაქვთ?",
     "healthyEating": "ჯანსაღი კვება",

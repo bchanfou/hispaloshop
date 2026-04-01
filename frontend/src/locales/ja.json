@@ -128,7 +128,7 @@
     "discoverProfiles": "Descubre perfiles",
     "whatIsHispaloshop": "¿Qué es Hispaloshop?",
     "marketplace": "Marketplace + Social Commerce",
-    "commissionMulti": "Comisión 18%  Multi-país",
+    "commissionMulti": "Comisión 18% Multi-país",
     "influencerPayouts": "Atribución 18 meses · Retiro mínimo 50€",
     "meat": "Carnes",
     "cheese": "Quesos",
@@ -667,7 +667,7 @@
     "accessDenied": "Acceso Denegado",
     "insights": {
       "title": "Insights de Clientes",
-      "subtitle": "Análisis agregado compatible con GDPR  Umbral de anonimato: {{threshold}} usuarios",
+      "subtitle": "Análisis agregado compatible con GDPR Umbral de anonimato: {{threshold}} usuarios",
       "refresh": "Actualizar",
       "config": "Configurar",
       "dataRefreshed": "Datos actualizados",
@@ -1154,7 +1154,7 @@
     "nichePlaceholder": "例：健康的な食品、フィットネス、ライフスタイル…",
     "followers": "フォロワー数",
     "followersHelp": "最低1,000人のフォロワーが必要",
-    "instagram": "インスタグラム",
+    "instagram": "Instagram",
     "tiktok": "TikTok",
     "youtube": "YouTube",
     "twitter": "Twitter/X",
@@ -1225,7 +1225,7 @@
     "myOrders": "私の注文",
     "followedStores": "フォローした店舗",
     "profile": "プロフィール",
-    "aiPreferences": "デビッドAI",
+    "aiPreferences": "David AI",
     "continueShopping": "買い物を続ける",
     "recentOrders": "最近の注文",
     "noOrders": "注文はありません",
@@ -1780,7 +1780,7 @@
   "floatingIsland": {
     "messages": "メッセージ",
     "directChat": "ダイレクトチャット",
-    "hispaloAI": "デビッドAI",
+    "hispaloAI": "David AI",
     "aiAssistant": "AIアシスタント"
   },
   "discover": {

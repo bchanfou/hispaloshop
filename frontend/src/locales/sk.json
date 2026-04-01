@@ -597,7 +597,7 @@
     "packs": "Balíčky",
     "earnings": "Zárobky",
     "payouts": "Platby",
-    "connectStripe": "Pripojte prúžok",
+    "connectStripe": "Connect Stripe",
     "stripeConnected": "Stripe Connected",
     "welcome": "Vitajte",
     "manageProductsAndSales": "Spravujte svoje produkty a sledujte svoj predaj.",
@@ -694,7 +694,7 @@
     "myOrders": "Moje objednávky",
     "followedStores": "Sledované obchody",
     "profile": "Profil",
-    "aiPreferences": "Dávid AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Pokračovať v nakupovaní",
     "recentOrders": "Nedávne objednávky",
     "noOrders": "Nemáte žiadne objednávky",
@@ -1459,7 +1459,7 @@
     "commissionFeature1": "Zahŕňa bezpečnú platobnú bránu (Stripe)",
     "commissionFeature2": "Overiteľné certifikáty produktov",
     "commissionFeature3": "Technická podpora a zákaznícky servis",
-    "commissionFeature4": "Prístup Davida k umelej inteligencii pre producentov",
+    "commissionFeature4": "David AI Davida k umelej inteligencii pre producentov",
     "howItWorksTitle": "Ako začať predávať",
     "step1Title": "Registrovať",
     "step1Desc": "Vytvorte si svoj producentský účet s údajmi o vašej spoločnosti alebo samostatne zárobkovo činnej osobe",
@@ -1773,7 +1773,7 @@
   "floatingIsland": {
     "messages": "Správy",
     "directChat": "Priamy chat",
-    "hispaloAI": "Dávid AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "Asistent umelej inteligencie"
   },
   "discover": {
@@ -1943,8 +1943,8 @@
     "afterCommission": "Po uvedení do prevádzky",
     "platformFee": "Komisia pre platformu",
     "pendingPayout": "Splatná platba",
-    "stripeConnected": "Pruh pripojený",
-    "connectStripe": "Pripojte prúžok",
+    "stripeConnected": "Stripe pripojený",
+    "connectStripe": "Connect Stripe",
     "monthlySales": "Mesačný predaj",
     "recentOrders": "Nedávne objednávky",
     "monthlyBreakdown": "Mesačný rozpis",
@@ -2359,7 +2359,7 @@
     "africaMiddleEast": "Afrika a Blízky východ"
   },
   "aiPrefs": {
-    "title": "Predvoľby Davida AI",
+    "title": "David AI Preferences",
     "subtitle": "David AI používa tieto preferencie na prispôsobenie vášho nákupného zážitku.",
     "communicationStyle": "Komunikačný štýl",
     "toneLabel": "Ako by si radšej chcel/a, aby som ti odpovedal/a?",

@@ -1459,7 +1459,7 @@
     "commissionFeature1": "Zahrnuje zabezpečenou platební bránu (Stripe)",
     "commissionFeature2": "Ověřitelné certifikáty produktů",
     "commissionFeature3": "Technická podpora a zákaznický servis",
-    "commissionFeature4": "Přístup Davida k umělé inteligenci pro producenty",
+    "commissionFeature4": "Přístup Davida k David AI inteligenci pro producenty",
     "howItWorksTitle": "Jak začít prodávat",
     "step1Title": "Rejstřík",
     "step1Desc": "Vytvořte si účet producenta s údaji o vaší firmě nebo osobě samostatně výdělečně činné",
@@ -2359,7 +2359,7 @@
     "africaMiddleEast": "Afrika a Blízký východ"
   },
   "aiPrefs": {
-    "title": "Předvolby Davida AI",
+    "title": "David AI Preferences",
     "subtitle": "David AI používá tyto preference k personalizaci vašeho nákupního zážitku.",
     "communicationStyle": "Komunikační styl",
     "toneLabel": "Jak byste raději chtěl/a, abych vám odpověděl/a?",

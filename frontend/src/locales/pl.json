@@ -694,7 +694,7 @@
     "myOrders": "Moje zamówienia",
     "followedStores": "Obserwowane sklepy",
     "profile": "Profil",
-    "aiPreferences": "Dawid AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Kontynuuj zakupy",
     "recentOrders": "Ostatnie zamówienia",
     "noOrders": "Nie masz żadnych zamówień",
@@ -908,7 +908,7 @@
     "accessDenied": "Odmowa dostępu",
     "insights": {
       "title": "Spostrzeżenia klientów",
-      "subtitle": "Zagregowana analityka zgodna z RODO. Próg anonimowości: użytkownicy {{threshold}}",
+      "subtitle": "Zagregowana analityka zgodna z GDPR. Próg anonimowości: użytkownicy {{threshold}}",
       "refresh": "Aktualizacja",
       "config": "Organizować coś",
       "dataRefreshed": "Zaktualizowane dane",
@@ -965,7 +965,7 @@
         "decline": "Nachylenie"
       },
       "compliance": {
-        "title": "Panel ds. zgodności z RODO",
+        "title": "Panel ds. zgodności z GDPR",
         "anonymizedRecords": "Zanonimizowane rekordy",
         "dataRetention": "Przechowywanie danych",
         "consentRate": "Współczynnik zgody",
@@ -1773,7 +1773,7 @@
   "floatingIsland": {
     "messages": "Wiadomości",
     "directChat": "Czat bezpośredni",
-    "hispaloAI": "Dawid AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "Asystent AI"
   },
   "discover": {
@@ -1943,7 +1943,7 @@
     "afterCommission": "Po prowizji",
     "platformFee": "Komisja Platformowa",
     "pendingPayout": "Należność płatna",
-    "stripeConnected": "Połączony pasek",
+    "stripeConnected": "Stripe connected",
     "connectStripe": "Połącz Stripe",
     "monthlySales": "Sprzedaż miesięczna",
     "recentOrders": "Ostatnie zamówienia",
@@ -2359,7 +2359,7 @@
     "africaMiddleEast": "Afryka i Bliski Wschód"
   },
   "aiPrefs": {
-    "title": "Preferencje Davida AI",
+    "title": "David AI Preferences",
     "subtitle": "David AI wykorzystuje te preferencje w celu personalizacji Twoich zakupów.",
     "communicationStyle": "Styl komunikacji",
     "toneLabel": "Jak wolisz, żebym ci odpowiedział?",

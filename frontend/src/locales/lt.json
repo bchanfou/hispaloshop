@@ -597,7 +597,7 @@
     "packs": "Paketai",
     "earnings": "Pajamos",
     "payouts": "Mokėjimai",
-    "connectStripe": "Prijunkite juostelę",
+    "connectStripe": "Connect Stripe",
     "stripeConnected": "„Stripe Connected“",
     "welcome": "Sveiki atvykę",
     "manageProductsAndSales": "Tvarkykite savo produktus ir stebėkite pardavimus.",
@@ -694,7 +694,7 @@
     "myOrders": "Mano užsakymai",
     "followedStores": "Stebimos parduotuvės",
     "profile": "Profilis",
-    "aiPreferences": "Deividas AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Tęsti apsipirkimą",
     "recentOrders": "Naujausi užsakymai",
     "noOrders": "Jūs neturite užsakymų",
@@ -908,7 +908,7 @@
     "accessDenied": "Prieiga uždrausta",
     "insights": {
       "title": "Klientų įžvalgos",
-      "subtitle": "BDAR reikalavimus atitinkanti apibendrinta analizė. Anonimiškumo riba: {{threshold}} naudotojų",
+      "subtitle": "GDPR reikalavimus atitinkanti apibendrinta analizė. Anonimiškumo riba: {{threshold}} naudotojų",
       "refresh": "Atnaujinimas",
       "config": "Nustatyti",
       "dataRefreshed": "Atnaujinti duomenys",
@@ -965,7 +965,7 @@
         "decline": "Nuolydis"
       },
       "compliance": {
-        "title": "BDAR atitikties grupė",
+        "title": "GDPR atitikties grupė",
         "anonymizedRecords": "Anonimizuoti įrašai",
         "dataRetention": "Duomenų saugojimas",
         "consentRate": "Sutikimo rodiklis",
@@ -1074,10 +1074,10 @@
     "stripeError": "Klaida prisijungiant prie „Stripe“"
   },
   "ai": {
-    "greeting": "Sveiki! Aš esu Davidas AI, jūsų asmeninis apsipirkimo asistentas. Ko ieškote šiandien?",
+    "greeting": "Hello! I'm David AI, your personal shopping assistant. What are you looking for today?",
     "placeholder": "Klauskite manęs apie mūsų produktus...",
     "send": "Siųsti",
-    "typing": "Deividas AI rašo...",
+    "typing": "David AI is typing...",
     "error": "Atsiprašau, negalėjau to apdoroti. Bandykite dar kartą.",
     "noProducts": "Neradau jokių produktų, atitinkančių jūsų paiešką.",
     "recommendations": "Štai mano rekomendacijos",
@@ -1773,7 +1773,7 @@
   "floatingIsland": {
     "messages": "Žinutės",
     "directChat": "Tiesioginis pokalbis",
-    "hispaloAI": "Deividas AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "Dirbtinio intelekto asistentas"
   },
   "discover": {
@@ -1943,8 +1943,8 @@
     "afterCommission": "Po komisijos",
     "platformFee": "Platformos komisija",
     "pendingPayout": "Mokėtina",
-    "stripeConnected": "Juostelė sujungta",
-    "connectStripe": "Prijunkite juostelę",
+    "stripeConnected": "Stripe connected",
+    "connectStripe": "Connect Stripe",
     "monthlySales": "Mėnesiniai pardavimai",
     "recentOrders": "Naujausi užsakymai",
     "monthlyBreakdown": "Mėnesinis suskirstymas",
@@ -2359,7 +2359,7 @@
     "africaMiddleEast": "Afrika ir Artimieji Rytai"
   },
   "aiPrefs": {
-    "title": "Davido AI nuostatos",
+    "title": "David AI Preferences",
     "subtitle": "„David AI“ naudoja šias nuostatas, kad suasmenintų jūsų apsipirkimo patirtį.",
     "communicationStyle": "Bendravimo stilius",
     "toneLabel": "Kaip norėtumėte, kad jums atsakyčiau?",

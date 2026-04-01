@@ -694,7 +694,7 @@
     "myOrders": "Mani pasūtījumi",
     "followedStores": "Veikali, kuriem seko",
     "profile": "Profils",
-    "aiPreferences": "Deivids AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Turpināt iepirkšanos",
     "recentOrders": "Nesenie pasūtījumi",
     "noOrders": "Jums nav pasūtījumu",
@@ -908,7 +908,7 @@
     "accessDenied": "Piekļuve liegta",
     "insights": {
       "title": "Klientu ieskati",
-      "subtitle": "VDAR atbilstoša apkopotā analītika. Anonimitātes slieksnis: {{threshold}} lietotāji",
+      "subtitle": "GDPR-compliant aggregated analytics ? Anonymity threshold: {{threshold}} users",
       "refresh": "Atjauninājums",
       "config": "Iestatīt",
       "dataRefreshed": "Atjauninātie dati",
@@ -1074,10 +1074,10 @@
     "stripeError": "Kļūda, izveidojot savienojumu ar Stripe"
   },
   "ai": {
-    "greeting": "Sveiki! Esmu Deivids AI, jūsu personīgais iepirkšanās asistents. Ko jūs šodien meklējat?",
+    "greeting": "Hello! I'm David AI, your personal shopping assistant. What are you looking for today?",
     "placeholder": "Jautājiet man par mūsu produktiem...",
     "send": "Sūtīt",
-    "typing": "Deivids AI raksta...",
+    "typing": "David AI is typing...",
     "error": "Atvainojiet, es to nevarēju apstrādāt. Lūdzu, mēģiniet vēlreiz.",
     "noProducts": "Es neatradu nevienu produktu, kas atbilstu jūsu meklēšanai.",
     "recommendations": "Šeit ir mani ieteikumi",
@@ -1459,7 +1459,7 @@
     "commissionFeature1": "Ietver drošu maksājumu vārteju (Stripe)",
     "commissionFeature2": "Pārbaudāmi produktu sertifikāti",
     "commissionFeature3": "Tehniskais atbalsts un klientu apkalpošana",
-    "commissionFeature4": "Deivida mākslīgā intelekta piekļuve producentiem",
+    "commissionFeature4": "Deivida David AI intelekta piekļuve producentiem",
     "howItWorksTitle": "Kā sākt pārdošanu",
     "step1Title": "Reģistrēties",
     "step1Desc": "Izveidojiet savu ražotāja kontu ar sava uzņēmuma vai pašnodarbinātā datiem",
@@ -1773,7 +1773,7 @@
   "floatingIsland": {
     "messages": "Ziņojumi",
     "directChat": "Tiešā tērzēšana",
-    "hispaloAI": "Deivids AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "Mākslīgā intelekta palīgs"
   },
   "discover": {
@@ -1943,7 +1943,7 @@
     "afterCommission": "Pēc komisijas maksas",
     "platformFee": "Platformas komisija",
     "pendingPayout": "Maksājuma termiņš",
-    "stripeConnected": "Svītra savienota",
+    "stripeConnected": "Stripe connected",
     "connectStripe": "Connect Stripe",
     "monthlySales": "Mēneša pārdošanas apjomi",
     "recentOrders": "Nesenie pasūtījumi",
@@ -2359,7 +2359,7 @@
     "africaMiddleEast": "Āfrika un Tuvie Austrumi"
   },
   "aiPrefs": {
-    "title": "Deivida AI preferences",
+    "title": "David AI Preferences",
     "subtitle": "David AI izmanto šīs preferences, lai personalizētu jūsu iepirkšanās pieredzi.",
     "communicationStyle": "Komunikācijas stils",
     "toneLabel": "Kā tu vēlētos, lai es tev atbildu?",
@@ -2383,7 +2383,7 @@
     "soy": "Soja",
     "wheat": "Kvieši",
     "fish": "Zivis",
-    "allergyNote": "Deivids AI nekad neieteiks produktus ar šiem alergēniem.",
+    "allergyNote": "David AI will never recommend products containing these allergens.",
     "goals": "Mērķi",
     "selectGoals": "Kādi ir jūsu mērķi?",
     "healthyEating": "Veselīgs uzturs",

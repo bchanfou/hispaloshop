@@ -694,7 +694,7 @@
     "myOrders": "Mening buyurtmalarim",
     "followedStores": "Kuzatilayotgan do'konlar",
     "profile": "Profil",
-    "aiPreferences": "Devid AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Xarid qilishni davom eting",
     "recentOrders": "So'nggi buyurtmalar",
     "noOrders": "Sizda buyurtma yo'q",
@@ -1074,10 +1074,10 @@
     "stripeError": "Stripe’ga ulanishda xatolik yuz berdi"
   },
   "ai": {
-    "greeting": "Salom! Men Devid AI, sizning shaxsiy xarid bo'yicha yordamchingizman. Bugun nimani qidiryapsiz?",
+    "greeting": "Hello! I'm David AI, your personal shopping assistant. What are you looking for today?",
     "placeholder": "Mahsulotlarimiz haqida so'rang...",
     "send": "Yuborish",
-    "typing": "Devid AI yozmoqda...",
+    "typing": "David AI is typing...",
     "error": "Kechirasiz, buni qayta ishlay olmadim. Qayta urinib ko'ring.",
     "noProducts": "Qidiruvingizga mos keladigan hech qanday mahsulot topmadim.",
     "recommendations": "Mana mening tavsiyalarim",
@@ -1773,7 +1773,7 @@
   "floatingIsland": {
     "messages": "Xabarlar",
     "directChat": "To'g'ridan-to'g'ri chat",
-    "hispaloAI": "Devid AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "Sun'iy intellekt yordamchisi"
   },
   "discover": {
@@ -1943,7 +1943,7 @@
     "afterCommission": "Komissiyadan keyin",
     "platformFee": "Platforma komissiyasi",
     "pendingPayout": "To'lov muddati",
-    "stripeConnected": "Chiziq ulangan",
+    "stripeConnected": "Stripe connected",
     "connectStripe": "Stripe-ni ulang",
     "monthlySales": "Oylik savdo",
     "recentOrders": "So'nggi buyurtmalar",
@@ -1951,7 +1951,7 @@
     "gross": "Qo'pol",
     "net": "Tarmoq",
     "howPaymentsWork": "To'lovlar qanday ishlaydi",
-    "stripeDashboard": "Chiziqli boshqaruv paneli"
+    "stripeDashboard": "Stripe Dashboard"
   },
   "finance": {
     "title": "Buxgalteriya hisobi",
@@ -2359,7 +2359,7 @@
     "africaMiddleEast": "Afrika va Yaqin Sharq"
   },
   "aiPrefs": {
-    "title": "Devid AIning afzalliklari",
+    "title": "David AI Preferences",
     "subtitle": "David AI ushbu afzalliklardan xarid qilish tajribangizni shaxsiylashtirish uchun foydalanadi.",
     "communicationStyle": "Muloqot uslubi",
     "toneLabel": "Sizga qanday javob berishimni afzal ko'rasiz?",

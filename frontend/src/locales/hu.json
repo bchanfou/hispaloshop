@@ -694,7 +694,7 @@
     "myOrders": "Rendeléseim",
     "followedStores": "Követett üzletek",
     "profile": "Profil",
-    "aiPreferences": "Dávid AI",
+    "aiPreferences": "David AI",
     "continueShopping": "Vásárlás folytatása",
     "recentOrders": "Legutóbbi megrendelések",
     "noOrders": "Nincsenek megrendelései",
@@ -1773,7 +1773,7 @@
   "floatingIsland": {
     "messages": "Üzenetek",
     "directChat": "Közvetlen csevegés",
-    "hispaloAI": "Dávid AI",
+    "hispaloAI": "David AI",
     "aiAssistant": "MI asszisztens"
   },
   "discover": {
@@ -1943,7 +1943,7 @@
     "afterCommission": "Jutalék után",
     "platformFee": "Platform Bizottság",
     "pendingPayout": "Esedékes fizetés",
-    "stripeConnected": "Csíkos csatlakoztatva",
+    "stripeConnected": "Stripeos csatlakoztatva",
     "connectStripe": "Connect Stripe",
     "monthlySales": "Havi eladások",
     "recentOrders": "Legutóbbi megrendelések",

@@ -128,7 +128,7 @@
     "discoverProfiles": "Descubre perfiles",
     "whatIsHispaloshop": "¿Qué es Hispaloshop?",
     "marketplace": "Marketplace + Social Commerce",
-    "commissionMulti": "Comisión 18%  Multi-país",
+    "commissionMulti": "Comisión 18% Multi-país",
     "influencerPayouts": "Atribución 18 meses · Retiro mínimo 50€",
     "meat": "Carnes",
     "cheese": "Quesos",
@@ -667,7 +667,7 @@
     "accessDenied": "Acceso Denegado",
     "insights": {
       "title": "Insights de Clientes",
-      "subtitle": "Análisis agregado compatible con GDPR  Umbral de anonimato: {{threshold}} usuarios",
+      "subtitle": "Análisis agregado compatible con GDPR Umbral de anonimato: {{threshold}} usuarios",
       "refresh": "Actualizar",
       "config": "Configurar",
       "dataRefreshed": "Datos actualizados",
@@ -1225,7 +1225,7 @@
     "myOrders": "Meus pedidos",
     "followedStores": "Lojas seguiram",
     "profile": "Perfil",
-    "aiPreferences": "David IA",
+    "aiPreferences": "David AI",
     "continueShopping": "Continuar comprando",
     "recentOrders": "Pedidos recentes",
     "noOrders": "Você não tem pedidos",
@@ -1780,7 +1780,7 @@
   "floatingIsland": {
     "messages": "Mensagens",
     "directChat": "Chat direto",
-    "hispaloAI": "David IA",
+    "hispaloAI": "David AI",
     "aiAssistant": "Assistente de IA"
   },
   "discover": {
@@ -2367,7 +2367,7 @@
   },
   "aiPrefs": {
     "title": "Preferências de David AI",
-    "subtitle": "A IA David usa essas preferências para personalizar sua experiência de compra.",
+    "subtitle": "A David AI usa essas preferências para personalizar sua experiência de compra.",
     "communicationStyle": "Estilo de comunicação",
     "toneLabel": "Como você prefere que eu responda?",
     "toneShort": "Breve e direto",
