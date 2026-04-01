@@ -28,6 +28,21 @@ const MOBILE_BREAKPOINT = 768;
 
 type MenuType = 'country' | 'language' | 'currency' | null;
 
+const LANGUAGE_REGIONS: Record<string, string[]> = {
+  'Europa': ['es', 'en', 'fr', 'de', 'pt', 'it', 'nl', 'pl', 'sv', 'ro', 'cs', 'el', 'hu', 'uk', 'da', 'no', 'fi', 'hr', 'sk', 'bg', 'sr', 'lt', 'lv', 'et'],
+  'Asia': ['zh', 'ja', 'ko', 'hi', 'th', 'vi', 'id', 'tl', 'bn', 'ta', 'ms', 'mr', 'te', 'pa', 'gu', 'kn', 'ml', 'my', 'km', 'lo', 'ne', 'si', 'uz', 'kk', 'az'],
+  'Oriente Medio': ['ar', 'fa', 'ur', 'he', 'tr'],
+  'Africa': ['sw', 'af', 'am'],
+  'Caucaso': ['ka', 'hy'],
+};
+
+const LANG_TO_REGION: Record<string, string> = {};
+for (const [region, codes] of Object.entries(LANGUAGE_REGIONS)) {
+  for (const code of codes) {
+    LANG_TO_REGION[code] = region;
+  }
+}
+
 interface LocaleSelectorProps {
   compact?: boolean;
 }
@@ -83,6 +98,8 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
 
     if (desktopMenu) {
       document.addEventListener('mousedown', onClickOutside);
+    } else {
+      setLangSearch('');
     }
 
     return () => {
@@ -149,6 +166,18 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
       (data.native || '').toLowerCase().includes(q) ||
       (data.name || '').toLowerCase().includes(q)
     );
+  }, [languages, langSearch]);
+
+  // Group languages by region (only when not searching)
+  const groupedLanguages = useMemo(() => {
+    if (langSearch.trim()) return null; // flat list when searching
+    const groups: Record<string, [string, any][]> = {};
+    for (const [code, data] of Object.entries(languages)) {
+      const region = LANG_TO_REGION[code] || 'Otros';
+      if (!groups[region]) groups[region] = [];
+      groups[region].push([code, data]);
+    }
+    return groups;
   }, [languages, langSearch]);
 
   const handleLanguageChange = async (code: string) => {
@@ -319,22 +348,44 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
                 />
               </div>
               <div className="overflow-y-auto max-h-[55vh] py-2">
-                <div className="space-y-1">
-                  {filteredLanguages.map(([code, data]: [string, any]) => (
-                    <button
-                      key={code}
-                      onClick={() => { handleLanguageChange(code); setLangSearch(''); }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors ${
-                        language === code ? 'bg-stone-100 border border-stone-200' : 'hover:bg-stone-100'
-                      }`}
-                      data-testid={`mobile-option-${code}`}
-                    >
-                      <span className="uppercase font-bold text-sm w-8 text-stone-600">{code}</span>
-                      <span className="flex-1 text-left font-medium">{data.native}</span>
-                      {language === code && <Check className="w-5 h-5 text-stone-950 ml-auto" />}
-                    </button>
-                  ))}
-                </div>
+                {groupedLanguages && !langSearch.trim() ? (
+                  Object.entries(groupedLanguages).map(([region, items]) => (
+                    <div key={region} className="mb-3">
+                      <div className="px-4 py-1 text-[11px] uppercase tracking-wider text-stone-400 font-semibold">{region}</div>
+                      <div className="space-y-0.5">
+                        {items.map(([code, data]: [string, any]) => (
+                          <button
+                            key={code}
+                            onClick={() => { handleLanguageChange(code); setLangSearch(''); }}
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-colors ${
+                              language === code ? 'bg-stone-100 border border-stone-200' : 'hover:bg-stone-100'
+                            }`}
+                          >
+                            <span className="uppercase font-bold text-sm w-8 text-stone-600">{code}</span>
+                            <span className="flex-1 text-left font-medium">{data.native}</span>
+                            {language === code && <Check className="w-5 h-5 text-stone-950 ml-auto" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="space-y-0.5">
+                    {filteredLanguages.map(([code, data]: [string, any]) => (
+                      <button
+                        key={code}
+                        onClick={() => { handleLanguageChange(code); setLangSearch(''); }}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-colors ${
+                          language === code ? 'bg-stone-100 border border-stone-200' : 'hover:bg-stone-100'
+                        }`}
+                      >
+                        <span className="uppercase font-bold text-sm w-8 text-stone-600">{code}</span>
+                        <span className="flex-1 text-left font-medium">{data.native}</span>
+                        {language === code && <Check className="w-5 h-5 text-stone-950 ml-auto" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </DialogContent>
           </Dialog>
@@ -425,28 +476,49 @@ export default function LocaleSelector({ compact = false }: LocaleSelectorProps)
           </DesktopMenu>
 
           <DesktopMenu isOpen={desktopMenu === 'language'} title={t('locale.selectLanguage')}>
-            <div className="relative mb-2">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
-              <input
-                type="text"
-                value={langSearch}
-                onChange={(e) => setLangSearch(e.target.value)}
-                placeholder={t('common.search') || 'Search...'}
-                className="w-full pl-8 pr-2 py-1.5 rounded-xl border border-stone-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-stone-400"
-              />
+            <div className="sticky top-0 bg-white z-10 pb-1">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
+                <input
+                  type="text"
+                  value={langSearch}
+                  onChange={(e) => setLangSearch(e.target.value)}
+                  placeholder={t('common.search') || 'Search...'}
+                  className="w-full pl-8 pr-2 py-1.5 rounded-xl border border-stone-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-stone-400"
+                  autoFocus
+                />
+              </div>
             </div>
-            {filteredLanguages.map(([code, data]: [string, any]) => (
-              <button
-                key={code}
-                onClick={() => { handleLanguageChange(code); setLangSearch(''); }}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-2xl text-left text-sm ${language === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
-                data-testid={`language-option-${code}`}
-              >
-                <span className="uppercase font-semibold text-xs w-7">{code}</span>
-                <span className="flex-1">{data.native}</span>
-                {language === code && <Check className="w-4 h-4 text-stone-950" />}
-              </button>
-            ))}
+            {groupedLanguages && !langSearch.trim() ? (
+              Object.entries(groupedLanguages).map(([region, items]) => (
+                <div key={region} className="mb-1">
+                  <div className="px-2.5 py-1 text-[10px] uppercase tracking-wider text-stone-400 font-semibold">{region}</div>
+                  {items.map(([code, data]: [string, any]) => (
+                    <button
+                      key={code}
+                      onClick={() => { handleLanguageChange(code); setLangSearch(''); }}
+                      className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-2xl text-left text-sm ${language === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
+                    >
+                      <span className="uppercase font-semibold text-xs w-7">{code}</span>
+                      <span className="flex-1">{data.native}</span>
+                      {language === code && <Check className="w-4 h-4 text-stone-950" />}
+                    </button>
+                  ))}
+                </div>
+              ))
+            ) : (
+              filteredLanguages.map(([code, data]: [string, any]) => (
+                <button
+                  key={code}
+                  onClick={() => { handleLanguageChange(code); setLangSearch(''); }}
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-2xl text-left text-sm ${language === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
+                >
+                  <span className="uppercase font-semibold text-xs w-7">{code}</span>
+                  <span className="flex-1">{data.native}</span>
+                  {language === code && <Check className="w-4 h-4 text-stone-950" />}
+                </button>
+              ))
+            )}
           </DesktopMenu>
 
           <DesktopMenu isOpen={desktopMenu === 'currency'} title={t('locale.selectCurrency')}>
