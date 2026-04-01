@@ -538,7 +538,7 @@ async def get_exchange_rates():
         logger.error(f"[Exchange Rates] Error: {e}")
     if exchange_rate_cache["rates"]:
         return {"base": "EUR", "rates": exchange_rate_cache["rates"], "updated_at": exchange_rate_cache["updated_at"].isoformat() if exchange_rate_cache["updated_at"] else None, "stale": True}
-    fallback = {"USD": 1.08, "GBP": 0.85, "JPY": 161.0, "CNY": 7.78, "INR": 89.5, "KRW": 1450.0, "AED": 3.97, "BRL": 5.35, "CAD": 1.47, "AUD": 1.65, "RUB": 99.0, "MXN": 18.5, "EUR": 1.0}
+    fallback = {"USD": 1.08, "GBP": 0.85, "JPY": 161.0, "CNY": 7.78, "INR": 89.5, "KRW": 1450.0, "AED": 3.97, "BRL": 5.35, "CAD": 1.47, "AUD": 1.65, "RUB": 99.0, "MXN": 18.5, "CHF": 0.97, "SEK": 11.2, "NOK": 11.5, "PLN": 4.3, "TRY": 35.0, "SGD": 1.45, "THB": 38.0, "ZAR": 19.5, "NGN": 1650.0, "EGP": 52.0, "EUR": 1.0}
     return {"base": "EUR", "rates": fallback, "updated_at": datetime.now(timezone.utc).isoformat(), "fallback": True}
 
 
