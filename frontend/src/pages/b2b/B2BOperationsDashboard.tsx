@@ -24,8 +24,8 @@ const STATUS_MAP = {
 };
 
 /* ── Helpers ── */
-const formatPrice = (v) =>
-  new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(v ?? 0);
+const formatPrice = (v, cur = 'EUR') =>
+  new Intl.NumberFormat(undefined, { style: 'currency', currency: cur }).format(v ?? 0);
 
 const formatRelativeDate = (dateStr) => {
   if (!dateStr) return '';

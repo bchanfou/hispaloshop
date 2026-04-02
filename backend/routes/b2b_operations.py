@@ -424,6 +424,37 @@ async def reject_offer(
 
 
 # ---------------------------------------------------------------------------
+# Cancel operation
+# ---------------------------------------------------------------------------
+
+@router.patch("/{operation_id}/cancel")
+async def cancel_operation(operation_id: str, user: User = Depends(get_current_user)):
+    """Cancel a B2B operation. Only buyer or seller can cancel before payment."""
+    await require_role(user, ["producer", "importer"])
+    oid = _to_oid(operation_id)
+    op = await db.b2b_operations.find_one({"_id": oid})
+    if not op:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    # Only participants can cancel
+    if user.user_id not in (op.get("buyer_id"), op.get("seller_id")):
+        raise HTTPException(status_code=403, detail="Not a participant")
+
+    # Cannot cancel after payment
+    non_cancellable = {"payment_confirmed", "in_transit", "delivered", "completed", "disputed"}
+    if op.get("status") in non_cancellable:
+        raise HTTPException(status_code=400, detail=f"Cannot cancel operation in status '{op['status']}'")
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.b2b_operations.update_one(
+        {"_id": oid},
+        {"$set": {"status": "cancelled", "cancelled_by": user.user_id, "updated_at": now}},
+    )
+    updated = await db.b2b_operations.find_one({"_id": oid})
+    return _serialize_operation(updated)
+
+
+# ---------------------------------------------------------------------------
 # Contract generation (manual trigger)
 # ---------------------------------------------------------------------------
 

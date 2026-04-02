@@ -159,7 +159,7 @@ async def create_b2b_payment(
         intent = stripe.PaymentIntent.create(
             amount=buyer_total_cents,
             currency=currency,
-            capture_method="manual",
+            capture_method="automatic",
             metadata={
                 "type": "b2b",
                 "operation_id": operation_id,

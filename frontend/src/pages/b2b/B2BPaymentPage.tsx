@@ -105,16 +105,23 @@ export default function B2BPaymentPage() {
         const StripeFactory = await loadStripeJs();
         if (cancelled) return;
 
-        const { data } = await apiClient.post(`/b2b/operations/${operationId}/pay`, {
+        const payRes = await apiClient.post(`/b2b/operations/${operationId}/pay`, {
           payment_type: paymentType,
         });
+        const payData = payRes?.data ?? payRes;
         if (cancelled) return;
+
+        // Net30/Net60 with 0 deposit — no payment needed now
+        if (!payData?.client_secret) {
+          setPaymentSuccess(true);
+          return;
+        }
 
         const stripe = StripeFactory(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
         stripeRef.current = stripe;
 
         const elements = stripe.elements({
-          clientSecret: data.client_secret,
+          clientSecret: payData.client_secret,
           appearance: {
             theme: 'stripe',
             variables: {
@@ -129,7 +136,7 @@ export default function B2BPaymentPage() {
         const paymentElement = elements.create('payment');
         if (paymentRef.current) paymentElement.mount(paymentRef.current);
 
-        setSuccessAmount(data.amount);
+        setSuccessAmount(payData.amount);
       } catch (err) {
         captureException(err);
         if (!cancelled) {
