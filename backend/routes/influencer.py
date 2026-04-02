@@ -752,10 +752,13 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
 
     now = datetime.now(timezone.utc)
 
-    # Atomic lock: prevent concurrent withdrawals by the same influencer.
-    # Only proceeds if no withdrawal is currently being processed.
+    # Atomic lock: prevent concurrent withdrawals. TTL: 5 minutes (auto-release stale locks).
+    stale_cutoff = (now - timedelta(minutes=5)).isoformat()
     lock_result = await db.influencers.update_one(
-        {"influencer_id": influencer["influencer_id"], "withdrawal_in_progress": {"$ne": True}},
+        {"influencer_id": influencer["influencer_id"], "$or": [
+            {"withdrawal_in_progress": {"$ne": True}},
+            {"withdrawal_lock_at": {"$lt": stale_cutoff}},  # Stale lock — release
+        ]},
         {"$set": {"withdrawal_in_progress": True, "withdrawal_lock_at": now.isoformat()}}
     )
     if lock_result.matched_count == 0:
@@ -863,6 +866,30 @@ async def _execute_withdrawal(db, influencer, user, request, now):
         }
         await db.influencer_withdrawals.insert_one(withdrawal_record)
 
+        # For SEPA/bank transfers: also create a manual_payout record for admin processing
+        if withdrawal_status == "pending_bank_transfer" and bank_iban:
+            await db.manual_payouts.insert_one({
+                "payout_id": f"payout_{uuid.uuid4().hex[:12]}",
+                "producer_id": influencer["influencer_id"],
+                "producer_name": influencer.get("full_name", user.name or ""),
+                "producer_email": user.email or "",
+                "amount": round(net_amount, 2),
+                "currency": "EUR",
+                "bank_details": {
+                    "account_holder": bank_holder,
+                    "bank_name": "SEPA",
+                    "country": influencer.get("fiscal_status", {}).get("tax_country", "ES"),
+                    "iban": bank_iban,
+                    "swift_bic": bank_bic or "",
+                    "currency": "EUR",
+                    "notes": f"Influencer withdrawal {withdrawal_record['withdrawal_id']}",
+                },
+                "status": "pending",
+                "requested_at": now.isoformat(),
+                "processed_at": None,
+                "admin_notes": "",
+            })
+
         if gross_amount >= available_balance:
             await db.influencer_commissions.update_many(
                 {"commission_id": {"$in": eligible_commission_ids}},
@@ -878,16 +905,18 @@ async def _execute_withdrawal(db, influencer, user, request, now):
                 if comm["commission_id"] not in eligible_commission_ids or remaining <= 0:
                     continue
                 comm_amount = comm.get("commission_amount", 0)
-                if comm_amount <= remaining:
-                    await db.influencer_commissions.update_one(
-                        {"commission_id": comm["commission_id"]},
-                        {"$set": {
-                            "commission_status": "paid",
-                            "paid_at": now.isoformat(),
-                            "stripe_transfer_id": transfer_id
-                        }}
-                    )
-                    remaining -= comm_amount
+                # Mark as paid even if commission exceeds remaining (partial coverage)
+                await db.influencer_commissions.update_one(
+                    {"commission_id": comm["commission_id"]},
+                    {"$set": {
+                        "commission_status": "paid",
+                        "paid_at": now.isoformat(),
+                        "stripe_transfer_id": transfer_id
+                    }}
+                )
+                remaining -= comm_amount
+                if remaining <= 0:
+                    break
 
         new_balance = max(0, influencer.get("available_balance", 0) - gross_amount)
         await db.influencers.update_one(
@@ -1304,11 +1333,17 @@ async def get_influencer_payouts(user: User = Depends(get_current_user)):
 
     payouts = []
     for wd in withdrawals:
-        # Count commissions in this withdrawal
+        # Count commissions in this withdrawal (works for both Stripe and SEPA)
         comm_count = 0
         if wd.get("stripe_transfer_id"):
             comm_count = await db.influencer_commissions.count_documents({
                 "stripe_transfer_id": wd["stripe_transfer_id"],
+            })
+        elif wd.get("withdrawal_id"):
+            # SEPA withdrawals: count commissions paid around the same time
+            comm_count = await db.influencer_commissions.count_documents({
+                "influencer_id": wd["influencer_id"],
+                "paid_at": wd.get("created_at"),
             })
 
         payouts.append({
@@ -1396,7 +1431,7 @@ async def process_influencer_payouts():
     # Find all influencers with pending commissions where payment_available_date has passed
     influencers = await db.influencers.find(
         {"status": "active", "stripe_onboarding_complete": True},
-        {"_id": 0, "influencer_id": 1, "stripe_account_id": 1},
+        {"_id": 0, "influencer_id": 1, "stripe_account_id": 1, "fiscal_status": 1},
     ).to_list(1000)
 
     for inf in influencers:
@@ -1415,15 +1450,25 @@ async def process_influencer_payouts():
         if not eligible:
             continue
 
-        total = sum(c.get("commission_amount", 0) for c in eligible)
-        if total < 20:
+        gross_amount = sum(c.get("commission_amount", 0) for c in eligible)
+        if gross_amount < 20:
             continue  # Below minimum
 
         comm_ids = [c["commission_id"] for c in eligible]
 
+        # Apply fiscal withholding (IRPF) like self-service withdrawal
+        fiscal = inf.get("fiscal_status", {})
+        withholding_pct = fiscal.get("withholding_pct", 0) if fiscal.get("certificate_verified") else 0
+        withholding_amount = round(gross_amount * withholding_pct / 100, 2)
+        transfer_fee = 0.25  # Stripe transfer fee
+        net_amount = round(gross_amount - withholding_amount - transfer_fee, 2)
+
+        if net_amount < 20:
+            continue  # Below minimum after deductions
+
         try:
             transfer = stripe.Transfer.create(
-                amount=int(round(total * 100)),
+                amount=int(round(net_amount * 100)),
                 currency="eur",
                 destination=stripe_account,
                 transfer_group=f"INFLUENCER_{inf_id}_{now.strftime('%Y%m')}",
@@ -1431,6 +1476,8 @@ async def process_influencer_payouts():
                     "influencer_id": inf_id,
                     "type": "influencer_auto_payout",
                     "period": now.strftime("%Y-%m"),
+                    "gross": str(gross_amount),
+                    "withholding": str(withholding_amount),
                 },
                 idempotency_key=f"auto_payout_{inf_id}_{now.strftime('%Y%m%d')}",
             )
@@ -1443,33 +1490,51 @@ async def process_influencer_payouts():
                     "stripe_transfer_id": transfer.id,
                 }},
             )
-            # Record withdrawal
+            # Record withdrawal (with withholding details)
             await db.influencer_withdrawals.insert_one({
                 "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
                 "influencer_id": inf_id,
-                "amount": round(total, 2),
+                "gross_amount": round(gross_amount, 2),
+                "withholding_amount_eur": round(withholding_amount, 2),
+                "fee_amount_eur": transfer_fee,
+                "net_amount": round(net_amount, 2),
+                "amount": round(net_amount, 2),
                 "payout_method": "stripe",
                 "stripe_transfer_id": transfer.id,
                 "status": "completed",
                 "created_at": now_iso,
                 "completed_at": now_iso,
             })
+            # Record withholding for tax reporting (Modelo 190)
+            if withholding_amount > 0:
+                quarter = (now.month - 1) // 3 + 1
+                await db.withholding_records.insert_one({
+                    "influencer_id": inf_id,
+                    "year": now.year,
+                    "quarter": quarter,
+                    "gross_amount": round(gross_amount, 2),
+                    "withholding_pct": withholding_pct,
+                    "withholding_amount": round(withholding_amount, 2),
+                    "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
+                    "created_at": now_iso,
+                    "source": "auto_payout",
+                })
             # Update balance
             await db.influencers.update_one(
                 {"influencer_id": inf_id},
-                {"$inc": {"available_balance": -total}},
+                {"$inc": {"available_balance": -gross_amount}},
             )
             # Notify
             from routes.notifications import create_notification
             await create_notification(
                 user_id=inf_id,
                 title="Cobro enviado",
-                body=f"{total:.2f}€ enviados a tu cuenta bancaria",
+                body=f"{net_amount:.2f}€ enviados a tu cuenta bancaria" + (f" (retención {withholding_pct}%: {withholding_amount:.2f}€)" if withholding_amount > 0 else ""),
                 notification_type="payout_sent",
-                data={"amount": total},
+                data={"amount": net_amount, "gross": gross_amount},
                 action_url="/influencer/dashboard",
             )
-            logger.info(f"[PAYOUT] Auto-payout {total:.2f}€ to influencer {inf_id}")
+            logger.info(f"[PAYOUT] Auto-payout {net_amount:.2f}€ (gross {gross_amount:.2f}€, IRPF {withholding_amount:.2f}€) to influencer {inf_id}")
 
         except Exception as e:
             await db.influencer_commissions.update_many(

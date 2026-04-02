@@ -176,9 +176,11 @@ async def configure_payout_method(request: Request, user: User = Depends(get_cur
                 raise HTTPException(status_code=503, detail="Stripe no está configurado")
 
             origin = body.get("origin", FRONTEND_URL).rstrip("/")
+            # Use influencer's tax country for Stripe Express account
+            tax_country = influencer.get("fiscal_status", {}).get("tax_country", "ES")
             account = stripe.Account.create(
                 type="express",
-                country="ES",
+                country=tax_country,
                 email=user.email,
                 capabilities={"transfers": {"requested": True}},
                 metadata={

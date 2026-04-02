@@ -156,6 +156,7 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
         "commission_id": f"comm_{uuid.uuid4().hex[:12]}",
         "influencer_id": influencer_id,
         "order_id": order_id,
+        "consumer_id": order.get("user_id", ""),
         "discount_code": order.get("influencer_discount_code"),
         "order_total": _round_money(order.get("total_amount", 0)),
         "order_value": order_value,
