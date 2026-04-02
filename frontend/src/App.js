@@ -88,6 +88,8 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const ContactPage = lazy(() => import('./pages/informativas/ContactPage'));
 const LegalPage = lazy(() => import('./pages/informativas/LegalPage'));
+const ContactoPage = lazy(() => import('./pages/informativas/ContactoPage'));
+const LegalPageNew = lazy(() => import('./pages/informativas/LegalPageNew'));
 const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'));
 const LoyaltyPage = lazy(() => import('./pages/LoyaltyPage'));
@@ -193,6 +195,13 @@ const ChatToastContainer = lazy(() => import('./components/notifications/ChatToa
 // Landing pages
 const LandingPage = lazy(() => import('./pages/landings/Landing'));
 const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
+// New Aesop-style landing pages (Fase 2)
+const InfoLandingLayout = lazy(() => import('./components/informativas/InfoLandingLayout'));
+const LandingGeneral = lazy(() => import('./pages/informativas/LandingGeneral'));
+const LandingProductor = lazy(() => import('./pages/informativas/LandingProductor'));
+const LandingInfluencer = lazy(() => import('./pages/informativas/LandingInfluencer'));
+const LandingDistribuidor = lazy(() => import('./pages/informativas/LandingDistribuidor'));
+const LandingConsumidor = lazy(() => import('./pages/informativas/LandingConsumidor'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
 const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
 const ImporterCertificatesPage = lazy(() => import('./pages/importer/ImporterCertificatesPage'));
@@ -365,20 +374,26 @@ function AppRouter() {
               <Route path="/" element={<HomeRoute />} />
               <Route path="/about" element={<Navigate to="/que-es" replace />} />
               <Route path="/pricing" element={<Navigate to="/que-es" replace />} />
+              {/* New Aesop-style landing pages */}
+              <Route path="/consumidor" element={<InfoLandingLayout><LandingConsumidor /></InfoLandingLayout>} />
+              <Route path="/informativas/consumidor" element={<Navigate to="/consumidor" replace />} />
+              <Route path="/distribuidor" element={<InfoLandingLayout><LandingDistribuidor /></InfoLandingLayout>} />
+              <Route path="/informativas/distribuidor" element={<Navigate to="/distribuidor" replace />} />
+              <Route path="/landing/general" element={<InfoLandingLayout><LandingGeneral /></InfoLandingLayout>} />
               <Route path="/vender" element={<Navigate to="/productor" replace />} />
-              <Route path="/productor" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
-              <Route path="/informativas/ForProducers" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
-              <Route path="/informativas/productor" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
-              <Route path="/informativas/soy-productor" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
-              <Route path="/productor/registro" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
+              <Route path="/productor" element={<InfoLandingLayout><LandingProductor /></InfoLandingLayout>} />
+              <Route path="/informativas/ForProducers" element={<Navigate to="/productor" replace />} />
+              <Route path="/informativas/productor" element={<Navigate to="/productor" replace />} />
+              <Route path="/informativas/soy-productor" element={<Navigate to="/productor" replace />} />
+              <Route path="/productor/registro" element={<Navigate to="/productor" replace />} />
               <Route path="/info/productor" element={<Navigate to="/productor" replace />} />
               <Route path="/registro/productor" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/vender/registro" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/vender/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
               <Route path="/vender/planes" element={<Navigate to="/productor" replace />} />
-              <Route path="/influencers" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
-              <Route path="/influencer" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
-              <Route path="/influencer/aplicar" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
+              <Route path="/influencers" element={<Navigate to="/influencer" replace />} />
+              <Route path="/influencer" element={<InfoLandingLayout><LandingInfluencer /></InfoLandingLayout>} />
+              <Route path="/influencer/aplicar" element={<Navigate to="/influencer" replace />} />
               <Route path="/influencers/aplicar" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/influencers/registro" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/influencers/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
@@ -453,11 +468,11 @@ function AppRouter() {
               <Route path="/affiliate-old" element={<Navigate to="/influencer" replace />} />
               <Route path="/affiliate-program" element={<Navigate to="/influencer" replace />} />
               <Route path="/ser-productor" element={<Navigate to="/productor" replace />} />
-              <Route path="/importador" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
-              <Route path="/informativas/ForImporters" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
-              <Route path="/informativas/importador" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
-              <Route path="/informativas/soy-importador" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
-              <Route path="/importer" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
+              <Route path="/importador" element={<Navigate to="/distribuidor" replace />} />
+              <Route path="/informativas/ForImporters" element={<Navigate to="/distribuidor" replace />} />
+              <Route path="/informativas/importador" element={<Navigate to="/distribuidor" replace />} />
+              <Route path="/informativas/soy-importador" element={<Navigate to="/distribuidor" replace />} />
+              <Route path="/importer" element={<Navigate to="/distribuidor" replace />} />
               <Route path="/importador/onboarding" element={<Navigate to="/importador?onboarding=1&plan=free" replace />} />
               <Route path="/importer/onboarding" element={<Navigate to="/importer?onboarding=1&plan=free" replace />} />
               <Route path="/ser-importador" element={<Navigate to="/importador" replace />} />
@@ -526,9 +541,9 @@ function AppRouter() {
               <Route path="/press" element={<Navigate to="/" replace />} />
               <Route path="/careers" element={<Navigate to="/" replace />} />
               <Route path="/contact" element={<Navigate to="/contacto" replace />} />
-              <Route path="/contacto" element={<InfoLayout><ContactPage /></InfoLayout>} />
+              <Route path="/contacto" element={<InfoLandingLayout><ContactoPage /></InfoLandingLayout>} />
               <Route path="/precios" element={<Navigate to="/que-es" replace />} />
-              <Route path="/legal/*" element={<InfoLayout><LegalPage /></InfoLayout>} />
+              <Route path="/legal/*" element={<InfoLandingLayout><LegalPageNew /></InfoLandingLayout>} />
               <Route
                 path="/pending-approval"
                 element={(

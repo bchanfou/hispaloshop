@@ -14,11 +14,17 @@ import {
   Receipt,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
-import { useTranslation } from 'react-i18next';
+
+const isSafeUrl = (url) => {
+  if (!url) return false;
+  try { const u = new URL(url); return u.protocol === 'http:' || u.protocol === 'https:'; } catch { return false; }
+};
 
 const fmtDate = (iso) => {
   if (!iso) return '\u2014';
-  return new Date(iso).toLocaleDateString('es-ES', {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '\u2014';
+  return d.toLocaleDateString('es-ES', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -38,7 +44,7 @@ function VerifyModal({ operationId, onClose }) {
     apiClient
       .get(`/documents/verify/${operationId}`)
       .then((data) => setResult(data))
-      .catch((e) => setError(e?.message || 'Error al verificar'))
+      .catch((e) => setError(e?.response?.data?.detail || e?.message || 'Error al verificar'))
       .finally(() => setLoading(false));
   }, [operationId]);
 
@@ -63,8 +69,8 @@ function VerifyModal({ operationId, onClose }) {
           </div>
         ) : error ? (
           <div className="flex flex-col items-center gap-3 py-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
-              <X size={24} className="text-red-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-200">
+              <X size={24} className="text-stone-700" />
             </div>
             <p className="text-sm font-semibold text-stone-950">{error}</p>
             <button
@@ -111,7 +117,7 @@ function VerifyModal({ operationId, onClose }) {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-950">
               <X size={28} className="text-white" strokeWidth={2.5} />
             </div>
             <p className="text-[15px] font-semibold text-stone-950">
@@ -120,7 +126,7 @@ function VerifyModal({ operationId, onClose }) {
             <p className="text-xs text-stone-500">
               El hash del documento no coincide con el registrado en el momento de la firma. Contacta con soporte.
             </p>
-            <div className="mt-1 w-full rounded-xl bg-red-50 p-3">
+            <div className="mt-1 w-full rounded-xl bg-stone-100 p-3">
               <div className="mb-2">
                 <p className="text-[10px] text-stone-500">Hash guardado</p>
                 <p className="mt-0.5 break-all font-mono text-[9px] text-stone-950">
@@ -129,7 +135,7 @@ function VerifyModal({ operationId, onClose }) {
               </div>
               <div>
                 <p className="text-[10px] text-stone-500">Hash actual</p>
-                <p className="mt-0.5 break-all font-mono text-[9px] text-red-600">
+                <p className="mt-0.5 break-all font-mono text-[9px] text-stone-600">
                   {result?.calculated_hash || '\u2014'}
                 </p>
               </div>
@@ -216,7 +222,7 @@ function ContractCard({ contract, onVerify }) {
       <div className="flex gap-2">
         {contract.pdf_url && (
           <button
-            onClick={() => window.open(contract.pdf_url, '_blank')}
+            onClick={() => isSafeUrl(contract.pdf_url) && window.open(contract.pdf_url, '_blank')}
             className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full bg-stone-950 text-xs font-semibold text-white"
           >
             <Download size={14} />
@@ -251,7 +257,7 @@ export default function SignedDocumentsPage() {
       apiClient.get('/verification/status').catch(() => null),
     ]).then(([contractsData, verificationData]) => {
       if (!active) return;
-      setContracts(contractsData?.contracts || []);
+      setContracts(Array.isArray(contractsData?.contracts) ? contractsData.contracts : []);
       const certs = verificationData?.documents?.certificates || [];
       setCertificates(Array.isArray(certs) ? certs : []);
     }).finally(() => {
@@ -347,7 +353,7 @@ export default function SignedDocumentsPage() {
                             cert.status === 'approved'
                               ? 'bg-stone-100 text-stone-950'
                               : cert.status === 'expired'
-                                ? 'bg-red-50 text-red-600'
+                                ? 'border border-stone-200 bg-white text-stone-400'
                                 : 'bg-stone-100 text-stone-500'
                           }`}
                         >
@@ -361,7 +367,7 @@ export default function SignedDocumentsPage() {
                       )}
                       {cert.url && (
                         <button
-                          onClick={() => window.open(cert.url, '_blank')}
+                          onClick={() => isSafeUrl(cert.url) && window.open(cert.url, '_blank')}
                           className="mt-3 flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-950"
                         >
                           <Download size={13} />

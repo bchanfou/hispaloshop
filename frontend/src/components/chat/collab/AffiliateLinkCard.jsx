@@ -54,6 +54,7 @@ export default function AffiliateLinkCard({ link, stats, onCopy }) {
 
       {/* Copy button */}
       <button
+        type="button"
         onClick={handleCopy}
         className="w-full flex items-center justify-center"
         style={{

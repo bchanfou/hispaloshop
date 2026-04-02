@@ -4416,5 +4416,594 @@
   },
   "collab_action": {
     "video": "Vídeo"
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "Pare de dar a sua margem ao intermediário",
+    "conectaConProductoresRealesSinInte": "Conecte-se com produtores reais. Sem intermediários. Sem mentiras.",
+    "nav": {
+      "consumidor": "Comprar",
+      "productor": "Vender",
+      "influencer": "Ganhar",
+      "distribuidor": "Distribuir",
+      "entrar": "Entrar",
+      "empiezaGratis": "Começar grátis",
+      "menu": "Menu"
+    },
+    "footer": {
+      "plataforma": "Plataforma",
+      "empresa": "Empresa",
+      "legal": "Legal",
+      "contacto": "Contacto",
+      "privacidad": "Privacidade",
+      "terminos": "Termos",
+      "cookies": "Cookies",
+      "tagline": "Direto do produtor à sua mesa. Sem intermediários."
+    },
+    "general": {
+      "hero": {
+        "eyebrow": "A comida tem história",
+        "title": "Compre diretamente de quem cultiva a sua comida",
+        "subtitle": "Uma plataforma onde cada produto tem rosto e nome. Sem intermediários. Comércio direto do campo à sua mesa.",
+        "ctaText": "Explorar produtos",
+        "ctaTo": "/discover",
+        "secondaryCtaText": "Sou produtor",
+        "secondaryCtaTo": "/productor"
+      },
+      "features": {
+        "eyebrow": "Porquê hispaloshop",
+        "title": "Tudo o que precisa num só lugar",
+        "items": [
+          {
+            "title": "Compra sem intermediários",
+            "description": "Cada produto vem diretamente do produtor. Preço justo para si, margem justa para quem o produz."
+          },
+          {
+            "title": "Conheça quem faz a sua comida",
+            "description": "Siga produtores, descubra o seu dia a dia e perceba o que está por detrás de cada produto."
+          },
+          {
+            "title": "Venda o que produz",
+            "description": "A sua loja online em minutos. Sem complicações técnicas. Você produz, nós conectamos."
+          },
+          {
+            "title": "Ganhe a recomendar",
+            "description": "Se a gastronomia é a sua paixão, torne-se embaixador e ganhe comissões por cada venda."
+          },
+          {
+            "title": "Importe e distribua",
+            "description": "Traga produtos do mundo para o seu mercado local. B2C e B2B numa só plataforma."
+          },
+          {
+            "title": "Comunidade real",
+            "description": "Não é apenas uma loja. É uma rede social onde a comida conecta pessoas."
+          }
+        ]
+      },
+      "roles": {
+        "eyebrow": "Para cada tipo de utilizador",
+        "title": "Quem é você no hispaloshop?",
+        "items": [
+          {
+            "role": "Consumidor",
+            "description": "Descubra produtos autênticos direto do produtor.",
+            "cta": "Explorar produtos",
+            "to": "/consumidor"
+          },
+          {
+            "role": "Produtor",
+            "description": "Abra a sua loja e venda sem intermediários.",
+            "cta": "Registar a minha loja",
+            "to": "/productor"
+          },
+          {
+            "role": "Influencer",
+            "description": "Recomende produtos e ganhe comissões.",
+            "cta": "Quero ser embaixador",
+            "to": "/influencer"
+          },
+          {
+            "role": "Distribuidor",
+            "description": "Traga produtos internacionais para o seu mercado.",
+            "cta": "Começar a vender",
+            "to": "/distribuidor"
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "Perguntas frequentes",
+        "title": "O que precisa de saber",
+        "items": [
+          {
+            "question": "O que é o hispaloshop?",
+            "answer": "É uma plataforma de comércio social onde produtores locais e importadores vendem diretamente ao consumidor final. Sem intermediários, sem margens ocultas."
+          },
+          {
+            "question": "É grátis para comprar?",
+            "answer": "Sim. Criar conta e comprar é completamente grátis. Só paga o produto e o envio."
+          },
+          {
+            "question": "Em que países está disponível?",
+            "answer": "Atualmente operamos em Espanha e na União Europeia, com expansão para Estados Unidos, Japão e Coreia do Sul."
+          },
+          {
+            "question": "Como ganham os influencers?",
+            "answer": "Os influencers recebem um código de desconto próprio e ganham comissão por cada venda realizada com o seu código."
+          },
+          {
+            "question": "Qual a diferença entre produtor e distribuidor?",
+            "answer": "O produtor fabrica ou cultiva o produto. O distribuidor importa produtos do estrangeiro e vende-os no mercado local, tanto B2C como B2B."
+          }
+        ]
+      },
+      "cta": {
+        "title": "Comece hoje. É grátis.",
+        "subtitle": "Junte-se à comunidade que conecta produtores com consumidores. Sem intermediários.",
+        "ctaText": "Criar conta grátis",
+        "ctaTo": "/register"
+      }
+    },
+    "consumidor": {
+      "hero": {
+        "eyebrow": "Para si que come com critério",
+        "title": "Descubra quem faz o que você come",
+        "subtitle": "Produtos diretos do produtor local. Preço justo, frescura real, rastreabilidade total.",
+        "ctaText": "Explorar produtos",
+        "ctaTo": "/discover",
+        "secondaryCtaText": "Como funciona",
+        "secondaryCtaTo": ""
+      },
+      "features": {
+        "eyebrow": "Vantagens",
+        "title": "Comprar assim faz sentido",
+        "items": [
+          {
+            "title": "Sem intermediários",
+            "description": "O preço que paga vai diretamente ao produtor. Sem margens de distribuidores nem supermercados."
+          },
+          {
+            "title": "Rastreabilidade total",
+            "description": "Sabe quem faz, onde e como. Cada produto tem uma história que pode seguir."
+          },
+          {
+            "title": "Frescura garantida",
+            "description": "Do campo à sua mesa no menor tempo possível. Sem armazéns intermédios."
+          },
+          {
+            "title": "Siga os seus produtores",
+            "description": "Como numa rede social: siga produtores, veja as novidades e compre quando quiser."
+          }
+        ]
+      },
+      "steps": {
+        "eyebrow": "Como funciona",
+        "title": "Três passos para comer melhor",
+        "items": [
+          {
+            "title": "Explore",
+            "description": "Descubra produtores locais, navegue por categorias ou procure aquele produto que tanto gosta."
+          },
+          {
+            "title": "Compre",
+            "description": "Adicione ao carrinho, pague de forma segura. O produtor prepara o seu pedido na hora."
+          },
+          {
+            "title": "Receba",
+            "description": "O produtor envia diretamente à sua porta. Frescos, sem rodeios, sem armazéns."
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "Perguntas frequentes",
+        "title": "Dúvidas habituais",
+        "items": [
+          {
+            "question": "Como chega o pedido?",
+            "answer": "Cada produtor gere o seu próprio envio. Os prazos dependem do produtor e da sua localização, normalmente entre 2 e 5 dias."
+          },
+          {
+            "question": "Posso devolver um produto?",
+            "answer": "Sim. Tem direito a devolução segundo a legislação vigente. Contacte diretamente o produtor ou o nosso suporte."
+          },
+          {
+            "question": "É seguro pagar?",
+            "answer": "Totalmente. Usamos gateways de pagamento certificados com encriptação SSL. Os seus dados bancários nunca são armazenados."
+          },
+          {
+            "question": "Quanto custa criar conta?",
+            "answer": "Nada. Registar-se e comprar é completamente grátis."
+          }
+        ]
+      },
+      "cta": {
+        "title": "A sua próxima compra, direto do campo",
+        "subtitle": "Sem intermediários, sem histórias. Comida de verdade de gente de verdade.",
+        "ctaText": "Explorar produtos",
+        "ctaTo": "/discover"
+      }
+    },
+    "productor": {
+      "hero": {
+        "eyebrow": "Para produtores e artesãos",
+        "title": "O seu produto merece chegar sem intermediários",
+        "subtitle": "Abra a sua loja online em minutos. Conte a sua história. Venda diretamente a quem valoriza o que faz.",
+        "ctaText": "Registar a minha loja",
+        "ctaTo": "/register?role=producer",
+        "secondaryCtaText": "Ver planos",
+        "secondaryCtaTo": "/productor#planes"
+      },
+      "features": {
+        "eyebrow": "Vantagens para o produtor",
+        "title": "Tudo o que precisa para vender",
+        "items": [
+          {
+            "title": "A sua loja em minutos",
+            "description": "Carregue os seus produtos, personalize o seu perfil e comece a vender. Sem conhecimentos técnicos, sem programadores."
+          },
+          {
+            "title": "Preço justo, margem sua",
+            "description": "Você decide o preço. Sem intermediários a ficar com parte. Comissões transparentes segundo o seu plano."
+          },
+          {
+            "title": "Comunidade que o segue",
+            "description": "Os clientes seguem-no como numa rede social. Publique novidades, conte o seu dia a dia e fidelize."
+          },
+          {
+            "title": "Gestão de pedidos",
+            "description": "Painel de pedidos, notificações em tempo real, histórico completo. Tudo a partir do seu telemóvel."
+          },
+          {
+            "title": "Analytics da sua loja",
+            "description": "Visualizações, vendas, produtos mais vistos. Dados reais para tomar decisões."
+          },
+          {
+            "title": "Colabore com influencers",
+            "description": "Criadores de conteúdo gastronómico promovem os seus produtos. Você ganha visibilidade, eles comissões."
+          }
+        ]
+      },
+      "steps": {
+        "eyebrow": "Como funciona",
+        "title": "Do seu campo à mesa do cliente",
+        "items": [
+          {
+            "title": "Registe-se grátis",
+            "description": "Crie a sua conta de produtor em menos de 2 minutos. Sem compromisso, sem cartão de crédito."
+          },
+          {
+            "title": "Configure a sua loja",
+            "description": "Carregue fotos, descreva os seus produtos, defina preços e zonas de envio."
+          },
+          {
+            "title": "Comece a vender",
+            "description": "A sua loja fica visível desde o primeiro dia. Receba pedidos, prepare-os e envie diretamente."
+          }
+        ]
+      },
+      "plans": {
+        "eyebrow": "Planos",
+        "title": "Escolha o plano que se adapta a si",
+        "items": [
+          {
+            "name": "FREE",
+            "price": "0€",
+            "period": "/mês",
+            "description": "Para começar sem compromisso",
+            "features": ["Até 10 produtos", "Painel de pedidos", "Perfil de loja", "Suporte por email"]
+          },
+          {
+            "name": "PRO",
+            "price": "19€",
+            "period": "/mês",
+            "description": "Para produtores em crescimento",
+            "features": ["Produtos ilimitados", "Analytics avançado", "Colaboração com influencers", "Suporte prioritário", "Certificações visíveis"]
+          },
+          {
+            "name": "ELITE",
+            "price": "49€",
+            "period": "/mês",
+            "description": "Para marcas e cooperativas",
+            "features": ["Tudo do PRO", "Venda B2B", "API personalizada", "Account manager dedicado", "Prioridade na pesquisa"]
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "Perguntas frequentes",
+        "title": "Resolvemos as suas dúvidas",
+        "items": [
+          {
+            "question": "Quanto custa registar-se?",
+            "answer": "Registar-se é grátis. O plano FREE permite começar a vender sem custo. Só paga comissão por venda realizada."
+          },
+          {
+            "question": "Quem trata do envio?",
+            "answer": "Você gere o envio diretamente ao cliente. Pode usar o seu próprio transportador ou configurar recolha no local."
+          },
+          {
+            "question": "Como recebo as minhas vendas?",
+            "answer": "Os pagamentos são liquidados automaticamente na sua conta bancária. Pode configurar liquidações semanais ou mensais."
+          },
+          {
+            "question": "Preciso de ser empresa?",
+            "answer": "Pode vender como trabalhador independente ou como empresa. Pedimos dados fiscais para faturação, mas o processo é simples."
+          },
+          {
+            "question": "Posso vender noutros países?",
+            "answer": "Sim. Segundo o seu plano, pode configurar envio nacional e internacional. A plataforma traduz-se automaticamente para o idioma do comprador."
+          }
+        ]
+      },
+      "cta": {
+        "title": "A sua história merece ser contada",
+        "subtitle": "Abra a sua loja e comece a vender hoje. Sem complicações.",
+        "ctaText": "Registar a minha loja grátis",
+        "ctaTo": "/register?role=producer"
+      }
+    },
+    "influencer": {
+      "hero": {
+        "eyebrow": "Para criadores gastronómicos",
+        "title": "Recomende o que gosta e ganhe por cada venda",
+        "subtitle": "O seu código de desconto, as suas comissões, o seu dashboard. Sem inventário, sem envios, sem complicações.",
+        "ctaText": "Quero ser embaixador",
+        "ctaTo": "/register?role=influencer"
+      },
+      "features": {
+        "eyebrow": "Como ganha",
+        "title": "A sua influência, o seu rendimento",
+        "items": [
+          {
+            "title": "Código de desconto próprio",
+            "description": "Receba um código único para partilhar com a sua audiência. Cada compra com o seu código gera comissão para si."
+          },
+          {
+            "title": "Comissões por venda",
+            "description": "Ganhe uma percentagem de cada venda realizada com o seu código. Sem limite de ganhos."
+          },
+          {
+            "title": "Dashboard de desempenho",
+            "description": "Visualize em tempo real: cliques, vendas, conversão e ganhos acumulados."
+          },
+          {
+            "title": "Levante quando quiser",
+            "description": "Solicite o levantamento dos seus ganhos a qualquer momento. Transferência direta para a sua conta."
+          }
+        ]
+      },
+      "steps": {
+        "eyebrow": "Como funciona",
+        "title": "Três passos para começar a ganhar",
+        "items": [
+          {
+            "title": "Candidate-se como embaixador",
+            "description": "Registe-se grátis e conte-nos sobre o seu perfil. Analisamos a sua candidatura em menos de 48 horas."
+          },
+          {
+            "title": "Partilhe o seu código",
+            "description": "Receba o seu código de desconto e partilhe-o nas redes, stories, vídeos ou onde se conecta com a sua audiência."
+          },
+          {
+            "title": "Receba as suas comissões",
+            "description": "Cada venda com o seu código gera comissão automática. Consulte o seu saldo e levante quando quiser."
+          }
+        ]
+      },
+      "audience": {
+        "eyebrow": "Para quem é",
+        "title": "Encaixa-se no programa?",
+        "items": [
+          {
+            "title": "Foodies e gastrónomos",
+            "description": "Se a comida é a sua paixão e a sua audiência confia nas suas recomendações."
+          },
+          {
+            "title": "Nutricionistas e coaches",
+            "description": "Se recomenda alimentação saudável e produtos de qualidade aos seus clientes."
+          },
+          {
+            "title": "Criadores de conteúdo",
+            "description": "Se cria receitas, reviews ou conteúdo gastronómico em qualquer plataforma."
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "Perguntas frequentes",
+        "title": "O que precisa de saber",
+        "items": [
+          {
+            "question": "Quanto ganho por venda?",
+            "answer": "A comissão varia segundo o seu tier e o produto. Começa a partir de 5% e pode chegar até 15% segundo o seu desempenho."
+          },
+          {
+            "question": "Preciso de muitos seguidores?",
+            "answer": "Não. Valorizamos a qualidade da sua audiência e a sua conexão com ela, não apenas os números. Micro-influencers são bem-vindos."
+          },
+          {
+            "question": "Como e quando recebo?",
+            "answer": "Pode solicitar o levantamento dos seus ganhos acumulados a qualquer momento. São transferidos por SEPA para a sua conta bancária."
+          },
+          {
+            "question": "Tenho de comprar os produtos?",
+            "answer": "Não. Partilha o seu código e os clientes compram diretamente ao produtor. Não gere stock nem envios."
+          }
+        ]
+      },
+      "cta": {
+        "title": "A sua voz tem valor. Monetize-a.",
+        "subtitle": "Junte-se ao programa de embaixadores e ganhe a recomendar comida de verdade.",
+        "ctaText": "Candidatar-me como embaixador",
+        "ctaTo": "/register?role=influencer"
+      }
+    },
+    "distribuidor": {
+      "hero": {
+        "eyebrow": "Para distribuidores e importadores",
+        "title": "Traga produtos do mundo para o seu mercado local",
+        "subtitle": "A sua loja online para vender ao consumidor final. E se quiser, também por grosso. Tudo num só lugar.",
+        "ctaText": "Começar a vender",
+        "ctaTo": "/register?role=importer",
+        "secondaryCtaText": "Ver vantagens B2B",
+        "secondaryCtaTo": "/distribuidor#b2b"
+      },
+      "features": {
+        "eyebrow": "A sua montra completa",
+        "title": "B2C e B2B numa só plataforma",
+        "items": [
+          {
+            "title": "Venda direta ao consumidor",
+            "description": "A sua loja online como um supermercado. O cliente final descobre, compra e recebe os seus produtos importados."
+          },
+          {
+            "title": "Marketplace B2B",
+            "description": "Venda por grosso a outros negócios. Cotações, contratos e acompanhamento como no Alibaba."
+          },
+          {
+            "title": "Sem infraestrutura própria",
+            "description": "Não precisa de montar e-commerce, nem gateway de pagamento, nem SEO. A plataforma é a sua infraestrutura."
+          },
+          {
+            "title": "Catálogo ilimitado",
+            "description": "Carregue todos os seus produtos com variantes, packs e preços por volume. Sem limite."
+          },
+          {
+            "title": "Rede de influencers",
+            "description": "Criadores locais podem promover os seus produtos importados junto da sua audiência."
+          },
+          {
+            "title": "Alcance internacional",
+            "description": "Venda em Espanha, Europa, EUA, Japão e Coreia do Sul. A plataforma adapta-se ao idioma do comprador."
+          }
+        ]
+      },
+      "steps": {
+        "eyebrow": "Como funciona",
+        "title": "Do mundo ao seu mercado em três passos",
+        "items": [
+          {
+            "title": "Registe-se como distribuidor",
+            "description": "Crie a sua conta, verifique a sua empresa e configure o seu perfil de distribuidor."
+          },
+          {
+            "title": "Carregue o seu catálogo",
+            "description": "Produtos com fotos, certificações, preços B2C e opcionalmente preços B2B por volume."
+          },
+          {
+            "title": "Venda e escale",
+            "description": "Receba pedidos de consumidores e negócios. Gira tudo a partir de um único painel."
+          }
+        ]
+      },
+      "b2b": {
+        "eyebrow": "Para venda por grosso",
+        "title": "O seu canal B2B integrado",
+        "items": [
+          {
+            "title": "Cotações personalizadas",
+            "description": "Os compradores pedem preço por volume. Você responde com oferta personalizada."
+          },
+          {
+            "title": "Contratos digitais",
+            "description": "Assine contratos de fornecimento diretamente na plataforma. Tudo fica registado."
+          },
+          {
+            "title": "Acompanhamento de operações",
+            "description": "Dashboard com estado de cada operação B2B: desde cotação até entrega."
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "Perguntas frequentes",
+        "title": "Resolvemos as suas dúvidas",
+        "items": [
+          {
+            "question": "Posso vender B2C e B2B ao mesmo tempo?",
+            "answer": "Sim. A sua loja tem uma montra para consumidores finais e um catálogo grossista para negócios. Gere ambos a partir do mesmo painel."
+          },
+          {
+            "question": "Que comissão cobra a plataforma?",
+            "answer": "Depende do seu plano. O plano FREE tem comissão por venda. Os planos PRO e ELITE reduzem a comissão e adicionam ferramentas B2B."
+          },
+          {
+            "question": "Como giro os envios?",
+            "answer": "Você gere a logística. Pode usar o seu próprio transportador, estafeta ou até recolha em armazém para B2B."
+          },
+          {
+            "question": "Preciso de certificações especiais?",
+            "answer": "Depende do produto e do país. A plataforma permite-lhe carregar e mostrar as suas certificações para gerar confiança."
+          },
+          {
+            "question": "Posso vender fora de Espanha?",
+            "answer": "Sim. A plataforma opera em Espanha, UE, EUA, Japão e Coreia do Sul. O seu catálogo é traduzido automaticamente."
+          }
+        ]
+      },
+      "cta": {
+        "title": "O mundo inteiro no seu mercado local",
+        "subtitle": "Registe-se como distribuidor e comece a vender hoje.",
+        "ctaText": "Criar a minha loja de distribuidor",
+        "ctaTo": "/register?role=importer"
+      }
+    },
+    "contacto": {
+      "hero": {
+        "eyebrow": "Contacto",
+        "title": "Vamos conversar.",
+        "subtitle": "Para dúvidas sobre a plataforma, colaborações ou imprensa. Respondemos em menos de 24 horas."
+      },
+      "form": {
+        "nombre": "Nome",
+        "nombrePlaceholder": "O seu nome",
+        "email": "Email",
+        "emailPlaceholder": "seu@email.com",
+        "soy": "Sou",
+        "mensaje": "Mensagem",
+        "mensajePlaceholder": "Em que podemos ajudar?",
+        "enviar": "Enviar mensagem",
+        "enviando": "A enviar...",
+        "roles": ["Consumidor", "Produtor", "Influencer", "Distribuidor", "Imprensa"],
+        "errorCampos": "Preencha todos os campos",
+        "exito": "Mensagem enviada. Responderemos em breve.",
+        "error": "Erro ao enviar. Tente novamente."
+      },
+      "empresa": {
+        "nombre": "Hispaloshop SL",
+        "ubicacion": "Reus, Tarragona, Espanha",
+        "email": "hola@hispaloshop.com",
+        "instagram": "@hispaloshop",
+        "fundador": "@bchanfuah (fundador)"
+      },
+      "faq": {
+        "eyebrow": "Perguntas frequentes",
+        "title": "Antes de nos escrever",
+        "items": [
+          {
+            "question": "Quanto custa usar o HispaloShop?",
+            "answer": "Para compradores é grátis. Produtores têm planos desde 0€. Influencers ganham comissões."
+          },
+          {
+            "question": "Como recebo os meus pedidos?",
+            "answer": "Os produtores gerem o envio diretamente. Os prazos dependem de cada produtor e destino."
+          },
+          {
+            "question": "Posso vender internacionalmente?",
+            "answer": "Sim. O HispaloShop suporta múltiplos idiomas e moedas para venda internacional."
+          },
+          {
+            "question": "Como são verificados os produtores?",
+            "answer": "Verificamos identidade, certificações e qualidade antes de aprovar cada produtor."
+          },
+          {
+            "question": "Como funciona o programa de influencers?",
+            "answer": "Gere o seu código de afiliado, partilhe-o com a sua audiência e receba comissões por cada venda."
+          }
+        ]
+      }
+    },
+    "legal": {
+      "tabs": {
+        "privacidad": "Privacidade",
+        "terminos": "Termos",
+        "cookies": "Cookies"
+      }
+    }
   }
 }

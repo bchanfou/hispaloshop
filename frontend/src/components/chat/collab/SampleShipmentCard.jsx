@@ -14,8 +14,8 @@ const V2 = {
 
 const STATUS_MAP = {
   preparing: { label: 'Preparando', bg: V2.surface, color: V2.stone },
-  shipped: { label: 'Enviado', bg: '#EBF0F8', color: '#3060A0' },
-  delivered: { label: 'Entregado', bg: V2.greenLight, color: V2.green },
+  shipped: { label: 'Enviado', bg: '#f5f5f4', color: '#44403c' },
+  delivered: { label: 'Entregado', bg: '#f5f5f4', color: '#0c0a09' },
 };
 
 export default function SampleShipmentCard({ shipment }) {

@@ -14,6 +14,7 @@ const DURATIONS = [
 ];
 
 export default function CollabProposalPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -73,7 +74,7 @@ export default function CollabProposalPage() {
   const canSubmit = selectedProduct && commissionPct >= tierRate && conversationId && influencerId;
 
   const handleSubmit = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || loading) return;
     setLoading(true);
     try {
       const res = await apiClient.post('/collaborations', {
@@ -89,7 +90,7 @@ export default function CollabProposalPage() {
       toast.success('Propuesta enviada');
       navigate(-1);
     } catch (e) {
-      toast.error(e?.message || 'Error al enviar propuesta');
+      toast.error(e?.response?.data?.detail || e?.message || 'Error al enviar propuesta');
     } finally {
       setLoading(false);
     }

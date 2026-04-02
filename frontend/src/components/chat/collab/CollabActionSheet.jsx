@@ -2,11 +2,11 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
 import { Camera, Video, Package, FileText, Link } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 function ActionOption({ icon: Icon, label, onClick, bgColor }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className="flex flex-col items-center gap-2 border-none bg-transparent cursor-pointer p-2"
     >
@@ -76,7 +76,7 @@ export default function CollabActionSheet({
                 />
                 <ActionOption
                   icon={Video}
-                  label={t('collab_action.video', 'Vídeo')}
+                  label="Vídeo"
                   onClick={onSelectVideo}
                 />
                 <ActionOption
@@ -100,6 +100,7 @@ export default function CollabActionSheet({
               {/* Cancel */}
               <div className="px-4 pt-2 pb-2">
                 <button
+                  type="button"
                   onClick={onClose}
                   className="w-full flex items-center justify-center h-12 bg-stone-100 border-none rounded-full text-sm font-medium text-stone-950 cursor-pointer"
                 >
