@@ -56,13 +56,14 @@ export default function B2BContractPage() {
   /* -- Fetch -- */
   const fetchOperation = useCallback(async () => {
     try {
-      const { data } = await apiClient.get(`/b2b/operations/${operationId}`);
-      setOperation(data);
+      const res = await apiClient.get(`/b2b/operations/${operationId}`);
+      const op = res?.data ?? res;
+      setOperation(op);
       setError(null);
-      return data;
+      return op;
     } catch (err) {
       captureException(err);
-      setError(err.response?.data?.detail || err.response?.data?.message || 'No se pudo cargar la operación');
+      setError(err?.data?.detail || err?.message || 'No se pudo cargar la operación');
       return null;
     } finally {
       setLoading(false);
