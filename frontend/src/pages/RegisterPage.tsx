@@ -32,8 +32,8 @@ const ROLES = [
 
 /* ── Countries (ISO 3166-1 alpha-2) ── */
 const COUNTRIES = [
-  { code: 'ES', name: 'España' },
-  { code: 'MX', name: 'México' },
+  { code: 'ES', name: t('admin.countries.ES', 'España') },
+  { code: 'MX', name: t('admin.countries.MX', 'México') },
   { code: 'AR', name: 'Argentina' },
   { code: 'CO', name: 'Colombia' },
   { code: 'CL', name: 'Chile' },
@@ -44,7 +44,7 @@ const COUNTRIES = [
   { code: 'PY', name: 'Paraguay' },
   { code: 'BO', name: 'Bolivia' },
   { code: 'CR', name: 'Costa Rica' },
-  { code: 'PA', name: 'Panamá' },
+  { code: 'PA', name: t('countries.PA', 'Panamá') },
   { code: 'GT', name: 'Guatemala' },
   { code: 'HN', name: 'Honduras' },
   { code: 'SV', name: 'El Salvador' },
@@ -53,15 +53,15 @@ const COUNTRIES = [
   { code: 'CU', name: 'Cuba' },
   { code: 'PR', name: 'Puerto Rico' },
   { code: 'US', name: 'Estados Unidos' },
-  { code: 'CA', name: 'Canadá' },
+  { code: 'CA', name: t('admin.countries.CA', 'Canadá') },
   { code: 'BR', name: 'Brasil' },
   { code: 'PT', name: 'Portugal' },
   { code: 'FR', name: 'Francia' },
   { code: 'IT', name: 'Italia' },
   { code: 'DE', name: 'Alemania' },
   { code: 'GB', name: 'Reino Unido' },
-  { code: 'NL', name: 'Países Bajos' },
-  { code: 'BE', name: 'Bélgica' },
+  { code: 'NL', name: t('countries.Netherlands', 'Países Bajos') },
+  { code: 'BE', name: t('countries.Belgium', 'Bélgica') },
   { code: 'CH', name: 'Suiza' },
   { code: 'AT', name: 'Austria' },
   { code: 'SE', name: 'Suecia' },
@@ -71,11 +71,11 @@ const COUNTRIES = [
   { code: 'IE', name: 'Irlanda' },
   { code: 'PL', name: 'Polonia' },
   { code: 'CZ', name: 'Chequia' },
-  { code: 'RO', name: 'Rumanía' },
+  { code: 'RO', name: t('countries.RO', 'Rumanía') },
   { code: 'GR', name: 'Grecia' },
   { code: 'HR', name: 'Croacia' },
   { code: 'BG', name: 'Bulgaria' },
-  { code: 'HU', name: 'Hungría' },
+  { code: 'HU', name: t('countries.Hungary', 'Hungría') },
   { code: 'SK', name: 'Eslovaquia' },
   { code: 'SI', name: 'Eslovenia' },
   { code: 'LT', name: 'Lituania' },
@@ -89,28 +89,28 @@ const COUNTRIES = [
   { code: 'TN', name: 'Túnez' },
   { code: 'EG', name: 'Egipto' },
   { code: 'NG', name: 'Nigeria' },
-  { code: 'ZA', name: 'Sudáfrica' },
+  { code: 'ZA', name: t('admin.countries.ZA', 'Sudáfrica') },
   { code: 'KE', name: 'Kenia' },
   { code: 'GH', name: 'Ghana' },
   { code: 'SN', name: 'Senegal' },
   { code: 'CI', name: 'Costa de Marfil' },
-  { code: 'CM', name: 'Camerún' },
-  { code: 'TR', name: 'Turquía' },
-  { code: 'SA', name: 'Arabia Saudí' },
+  { code: 'CM', name: t('countries.CM', 'Camerún') },
+  { code: 'TR', name: t('admin.countries.TR', 'Turquía') },
+  { code: 'SA', name: t('register.arabiaSaudi', 'Arabia Saudí') },
   { code: 'AE', name: 'Emiratos Árabes' },
   { code: 'IL', name: 'Israel' },
-  { code: 'LB', name: 'Líbano' },
+  { code: 'LB', name: t('countries.Lebanon', 'Líbano') },
   { code: 'JO', name: 'Jordania' },
   { code: 'IQ', name: 'Irak' },
   { code: 'IR', name: 'Irán' },
-  { code: 'PK', name: 'Pakistán' },
+  { code: 'PK', name: t('countries.PK', 'Pakistán') },
   { code: 'IN', name: 'India' },
-  { code: 'BD', name: 'Bangladés' },
+  { code: 'BD', name: t('countries.BD', 'Bangladés') },
   { code: 'LK', name: 'Sri Lanka' },
   { code: 'CN', name: 'China' },
   { code: 'JP', name: 'Japón' },
   { code: 'KR', name: 'Corea del Sur' },
-  { code: 'TW', name: 'Taiwán' },
+  { code: 'TW', name: t('countries.TW', 'Taiwán') },
   { code: 'TH', name: 'Tailandia' },
   { code: 'VN', name: 'Vietnam' },
   { code: 'PH', name: 'Filipinas' },
@@ -127,9 +127,9 @@ const COUNTRIES = [
   { code: 'MK', name: 'Macedonia del Norte' },
   { code: 'GE', name: 'Georgia' },
   { code: 'AM', name: 'Armenia' },
-  { code: 'AZ', name: 'Azerbaiyán' },
-  { code: 'KZ', name: 'Kazajistán' },
-  { code: 'UZ', name: 'Uzbekistán' },
+  { code: 'AZ', name: t('countries.AZ', 'Azerbaiyán') },
+  { code: 'KZ', name: t('countries.KZ', 'Kazajistán') },
+  { code: 'UZ', name: t('countries.UZ', 'Uzbekistán') },
 ];
 
 /* ── Input style helper ── */
@@ -224,28 +224,28 @@ export default function RegisterPage() {
 
   const validate = () => {
     const e = {};
-    if (!form.fullName.trim()) e.fullName = 'El nombre es obligatorio';
-    if (!form.email.match(/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/)) e.email = 'Email no válido';
-    if (!form.username.trim() || form.username.trim().length < 3) e.username = 'Mínimo 3 caracteres';
+    if (!form.fullName.trim()) e.fullName = t('register.elNombreEsObligatorio', 'El nombre es obligatorio');
+    if (!form.email.match(/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/)) e.email = t('register.emailNoValido', 'Email no válido');
+    if (!form.username.trim() || form.username.trim().length < 3) e.username = t('register.minimo3Caracteres', 'Mínimo 3 caracteres');
     else if (/^[.\-]|[.\-]$|\.\./.test(form.username.trim())) e.username = 'No puede empezar/terminar con punto o guion, ni tener puntos consecutivos';
-    else if (usernameStatus === 'taken') e.username = 'Este usuario ya está en uso';
-    if (form.password.length < 8) e.password = 'Mínimo 8 caracteres';
-    if (!form.country) e.country = 'Selecciona tu país';
+    else if (usernameStatus === 'taken') e.username = t('register.esteUsuarioYaEstaEnUso', 'Este usuario ya está en uso');
+    if (form.password.length < 8) e.password = t('register.minimo8Caracteres', 'Mínimo 8 caracteres');
+    if (!form.country) e.country = t('register.selectCountry', 'Selecciona tu país');
     if (!form.birthDay || !form.birthMonth || !form.birthYear) {
-      e.birthDate = 'La fecha de nacimiento es obligatoria';
+      e.birthDate = t('register.laFechaDeNacimientoEsObligatoria', 'La fecha de nacimiento es obligatoria');
     } else if (!checkAge()) {
       setAgeBlocked(true);
       return false;
     }
-    if (!termsAccepted) e.terms = 'Debes aceptar los términos';
+    if (!termsAccepted) e.terms = t('register.debesAceptarLosTerminos', 'Debes aceptar los términos');
 
     // Role-specific validation
     if (activeRole === 'producer' || activeRole === 'importer') {
-      if (!form.companyName.trim()) e.companyName = 'El nombre de empresa es obligatorio';
+      if (!form.companyName.trim()) e.companyName = t('register.elNombreDeEmpresaEsObligatorio', 'El nombre de empresa es obligatorio');
     }
     if (activeRole === 'influencer') {
       if (!form.instagram.trim() && !form.tiktok.trim()) {
-        e.instagram = 'Introduce al menos una red social';
+        e.instagram = t('register.introduceAlMenosUnaRedSocial', 'Introduce al menos una red social');
       }
     }
 
@@ -314,16 +314,16 @@ export default function RegisterPage() {
         for (const d of detail) {
           const field = d.loc?.[d.loc.length - 1]; // e.g., "password", "email"
           const pydanticMsg = d.msg || '';
-          if (field === 'password') fieldErrors.password = 'La contraseña debe tener al menos 8 caracteres';
-          else if (field === 'email') fieldErrors.email = 'El email no es válido';
-          else if (field === 'name') fieldErrors.fullName = 'El nombre es obligatorio';
-          else if (field === 'username') fieldErrors.username = 'El nombre de usuario no es válido';
-          else toast.error(pydanticMsg || 'Error de validación');
+          if (field === 'password') fieldErrors.password = t('register.laContrasenaDebeTenerAlMenos8Cara', 'La contraseña debe tener al menos 8 caracteres');
+          else if (field === 'email') fieldErrors.email = t('register.elEmailNoEsValido', 'El email no es válido');
+          else if (field === 'name') fieldErrors.fullName = t('register.elNombreEsObligatorio', 'El nombre es obligatorio');
+          else if (field === 'username') fieldErrors.username = t('register.elNombreDeUsuarioNoEsValido', 'El nombre de usuario no es válido');
+          else toast.error(pydanticMsg || t('register.errorDeValidacion', 'Error de validación'));
         }
         if (Object.keys(fieldErrors).length > 0) { setErrors(fieldErrors); return; }
       }
       // Handle string error messages
-      const msg = typeof detail === 'string' ? detail : getAuthErrorMessage(err, 'Error al crear la cuenta.');
+      const msg = typeof detail === 'string' ? detail : getAuthErrorMessage(err, t('register.errorAlCrearLaCuenta', 'Error al crear la cuenta.'));
       if (msg.toLowerCase().includes('email')) {
         setErrors({ email: msg });
       } else if (msg.toLowerCase().includes('username') || msg.toLowerCase().includes('usuario')) {
@@ -342,7 +342,7 @@ export default function RegisterPage() {
       if (data.auth_url) window.location.href = data.auth_url;
       else toast.error(t('register.errorAlConectarConGoogle', 'Error al conectar con Google.'));
     } catch (error) {
-      toast.error(getAuthErrorMessage(error, 'Error al conectar con Google.'));
+      toast.error(getAuthErrorMessage(error, t('register.errorAlConectarConGoogle', 'Error al conectar con Google.')));
     }
   };
 
@@ -500,14 +500,14 @@ export default function RegisterPage() {
             Letras, números, puntos y guiones bajos (máximo 20 caracteres)
           </p>
           {usernameStatus === 'taken' && (
-            <p className="text-xs text-stone-600 mt-1">Este usuario ya está en uso</p>
+            <p className="text-xs text-stone-600 mt-1">{t('register.esteUsuarioYaEstaEnUso', 'Este usuario ya está en uso')}</p>
           )}
           {errors.username && <p className="text-xs text-stone-600 mt-1">{errors.username}</p>}
         </div>
 
         {/* Password */}
         <div>
-          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">Contraseña</label>
+          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">{t('auth.password', 'Contraseña')}</label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -524,7 +524,7 @@ export default function RegisterPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
               tabIndex={-1}
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : 'Mostrar contraseña'}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -552,7 +552,7 @@ export default function RegisterPage() {
               onChange={e => updateForm('country', e.target.value)}
               className={selectClass(errors.country)}
             >
-              <option value="">Seleccionar país</option>
+              <option value="">{t('register.seleccionarPais', 'Seleccionar país')}</option>
               {COUNTRIES.map(c => (
                 <option key={c.code} value={c.code}>{c.name}</option>
               ))}

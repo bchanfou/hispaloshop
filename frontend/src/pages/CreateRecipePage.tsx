@@ -26,14 +26,14 @@ function normalizeIngredientName(value) {
 const DIFFICULTY_MAP = {
   easy: { label: 'Fácil', tw: 'text-stone-500' },
   medium: { label: 'Media', tw: 'text-stone-700' },
-  hard: { label: 'Difícil', tw: 'text-stone-950' },
+  hard: { label: t('recipes.hard', 'Difícil'), tw: 'text-stone-950' },
 };
 const DIFFICULTY_KEYS = ['easy', 'medium', 'hard'];
 
 const RECIPE_TEMPLATES = [
   {
     id: 'salad',
-    name: 'Ensalada rápida',
+    name: t('create_recipe.ensaladaRapida', 'Ensalada rápida'),
     icon: Salad,
     time: 10,
     difficulty: 'easy',
@@ -59,14 +59,14 @@ const RECIPE_TEMPLATES = [
   },
   {
     id: 'dessert',
-    name: 'Postre fácil',
+    name: t('create_recipe.postreFacil', 'Postre fácil'),
     icon: IceCreamCone,
     time: 30,
     difficulty: 'easy',
     titlePrefix: 'Postre de ',
     ingredients: [
       { name: 'Leche', quantity: '500', unit: 'ml' },
-      { name: 'Azúcar', quantity: '100', unit: 'g' },
+      { name: t('recipe_detail.azucar', 'Azúcar'), quantity: '100', unit: 'g' },
       { name: 'Huevos', quantity: '3', unit: 'ud' },
     ],
   },
@@ -302,7 +302,7 @@ export default function CreateRecipePage() {
         toast.success(t('recipes.published', 'Receta publicada'));
         navigate(`/recipes/${data.recipe_id}`);
       }, 1200);
-    } catch (error) { toast.error(error.message || 'No hemos podido publicar la receta'); setSubmitting(false); }
+    } catch (error) { toast.error(error.message || t('create_recipe.noHemosPodidoPublicarLaReceta', 'No hemos podido publicar la receta')); setSubmitting(false); }
   };
 
   const diff = DIFFICULTY_MAP[recipe.difficulty];
@@ -326,7 +326,7 @@ export default function CreateRecipePage() {
           <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1)' }}>
             <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
-          <span className="text-base font-semibold text-stone-950">¡Receta publicada!</span>
+          <span className="text-base font-semibold text-stone-950">{t('create_recipe.recetaPublicada', '¡Receta publicada!')}</span>
         </div>
       )}
       <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes scaleIn{from{transform:scale(0)}to{transform:scale(1)}}`}</style>
@@ -335,7 +335,7 @@ export default function CreateRecipePage() {
         {/* R-05: Draft banner */}
         {draftBanner && (
           <div className="flex items-center justify-between gap-2 bg-stone-100 rounded-2xl p-3 mb-4">
-            <span className="text-[13px] text-stone-950 font-medium">Tienes un borrador de receta</span>
+            <span className="text-[13px] text-stone-950 font-medium">{t('create_recipe.tienesUnBorradorDeReceta', 'Tienes un borrador de receta')}</span>
             <div className="flex gap-2 shrink-0">
               <button
                 type="button"
@@ -466,7 +466,7 @@ export default function CreateRecipePage() {
 
         {/* Meal type (optional) */}
         <div className="mb-6">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-stone-500">Momento del día</p>
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-stone-500">{t('create_recipe.momentoDelDia', 'Momento del día')}</p>
           <div className="flex gap-2">
             {[
               { key: 'breakfast', label: 'Desayuno', icon: '🌅' },
@@ -674,7 +674,7 @@ export default function CreateRecipePage() {
         <div className="mb-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
           <p className="mb-2 text-sm text-stone-950 leading-relaxed">✨ David AI puede ayudarte con:</p>
           <ul className="mb-3 pl-4 text-sm text-stone-500 leading-relaxed">
-            <li>Una introducción para tu receta</li>
+            <li>{t('create_recipe.unaIntroduccionParaTuReceta', 'Una introducción para tu receta')}</li>
             <li>Hashtags relevantes</li>
           </ul>
           <button type="button" onClick={() => setShowAIPanel(true)} className="rounded-full bg-stone-950 px-3.5 py-1.5 text-sm font-medium text-white border-none cursor-pointer hover:bg-stone-800 transition-colors">

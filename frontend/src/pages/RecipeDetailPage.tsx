@@ -52,7 +52,7 @@ function getIngredientAllergens(product) {
 const DIFFICULTY_CLASSES = {
   easy: { pill: 'bg-stone-100 text-stone-600', label: 'Fácil' },
   medium: { pill: 'bg-stone-100 text-stone-700', label: 'Media' },
-  hard: { pill: 'bg-stone-950 text-white', label: 'Difícil' },
+  hard: { pill: 'bg-stone-950 text-white', label: t('recipes.hard', 'Difícil') },
 };
 
 function normalizeStep(step) {
@@ -266,7 +266,7 @@ export default function RecipeDetailPage() {
       setReviewText('');
       toast.success(t('recipe_detail.valoracionPublicada', 'Valoración publicada'));
     } catch (err: any) {
-      toast.error(err?.message || 'Error al publicar la valoración');
+      toast.error(err?.message || t('recipe_detail.errorAlPublicarLaValoracion', 'Error al publicar la valoración'));
     } finally {
       setSubmittingReview(false);
     }
@@ -532,7 +532,7 @@ export default function RecipeDetailPage() {
                 className={`mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-full border-none bg-stone-950 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}
               >
                 <ShoppingCart size={18} />
-                {addingAll ? 'Añadiendo...' : `Comprar receta completa · ${total.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}`}
+                {addingAll ? t('productDetail.addingToCart', 'Añadiendo...') : `Comprar receta completa · ${total.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}`}
               </motion.button>
             );
           })() : taggedIngredients.length >= 2 ? (
@@ -543,14 +543,14 @@ export default function RecipeDetailPage() {
               className={`mt-3 flex w-full items-center justify-center gap-2 rounded-full border-none bg-stone-950 p-3.5 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}
             >
               <ShoppingCart size={18} />
-              {addingAll ? 'Añadiendo...' : `Añadir todos al carrito (${taggedIngredients.length})`}
+              {addingAll ? t('productDetail.addingToCart', 'Añadiendo...') : `Añadir todos al carrito (${taggedIngredients.length})`}
             </motion.button>
           ) : null}
         </section>
 
         {/* ── Steps ── */}
         <section className="mb-5">
-          <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Preparación</h2>
+          <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{t('recipe_detail.preparacion', 'Preparación')}</h2>
           <div className="flex flex-col gap-3">
             {steps.map((step, i) => (
               <motion.div
@@ -583,12 +583,12 @@ export default function RecipeDetailPage() {
         {/* ── Nutritional Info ── */}
         {recipe.nutrition && (
           <section className="mb-5">
-            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Información nutricional</h2>
-            <p className="mb-2 text-[11px] text-stone-400">Por ración</p>
+            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">{t('recipe_detail.informacionNutricional', 'Información nutricional')}</h2>
+            <p className="mb-2 text-[11px] text-stone-400">{t('recipe_detail.porRacion', 'Por ración')}</p>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { key: 'calories', label: 'Calorías', unit: 'kcal' },
-                { key: 'protein', label: 'Proteína', unit: 'g' },
+                { key: 'calories', label: t('certificate.nutritionLabels.calories', 'Calorías'), unit: 'kcal' },
+                { key: 'protein', label: t('recipe_detail.proteina', 'Proteína'), unit: 'g' },
                 { key: 'carbs', label: 'Carbohidratos', unit: 'g' },
                 { key: 'fat', label: 'Grasa', unit: 'g' },
               ].map(({ key, label, unit }) => {
@@ -607,7 +607,7 @@ export default function RecipeDetailPage() {
               <div className="mt-2 grid grid-cols-3 gap-2">
                 {[
                   { key: 'fiber', label: 'Fibra', unit: 'g' },
-                  { key: 'sugar', label: 'Azúcar', unit: 'g' },
+                  { key: 'sugar', label: t('recipe_detail.azucar', 'Azúcar'), unit: 'g' },
                   { key: 'sodium', label: 'Sodio', unit: 'mg' },
                 ].map(({ key, label, unit }) => {
                   const val = recipe.nutrition?.[key];
@@ -683,7 +683,7 @@ export default function RecipeDetailPage() {
         {/* ── Valoraciones ── */}
         <section className="mb-5">
           <div className="mb-3 flex items-center gap-2">
-            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">Reseñas</h2>
+            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">{t('store.reviews', 'Reseñas')}</h2>
             {totalReviews > 0 && (
               <div className="flex items-center gap-1.5">
                 <div className="flex items-center gap-0.5">
@@ -738,13 +738,13 @@ export default function RecipeDetailPage() {
               )}
             </div>
           ) : (
-            <p className="text-sm text-stone-400">Aún no hay reseñas. ¡Sé el primero!</p>
+            <p className="text-sm text-stone-400">{t('recipe_detail.aunNoHayResenasSeElPrimero', 'Aún no hay reseñas. ¡Sé el primero!')}</p>
           )}
 
           {/* Review form */}
           {user && !hasReviewed && (
             <div className="mt-4 rounded-2xl border border-stone-200 p-4">
-              <p className="mb-2 text-sm font-semibold text-stone-950">Tu reseña</p>
+              <p className="mb-2 text-sm font-semibold text-stone-950">{t('recipe_detail.tuResena', 'Tu reseña')}</p>
               <div className="mb-3 flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map(s => (
                   <button
@@ -772,7 +772,7 @@ export default function RecipeDetailPage() {
                 disabled={submittingReview || !reviewRating}
                 className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-default"
               >
-                {submittingReview ? 'Enviando...' : 'Enviar reseña'}
+                {submittingReview ? 'Enviando...' : t('recipe_detail.enviarResena', 'Enviar reseña')}
               </button>
             </div>
           )}

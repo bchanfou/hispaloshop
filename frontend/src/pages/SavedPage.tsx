@@ -186,7 +186,7 @@ function TabContent({ tab }: { tab: TabKey }) {
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <AlertTriangle className="w-10 h-10 text-stone-300" />
         <p className="text-base font-semibold text-stone-950">Error al cargar</p>
-        <p className="text-sm text-stone-500 text-center">Comprueba tu conexión e inténtalo de nuevo</p>
+        <p className="text-sm text-stone-500 text-center">{t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
         <button
           onClick={() => refetch()}
           className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors border-none cursor-pointer"
@@ -211,7 +211,7 @@ function TabContent({ tab }: { tab: TabKey }) {
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         {cfg.icon}
         <p className="text-base font-semibold text-stone-950">{cfg.text}</p>
-        <p className="text-sm text-stone-500 text-center">Guarda contenido tocando el icono de marcador</p>
+        <p className="text-sm text-stone-500 text-center">{t('saved.guardaContenidoTocandoElIconoDeMar', 'Guarda contenido tocando el icono de marcador')}</p>
       </div>
     );
   }
@@ -513,7 +513,7 @@ function RecipesGrid({ items }: { items: any[] }) {
                         : recipe.difficulty === 'medium' ? 'bg-stone-100 text-stone-700'
                         : 'bg-stone-100 text-stone-600'
                     }`}>
-                      {recipe.difficulty === 'easy' ? 'Fácil' : recipe.difficulty === 'medium' ? 'Media' : recipe.difficulty === 'hard' ? 'Difícil' : ''}
+                      {recipe.difficulty === 'easy' ? 'Fácil' : recipe.difficulty === 'medium' ? 'Media' : recipe.difficulty === 'hard' ? t('recipes.hard', 'Difícil') : ''}
                     </span>
                   )}
                 </div>

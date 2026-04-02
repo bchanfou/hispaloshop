@@ -140,7 +140,7 @@ export default function StorePage() {
   const tabs = [
     { id: 'products', icon: <Package size={14} />, label: 'Productos', count: productTotal },
     { id: 'recipes', icon: <ChefHat size={14} />, label: 'Recetas', count: recipes.length },
-    { id: 'reviews', icon: <Star size={14} />, label: 'Reseñas', count: reviewsTotal },
+    { id: 'reviews', icon: <Star size={14} />, label: t('store.reviews', 'Reseñas'), count: reviewsTotal },
     { id: 'about', icon: <Info size={14} />, label: 'Sobre nosotros', count: null },
   ];
 
@@ -170,7 +170,7 @@ export default function StorePage() {
       <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-8 text-center">
         <AlertTriangle size={48} className="text-stone-300" strokeWidth={1.5} />
         <p className="text-lg font-semibold text-stone-950 mt-4">Error al cargar</p>
-        <p className="text-sm text-stone-500 mt-1">No se pudo cargar la tienda. Comprueba tu conexión.</p>
+        <p className="text-sm text-stone-500 mt-1">{t('store.noSePudoCargarLaTiendaCompruebaT', 'No se pudo cargar la tienda. Comprueba tu conexión.')}</p>
         <button onClick={() => storeQuery.refetch()} className="mt-4 bg-stone-950 text-white border-none rounded-full px-6 py-3 min-h-[44px] text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors">
           Reintentar
         </button>
@@ -281,7 +281,7 @@ export default function StorePage() {
         )}
         {showVerMas && (
           <button onClick={() => setDescExpanded(!descExpanded)} className="bg-transparent border-none cursor-pointer text-[13px] font-semibold text-stone-950 py-1 px-0 min-h-[44px] mt-0.5">
-            {descExpanded ? 'Ver menos' : 'Ver más'}
+            {descExpanded ? 'Ver menos' : t('common.seeMore', 'Ver más')}
           </button>
         )}
 
@@ -297,7 +297,7 @@ export default function StorePage() {
               <span>{Number(avgRating).toFixed(1)}</span>
             </>
           ) : (
-            <span className="text-stone-400">Sin reseñas</span>
+            <span className="text-stone-400">{t('store.sinResenas', 'Sin reseñas')}</span>
           )}
         </div>
 
@@ -400,7 +400,7 @@ export default function StorePage() {
                 ))}
               </div>
             ) : (
-              <EmptyState text="Esta tienda no tiene productos aún" />
+              <EmptyState text=t('store.estaTiendaNoTieneProductosAun', 'Esta tienda no tiene productos aún') />
             )}
           </>
         )}
@@ -442,7 +442,7 @@ export default function StorePage() {
               })}
             </div>
           ) : (
-            <EmptyState text="Esta tienda no ha compartido recetas aún" />
+            <EmptyState text=t('store.estaTiendaNoHaCompartidoRecetasAun', 'Esta tienda no ha compartido recetas aún') />
           )
         )}
 
@@ -501,7 +501,7 @@ export default function StorePage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[13px] font-semibold text-stone-950 m-0">
-                          {review.user_name || review.username || 'Anónimo'}
+                          {review.user_name || review.username || t('store.anonimo', 'Anónimo')}
                         </p>
                         <div role="img" aria-label={`${review.rating || 0} de 5 estrellas`} className="flex items-center gap-0.5 mt-0.5">
                           {Array.from({ length: 5 }).map((_, i) => (
@@ -539,7 +539,7 @@ export default function StorePage() {
               </div>
             </div>
           ) : (
-            <EmptyState text="Sin reseñas todavía" />
+            <EmptyState text=t('empty.reviews', 'Sin reseñas todavía') />
           )
         )}
 

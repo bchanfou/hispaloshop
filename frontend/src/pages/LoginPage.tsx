@@ -49,8 +49,8 @@ export default function LoginPage() {
 
   const validate = () => {
     const e = {};
-    if (!formData.email.trim()) e.email = 'El email es obligatorio';
-    if (!formData.password) e.password = 'La contraseña es obligatoria';
+    if (!formData.email.trim()) e.email = t('login.elEmailEsObligatorio', 'El email es obligatorio');
+    if (!formData.password) e.password = t('login.laContrasenaEsObligatoria', 'La contraseña es obligatoria');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -119,16 +119,16 @@ export default function LoginPage() {
     } catch (error) {
       const status = error?.response?.status;
       if (status === 401) {
-        setLoginError('Email o contraseña incorrectos');
+        setLoginError(t('login.emailOContrasenaIncorrectos', 'Email o contraseña incorrectos'));
       } else if (status === 403) {
         const detail = error?.response?.data?.detail;
         if (typeof detail === 'string' && detail.includes('16')) {
-          setLoginError('Tu cuenta está restringida por edad');
+          setLoginError(t('login.tuCuentaEstaRestringidaPorEdad', 'Tu cuenta está restringida por edad'));
         } else {
           setLoginError(getAuthErrorMessage(error, 'Acceso denegado'));
         }
       } else {
-        const msg = getAuthErrorMessage(error, 'No hemos podido iniciar tu sesión.');
+        const msg = getAuthErrorMessage(error, t('login.noHemosPodidoIniciarTuSesion', 'No hemos podido iniciar tu sesión.'));
         setLoginError(msg);
         toast.error(msg);
       }
@@ -146,7 +146,7 @@ export default function LoginPage() {
         toast.error(t('login.errorAlIniciarSesionConGoogle', 'Error al iniciar sesión con Google.'));
       }
     } catch (error) {
-      toast.error(getAuthErrorMessage(error, 'Error al conectar con Google.'));
+      toast.error(getAuthErrorMessage(error, t('register.errorAlConectarConGoogle', 'Error al conectar con Google.')));
     }
   };
 
@@ -265,7 +265,7 @@ export default function LoginPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors"
               tabIndex={-1}
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : 'Mostrar contraseña'}
             >
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>

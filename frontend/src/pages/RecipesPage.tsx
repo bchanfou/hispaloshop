@@ -13,7 +13,7 @@ const DIFFICULTY_PILLS = [
   { id: 'all', label: 'Todas' },
   { id: 'easy', label: 'Fácil' },
   { id: 'medium', label: 'Media' },
-  { id: 'hard', label: 'Difícil' },
+  { id: 'hard', label: t('recipes.hard', 'Difícil') },
 ];
 
 const TIME_PILLS = [
@@ -40,7 +40,7 @@ const ALLERGEN_PILLS = [
 const DIFFICULTY_CLASSES = {
   easy: { pill: 'bg-stone-100 text-stone-600', label: 'Fácil' },
   medium: { pill: 'bg-stone-100 text-stone-700', label: 'Medio' },
-  hard: { pill: 'bg-stone-950 text-stone-50', label: 'Difícil' },
+  hard: { pill: 'bg-stone-950 text-stone-50', label: t('recipes.hard', 'Difícil') },
 };
 
 function useDebounce(value, delay) {
@@ -253,7 +253,7 @@ export default function RecipesPage() {
       <div className="mx-auto max-w-[975px] px-4">
       <SEO
         title="Recetas — Hispaloshop"
-        description="Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta."
+        description=t('recipes.descubreRecetasSaludablesConProducto', 'Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta.')
         structuredData={recipes.length > 0 ? [{
           '@context': 'https://schema.org',
           '@type': 'ItemList',
@@ -366,7 +366,7 @@ export default function RecipesPage() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <AlertTriangle className="w-10 h-10 text-stone-300" />
             <p className="text-base font-semibold text-stone-950">Error al cargar</p>
-            <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
+            <p className="text-sm text-stone-500">{t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
             <button
               type="button"
               onClick={handleRetry}
@@ -379,10 +379,10 @@ export default function RecipesPage() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <ChefHat size={48} className="text-stone-300" strokeWidth={1.5} />
             <p className="text-base font-semibold text-stone-950">
-              {hasFilters ? 'No hay recetas con estos filtros' : 'Aún no hay recetas'}
+              {hasFilters ? t('recipes.noHayRecetasConEstosFiltros', 'No hay recetas con estos filtros') : 'Aún no hay recetas'}
             </p>
             <p className="text-sm text-stone-500">
-              {hasFilters ? 'Prueba con otros criterios' : 'Sé el primero en compartir una receta con la comunidad'}
+              {hasFilters ? 'Prueba con otros criterios' : t('recipes.seElPrimeroEnCompartirUnaRecetaCo', 'Sé el primero en compartir una receta con la comunidad')}
             </p>
             {hasFilters ? (
               <button

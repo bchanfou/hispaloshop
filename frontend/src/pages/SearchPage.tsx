@@ -132,11 +132,11 @@ const SORT_OPTIONS = [
   { value: 'relevance', label: 'Relevancia' },
   { value: 'price_asc', label: 'Menor precio' },
   { value: 'price_desc', label: 'Mayor precio' },
-  { value: 'newest', label: 'Más reciente' },
+  { value: 'newest', label: t('search.masReciente', 'Más reciente') },
 ];
 
 const CERTIFICATION_OPTIONS = [
-  { value: 'ecologico', label: 'Ecológico' },
+  { value: 'ecologico', label: t('search.ecologico', 'Ecológico') },
   { value: 'dop', label: 'DOP' },
   { value: 'sin_gluten', label: 'Sin gluten' },
   { value: 'vegano', label: 'Vegano' },
@@ -494,7 +494,7 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <SEO title="Buscar — Hispaloshop" description="Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local." />
+      <SEO title="Buscar — Hispaloshop" description=t('search.buscaProductosArtesanalesRecetasTi', 'Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local.') />
 
       {/* ── Search Bar (sticky) ── */}
       <div className="sticky top-0 z-40 bg-white px-3 py-2">
@@ -636,8 +636,8 @@ export default function SearchPage() {
                     <ToggleSwitch checked={filterInStock} onChange={setFilterInStock} label="Solo en stock" />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-stone-950">Envío gratis</span>
-                    <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label="Envío gratis" />
+                    <span className="text-sm text-stone-950">{t('common.freeShipping', 'Envío gratis')}</span>
+                    <ToggleSwitch checked={filterFreeShipping} onChange={setFilterFreeShipping} label=t('common.freeShipping', 'Envío gratis') />
                   </div>
                 </div>
 
@@ -824,7 +824,7 @@ export default function SearchPage() {
               Prueba con otros términos o revisa la ortografía
             </p>
             <div className="flex flex-wrap justify-center gap-2">
-              {['Aceite de oliva', 'Jamón ibérico', 'Vino tinto'].map(suggestion => (
+              {['Aceite de oliva', t('search.jamonIberico', 'Jamón ibérico'), 'Vino tinto'].map(suggestion => (
                 <button
                   key={suggestion}
                   onClick={() => setQuery(suggestion)}
@@ -935,7 +935,7 @@ export default function SearchPage() {
             )}
 
             <section className="pt-6">
-              <span className="mb-3 block text-[13px] font-bold text-stone-950">Búsquedas populares</span>
+              <span className="mb-3 block text-[13px] font-bold text-stone-950">{t('search.busquedasPopulares', 'Búsquedas populares')}</span>
               <div className="flex flex-col">
                 {trending.map((term, i) => (
                   <button

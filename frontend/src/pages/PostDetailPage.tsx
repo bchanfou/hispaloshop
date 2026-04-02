@@ -334,7 +334,7 @@ export default function PostDetailPage() {
         <button onClick={() => navigate(-1)} aria-label="Volver" className="bg-transparent border-none cursor-pointer p-1 flex items-center -ml-1">
           <ChevronLeft size={24} className="text-stone-950" />
         </button>
-        <span className="text-[15px] font-semibold text-stone-950 tracking-tight">Publicación</span>
+        <span className="text-[15px] font-semibold text-stone-950 tracking-tight">{t('post_detail.publicacion', 'Publicación')}</span>
       </header>
 
       {/* ── Post content ── */}
@@ -471,7 +471,7 @@ export default function PostDetailPage() {
         <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowEditCaption(false)}>
           <div className="bg-white w-full max-w-lg rounded-t-2xl p-4 flex flex-col gap-3" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-stone-950">Editar publicación</span>
+              <span className="text-sm font-semibold text-stone-950">{t('post_detail.editarPublicacion', 'Editar publicación')}</span>
               <button className="bg-transparent border-none cursor-pointer p-1" onClick={() => setShowEditCaption(false)} aria-label="Cerrar"><X size={18} /></button>
             </div>
             <textarea
@@ -480,7 +480,7 @@ export default function PostDetailPage() {
               className="w-full border border-stone-200 rounded-2xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
               aria-label={t('post_detail.editarDescripcion', 'Editar descripción')}
             />
-            <p className="text-[11px] text-stone-400">La imagen no se puede cambiar tras publicar.</p>
+            <p className="text-[11px] text-stone-400">{t('post_detail.laImagenNoSePuedeCambiarTrasPubli', 'La imagen no se puede cambiar tras publicar.')}</p>
             <button
               onClick={handleEditSave}
               className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
@@ -496,7 +496,7 @@ export default function PostDetailPage() {
         <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowDeleteConfirm(false)}>
           <div className="bg-white w-full max-w-lg rounded-t-2xl p-5 flex flex-col gap-3 text-center" onClick={e => e.stopPropagation()}>
             <p className="text-base font-semibold text-stone-950">¿Eliminar este post?</p>
-            <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes. Esta acción no se puede deshacer.</p>
+            <p className="text-sm text-stone-500">{t('post_detail.seEliminaraPermanentementeJuntoConS', 'Se eliminará permanentemente junto con sus comentarios y likes. Esta acción no se puede deshacer.')}</p>
             <div className="flex gap-3 mt-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
@@ -543,8 +543,8 @@ export default function PostDetailPage() {
             </div>
           ) : comments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
-              <p className="text-[14px] font-semibold text-stone-950">Sin comentarios aún</p>
-              <p className="text-[12px] text-stone-400 mt-1">Sé el primero en comentar</p>
+              <p className="text-[14px] font-semibold text-stone-950">{t('feed.noComments', 'Sin comentarios aún')}</p>
+              <p className="text-[12px] text-stone-400 mt-1">{t('post_detail.seElPrimeroEnComentar', 'Sé el primero en comentar')}</p>
             </div>
           ) : (
             <div className="divide-y divide-stone-50">

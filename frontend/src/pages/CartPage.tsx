@@ -52,7 +52,7 @@ function ShippingProgressBar({ store, currencyCode = 'EUR' }) {
           <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
         </div>
         {store.is_free ? (
-          <span className="text-xs font-bold text-stone-950 flex-shrink-0">Envío gratis</span>
+          <span className="text-xs font-bold text-stone-950 flex-shrink-0">{t('common.freeShipping', 'Envío gratis')}</span>
         ) : (
           <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{fmtCents(store.shipping_cents)}</span>
         )}
@@ -110,10 +110,10 @@ const addressSchema = z.object({
   name: z.string().optional(),
   full_name: z.string().min(2, 'Nombre completo requerido'),
   phone: z.string().optional(),
-  street: z.string().min(5, 'Dirección requerida'),
+  street: z.string().min(5, t('cart.direccionRequerida', 'Dirección requerida')),
   city: z.string().min(2, 'Ciudad requerida'),
-  postal_code: z.string().regex(/^\d{4,10}$/, 'Código postal no válido'),
-  country: z.string().min(2, 'País requerido'),
+  postal_code: z.string().regex(/^\d{4,10}$/, t('cart.codigoPostalNoValido', 'Código postal no válido')),
+  country: z.string().min(2, t('cart.paisRequerido', 'País requerido')),
   is_default: z.boolean().optional(),
 });
 
@@ -334,7 +334,7 @@ export default function CartPage() {
     const key = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
     // Optimistic UI update is instant (CartContext handles it)
     updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null).catch(
-      (error) => toast.error(error?.message || 'No se pudo actualizar la cantidad')
+      (error) => toast.error(error?.message || t('cart.noSePudoActualizarLaCantidad', 'No se pudo actualizar la cantidad'))
     );
     // Debounce the server-side refetch to avoid rapid-fire API calls
     clearTimeout(qtyDebounceRef.current[key]);
@@ -350,7 +350,7 @@ export default function CartPage() {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       refetchPricing();
     } catch (error) {
-      toast.error(error?.message || 'No se pudo eliminar el producto');
+      toast.error(error?.message || t('cart.noSePudoEliminarElProducto', 'No se pudo eliminar el producto'));
     }
   };
 
@@ -476,8 +476,8 @@ export default function CartPage() {
         ) : cartItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Package size={48} className="text-stone-300 mb-4" />
-            <p className="text-lg font-semibold text-stone-950 mb-1">Tu carrito está vacío</p>
-            <p className="text-sm text-stone-500 mb-6">Descubre productos increíbles de productores locales</p>
+            <p className="text-lg font-semibold text-stone-950 mb-1">{t('cart.empty', 'Tu carrito está vacío')}</p>
+            <p className="text-sm text-stone-500 mb-6">{t('cart.descubreProductosIncreiblesDeProduct', 'Descubre productos increíbles de productores locales')}</p>
             <motion.button whileTap={{ scale: 0.96 }} onClick={() => navigate('/discover')} className="bg-stone-950 text-white rounded-full px-8 py-3 text-sm font-semibold hover:bg-stone-800 transition-colors">
               Explorar productos
             </motion.button>
@@ -490,7 +490,7 @@ export default function CartPage() {
                 <div className="flex items-center justify-between gap-3 rounded-2xl shadow-sm bg-white border border-stone-200 p-3">
                   <div className="flex items-center gap-2 text-sm text-stone-700">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
-                    <span>La reserva de algún producto expiró. Comprueba disponibilidad.</span>
+                    <span>{t('cart.laReservaDeAlgunProductoExpiroCom', 'La reserva de algún producto expiró. Comprueba disponibilidad.')}</span>
                   </div>
                   <button
                     type="button"
@@ -521,7 +521,7 @@ export default function CartPage() {
                           {breakdown.is_free_shipping ? (
                             <div className="flex items-center gap-1.5">
                               <Check className="w-3.5 h-3.5 text-stone-950 flex-shrink-0" />
-                              <span className="text-xs font-semibold text-stone-950">Envío gratis</span>
+                              <span className="text-xs font-semibold text-stone-950">{t('common.freeShipping', 'Envío gratis')}</span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5 text-xs text-stone-600">
@@ -539,7 +539,7 @@ export default function CartPage() {
                       ) : (
                         <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
                           <Truck className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span>Calculando envío...</span>
+                          <span>{t('cart.calculandoEnvio', 'Calculando envío...')}</span>
                         </div>
                       )}
                     </div>
@@ -600,7 +600,7 @@ export default function CartPage() {
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                                     disabled={item.stock != null && item.quantity >= item.stock}
                                     className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors ${item.stock != null && item.quantity >= item.stock ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed' : 'border-stone-200 hover:bg-stone-50'}`}
-                                    aria-label={item.stock != null && item.quantity >= item.stock ? 'Máximo alcanzado' : `Aumentar cantidad de ${item.product_name}`}
+                                    aria-label={item.stock != null && item.quantity >= item.stock ? t('cart.maximoAlcanzado', 'Máximo alcanzado') : `Aumentar cantidad de ${item.product_name}`}
                                   >
                                     <Plus className="w-4 h-4 text-stone-950" />
                                   </motion.button>
@@ -762,14 +762,14 @@ export default function CartPage() {
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.country')} <span className="text-stone-700">*</span></label>
                       <select {...registerAddr('country')} className={`w-full h-12 rounded-xl border bg-white px-4 text-sm ${addrErrors.country ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-country">
-                        <option value="ES">España</option>
+                        <option value="ES">{t('admin.countries.ES', 'España')}</option>
                         <option value="PT">Portugal</option>
                         <option value="FR">Francia</option>
                         <option value="DE">Alemania</option>
                         <option value="IT">Italia</option>
                         <option value="GB">Reino Unido</option>
                         <option value="US">Estados Unidos</option>
-                        <option value="MX">México</option>
+                        <option value="MX">{t('admin.countries.MX', 'México')}</option>
                         <option value="AR">Argentina</option>
                         <option value="CO">Colombia</option>
                       </select>
@@ -857,7 +857,7 @@ export default function CartPage() {
                     </span>
                   </div>
                 ) : (
-                  <p className="text-xs text-stone-400">Inicia sesión para ver el coste de envío</p>
+                  <p className="text-xs text-stone-400">{t('cart.iniciaSesionParaVerElCosteDeEnvio', 'Inicia sesión para ver el coste de envío')}</p>
                 )}
 
                 {/* Discount */}
@@ -883,7 +883,7 @@ export default function CartPage() {
                 {user ? (
                   <p className="text-[11px] text-stone-400 text-right">IVA incluido ({formatCurrency(cartSummary.tax_cents ?? 0)} IVA)</p>
                 ) : (
-                  <p className="text-[11px] text-stone-400 text-right">IVA incluido · Envío se calcula al iniciar sesión</p>
+                  <p className="text-[11px] text-stone-400 text-right">{t('cart.ivaIncluido·EnvioSeCalculaAlInici', 'IVA incluido · Envío se calcula al iniciar sesión')}</p>
                 )}
 
                 {/* Delivery estimate */}
@@ -922,7 +922,7 @@ export default function CartPage() {
                 data-testid="checkout-button"
               >
                 {isGuest
-                  ? 'Iniciar sesión para comprar'
+                  ? t('cart.iniciarSesionParaComprar', 'Iniciar sesión para comprar')
                   : checkoutLoading
                     ? t('common.loading')
                     : !emailVerified

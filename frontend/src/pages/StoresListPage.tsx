@@ -6,6 +6,7 @@ import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import SEO from '../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 /* ══════════════════════════════════════════
    Region / Country mapping
@@ -492,7 +493,7 @@ export default function StoresListPage() {
     <div className="min-h-screen bg-white pb-20">
       <SEO
         title="Tiendas — Hispaloshop"
-        description="Explora tiendas de productores artesanales de alimentación saludable local. Filtra por región y país."
+        description=t('stores_list.exploraTiendasDeProductoresArtesanal', 'Explora tiendas de productores artesanales de alimentación saludable local. Filtra por región y país.')
         structuredData={stores.length > 0 ? [{
           '@context': 'https://schema.org',
           '@type': 'ItemList',

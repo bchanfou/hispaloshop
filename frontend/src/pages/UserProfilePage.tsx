@@ -215,7 +215,7 @@ export default function UserProfilePage() {
       if (convId) navigate(`/messages/${convId}`);
       else toast.error(t('user_profile.noSePudoAbrirLaConversacion', 'No se pudo abrir la conversación'));
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || 'Error al crear conversación');
+      toast.error(err?.response?.data?.detail || t('user_profile.errorAlCrearConversacion', 'Error al crear conversación'));
     }
   }, [user, navigate]);
 
@@ -578,7 +578,7 @@ function CreateHighlightSheet({ onClose, onCreate }) {
         {step === 'name' && (
           <>
             <div className="flex items-center justify-between mb-4 shrink-0">
-              <button onClick={() => setStep('select')} className="text-sm text-stone-500">Atrás</button>
+              <button onClick={() => setStep('select')} className="text-sm text-stone-500">{t('user_profile.atras', 'Atrás')}</button>
               <span className="text-base font-semibold text-stone-950">Nuevo destacado</span>
               <div className="w-12" />
             </div>

@@ -17,7 +17,7 @@ const COUNTRY_GROUPS = [
   {
     region: 'Europa',
     countries: [
-      { code: 'Spain', name: 'España' },
+      { code: 'Spain', name: t('admin.countries.ES', 'España') },
       { code: 'Italy', name: 'Italia' },
       { code: 'France', name: 'Francia' },
       { code: 'Portugal', name: 'Portugal' },
@@ -25,16 +25,16 @@ const COUNTRY_GROUPS = [
     ],
   },
   {
-    region: 'América',
+    region: t('products.america', 'América'),
     countries: [
       { code: 'USA', name: 'Estados Unidos' },
-      { code: 'Canada', name: 'Canadá' },
-      { code: 'Mexico', name: 'México' },
+      { code: 'Canada', name: t('admin.countries.CA', 'Canadá') },
+      { code: 'Mexico', name: t('admin.countries.MX', 'México') },
       { code: 'Colombia', name: 'Colombia' },
     ],
   },
   {
-    region: 'Asia y Oceanía',
+    region: t('regions.asiaOceanía', 'Asia y Oceanía'),
     countries: [
       { code: 'Japan', name: 'Japón' },
       { code: 'Korea', name: 'Corea del Sur' },
@@ -48,7 +48,7 @@ const SORT_OPTIONS = [
   { value: 'price_asc', label: 'Precio: menor a mayor' },
   { value: 'price_desc', label: 'Precio: mayor a menor' },
   { value: 'rating', label: 'Mejor valorados' },
-  { value: 'newest', label: 'Más recientes' },
+  { value: 'newest', label: t('products.newest', 'Más recientes') },
 ];
 
 const flattenCatalogPages = (pages = []) =>
@@ -535,7 +535,7 @@ export default function ProductsPage() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <AlertTriangle className="w-10 h-10 text-stone-300" />
             <p className="text-base font-semibold text-stone-950">Error al cargar</p>
-            <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
+            <p className="text-sm text-stone-500">{t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
             <button onClick={() => catalogQuery.refetch()} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors">
               Reintentar
             </button>

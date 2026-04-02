@@ -103,53 +103,98 @@ def process_file(filepath):
     has_t = bool(re.search(r"const\s*\{[^}]*\bt\b", content))
     needs_t_destructure = False
 
+    def make_key(text):
+        existing = find_existing_key(text, es_data)
+        if existing:
+            return existing
+        slug = slugify(text)
+        key = f"{section}.{slug}"
+        # Avoid duplicate keys with different values
+        suffix = 0
+        final_key = key
+        while final_key in new_keys and new_keys[final_key] != text:
+            suffix += 1
+            final_key = f"{key}{suffix}"
+        new_keys[final_key] = text
+        return final_key
+
     for i, line in enumerate(lines):
-        # Skip imports, comments, className strings
         stripped = line.strip()
-        if stripped.startswith('import ') or stripped.startswith('//') or stripped.startswith('*'):
+        if stripped.startswith('import ') or stripped.startswith('//') or stripped.startswith('/*') or stripped.startswith('*'):
             continue
-        if 'className' in line and 'text-' in line:
-            # Could be a Tailwind class line — be careful
-            pass
+        # Skip lines that are already using t()
+        if "t('" in line or 't("' in line:
+            continue
 
-        # Find toast messages
-        toast_match = re.search(r"""(toast\.(?:success|error|info|warning)\()['"]([^'"]{5,})['"](\))""", line)
-        if toast_match and is_spanish(toast_match.group(2)):
-            text = toast_match.group(2)
-            existing = find_existing_key(text, es_data)
-            if existing:
-                key = existing
-            else:
-                slug = slugify(text)
-                key = f"{section}.{slug}"
-                new_keys[key] = text
+        modified = False
 
-            old = toast_match.group(0)
-            new = f"{toast_match.group(1)}t('{key}', '{text}'){toast_match.group(3)}"
-            lines[i] = line.replace(old, new)
+        # 1. Toast messages: toast.success('Spanish text')
+        toast_pat = re.compile(r"""(toast\.(?:success|error|info|warning)\()['"]([^'"]{5,})['"](\))""")
+        for m in toast_pat.finditer(line):
+            if is_spanish(m.group(2)):
+                text = m.group(2)
+                key = make_key(text)
+                old = m.group(0)
+                repl = f"{m.group(1)}t('{key}', '{text}'){m.group(3)}"
+                line = line.replace(old, repl, 1)
+                modified = True
+
+        # 2. Attributes: placeholder="Spanish" / aria-label="Spanish" / title="Spanish"
+        for attr in ['placeholder', 'aria-label', 'title']:
+            attr_pat = re.compile(rf"""{attr}=['"]([^'"']{{5,}})['"]""")
+            for m in attr_pat.finditer(line):
+                if is_spanish(m.group(1)):
+                    text = m.group(1)
+                    key = make_key(text)
+                    old = m.group(0)
+                    repl = f"""{attr}={{t('{key}', '{text}')}}"""
+                    line = line.replace(old, repl, 1)
+                    modified = True
+
+        # 3. JSX text content: >Spanish text< (standalone text between tags)
+        # Match lines that are ONLY text content (no JSX tags on same line except wrapping)
+        jsx_text_pat = re.compile(r'^(\s*)((?:[A-ZÁÉÍÓÚÑ¿¡][a-záéíóúñA-Za-z0-9 ,.\-:!¿¡()·+€$%#@&]{4,}))(\s*)$')
+        jm = jsx_text_pat.match(stripped)
+        if jm and is_spanish(jm.group(2)) and not stripped.startswith('{') and not stripped.startswith('<') and not stripped.startswith('//'):
+            text = jm.group(2).strip()
+            # Skip if it looks like a variable, className, or code
+            if not any(c in text for c in ['===', '=>', '&&', '||', '?', 'const ', 'let ', 'var ', 'className']):
+                key = make_key(text)
+                indent = re.match(r'^(\s*)', lines[i]).group(1)
+                lines[i] = f"{indent}{{t('{key}', '{text}')}}"
+                modified = True
+
+        # 4. Inline JSX text: <tag>Spanish text</tag> on same line
+        inline_pat = re.compile(r'(>)([ ]*)([A-ZÁÉÍÓÚÑ¿¡][a-záéíóúñA-Za-z0-9 ,.\-:!¿¡()·+]{4,}?)([ ]*)(<(?:/\w|$))')
+        for m in inline_pat.finditer(line):
+            text = m.group(3).strip()
+            if is_spanish(text) and len(text) > 4:
+                key = make_key(text)
+                old = f"{m.group(1)}{m.group(2)}{m.group(3)}{m.group(4)}{m.group(5)}"
+                repl = f"{m.group(1)}{m.group(2)}{{t('{key}', '{text}')}}{m.group(4)}{m.group(5)}"
+                line = line.replace(old, repl, 1)
+                modified = True
+
+        # 5. String in JSX expression: {'Spanish text'} or {"Spanish text"}
+        str_expr_pat = re.compile(r"""(['"])([A-ZÁÉÍÓÚÑ¿¡][a-záéíóúñA-Za-z0-9 ,.\-:!¿¡()·]{5,})\1""")
+        for m in str_expr_pat.finditer(line):
+            text = m.group(2)
+            # Skip if inside import, className, key prop, or already t()
+            context_before = line[:m.start()]
+            if any(kw in context_before for kw in ['import ', 'className', 'key=', 'data-testid', 'src=', 'href=', 'to=', "t('"]):
+                continue
+            if is_spanish(text):
+                key = make_key(text)
+                old = m.group(0)
+                repl = f"t('{key}', '{text}')"
+                line = line.replace(old, repl, 1)
+                modified = True
+
+        if modified:
+            lines[i] = line
             changes += 1
             needs_import = True
             needs_t_destructure = True
-
-        # Find placeholder/aria-label/title attributes
-        for attr_name in ['placeholder', 'aria-label', 'title']:
-            attr_match = re.search(rf"""{attr_name}=['"]([^'"]{{5,}})['"]""", line)
-            if attr_match and is_spanish(attr_match.group(1)):
-                text = attr_match.group(1)
-                existing = find_existing_key(text, es_data)
-                if existing:
-                    key = existing
-                else:
-                    slug = slugify(text)
-                    key = f"{section}.{slug}"
-                    new_keys[key] = text
-
-                old = attr_match.group(0)
-                new = f"""{attr_name}={{t('{key}', '{text}')}}"""
-                lines[i] = line.replace(old, new)
-                changes += 1
-                needs_import = True
-                needs_t_destructure = True
 
     if changes > 0:
         # Add import if needed

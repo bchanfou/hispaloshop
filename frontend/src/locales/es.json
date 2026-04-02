@@ -149,7 +149,8 @@
     "organic": "Orgánico",
     "seafood": "Mariscos",
     "superfoods": "Super",
-    "viewAllResults": "Ver todos los resultados"
+    "viewAllResults": "Ver todos los resultados",
+    "socialCommerceAlimentarioParaDescubr": "Social commerce alimentario para descubrir productores honestos, comprar con claridad y hablar con la comunidad."
   },
   "header": {
     "products": "Productos",
@@ -258,7 +259,26 @@
     "createBuyerAccount": "Crear cuenta de comprador",
     "errorAlConectarConGoogle": "Error al conectar con Google.",
     "mariaGarcia": "María García",
-    "minimo8Caracteres": "Mínimo 8 caracteres"
+    "minimo8Caracteres": "Mínimo 8 caracteres",
+    "arabiaSaudi": "Arabia Saudí",
+    "elNombreEsObligatorio": "El nombre es obligatorio",
+    "emailNoValido": "Email no válido",
+    "minimo3Caracteres": "Mínimo 3 caracteres",
+    "esteUsuarioYaEstaEnUso": "Este usuario ya está en uso",
+    "laFechaDeNacimientoEsObligatoria": "La fecha de nacimiento es obligatoria",
+    "debesAceptarLosTerminos": "Debes aceptar los términos",
+    "elNombreDeEmpresaEsObligatorio": "El nombre de empresa es obligatorio",
+    "introduceAlMenosUnaRedSocial": "Introduce al menos una red social",
+    "laContrasenaDebeTenerAlMenos8Cara": "La contraseña debe tener al menos 8 caracteres",
+    "elEmailNoEsValido": "El email no es válido",
+    "elNombreDeUsuarioNoEsValido": "El nombre de usuario no es válido",
+    "errorDeValidacion": "Error de validación",
+    "errorAlCrearLaCuenta": "Error al crear la cuenta.",
+    "debesTenerAlMenos16Anos": "Debes tener al menos 16 años",
+    "letrasNumerosPuntosYGuionesBajos": "Letras, números, puntos y guiones bajos (máximo 20 caracteres)",
+    "seleccionarPais": "Seleccionar país",
+    "terminosYCondiciones": "Términos y condiciones",
+    "politicaDePrivacidad": "Política de privacidad"
   },
   "products": {
     "title": "Todos los Productos",
@@ -323,7 +343,9 @@
     "precioMaximo": "Precio máximo",
     "quitarFiltroDeCategoria": "Quitar filtro de categoría",
     "quitarFiltroDeEnvioGratis": "Quitar filtro de envío gratis",
-    "quitarFiltroDePais": "Quitar filtro de país"
+    "quitarFiltroDePais": "Quitar filtro de país",
+    "america": "América",
+    "compruebaTuConexionEIntentaloDeNue": "Comprueba tu conexión e inténtalo de nuevo"
   },
   "certifications": {
     "halal": "Halal",
@@ -430,7 +452,12 @@
     "rating": "Valoración",
     "product": "Producto",
     "iniciaSesionParaEnviarUnMensaje": "Inicia sesión para enviar un mensaje",
-    "seccionesDeLaTienda": "Secciones de la tienda"
+    "seccionesDeLaTienda": "Secciones de la tienda",
+    "noSePudoCargarLaTiendaCompruebaT": "No se pudo cargar la tienda. Comprueba tu conexión.",
+    "sinResenas": "Sin reseñas",
+    "estaTiendaNoTieneProductosAun": "Esta tienda no tiene productos aún",
+    "estaTiendaNoHaCompartidoRecetasAun": "Esta tienda no ha compartido recetas aún",
+    "anonimo": "Anónimo"
   },
   "cart": {
     "title": "Carrito de Compra",
@@ -448,7 +475,20 @@
     "itemsInCart": "itemás en tu carrito",
     "viewCart": "Ver carrito",
     "more": "más...",
-    "aplicarCodigoDeDescuento": "Aplicar código de descuento"
+    "aplicarCodigoDeDescuento": "Aplicar código de descuento",
+    "direccionRequerida": "Dirección requerida",
+    "codigoPostalNoValido": "Código postal no válido",
+    "paisRequerido": "País requerido",
+    "noSePudoActualizarLaCantidad": "No se pudo actualizar la cantidad",
+    "noSePudoEliminarElProducto": "No se pudo eliminar el producto",
+    "descubreProductosIncreiblesDeProduct": "Descubre productos increíbles de productores locales",
+    "laReservaDeAlgunProductoExpiroCom": "La reserva de algún producto expiró. Comprueba disponibilidad.",
+    "calculandoEnvio": "Calculando envío...",
+    "maximoAlcanzado": "Máximo alcanzado",
+    "envioPorTienda": "Envío por tienda",
+    "iniciaSesionParaVerElCosteDeEnvio": "Inicia sesión para ver el coste de envío",
+    "ivaIncluido·EnvioSeCalculaAlInici": "IVA incluido · Envío se calcula al iniciar sesión",
+    "iniciarSesionParaComprar": "Iniciar sesión para comprar"
   },
   "checkout": {
     "title": "Pago",
@@ -514,7 +554,16 @@
     "emailVerifiedSuccess": "Email verificado correctamente!",
     "direccionGuardada": "Dirección guardada",
     "seleccionaUnaDireccion": "Selecciona una dirección",
-    "noSePudoIniciarElPagoIntentaloDe": "No se pudo iniciar el pago. Inténtalo de nuevo."
+    "noSePudoIniciarElPagoIntentaloDe": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+    "errorAlGuardarLaDireccion": "Error al guardar la dirección",
+    "codigoNoValido": "Código no válido",
+    "errorAlProcesarElPago": "Error al procesar el pago",
+    "necesitasVerificarTuEmailParaComple": "Necesitas verificar tu email para completar la compra",
+    "direccionCalleYNumero": "Dirección (calle y número)",
+    "codigoPostal": "Código postal",
+    "segunDireccion": "Según dirección",
+    "metodoDePago": "Método de pago",
+    "envioA": "Envío a"
   },
   "orders": {
     "title": "Mis Pedidos",
@@ -1167,7 +1216,11 @@
     "status": "Estado",
     "verifiedStatus": "Verificado",
     "madeIn": "Orgullosamente Hecho en",
-    "notFoundDesc": "Este certificado no se pudo encontrar"
+    "notFoundDesc": "Este certificado no se pudo encontrar",
+    "espanol": "Español",
+    "certificatNumerique": "Certificat numérique",
+    "alergenios": "Alergénios",
+    "noHemosEncontradoLaFichaDeConfianz": "No hemos encontrado la ficha de confianza de este producto."
   },
   "errors": {
     "generic": "Ocurrió un error. Intenta de nuevo.",
@@ -1964,7 +2017,10 @@
     "newNotification": "Nueva notificación",
     "eliminarNotificacion": "Eliminar notificación",
     "noSePudieronEliminarLasNotificacion": "No se pudieron eliminar las notificaciones",
-    "marcarTodoComoLeido": "Marcar todo como leído"
+    "marcarTodoComoLeido": "Marcar todo como leído",
+    "todoAlDia": "Todo al día",
+    "aquiVerasLikesComentariosActualiza": "Aquí verás likes, comentarios, actualizaciones de pedidos y más.",
+    "leido": "Leído"
   },
   "actions": {
     "newProduct": "Nuevo Producto",
@@ -2398,7 +2454,10 @@
     "min": "min",
     "portions": "porciones",
     "notFound": "Receta no encontrada",
-    "borrarBusqueda": "Borrar búsqueda"
+    "borrarBusqueda": "Borrar búsqueda",
+    "descubreRecetasSaludablesConProducto": "Descubre recetas saludables con productos artesanales locales. Filtra por dificultad, tiempo y dieta.",
+    "noHayRecetasConEstosFiltros": "No hay recetas con estos filtros",
+    "seElPrimeroEnCompartirUnaRecetaCo": "Sé el primero en compartir una receta con la comunidad"
   },
   "customerDashboard": {
     "greeting": "Hola",
@@ -2614,7 +2673,13 @@
     "toClose": "para cerrar",
     "elPrecioMinimoNoPuedeSerMayorQue": "El precio mínimo no puede ser mayor que el máximo",
     "errorAlBuscarIntentaloDeNuevo": "Error al buscar. Inténtalo de nuevo.",
-    "limpiarBusqueda": "Limpiar búsqueda"
+    "limpiarBusqueda": "Limpiar búsqueda",
+    "masReciente": "Más reciente",
+    "ecologico": "Ecológico",
+    "buscaProductosArtesanalesRecetasTi": "Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local.",
+    "pruebaConOtrosTerminosORevisaLaOr": "Prueba con otros términos o revisa la ortografía",
+    "jamonIberico": "Jamón ibérico",
+    "busquedasPopulares": "Búsquedas populares"
   },
   "influencerAI": {
     "inputPlaceholder": "Describe que contenido necesitas..."
@@ -2666,7 +2731,13 @@
     "chatNoDisponibleParaEsteProducto": "Chat no disponible para este producto",
     "noSePudoAbrirElChat": "No se pudo abrir el chat",
     "puntuacion": "Puntuación",
-    "comentarioDeLaResena": "Comentario de la reseña"
+    "comentarioDeLaResena": "Comentario de la reseña",
+    "noHemosPodidoEnviarLaResena": "No hemos podido enviar la reseña",
+    "anadirAFavoritos": "Añadir a favoritos",
+    "politicaDeDevolucion": "Política de devolución",
+    "tienes14DiasDesdeLaRecepcionParaD": "Tienes 14 días desde la recepción para devolver tu pedido. Los productos alimentarios perecederos no admiten devolución.",
+    "anadeEsteProductoAlCatalogoB2bPara": "Añade este producto al catálogo B2B para recibir pedidos mayoristas.",
+    "anadirAlCatalogoB2b": "Añadir al catálogo B2B"
   },
   "recipe_detail": {
     "errorAlAnadirProductosAlCarrito": "Error al añadir productos al carrito",
@@ -2676,31 +2747,68 @@
     "noSePudoGuardarEnLaLista": "No se pudo guardar en la lista",
     "seleccionaUnaValoracion": "Selecciona una valoración",
     "valoracionPublicada": "Valoración publicada",
-    "masPorciones": "Más porciones"
+    "masPorciones": "Más porciones",
+    "errorAlPublicarLaValoracion": "Error al publicar la valoración",
+    "preparacion": "Preparación",
+    "informacionNutricional": "Información nutricional",
+    "porRacion": "Por ración",
+    "proteina": "Proteína",
+    "azucar": "Azúcar",
+    "aunNoHayResenasSeElPrimero": "Aún no hay reseñas. ¡Sé el primero!",
+    "tuResena": "Tu reseña",
+    "enviarResena": "Enviar reseña"
   },
   "community": {
     "configuracion": "Configuración",
     "errorAlActualizarMembresia": "Error al actualizar membresía",
     "escribeAlgoOAnadeUnaImagen": "Escribe algo o añade una imagen",
     "queQuieresCompartirPuedesUsarHas": "¿Qué quieres compartir? Puedes usar #hashtags",
-    "anadirImagen": "Añadir imagen"
+    "anadirImagen": "Añadir imagen",
+    "errorAlCargarLaComunidad": "Error al cargar la comunidad",
+    "salirDeLaComunidad": "Salir de la comunidad",
+    "comparteAlgoConLaComunidad": "Comparte algo con la comunidad...",
+    "aunNoHayPosts": "Aún no hay posts",
+    "seElPrimeroEnPublicarAlgo": "¡Sé el primero en publicar algo!",
+    "verMasPosts": "Ver más posts",
+    "verMasComentarios": "Ver más comentarios",
+    "sinMiembrosTodavia": "Sin miembros todavía",
+    "verMasMiembros": "Ver más miembros",
+    "normasDeLaComunidad": "Normas de la comunidad",
+    "contenidoRelacionadoConAlimentacionY": "Contenido relacionado con alimentación y gastronomía",
+    "sinSpamNiPublicidadNoAutorizada": "Sin spam ni publicidad no autorizada",
+    "sinBebidasAlcoholicas": "Sin bebidas alcohólicas",
+    "elAdminPuedeEliminarPostsQueNoCum": "El admin puede eliminar posts que no cumplan las normas"
   },
   "user_profile": {
     "errorAlCargarTusStories": "Error al cargar tus stories",
     "errorAlSubirLaFoto": "Error al subir la foto",
-    "noSePudoAbrirLaConversacion": "No se pudo abrir la conversación"
+    "noSePudoAbrirLaConversacion": "No se pudo abrir la conversación",
+    "errorAlCrearConversacion": "Error al crear conversación",
+    "atras": "Atrás"
   },
   "followers": {
     "errorAlDejarDeSeguir": "Error al dejar de seguir",
-    "cargarMasUsuarios": "Cargar más usuarios"
+    "cargarMasUsuarios": "Cargar más usuarios",
+    "pruebaConOtroTermino": "Prueba con otro término",
+    "cargarMas": "Cargar más"
   },
   "saved": {
     "errorAlCrearLaColeccion": "Error al crear la colección",
-    "nombreDeLaColeccion": "Nombre de la colección"
+    "nombreDeLaColeccion": "Nombre de la colección",
+    "guardaContenidoTocandoElIconoDeMar": "Guarda contenido tocando el icono de marcador",
+    "nuevaColeccion": "Nueva colección"
   },
   "login": {
     "errorAlIniciarSesionConGoogle": "Error al iniciar sesión con Google.",
-    "tuContrasena": "Tu contraseña"
+    "tuContrasena": "Tu contraseña",
+    "elEmailEsObligatorio": "El email es obligatorio",
+    "laContrasenaEsObligatoria": "La contraseña es obligatoria",
+    "emailOContrasenaIncorrectos": "Email o contraseña incorrectos",
+    "tuCuentaEstaRestringidaPorEdad": "Tu cuenta está restringida por edad",
+    "noHemosPodidoIniciarTuSesion": "No hemos podido iniciar tu sesión.",
+    "entraEnTuCuenta": "Entra en tu cuenta",
+    "tuSesionHaExpiradoIniciaSesionDe": "Tu sesión ha expirado. Inicia sesión de nuevo.",
+    "ocultarContrasena": "Ocultar contraseña"
   },
   "forgot_password": {
     "reenviarEmailDeRecuperacion": "Reenviar email de recuperación",
@@ -2708,11 +2816,24 @@
   },
   "onboarding": {
     "laImagenNoPuedeSuperar5Mb": "La imagen no puede superar 5 MB",
-    "noSePudoSubirLaFotoDePerfilPero": "No se pudo subir la foto de perfil, pero tu cuenta se creará igualmente."
+    "noSePudoSubirLaFotoDePerfilPero": "No se pudo subir la foto de perfil, pero tu cuenta se creará igualmente.",
+    "panaderia": "Panadería",
+    "reposteria": "Repostería",
+    "descubreProductosArtesanalesUnicosDe": "Descubre productos artesanales únicos de productores locales.",
+    "tuTiendaEstaListaEmpiezaAVenderT": "Tu tienda está lista. Empieza a vender tus productos artesanales.",
+    "exploraElMarketplaceB2bYEncuentraL": "Explora el marketplace B2B y encuentra los mejores productores.",
+    "errorAlGuardarTuPerfilIntentaloDe": "Error al guardar tu perfil. Inténtalo de nuevo.",
+    "estoEsLoQueVeranOtrosUsuarios": "Esto es lo que verán otros usuarios",
+    "ubicacionOpcional": "Ubicación (opcional)"
   },
   "post_detail": {
     "publicacionEditada": "Publicación editada",
-    "editarDescripcion": "Editar descripción"
+    "editarDescripcion": "Editar descripción",
+    "publicacion": "Publicación",
+    "editarPublicacion": "Editar publicación",
+    "laImagenNoSePuedeCambiarTrasPubli": "La imagen no se puede cambiar tras publicar.",
+    "seEliminaraPermanentementeJuntoConS": "Se eliminará permanentemente junto con sus comentarios y likes. Esta acción no se puede deshacer.",
+    "seElPrimeroEnComentar": "Sé el primero en comentar"
   },
   "create_recipe": {
     "noHemosPodidoCargarLaImagen": "No hemos podido cargar la imagen",
@@ -2721,9 +2842,64 @@
     "anadirIngrediente": "Añadir ingrediente",
     "cuentaQueHaceEspecialEstaReceta": "Cuenta qué hace especial esta receta...",
     "descripcionDeLaReceta": "Descripción de la receta",
-    "anadirEtiqueta": "Añadir etiqueta..."
+    "anadirEtiqueta": "Añadir etiqueta...",
+    "ensaladaRapida": "Ensalada rápida",
+    "postreFacil": "Postre fácil",
+    "noHemosPodidoPublicarLaReceta": "No hemos podido publicar la receta",
+    "recetaPublicada": "¡Receta publicada!",
+    "tienesUnBorradorDeReceta": "Tienes un borrador de receta",
+    "momentoDelDia": "Momento del día",
+    "unaIntroduccionParaTuReceta": "Una introducción para tu receta"
   },
   "reels": {
     "errorAlCargarMasReels": "Error al cargar más reels"
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "Prueba con otra categoría o ajusta los filtros.",
+    "verMasProductos": "Ver más productos",
+    "caracteristicas": "Características"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "Explora tiendas de productores artesanales de alimentación saludable local. Filtra por región y país."
+  },
+  "communities_explore": {
+    "alimentacion": "Alimentación",
+    "iniciaSesionParaVerTusComunidades": "Inicia sesión para ver tus comunidades",
+    "noHayComunidadesEnEstaCategoria": "No hay comunidades en esta categoría",
+    "sinResultadosParaTuBusqueda": "Sin resultados para tu búsqueda",
+    "aunNoHayComunidades": "Aún no hay comunidades",
+    "creaLaPrimeraComunidadDeEstaCatego": "Crea la primera comunidad de esta categoría",
+    "pruebaConOtrosTerminos": "Prueba con otros términos",
+    "seElPrimeroEnCrearUnaYConectarCo": "Sé el primero en crear una y conectar con la comunidad",
+    "consigue100SeguidoresOVerificaTuCu": "Consigue 100 seguidores o verifica tu cuenta de vendedor"
+  },
+  "about": {
+    "envioGestionadoPorProductor": "Envío gestionado por productor",
+    "productosConInformacionVerificableY": "Productos con información verificable y certificado digital.",
+    "operacionInternacional": "Operación internacional",
+    "feedPostsYReelsConectadosConConve": "Feed, posts y reels conectados con conversión real.",
+    "checkoutSeguroComisionesYConciliaci": "Checkout seguro, comisiones y conciliación por operación.",
+    "contenidoUtil": "Contenido útil",
+    "clientesProductoresImportadoresEIn": "Clientes, productores, importadores e influencers en un solo flujo.",
+    "gestionarPedidosYOperacionDiaria": "Gestionar pedidos y operación diaria",
+    "configurarEnvioYCatalogoInternaciona": "Configurar envío y catálogo internacional",
+    "trackingDeConversionYRendimiento": "Tracking de conversión y rendimiento",
+    "monetizacionEnPostsYReels": "Monetización en posts y reels",
+    "altaDeProductosYCatalogoPropio": "Alta de productos y catálogo propio",
+    "panelDePedidosPagosYOperacion": "Panel de pedidos, pagos y operación",
+    "catalogoLimpio": "Catálogo limpio",
+    "contenidoUtilEnlazadoAProductosReal": "Contenido útil enlazado a productos reales.",
+    "queEsHispaloshop": "Qué es Hispaloshop",
+    "unimosCompraVentaInfluenciaYTraza": "Unimos compra, venta, influencia y trazabilidad en una plataforma operativa.",
+    "loQueYaEstaActivo": "Lo que ya está activo",
+    "funcionalidadRealDeProductoEnEstaV": "Funcionalidad real de producto en esta versión.",
+    "porQueLaPlataformaFunciona": "Por qué la plataforma funciona",
+    "paraQuienEstaHecho": "Para quién está hecho",
+    "porQueExisteHispaloshop": "Por qué existe Hispaloshop",
+    "laHistoriaRealDetrasDelProyecto": "La historia real detrás del proyecto.",
+    "aLos25Perdi15000€EnUnContainerD": "A los 25 perdí 15.000€ en un container de palomitas que se pudrió en Incheon. Lloré en un parque de Seúl. A los 26, volví a la habitación de mis padres en Reus. Son las 6 de la mañana y llevo dos meses sin dormir más de 5 horas construyendo esto.",
+    "loHiceParaQueNingunProductorHonest": "Lo hice para que ningún productor honesto vuelva a sentirse invisible. Para que ningún influencer tenga que elegir entre su integridad y su pan.",
+    "exploraCatalogoTiendasYContenido": "Explora catálogo, tiendas y contenido.",
+    "checkoutCentralizadoEnUnSoloFlujo": "Checkout centralizado en un solo flujo."
   }
 }

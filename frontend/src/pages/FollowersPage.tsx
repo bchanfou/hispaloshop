@@ -277,7 +277,7 @@ export default function FollowersPage() {
               {search ? 'Sin resultados' : tab === 'followers' ? 'Sin seguidores' : 'No sigue a nadie'}
             </p>
             <p className="mt-1 text-[13px] text-stone-400">
-              {search ? 'Prueba con otro término' : tab === 'followers' ? 'Aún no tiene seguidores' : 'Aún no sigue a nadie'}
+              {search ? t('followers.pruebaConOtroTermino', 'Prueba con otro término') : tab === 'followers' ? 'Aún no tiene seguidores' : 'Aún no sigue a nadie'}
             </p>
             {!search && (
               <button
@@ -316,7 +316,7 @@ export default function FollowersPage() {
                   {loadingMore ? (
                     <Loader2 size={14} className="animate-spin" />
                   ) : (
-                    'Cargar más'
+                    t('followers.cargarMas', 'Cargar más')
                   )}
                 </button>
               </div>

@@ -96,7 +96,7 @@ export default function CommunityPage() {
         </div>
         <div className="flex flex-col items-center justify-center gap-3 px-4 py-[60px]">
           <Users size={56} className="text-stone-500" strokeWidth={1} />
-          <p className="text-[15px] text-stone-500">Error al cargar la comunidad</p>
+          <p className="text-[15px] text-stone-500">{t('community.errorAlCargarLaComunidad', 'Error al cargar la comunidad')}</p>
           <button onClick={() => refetch()}
             className="flex items-center gap-2 px-6 py-2.5 bg-white text-stone-950 rounded-full border border-stone-200 text-sm font-semibold cursor-pointer"
             aria-label="Reintentar carga">
@@ -354,7 +354,7 @@ const JoinButton = ({ communityId, isMember, onToggle }) => {
       whileTap={{ scale: 0.94 }}
       onClick={toggle}
       disabled={loading}
-      aria-label={joined ? 'Salir de la comunidad' : 'Unirse a la comunidad'}
+      aria-label={joined ? t('community.salirDeLaComunidad', 'Salir de la comunidad') : 'Unirse a la comunidad'}
       className={`px-5 py-2 rounded-full text-[13px] font-semibold cursor-pointer transition-all shrink-0 ${
         joined
           ? 'border border-stone-200 bg-white text-stone-500'
@@ -425,9 +425,9 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
       ) : posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-stone-500">
           <Users size={48} strokeWidth={1} className="text-stone-500" />
-          <p className="text-[15px] font-semibold text-stone-950 m-0">Aún no hay posts</p>
+          <p className="text-[15px] font-semibold text-stone-950 m-0">{t('community.aunNoHayPosts', 'Aún no hay posts')}</p>
           <p className="text-[13px] m-0">
-            {isMember ? '¡Sé el primero en publicar algo!' : 'Únete para ver y publicar contenido'}
+            {isMember ? t('community.seElPrimeroEnPublicarAlgo', '¡Sé el primero en publicar algo!') : 'Únete para ver y publicar contenido'}
           </p>
         </div>
       ) : (
@@ -785,7 +785,7 @@ const CommentsSection = ({ postId, onCountChange }) => {
             <div className="w-5 h-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
           </div>
         ) : comments.length === 0 ? (
-          <p className="text-[13px] text-stone-400 text-center py-2 m-0">Sin comentarios aún</p>
+          <p className="text-[13px] text-stone-400 text-center py-2 m-0">{t('feed.noComments', 'Sin comentarios aún')}</p>
         ) : (
           <>
             {comments.map(c => (
@@ -973,7 +973,7 @@ const CommunityAbout = ({ community }) => (
     {/* C-06: handle both singular category (string) and plural categories (array) */}
     {(community.category || community.categories?.length > 0) && (
       <div className="mb-5">
-        <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">Categoría</h3>
+        <h3 className="text-base font-bold mb-2 text-stone-950 mt-0">{t('products.category', 'Categoría')}</h3>
         <div className="flex gap-1.5 flex-wrap">
           {(Array.isArray(community.categories) && community.categories.length > 0
             ? community.categories
@@ -993,11 +993,11 @@ const CommunityAbout = ({ community }) => (
       </h3>
       <div className="bg-white shadow-sm rounded-2xl px-3.5 py-3">
         {[
-          'Contenido relacionado con alimentación y gastronomía',
+          t('community.contenidoRelacionadoConAlimentacionY', 'Contenido relacionado con alimentación y gastronomía'),
           'Trato respetuoso entre miembros',
-          'Sin spam ni publicidad no autorizada',
-          'Sin bebidas alcohólicas',
-          'El admin puede eliminar posts que no cumplan las normas',
+          t('community.sinSpamNiPublicidadNoAutorizada', 'Sin spam ni publicidad no autorizada'),
+          t('community.sinBebidasAlcoholicas', 'Sin bebidas alcohólicas'),
+          t('community.elAdminPuedeEliminarPostsQueNoCum', 'El admin puede eliminar posts que no cumplan las normas'),
         ].map((rule, i) => (
           <p key={i} className={`text-[13px] text-stone-950 flex gap-2 ${i < 4 ? 'mb-1.5' : 'm-0'} ${i === 0 ? 'mt-0' : ''}`}>
             <span className="text-stone-500 shrink-0">{i + 1}.</span>

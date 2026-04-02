@@ -14,17 +14,17 @@ import { useTranslation } from 'react-i18next';
 const TOTAL_STEPS = 3;
 
 const INTERESTS = [
-  'Aceites', 'Miel', 'Conservas', 'Panadería', 'Quesos', 'Embutidos',
+  'Aceites', 'Miel', 'Conservas', t('onboarding.panaderia', 'Panadería'), 'Quesos', 'Embutidos',
   'Salsas', 'Especias', 'Legumbres', 'Frutos secos', 'Infusiones',
-  'Vinos', 'Frutas', 'Verduras', 'Repostería', 'Bebidas',
+  'Vinos', 'Frutas', 'Verduras', t('onboarding.reposteria', 'Repostería'), 'Bebidas',
 ];
 
 const ROLE_WELCOME_SUBTITLES = {
-  consumer: 'Descubre productos artesanales únicos de productores locales.',
-  customer: 'Descubre productos artesanales únicos de productores locales.',
-  producer: 'Tu tienda está lista. Empieza a vender tus productos artesanales.',
+  consumer: t('onboarding.descubreProductosArtesanalesUnicosDe', 'Descubre productos artesanales únicos de productores locales.'),
+  customer: t('onboarding.descubreProductosArtesanalesUnicosDe', 'Descubre productos artesanales únicos de productores locales.'),
+  producer: t('onboarding.tuTiendaEstaListaEmpiezaAVenderT', 'Tu tienda está lista. Empieza a vender tus productos artesanales.'),
   influencer: 'Conecta con marcas y empieza a crear contenido que inspira.',
-  importer: 'Explora el marketplace B2B y encuentra los mejores productores.',
+  importer: t('onboarding.exploraElMarketplaceB2bYEncuentraL', 'Explora el marketplace B2B y encuentra los mejores productores.'),
 };
 
 const slideVariants = {
@@ -183,7 +183,7 @@ export default function OnboardingPage() {
       };
       navigate(roleDestinations[role] || '/', { replace: true });
     } catch (err) {
-      toast.error(typeof err?.response?.data?.detail === 'string' ? err.response.data.detail : 'Error al guardar tu perfil. Inténtalo de nuevo.');
+      toast.error(typeof err?.response?.data?.detail === 'string' ? err.response.data.detail : t('onboarding.errorAlGuardarTuPerfilIntentaloDe', 'Error al guardar tu perfil. Inténtalo de nuevo.'));
       setSaving(false);
       return;
     }
@@ -276,7 +276,7 @@ export default function OnboardingPage() {
 
         {/* Location */}
         <div className="w-full">
-          <label className="text-xs font-medium text-stone-500 mb-1.5 block">Ubicación (opcional)</label>
+          <label className="text-xs font-medium text-stone-500 mb-1.5 block">{t('onboarding.ubicacionOpcional', 'Ubicación (opcional)')}</label>
           <div className="relative">
             <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
             <input

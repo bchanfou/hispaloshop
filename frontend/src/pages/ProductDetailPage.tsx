@@ -188,7 +188,7 @@ export default function ProductDetailPage() {
       await submitReview({ orderId: reviewOrderId, rating: reviewRating, comment: reviewComment });
       toast.success(t('product_detail.resenaEnviada', 'Reseña enviada'));
       setShowReviewForm(false); setReviewComment(''); setReviewRating(5);
-    } catch (error) { toast.error(error.message || 'No hemos podido enviar la reseña'); }
+    } catch (error) { toast.error(error.message || t('product_detail.noHemosPodidoEnviarLaResena', 'No hemos podido enviar la reseña')); }
   };
 
   const toggleWishlist = async () => {
@@ -353,7 +353,7 @@ export default function ProductDetailPage() {
               onClick={toggleWishlist}
               disabled={wishlistLoading}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
-              aria-label={inWishlist ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+              aria-label={inWishlist ? 'Quitar de favoritos' : t('product_detail.anadirAFavoritos', 'Añadir a favoritos')}
             >
               <Heart
                 size={18}
@@ -608,7 +608,7 @@ export default function ProductDetailPage() {
             onClick={() => setReturnPolicyOpen((v) => !v)}
             className="flex w-full items-center justify-between text-sm font-medium text-stone-950"
           >
-            <span>Política de devolución</span>
+            <span>{t('product_detail.politicaDeDevolucion', 'Política de devolución')}</span>
             <ChevronDown
               size={16}
               className={`text-stone-500 transition-transform duration-200 ${returnPolicyOpen ? 'rotate-180' : ''}`}
@@ -856,12 +856,12 @@ export default function ProductDetailPage() {
           const nutri = currentNutritionalInfo || product.nutrition || product.nutritional_info;
           if (!nutri || Object.keys(nutri).length === 0) return null;
           const nutriRows = [
-            ['calories', 'Energía', 'kcal'],
+            ['calories', t('certificate.nutritionLabels.energy', 'Energía'), 'kcal'],
             ['fat', 'Grasas', 'g'],
             ['saturated_fat', 'Grasas Sat.', 'g'],
             ['carbohydrates', 'Carbohidratos', 'g'],
-            ['sugars', 'Azúcares', 'g'],
-            ['protein', 'Proteínas', 'g'],
+            ['sugars', t('certificate.nutritionLabels.sugars', 'Azúcares'), 'g'],
+            ['protein', t('certificate.nutritionLabels.protein', 'Proteínas'), 'g'],
             ['fiber', 'Fibra', 'g'],
             ['salt', 'Sal', 'g'],
             ['sodium', 'Sodio', 'mg'],

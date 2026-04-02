@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 /* ── Stepper ── */
 function Stepper({ current, onStepClick }) {
-  const steps = ['Dirección', 'Pago'];
+  const steps = [t('common.address', 'Dirección'), 'Pago'];
   return (
     <nav aria-label="Progreso del checkout" className="flex items-center justify-center gap-2 px-6 py-4 border-b border-stone-200 bg-white mb-0">
       {steps.map((label, i) => {
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
     }
     try {
       const result = await createAddress({
-        name: 'Dirección',
+        name: t('common.address', 'Dirección'),
         full_name: trimmedName,
         street: trimmedStreet + (newAddress.floor ? `, ${newAddress.floor.trim()}` : ''),
         postal_code: trimmedPostal,
@@ -190,7 +190,7 @@ export default function CheckoutPage() {
       setShowNewForm(false);
       toast.success(t('checkout.direccionGuardada', 'Dirección guardada'));
     } catch (err) {
-      toast.error(err?.message || 'Error al guardar la dirección');
+      toast.error(err?.message || t('checkout.errorAlGuardarLaDireccion', 'Error al guardar la dirección'));
     }
   };
 
@@ -200,12 +200,12 @@ export default function CheckoutPage() {
     setDiscountError('');
     try {
       const result = await applyDiscount(discountCode.trim().toUpperCase());
-      if (!result?.success) throw new Error(result?.error || 'Código no válido');
+      if (!result?.success) throw new Error(result?.error || t('checkout.codigoNoValido', 'Código no válido'));
       setDiscountCode('');
       setDiscountError('');
       toast.success('Descuento aplicado');
     } catch (err) {
-      setDiscountError('Código no válido');
+      setDiscountError(t('checkout.codigoNoValido', 'Código no válido'));
     } finally {
       setDiscountLoading(false);
     }
@@ -248,7 +248,7 @@ export default function CheckoutPage() {
       if (error?.data?.detail?.issues) {
         error.data.detail.issues.forEach(issue => toast.error(issue));
       } else {
-        toast.error(error?.message || 'Error al procesar el pago');
+        toast.error(error?.message || t('checkout.errorAlProcesarElPago', 'Error al procesar el pago'));
       }
     } finally {
       payingRef.current = false;
@@ -286,7 +286,7 @@ export default function CheckoutPage() {
           <div className="bg-stone-100 rounded-2xl p-4 mb-4 flex items-center justify-between w-full">
             <div>
               <p className="text-sm font-medium text-stone-950">Verifica tu correo</p>
-              <p className="text-xs text-stone-500">Necesitas verificar tu email para completar la compra</p>
+              <p className="text-xs text-stone-500">{t('checkout.necesitasVerificarTuEmailParaComple', 'Necesitas verificar tu email para completar la compra')}</p>
             </div>
             <Link to="/settings" className="text-sm font-semibold text-stone-950 underline">Verificar</Link>
           </div>
@@ -365,7 +365,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-stone-950 mb-1">Dirección (calle y número)</label>
+                        <label className="block text-xs font-semibold text-stone-950 mb-1">{t('checkout.direccionCalleYNumero', 'Dirección (calle y número)')}</label>
                         <input
                           value={newAddress.street}
                           onChange={e => setNewAddress(p => ({ ...p, street: e.target.value }))}
@@ -384,7 +384,7 @@ export default function CheckoutPage() {
                       </div>
                       <div className="flex gap-2.5">
                         <div className="flex-1">
-                          <label className="block text-xs font-semibold text-stone-950 mb-1">Código postal</label>
+                          <label className="block text-xs font-semibold text-stone-950 mb-1">{t('checkout.codigoPostal', 'Código postal')}</label>
                           <input
                             value={newAddress.postal_code}
                             onChange={e => setNewAddress(p => ({ ...p, postal_code: e.target.value }))}
@@ -410,14 +410,14 @@ export default function CheckoutPage() {
                           onChange={e => setNewAddress(p => ({ ...p, country: e.target.value }))}
                           className="w-full h-12 px-3.5 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none focus:ring-2 focus:ring-stone-400 focus:ring-offset-1 transition-all duration-200"
                         >
-                          <option value="ES">España</option>
+                          <option value="ES">{t('admin.countries.ES', 'España')}</option>
                           <option value="PT">Portugal</option>
                           <option value="FR">Francia</option>
                           <option value="DE">Alemania</option>
                           <option value="IT">Italia</option>
                           <option value="GB">Reino Unido</option>
                           <option value="US">Estados Unidos</option>
-                          <option value="MX">México</option>
+                          <option value="MX">{t('admin.countries.MX', 'México')}</option>
                           <option value="AR">Argentina</option>
                           <option value="CO">Colombia</option>
                         </select>
@@ -457,7 +457,7 @@ export default function CheckoutPage() {
 
             {/* Summary — mobile only (desktop has sticky sidebar) */}
             <div className="mt-6 lg:hidden">
-              <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel="Según dirección" formatPrice={formatPrice} />
+              <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel=t('checkout.segunDireccion', 'Según dirección') formatPrice={formatPrice} />
             </div>
 
             {/* Continue */}
@@ -571,7 +571,7 @@ export default function CheckoutPage() {
 
         {/* ── Right: Order Summary (desktop sticky sidebar) ── */}
         <div className="hidden lg:block lg:w-[40%] lg:sticky lg:top-[120px]">
-          <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel={step === 1 ? 'Según dirección' : undefined} formatPrice={formatPrice} />
+          <OrderSummary cartItems={cartItems} cartSummary={cartSummary} appliedDiscount={appliedDiscount} shippingLabel={step === 1 ? t('checkout.segunDireccion', 'Según dirección') : undefined} formatPrice={formatPrice} />
         </div>
 
         </div>

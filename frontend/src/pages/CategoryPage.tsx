@@ -20,12 +20,12 @@ const SORT_OPTIONS = [
   { value: 'relevance', label: 'Relevancia' },
   { value: 'price_asc', label: 'Precio: menor a mayor' },
   { value: 'price_desc', label: 'Precio: mayor a menor' },
-  { value: 'bestsellers', label: 'Más vendidos' },
+  { value: 'bestsellers', label: t('home.bestSellers', 'Más vendidos') },
   { value: 'rated', label: 'Mejor valorados' },
 ];
 
 const FILTER_FEATURES = [
-  'Envío gratis',
+  t('common.freeShipping', 'Envío gratis'),
   'Producto BIO',
   'De mi zona',
   'Con descuento',
@@ -73,7 +73,7 @@ const CategoryPage = () => {
           ...(p.tags || []),
           ...(p.certifications || []),
           p.is_bio && 'Producto BIO',
-          p.free_shipping && 'Envío gratis',
+          p.free_shipping && t('common.freeShipping', 'Envío gratis'),
           p.is_new && 'Novedad',
           p.has_discount && 'Con descuento',
           p.is_local && 'De mi zona',
@@ -366,7 +366,7 @@ const CategoryPage = () => {
 
               {/* Features */}
               <div>
-                <h4 className="mb-3 text-sm font-medium text-stone-950">Características</h4>
+                <h4 className="mb-3 text-sm font-medium text-stone-950">{t('category.caracteristicas', 'Características')}</h4>
                 <div className="space-y-3">
                   {FILTER_FEATURES.map((feature) => {
                     const isChecked = activeFeatures.includes(feature);

@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { FeedContainer } from '../components/feed';
 import SEO from '../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 export default function HomePage() {
   const structuredData = useMemo(
@@ -12,7 +13,7 @@ export default function HomePage() {
         name: 'Hispaloshop',
         url: 'https://www.hispaloshop.com',
         description:
-          'Social commerce alimentario para descubrir productores honestos, comprar con claridad y hablar con la comunidad.',
+          t('home.socialCommerceAlimentarioParaDescubr', 'Social commerce alimentario para descubrir productores honestos, comprar con claridad y hablar con la comunidad.'),
         potentialAction: {
           '@type': 'SearchAction',
           target: {
@@ -30,7 +31,7 @@ export default function HomePage() {
     <div className="relative min-h-screen overflow-x-hidden bg-white">
       <SEO
         title="Hispaloshop - Productos reales y productores honestos"
-        description="Social commerce alimentario para descubrir productores honestos, comprar con claridad y hablar con la comunidad."
+        description=t('home.socialCommerceAlimentarioParaDescubr', 'Social commerce alimentario para descubrir productores honestos, comprar con claridad y hablar con la comunidad.')
         url="https://www.hispaloshop.com"
         structuredData={structuredData}
       />

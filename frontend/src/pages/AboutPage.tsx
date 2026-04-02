@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   Sparkles,
@@ -27,17 +28,17 @@ export default function AboutPage() {
   const stats = [
     { value: '✓', label: 'Productores verificados' },
     { value: '✓', label: 'Venta directa' },
-    { value: '✓', label: 'Envío gestionado por productor' },
+    { value: '✓', label: t('about.envioGestionadoPorProductor', 'Envío gestionado por productor') },
     { value: '✓', label: 'Trazabilidad completa' },
   ];
 
   const features = [
-    { icon: Shield, title: 'Calidad y trazabilidad', desc: 'Productos con información verificable y certificado digital.', color: 'bg-stone-100 text-stone-700' },
-    { icon: Globe, title: 'Operación internacional', desc: 'Catálogo único para compra y venta en varios mercados.', color: 'bg-stone-100 text-stone-700' },
-    { icon: Heart, title: 'Commerce + social', desc: 'Feed, posts y reels conectados con conversión real.', color: 'bg-stone-100 text-stone-700' },
-    { icon: CreditCard, title: 'Pagos centralizados', desc: 'Checkout seguro, comisiones y conciliación por operación.', color: 'bg-stone-100 text-stone-700' },
-    { icon: ChefHat, title: 'Contenido útil', desc: 'Recetas, descubrimiento y comunidad alrededor del producto.', color: 'bg-stone-100 text-stone-700' },
-    { icon: Users, title: 'Ecosistema completo', desc: 'Clientes, productores, importadores e influencers en un solo flujo.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Shield, title: 'Calidad y trazabilidad', desc: t('about.productosConInformacionVerificableY', 'Productos con información verificable y certificado digital.'), color: 'bg-stone-100 text-stone-700' },
+    { icon: Globe, title: t('about.operacionInternacional', 'Operación internacional'), desc: 'Catálogo único para compra y venta en varios mercados.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Heart, title: 'Commerce + social', desc: t('about.feedPostsYReelsConectadosConConve', 'Feed, posts y reels conectados con conversión real.'), color: 'bg-stone-100 text-stone-700' },
+    { icon: CreditCard, title: 'Pagos centralizados', desc: t('about.checkoutSeguroComisionesYConciliaci', 'Checkout seguro, comisiones y conciliación por operación.'), color: 'bg-stone-100 text-stone-700' },
+    { icon: ChefHat, title: t('about.contenidoUtil', 'Contenido útil'), desc: 'Recetas, descubrimiento y comunidad alrededor del producto.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Users, title: 'Ecosistema completo', desc: t('about.clientesProductoresImportadoresEIn', 'Clientes, productores, importadores e influencers en un solo flujo.'), color: 'bg-stone-100 text-stone-700' },
   ];
 
   const audience = [
@@ -59,9 +60,9 @@ export default function AboutPage() {
       title: 'Para productores',
       points: [
         'Publicar productos y vender en marketplace',
-        'Gestionar pedidos y operación diaria',
+        t('about.gestionarPedidosYOperacionDiaria', 'Gestionar pedidos y operación diaria'),
         'Certificado digital y QR funcional por producto',
-        'Configurar envío y catálogo internacional',
+        t('about.configurarEnvioYCatalogoInternaciona', 'Configurar envío y catálogo internacional'),
       ],
       cta: 'Ser Productor',
       to: '/productor/registro',
@@ -73,8 +74,8 @@ export default function AboutPage() {
       points: [
         'Tiers activos: Hercules, Atenea, Zeus',
         'Comisiones del 3% al 7% según GMV',
-        'Tracking de conversión y rendimiento',
-        'Monetización en posts y reels',
+        t('about.trackingDeConversionYRendimiento', 'Tracking de conversión y rendimiento'),
+        t('about.monetizacionEnPostsYReels', 'Monetización en posts y reels'),
       ],
       cta: 'Ser Influencer',
       to: '/influencer/aplicar',
@@ -85,9 +86,9 @@ export default function AboutPage() {
       title: 'Para importadores',
       points: [
         'Mismas capacidades que Productor para vender',
-        'Alta de productos y catálogo propio',
+        t('about.altaDeProductosYCatalogoPropio', 'Alta de productos y catálogo propio'),
         'Certificado digital y QR funcional por producto',
-        'Panel de pedidos, pagos y operación',
+        t('about.panelDePedidosPagosYOperacion', 'Panel de pedidos, pagos y operación'),
       ],
       cta: 'Ser Importador',
       to: '/importer/onboarding',
@@ -96,8 +97,8 @@ export default function AboutPage() {
   ];
 
   const newFeatures = [
-    { icon: Layers, title: 'Catálogo limpio', desc: 'Navegación por categorías con foco en conversión.', color: 'bg-stone-100 text-stone-700' },
-    { icon: ChefHat, title: 'Recetas conectadas', desc: 'Contenido útil enlazado a productos reales.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Layers, title: t('about.catalogoLimpio', 'Catálogo limpio'), desc: 'Navegación por categorías con foco en conversión.', color: 'bg-stone-100 text-stone-700' },
+    { icon: ChefHat, title: 'Recetas conectadas', desc: t('about.contenidoUtilEnlazadoAProductosReal', 'Contenido útil enlazado a productos reales.'), color: 'bg-stone-100 text-stone-700' },
     { icon: Smartphone, title: 'Feed social', desc: 'Publicaciones y reels para descubrimiento diario.', color: 'bg-stone-100 text-stone-700' },
     { icon: Languages, title: 'Contexto local', desc: 'Idioma y moneda aplicados por preferencia.', color: 'bg-stone-100 text-stone-700' },
   ];
@@ -109,7 +110,7 @@ export default function AboutPage() {
         <BackButton />
 
         <section className="text-center mb-12" data-testid="about-hero">
-          <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-3">Qué es Hispaloshop</p>
+          <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-3">{t('about.queEsHispaloshop', 'Qué es Hispaloshop')}</p>
           <h1 className="text-3xl md:text-4xl font-semibold text-stone-950 mb-4">
             Marketplace social para producto real
           </h1>
@@ -143,8 +144,8 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-12" data-testid="about-whats-new">
-          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-2">Lo que ya está activo</h2>
-          <p className="text-sm text-stone-500 text-center mb-8">Funcionalidad real de producto en esta versión.</p>
+          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-2">{t('about.loQueYaEstaActivo', 'Lo que ya está activo')}</h2>
+          <p className="text-sm text-stone-500 text-center mb-8">{t('about.funcionalidadRealDeProductoEnEstaV', 'Funcionalidad real de producto en esta versión.')}</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {newFeatures.map((nf, i) => (
               <div key={i} className="bg-white rounded-2xl shadow-sm p-4 text-center hover:shadow-md transition-all">
@@ -159,7 +160,7 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-8">Por qué la plataforma funciona</h2>
+          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-8">{t('about.porQueLaPlataformaFunciona', 'Por qué la plataforma funciona')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((f, i) => (
               <div key={i} className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-all" data-testid={`about-feature-${i}`}>
@@ -174,7 +175,7 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-8">Para quién está hecho</h2>
+          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-8">{t('about.paraQuienEstaHecho', 'Para quién está hecho')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {audience.map((a, i) => (
               <div key={i} className={`rounded-2xl border p-5 ${a.border}`} data-testid={`about-audience-${i}`}>
@@ -200,8 +201,8 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-2">Por qué existe Hispaloshop</h2>
-          <p className="text-sm text-stone-500 text-center mb-8">La historia real detrás del proyecto.</p>
+          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-2">{t('about.porQueExisteHispaloshop', 'Por qué existe Hispaloshop')}</h2>
+          <p className="text-sm text-stone-500 text-center mb-8">{t('about.laHistoriaRealDetrasDelProyecto', 'La historia real detrás del proyecto.')}</p>
           <div className="bg-stone-950 rounded-2xl p-6 sm:p-8 text-white">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
@@ -242,11 +243,11 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-12 text-center">
-          <h2 className="text-2xl font-semibold text-stone-950 mb-8">Cómo funciona</h2>
+          <h2 className="text-2xl font-semibold text-stone-950 mb-8">{t('becomeInfluencer.howItWorksTitle', 'Cómo funciona')}</h2>
           <div className="grid grid-cols-3 gap-4">
             {[
-              { icon: Sparkles, title: 'Descubre', desc: 'Explora catálogo, tiendas y contenido.' },
-              { icon: ShoppingBag, title: 'Compra', desc: 'Checkout centralizado en un solo flujo.' },
+              { icon: Sparkles, title: 'Descubre', desc: t('about.exploraCatalogoTiendasYContenido', 'Explora catálogo, tiendas y contenido.') },
+              { icon: ShoppingBag, title: 'Compra', desc: t('about.checkoutCentralizadoEnUnSoloFlujo', 'Checkout centralizado en un solo flujo.') },
               { icon: Truck, title: 'Recibe', desc: 'Seguimiento operativo y entrega.' },
             ].map((s, i) => (
               <div key={i}>

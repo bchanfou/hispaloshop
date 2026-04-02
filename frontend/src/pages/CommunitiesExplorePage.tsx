@@ -13,7 +13,7 @@ const FILTERS = [
   { id: 'all',       label: 'Todas' },
   { id: 'joined',    label: 'Mis comunidades' },
   { id: 'popular',   label: 'Populares' },
-  { id: 'food',      label: 'Alimentación' },
+  { id: 'food',      label: t('communities_explore.alimentacion', 'Alimentación') },
   { id: 'recipes',   label: 'Recetas' },
   { id: 'producers', label: 'Productores' },
   { id: 'diet',      label: 'Dieta' },
@@ -168,7 +168,7 @@ export default function CommunitiesExplorePage() {
             {!user ? (
               <div className="py-10 text-center text-stone-500">
                 <Users size={48} className="mx-auto text-stone-300" strokeWidth={1} />
-                <p className="mt-3 text-[15px]">Inicia sesión para ver tus comunidades</p>
+                <p className="mt-3 text-[15px]">{t('communities_explore.iniciaSesionParaVerTusComunidades', 'Inicia sesión para ver tus comunidades')}</p>
                 <button onClick={() => navigate('/login')} className="mt-3 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white border-none cursor-pointer">Entrar</button>
               </div>
             ) : myCommunities.length === 0 ? (
@@ -218,7 +218,7 @@ export default function CommunitiesExplorePage() {
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <AlertTriangle className="w-10 h-10 text-stone-300" />
               <p className="text-base font-semibold text-stone-950">Error al cargar</p>
-              <p className="text-sm text-stone-500">Comprueba tu conexión e inténtalo de nuevo</p>
+              <p className="text-sm text-stone-500">{t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
               <button
                 onClick={() => refetch()}
                 className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors"
@@ -232,17 +232,17 @@ export default function CommunitiesExplorePage() {
               <Users size={48} className="text-stone-300" strokeWidth={1.5} />
               <p className="text-base font-semibold text-stone-950">
                 {filter !== 'all' && !searchInput
-                  ? 'No hay comunidades en esta categoría'
+                  ? t('communities_explore.noHayComunidadesEnEstaCategoria', 'No hay comunidades en esta categoría')
                   : searchInput
-                  ? 'Sin resultados para tu búsqueda'
-                  : 'Aún no hay comunidades'}
+                  ? t('communities_explore.sinResultadosParaTuBusqueda', 'Sin resultados para tu búsqueda')
+                  : t('communities_explore.aunNoHayComunidades', 'Aún no hay comunidades')}
               </p>
               <p className="text-sm text-stone-500">
                 {filter !== 'all' && !searchInput
-                  ? 'Crea la primera comunidad de esta categoría'
+                  ? t('communities_explore.creaLaPrimeraComunidadDeEstaCatego', 'Crea la primera comunidad de esta categoría')
                   : searchInput
-                  ? 'Prueba con otros términos'
-                  : 'Sé el primero en crear una y conectar con la comunidad'}
+                  ? t('communities_explore.pruebaConOtrosTerminos', 'Prueba con otros términos')
+                  : t('communities_explore.seElPrimeroEnCrearUnaYConectarCo', 'Sé el primero en crear una y conectar con la comunidad')}
               </p>
               {canCreate && (
                 <button
@@ -273,7 +273,7 @@ export default function CommunitiesExplorePage() {
         {!canCreate && filter !== 'joined' && communities.length > 0 && (
           <div className="mt-5 rounded-2xl shadow-sm bg-stone-100 p-4 text-center">
             <p className="mb-1 text-sm font-bold text-stone-950">¿Quieres crear tu comunidad?</p>
-            <p className="mb-1 text-[13px] text-stone-500">Consigue 100 seguidores o verifica tu cuenta de vendedor</p>
+            <p className="mb-1 text-[13px] text-stone-500">{t('communities_explore.consigue100SeguidoresOVerificaTuCu', 'Consigue 100 seguidores o verifica tu cuenta de vendedor')}</p>
             <p className="text-xs text-stone-500">Tienes {user?.followers_count || 0}/100 seguidores</p>
           </div>
         )}
