@@ -7,6 +7,10 @@ import {
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
+
+const MIN_WITHDRAWAL = 20; // synced with backend MINIMUM_WITHDRAWAL_AMOUNT
+const STRIPE_FEE = 0.25;   // synced with backend STRIPE_TRANSFER_FEE
 
 function WithdrawalHistoryItem({ item, convertAndFormatPrice }) {
   const statusStyles = {
@@ -33,7 +37,7 @@ function WithdrawalHistoryItem({ item, convertAndFormatPrice }) {
             {convertAndFormatPrice(Number(item.net_amount_eur || item.net_amount || item.amount || 0))}
           </p>
           <p className="text-[11px] text-stone-500">
-            {dateStr ? new Date(dateStr).toLocaleDateString('es-ES') : '—'}
+            {dateStr ? new Date(dateStr).toLocaleDateString(undefined) : '—'}
             {` · ${isBank ? 'SEPA' : 'Stripe'}`}
           </p>
         </div>
@@ -101,10 +105,10 @@ export default function WithdrawalPage() {
   const gross = balance;
   const withholding = isSpain ? Math.round(gross * (withholdingPct / 100) * 100) / 100 : 0;
   const isSEPA = ['sepa', 'bank_transfer'].includes(fiscal?.payout_method);
-  const transferFee = isSEPA ? 0 : 0.25;
+  const transferFee = isSEPA ? 0 : STRIPE_FEE;
   const netRaw = gross - withholding - transferFee;
   const net = Math.max(0, Math.round(netRaw * 100) / 100);
-  const canWithdraw = net >= 20;
+  const canWithdraw = net >= MIN_WITHDRAWAL;
   const methodLabel = isSEPA ? 'cuenta bancaria' : 'Stripe';
 
   const handleSubmit = useCallback(async () => {
@@ -239,7 +243,7 @@ export default function WithdrawalPage() {
             <div>
               <p className="text-sm font-semibold text-stone-950">Casi llegas</p>
               <p className="text-xs mt-0.5 text-stone-500">
-                Estás a {convertAndFormatPrice(Math.max(0, 20 - Number(net || 0)))} de poder solicitar tu cobro (mínimo {convertAndFormatPrice(20)} neto)
+                Estás a {convertAndFormatPrice(Math.max(0, MIN_WITHDRAWAL - Number(net || 0)))} de poder solicitar tu cobro (mínimo {convertAndFormatPrice(MIN_WITHDRAWAL)} neto)
               </p>
             </div>
           </div>

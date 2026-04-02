@@ -9,6 +9,7 @@ import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useLocale } from '../../context/LocaleContext';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 /* ─── Country list (subset, popular first) ─── */
 const COUNTRIES = [
@@ -392,7 +393,7 @@ export default function FiscalSetupPage() {
                 </p>
                 {fiscal?.verified_at && (
                   <p className="text-xs mt-0.5 text-stone-500">
-                    Verificado el {new Date(fiscal.verified_at).toLocaleDateString('es-ES')}
+                    Verificado el {new Date(fiscal.verified_at).toLocaleDateString(undefined)}
                   </p>
                 )}
                 <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleUpload} className="hidden" />
@@ -473,7 +474,7 @@ export default function FiscalSetupPage() {
               Recibe en minutos en tu cuenta Stripe
             </p>
             <p className="text-xs ml-8 mt-0.5 text-stone-500 opacity-70">
-              Fee: 0,25 por transferencia (se descuenta de tu comisión)
+              Fee: 0,25€ por transferencia Stripe (se descuenta de tu comisión)
             </p>
           </button>
 
@@ -547,7 +548,7 @@ export default function FiscalSetupPage() {
             </div>
             {country === 'ES' && withholdingPreview > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-stone-500">Retención IRPF (15%)</span>
+                <span className="text-stone-500">Retención IRPF ({getWithholdingInfo(country)?.pct || 0}%)</span>
                 <span className="font-semibold text-stone-500">−{convertAndFormatPrice(Number(withholdingPreview || 0))}</span>
               </div>
             )}

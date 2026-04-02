@@ -127,7 +127,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, hasSEPA, onWithd
                     <span className="text-sm font-medium text-stone-950">{convertAndFormatPrice(Number(wd.amount || 0))}</span>
                   </div>
                   <span className="text-xs text-stone-500">
-                    {new Date(wd.created_at).toLocaleDateString('es-ES')}
+                    {new Date(wd.created_at).toLocaleDateString(undefined)}
                   </span>
                 </div>
               ))}
@@ -393,8 +393,9 @@ export default function InfluencerDashboard() {
   useEffect(() => {
     let active = true;
     let errCount = 0;
-    const logFetchErr = () => () => {
+    const logFetchErr = (label) => (err) => {
       errCount++;
+      if (process.env.NODE_ENV === 'development') console.error(`[Dashboard] ${label}:`, err);
       if (errCount >= 3 && active) toast.error('Algunos datos no se pudieron cargar');
     };
     apiClient.get('/collaborations').then(d => {
@@ -913,7 +914,7 @@ export default function InfluencerDashboard() {
                     return npdValid ? (
                     <>
                       <p className="text-xl font-bold text-stone-500">
-                        {npd.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                        {npd.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
                       </p>
                       <p className="text-xs mt-1 text-stone-500">
                         {t('influencer.daysLeft', { days: Math.max(0, Math.ceil((npd.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) })}
@@ -1052,7 +1053,7 @@ export default function InfluencerDashboard() {
                     <div key={p.id || i} className={`flex items-center justify-between py-2 ${i < Math.min(payoutHistory.length, 5) - 1 ? 'border-b border-stone-200' : ''}`}>
                       <div>
                         <p className="text-xs font-medium text-stone-950">
-                          {(p.paid_at || p.created_at) ? new Date(p.paid_at || p.created_at).toLocaleDateString('es-ES') : '—'}
+                          {(p.paid_at || p.created_at) ? new Date(p.paid_at || p.created_at).toLocaleDateString(undefined) : '—'}
                         </p>
                         <p className="text-[10px] text-stone-500">
                           {p.commission_count > 0 && `${p.commission_count} ventas`}
@@ -1171,7 +1172,7 @@ export default function InfluencerDashboard() {
                             )}
                           </td>
                           <td className="py-3 px-4 text-sm text-stone-500">
-                            {comm.created_at ? new Date(comm.created_at).toLocaleDateString('es-ES') : '—'}
+                            {comm.created_at ? new Date(comm.created_at).toLocaleDateString(undefined) : '—'}
                           </td>
                         </tr>
                       );

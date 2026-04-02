@@ -675,7 +675,7 @@ async def process_influencer_payout(influencer_id: str, user: User = Depends(get
         # Create transfer to influencer's Stripe account
         transfer = stripe.Transfer.create(
             amount=int(round(available_balance * 100)),  # Convert to cents
-            currency="eur",
+            currency=PAYOUT_CURRENCY,
             destination=influencer["stripe_account_id"],
             metadata={
                 "influencer_id": influencer_id,
@@ -715,8 +715,10 @@ async def process_influencer_payout(influencer_id: str, user: User = Depends(get
         logger.error(f"Error processing payout: {e}")
         raise HTTPException(status_code=500, detail="Failed to process payout")
 
-# Influencer self-service withdrawal
-MINIMUM_WITHDRAWAL_AMOUNT = 20  # €20 minimum net for self-service withdrawal
+# Influencer payout constants (centralized)
+MINIMUM_WITHDRAWAL_AMOUNT = 20  # minimum net amount for withdrawal
+STRIPE_TRANSFER_FEE = 0.25  # fee per Stripe transfer
+PAYOUT_CURRENCY = "eur"  # default payout currency
 
 
 @router.post("/influencer/request-withdrawal")
@@ -806,7 +808,7 @@ async def _execute_withdrawal(db, influencer, user, request, now):
     fiscal = influencer.get("fiscal_status", {})
     withholding_pct = fiscal.get("withholding_pct", 0.0)
     withholding = float((Decimal(str(gross_amount)) * Decimal(str(withholding_pct)) / 100).quantize(Decimal("0.01")))
-    transfer_fee = 0.25 if payout_method == "stripe" else 0.0
+    transfer_fee = STRIPE_TRANSFER_FEE if payout_method == "stripe" else 0.0
     net_amount = round(gross_amount - withholding - transfer_fee, 2)
 
     if net_amount < MINIMUM_WITHDRAWAL_AMOUNT:
@@ -823,7 +825,7 @@ async def _execute_withdrawal(db, influencer, user, request, now):
         if payout_method == "stripe":
             transfer = stripe.Transfer.create(
                 amount=transfer_amount_cents,
-                currency="eur",
+                currency=PAYOUT_CURRENCY,
                 destination=influencer["stripe_account_id"],
                 metadata={
                     "influencer_id": influencer["influencer_id"],
@@ -1447,7 +1449,7 @@ async def process_influencer_payouts():
             continue
 
         gross_amount = sum(c.get("commission_amount", 0) for c in eligible)
-        if gross_amount < 20:
+        if gross_amount < MINIMUM_WITHDRAWAL_AMOUNT:
             continue  # Below minimum
 
         comm_ids = [c["commission_id"] for c in eligible]
@@ -1456,16 +1458,16 @@ async def process_influencer_payouts():
         fiscal = inf.get("fiscal_status", {})
         withholding_pct = fiscal.get("withholding_pct", 0) if fiscal.get("certificate_verified") else 0
         withholding_amount = round(gross_amount * withholding_pct / 100, 2)
-        transfer_fee = 0.25  # Stripe transfer fee
+        transfer_fee = STRIPE_TRANSFER_FEE
         net_amount = round(gross_amount - withholding_amount - transfer_fee, 2)
 
-        if net_amount < 20:
+        if net_amount < MINIMUM_WITHDRAWAL_AMOUNT:
             continue  # Below minimum after deductions
 
         try:
             transfer = stripe.Transfer.create(
                 amount=int(round(net_amount * 100)),
-                currency="eur",
+                currency=PAYOUT_CURRENCY,
                 destination=stripe_account,
                 transfer_group=f"INFLUENCER_{inf_id}_{now.strftime('%Y%m')}",
                 metadata={

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_TABS = [
   { key: 'all', label: 'Todos' },
@@ -73,7 +74,7 @@ function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPric
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Amount */}
           <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1">Importe (€)</label>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">{t('payments.amount', 'Importe')}</label>
             <input
               type="number"
               step="0.01"
@@ -115,6 +116,7 @@ function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPric
 
 export default function PayoutsPage() {
   const { convertAndFormatPrice } = useLocale();
+  const { t } = useTranslation();
   const [payouts, setPayouts] = useState([]);
   const [stats, setStats] = useState(null);
   const [loadingPayouts, setLoadingPayouts] = useState(true);
@@ -293,7 +295,7 @@ export default function PayoutsPage() {
             <CreditCard className="w-4 h-4 shrink-0" />
             Próximo pago automático el{' '}
             <strong>
-              {new Date(stats.next_payout_date).toLocaleDateString('es-ES', {
+              {new Date(stats.next_payout_date).toLocaleDateString(undefined, {
                 day: 'numeric',
                 month: 'long',
               })}
@@ -374,7 +376,7 @@ export default function PayoutsPage() {
                   <p className="text-sm font-semibold text-stone-950">
                     {(() => {
                       const d = new Date(payout.paid_at || payout.created_at || 0);
-                      return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                      return isNaN(d.getTime()) ? '—' : d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
                     })()}
                   </p>
                   <p className="text-xs text-stone-500">
