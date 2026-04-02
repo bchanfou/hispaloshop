@@ -30,7 +30,7 @@ function ShippingProgressBar({ store }) {
           )}
           <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
         </div>
-        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</span>
+        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: currency || 'EUR' })}</span>
       </div>
     );
   }
@@ -52,7 +52,7 @@ function ShippingProgressBar({ store }) {
         {store.is_free ? (
           <span className="text-xs font-bold text-stone-950 flex-shrink-0">Envío gratis</span>
         ) : (
-          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</span>
+          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: currency || 'EUR' })}</span>
         )}
       </div>
       <div className="h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
@@ -60,7 +60,7 @@ function ShippingProgressBar({ store }) {
       </div>
       {!store.is_free && store.remaining_cents > 0 && (
         <p className="text-[11px] text-stone-500 mt-0.5">
-          Faltan {((store.remaining_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} para envío gratis
+          Faltan {((store.remaining_cents || 0) / 100).toLocaleString('es-ES', { style: 'currency', currency: currency || 'EUR' })} para envío gratis
         </p>
       )}
     </div>
@@ -227,12 +227,12 @@ export default function CartPage() {
   const handleApplyDiscount = async () => {
     const trimmedCode = discountCode.trim().toUpperCase();
     if (!trimmedCode) {
-      toast.error('Introduce un código de descuento');
+      toast.error(t('cart.enterDiscountCode', 'Introduce un código de descuento'));
       return;
     }
     // CT-06: Check if same code already applied
     if (appliedDiscount?.code?.toUpperCase() === trimmedCode) {
-      toast.error('Este código ya está aplicado');
+      toast.error(t('cart.codeAlreadyApplied', 'Este código ya está aplicado'));
       return;
     }
     setDiscountLoading(true);
@@ -367,7 +367,7 @@ export default function CartPage() {
 
   const formatCurrency = (cents) => {
     if (cents == null || isNaN(cents)) return '0,00\u00a0\u20ac';
-    return (cents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+    return (cents / 100).toLocaleString('es-ES', { style: 'currency', currency: currency || 'EUR' });
   };
 
   if (authLoading) {

@@ -10,12 +10,14 @@ const GUEST_CART_KEY = 'hsp_cart_guest';
 
 /** Normalize null/undefined/'' to empty string, then build a stable cart key */
 function cartKey(productId, variantId, packId) {
-  const v = variantId != null && variantId !== '' ? String(variantId) : '';
-  const p = packId != null && packId !== '' ? String(packId) : '';
+  if (!productId) return '__invalid__';
+  const v = variantId != null && variantId !== '' && variantId !== '0' ? String(variantId) : '';
+  const p = packId != null && packId !== '' && packId !== '0' ? String(packId) : '';
   return p ? `${productId}-${v}-${p}` : v ? `${productId}-${v}` : String(productId);
 }
 
 function itemKey(item) {
+  if (!item || !item.product_id) return '__invalid__';
   return cartKey(item.product_id, item.variant_id, item.pack_id);
 }
 
@@ -221,8 +223,8 @@ export function CartProvider({ children }) {
     try {
       let path = `/cart/items/${productId}`;
       const params = new URLSearchParams();
-      if (variantId) params.append('variant_id', variantId);
-      if (packId) params.append('pack_id', packId);
+      if (variantId != null && variantId !== '') params.append('variant_id', variantId);
+      if (packId != null && packId !== '') params.append('pack_id', packId);
       if (params.toString()) path += `?${params.toString()}`;
 
       await apiClient.delete(path);

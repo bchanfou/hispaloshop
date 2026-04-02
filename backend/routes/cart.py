@@ -300,10 +300,13 @@ async def add_to_cart(
     if cart:
         # Verificar si ya existe
         existing_idx = None
+        def _norm(v):
+            """Normalize None/empty to None for consistent comparison."""
+            return v if v is not None and v != "" else None
         for idx, item in enumerate(cart.get("items", [])):
             if (item.get("product_id") == product_id
-                    and item.get("variant_id") == variant_id
-                    and item.get("pack_id") == pack_id):
+                    and _norm(item.get("variant_id")) == _norm(variant_id)
+                    and _norm(item.get("pack_id")) == _norm(pack_id)):
                 existing_idx = idx
                 break
 

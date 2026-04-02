@@ -4,13 +4,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
 import { X, Plus, Minus, Trash2, ShoppingBag, Truck, ArrowRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
-const fmt = (cents) => (cents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-const fmtEur = (eur) => eur.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+// Currency-aware formatters (no longer hardcoded EUR)
+const makeFmt = (locale, currencyCode) => {
+  const loc = locale || 'es-ES';
+  const cur = currencyCode || 'EUR';
+  return {
+    fmt: (cents) => ((cents || 0) / 100).toLocaleString(loc, { style: 'currency', currency: cur }),
+    fmtUnit: (eur) => (eur || 0).toLocaleString(loc, { style: 'currency', currency: cur }),
+  };
+};
 
 const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading, appliedDiscount } = useCart();
+  const { currency, language } = useLocale();
+  const { t } = useTranslation();
+  const { fmt, fmtUnit } = useMemo(() => makeFmt(language === 'en' ? 'en-US' : `${language}-${language.toUpperCase()}`, currency), [language, currency]);
   const [shippingData, setShippingData] = useState(null);
   const prevCountRef = useRef(cartItems.length);
 
@@ -124,8 +136,8 @@ const MiniCart = ({ isOpen, onClose }) => {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-stone-200">
               <div>
-                <h2 id="minicart-title" className="text-lg font-bold text-stone-950">Tu cesta</h2>
-                <p className="text-sm text-stone-500">{totalItems > 0 ? `${totalItems} ${totalItems === 1 ? 'artículo' : 'artículos'}` : 'Sin artículos'}</p>
+                <h2 id="minicart-title" className="text-lg font-bold text-stone-950">{t('cart.title', 'Tu cesta')}</h2>
+                <p className="text-sm text-stone-500">{totalItems > 0 ? `${totalItems} ${t('common.items', 'items')}` : t('cart.empty', 'Sin artículos')}</p>
               </div>
               <button
                 onClick={onClose}
@@ -148,7 +160,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                     <ShoppingBag className="w-10 h-10 text-stone-500" />
                   </div>
                   <h3 className="text-lg font-semibold text-stone-950 mb-2">
-                    Tu cesta está vacía
+                    {t('cart.title', 'Tu cesta')} está vacía
                   </h3>
                   <p className="text-stone-500 mb-6">
                     ¿Buscas algo en particular?
@@ -257,7 +269,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 ) : subtotal < freeShippingThreshold ? (
                   <div className="bg-stone-100 rounded-2xl p-3 text-sm">
                     <p className="text-stone-950">
-                      Añade <span className="font-semibold text-stone-950">{fmtEur(freeShippingThreshold - subtotal)}</span> más para envío gratis
+                      Añade <span className="font-semibold text-stone-950">{fmtUnit(freeShippingThreshold - subtotal)}</span> más para envío gratis
                     </p>
                     <div className="mt-2 h-2 bg-white rounded-full overflow-hidden">
                       <div
@@ -272,7 +284,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-stone-500">
                     <span>Subtotal</span>
-                    <span>{fmtEur(subtotal)}</span>
+                    <span>{fmtUnit(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-stone-500">
                     <span className="flex items-center gap-1">
@@ -284,7 +296,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                   {discountEur > 0 && (
                     <div className="flex justify-between text-stone-500">
                       <span>Descuento</span>
-                      <span>-{fmtEur(discountEur)}</span>
+                      <span>-{fmtUnit(discountEur)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-lg font-bold text-stone-950 pt-2 border-t border-stone-200">
@@ -292,7 +304,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                       <span>Subtotal</span>
                       <span className="text-[11px] text-stone-400 font-normal">Sin envío · Ver carrito para total</span>
                     </div>
-                    <span>{fmtEur(total)}</span>
+                    <span>{fmtUnit(total)}</span>
                   </div>
                 </div>
 
@@ -309,7 +321,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                   onClick={handleViewCart}
                   className="w-full py-3 border-2 border-stone-200 text-stone-950 rounded-full font-medium hover:border-stone-950 hover:text-stone-950 transition-colors text-sm"
                 >
-                  Ver carrito
+                  {t('cart.viewCart', 'Ver carrito')}
                 </button>
               </div>
             )}

@@ -30,8 +30,12 @@ const AddToCartButton = ({
   const packId = product?.selectedPackId || product?.pack_id || null;
   const existingItem = cartItems.find((item) => {
     if (String(item.product_id) !== String(productId)) return false;
-    if (variantId && String(item.variant_id || '') !== String(variantId)) return false;
-    if (packId && String(item.pack_id || '') !== String(packId)) return false;
+    const itemVariant = item.variant_id != null && item.variant_id !== '' ? String(item.variant_id) : null;
+    const itemPack = item.pack_id != null && item.pack_id !== '' ? String(item.pack_id) : null;
+    const targetVariant = variantId != null && variantId !== '' ? String(variantId) : null;
+    const targetPack = packId != null && packId !== '' ? String(packId) : null;
+    if (itemVariant !== targetVariant) return false;
+    if (itemPack !== targetPack) return false;
     return true;
   });
   const inCartQuantity = existingItem?.quantity || 0;
@@ -46,7 +50,7 @@ const AddToCartButton = ({
       const result = await addToCart(productId, quantity, variantId, packId, {
         productName: product?.name || product?.product_name || '',
         productImage: product?.image || product?.product_image || product?.images?.[0] || '',
-        unitPriceCents: product?.price_cents || product?.unit_price_cents || (product?.price ? Math.round(product.price * 100) : 0),
+        unitPriceCents: Math.max(0, product?.price_cents || product?.unit_price_cents || (product?.price ? Math.round(product.price * 100) : 0)),
         sellerId: product?.seller_id || product?.producer_id || '',
         sellerName: product?.seller_name || product?.producer_name || product?.producer?.name || '',
       });
