@@ -59,6 +59,7 @@ function EmptyRow({ cols }) {
 }
 
 export default function AdminGrowthAnalytics() {
+  const { t } = useTranslation();
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
   const [prevData, setPrevData] = useState(null);
@@ -160,7 +161,7 @@ export default function AdminGrowthAnalytics() {
             icon={TrendingUp}
             label="Compras desde contenido"
             value={overview.content_driven_purchases?.toLocaleString('es-ES') ?? '—'}
-            sub=t('admin_growth_analytics.conversionDirecta', 'Conversión directa')
+            sub="Conversión directa"
             current={overview.content_driven_purchases}
             previous={prevOverview.content_driven_purchases != null ? Math.max(1, prevOverview.content_driven_purchases - (overview.content_driven_purchases ?? 0)) : null}
           />

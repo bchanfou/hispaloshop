@@ -43,7 +43,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
           value={password}
           onChange={e => setPassword(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && onConfirm(password)}
-          placeholder={t('plans_config.contrasenaSuperadmin', 'Contraseña superadmin')}
+          placeholder="Contraseña superadmin"
           autoFocus
           className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-700 rounded-2xl text-stone-100 text-sm outline-none focus:border-stone-500 mb-3"
         />

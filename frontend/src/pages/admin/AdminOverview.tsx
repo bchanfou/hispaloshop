@@ -171,7 +171,7 @@ export default function AdminOverview() {
           <PendingRow label="Verificaciones pendientes" count={stats?.pending_verifications || 0} to="/admin/verification" />
           <PendingRow label="Productos por revisar" count={pendingProducts} to="/admin/products" />
           <PendingRow label="Certificados" count={pendingCertificates} to="/admin/certificates" />
-          <PendingRow label=t('admin_overview.moderacionDeContenido', 'Moderación de contenido') count={pendingModeration} to="/admin/moderation" />
+          <PendingRow label="Moderación de contenido" count={pendingModeration} to="/admin/moderation" />
           <PendingRow label="Soporte abierto" count={openSupport} to="/admin/support" />
           <PendingRow label="Reembolsos" count={stats?.refunded_orders || 0} to="/admin/refunds" />
           <PendingRow label="Payouts manuales" count={stats?.pending_payouts || 0} to="/admin/payouts" />
@@ -235,7 +235,7 @@ export default function AdminOverview() {
       <div className="mb-5">
         <h2 className="text-sm font-bold mb-3 text-stone-950">Fiscal</h2>
         <div className="space-y-2">
-          <PendingRow label=t('admin_overview.certificadosPendientesDeRevision', 'Certificados pendientes de revisión') count={stats?.fiscal_pending_review || 0} to="/admin/fiscal" />
+          <PendingRow label="Certificados pendientes de revisión" count={stats?.fiscal_pending_review || 0} to="/admin/fiscal" />
           <PendingRow
             label={`Retenciones YTD${fiscalStats === null ? '' : `: ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format((fiscalStats?.total_withheld_ytd_cents || 0) / 100)}`}`}
             count={0}
@@ -255,7 +255,7 @@ export default function AdminOverview() {
         <h2 className="text-sm font-bold mb-3 text-stone-950">{t('sellerAI.quickActions', 'Acciones rápidas')}</h2>
         <div className="grid grid-cols-2 gap-2">
           <QuickLink icon={ShoppingBag} label="Pedidos" to="/admin/orders" />
-          <QuickLink icon={ShieldAlert} label=t('store.reviews', 'Reseñas') to="/admin/reviews" />
+          <QuickLink icon={ShieldAlert} label="Reseñas" to="/admin/reviews" />
           <QuickLink icon={FileCheck} label="Descuentos" to="/admin/discount-codes" />
           <QuickLink icon={Users} label="Influencers" to="/admin/influencers" />
           <QuickLink icon={HeadphonesIcon} label="Soporte" to="/admin/support" />

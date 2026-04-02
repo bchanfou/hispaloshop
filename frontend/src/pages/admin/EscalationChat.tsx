@@ -20,6 +20,7 @@ export function getEscalationConversationId(conversation) {
 }
 
 export default function EscalationChat() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const isSuperAdmin = user?.role === 'super_admin';
 

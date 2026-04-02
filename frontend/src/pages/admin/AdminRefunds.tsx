@@ -31,6 +31,7 @@ function formatDate(dateStr) {
 }
 
 function RefundModal({ order, onClose, onRefunded }) {
+  const { t } = useTranslation();
   const [type, setType] = useState('full');
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
@@ -218,6 +219,7 @@ function OrderRow({ order, showRefundButton, onRefund }) {
 }
 
 export default function AdminRefunds() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState('eligible');
   const [search, setSearch] = useState('');
   const [data, setData] = useState({ refunded: [], eligible: [] });

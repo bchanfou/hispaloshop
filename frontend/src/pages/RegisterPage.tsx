@@ -362,7 +362,7 @@ export default function RegisterPage() {
           <XIcon size={32} className="text-stone-950" />
         </div>
         <h1 className="text-[22px] font-bold text-stone-950 mb-2">
-          Debes tener al menos 16 años
+          {t('register.mustBe16', 'Debes tener al menos 16 años')}
         </h1>
         <p className="text-[15px] text-stone-500 mb-6 leading-relaxed">
           para usar Hispaloshop
@@ -497,7 +497,7 @@ export default function RegisterPage() {
             )}
           </div>
           <p className="text-[11px] text-stone-400 mt-1">
-            Letras, números, puntos y guiones bajos (máximo 20 caracteres)
+            {t('register.usernameHint', 'Letras, números, puntos y guiones bajos (máximo 20 caracteres)')}
           </p>
           {usernameStatus === 'taken' && (
             <p className="text-xs text-stone-600 mt-1">{t('register.esteUsuarioYaEstaEnUso', 'Este usuario ya está en uso')}</p>
@@ -524,7 +524,7 @@ export default function RegisterPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
               tabIndex={-1}
-              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : 'Mostrar contraseña'}
+              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : t('login.mostrarContrasena', 'Mostrar contraseña')}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -545,7 +545,7 @@ export default function RegisterPage() {
 
         {/* Country */}
         <div>
-          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">País</label>
+          <label className="block text-[13px] font-semibold text-stone-950 mb-1.5">{t('register.country', 'País')}</label>
           <div className="relative">
             <select
               value={form.country}
@@ -573,7 +573,7 @@ export default function RegisterPage() {
                 errors.birthDate ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
               }`}
             >
-              <option value="">Día</option>
+              <option value="">{t('register.day', 'Día')}</option>
               {Array.from({ length: 31 }, (_, i) => (
                 <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
               ))}
@@ -585,7 +585,7 @@ export default function RegisterPage() {
                 errors.birthDate ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
               }`}
             >
-              <option value="">Mes</option>
+              <option value="">{t('register.month', 'Mes')}</option>
               {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((m, i) => (
                 <option key={i + 1} value={String(i + 1)}>{m}</option>
               ))}
@@ -597,7 +597,7 @@ export default function RegisterPage() {
                 errors.birthDate ? 'border-stone-500' : 'border-stone-200 focus:border-stone-400'
               }`}
             >
-              <option value="">Año</option>
+              <option value="">{t('register.year', 'Año')}</option>
               {Array.from({ length: 100 }, (_, i) => {
                 const y = new Date().getFullYear() - i;
                 return <option key={y} value={String(y)}>{y}</option>;
@@ -711,13 +711,13 @@ export default function RegisterPage() {
             className="w-[18px] h-[18px] mt-0.5 accent-stone-950 cursor-pointer flex-shrink-0"
           />
           <span>
-            Acepto los{' '}
+            {t('register.acceptThe', 'Acepto los')}{' '}
             <Link to="/terms" className="text-stone-950 underline">
-              Términos y condiciones
+              {t('register.termsAndConditions', 'Términos y condiciones')}
             </Link>
-            {' '}y la{' '}
+            {' '}{t('register.andThe', 'y la')}{' '}
             <Link to="/privacy" className="text-stone-950 underline">
-              Política de privacidad
+              {t('register.privacyPolicy', 'Política de privacidad')}
             </Link>
           </span>
         </label>
@@ -735,9 +735,9 @@ export default function RegisterPage() {
 
       {/* Footer */}
       <p className="text-center mt-6 text-sm text-stone-500">
-        ¿Ya tienes cuenta?{' '}
+        {t('auth.hasAccount', '¿Ya tienes cuenta?')}{' '}
         <Link to="/login" className="text-stone-950 font-semibold no-underline hover:underline">
-          Entrar
+          {t('auth.login', 'Entrar')}
         </Link>
       </p>
     </>

@@ -59,9 +59,9 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, hasSEPA, onWithd
         <div className="space-y-4">
           {/* Available to withdraw */}
           <div className="text-center p-4 bg-white shadow-sm rounded-xl">
-            <p className="text-sm mb-1 text-stone-500">Disponible para retirar</p>
+            <p className="text-sm mb-1 text-stone-500">{t('influencer.availableToWithdraw', 'Disponible para retirar')}</p>
             <p className="text-3xl font-bold text-stone-950">{convertAndFormatPrice(Number(availableToWithdraw || 0))}</p>
-            <p className="text-xs mt-1 text-stone-500">Mínimo: {convertAndFormatPrice(MINIMUM_WITHDRAWAL)}</p>
+            <p className="text-xs mt-1 text-stone-500">{t('influencer.minimum', 'Mínimo')}: {convertAndFormatPrice(MINIMUM_WITHDRAWAL)}</p>
           </div>
 
           {/* Withdraw button */}
@@ -172,10 +172,10 @@ function EmailVerificationBanner({ user, onVerified }) {
       <div className="flex items-start gap-4">
         <Mail className="w-6 h-6 flex-shrink-0 mt-1 text-stone-500" />
         <div className="flex-1">
-          <h3 className="font-semibold mb-2 text-stone-950">Verifica tu email</h3>
+          <h3 className="font-semibold mb-2 text-stone-950">{t('auth.verifyEmail', 'Verifica tu email')}</h3>
           <p className="text-sm mb-4 text-stone-500">
-            Hemos enviado un código de 6 dígitos a <strong>{user?.email}</strong>.
-            Introdúcelo aquí para activar tu cuenta.
+            {t('influencer.verifyEmailDesc', 'Hemos enviado un código de 6 dígitos a')} <strong>{user?.email}</strong>.
+            {t('influencer.enterCodeToActivate', 'Introdúcelo aquí para activar tu cuenta.')}
           </p>
           <div className="flex items-center gap-3">
             <input
@@ -189,7 +189,7 @@ function EmailVerificationBanner({ user, onVerified }) {
               {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
             </button>
             <button onClick={handleResend} disabled={resending} className="px-4 py-2 transition-colors border border-stone-200 text-stone-500 rounded-xl bg-white">
-              {resending ? 'Enviando...' : t('influencer.resendCode', 'Reenviar código')}
+              {resending ? t('common.sending', 'Enviando...') : t('influencer.resendCode', 'Reenviar código')}
             </button>
           </div>
         </div>
@@ -228,21 +228,21 @@ function CreateCodeCard({ onCodeCreated }) {
       <div className="px-6 pt-6 pb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold flex items-center gap-2 text-stone-950">
           <Sparkles className="w-5 h-5 text-stone-500" />
-          Códigos de descuento
+          {t('influencer.discountCodes', 'Códigos de descuento')}
         </h3>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
             className="text-sm px-4 py-1.5 rounded-full bg-stone-950 text-white transition-colors"
           >
-            Crear código
+            {t('influencer.createCode', 'Crear código')}
           </button>
         )}
       </div>
       {showForm && (
         <div className="px-6 pb-6">
           <p className="text-sm mb-4 text-stone-500">
-            Elige un código personalizado y el porcentaje de descuento para tu comunidad.
+            {t('influencer.chooseCodeDesc', 'Elige un código personalizado y el porcentaje de descuento para tu comunidad.')}
           </p>
           {/* Discount % selector pills */}
           <div className="flex items-center gap-2 mb-4">
@@ -276,10 +276,10 @@ function CreateCodeCard({ onCodeCreated }) {
           </div>
           <div className="flex items-center justify-between mt-2">
             <p className="text-xs text-stone-500">
-              Solo letras y números, entre 3-20 caracteres
+              {t('influencer.codeHint', 'Solo letras y números, entre 3-20 caracteres')}
             </p>
             <button onClick={() => setShowForm(false)} className="text-xs text-stone-400 hover:text-stone-600 transition-colors">
-              Cancelar
+              {t('common.cancel', 'Cancelar')}
             </button>
           </div>
         </div>

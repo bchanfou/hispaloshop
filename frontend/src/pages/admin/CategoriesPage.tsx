@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 // ─── Inline edit/create form ────────────────────────────────────────────────
 function CategoryForm({ initial = {}, onSave, onCancel, saving }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(initial.name || '');
   const [description, setDescription] = useState(initial.description || '');
 
@@ -58,6 +59,7 @@ function CategoryForm({ initial = {}, onSave, onCancel, saving }) {
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 export default function CategoriesPage() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

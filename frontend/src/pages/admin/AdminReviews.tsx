@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 
 export default function AdminReviews() {
+  const { t } = useTranslation();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
