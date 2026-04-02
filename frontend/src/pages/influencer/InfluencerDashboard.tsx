@@ -68,7 +68,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, hasSEPA, onWithd
           {!stripeConnected && !hasSEPA ? (
             <div className="text-center p-3 bg-stone-100 rounded-xl shadow-sm">
               <p className="text-sm text-stone-500">
-                Configura un método de cobro en <Link to="/influencer/fiscal-setup" className="font-semibold underline text-stone-950">configuración fiscal</Link> para retirar tus comisiones
+                Configura un método de cobro en <Link to="/influencer/fiscal-setup" className="font-semibold underline text-stone-950">{t('influencer_dashboard.configuracionFiscal', 'configuración fiscal')}</Link> para retirar tus comisiones
               </p>
             </div>
           ) : !stripeConnected && hasSEPA ? (

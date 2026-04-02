@@ -2,12 +2,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const certifications = [
   {
     icon: '\u{1F33F}',
     name: 'Ecologico EU',
-    description: 'Certificacion oficial de produccion ecologica de la Union Europea',
+    description: t('certifications.certificacionOficialDeProduccionEcol', 'Certificacion oficial de produccion ecologica de la Union Europea'),
     criteria: [
       'Sin pesticidas sinteticos',
       'Sin organismos modificados geneticamente',
@@ -18,7 +19,7 @@ const certifications = [
     icon: '\u{1F3C6}',
     name: 'DOP (Denominacion de Origen Protegida)',
     description:
-      'Garantiza que el producto se produce, transforma y elabora en una zona geografica determinada',
+      t('certifications.garantizaQueElProductoSeProduceTr', 'Garantiza que el producto se produce, transforma y elabora en una zona geografica determinada'),
     criteria: [
       'Produccion en zona geografica especifica',
       'Metodos tradicionales de elaboracion',
@@ -29,32 +30,32 @@ const certifications = [
     icon: '\u{1F947}',
     name: 'IGP (Indicacion Geografica Protegida)',
     description:
-      'Al menos una etapa de produccion se realiza en la zona geografica',
+      t('certifications.alMenosUnaEtapaDeProduccionSeReal', 'Al menos una etapa de produccion se realiza en la zona geografica'),
     criteria: [
-      'Vinculo con el territorio',
+      t('certifications.vinculoConElTerritorio', 'Vinculo con el territorio'),
       'Caracteristicas o reputacion atribuibles al origen',
-      'Supervision por organismo de control',
+      t('certifications.supervisionPorOrganismoDeControl', 'Supervision por organismo de control'),
     ],
   },
   {
     icon: '\u262A\uFE0F',
     name: 'Halal',
     description:
-      'Certificacion de que el producto cumple con las normas alimentarias islamicas',
+      t('certifications.certificacionDeQueElProductoCumple', 'Certificacion de que el producto cumple con las normas alimentarias islamicas'),
     criteria: [
       'Ingredientes permitidos (halal)',
-      'Proceso de sacrificio conforme a la ley islamica',
-      'Sin contaminacion cruzada con productos no halal',
+      t('certifications.procesoDeSacrificioConformeALaLey', 'Proceso de sacrificio conforme a la ley islamica'),
+      t('certifications.sinContaminacionCruzadaConProductos', 'Sin contaminacion cruzada con productos no halal'),
     ],
   },
   {
     icon: '\u{1F33E}',
     name: 'Sin Gluten',
     description:
-      'Producto apto para personas con enfermedad celiaca o sensibilidad al gluten',
+      t('certifications.productoAptoParaPersonasConEnfermed', 'Producto apto para personas con enfermedad celiaca o sensibilidad al gluten'),
     criteria: [
       'Contenido de gluten inferior a 20 ppm',
-      'Produccion en lineas libres de contaminacion',
+      t('certifications.produccionEnLineasLibresDeContamina', 'Produccion en lineas libres de contaminacion'),
       'Analisis periodicos de laboratorio',
     ],
   },
@@ -62,11 +63,11 @@ const certifications = [
     icon: '\u{1F331}',
     name: 'Vegano',
     description:
-      'No contiene ingredientes de origen animal ni ha sido testado en animales',
+      t('certifications.noContieneIngredientesDeOrigenAnima', 'No contiene ingredientes de origen animal ni ha sido testado en animales'),
     criteria: [
       'Sin ingredientes animales',
       'Sin subproductos animales',
-      'Sin pruebas en animales',
+      t('certifications.sinPruebasEnAnimales', 'Sin pruebas en animales'),
     ],
   },
 ];

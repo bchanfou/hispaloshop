@@ -2627,5 +2627,1700 @@
     "firstReviewDesc": "あなたは最初のレビューを書きました",
     "explorer": "エクスプローラ",
     "explorerDesc": "あなたは5つの店舗をフォローしました"
+  },
+  "product_detail": {
+    "resenaEnviada": "レビューを送信しました",
+    "chatNoDisponibleParaEsteProducto": "この製品ではチャット機能はご利用いただけません。",
+    "noSePudoAbrirElChat": "チャットを開くことができませんでした",
+    "puntuacion": "句読点",
+    "comentarioDeLaResena": "レビュー解説",
+    "noHemosPodidoEnviarLaResena": "レビューを送信できませんでした。",
+    "anadirAFavoritos": "お気に入りに追加",
+    "politicaDeDevolucion": "返品規則",
+    "tienes14DiasDesdeLaRecepcionParaD": "商品到着後14日以内であれば返品可能です。ただし、生鮮食品は返品できません。",
+    "anadeEsteProductoAlCatalogoB2bPara": "卸売注文を受けるには、この商品をB2Bカタログに追加してください。",
+    "anadirAlCatalogoB2b": "B2Bカタログに追加"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "商品をカートに追加する際にエラーが発生しました",
+    "errorAlAnadir": "追加エラー",
+    "noSePudoCopiarElEnlace": "リンクをコピーできませんでした",
+    "anadidoALaLista": "リストに追加されました",
+    "noSePudoGuardarEnLaLista": "リストに保存できませんでした",
+    "seleccionaUnaValoracion": "評価を選択してください",
+    "valoracionPublicada": "公開された評価",
+    "masPorciones": "もっと多くの分",
+    "errorAlPublicarLaValoracion": "エラー投稿評価",
+    "preparacion": "準備",
+    "informacionNutricional": "栄養成分表示",
+    "porRacion": "1食分あたり",
+    "proteina": "タンパク質",
+    "azucar": "砂糖",
+    "aunNoHayResenasSeElPrimero": "まだレビューはありません。最初のレビューを投稿してみませんか？",
+    "tuResena": "あなたのレビュー",
+    "enviarResena": "レビューを投稿する"
+  },
+  "community": {
+    "configuracion": "構成",
+    "errorAlActualizarMembresia": "会員情報更新エラー",
+    "escribeAlgoOAnadeUnaImagen": "何か書き込むか、画像を追加する",
+    "queQuieresCompartirPuedesUsarHas": "何を共有したいですか？ハッシュタグを使ってください。",
+    "anadirImagen": "画像を追加",
+    "errorAlCargarLaComunidad": "コミュニティの読み込みエラー",
+    "salirDeLaComunidad": "コミュニティを離れる",
+    "comparteAlgoConLaComunidad": "コミュニティと何かを共有しましょう…",
+    "aunNoHayPosts": "まだ投稿はありません。",
+    "seElPrimeroEnPublicarAlgo": "最初に投稿してみよう！",
+    "verMasPosts": "その他の投稿を見る",
+    "verMasComentarios": "その他のコメントを見る",
+    "sinMiembrosTodavia": "まだメンバーはいません",
+    "verMasMiembros": "その他のメンバーを見る",
+    "normasDeLaComunidad": "コミュニティガイドライン",
+    "contenidoRelacionadoConAlimentacionY": "食品と美食に関するコンテンツ",
+    "sinSpamNiPublicidadNoAutorizada": "スパムや無許可の広告は禁止です。",
+    "sinBebidasAlcoholicas": "アルコール飲料は禁止です",
+    "elAdminPuedeEliminarPostsQueNoCum": "管理者は、ルールに準拠していない投稿を削除できます。"
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "ストーリーの読み込み中にエラーが発生しました。",
+    "errorAlSubirLaFoto": "写真のアップロードエラー",
+    "noSePudoAbrirLaConversacion": "会話を開始できませんでした",
+    "errorAlCrearConversacion": "会話の作成中にエラーが発生しました",
+    "atras": "戻る"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "フォロー解除エラー",
+    "cargarMasUsuarios": "ユーザーをさらに読み込む",
+    "pruebaConOtroTermino": "別の用語を試してください",
+    "cargarMas": "もっと読み込む",
+    "sinSeguidoresAun": "フォロワーはまだいません",
+    "noSigueANadieAun": "彼女はまだ誰のこともフォローしていません"
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "コレクションの作成中にエラーが発生しました",
+    "nombreDeLaColeccion": "コレクション名",
+    "guardaContenidoTocandoElIconoDeMar": "ブックマークアイコンをタップしてコンテンツを保存します。",
+    "nuevaColeccion": "新コレクション"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "Googleアカウントでのログイン中にエラーが発生しました。",
+    "tuContrasena": "パスワード",
+    "elEmailEsObligatorio": "メールアドレスは必須です。",
+    "laContrasenaEsObligatoria": "パスワードが必要です。",
+    "emailOContrasenaIncorrectos": "メールアドレスまたはパスワードが間違っています",
+    "tuCuentaEstaRestringidaPorEdad": "お客様のアカウントは年齢制限があります。",
+    "noHemosPodidoIniciarTuSesion": "ログインできませんでした。",
+    "entraEnTuCuenta": "アカウントにログインしてください",
+    "tuSesionHaExpiradoIniciaSesionDe": "セッションの有効期限が切れました。再度ログインしてください。",
+    "ocultarContrasena": "パスワードを隠す"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "復旧メールを再送信",
+    "enviarEnlaceDeRecuperacion": "復旧リンクを送信"
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "画像サイズは5MBを超えることはできません",
+    "noSePudoSubirLaFotoDePerfilPero": "プロフィール画像をアップロードできませんでしたが、アカウントは作成されます。",
+    "panaderia": "ベーカリー",
+    "reposteria": "菓子",
+    "descubreProductosArtesanalesUnicosDe": "地元生産者によるユニークな手作り製品を見つけましょう。",
+    "tuTiendaEstaListaEmpiezaAVenderT": "お店の準備が整いました。さあ、手作りの商品を販売しましょう。",
+    "exploraElMarketplaceB2bYEncuentraL": "B2Bマーケットプレイスを探索して、最適な生産者を見つけましょう。",
+    "errorAlGuardarTuPerfilIntentaloDe": "プロフィールの保存中にエラーが発生しました。もう一度お試しください。",
+    "estoEsLoQueVeranOtrosUsuarios": "これは他のユーザーにはこう見える",
+    "ubicacionOpcional": "場所（任意）",
+    "validacionDeMercadoYPrimerasVentas": "市場検証と初期販売。",
+    "iaComercialAvanzadaYGeneracionDeCo": "高度なビジネスAIと契約書作成機能。",
+    "stripeNoEstaDisponible": "Stripeは利用できません",
+    "stripeNoEstaConfiguradoTodavia": "Stripeはまだ設定されていません。",
+    "noPudimosPrepararElPago": "お支払いを処理できませんでした。",
+    "introduceUnEmailValido": "有効なメールアドレスを入力してください。",
+    "creaUnaContrasenaDeAlMenos6Caract": "パスワードは6文字以上で作成してください。",
+    "necesitamosUnTelefonoOperativo": "使える電話が必要です。",
+    "seleccionaElPaisDondeVasAOperar": "事業を展開する国を選択してください。",
+    "seleccionaTuPuntoDePartida": "出発地点を選択してください。",
+    "eligeAlMenosUnTipoDeProducto": "少なくとも1種類の製品を選択してください。",
+    "necesitamosUnaDireccionFiscalValida": "有効な納税住所が必要です。",
+    "necesitamosVatCifONifParaDarteDe": "登録には、VAT番号、CIF番号、またはNIF番号が必要です。",
+    "completaLosDatosDeLaTarjetaParaCo": "続行するには、カード情報を入力してください。",
+    "stripeNoEstaListoTodavia": "Stripeはまだ準備が整っていません。",
+    "noSePudoValidarLaTarjeta": "カードの認証ができませんでした。",
+    "tuBancoRechazoLaOperacion": "お客様の銀行は取引を拒否しました。",
+    "haOcurridoUnErrorConElPagoPorFa": "お支払い手続き中にエラーが発生しました。もう一度お試しください。",
+    "elMetodoDePagoFueRechazadoPorFav": "お支払い方法が承認されませんでした。別のカードをご利用ください。",
+    "revisaLosDatosAntesDeContinuar": "先に進む前に、情報を確認してください。",
+    "noPudimosCompletarElAlta": "退院手続きを完了できませんでした。",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "アカウントは既に作成済みです。あとはプランを有効化するか、購読を解約するだけです。",
+    "completaLosCamposObligatoriosParaAv": "続行するには、必須項目をすべて入力してください。",
+    "numeroSinEspacios": "スペースなしの数字",
+    "paisDondeOperaras": "あなたが活動する国",
+    "seleccionaTuPaisPrincipal": "主要国を選択してください",
+    "loUsamosParaFacturacionYAprobacion": "私たちはそれを請求と商業承認に利用しています。",
+    "direccionFiscal": "税務上の住所",
+    "direccionCompletaParaFacturacion": "請求先住所",
+    "empezamosSinCuotaFijaSiElMercado": "最初は固定料金なしでスタートします。市場の反応があれば、PROまたはELITEへのアップグレードをご自身でご判断いただけます。",
+    "pagoSeguroCancelaCuandoQuierasNo": "安全な決済。いつでもキャンセル可能。お客様の業務の流れを妨げることはありません。",
+    "bienvenidoALaRevolucion": "革命へようこそ。",
+    "revisaTuEmailParaVerificarTuCuenta": "アカウント認証のため、メールをご確認ください。既に必要なインフラが整っていれば、時間とお金を節約できたのに。",
+    "verCatalogoDeProductoresDisponibles": "利用可能な生産者のカタログを見る",
+    "sinAlertsAgresivosYConGuardadoLoca": "攻撃的なアラートは使用せず、進捗状況をローカルに保存します。",
+    "tuContrasenaNoSePersisteEnLocalsto": "パスワードはlocalStorageには保存されません。",
+    "proYEliteUsanStripeInlineFreeCre": "PROとELITEプランではStripeをインラインで使用します。FREEプランではアカウントが即座に作成されます。"
+  },
+  "post_detail": {
+    "publicacionEditada": "編集出版物",
+    "editarDescripcion": "説明を編集する",
+    "publicacion": "出版物",
+    "editarPublicacion": "投稿を編集する",
+    "laImagenNoSePuedeCambiarTrasPubli": "画像は投稿後に変更できません。",
+    "seEliminaraPermanentementeJuntoConS": "コメントや「いいね！」も含め、投稿は完全に削除されます。この操作は元に戻せません。",
+    "seElPrimeroEnComentar": "最初にコメントする",
+    "masPopulares": "最も人気",
+    "cargarMasComentarios": "コメントをもっと見る",
+    "compartirPublicacion": "この投稿をシェアする"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "画像を読み込むことができませんでした。",
+    "noHemosPodidoCargarLaImagenDelPas": "行列の画像を読み込むことができませんでした。",
+    "numeroDeRaciones": "提供人数",
+    "anadirIngrediente": "材料を加える",
+    "cuentaQueHaceEspecialEstaReceta": "このレシピの特別な点を教えてください。",
+    "descripcionDeLaReceta": "レシピの説明",
+    "anadirEtiqueta": "タグを追加...",
+    "ensaladaRapida": "クイックサラダ",
+    "postreFacil": "簡単デザート",
+    "noHemosPodidoPublicarLaReceta": "レシピを公開できませんでした",
+    "recetaPublicada": "レシピ公開！",
+    "tienesUnBorradorDeReceta": "下書きのレシピがあります",
+    "momentoDelDia": "時間帯",
+    "unaIntroduccionParaTuReceta": "レシピの紹介"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "リールの追加読み込みエラー"
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "別のカテゴリを試すか、フィルターを調整してください。",
+    "verMasProductos": "その他の商品を見る",
+    "caracteristicas": "特徴"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "地元産の職人技が光る、健康食品を扱うお店を探してみましょう。地域や国で絞り込み検索も可能です。"
+  },
+  "communities_explore": {
+    "alimentacion": "給餌",
+    "iniciaSesionParaVerTusComunidades": "ログインしてコミュニティを表示",
+    "noHayComunidadesEnEstaCategoria": "このカテゴリーに該当するコミュニティはありません。",
+    "sinResultadosParaTuBusqueda": "検索結果が見つかりませんでした",
+    "aunNoHayComunidades": "まだコミュニティは存在しません。",
+    "creaLaPrimeraComunidadDeEstaCatego": "このカテゴリの最初のコミュニティを作成します",
+    "pruebaConOtrosTerminos": "他の用語を試す",
+    "seElPrimeroEnCrearUnaYConectarCo": "最初に作成してコミュニティとつながりましょう",
+    "consigue100SeguidoresOVerificaTuCu": "フォロワーを100人獲得するか、販売者アカウントを認証してください。"
+  },
+  "about": {
+    "envioGestionadoPorProductor": "配送は生産者が管理します",
+    "productosConInformacionVerificableY": "検証可能な情報とデジタル証明書を備えた製品。",
+    "operacionInternacional": "国際事業",
+    "feedPostsYReelsConectadosConConve": "フィード、ポスト、リールは、実際の変換と連動しています。",
+    "checkoutSeguroComisionesYConciliaci": "安全な決済、手数料、および取引ごとの精算。",
+    "contenidoUtil": "役立つコンテンツ",
+    "clientesProductoresImportadoresEIn": "顧客、生産者、輸入業者、そして影響力のある人々が、一つの流れの中で交流する。",
+    "gestionarPedidosYOperacionDiaria": "注文管理と日常業務",
+    "configurarEnvioYCatalogoInternaciona": "国際配送とカタログの設定",
+    "trackingDeConversionYRendimiento": "コンバージョンとパフォーマンスの追跡",
+    "monetizacionEnPostsYReels": "投稿やリールの収益化",
+    "altaDeProductosYCatalogoPropio": "製品登録と自社カタログ",
+    "panelDePedidosPagosYOperacion": "注文、支払い、操作パネル",
+    "catalogoLimpio": "カタログをクリーンアップ",
+    "contenidoUtilEnlazadoAProductosReal": "実際の製品と関連付けられた、役立つコンテンツ。",
+    "queEsHispaloshop": "Hispaloshopとは何ですか？",
+    "unimosCompraVentaInfluenciaYTraza": "当社は、購買、販売、影響力、トレーサビリティを単一の運用プラットフォームに統合します。",
+    "loQueYaEstaActivo": "既に稼働しているもの",
+    "funcionalidadRealDeProductoEnEstaV": "このバージョンにおける実際の製品機能。",
+    "porQueLaPlataformaFunciona": "このプラットフォームが機能する理由",
+    "paraQuienEstaHecho": "これは誰のために作られたものですか？",
+    "porQueExisteHispaloshop": "Hispaloshopはなぜ存在するのか？",
+    "laHistoriaRealDetrasDelProyecto": "このプロジェクトの裏に隠された真実の物語。",
+    "aLos25Perdi15000€EnUnContainerD": "25歳の時、仁川で腐ったポップコーンの容器に1万5000ユーロを失くした。ソウルの公園で泣いた。26歳で、レウスにある実家に戻った。今は午前6時。このプロジェクトを2ヶ月間、毎晩5時間以上眠ったことがない。",
+    "loHiceParaQueNingunProductorHonest": "私がこれをやったのは、誠実なプロデューサーが二度と見過ごされるような思いをすることがないようにするためです。そして、インフルエンサーが自分の誠実さと生計のどちらかを選ばなければならないような状況に陥ることがないようにするためです。",
+    "exploraCatalogoTiendasYContenido": "カタログ、店舗、コンテンツをご覧ください。",
+    "checkoutCentralizadoEnUnSoloFlujo": "単一のフローで一元化されたチェックアウト。"
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "投稿に少なくとも1枚の画像を追加してください",
+    "laDescripcionEsDemasiadoLarga": "説明が長すぎる",
+    "publicacionCreada": "出版物が作成されました",
+    "verEnElFeed": "フィードで表示",
+    "errorAlPublicarCompruebaTuConexion": "投稿エラーが発生しました。接続を確認して、もう一度お試しください。",
+    "nuevaPublicacion": "新刊",
+    "seleccionaImagenes": "画像を選択",
+    "capturaDirectamenteDesdeTuCamara": "カメラから直接撮影",
+    "abrirCamaraParaTomarFoto": "カメラを開いて写真を撮ります",
+    "abrirCamara": "カメラを開く",
+    "saturacion": "飽和",
+    "vineteado": "ビネット",
+    "tamano": "サイズ",
+    "descripcionDeLaPublicacion": "出版物の説明",
+    "escribeTuPieDeFotoUsaParaHas": "キャプションを書いてください...ハッシュタグには#、メンションには@を使用してください",
+    "sugerenciaAnadida": "提案を追加しました",
+    "noSePudoGenerarUnaSugerencia": "提案を生成できませんでした",
+    "errorAlConectarConDavidAi": "David AIへの接続エラー",
+    "anadirUbicacionEjGaliciaCosta": "場所を追加... (例: ガリシア、コスタ ブラバ)",
+    "cerrarBusqueda": "検索を閉じる",
+    "publicado": "公開されました！",
+    "reintentarPublicacion": "再投稿"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "動画のサイズが大きすぎます（最大100MB）。",
+    "elVideoNoPuedeSuperarLos60Segundo": "動画の長さは60秒以内です。アップロード前にトリミングしてください。",
+    "noHayVideoSeleccionado": "ビデオが選択されていません",
+    "elPuntoDeInicioDelRecorteNoPuede": "切断の開始点は、切断の終了点以上であってはならない。",
+    "verEnElFeed": "フィードで表示",
+    "errorAlPublicarElReelCompruebaTu": "リールの投稿中にエラーが発生しました。接続を確認して、もう一度お試しください。",
+    "seleccionaUnVideo": "ビデオを選択してください",
+    "maximo60Segundos·Mp4OMov": "最大60秒 · MP4またはMOV形式",
+    "elegirVideoDeLaGaleria": "ギャラリーからビデオを選択してください",
+    "elegirDeLaGaleria": "ギャラリーから選択",
+    "pausarVideo": "ビデオを一時停止",
+    "controlaElVolumenDelAudioOriginalD": "動画のオリジナル音声の音量を調整します。",
+    "anadirTextoAlVideo": "動画にテキストを追加する",
+    "escribeAqui": "ここに記入してください…",
+    "textoParaElOverlay": "オーバーレイのテキスト",
+    "tamanoDeTexto": "テキストサイズ",
+    "tienesUnBorradorDeReel": "ドラフトリールをお持ちですか",
+    "descripcionDelReel": "リールの説明",
+    "portadaDesdeGaleria": "ギャラリーの表紙",
+    "anadirUbicacion": "場所を追加...",
+    "reelPublicado": "リールが公開されました！"
+  },
+  "create_story": {
+    "ecologicoEu": "EU環境保護",
+    "anadeContenidoATuHistoria": "ストーリーにコンテンツを追加する",
+    "errorAlExportarLaHistoria": "履歴のエクスポートエラー",
+    "errorAlPublicarLaHistoria": "ストーリーの公開中にエラーが発生しました",
+    "historiaPublicada": "記事が掲載されました！",
+    "tienesUnBorradorDeStory": "ストーリーの草稿があります",
+    "arrastraAquiParaEliminar": "ここにドラッグして削除",
+    "escribeAqui": "ここに記入してください…",
+    "textoParaLaHistoria": "歴史のテキスト",
+    "quePrefieres": "どちらがお好みですか？",
+    "opcion1": "オプション1",
+    "opcion2": "オプション2",
+    "anadirEncuesta": "アンケートを追加する",
+    "anadirMencion": "メンションを追加する",
+    "anadirEnlace": "リンクを追加",
+    "sevillaEspana": "セビリア、スペイン",
+    "anadirUbicacion": "場所を追加",
+    "anadirPregunta": "質問を追加する",
+    "buscarProductoParaEtiquetarEnLaHis": "履歴からタグ付けする商品を検索",
+    "buscaUnProductoDeTuCatalogoParaAn": "カタログから商品を選んで、インタラクティブなステッカーとして追加しましょう。"
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "オーガニックオリーブオイル",
+    "prediccion": "予測",
+    "accedeATuRepresentanteDeVentasInte": "市場分析を用いて国際営業担当者にアクセスしてください。",
+    "errorAlContactarAlAgenteComercial": "営業担当者への連絡中にエラーが発生しました。もう一度お試しください。",
+    "tuRepresentanteDeVentasInternacional": "AI搭載の国際営業担当者",
+    "chatConElAgente": "エージェントとチャットする"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "データはまだありません",
+    "errorAlCargarAnaliticas": "エラー読み込み分析",
+    "compruebaTuConexionEIntentaloDeNue": "接続状況を確認して、もう一度お試しください。",
+    "analitica": "分析",
+    "productosMasVendidos": "ベストセラー商品",
+    "deDondeVienenTusVentas": "御社の売上はどこから発生していますか？",
+    "seguidoresDeLaTienda": "ストアフォロワー",
+    "tasaDeConversion": "コンバージョン率",
+    "anadidosAlCarrito": "カートに追加されました"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "追跡番号を入力してください",
+    "urlDeTrackingNoValidaDebeEmpezar": "無効なトラッキングURLです。http:// または https:// で始まる必要があります。",
+    "envioRegistrado": "登録配送",
+    "errorAlRegistrarElEnvio": "出荷登録エラー",
+    "numeroDeTracking": "追跡番号",
+    "introduceUnPrecioValidoPorUnidad": "有効な単価を入力してください",
+    "plazoDias": "締め切り日数",
+    "ejStockDisponibleMinimo100kgPorP": "例：在庫あり。1回の注文につき最低100kg。",
+    "ofertaEnviadaEsperandoAprobacionYP": "提案書を送信しました。輸入業者からの承認と支払いを待っています。",
+    "gestionaLasSolicitudesB2bDeImportad": "輸入業者からのB2Bリクエストを管理する",
+    "activaElModoB2bEnTusProductosPara": "製品のB2Bモードを有効にして、リクエストを受け付けるようにしてください。"
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "審査待ち",
+    "pdfJpgPngMax5mb": "PDF、JPG、PNG（最大5MB）",
+    "100OrganicoSinPesticidasCosechaM": "100％オーガニック、無農薬、手摘み…",
+    "aceitunasEspanaJaen10salPortug": "オリーブ：スペイン（ハエン）&10;塩：ポルトガル&10;..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "オンボーディングを開始できませんでした",
+    "configuraTuCuentaParaRecibirTransfe": "自動送金を受け取るようにアカウントを設定してください。",
+    "tuCuentaEstaListaParaRecibirPagos": "お客様のアカウントは支払いを受け取る準備が整いました。",
+    "completaLosDatosEnStripeParaActiva": "Stripeで情報を入力して、支払いと出金を有効にしてください。"
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "カタログの発見と変換",
+    "conversionDesdeContenido": "コンテンツからの変換",
+    "sinDatosParaEstePeriodo": "この期間のデータはありません",
+    "todaviaNoHayRecetasConTusProductos": "御社の製品を使ったレシピはまだありません。",
+    "cuandoCreadoresCompartanRecetasUsand": "クリエイターがあなたの食材を使ったレシピを共有すると、ここに表示されます。"
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "Stripeで不足している情報を入力する必要があります。",
+    "recibirasTuPorcentajeDeCadaVentaAu": "お客様は、ご契約プランに基づき、各売上の一定割合を自動的に受け取ることができます。",
+    "completaLaVerificacionEnStripePara": "Stripe上で認証手続きを完了すると、自動支払いが有効になります。",
+    "completarVerificacion": "完全な検証",
+    "noHayDatosSuficientesTodavia": "まだ十分なデータがありません",
+    "noSePudieronCargarLasMetricasDelC": "カタログと店舗の指標を読み込むことができませんでした。",
+    "noSePudoCargarElResumenDePagos": "支払い明細を読み込めませんでした。",
+    "noSePudieronCargarLosDatosPrincipa": "メインパネルのデータを読み込むことができませんでした。ページを更新してください。",
+    "errorAlCargarDatosPorFavorRefres": "データ読み込みエラー。ページを更新してください。",
+    "anadirNuevoProducto": "新製品を追加する",
+    "verAnaliticas": "分析を表示",
+    "metricasYPagos": "指標と支払い",
+    "requierenTuAtencion": "それらはあなたの注意を必要としています",
+    "noPuedesPublicarProductosHastaCompl": "認証プロセスが完了するまで、製品を公開することはできません。",
+    "certificadoProximoACaducar": "証明書の有効期限が近づいています",
+    "renuevaloParaNoInterrumpirTusVentas": "販売活動に支障が出ないよう、更新してください。",
+    "senalesDeDemanda": "需要シグナル",
+    "ingredientesProductosYPiezasDeCont": "購入意向が最も高い成分、製品、およびコンテンツ。",
+    "sinDatosTodavia": "データはまだありません。",
+    "productosMasEtiquetados": "ラベル付き製品",
+    "aunNoHayConversionesAtribuidas": "現時点では、コンバージョンの記録はありません。",
+    "conversion": "変換",
+    "cuentaYConfiguracion": "アカウントと設定",
+    "cambiarContrasena": "パスワードを変更する"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "販売データはまだありません",
+    "metodoDePagoActualizado": "支払い方法が更新されました",
+    "losPagosViaStripeSeProcesanAutomat": "Stripe経由の支払いは15日ごとに自動的に処理されます。",
+    "metodoDeCobro": "支払方法",
+    "cobroAutomaticoCada15DiasDirectoA": "15日ごとに銀行口座へ自動引き落としされます。",
+    "solicitasElPagoYElEquipoLoTransfi": "お客様が支払いをリクエストすると、チームがお客様の口座に送金します。",
+    "guardarMetodo": "保存方法",
+    "errorAlCargarDatosDePagos": "支払いデータの読み込みエラー",
+    "noSePudoObtenerElEnlaceDeStripe": "Stripeのリンクを取得できませんでした",
+    "errorAlAbrirElDashboardDeStripe": "Stripeダッシュボードを開く際にエラーが発生しました",
+    "retencionFiscalAplicada": "源泉徴収税が適用されます",
+    "tusGananciasSeAcumulanPeroNecesita": "収益は蓄積されますが、自動送金を受け取るにはStripe Connectが必要です。",
+    "comoFuncionanLosPagos": "支払いの仕組み："
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "基本操作パネル",
+    "optimizacionDePreciosConIa": "AIによる価格最適化",
+    "comisionMasBaja": "手数料の引き下げ",
+    "suscripcionMarcadaParaCancelar": "購読はキャンセル対象としてマークされています",
+    "suscripcionReactivada": "購読が再開されました",
+    "eligeElPlanQueMejorSeAdapteATuN": "あなたのビジネスに最適なプランをお選びください",
+    "periodoDePruebaActivo": "アクティブトライアル期間",
+    "actualizaTuMetodoDePagoParaMantene": "プランを継続するには、支払い方法を更新してください。",
+    "cancelacionProgramada": "予定されていたキャンセル",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "現在の期間の終了時に、お客様のプランはキャンセルされます。",
+    "detallesDeSuscripcion": "購読の詳細",
+    "cancelarSuscripcion": "購読をキャンセルする",
+    "todosLosPreciosSonEnEurEIncluyen": "価格はすべてユーロ建てで、消費税込みです。プラン変更は即時適用されます。",
+    "alCancelarMantienesElAccesoHastaE": "キャンセルしても、請求期間終了までは引き続きアクセスできます。"
+  },
+  "producer_products": {
+    "composicion": "構成",
+    "elNombreDelProductoEsObligatorio": "商品名は必須です",
+    "seleccionaUnaCategoria": "カテゴリを選択してください",
+    "seleccionaElPaisDeOrigen": "原産国を選択してください",
+    "crustaceos": "甲殻類",
+    "frutosDeCascara": "ナッツ",
+    "anadeAlMenosUnaImagen": "少なくとも1枚の画像を追加してください",
+    "subeHasta5FotosDeTuProductoLaPr": "商品の写真を最大5枚までアップロードしてください。最初の1枚が表紙写真になります。",
+    "pedidoMinimoUds": "最小注文数（単位）",
+    "especificaOtrosAlergenos": "その他のアレルゲンを指定してください..."
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "配送ポリシーを読み込めませんでした",
+    "politicaDeEnvioGuardada": "配送ポリシーが保存されました",
+    "politicaDeEnvio": "配送ポリシー",
+    "configuraCostesDeEnvioPorPedidoPar": "商品ごとに注文ごとの配送料を設定してください。",
+    "habilitarGastosDeEnvio": "配送料を有効にする",
+    "0SinEnvioGratis": "0 = 送料無料ではありません",
+    "pedidosQueSuperenEsteImporteTendran": "この金額を超えるご注文は送料無料となります。空欄のままにするか、0に設定すると送料無料は無効になります。",
+    "losClientesPuedenRecogerEnTuObrado": "お客様は、お客様の工房でご注文の商品をお受け取りいただけます（送料がかかります）。"
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "画像がギャラリーに追加されました",
+    "anadirFotoALaGaleria": "ギャラリーに写真を追加",
+    "fotosDelObradorEquipoProcesoDeEl": "作業場、設備、製造工程の写真",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "このストアURLは既に使用されています。別のURLを選択してください。",
+    "errorAlCargarElPerfilDeTienda": "ストアプロファイルの読み込みエラー",
+    "compruebaTuConexionEIntentaloDeNue": "接続状況を確認して、もう一度お試しください。",
+    "personalizaLaPaginaPublicaDeTuTien": "ストアの公開ページをカスタマイズする",
+    "urlDeTuTienda": "あなたのストアURL：",
+    "informacionBasica": "基本情報",
+    "nombreDeLaTienda": "店舗名",
+    "aceitesEcologicosDesde1985": "1985年創業のオーガニックオイル",
+    "historiaDeLaMarca": "ブランドの歴史",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "あなたのブランドのストーリー、創業の経緯、理念などを語ってください。",
+    "carlosMartinez": "カルロス・マルティネス",
+    "laCalidadNoEsUnAccidente": "品質は偶然の産物ではない…",
+    "tusCertificadosVerificadosAparecenAu": "認証済みの証明書は、自動的にストアに表示されます。",
+    "ubicacionCiudadRegion": "所在地（都市、地域）",
+    "jaenAndaluciaEspana": "ハエン、アンダルシア州、スペイン",
+    "direccionCompleta": "住所",
+    "ctraDeLosOlivaresKm1223001Jaen": "クトラ。デ ロス オリバレス、km 12、23001 ハエン",
+    "todaEspanaPeninsular": "スペイン本土全域",
+    "horarioDeAtencion": "営業時間",
+    "lun-vie900-180010sab900-1400": "月～金：9:00～18:00&#10;土：9:00～14:00"
+  },
+  "producer_verification": {
+    "instalacion": "施設",
+    "errorAlSubirElDocumentoCifnif": "CIF/NIFドキュメントのアップロード中にエラーが発生しました",
+    "errorAlSubirLaFotoDeInstalaciones": "施設の写真のアップロード中にエラーが発生しました",
+    "errorAlSubirElCertificado": "証明書のアップロードエラー",
+    "verificacionDeCuenta": "アカウント認証",
+    "subeTuCifEmpresarialONifPersonal": "事業用CIFまたは個人用NIFをアップロードしてください。スペイン税務庁（AEAT）発行の公式書類である必要があります。",
+    "pdfJpgPng·Max5mb": "PDF、JPG、PNG形式 · 最大5MB",
+    "enRevisionManual": "手動審査中",
+    "nuestroEquipoRevisaraTuDocumentoEn": "弊社のチームが48～72営業時間以内にお客様の書類を確認いたします。",
+    "fotoDeInstalacion": "設置写真",
+    "subeUnaFotoDeTuLocalObradorFinc": "敷地、作業場、農場、倉庫、または職場の写真をアップロードしてください。",
+    "laIaVerificaraQueEsUnaInstalacion": "AIは、それが食品生産に関連する実在の施設であることを検証します。",
+    "jpgPngHeic·Max10mb": "JPG、PNG、HEIC形式 · 最大10MB",
+    "instalacionVerificada": "インストール確認済み",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "弊社のチームが48～72営業時間以内に写真を確認いたします。",
+    "alMenos1CertificadoValido": "有効な証明書が少なくとも1つ必要です。",
+    "enRevision": "審査中",
+    "nuestroEquipoRevisaraTuDocumentacion": "弊社のチームが48～72営業時間以内に提出書類を確認いたします。確認後、メールにてご連絡いたします。",
+    "completaLaVerificacion": "確認を完了してください"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "市場別有効化ルール："
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "パックのすべてのフィールドに有効な値を入力してください"
+  },
+  "affiliate_links": {
+    "copiado": "コピーしました！",
+    "configuracionFiscalRequerida": "必要な税務設定",
+    "generaUnLinkParaCualquierProducto": "あらゆる商品のリンクを作成できます。あなたのリンク経由で誰かが商品を購入すると、あなたは手数料を受け取ることができます。",
+    "masIngresos": "収入が増える",
+    "masClics": "クリック数を増やす",
+    "buscaUnProductoArribaParaGenerarTu": "上記で商品を検索して、最初のリンクを生成してください。"
+  },
+  "fiscal_setup": {
+    "sinRetencion": "保持なし",
+    "seleccionaUnPaisDeResidenciaFiscal": "まず、納税居住国を選択してください。",
+    "elArchivoNoPuedeSuperar5mb": "ファイルサイズは5MBを超えることはできません",
+    "certificadoEnRevisionManual": "証明書は手動審査中です",
+    "certificadoNoValido": "無効な証明書",
+    "formatoDeIbanNoValidoDebeEmpezar": "IBANの形式が無効です。国コード（例：ES12...）から始める必要があります。",
+    "errorAlConfigurarMetodoDeCobro": "支払い方法の設定エラー",
+    "configuracionFiscal": "財政構成",
+    "paisFiscal": "税制国",
+    "buscarPais": "国を検索...",
+    "pdfJpgOPng·Max5mb": "PDF、JPG、またはPNG形式（最大5MB）",
+    "nuestroEquipoRevisaraTuCertificadoE": "当チームは48～72営業時間以内に証明書を確認いたします。",
+    "recibeEnMinutosEnTuCuentaStripe": "Stripeアカウントに数分で入金されます。",
+    "fee025€PorTransferenciaStripeSe": "手数料：Stripe送金1回につき0.25ユーロ（手数料から差し引かれます）",
+    "sinComisionAdicional·ProcesadoEn1-": "追加料金なし · 1～3営業日以内に処理",
+    "titularDeLaCuenta": "口座名義人",
+    "verificacionCompletada": "検証が完了しました",
+    "tuConfiguracionFiscalEstaVerificada": "税務設定は確認済みで有効です。",
+    "verificacionCompletadaAfiliadosActiv": "認証が完了しました。アフィリエイトが有効化されました。",
+    "errorAlCompletarLaVerificacion": "検証中にエラーが発生しました。",
+    "completaLosPasosAnterioresParaAcced": "上記の手順を完了して、認証にアクセスしてください。",
+    "configuracionFiscalGuardadaAfiliados": "税金設定が保存されました。アフィリエイトが有効になりました。",
+    "errorAlGuardarLaConfiguracionFiscal": "税金設定の保存中にエラーが発生しました。",
+    "completaTodosLosCamposParaContinuar": "続行するにはすべての項目を入力してください。"
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "出金処理エラー",
+    "introduceElCodigoDe6Digitos": "6桁のコードを入力してください",
+    "emailVerificado": "メールアドレスを確認しました！",
+    "codigoInvalido": "無効なコード",
+    "codigoEnviadoATuEmail": "コードはメールで送信されます",
+    "errorAlEnviarCodigo": "コード送信エラー",
+    "elCodigoDebeTenerAlMenos3Caracter": "コードは少なくとも3文字以上でなければなりません。",
+    "codigoCreado": "コードが作成されました",
+    "errorAlCrearCodigo": "コードの作成エラー",
+    "codigosDeDescuento": "割引コード",
+    "eligeUnCodigoPersonalizadoYElPorce": "コミュニティ向けにカスタムコードと割引率を選択してください。",
+    "codigoCopiado": "コピーされたコード",
+    "misCodigosDeDescuento": "私の割引コード",
+    "creaTuPrimerCodigoDeDescuento": "最初の割引コードを作成してください",
+    "pendiente15Dias": "15日間保留中",
+    "enTransito": "輸送中",
+    "productosQueMejorFuncionanEnTuCont": "コンテンツに最適な製品",
+    "publicaContenidoConProductosVinculad": "成果を実感するには、関連商品を含むコンテンツを公開しましょう。",
+    "pendienteDeAprobacion": "承認待ち",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "お客様のコードはHispaloshopチームによって審査中です。24時間以内に承認いたします。",
+    "miCodigoHispaloshop": "私のHispaloshopコード",
+    "comisionTotal": "総手数料",
+    "tasaDeComision": "手数料率",
+    "aunNoHasRealizadoNingunCobro": "まだお支払いを受け取っていません。",
+    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SLは、お客様の手数料の15%を源泉徴収し、四半期ごとに税務署にお客様に代わって納付します（モデル111）。",
+    "cuandoHagasTuDeclaracionDeLaRenta": "所得税申告書（IRPF）を提出する際には、源泉徴収された税金はすでに支払われているため、控除することができます。",
+    "recibirasElCertificadoDeRetenciones": "源泉徴収証明書は毎年1月に送付されます。",
+    "evolucionDeTusComisiones": "手数料の推移",
+    "comparteloEnTusRedesSociales": "ソーシャルメディアでシェアしてください",
+    "tuLinkDeAfiliado": "あなたのアフィリエイトリンク",
+    "aunNoTienesVentasComparteTuLink": "まだ売上がありません。リンクを共有してください！"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "グラフを表示するのに十分なデータがありません",
+    "impactoComercialDeTuContenido": "コンテンツの商業的影響",
+    "productosMasImpulsadosPorTuContenid": "コンテンツによって最も影響を受ける製品",
+    "errorDeConexion": "接続エラー",
+    "noPudimosCargarTusDatosCompruebaT": "データの読み込みに失敗しました。接続状況を確認して、もう一度お試しください。",
+    "aunNoTienesDatos": "まだデータがありません。",
+    "cuandoTuContenidoImpulseClicsOComp": "あなたのコンテンツがクリックや購入につながると、ここに表示されます。",
+    "losDatosMuestranInteraccionesAtribui": "このデータには、あなたのクリエイタープロフィールに関連付けられたインタラクション（コンテンツ内の商品へのクリック、カートに追加された商品、購入完了など）が表示されます。データはリアルタイムで更新されます。"
+  },
+  "payouts": {
+    "introduceUnImporteValido": "有効な金額を入力してください",
+    "elImporteSuperaTuSaldoDisponible": "ご利用可能残高を超えています。",
+    "errorAlSolicitarLaRetirada": "出金リクエストでエラーが発生しました",
+    "lasComisionesDeTransferenciaDeStrip": "Stripeの送金手数料（約1～2％）は自動的に差し引かれます。",
+    "aunNoTienesPagosComparteTuCodigo": "まだ報酬を受け取っていません。コードを共有して、報酬を獲得しましょう。",
+    "noHayPagosConEsteEstado": "このステータスでは支払いは発生していません。"
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "保留中の税務設定",
+    "completaTuConfiguracionFiscalAntesD": "資金を引き出す前に、税金の設定を完了してください。",
+    "errorAlProcesarElCobroIntentaloDe": "お支払い処理エラーが発生しました。もう一度お試しください。",
+    "cobroEnCamino": "お支払いは送金中です！",
+    "tiempoEstimado1-3DiasHabiles": "所要時間目安：1～3営業日",
+    "retencionIrpf": "所得税源泉徴収",
+    "metodo": "方法",
+    "comisionBruta": "総手数料",
+    "laComisionRealPuedeVariarSegunTuM": "実際の手数料は、お支払い方法によって異なる場合があります。",
+    "esteCobroSeraDeclaradoPorHispalosho": "この支払いは、Hispaloshop SLによって経済活動からの収入として申告されます。",
+    "recibirasUnCertificadoDeRetenciones": "1月に確定申告に必要な源泉徴収証明書が送付されます。"
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "すべてのカテゴリ",
+    "carnicos": "肉製品",
+    "errorAlEnviarLaSolicitud": "リクエストの送信エラー",
+    "precioEstimado·ElProductorConfirmar": "推定価格・最終価格は製造元が確定します",
+    "notasParaElProductorOpcional": "プロデューサー向け注記（任意）",
+    "elProductorTiene48hParaConfirmarDi": "プロデューサーは、在庫状況と条件を確認するのに48時間かかる。",
+    "soloSeProcesaElPagoTrasSuConfirma": "お支払いは確認後に処理されます。",
+    "catalogoMayorista": "卸売カタログ",
+    "errorAlCargarElCatalogo": "カタログの読み込みエラー"
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "証明書を表示するプロバイダーを選択してください。",
+    "errorAlCargarLosCertificados": "証明書の読み込みエラー",
+    "losCertificadosDeTusProveedoresApar": "サプライヤーの証明書はここに表示されます。"
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "自動生成されたB2B契約書",
+    "errorAlCargarElPanel": "パネルの読み込みエラー",
+    "aunNoTienesProductosPublicados": "まだ商品が登録されていません。",
+    "requierenTuAccion": "彼らはあなたの行動を必要としている",
+    "catalogoB2b": "B2Bカタログ",
+    "aunNoTienesProveedores": "まだ仕入先がありません。",
+    "expandeTuCatalogo": "カタログを拡張する",
+    "verAnalisis": "分析を見る",
+    "anadirProducto": "商品を追加する",
+    "analisis": "分析",
+    "evolucionDeVentas": "売上推移"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "取引IDが利用できません",
+    "recepcionConfirmada": "受付確認済み",
+    "errorAlConfirmarRecepcion": "受信確認エラー",
+    "idDePedidoNoDisponible": "注文IDは利用できません",
+    "rastrearEnvio": "配送状況を追跡する",
+    "confirmarRecepcion": "領収書を確認する"
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "割引コードの読み込みエラー",
+    "errorAlAprobarElCodigo": "承認コードのエラー",
+    "errorAlRechazarElCodigo": "エラーコードを拒否しました",
+    "codigoDeDescuentoActualizado": "割引コードが更新されました",
+    "codigoDeDescuentoCreado": "割引コードが作成されました",
+    "errorAlGuardarCodigoDeDescuento": "割引コードの保存中にエラーが発生しました。",
+    "codigoDeDescuentoEliminado": "割引コードは削除されました",
+    "errorAlEliminarCodigoDeDescuento": "割引コードの削除中にエラーが発生しました。",
+    "errorAlCambiarEstadoDelCodigo": "コード状態の変更エラー",
+    "cargandoCodigosDeDescuento": "割引コードを読み込んでいます",
+    "gestionaCodigosPromocionalesEInfluen": "プロモーションコードとインフルエンサーを管理する",
+    "nuevoCodigo": "新しいコード",
+    "editarCodigoDeDescuento": "割引コードを編集する",
+    "importeMinimoDelCarrito": "最低購入金額",
+    "limiteDeUso": "使用制限",
+    "actualizarCodigo": "更新コード",
+    "buscarCodigosDeDescuento": "割引コードを検索...",
+    "codigo": "コード",
+    "noSeEncontraronCodigos": "コードは見つかりませんでした",
+    "codigosActivos": "有効なコード",
+    "totalDeCodigos": "合計コード数"
+  },
+  "admin_fiscal": {
+    "revisionManual": "マニュアルレビュー",
+    "errorAlProcesarLaRevision": "エラー処理レビュー",
+    "gestionFiscal": "財政管理",
+    "pendientesRevision": "審査待ち",
+    "revisionManualPendiente": "手動レビュー待ち"
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "成長データを読み込めませんでした",
+    "errorAlCargarLosDatos": "データ読み込みエラー",
+    "analisisDeConversionYDescubrimiento": "変換分析と発見",
+    "conversionDirecta": "直接変換",
+    "contenidoConMayorConversion": "コンバージョン率の高いコンテンツ",
+    "titulo": "資格",
+    "productosMasClicadosDesdeContenido": "コンテンツから最もクリックされた商品",
+    "sobreLosDatosDeCrecimiento": "成長データに関して"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "インフルエンサーの詳細の読み込み中にエラーが発生しました。",
+    "anadirInfluencer": "インフルエンサーを追加"
+  },
+  "admin_management": {
+    "paisAsignado": "割り当てられた国",
+    "elAdminSoloVeraAnalyticsDeEstePai": "管理者はこの国の分析データのみを閲覧できます。グローバルアクセスを希望する場合は、空欄のままにしてください。"
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "健康に関する誤情報",
+    "claimsMedicos": "医療費請求",
+    "razonIa": "理由IA",
+    "contenidoConfirmadoComoInfraccion": "著作権侵害が確認されたコンテンツ",
+    "errorAlConfirmarLaModeracion": "モデレーションの確認中にエラーが発生しました",
+    "errorAlRestaurarElContenido": "コンテンツの復元中にエラーが発生しました",
+    "errorAlEscalarElContenido": "コンテンツのスケーリングエラー",
+    "revisaElContenidoModeradoPorIa": "AIがモデレートしたコンテンツをレビューする"
+  },
+  "admin_orders": {
+    "articulos": "記事"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "管理者パネルを読み込んでいます",
+    "noSePudieronCargarLasEstadisticas": "統計情報を読み込めませんでした",
+    "panelDeAdministracion": "管理パネル",
+    "gestionDeTuMercadoEnUnaVista": "市場を1つの画面で管理する",
+    "colaDeRevision": "レビューキュー",
+    "moderacionDeContenido": "コンテンツモデレーション",
+    "certificadosQueExpiranEn30Dias": "有効期限が30日後の証明書",
+    "noHayCertificadosProximosAExpirar": "有効期限が切れる証明書はありません。",
+    "certificadosPendientesDeRevision": "証明書は審査中です"
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "銀行取引番号"
+  },
+  "admin_products": {
+    "precioNoValido": "価格は無効です",
+    "checklistDeAprobacion": "承認チェックリスト",
+    "alMenos1FotoDelProducto": "商品の写真が少なくとも1枚必要です。",
+    "descripcionCompletaMin20Caracteres": "詳細説明（最低20文字）",
+    "paisDeOrigenIndicado": "原産国表示",
+    "alergenosRevisadosCampoPresente": "アレルゲンを確認しました（フィールド内存在）",
+    "marcaTodosLosItemsParaPoderAprobar": "承認する項目をすべてチェックしてください。"
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "無効な注文ID",
+    "errorAlProcesarElReembolso": "返金処理エラー",
+    "accionIrreversible": "不可逆的な作用",
+    "seProcesaraElReembolsoEnStripeYSe": "返金はStripeを通じて処理され、手数料は自動的に調整されます。",
+    "gestionDeReembolsos": "返金管理"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "レビューの読み込みエラー",
+    "resenaOculta": "非公開レビュー",
+    "resenaEliminada": "レビューは削除されました",
+    "errorAlEliminarResena": "レビューの削除中にエラーが発生しました",
+    "moderarResenasDeClientes": "顧客レビューは平均的です",
+    "totalDeResenas": "総レビュー数",
+    "calificacionPromedio": "平均評価",
+    "buscarResenas": "レビューを検索...",
+    "calificacion": "資格",
+    "noSeEncontraronResenas": "レビューは見つかりませんでした"
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "サポートケースを読み込むことができませんでした",
+    "noHayCasosDeSoporteConLosFiltros": "選択されたフィルターに該当するサポート案件はありません。"
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "交換を依頼する",
+    "resolucionManual": "手動解決",
+    "noSePudoCargarElCaso": "ケースを読み込むことができませんでした",
+    "noSePudoActualizarElEstado": "ステータスを更新できませんでした",
+    "noSePudoActualizarLaPrioridad": "優先度を更新できませんでした",
+    "noSePudoEnviarElMensaje": "メッセージを送信できませんでした。",
+    "accionAplicada": "講じられた措置",
+    "noSePudoAplicarLaAccion": "このアクションは適用できませんでした",
+    "conversacion": "会話",
+    "sinMensajesAun": "まだメッセージはありません。",
+    "tuAdmin": "あなた（管理者）",
+    "unAgenteHumanoSeHaUnidoALaConver": "人間のエージェントが会話に参加しました。",
+    "esteCasoEstaCerradoNoSePuedenAna": "この件は解決済みです。これ以上メッセージを追加することはできません。",
+    "ultimaActualizacion": "最新情報"
+  },
+  "admin_trust_safety": {
+    "enganoso": "誤解を招く",
+    "resena": "レビュー",
+    "noSePudoCargarLaColaDeModeracion": "モデレーションキューを読み込むことができませんでした",
+    "accionAplicada": "講じられた措置",
+    "noSePudoAplicarLaAccion": "このアクションは適用できませんでした",
+    "colaVacia": "空のキュー",
+    "noHayContenidoPendienteDeRevision": "審査待ちのコンテンツはありません。",
+    "senales": "信号",
+    "noSePudieronCargarLosReportes": "レポートを読み込むことができませんでした",
+    "noHayReportesConLosFiltrosSeleccio": "選択したフィルターに一致するレポートはありません。",
+    "marcadosAutomaticamente": "自動的にマークされました",
+    "politicasDeLaPlataforma": "プラットフォームポリシー",
+    "productosProhibidosArmasDrogasCon": "禁止品目：武器、麻薬、違法コンテンツ、偽造品。",
+    "resenasDebenSerAutenticasVerificad": "レビュー：本物であり、検証済みで、実際の購入に基づいたものでなければなりません。",
+    "vendedoresResponsablesDeLaVeracidad": "販売者：商品説明の正確性および食品の安全性について責任を負います。",
+    "contenidoGeneradoPorUsuariosSujeto": "ユーザー生成コンテンツ：自動および人によるモデレーションの対象となります。",
+    "colaDeModeracion": "モデレーションキュー",
+    "moderacionReportesEIntegridadDeLa": "コンテンツの管理、報告、およびプラットフォームの健全性。"
+  },
+  "admin_verification": {
+    "revision": "リビジョン",
+    "revisionManual": "マニュアルレビュー",
+    "numero": "番号",
+    "descripcionIa": "AIの説明",
+    "rechazarVerificacion": "検証を拒否する",
+    "documentosProblematicos": "問題のある文書：",
+    "fotoDeInstalacionNoValida": "無効なインストール写真",
+    "solicitarDocumentacion": "ドキュメントをリクエストする",
+    "verificacionRechazada": "検証が拒否されました",
+    "revisionManualDeProductores": "プロデューサーズマニュアルレビュー"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "カテゴリ名",
+    "descripcionOpcional": "説明（任意）",
+    "errorAlCargarLasCategorias": "カテゴリの読み込みエラー",
+    "categoriaCreada": "カテゴリが作成されました",
+    "errorAlCrearLaCategoria": "カテゴリの作成中にエラーが発生しました",
+    "categoriaActualizada": "更新されたカテゴリ",
+    "errorAlActualizarLaCategoria": "カテゴリの更新中にエラーが発生しました",
+    "categoriaEliminada": "カテゴリが削除されました",
+    "errorAlEliminarLaCategoria": "カテゴリの削除中にエラーが発生しました",
+    "nuevaCategoria": "新しいカテゴリ",
+    "buscarCategorias": "検索カテゴリ...",
+    "noSeEncontraronCategorias": "カテゴリが見つかりませんでした",
+    "sinDescripcion": "説明なし"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "メッセージを読み込めませんでした。",
+    "canalDeEscalacionAbiertoUnSuperadm": "エスカレーションチャネルが開きました。スーパー管理者があなたのメッセージを受け取ります。",
+    "errorAlAbrirEscalacion": "エラーのエスカレーション開始",
+    "canalDeEscalacionPrivado": "プライベートクライミングチャンネル",
+    "seleccionaUnaEscalacionParaVerLosM": "メッセージを表示するには、エスカレーションを選択してください。",
+    "usaEsteCanalParaReportarProblemasC": "このチャネルは、重大な問題、未解決の紛争、またはより高度な介入が必要な状況を報告するために使用してください。",
+    "elMensajeEstaCifradoDeExtremoAExt": "このメッセージはデータベース内でエンドツーエンド暗号化されています。",
+    "describeElProblemaOSituacionAEscal": "エスカレーションが必要な問題または状況を説明してください。",
+    "abrirCanalDeEscalacion": "エスカレーションチャネルを開く",
+    "sinMensajesTodavia": "まだメッセージはありません"
+  },
+  "content_management": {
+    "sinExpiracion": "有効期限なし"
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "GDPRリクエストの処理中にエラーが発生しました",
+    "solicitudesDeDerechosDeUsuariosBajo": "GDPRに基づくユーザーの権利に関するリクエスト。最大応答期間：30日間。"
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "画像ストレージ",
+    "estadoDeServiciosYConfiguracionDel": "サービスの状態と環境構成",
+    "informacionDelSistema": "システム情報"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "インサイトパネルのデータを読み込むことができませんでした。",
+    "minimoDeUsuariosRequeridosParaMostr": "集計された機密データを表示するために必要な最小ユーザー数",
+    "detectarObjetivosDieteticosYDeSalud": "食事と健康に関する目標を特定する",
+    "noHayDatosDePaisesParaMostrar": "表示する国別データがありません。",
+    "noHayMetricasDeIaDisponibles": "AI関連の指標は利用できません。",
+    "noHayDatosDeComplianceDisponibles": "コンプライアンスに関するデータは入手できません。"
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "現地の販売者が登録できるように、国を有効化してください。"
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "この変更を本番環境に適用するには、スーパー管理者パスワードを入力してください。",
+    "contrasenaSuperadmin": "スーパー管理者パスワード",
+    "introduceTuContrasena": "パスワードを入力してください",
+    "configuracionActualizadaYGuardada": "更新された設定が保存されました",
+    "configuracionDePlanes": "プラン設定",
+    "losCambiosSeAplicanAutomaticamenteE": "変更内容はStripeに自動的に適用されます。確認のため、スーパー管理者パスワードが必要です。",
+    "comisionSobreElTotalDeVentaDespue": "販売総額（送料および消費税控除後）に対する手数料。これはプラットフォームのマージンから差し引かれます。"
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "概要を読み込めませんでした",
+    "revisaLaConexionConElBackend": "バックエンドへの接続を確認してください。",
+    "sinDatosDeTendencia": "トレンドデータなし",
+    "distribucionDePlanes": "計画配布"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "B2Bカタログの読み込みエラー",
+    "noSePudoCambiarElEstado": "状態は変更できなかった",
+    "noTienesAccesoAEstaSeccion": "このセクションにはアクセスできません",
+    "necesitasUnPerfilDeProductorOImpor": "B2Bカタログにアクセスするには、生産者または輸入業者のプロフィールが必要です。",
+    "gestionaQueProductosOfrecesAlPorMa": "卸売りする商品とその条件を管理します。",
+    "noTienesProductosEnElCatalogoB2b": "B2Bカタログには商品が登録されていません。",
+    "empiezaAnadiendoTuPrimerProductoMay": "まずは最初の卸売商品を登録しましょう。",
+    "anadirPrimerProducto": "最初の製品を追加する",
+    "anadirProductoAlCatalogoB2b": "B2Bカタログに製品を追加する"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "メッセージを送信して会話を始めましょう",
+    "noTienesAccesoAEstaSeccion": "このセクションにはアクセスできません",
+    "necesitasUnPerfilDeProductorOImpor": "B2Bチャットにアクセスするには、生産者または輸入業者のプロフィールが必要です。"
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "操作をロードできませんでした",
+    "noTienesAccesoAEstaSeccion": "このセクションにはアクセスできません",
+    "necesitasUnPerfilDeProductorOImpor": "B2B契約にアクセスするには、生産者または輸入業者のプロフィールが必要です。",
+    "operacionNoEncontrada": "操作が見つかりません",
+    "laOperacionSolicitadaNoExisteONoT": "要求された操作が存在しないか、またはアクセス権限がありません。",
+    "laIaEstaGenerandoElContrato": "AIが契約を生成しています...",
+    "elContratoEstaTardandoMasDeLoEspe": "契約締結に予想以上に時間がかかっている。",
+    "recibirasUnaNotificacionCuandoEsteL": "準備が整い次第、通知が届きます。",
+    "cartaDeCreditoPagoDividido": "信用状（分割払い）",
+    "pagoA30Dias": "支払い期限は30日以内です。",
+    "pagoA60Dias": "支払い期限は60日以内です。",
+    "alFirmarConfirmasQueHasLeidoYAcep": "署名することにより、あなたは契約のすべての条項を読み、同意したことを確認するものとします。",
+    "laFirmaQuedaRegistradaConFechaHor": "署名は日付、時刻、IPアドレスとともに記録されます。",
+    "necesitasSubirTuFirmaDigitalAntesD": "契約書に署名するには、まず電子署名をアップロードする必要があります。"
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "文書に誤りがある",
+    "maximo5Archivos": "最大5ファイル",
+    "errorAlAbrirLaDisputa": "紛争開始エラー",
+    "antesDeAbrirUnaDisputaTeRecomenda": "紛争を起こす前に、チャットで相手と話し合うことをお勧めします。",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "合意に至らない場合は、Hispaloshopの管理者が72時間以内に案件を審査します。",
+    "describeDetalladamenteElProblemaMin": "問題点を詳しく説明してください（最低50文字）。",
+    "max5Archivos10mbCadaUno": "最大5ファイル、各ファイルサイズ10MB",
+    "estaAccionNotificaraAlAdminDeHispa": "この操作はHispaloshopの管理者に通知され、相手方の評判に影響を与える可能性があります。"
+  },
+  "b2_b_marketplace": {
+    "catalogo": "カタログ",
+    "precioMasBajo": "最低価格",
+    "masProductos": "その他の製品",
+    "sinAccesoAlCatalogoB2b": "B2Bカタログへのアクセスはできません",
+    "completaTuPerfilDeImportadorParaAc": "輸入業者プロフィールを完成させてアクセスしてください",
+    "sinAccesoAlDirectorioDeProductores": "プロデューサーディレクトリにアクセスできない",
+    "indicaElProductorLosProductosYLa": "生産者、製品、数量を指定してください。生産者はあなたのリクエストを受け取り、個別の見積もりを提示します。"
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "信用状",
+    "elCompradorAsumeTodosLosCostesDesd": "購入者は工場からのすべての費用を負担する。",
+    "vendedorEntregaEnDestinoSinDescarga": "販売者は荷降ろしせずに目的地まで配送します",
+    "indicaElPlazoMinimoDeEntrega": "最短配達時間を指定してください",
+    "validezDias": "有効期間（日数）",
+    "errorAlEnviarLaOferta": "オファーの送信エラー"
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "交渉中",
+    "noTienesAccesoAEstaSeccion": "このセクションにはアクセスできません",
+    "necesitasUnPerfilDeProductorOImpor": "B2B取引を行うには、生産者または輸入業者のプロファイルが必要です。",
+    "errorAlCargarLasOperaciones": "エラー読み込み操作"
+  },
+  "b2_b_payment": {
+    "net30Dias": "正味30日",
+    "net60Dias": "正味60日",
+    "cartaDeCredito": "信用状",
+    "errorAlCargarLosDatosDePago": "支払い詳細の読み込みエラー",
+    "noSePudoInicializarElPago": "支払いを開始できませんでした。",
+    "noTienesAccesoAEstaSeccion": "このセクションにはアクセスできません",
+    "necesitasUnPerfilDeProductorOImpor": "B2B決済を利用するには、生産者または輸入業者のプロフィールが必要です。",
+    "esperandoElPagoDelComprador": "購入者からの支払いを待っています…",
+    "recibirasUnaNotificacionCuandoElPag": "お支払いの処理が完了すると、通知が届きます。",
+    "losFondosEstanRetenidosHastaQueSub": "発送書類をアップロードしていただくまで、資金は保留されます。"
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "貴社製品に関心のある輸入業者からの見積依頼",
+    "historialDeTusSolicitudesDeCotizaci": "卸売りの見積もり依頼履歴",
+    "noSePudieronCargarLasSolicitudes": "リクエストを読み込むことができませんでした。",
+    "soloDisponibleParaCuentasDeProducto": "プロデューサーアカウントのみ利用可能",
+    "soloDisponibleParaCuentasDeImportad": "輸入業者アカウントのみ利用可能",
+    "noHasEnviadoSolicitudesAun": "あなたはまだ応募書類を何も送信していません。",
+    "usaElMarketplaceB2bParaContactarPr": "B2Bマーケットプレイスを利用して生産者に連絡してください。"
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "読み込み操作エラー",
+    "envioConfirmado": "発送確認済み",
+    "noSePudoConfirmarElEnvio": "出荷を確認できませんでした",
+    "operacionNoEncontrada": "操作が見つかりません",
+    "noSePudoCargarLaOperacionSolicitad": "要求された操作を読み込むことができませんでした。",
+    "abrirChatDeLaOperacion": "作戦に関するチャットを開く",
+    "confirmarEnvio": "出荷を確認する",
+    "esperandoConfirmacionDeEnvioDelProd": "製造元からの出荷確認待ち",
+    "documentacion": "文書",
+    "documentosNecesariosParaEstaOperacio": "この手術に必要な書類",
+    "revisaLaDocumentacionPendienteAntes": "提出前に、未提出の書類がないかご確認ください。",
+    "proximamente": "すぐ",
+    "elCompradorRealizaraElPagoFinalTra": "購入者は納品後に最終支払いを行います。"
+  },
+  "customer_orders": {
+    "masAntiguos": "年配の方",
+    "errorAlCargarLosPedidos": "注文の読み込みエラー",
+    "errorAlActualizarLosPedidos": "注文の更新中にエラーが発生しました",
+    "noHayPedidosEnEstaCategoria": "このカテゴリーには注文がありません。",
+    "productosAnadidosAlCarrito": "商品がカートに追加されました",
+    "noSePudoRepetirElPedido": "注文は繰り返すことができませんでした",
+    "cargarMasPedidos": "注文をさらに読み込む"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "一部のデータを読み込めませんでした。下にスワイプしてもう一度お試しください。"
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "プロファイルの読み込みエラー",
+    "errorAlCargarLasDirecciones": "アドレスの読み込みエラー",
+    "generaUnCodigoDeDescuentoPersonaliz": "カスタム割引コードを生成します。",
+    "tusSeguidoresObtienen10DeDescuento": "あなたのフォロワーは10%割引を受けられます。",
+    "tuGanasEntre3Y7DeCadaVenta": "あなたは売上ごとに3％から7％の報酬を得られます。",
+    "programaDeAfiliadosActivado": "アフィリエイトプログラムが有効になりました！",
+    "errorAlActivarElPrograma": "プログラムの起動中にエラーが発生しました"
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "まだメッセージはありません。まもなく返信が届きます。",
+    "esteCasoEstaCerrado": "この件は解決済みです。",
+    "noSePudoCargarTuHistorialDeSoport": "サポート履歴を読み込めませんでした",
+    "noSePudoAbrirElCaso": "事件は開廷できなかった",
+    "historialDeTusCasosDeSoporteConHi": "Hispaloshopへのサポートに関するお問い合わせ履歴。",
+    "noTienesNingunCasoDeSoporteAbierto": "未解決のサポート案件はありません。サポートが必要な場合は、HIまでお問い合わせください。"
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "商品がカートに追加されました",
+    "errorAlAnadirAlCarrito": "カートに追加中にエラーが発生しました"
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "読み込み順序エラー",
+    "resenaPublicada": "掲載されたレビュー",
+    "errorAlPublicarLaResena": "レビュー投稿エラー",
+    "esteDocumentoNoEsUnaFacturaFiscal": "この書類は税金請求書ではありません。",
+    "noSePudoDescargarLaFactura": "請求書をダウンロードできませんでした。",
+    "elImporteSeReflejaraEnTuCuentaEn": "金額は5～10営業日以内にお客様の口座に反映されます。",
+    "seHaReembolsadoParteDelImporteATu": "金額の一部はお客様の口座に返金されました。",
+    "elPagoNoSePudoProcesarIntentaloD": "お支払いの処理ができませんでした。もう一度お試しいただくか、サポートまでお問い合わせください。",
+    "dejaUnaResena": "レビューを残してください…",
+    "publicarResena": "レビューを投稿する",
+    "resenaEnviadaGracias": "レビューを送信しました。ありがとうございます！"
+  },
+  "change_password": {
+    "contrasenaActualizada": "パスワードが更新されました",
+    "contrasenaActualIncorrecta": "現在のパスワードが間違っています",
+    "errorAlCambiarContrasena": "パスワード変更エラー",
+    "tuCuentaUsaGoogleParaIniciarSesion": "お客様のアカウントはGoogleアカウントでログインしています。パスワードは設定されていません。",
+    "puedesAnadirUnaAContinuacion": "下記に追加できます。",
+    "contrasenaActual": "現在のパスワード",
+    "nuevaContrasena": "新しいパスワード",
+    "repetirNuevaContrasena": "新しいパスワードを再入力してください",
+    "lasContrasenasNoCoinciden": "パスワードが一致しません",
+    "anadirContrasena": "パスワードを追加"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "ユーザー名は利用できません",
+    "urlNoValida": "無効なURL",
+    "esteNombreDeUsuarioNoEstaDisponibl": "このユーザー名は利用できません",
+    "elUsuarioDebeTenerAlMenos3Caracte": "ユーザー名は3文字以上である必要があります。",
+    "biografia": "バイオグラフィー",
+    "cuentanosSobreTi": "自己紹介をしてください…",
+    "madridEspana": "スペイン、マドリード",
+    "informacionDeContacto": "連絡先",
+    "elEmailNoSePuedeCambiarDesdeAqui": "ここからはメールアドレスを変更できません。",
+    "nombreDeLaEmpresa": "会社名",
+    "descripcionDeLaTienda": "ストアの説明",
+    "describeTuTiendaTusProductosTuHi": "あなたのお店、商品、そしてお店のストーリーについて教えてください。",
+    "maximo5Mb": "最大5MB",
+    "eseNombreDeUsuarioYaEstaEnUso": "そのユーザー名は既に使用されています",
+    "elNombreDeUsuarioDebeTenerAlMenos": "ユーザー名は3文字以上である必要があります。",
+    "noSePudoGuardarIntentaloDeNuevo": "保存できませんでした。もう一度お試しください。",
+    "min3Caracteres": "最低3文字",
+    "cuentanosAlgoSobreTi…": "自己紹介をしてください…",
+    "descripcionDeTienda": "ストアの説明"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "リクエスト処理エラー",
+    "cuandoAlguienQuieraSeguirteAparecer": "誰かがあなたをフォローしたい場合、ここに表示されます。"
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "注文確認",
+    "actualizacionesDeEnvio": "配送状況の更新",
+    "solicitudesDeResena": "レビュー依頼"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "IBAN形式は無効です",
+    "sinComision-2-3DiasLaborables": "手数料無料 - 2～3営業日",
+    "tuCuentaDeStripeConnectEstaActiva": "Stripe Connectアカウントは有効です。お支払いは自動的に処理されます。",
+    "conectaTuCuentaDeStripeParaRecibir": "Stripeアカウントを接続すると、支払いを直接受け取ることができます。Stripeの認証プロセスにリダイレクトされます。",
+    "losPagosPorVentasDeProductosSePro": "商品販売の支払いは、Stripe Connectを通じて自動的に処理されます。",
+    "configuraTuCuentaDeStripeParaEmpez": "Stripeアカウントを設定して、支払いの受け取りを開始しましょう。"
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "基本的な店舗プロフィール",
+    "analiticasBasicas": "基本的な分析",
+    "analiticasAvanzadas": "高度な分析",
+    "generacionDeContratos": "契約書の作成",
+    "errorAlAbrirFacturacion": "請求書を開く際にエラーが発生しました",
+    "errorAlCambiarDePlan": "プラン変更エラー",
+    "perderasLasFuncionalidadesPremiumAl": "請求期間終了時に、プレミアム機能は利用できなくなります。"
+  },
+  "settings": {
+    "cuentaPublicaActivada": "公開アカウントが有効になりました",
+    "errorAlCambiarLaPrivacidad": "プライバシー設定の変更中にエラーが発生しました。",
+    "sesionCerradaCambiadoAOtraCuenta": "セッションが終了しました。別のアカウントに切り替えました。",
+    "errorAlEliminarLaCuenta": "アカウント削除エラー",
+    "paisEIdioma": "国と言語",
+    "lasCuentasDeProductorSonSiemprePub": "プロデューサーのアカウントは常に公開されています。",
+    "planDeSuscripcion": "サブスクリプションプラン",
+    "confirmarCierreDeSesion": "セッション終了を確認する",
+    "tendrasQueVolverAIniciarSesionPara": "アカウントにアクセスするには、再度ログインする必要があります。",
+    "confirmarEliminacionDeCuenta": "アカウント削除を確認する",
+    "estaAccionEsIrreversibleSeEliminar": "この操作は元に戻せません。お客様のデータ、注文履歴、コンテンツはすべて削除されます。",
+    "escribeTuEmailParaConfirmar": "確認のため、メールアドレスを入力してください。",
+    "confirmaTuEmailParaEliminarLaCuent": "アカウントを削除するには、メールアドレスを確認してください。"
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "保存する前に署名を描いてください",
+    "subeUnaImagenDeTuFirma": "署名の画像をアップロードしてください",
+    "configuraTuFirmaAntesDeGuardar": "保存する前に署名を設定してください。",
+    "errorAlProcesarLaFirmaExistente": "既存の署名の処理中にエラーが発生しました",
+    "errorAlGuardarLaFirma": "署名の保存エラー",
+    "necesitasConfigurarTuFirmaParaPoder": "B2B契約に署名するには、署名を設定する必要があります。",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "あなたのデジタル署名は、以下のB2B契約に自動的に適用されます。",
+    "laFirmaQuedaRegistradaConTimestamp": "署名はタイムスタンプとSHA-256ハッシュで記録されます。",
+    "seSuperpondraSobreLaFirmaEnLosCon": "それは契約書の署名の上に重ねて表示されます。"
+  },
+  "role_onboarding": {
+    "omnivoro": "雑食動物",
+    "paraRecomendarteLosMejoresProductos": "お客様に最適な商品をおすすめいたします。いくつかの選択肢からお選びいただけます。",
+    "tuFeedSePersonalizaraConSusProduct": "あなたのフィードは、あなたの製品やコンテンツに合わせてパーソナライズされます。",
+    "escribeElNombreDeTuTienda": "店舗名を記入してください",
+    "errorConectandoConStripeHazloDesde": "Stripeへの接続エラーが発生しました。ダッシュボードから接続してください。",
+    "estoEsLoPrimeroQueVeranTusCliente": "これは、お客様が最初に目にするものです。",
+    "anadirLogo": "ロゴを追加",
+    "jpgPngOWebp·Maximo5mb": "JPG、PNG、またはWebP形式 · 最大5MB",
+    "nombreDeTuTienda": "店舗名",
+    "puedesAnadirMasDesdeTuPanelEsteP": "ダッシュボードからさらに追加できます。この手順は任意です。",
+    "necesitamosVerificarTuIdentidadPara": "販売代金を安全にお客様にお振り込みするためには、お客様の身元確認が必要です。",
+    "tusDatosBancariosNuncaPasanPorHisp": "お客様の銀行口座情報はHispaloshopを経由することはありません。",
+    "recibirasTusPagosAutomaticamente": "お支払いは自動的に行われます。",
+    "puedesHacerloMasTardeDesdeTuPanel": "後でダッシュボードから設定できます。",
+    "loHareMasTarde": "後でやります。",
+    "noSePudoObtenerTuCodigo": "コードを取得できませんでした",
+    "apareceranEnTuPerfilCuandoAlguien": "それらはあなたのプロフィールに表示されます。誰かがそれらを購入すると、あなたは手数料を受け取ることができます。",
+    "tusSeguidoresObtienenUn10DeDescue": "あなたのフォロワーは初回購入時に10%割引を受けられます。あなたは生涯にわたってコミッションを獲得できます。",
+    "comoGanasDinero": "お金の稼ぎ方：",
+    "cadaCompraQueHaganTeGeneraComision": "彼らが購入するたびに、あなたに手数料が発生します。",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "自動的に銀行口座に振り込まれます。",
+    "todoListo": "準備は全て整いました！",
+    "empiezaCompartiendoTuCodigoConTusS": "まずは、あなたのコードをフォロワーと共有することから始めましょう。",
+    "veTusComisionesEnTiempoReal": "手数料をリアルタイムで確認できます"
+  },
+  "chats": {
+    "colaboracion": "コラボレーション",
+    "aunNoTienesMensajes": "まだメッセージはありません。",
+    "empiezaUnaConversacionConProductores": "プロデューサーやインフルエンサーなどと会話を始めましょう",
+    "enviaMensajesPrivadosATiendasProdu": "HispaloShopコミュニティ内の店舗、生産者、インフルエンサーにプライベートメッセージを送信できます。"
+  },
+  "consumer_register": {
+    "datosBasicos": "基本データ",
+    "errorAlCrearLaCuentaIntentaloDeN": "アカウント作成中にエラーが発生しました。もう一度お試しください。",
+    "completaTuRegistroEnPocosPasosYDe": "登録は数ステップで完了し、完了後には初期カスタマイズの準備が整っています。"
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "役割選択に戻る",
+    "esteFlujoYaEstaConectadoDePrincipi": "このフローは既に最初から最後まで接続されています。電話とソーシャルメディアへのアクセス機能は後日追加されます。",
+    "crearasTuCuentaYDespuesCompletaremo": "アカウントを作成していただくと、その後、お客様の設定を完了いたします。",
+    "googleAppleYTelefonoVolveranCuando": "Google、Apple、および電話は、この通信フローと同等の信頼性で接続が回復した時点で復旧します。"
+  },
+  "step2_basic": {
+    "datosBasicos": "基本データ",
+    "empezamosConTuInformacionEsencialPa": "アカウント作成に必要な基本情報から始めます。",
+    "maria": "マリア",
+    "garciaLopez": "ガルシア・ロペス",
+    "creaUnaContrasenaSegura": "安全なパスワードを作成する",
+    "debesTenerAlMenos16Anos": "応募資格は16歳以上です。"
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "カタログやおすすめ商品がより的確に表示されるよう、あなたの興味関心を調整してください。",
+    "nosAyudaAMostrarProductoresYEnvios": "これは、最も関連性の高い生産者と出荷状況を紹介するのに役立ちます。"
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "あなたの興味や活動に合わせた提案。",
+    "loMasPopular": "最も人気",
+    "losProductosQueMasEstanComprandoOt": "他のユーザーが最も購入している商品。",
+    "ordenaPrimeroPorResenasYConfianza": "まずレビューと信頼度で並べ替えてください。",
+    "defineComoQuieresEmpezarAVerProduc": "商品閲覧の開始方法と、普段の購入頻度を定義してください。"
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "次のステップは、オンボーディングを完了することです。そうすることで、フィード、カタログ、おすすめがより分かりやすい形で表示されるようになります。",
+    "cuandoTerminesElOnboardingTeEnsenar": "オンボーディングが完了すると、まずあなたに最適なプロデューサー、カテゴリー、アカウントが表示されます。"
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "仲介業者に利益を譲り渡すのはやめましょう。",
+    "conectaConProductoresRealesSinInte": "本物の生産者と直接つながりましょう。仲介業者なし。嘘なし。"
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "Hispaloshopは、食に歴史がある市場です。",
+    "unaPlataformaDondeCadaProductoTiene": "すべての製品に顔と物語があるプラットフォーム。畑から食卓まで、中間業者は一切なし。",
+    "entreElProductorYTuPlatoHayUnaCa": "生産者から食卓に届くまでには、価格を吊り上げ、品質を低下させ、あなたが食べるものの歴史を消し去る仲介業者の連鎖が存在する。",
+    "conectamosAlQueProduceConElQueCom": "私たちは生産者と消費者を繋ぎます",
+    "hispaloshopEsUnaPlataformaDeSocial": "Hispaloshopは、職人たちが自身の店を開き、自らのストーリーを伝え、最終消費者に直接販売できるソーシャルコマースプラットフォームです。"
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "送信エラーが発生しました。もう一度お試しください。",
+    "paraDudasSobreLaPlataformaColabora": "プラットフォームに関するご質問、コラボレーション、報道関係のお問い合わせは、こちらまでご連絡ください。",
+    "respondemosEnMenosDe24Horas": "24時間以内にご返信いたします。",
+    "losProductoresGestionanElEnvioDirec": "生産者が直接配送を行います。配送時間は生産者と配送先によって異なります。",
+    "siHispaloshopSoportaMultiplesIdioma": "はい。HispaloShopは、国際販売向けに複数の言語と通貨に対応しています。"
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "輸入、販売、そして成長。世界中の消費者、インフルエンサー、生産者に直接アクセスできます。HispaloShopで輸入業者にとってのあらゆるメリットをご覧ください。",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "B2CとB2Bの両方のストアを1か所に集約。",
+    "accedeAConsumidoresFinalesConectaC": "最終消費者にリーチし、地元のインフルエンサーと繋がり、あらゆる国の生産者から直接購入できます。仲介業者を介さず、すべて単一のプラットフォームで実現します。",
+    "vendeTusProductosImportadosDirectame": "輸入した商品を、仲介業者を介さずに、仕向国の消費者に直接販売しましょう。",
+    "conectaYColaboraConInfluencersLocal": "地元のインフルエンサーと繋がり、協力して製品（プロ向けおよびエリート向け）を宣伝しましょう。",
+    "compraDirectamenteAProductoresDeCua": "あらゆる国の生産者から直接、仲介業者を介さずに購入できます。",
+    "panelDeGestionUnificado": "統合管理パネル",
+    "gestionaPedidosPagosLogisticaCert": "注文、支払い、物流、証明書、およびコミュニケーションを単一のダッシュボードから管理できます。",
+    "soportePorChatInternoConAdminLocal": "ローカル管理者による内部チャットサポートとメールサポートは、すべてのプランでご利用いただけます。",
+    "todasLasFuncionesBasicasVenderB2c": "すべての基本機能、B2C販売、製品公開、QRコード証明書、標準サポート。",
+    "matchingConInfluencersDashboardAvan": "インフルエンサーマッチング、高度なダッシュボード、販売分析、優先サポート。",
+    "todoLoAnteriorIaComercialAvanzada": "上記すべてに加え、高度なビジネスAI、国際市場分析、自動契約書作成、手数料の削減。",
+    "colaboracionConInfluencersLocalesPr": "地元のインフルエンサー（プロおよびエリート）とのコラボレーション",
+    "panelDeGestionPagosYLogisticaUnif": "統合管理、決済、物流パネル",
+    "iaComercialAvanzadaYGeneracionDeCo": "高度な商用AIと契約書作成（エリート）",
+    "importarYVenderNuncaFueTanFacil": "輸入と販売がかつてないほど簡単になりました",
+    "creaTuCuentaDeImportador": "輸入業者アカウントを作成する",
+    "accedeAHerramientasDeIaYAnalitica": "AIツールと高度な分析機能へのアクセス（ProおよびEliteプラン）",
+    "gestionaPagosLogisticaYCertificados": "単一のダッシュボードから支払い、物流、証明書を管理できます。",
+    "soloCrearTuCuentaYSubirTusProduct": "アカウントを作成して、商品をアップロードするだけです。",
+    "siPuedesVenderAlConsumidorFinalY": "はい、エンドユーザーへの販売も、B2Bビジネスの機会へのアクセスも可能です。",
+    "siemprePorChatInternoYEmailConPr": "常に社内チャットとメールを通じて連絡を取り、ProおよびElite会員を優先します。",
+    "daElSaltoAlCanalDigitalYAccedeA": "デジタルチャネルへの移行を実現し、世界中の消費者、インフルエンサー、生産者にアクセスしましょう。"
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "コミュニティを構築し、誠実な制作者を支援し、あなたの努力を真に収益化しましょう。継続的なコミッション、クリエイティブな自由、そして直接的なサポートを提供します。",
+    "estoNoVaDeVenderPorVenderVaDeD": "これは、ただ売るためだけに売るものではありません。誠実な生産者に光を当て、フォロワーに健康的な食品を提供し、あなたの努力を継続的に収益化するためのものです。ここでは、自由、コミュニティ、そして直接的なサポートが手に入ります。私はビル・チャンフーです。これはあなたのために作ったものです。",
+    "ganaMasDejaHuella": "もっと稼ぎ、足跡を残そう",
+    "hercules": "ヘラクレス",
+    "laMayoriaLlegaAqui": "彼らのほとんどがここに到着する",
+    "comisionRecurrenteDurante18MesesPor": "紹介したユーザー1人につき、18ヶ月間継続してコミッションが支払われます。",
+    "creaComunidadApoyaProductoresHonest1": "コミュニティを築き、誠実な生産者を支援し、あなたの努力を真に収益化しましょう。ここでは自由と直接的なサポートが受けられます。何か必要なことがあれば、遠慮なくご連絡ください。ビル・チャンフーです。"
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "貴社の製品を世界中の輸入業者や顧客と繋げましょう。販路を拡大し、カタログをデジタル化することで、新たなビジネスチャンスを掴みましょう。",
+    "uneteALaPlataformaQueConectaProduc": "世界中の生産者と輸入業者、そして顧客をつなぐプラットフォームに参加しましょう。カタログをデジタル化して、新たなビジネスチャンスを掴みましょう。",
+    "registrateGratis": "無料で登録する",
+    "publicaTuCatalogo": "カタログを公開する",
+    "accesoInmediatoAUnaRedGlobalDeImp": "認証済みの輸入業者からなるグローバルネットワークに即座にアクセスできます。",
+    "herramientasParaDestacarTuMarcaYPr": "ブランドと製品を際立たせるためのツール。",
+    "opcionesDePromocionPremiumSegunTuP": "プランに応じて、プレミアムプロモーションオプションをご利用いただけます。",
+    "gestionEficienteDeContactosYOportun": "連絡先とビジネスチャンスを効率的に管理する。",
+    "paraProductoresEnCrecimiento": "生産者を増やすために",
+    "maximaVisibilidadYVentajas": "最大限の視認性とメリット",
+    "sinTarjetaDeCreditoParaEmpezar": "クレジットカードは不要です。",
+    "elRegistroEsGratuitoPuedesAcceder": "登録は無料です。プレミアムプランでは、より高度な機能をご利用いただけます。",
+    "puedesPublicarCualquierProductoQueC": "当社のポリシーと品質基準を満たす商品であれば、どのような商品でも掲載できます。",
+    "unaVezRegistradoPodrasContactarImp": "登録が完了すると、プラットフォームから直接輸入業者に連絡できるようになります。",
+    "mayorVisibilidadAccesoPrioritarioA": "認知度の向上、ビジネスチャンスへの優先的なアクセス、そしてビジネスを加速させるための専用ツール。",
+    "siPuedesVenderTantoAConsumidoresF": "はい、エンドユーザーだけでなく、輸入業者や企業にも販売できます。",
+    "soportePersonalizadoRecursosEducativ": "国際貿易に関する個別サポート、教育リソース、アドバイスを提供します。",
+    "uneteACientosDeProductoresQueYaEs": "Hispaloshopで既に成長を遂げている何百もの生産者の仲間入りをしましょう。"
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "Hispaloshopは、プラットフォーム上のすべての生産者を検証するために積極的に取り組んでいますが、第三者によって販売される製品の品質については責任を負いません。"
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "地元産の職人技が光る製品を見つけよう",
+    "basadoEnTusCompras": "お客様の購入履歴に基づきます",
+    "descubreRecetasMediterraneasConTusP": "あなたの製品を使った地中海料理のレシピを見つけよう",
+    "aquiEstaTuResumenDeHoy": "本日のまとめはこちらです"
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "高度な指標は現在利用できません。",
+    "noSePudoCargarElStockDeProductos": "アラート対象の製品在庫を読み込むことができませんでした。",
+    "enPreparacion": "準備中",
+    "anadeMasProductosParaAumentarTuVis": "認知度を高めるために、商品をさらに追加してください。",
+    "anadirProducto": "商品を追加する",
+    "colaboraConInfluencersParaPromociona": "インフルエンサーと協力して製品を宣伝しましょう",
+    "analisis": "分析",
+    "resumenDeTuNegocio": "貴社の事業概要",
+    "evolucionDeVentas": "売上推移"
+  },
+  "signed_documents": {
+    "documentoIntegro": "全文",
+    "elContratoNoHaSidoModificadoDesde": "契約は締結以来、変更されていません。",
+    "elHashDelDocumentoNoCoincideConEl": "文書のハッシュ値が、署名時に記録されたものと一致しません。サポートにお問い合わせください。",
+    "noTienesContratosFirmadosTodavia": "あなたはまだ契約書に署名していません。",
+    "lasFacturasEstaranDisponiblesProxima": "請求書はまもなく入手可能になります。"
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "新たなコラボレーション",
+    "elCosteCorreACargoDelProductor": "費用は生産者が負担する",
+    "holaViTuContenidoYCreoQueEncajar": "こんにちは！あなたのコンテンツを拝見しましたが、弊社の製品にぴったりだと思います。",
+    "previewDeLaPropuesta": "提案プレビュー",
+    "propuestaDeColaboracion": "共同提案",
+    "comisionEspecial": "特別委員会",
+    "duracion": "間隔"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "ショッピングアシスタントをご利用いただくには、ログインしてください。",
+    "loSientoHaOcurridoUnErrorPorFav": "申し訳ありませんが、エラーが発生しました。もう一度お試しください。",
+    "iniciaSesionParaUnaExperienciaPerso": "ログインして、パーソナライズされた体験をお楽しみください。",
+    "busquedasRapidas": "クイック検索",
+    "recomendacionesBasadasEnCertificados": "製品認証に基づいた推奨事項。"
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "画面が真っ暗になる現象を回避しました。ホーム画面に戻るか、アプリを再起動してください。"
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "原産地が明確なオイルとドレッシング。",
+    "exploraElCatalogoDesdeCategoriasCla": "視覚的な煩雑さを排除し、明確なカテゴリー分けでカタログを閲覧できます。",
+    "productoLocalEImportadoYaDisponible": "スペインでは、誇張されたストーリーや無意味なカテゴリー分けなしに、地元産品と輸入品の両方が購入できるようになりました。"
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "このカテゴリの商品は見つかりませんでした。別の検索をお試しください。",
+    "anadeAlgunosProductosArtesanalesPara": "まずは手作りの商品をいくつか追加して、お買い物を始めてみてください。",
+    "tusPedidosApareceranAquiCuandoReali": "初回購入時に、ご注文履歴がここに表示されます。",
+    "sigueAMasProductoresEInfluencersPa": "他のプロデューサーやインフルエンサーをフォローして、彼らのコンテンツをご覧ください。",
+    "intentaConOtrosTerminosDeBusqueda": "他の検索語を試してみてください。",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "後でもう一度お試しいただくか、検索フィルターを変更してください。"
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "予期せぬエラーが発生しました。ページを更新してみてください。"
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "良いものは、あなたが思っているよりもずっと近くにある。",
+    "descubrirCercaDeMi": "近くの検索",
+    "usaTuUbicacionActualOEscribeTuCod": "現在地を使用するか、郵便番号を入力して、最寄りの店舗を優先的に表示してください。",
+    "buscandoTuUbicacion": "現在地を検索しています..."
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "分析データは利用できません",
+    "analyticsDeTuCodigo": "コードの分析",
+    "tuEnlaceDeReferido": "あなたの紹介リンク",
+    "comparteEsteEnlaceEnTusRedesCada": "このリンクをソーシャルネットワークで共有してください。アクセスはすべて自動的に追跡されます。",
+    "usosDelCodigo": "コードの使用例",
+    "codigoAplicado": "適用コード",
+    "usosCodigo": "コードの使用例",
+    "comoFuncionanTusComisiones": "手数料の仕組み",
+    "calculoDeTuComision": "手数料の計算方法：",
+    "tipsParaMejorarTusConversiones": "コンバージョン率を向上させるためのヒント"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "チャットで共有された画像",
+    "noSePudoCargarLaImagen": "画像を読み込めませんでした",
+    "pegaUnEnlaceDeProductoOSuId": "商品リンクまたは商品IDを貼り付けてください。",
+    "pegaUnEnlaceDeRecetaOSuId": "レシピのリンク、またはあなたのIDを貼り付けてください。",
+    "pegaUnEnlaceDePostOReelDeHispalo": "Hispaloshopの投稿またはリールへのリンクを貼り付けてください。",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "有効なHispaloshopリンクを貼り付けて、コンパクトなカードを作成してください。",
+    "miembroDeLaComunidad": "地域社会の一員",
+    "pruebaConOtroNombreOCambiaElFiltr": "別の名前を試すか、フィルターを変更してください。",
+    "noSePudoEliminarElMensaje": "メッセージを削除できませんでした",
+    "conversacionEliminada": "会話が削除されました",
+    "errorAlEliminarLaConversacion": "会話の削除エラー",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "有効なHispaloshopのリンクまたはIDを貼り付けてください。",
+    "noPudimosGenerarLaVistaPrevia": "プレビューを生成できませんでした。",
+    "noSePudoEnviarElMensaje": "メッセージを送信できませんでした。",
+    "laImagenNoPuedeSuperar5Mb": "画像サイズは5MBを超えることはできません。",
+    "elArchivoNoPuedeSuperar10Mb": "ファイルサイズは10MBを超えることはできません。",
+    "errorAlSubirElDocumento": "ドキュメントのアップロード中にエラーが発生しました。",
+    "buscarConversacion": "会話相手を探しています",
+    "empiezaUnChatNuevoDesdeElBotonSup": "一番上のボタンから新しいチャットを開始すれば、受信トレイがずっとすっきりします。",
+    "seleccionaUnaConversacionDelPanelIz": "左側のパネルから会話を選択するか、新しい会話を開始してください。",
+    "llamadaDeVozProximamente": "音声通話（近日公開予定）",
+    "videollamadaProximamente": "ビデオ通話（近日公開予定）",
+    "mensajesDeLaConversacion": "会話メッセージ",
+    "empiezaLaConversacion": "会話を始めましょう",
+    "escribeElPrimerMensajeYMantenLaCo": "最初のメッセージを書き、会話が明確な文脈の中で進むようにしてください。",
+    "vistaPreviaDeLaImagenAdjunta": "添付画像のプレビュー"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "何かがおかしくなりました。",
+    "noSePudoCargarEsteContenidoIntent": "コンテンツを読み込むことができませんでした。もう一度お試しください。"
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "基本プラン。アップグレードすると手数料が削減され、ツールにアクセスできるようになります。"
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "ポスト編集はまだ利用できません"
+  },
+  "product": {
+    "anadirAlCarrito": "カートに追加"
+  },
+  "review": {
+    "valoracionEnviada": "評価を送信しました",
+    "errorAlEnviarValoracion": "評価の送信中にエラーが発生しました",
+    "cuentanosTuExperiencia": "あなたの体験談を聞かせてください…",
+    "enviarValoracion": "フィードバックを送信する"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "通知を閉じる"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "簡単なレシピを教えてください",
+    "ayudameConMiDieta": "私のダイエットを手伝ってください",
+    "tuCompaneroDeCompras": "あなたのショッピングパートナー",
+    "estoyAquiParaAyudarteAEncontrarLo": "必要なものを見つけるお手伝いをします",
+    "preguntaleADavid": "デイビッドに聞いてみよう…",
+    "microfono": "マイクロフォン"
+  },
+  "auth_diagnostic": {
+    "testConexion": "接続テスト",
+    "elBackendRespondePeroElEndpointNo": "バックエンドは応答するが、エンドポイントが存在しない。",
+    "laConexionFuncionaRevisaLosDetalle": "接続は正常に機能しています。上記の詳細をご確認ください。"
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "認証テストを開始しています...",
+    "sesionActiva": "アクティブなセッション:"
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "コードが間違っているか、期限切れです",
+    "codigoIncorrecto": "誤ったコード",
+    "codigoReenviadoATuEmail": "コードはあなたのメールアドレスに転送されました",
+    "noSePudoReenviarElCodigo": "コードを再送できませんでした",
+    "maximoDeReenviosAlcanzadoRevisaTu": "転送回数の上限に達しました。迷惑メールフォルダをご確認ください。",
+    "reenviarCodigoDeVerificacion": "確認コードを再送信"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "B2Bカタログから製品が削除されました",
+    "cantidadMinimaDePedidoMoq": "最小注文数量（MOQ）",
+    "descripcionMayorista": "卸売りの説明",
+    "maximoDeMuestrasPorSolicitud": "リクエストあたりのサンプル最大数",
+    "publicarEnCatalogoB2b": "B2Bカタログに掲載する",
+    "quitarDelCatalogoB2b": "B2Bカタログから削除"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "原産国（スペイン）"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "最低1ユニット",
+    "codigoDePaisDebeTener2Letras": "国コードは2文字である必要があります",
+    "elMensajeDebeTenerAlMenos10Caract": "メッセージは少なくとも10文字以上でなければなりません。",
+    "anadeAlMenosUnProducto": "少なくとも1つの製品を追加してください",
+    "noSePudoEnviarLaRfq": "見積依頼書を送信できませんでした。",
+    "nuevaSolicitudDeCotizacionRfq": "新規見積依頼（RFQ）",
+    "describeVolumenFormatosCertificacio": "量、形式、認証、または物流上の要件について説明してください。"
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "輸入許可証、納税登録証、RC保険証をアップロードしてください。"
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "商品をカートに追加する際にエラーが発生しました。",
+    "anadirAlCarrito": "カートに追加",
+    "productoAnadido": "商品が追加されました",
+    "anadido": "追加した！"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "このセッションからのメッセージはすべて削除されます。"
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "B2B案件は交渉中"
+  },
+  "use_h_i_chat": {
+    "buenosDias": "おはよう",
+    "tuCompaneroDeComprasYAlimentacion": "あなたのショッピングと食のパートナー",
+    "tuAsesorDeNegocioParaProductores": "生産者のためのビジネスアドバイザー",
+    "estrategiaDeExportacion": "輸出戦略",
+    "asistenteCreativoParaContenidoYCamp": "コンテンツおよびキャンペーンのクリエイティブアシスタント",
+    "disenarUnaCampana": "キャンペーンをデザインする",
+    "analisisDeMercadoInternacionalParaI": "輸入業者向け国際市場分析",
+    "analisisDeMargenes": "マージン分析",
+    "noTienesAccesoAEsteModoActualiza": "このモードはご利用いただけません。プランをアップグレードしてください。",
+    "elAsistenteNoEstaDisponibleAhoraI": "現在、アシスタントはご利用いただけません。しばらくしてからもう一度お試しください。"
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "アカウントにアクセスするにはログインしてください。"
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "私のコード"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "お客様のアカウントは現在審査中です。"
+  },
+  "dashboard_header": {
+    "buenosDias": "おはよう"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "プロデューサー、輸入業者、インフルエンサーをフォローして、彼らのコンテンツをご覧ください。",
+    "estasAlDia": "最新情報です"
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "HispaloShopでのあなたの1週間",
+    "descubrirMas": "さらに詳しく",
+    "sigueProductoresParaVerSuContenido": "プロデューサーをフォローして、彼らのコンテンツをご覧ください。"
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "クイックアクセス"
+  },
+  "milestone_toast": {
+    "10MeGusta": "いいね！10件！",
+    "alguienTeGuardo": "誰かがあなたを救ったのです！",
+    "50MeGusta": "いいね！50件！",
+    "7DiasSeguidos": "7日間連続！"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "ユーザーを追跡できませんでした",
+    "seEliminaraPermanentementeJuntoConS": "それはあなたのコメントや「いいね！」とともに完全に削除されます。",
+    "noSePudoDejarDeSeguir": "見るのをやめることは不可能だった",
+    "uneteALaConversacion": "会話に参加しよう…",
+    "progresoDelVideo": "動画の進捗状況"
+  },
+  "stories_bar": {
+    "recetaDelDia": "本日のレシピ"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "ストーリーコンテンツ",
+    "sinDatosDeVistasDisponibles": "閲覧データがありません",
+    "buscarConversacion": "会話相手を探しています…"
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "ユーザーを追跡できませんでした。もう一度お試しください。"
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "ファイルをここにドラッグするか、クリックして選択してください。"
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "実績解除！"
+  },
+  "application": {
+    "quienEres": "あなたは誰ですか",
+    "confirmacion": "確認",
+    "recomendadoParaLaMayoria": "ほとんどの人におすすめです。",
+    "pideRevisionManualPrioritaria": "優先的に手動審査を依頼する。",
+    "paraPerfilesConUnaComunidadMuyActi": "非常に活発なコミュニティを持つプロフィール向け。",
+    "necesitamosSaberComoTeConocen": "私たちは、人々があなたをどのように知っているのかを知る必要があります。",
+    "tuEmailProfesionalEsObligatorio": "仕事用のメールアドレスは必須です。",
+    "eseEmailNoPareceValido": "そのメールアドレスは有効ではないようです。",
+    "tuInstagramPrincipalEsObligatorio": "メインのInstagramアカウントが必要です。",
+    "necesitamosUnaViaRealParaContactart": "あなたに連絡を取るための確実な方法が必要です。",
+    "seleccionaTuPais": "国を選択してください。",
+    "eligeAlMenosUnNicho": "少なくとも1つのニッチ分野を選びましょう。",
+    "seleccionaTuRangoDeSeguidores": "フォロワー数の範囲を選択してください。",
+    "seleccionaElPaisPrincipalDeTuAudie": "視聴者の主な国を選択してください。",
+    "cuentanosPorQueQuieresEntrar": "参加したい理由を教えてください。",
+    "necesitamosAlMenos140CaracteresPara": "煙をフィルタリングするには、少なくとも140文字が必要です。",
+    "eseEnlaceNoPareceValido": "そのリンクは有効ではないようです。",
+    "debesAceptarEstaCondicion": "この条件を受け入れなければなりません。",
+    "yaExisteUnaSolicitudOCuentaConEst": "このメールアドレスには既にリクエストまたはアカウントが存在します。",
+    "noPudimosEnviarLaSolicitudIntental": "リクエストを送信できませんでした。もう一度お試しください。",
+    "solicitarRevision": "レビューを依頼する",
+    "aplicacionInfluencerHispaloshop": "Hispaloshopインフルエンサーアプリ",
+    "formularioDeTresPasosParaAplicarAl": "Hispaloshopのインフルエンサープログラムに応募するための3ステップのフォームです。",
+    "aplicacionReal": "実世界での応用",
+    "noEsUnFormularioCorporativoEsTuP": "これは会社設立の書類ではありません。これはあなたの退出書類です。",
+    "tresPasosSinPagoSinHumoSiElige": "3つのステップ。支払い不要。面倒な手続きなし。Herculesを選択すれば、迅速なアクティベーションが開始されます。",
+    "ateneaOZeusHacemosRevisionHumanaE": "アテナまたはゼウス、人間による審査は24～48時間以内に行います。",
+    "siTuVozEncajaConComidaWellnessL": "あなたの意見が、食、健康、ライフスタイル、または持続可能性に合致する場合。",
+    "siQuieresRecomendarCosasQueDeVerda": "実際に使えるものをおすすめしたい場合。",
+    "cadaCompraQueConectesSeQuedaAtribu": "あなたがリンクした購入はすべて、18か月間あなたのものとして記録されます。システムに縛られる必要はありません。",
+    "siQuieresComprobarQueSoyRealAhiM": "私が実在することを証明したいなら、ここに私がいる。",
+    "bienvenidoALaResistenciaRevisaTuE": "レジスタンスへようこそ。メールを確認して、インフルエンサーダッシュボードにアクセスしてください。",
+    "herculesEntraPorViaRapidaHemosMar": "Herculesは優先的に処理されます。お客様のプロフィールは即時有効化され、次のステップに進む準備が整っています。",
+    "tuPerfilPasaARevisionHumanaSiApl": "あなたのプロフィールはこれから担当者による審査を受けます。AthenaまたはZeusに応募された場合は、24～48時間以内に自動応答ではなく、担当者による正式な決定をお知らせいたします。",
+    "verCatalogoParaPromocionar": "販促目的でカタログをご覧ください",
+    "tuTarjetaDePresentacionSinTrajesN": "スーツも空虚な言葉も一切ない、あなただけの名刺。",
+    "reusSeulCiudadDeMexico": "レウス、ソウル、メキシコシティ...",
+    "seleccionaPais": "国を選択してください",
+    "queremosSaberQueTipoDeComunidadHas": "私たちは、あなたがどのようなコミュニティを築き上げてきたのか、そしてなぜ彼らがあなたについていくのかを知りたいのです。",
+    "paisPrincipalDeTuAudiencia": "視聴者の主な国",
+    "cuentanosLaVerdadQueTipoDeEstabil": "正直に教えてください。あなたはどのような安定性を求めているのですか？なぜ特定のブランドに裏切られたのですか？そして、あなたは自分のコミュニティをどのように扱いますか？",
+    "laComisionEsTransparenteHercules3": "手数料は透明性が高く、ヘラクレス3%、アテナ5%、ゼウス7%で、18ヶ月間の追跡調査が行われます。",
+    "entiendoQueLaComisionSePagaSobreE": "手数料は出荷後の価格と税金に基づいて支払われることを理解しています。",
+    "entiendoQueElTrackingDe18MesesEs": "18ヶ月間の追跡期間は、ユーザーの初回購入日から開始されることを理解しています。",
+    "aceptoPromoverSoloProductosQueRealm": "私は、実際に試してみたい、またはこれから試す予定の商品のみを宣伝することに同意します。",
+    "heLeidoYAceptoLosTerminosDelProgr": "私はインフルエンサープログラムの規約を読み、同意します。",
+    "solicitudGratuitaNingunPasoDePago": "無料アプリ。支払い手続きは一切不要です。"
+  },
+  "shared": {
+    "queEs": "何が"
+  },
+  "footer_landing": {
+    "terminos": "条項",
+    "unaFormaMasClaraDeDescubrirEntend": "より分かりやすい方法で、食品を文脈に沿って発見し、理解し、購入できるようにする。"
+  },
+  "navbar_landing": {
+    "iniciarSesion": "ログイン",
+    "cerrarMenu": "メニューを閉じる"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "地域社会からの真の声が届いたら、ここに掲載します。"
+  },
+  "auth_layout": {
+    "terminos": "条項"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "どんな製品や製造業者でもお気軽にお尋ねください。",
+    "terminos": "条項"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "メニューを閉じる"
+  },
+  "info_header": {
+    "queEs": "何が",
+    "cerrarMenu": "メニューを閉じる",
+    "iniciarSesion": "ログイン"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "インターネット接続がありません"
+  },
+  "report_button": {
+    "informacionEnganosa": "誤解を招く情報",
+    "violacionDeDerechosDeAutor": "著作権侵害",
+    "noSePudoEnviarElReporte": "レポートを送信できませんでした",
+    "anadeUnDetalleOpcional": "詳細を追加（任意）..."
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "通知を閉じる"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "メッセージ通知を閉じる"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "オンボーディングを完了するには、少なくとも3つのアカウントをフォローしてください。",
+    "noHemosPodidoGuardarLasCuentasSegu": "連続したアカウントをまだ保存できていません。",
+    "eligeAlMenos3ProductoresOCreadores": "少なくとも3人のプロデューサーまたはクリエイターを選び、最初のフィードに実際のシグナルが含まれるようにしてください。",
+    "puedesFinalizarYEmpezarADescubrirC": "アカウントの発見は後で始めても構いません。"
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "続行するには、少なくとも3つのカテゴリを選択してください。",
+    "noHemosPodidoGuardarTusInteresesTo": "お客様の利益を守ることはまだできていません。",
+    "eligeAlMenos3CategoriasParaQueEl": "カタログとフィードが有用な基盤から始まるように、少なくとも3つのカテゴリを選択してください。"
+  },
+  "location": {
+    "seleccionaUnPais": "国を選択してください。",
+    "introduceTuCodigoPostal": "郵便番号を入力してください。",
+    "noHemosPodidoGuardarTuUbicacionTod": "まだ現在地を保存できていません。",
+    "usamosTuZonaParaMostrarCatalogoDis": "お客様の地域情報に基づいて、利用可能なカタログ、近隣のおすすめ商品、より最適な配送オプションを表示します。"
+  },
+  "step_follow": {
+    "cordoba": "コルドバ",
+    "queseriaLaAntigua": "ラ・アンティグア・チーズ工場",
+    "panaderiaMaria": "マリアのベーカリー",
+    "descubreAQuienSeguir": "誰をフォローすべきかを見つけよう",
+    "sigueAlMenos3ProductoresParaEmpeza": "まずは少なくとも3人のプロデューサーをフォローしましょう。"
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "フィードをカスタマイズするには、少なくとも3つのカテゴリを選択してください。"
+  },
+  "step_location": {
+    "cordoba": "コルドバ",
+    "malaga": "マラガ",
+    "estoTeMostraraProductoresCercaDeTi": "これにより、お近くの生産者が表示されます。",
+    "usarMiUbicacionActual": "現在地を使用する",
+    "oIntroduceCodigoPostal": "または郵便番号を入力してください"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "あなた自身についてもっと情報を追加してください",
+    "tuFeedPersonalizadoEstaPreparado": "あなた専用のフィードが準備できました。",
+    "puedesCambiarTusPreferenciasEnCualq": "プロフィールからいつでも設定を変更できます。"
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "プロフィール設定が完了しました。これで地元の商品を探せます。"
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "売却が完了するまで、一切費用はかかりません。",
+    "paraProductoresQueQuierenEmpezarAV": "リスクなしで販売を始めたい生産者向け。",
+    "tiendaVirtualPersonalizadaConTuHist": "あなたの物語とルーツを反映させた、パーソナライズされたオンラインストア",
+    "hasta30ProductosEnCatalogo": "カタログには最大30個の商品を掲載できます。",
+    "visibilidadNacionalEnEspana": "スペイン国内での認知度",
+    "paraProductoresSeriosQueQuierenEsca": "無理なく規模を拡大したい、真剣なプロデューサー向け。",
+    "herramientasDeIaParaMarketing": "マーケティングのためのAIツール",
+    "recomendacionesDinamicasDePrecioPor": "地域別の動的な価格推奨",
+    "analiticaAvanzadaDeVentas": "高度な販売分析",
+    "matchingAutomaticoConHasta5Influenc": "最大5人のローカルインフルエンサーとの自動マッチング",
+    "paraCooperativasYProductoresConAmbi": "グローバルな野心を持つ協同組合や生産者向け。",
+    "prediccionDeDemandaPorPaisYTempora": "国別・季節別の需要予測",
+    "analisisDeMercadosInternacionalesPr": "国際市場分析（価格、競争、機会）",
+    "deteccionPreventivaDeRiesgoDeDesaba": "供給不足リスクの予防的検出",
+    "matchingDirectoConImportadoresVerifi": "他国の認証済み輸入業者との直接マッチング",
+    "generacionAutomaticaDeContratosB2bE": "B2B契約書をPDF形式で自動生成",
+    "analisisDeRegulacionesYArancelesPor": "仕向地市場別の規制および関税の分析",
+    "creacionDeDossieresDeExportacion": "輸出書類の作成",
+    "prioridadAbsolutaDeVisibilidadEnLa": "プラットフォーム上での可視性は絶対的に最優先事項です。",
+    "soporteTelefonicoDirecto": "電話による直接サポート",
+    "soloVendoEnEspana": "私はスペイン国内でのみ販売しています。",
+    "yaExportoAAlgunPais": "私はすでにいくつかの国に輸出しています",
+    "masDe20": "20以上",
+    "andalucia": "アンダルシア",
+    "aragon": "アラゴン",
+    "castillaYLeon": "カスティーリャ・イ・レオン",
+    "cataluna": "カタルーニャ",
+    "paisVasco": "バスク地方",
+    "stripeNoEstaDisponible": "Stripeはご利用いただけません。",
+    "quienEres": "あなたは誰ですか",
+    "stripeNoEstaConfiguradoTodavia": "Stripeはまだ設定されていません。",
+    "noPudimosPrepararElPagoSeguro": "安全な決済処理を行うことができませんでした。",
+    "necesitamosTuNombreParaDarteDeAlta": "登録にはお名前が必要です。",
+    "introduceUnEmailValido": "有効なメールアドレスを入力してください。",
+    "necesitamosUnTelefonoOperativo": "使える電話が必要です。",
+    "tuContrasenaDebeTenerAlMenos6Cara": "パスワードは6文字以上である必要があります。",
+    "debesAceptarLaPoliticaDePrivacidad": "プライバシーポリシーと利用規約に同意していただく必要があります。",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "あなたのブランド名または協同組合名を教えてください。",
+    "seleccionaAlMenosUnTipoDeProducto": "少なくとも1つの製品タイプを選択してください。",
+    "indicanosSiYaExportasOQuieresEmpez": "既に輸出を行っている場合、または輸出を始めたい場合、お知らせください。",
+    "seleccionaTuRegionDeProduccion": "生産地域を選択してください。",
+    "necesitamosUnRangoAproximadoDeRefer": "おおよその参考文献の範囲が必要です。",
+    "completaLosDatosDeLaTarjetaParaCo": "続行するには、カード情報を入力してください。",
+    "stripeNoEstaListoTodavia": "Stripeはまだ準備が整っていません。",
+    "noPudimosValidarLaTarjeta": "カードの認証ができませんでした。",
+    "tuBancoRechazoLaOperacion": "お客様の銀行は取引を拒否しました。",
+    "haOcurridoUnErrorConElPagoPorFa": "お支払い手続き中にエラーが発生しました。もう一度お試しください。",
+    "elMetodoDePagoFueRechazadoPorFav": "お支払い方法が承認されませんでした。別のカードをご利用ください。",
+    "revisaLosDatosAntesDeContinuar": "先に進む前に、情報を確認してください。",
+    "noPudimosCompletarElAltaDelProduct": "生産者登録を完了できませんでした。",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "お客様のアカウントは既に存在します。既に作成済みであれば、プランを完了するか、アクセス状況を確認するだけで済みます。",
+    "completaLosCamposObligatoriosParaAv": "続行するには、必須項目をすべて入力してください。",
+    "aceptoLaPoliticaDePrivacidadYLosT": "プライバシーポリシーと利用規約に同意します",
+    "nombreDeTuObradorMarcaOCooperativ": "工房、ブランド、または協同組合の名前",
+    "exportacionActual": "現在の輸出",
+    "regionDeProduccion": "生産地域",
+    "seleccionaTuRegion": "地域を選択してください",
+    "numeroDeReferencias": "参考文献の数",
+    "cargoOComision": "役職または報酬",
+    "entiendoQueHispaloshopRetieneUn20": "Hispaloshopは売上に対して20%の手数料を徴収することを理解しています。",
+    "noPagarasNadaHastaQueVendasCuando": "売却するまでは一切費用はかかりません。売却が成立したら、80%があなたのものになります。",
+    "pagoSeguroPorStripeCancelaCuandoQ": "Stripeによる安全な決済。ダッシュボードからいつでもキャンセル可能。",
+    "pagoSeguroPorStripeSiTuBancoPide": "Stripeによる安全な決済。銀行からの追加確認が必要な場合でも、このページから移動することなく、こちらで対応いたします。",
+    "bienvenidoALaRevolucionDeLosProduc": "誠実な生産者による革命へようこそ。",
+    "revisaTuEmailParaVerificarTuCuenta": "アカウント認証のためメールをご確認ください。認証後、ダッシュボードにアクセスしてプロフィールを完成させてください。",
+    "siTuAltaQuedaPendienteDeRevision": "申請が審査中の場合は、まず承認状況が表示されます。そこから、手続きを滞りなく進めることができます。",
+    "verGuiaRapidaParaSubirMiPrimerPro": "初めての商品をアップロードするためのクイックガイドをご覧ください",
+    "tuCuentaYaExisteYElSiguientePaso": "お客様のアカウントは既に作成済みです。次のステップは、メールアドレスの確認とプロフィールの準備を完了することです。",
+    "laContrasenaNoSeGuardaEnLocalstora": "パスワードはlocalStorageに保存されないため、機密情報が漏洩するのを防ぎます。",
+    "freeCreaLaCuentaAlInstanteProYE": "FREEプランではアカウントが即座に作成されます。PROプランとELITEプランでは、ワークフローを中断することなくStripeをインラインで有効化できます。",
+    "empezamosPorLoMinimoParaNoPonerte": "皆様の妨げにならないよう、まずは必要最低限から始めます。",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "店舗のオープンとインフラ整備完了まであと一歩です。",
+    "completarSuscripcionYAbrirMiTienda": "購読を完了して私のストアを開いてください"
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "アカウントを閉鎖できませんでした。もう一度お試しください。",
+    "noSePudieronCargarLasHistorias": "ストーリーを読み込むことができませんでした",
+    "errorAlCrearElDestacado": "ハイライトの作成中にエラーが発生しました",
+    "seCerraraLaSesionDeEstaCuentaYTe": "このアカウントセッションは終了しますので、再度ログインしてください。",
+    "soloSeEliminaDelSelectorDeCuentas": "このデバイス上のアカウント選択画面からのみ削除されます。",
+    "codigoCopiado": "コピーされたコード:",
+    "noHayHistoriasEnEsteDestacado": "この特集記事にはストーリーは含まれていません。",
+    "lasHistoriasDelDestacadoNoSeElimin": "掲載記事自体は削除されず、記事集のみが削除されます。",
+    "noHayHistoriasEnTuArchivo": "あなたのファイルにはストーリーがありません",
+    "publicaUnaHistoriaPrimeroParaPoder": "特集記事を作成するために、まずは記事を公開してください。",
+    "lasHistoriasNoSePerderanSoloLaCo": "物語自体は失われない。失われるのは、そのコレクションだけだ。"
+  },
+  "profile_tabs": {
+    "crearPublicacion": "投稿を作成する",
+    "sinPublicacionesTodavia": "まだ投稿はありません",
+    "sinReelsTodavia": "リールはまだありません",
+    "sinRecetasTodavia": "レシピはまだありません",
+    "nadaGuardadoTodavia": "まだ何も保存されていません",
+    "publicacionGuardada": "保存済み投稿"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "手動操作またはプラットフォーム製品との連携。"
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "もっとたくさん食べたい",
+    "anadirTodoAlCarrito": "全てをカートに追加する"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "カートに追加",
+    "iniciaSesionParaAnadirProductos": "商品を追加するにはログインしてください",
+    "noHemosPodidoCompletarLaAccion": "アクションを完了できませんでした",
+    "esteProductoAunNoTieneCertificados": "この製品はまだ認証済みの証明書を取得していません。",
+    "seElPrimeroEnOpinarSobreEsteProdu": "この製品のレビューを一番最初に投稿してください。"
   }
 }

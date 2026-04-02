@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useRef } from 'react';
 import { redirectAfterAuth } from '../lib/navigation';
+import { useTranslation } from 'react-i18next';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -83,7 +84,7 @@ export default function AuthCallback() {
         ) : (
           <div>
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stone-950 mx-auto mb-4" data-testid="auth-loading"></div>
-            <p className="text-stone-500">Completando inicio de sesión...</p>
+            <p className="text-stone-500">{t('auth_callback.completandoInicioDeSesion', 'Completando inicio de sesión...')}</p>
           </div>
         )}
       </div>

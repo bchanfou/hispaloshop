@@ -7,6 +7,7 @@ import {
   AlertTriangle, Clock, RefreshCw, Flame,
 } from 'lucide-react';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 /* ── Filter config ── */
 

@@ -6,11 +6,12 @@ import { ArrowLeft, Trash2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const EMOJIS = ['🌿', '🫙', '🧀', '🫒', '🍯', '👨‍🍳', '💪', '🌾', '🥗', '🌶️', '🍎', '🐟', '🌱', '🏔️', '🇪🇸'];
 const CATEGORIES = [
-  'Alimentación', 'Recetas', 'Productores', 'Dieta',
-  'Ecológico', 'Vegano', 'Sin gluten', 'Local', 'Internacional',
+  t('communities_explore.alimentacion', 'Alimentación'), 'Recetas', 'Productores', 'Dieta',
+  t('search.ecologico', 'Ecológico'), 'Vegano', 'Sin gluten', 'Local', 'Internacional',
 ];
 
 export default function CommunitySettingsPage() {
@@ -86,7 +87,7 @@ export default function CommunitySettingsPage() {
 
   const handleSave = async () => {
     if (!communityId) return;
-    if (!form.name.trim()) { toast.error('El nombre es obligatorio'); return; }
+    if (!form.name.trim()) { toast.error(t('register.elNombreEsObligatorio', 'El nombre es obligatorio')); return; }
     if (isUploadingCover) { toast.error('Espera a que se suba la imagen'); return; }
     setSaving(true);
     try {
@@ -136,7 +137,7 @@ export default function CommunitySettingsPage() {
     return (
       <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center gap-4 p-6">
         <p className="text-lg font-semibold text-stone-950">Sin permisos</p>
-        <p className="text-sm text-stone-500">Solo los administradores pueden editar la comunidad.</p>
+        <p className="text-sm text-stone-500">{t('community_settings.soloLosAdministradoresPuedenEditarL', 'Solo los administradores pueden editar la comunidad.')}</p>
         <button onClick={() => navigate(-1)} className="px-6 py-2.5 rounded-full bg-stone-950 text-white text-sm font-semibold border-none cursor-pointer">
           Volver
         </button>
@@ -171,7 +172,7 @@ export default function CommunitySettingsPage() {
             {coverPreview ? (
               <img src={coverPreview} alt="" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-stone-500 text-sm">Añadir foto de portada</span>
+              <span className="text-stone-500 text-sm">{t('community_settings.anadirFotoDePortada', 'Añadir foto de portada')}</span>
             )}
             {isUploadingCover && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -195,7 +196,7 @@ export default function CommunitySettingsPage() {
 
         {/* Description */}
         <div>
-          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">Descripción</p>
+          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{t('productDetail.description', 'Descripción')}</p>
           <div className="relative">
             <textarea
               value={form.description}
@@ -224,7 +225,7 @@ export default function CommunitySettingsPage() {
 
         {/* Category */}
         <div>
-          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">Categoría</p>
+          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{t('products.category', 'Categoría')}</p>
           <div className="flex flex-wrap gap-1.5">
             {CATEGORIES.map(cat => (
               <button key={cat} type="button"
@@ -240,7 +241,7 @@ export default function CommunitySettingsPage() {
 
         {/* Tags */}
         <div>
-          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">Etiquetas (máx. 5)</p>
+          <p className="text-[13px] font-semibold text-stone-950 mb-1.5">{t('community_settings.etiquetasMax5', 'Etiquetas (máx. 5)')}</p>
           <div className="flex gap-1.5 mb-1.5 flex-wrap">
             {form.tags.map(tag => (
               <span key={tag} className="flex items-center gap-1 text-xs px-2.5 py-0.5 bg-stone-100 text-stone-950 rounded-full">
@@ -254,7 +255,7 @@ export default function CommunitySettingsPage() {
             value={tagInput}
             onChange={e => setTagInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
-            placeholder="Añadir etiqueta..."
+            placeholder={t('create_recipe.anadirEtiqueta', 'Añadir etiqueta...')}
             disabled={form.tags.length >= 5}
             className="w-full h-9 px-3 bg-white border border-stone-200 rounded-xl text-[13px] text-stone-950 outline-none box-border"
           />
@@ -264,7 +265,7 @@ export default function CommunitySettingsPage() {
         {isCreator && (
           <div className="pt-6 border-t border-stone-200">
             <p className="text-[13px] font-semibold text-stone-950 mb-1">Zona peligrosa</p>
-            <p className="text-[12px] text-stone-500 mb-3">Eliminar la comunidad borrará todos los posts y miembros permanentemente.</p>
+            <p className="text-[12px] text-stone-500 mb-3">{t('community_settings.eliminarLaComunidadBorraraTodosLos', 'Eliminar la comunidad borrará todos los posts y miembros permanentemente.')}</p>
             <button
               onClick={handleDelete}
               disabled={deleting}

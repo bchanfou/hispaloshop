@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { getToken } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -23,7 +24,7 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     if (!verificationValue) {
       setStatus('error');
-      setMessage('No se proporcionó un código de verificación');
+      setMessage(t('verify_email.noSeProporcionoUnCodigoDeVerificac', 'No se proporcionó un código de verificación'));
       return;
     }
     let cancelled = false;
@@ -33,8 +34,8 @@ export default function VerifyEmailPage() {
         const data = await apiClient.post(`/auth/verify-email?${verificationParam}=${encodeURIComponent(verificationValue)}`);
         if (cancelled) return;
         setStatus('success');
-        setMessage(data.message || '¡Email verificado correctamente!');
-        toast.success('Email verificado. Ya puedes iniciar sesión.');
+        setMessage(data.message || t('verify_email.emailVerificadoCorrectamente', '¡Email verificado correctamente!'));
+        toast.success(t('verify_email.emailVerificadoYaPuedesIniciarSesi', 'Email verificado. Ya puedes iniciar sesión.'));
         // Refresh auth context so user.email_verified is up to date
         if (getToken()) {
           try { await checkAuth(); } catch { /* non-critical */ }
@@ -48,8 +49,8 @@ export default function VerifyEmailPage() {
         if (cancelled) return;
         setStatus('error');
         const detail = error?.response?.data?.detail;
-        setMessage(typeof detail === 'string' ? detail : 'El código no es válido o ha expirado');
-        toast.error('Error en la verificación');
+        setMessage(typeof detail === 'string' ? detail : t('verify_email.elCodigoNoEsValidoOHaExpirado', 'El código no es válido o ha expirado'));
+        toast.error(t('verify_email.errorEnLaVerificacion', 'Error en la verificación'));
       }
     })();
     return () => { cancelled = true; clearTimeout(timer); };
@@ -59,7 +60,7 @@ export default function VerifyEmailPage() {
   const mobileTitle =
     status === 'verifying' ? 'Verificando email' :
     status === 'success'   ? 'Email verificado' :
-    'Verificación fallida';
+    t('verify_email.verificacionFallida', 'Verificación fallida');
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">

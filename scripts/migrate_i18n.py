@@ -207,6 +207,43 @@ def process_file(filepath):
                 line = line.replace(old, repl, 1)
                 modified = True
 
+        # 6. Ternary expressions: condition ? 'Spanish text' : 'other'
+        ternary_pat = re.compile(r"""([?:])\s*['"]([A-ZÁÉÍÓÚÑ¿¡][a-záéíóúñA-Za-z0-9 ,.\-:!¿¡()·+€]{5,})['"]""")
+        for m in ternary_pat.finditer(line):
+            text = m.group(2)
+            context_before = line[:m.start()]
+            if any(kw in context_before for kw in ['import ', 'className', 'key=', "t('"]):
+                continue
+            if is_spanish(text):
+                key = make_key(text)
+                old = m.group(0)
+                op = m.group(1)
+                repl = f"{op} t('{key}', '{text}')"
+                line = line.replace(old, repl, 1)
+                modified = True
+
+        # 7. label prop: label="Spanish text" or label={'Spanish text'}
+        label_pat = re.compile(r"""label=['"]([^'"]{5,})['"]""")
+        for m in label_pat.finditer(line):
+            text = m.group(1)
+            if is_spanish(text):
+                key = make_key(text)
+                old = m.group(0)
+                repl = f"""label={{t('{key}', '{text}')}}"""
+                line = line.replace(old, repl, 1)
+                modified = True
+
+        # 8. Standalone JSX with lower-case start: <p>text with áéíóú</p>
+        lower_jsx_pat = re.compile(r'(>)([ ]*)([a-záéíóúñ][a-záéíóúñA-Za-z0-9 ,.\-:!¿¡()·+€]{5,}?)([ ]*)(<(?:/\w))')
+        for m in lower_jsx_pat.finditer(line):
+            text = m.group(3).strip()
+            if is_spanish(text) and len(text) > 5:
+                key = make_key(text)
+                old = f"{m.group(1)}{m.group(2)}{m.group(3)}{m.group(4)}{m.group(5)}"
+                repl = f"{m.group(1)}{m.group(2)}{{t('{key}', '{text}')}}{m.group(4)}{m.group(5)}"
+                line = line.replace(old, repl, 1)
+                modified = True
+
         if modified:
             lines[i] = line
             changes += 1

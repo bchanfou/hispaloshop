@@ -298,7 +298,7 @@ export default function B2BPaymentPage() {
           {isSeller && (
             <>
               <Row label="Precio bruto" value={fmt.format(totalBruto)} />
-              <Row label="Comisión Hispaloshop (3%)" value={`−${fmt.format(platformFee)}`} />
+              <Row label={t('b2_b_payment.comisionHispaloshop3', 'Comisión Hispaloshop (3%)')} value={`−${fmt.format(platformFee)}`} />
               <p className="text-[10px] text-stone-500 -mt-1.5 pl-3 m-0">
                 ↳ Comisión de plataforma
               </p>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Image, Clapperboard, CirclePlus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const DRAFT_KEYS = [
   { key: 'post_draft', type: 'Post', Icon: Image, route: '/create/post' },
@@ -22,7 +23,7 @@ function formatTime(ts) {
 }
 
 function getPreviewText(draft, type) {
-  if (type === 'Post' || type === 'Reel') return draft.caption || 'Sin descripción';
+  if (type === 'Post' || type === 'Reel') return draft.caption || t('categories.sinDescripcion', 'Sin descripción');
   if (type === 'Story') {
     const count = (draft.textOverlays?.length || 0) + (draft.stickerOverlays?.length || 0);
     return count > 0 ? `${count} elemento${count > 1 ? 's' : ''}` : 'Sin contenido';

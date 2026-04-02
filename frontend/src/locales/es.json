@@ -353,7 +353,19 @@
     "vegan": "Vegano",
     "gluten-free": "Sin Gluten",
     "sugar-free": "Sin Azucar",
-    "organic": "Orgánico"
+    "organic": "Orgánico",
+    "certificacionOficialDeProduccionEcol": "Certificacion oficial de produccion ecologica de la Union Europea",
+    "garantizaQueElProductoSeProduceTr": "Garantiza que el producto se produce, transforma y elabora en una zona geografica determinada",
+    "alMenosUnaEtapaDeProduccionSeReal": "Al menos una etapa de produccion se realiza en la zona geografica",
+    "vinculoConElTerritorio": "Vinculo con el territorio",
+    "supervisionPorOrganismoDeControl": "Supervision por organismo de control",
+    "certificacionDeQueElProductoCumple": "Certificacion de que el producto cumple con las normas alimentarias islamicas",
+    "procesoDeSacrificioConformeALaLey": "Proceso de sacrificio conforme a la ley islamica",
+    "sinContaminacionCruzadaConProductos": "Sin contaminacion cruzada con productos no halal",
+    "productoAptoParaPersonasConEnfermed": "Producto apto para personas con enfermedad celiaca o sensibilidad al gluten",
+    "produccionEnLineasLibresDeContamina": "Produccion en lineas libres de contaminacion",
+    "noContieneIngredientesDeOrigenAnima": "No contiene ingredientes de origen animal ni ha sido testado en animales",
+    "sinPruebasEnAnimales": "Sin pruebas en animales"
   },
   "productDetail": {
     "loading": "Cargando producto...",
@@ -640,7 +652,8 @@
       "processing": "Procesando...",
       "success": "Pedido marcado como enviado! Se ha notificado al cliente por email.",
       "other": "Otro"
-    }
+    },
+    "noPudimosCargarTusPedidos": "No pudimos cargar tus pedidos"
   },
   "producer": {
     "overview": "Resumen",
@@ -2010,7 +2023,10 @@
     "local": "local",
     "bio": "bio",
     "followers": "seguidores",
-    "posts": "posts"
+    "posts": "posts",
+    "seleccionDelDia": "Selección del día",
+    "descubreProductosArtesanalesTiendas": "Descubre productos artesanales, tiendas verificadas y recetas de la comunidad.",
+    "seleccionesDeProductosConHistoria": "Selecciones de productos con historia"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -2826,11 +2842,14 @@
     "noHemosPodidoIniciarTuSesion": "No hemos podido iniciar tu sesión.",
     "entraEnTuCuenta": "Entra en tu cuenta",
     "tuSesionHaExpiradoIniciaSesionDe": "Tu sesión ha expirado. Inicia sesión de nuevo.",
-    "ocultarContrasena": "Ocultar contraseña"
+    "ocultarContrasena": "Ocultar contraseña",
+    "oContinuaConEmail": "o continúa con email"
   },
   "forgot_password": {
     "reenviarEmailDeRecuperacion": "Reenviar email de recuperación",
-    "enviarEnlaceDeRecuperacion": "Enviar enlace de recuperación"
+    "enviarEnlaceDeRecuperacion": "Enviar enlace de recuperación",
+    "recuperarContrasena": "Recuperar contraseña",
+    "teEnviaremosUnEnlaceParaRestablecer": "Te enviaremos un enlace para restablecer tu contraseña."
   },
   "onboarding": {
     "laImagenNoPuedeSuperar5Mb": "La imagen no puede superar 5 MB",
@@ -2910,7 +2929,10 @@
     "unaIntroduccionParaTuReceta": "Una introducción para tu receta"
   },
   "reels": {
-    "errorAlCargarMasReels": "Error al cargar más reels"
+    "errorAlCargarMasReels": "Error al cargar más reels",
+    "aunNoHayReels": "Aún no hay reels",
+    "seElPrimeroEnPublicar": "Sé el primero en publicar",
+    "noHayMasReels": "No hay más reels"
   },
   "category": {
     "pruebaConOtraCategoriaOAjustaLosF": "Prueba con otra categoría o ajusta los filtros.",
@@ -3119,7 +3141,8 @@
     "errorAlAbrirElDashboardDeStripe": "Error al abrir el dashboard de Stripe",
     "retencionFiscalAplicada": "Retención fiscal aplicada",
     "tusGananciasSeAcumulanPeroNecesita": "Tus ganancias se acumulan, pero necesitas Stripe Connect para recibir transferencias automáticas.",
-    "comoFuncionanLosPagos": "Cómo funcionan los pagos:"
+    "comoFuncionanLosPagos": "Cómo funcionan los pagos:",
+    "sobreTusGananciasNetasSegunTuConfi": "sobre tus ganancias netas según tu configuración fiscal."
   },
   "producer_plan": {
     "panelDeControlBasico": "Panel de control básico",
@@ -3276,7 +3299,8 @@
     "evolucionDeTusComisiones": "Evolución de tus comisiones",
     "comparteloEnTusRedesSociales": "Compartelo en tus redes sociales",
     "tuLinkDeAfiliado": "Tu link de afiliado",
-    "aunNoTienesVentasComparteTuLink": "Aún no tienes ventas. ¡Comparte tu link!"
+    "aunNoTienesVentasComparteTuLink": "Aún no tienes ventas. ¡Comparte tu link!",
+    "configuracionFiscal": "configuración fiscal"
   },
   "influencer_insights": {
     "sinDatosSuficientesParaMostrarGrafi": "Sin datos suficientes para mostrar gráfico",
@@ -3641,7 +3665,8 @@
     "necesitasUnPerfilDeProductorOImpor": "Necesitas un perfil de productor o importador para acceder a los pagos B2B.",
     "esperandoElPagoDelComprador": "Esperando el pago del comprador...",
     "recibirasUnaNotificacionCuandoElPag": "Recibirás una notificación cuando el pago se procese",
-    "losFondosEstanRetenidosHastaQueSub": "Los fondos están retenidos hasta que subas la documentación de envío"
+    "losFondosEstanRetenidosHastaQueSub": "Los fondos están retenidos hasta que subas la documentación de envío",
+    "comisionHispaloshop3": "Comisión Hispaloshop (3%)"
   },
   "b2_b_quotes_history": {
     "rfqsDeImportadoresInteresadosEnTus": "RFQs de importadores interesados en tus productos",
@@ -3822,7 +3847,8 @@
     "cobrasAutomaticamenteEnTuCuentaBanc": "Cobras automáticamente en tu cuenta bancaria",
     "todoListo": "¡Todo listo!",
     "empiezaCompartiendoTuCodigoConTusS": "Empieza compartiendo tu código con tus seguidores.",
-    "veTusComisionesEnTiempoReal": "Ve tus comisiones en tiempo real"
+    "veTusComisionesEnTiempoReal": "Ve tus comisiones en tiempo real",
+    "minimo20€TransferenciaAutomatica": "Mínimo 20€, transferencia automática"
   },
   "chats": {
     "colaboracion": "Colaboración",
@@ -3847,7 +3873,9 @@
     "maria": "María",
     "garciaLopez": "García López",
     "creaUnaContrasenaSegura": "Crea una contraseña segura",
-    "debesTenerAlMenos16Anos": "Debes tener al menos 16 años."
+    "debesTenerAlMenos16Anos": "Debes tener al menos 16 años.",
+    "terminos": "términos",
+    "politicaDePrivacidad": "política de privacidad"
   },
   "step3_profile": {
     "ajustaTusInteresesParaQueElCatalog": "Ajusta tus intereses para que el catálogo y las recomendaciones empiecen con más criterio.",
@@ -3880,7 +3908,8 @@
     "paraDudasSobreLaPlataformaColabora": "Para dudas sobre la plataforma, colaboraciones o prensa.",
     "respondemosEnMenosDe24Horas": "Respondemos en menos de 24 horas.",
     "losProductoresGestionanElEnvioDirec": "Los productores gestionan el envío directamente. Los plazos dependen de cada productor y destino.",
-    "siHispaloshopSoportaMultiplesIdioma": "Sí. HispaloShop soporta múltiples idiomas y divisas para venta internacional."
+    "siHispaloshopSoportaMultiplesIdioma": "Sí. HispaloShop soporta múltiples idiomas y divisas para venta internacional.",
+    "paraCompradoresEsGratisProductores": "Para compradores es gratis. Productores tienen planes desde 0€. Influencers ganan comisiones."
   },
   "for_importers": {
     "importaVendeYCreceAccesoDirectoA": "Importa, vende y crece. Acceso directo a consumidores, influencers y productores globales. Descubre todas las ventajas para importadores en HispaloShop.",
@@ -4263,7 +4292,8 @@
     "terminos": "Términos"
   },
   "hamburger_menu": {
-    "cerrarMenu": "Cerrar menú"
+    "cerrarMenu": "Cerrar menú",
+    "queEsHispaloshop": "¿Qué es HispaloShop?"
   },
   "info_header": {
     "queEs": "Qué es",
@@ -4436,5 +4466,99 @@
     "noHemosPodidoCompletarLaAccion": "No hemos podido completar la acción",
     "esteProductoAunNoTieneCertificados": "Este producto aún no tiene certificados verificados.",
     "seElPrimeroEnOpinarSobreEsteProdu": "Sé el primero en opinar sobre este producto."
+  },
+  "activity": {
+    "noSePudoCargarLaActividad": "No se pudo cargar la actividad",
+    "tuActividadApareceraAqui": "Tu actividad aparecerá aquí"
+  },
+  "auth_callback": {
+    "completandoInicioDeSesion": "Completando inicio de sesión..."
+  },
+  "certificates_list": {
+    "exploraProductosConDocumentacionVisi": "Explora productos con documentación visible, ordenados alfabéticamente para una lectura rápida y clara.",
+    "filtrarPorCertificacion": "Filtrar por certificación",
+    "ajustaLaBusquedaOEliminaFiltrosPar": "Ajusta la búsqueda o elimina filtros para revisar otros productos certificados.",
+    "ordenAlfabeticoActivo": "Orden alfabético activo"
+  },
+  "checkout_success": {
+    "tuPagoSeHaProcesadoCorrectamenteR": "Tu pago se ha procesado correctamente. Recibirás un email de confirmación con los detalles de tu pedido en los próximos minutos.",
+    "haOcurridoUnErrorAlVerificarTuPag": "Ha ocurrido un error al verificar tu pago. Si se ha realizado el cobro, contacta con soporte.",
+    "hemosRecibidoTuPedidoRecibirasUnE": "Hemos recibido tu pedido. Recibirás un email con los detalles."
+  },
+  "community_settings": {
+    "soloLosAdministradoresPuedenEditarL": "Solo los administradores pueden editar la comunidad.",
+    "anadirFotoDePortada": "Añadir foto de portada",
+    "etiquetasMax5": "Etiquetas (máx. 5)",
+    "eliminarLaComunidadBorraraTodosLos": "Eliminar la comunidad borrará todos los posts y miembros permanentemente."
+  },
+  "create_community": {
+    "nombreDeLaComunidad": "Nombre de la comunidad",
+    "sinDescripcionTodavia": "Sin descripción todavía",
+    "necesitasMasSeguidores": "Necesitas más seguidores",
+    "paraCrearUnaComunidadNecesitasAlMe": "Para crear una comunidad necesitas al menos 100 seguidores o ser vendedor verificado.",
+    "elNombreDebeTenerAlMenos3Caracter": "El nombre debe tener al menos 3 caracteres",
+    "laUrlEsObligatoria": "La URL es obligatoria",
+    "laUrlDebeTenerAlMenos3Caracteres": "La URL debe tener al menos 3 caracteres",
+    "laUrlDebeEmpezarConUnaLetraONume": "La URL debe empezar con una letra o número",
+    "comunidadCreada": "¡Comunidad creada!",
+    "esaUrlYaEstaEnUsoPruebaOtra": "Esa URL ya está en uso. Prueba otra.",
+    "errorAlCrearLaComunidad": "Error al crear la comunidad",
+    "anadirFotoDePortada": "Añadir foto de portada",
+    "nombreDeLaComunidad1": "Nombre de la comunidad *",
+    "ejAceitesDeEspana": "Ej: Aceites de España",
+    "urlDeLaComunidad": "URL de la comunidad *",
+    "deQueTrataTuComunidad": "¿De qué trata tu comunidad?",
+    "iconoDeLaComunidad": "Icono de la comunidad",
+    "etiquetasMax5": "Etiquetas (máx. 5)",
+    "asiVeranTuComunidadLosDemas": "Así verán tu comunidad los demás"
+  },
+  "editorial_collections": {
+    "elMejorAceiteDeOliva": "El mejor aceite de oliva",
+    "seleccionDeProductoresAndaluces": "Selección de productores andaluces",
+    "empiezaElDiaConEnergiaReal": "Empieza el día con energía real",
+    "despensaBasicaPremium": "Despensa básica premium",
+    "losEsencialesQueMarcanLaDiferencia": "Los esenciales que marcan la diferencia",
+    "certificadoEcologico": "Certificado ecológico",
+    "seleccionesEditorialesDeProductosArt": "Selecciones editoriales de productos artesanales, saludables y con historia.",
+    "coleccion": "Colección"
+  },
+  "explore_category": {
+    "categoriaNoEncontrada": "Categoría no encontrada",
+    "noSePudieronCargarLosProductos": "No se pudieron cargar los productos",
+    "noHayProductosEnEstaCategoriaTodav": "No hay productos en esta categoría todavía"
+  },
+  "locale_settings": {
+    "idiomaYRegion": "Idioma y región"
+  },
+  "not_found": {
+    "paginaNoEncontrada": "Página no encontrada",
+    "estaPaginaNoExiste": "Esta página no existe",
+    "pareceQueTeHasPerdidoVuelveAlIni": "Parece que te has perdido. Vuelve al inicio y continúa explorando."
+  },
+  "pending_approval": {
+    "tuCuentaYaExistePeroAlgunasFuncio": "Tu cuenta ya existe, pero algunas funciones seguirán limitadas hasta que el equipo valide el alta.",
+    "recibirasAccesoCompletoCuandoElEqui": "Recibirás acceso completo cuando el equipo valide tu alta.",
+    "mientrasTantoAlgunasFuncionesComerc": "Mientras tanto, algunas funciones comerciales seguirán restringidas.",
+    "subirDocumentosDeVerificacion": "Subir documentos de verificación",
+    "completarConfiguracionFiscal": "Completar configuración fiscal"
+  },
+  "reset_password": {
+    "enlaceDeRecuperacionNoValido": "Enlace de recuperación no válido",
+    "restablecerContrasena": "Restablecer contraseña"
+  },
+  "verify_email": {
+    "noSeProporcionoUnCodigoDeVerificac": "No se proporcionó un código de verificación",
+    "emailVerificadoCorrectamente": "¡Email verificado correctamente!",
+    "emailVerificadoYaPuedesIniciarSesi": "Email verificado. Ya puedes iniciar sesión.",
+    "elCodigoNoEsValidoOHaExpirado": "El código no es válido o ha expirado",
+    "errorEnLaVerificacion": "Error en la verificación",
+    "verificacionFallida": "Verificación fallida",
+    "porFavorEsperaMientrasVerificamosTu": "Por favor espera mientras verificamos tu dirección de email"
+  },
+  "b2_b_action": {
+    "video": "Vídeo"
+  },
+  "collab_action": {
+    "video": "Vídeo"
   }
 }

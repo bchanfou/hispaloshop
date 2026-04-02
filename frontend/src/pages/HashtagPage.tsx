@@ -8,6 +8,7 @@ import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
 import { resolveUserImage } from '../features/user/queries';
 import SEO from '../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 const TABS = [
   { id: 'posts', label: 'Posts' },
@@ -145,7 +146,7 @@ export default function HashtagPage() {
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 px-8">
         <AlertTriangle className="w-10 h-10 text-stone-300" />
         <p className="text-base font-semibold text-stone-950">Error al cargar</p>
-        <p className="text-sm text-stone-500 text-center">Comprueba tu conexión e inténtalo de nuevo</p>
+        <p className="text-sm text-stone-500 text-center">{t('products.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo')}</p>
         <button onClick={() => postsQuery.refetch()} className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-stone-800 transition-colors">
           Reintentar
         </button>

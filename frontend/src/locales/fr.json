@@ -2639,5 +2639,1700 @@
     "firstReviewDesc": "Vous avez rédigé votre premier avis",
     "explorer": "Explorateur",
     "explorerDesc": "Vous avez suivi 5 magasins"
+  },
+  "product_detail": {
+    "resenaEnviada": "Avis soumis",
+    "chatNoDisponibleParaEsteProducto": "Le chat n'est pas disponible pour ce produit.",
+    "noSePudoAbrirElChat": "Impossible d'ouvrir la conversation",
+    "puntuacion": "Ponctuation",
+    "comentarioDeLaResena": "Commentaire de la critique",
+    "noHemosPodidoEnviarLaResena": "Nous n'avons pas pu soumettre l'avis.",
+    "anadirAFavoritos": "Ajouter aux favoris",
+    "politicaDeDevolucion": "Politique de retour",
+    "tienes14DiasDesdeLaRecepcionParaD": "Vous disposez de 14 jours à compter de la réception de votre commande pour la retourner. Les produits alimentaires périssables ne sont pas admissibles au retour.",
+    "anadeEsteProductoAlCatalogoB2bPara": "Ajoutez ce produit au catalogue B2B pour recevoir des commandes en gros.",
+    "anadirAlCatalogoB2b": "Ajouter au catalogue B2B"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "Erreur lors de l'ajout des produits au panier",
+    "errorAlAnadir": "Erreur lors de l'ajout",
+    "noSePudoCopiarElEnlace": "Le lien n'a pas pu être copié.",
+    "anadidoALaLista": "Ajouté à la liste",
+    "noSePudoGuardarEnLaLista": "Impossible de l'enregistrer dans la liste",
+    "seleccionaUnaValoracion": "Sélectionnez une note",
+    "valoracionPublicada": "Note publiée",
+    "masPorciones": "Plus de portions",
+    "errorAlPublicarLaValoracion": "Évaluation de la publication d'une erreur",
+    "preparacion": "Préparation",
+    "informacionNutricional": "Informations nutritionnelles",
+    "porRacion": "Par portion",
+    "proteina": "Protéine",
+    "azucar": "Sucre",
+    "aunNoHayResenasSeElPrimero": "Aucun avis pour le moment. Soyez le premier !",
+    "tuResena": "Votre avis",
+    "enviarResena": "Soumettre un avis"
+  },
+  "community": {
+    "configuracion": "Configuration",
+    "errorAlActualizarMembresia": "Erreur de mise à jour de l'adhésion",
+    "escribeAlgoOAnadeUnaImagen": "Écrivez quelque chose ou ajoutez une image",
+    "queQuieresCompartirPuedesUsarHas": "Qu'avez-vous envie de partager ? Vous pouvez utiliser des hashtags.",
+    "anadirImagen": "Ajouter une image",
+    "errorAlCargarLaComunidad": "Erreur lors du chargement de la communauté",
+    "salirDeLaComunidad": "Quitter la communauté",
+    "comparteAlgoConLaComunidad": "Partagez quelque chose avec la communauté...",
+    "aunNoHayPosts": "Aucun message n'a encore été publié.",
+    "seElPrimeroEnPublicarAlgo": "Soyez le premier à publier quelque chose !",
+    "verMasPosts": "Voir plus de publications",
+    "verMasComentarios": "Voir plus de commentaires",
+    "sinMiembrosTodavia": "Aucun membre pour le moment",
+    "verMasMiembros": "Voir plus de membres",
+    "normasDeLaComunidad": "Règles communautaires",
+    "contenidoRelacionadoConAlimentacionY": "Contenu lié à l'alimentation et à la gastronomie",
+    "sinSpamNiPublicidadNoAutorizada": "Pas de spam ni de publicité non autorisée",
+    "sinBebidasAlcoholicas": "Pas de boissons alcoolisées",
+    "elAdminPuedeEliminarPostsQueNoCum": "L'administrateur peut supprimer les messages qui ne respectent pas les règles."
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "Erreur lors du chargement de vos articles",
+    "errorAlSubirLaFoto": "Erreur lors du chargement de la photo",
+    "noSePudoAbrirLaConversacion": "La conversation n'a pas pu être ouverte.",
+    "errorAlCrearConversacion": "Erreur lors de la création de la conversation",
+    "atras": "Dos"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "Erreur lors du désabonnement",
+    "cargarMasUsuarios": "Charger plus d'utilisateurs",
+    "pruebaConOtroTermino": "Essayez un autre terme",
+    "cargarMas": "Charger plus",
+    "sinSeguidoresAun": "Aucun abonné pour le moment",
+    "noSigueANadieAun": "Elle ne suit encore personne."
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "Erreur lors de la création de la collection",
+    "nombreDeLaColeccion": "Nom de la collection",
+    "guardaContenidoTocandoElIconoDeMar": "Enregistrez le contenu en appuyant sur l'icône de signet",
+    "nuevaColeccion": "Nouvelle collection"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "Erreur de connexion avec Google.",
+    "tuContrasena": "Votre mot de passe",
+    "elEmailEsObligatorio": "L'adresse électronique est requise.",
+    "laContrasenaEsObligatoria": "Un mot de passe est requis.",
+    "emailOContrasenaIncorrectos": "Adresse e-mail ou mot de passe incorrect",
+    "tuCuentaEstaRestringidaPorEdad": "Votre compte est soumis à une restriction d'âge.",
+    "noHemosPodidoIniciarTuSesion": "Nous n'avons pas pu vous connecter.",
+    "entraEnTuCuenta": "Connectez-vous à votre compte",
+    "tuSesionHaExpiradoIniciaSesionDe": "Votre session a expiré. Veuillez vous reconnecter.",
+    "ocultarContrasena": "Masquer le mot de passe"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "Renvoyer l'e-mail de récupération",
+    "enviarEnlaceDeRecuperacion": "Envoyer le lien de récupération"
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "L'image ne peut pas dépasser 5 Mo.",
+    "noSePudoSubirLaFotoDePerfilPero": "Impossible de télécharger votre photo de profil, mais votre compte sera tout de même créé.",
+    "panaderia": "Boulangerie",
+    "reposteria": "Confiserie",
+    "descubreProductosArtesanalesUnicosDe": "Découvrez des produits artisanaux uniques, fabriqués par des producteurs locaux.",
+    "tuTiendaEstaListaEmpiezaAVenderT": "Votre boutique est prête. Commencez à vendre vos produits faits main.",
+    "exploraElMarketplaceB2bYEncuentraL": "Explorez le marché B2B et trouvez les meilleurs producteurs.",
+    "errorAlGuardarTuPerfilIntentaloDe": "Erreur lors de l'enregistrement de votre profil. Veuillez réessayer.",
+    "estoEsLoQueVeranOtrosUsuarios": "Voici ce que les autres utilisateurs verront",
+    "ubicacionOpcional": "Lieu (facultatif)",
+    "validacionDeMercadoYPrimerasVentas": "Validation du marché et premières ventes.",
+    "iaComercialAvanzadaYGeneracionDeCo": "IA commerciale avancée et génération de contrats.",
+    "stripeNoEstaDisponible": "Stripe n'est pas disponible.",
+    "stripeNoEstaConfiguradoTodavia": "Stripe n'est pas encore configuré.",
+    "noPudimosPrepararElPago": "Nous n'avons pas pu traiter le paiement.",
+    "introduceUnEmailValido": "Veuillez saisir une adresse courriel valide.",
+    "creaUnaContrasenaDeAlMenos6Caract": "Créez un mot de passe d'au moins 6 caractères.",
+    "necesitamosUnTelefonoOperativo": "Nous avons besoin d'un téléphone qui fonctionne.",
+    "seleccionaElPaisDondeVasAOperar": "Sélectionnez le pays dans lequel vous exercerez votre activité.",
+    "seleccionaTuPuntoDePartida": "Choisissez votre point de départ.",
+    "eligeAlMenosUnTipoDeProducto": "Choisissez au moins un type de produit.",
+    "necesitamosUnaDireccionFiscalValida": "Nous avons besoin d'une adresse fiscale valide.",
+    "necesitamosVatCifONifParaDarteDe": "Nous avons besoin de votre numéro de TVA, CIF ou NIF pour vous enregistrer.",
+    "completaLosDatosDeLaTarjetaParaCo": "Complétez les informations de la carte pour continuer.",
+    "stripeNoEstaListoTodavia": "Stripe n'est pas encore prêt.",
+    "noSePudoValidarLaTarjeta": "La carte n'a pas pu être validée.",
+    "tuBancoRechazoLaOperacion": "Votre banque a refusé la transaction.",
+    "haOcurridoUnErrorConElPagoPorFa": "Une erreur s'est produite lors de votre paiement. Veuillez réessayer.",
+    "elMetodoDePagoFueRechazadoPorFav": "Votre mode de paiement a été refusé. Veuillez utiliser une autre carte.",
+    "revisaLosDatosAntesDeContinuar": "Veuillez prendre connaissance des informations avant de continuer.",
+    "noPudimosCompletarElAlta": "Nous n'avons pas pu procéder à la sortie du patient.",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "Votre compte a déjà été créé. Il vous suffit d'activer votre forfait ou de résilier votre abonnement.",
+    "completaLosCamposObligatoriosParaAv": "Remplissez les champs obligatoires pour continuer.",
+    "numeroSinEspacios": "Nombre sans espaces",
+    "paisDondeOperaras": "Pays où vous exercerez vos activités",
+    "seleccionaTuPaisPrincipal": "Sélectionnez votre pays principal",
+    "loUsamosParaFacturacionYAprobacion": "Nous l'utilisons pour la facturation et l'approbation commerciale.",
+    "direccionFiscal": "Adresse fiscale",
+    "direccionCompletaParaFacturacion": "Adresse de facturation complète",
+    "empezamosSinCuotaFijaSiElMercado": "Nous commençons sans tarif fixe. Si le marché réagit positivement, vous déciderez alors de passer à la version PRO ou ELITE.",
+    "pagoSeguroCancelaCuandoQuierasNo": "Paiement sécurisé. Annulation possible à tout moment. Nous ne perturberons pas votre activité.",
+    "bienvenidoALaRevolucion": "Bienvenue dans la révolution.",
+    "revisaTuEmailParaVerificarTuCuenta": "Veuillez vérifier votre messagerie pour confirmer votre compte. Vous disposez déjà de l'infrastructure qui m'aurait permis d'économiser du temps et de l'argent.",
+    "verCatalogoDeProductoresDisponibles": "Consultez le catalogue des producteurs disponibles",
+    "sinAlertsAgresivosYConGuardadoLoca": "Sans alertes intrusives et avec sauvegarde locale de la progression.",
+    "tuContrasenaNoSePersisteEnLocalsto": "Votre mot de passe n'est pas enregistré dans le stockage local.",
+    "proYEliteUsanStripeInlineFreeCre": "Les versions PRO et ELITE utilisent Stripe intégré. La version GRATUITE crée le compte instantanément."
+  },
+  "post_detail": {
+    "publicacionEditada": "Publication éditée",
+    "editarDescripcion": "Modifier la description",
+    "publicacion": "Publication",
+    "editarPublicacion": "Modifier le message",
+    "laImagenNoSePuedeCambiarTrasPubli": "L'image ne peut plus être modifiée après sa publication.",
+    "seEliminaraPermanentementeJuntoConS": "Votre publication, ainsi que vos commentaires et mentions « J’aime », seront définitivement supprimées. Cette action est irréversible.",
+    "seElPrimeroEnComentar": "Soyez le premier à commenter",
+    "masPopulares": "Les plus populaires",
+    "cargarMasComentarios": "Afficher plus de commentaires",
+    "compartirPublicacion": "Partagez cette publication"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "Nous n'avons pas pu charger l'image.",
+    "noHemosPodidoCargarLaImagenDelPas": "Nous n'avons pas pu charger l'image du cortège.",
+    "numeroDeRaciones": "Nombre de portions",
+    "anadirIngrediente": "Ajouter l'ingrédient",
+    "cuentaQueHaceEspecialEstaReceta": "Dites-nous ce qui rend cette recette spéciale...",
+    "descripcionDeLaReceta": "Description de la recette",
+    "anadirEtiqueta": "Ajouter une étiquette...",
+    "ensaladaRapida": "Salade rapide",
+    "postreFacil": "Dessert facile",
+    "noHemosPodidoPublicarLaReceta": "Nous n'avons pas pu publier la recette",
+    "recetaPublicada": "Recette publiée !",
+    "tienesUnBorradorDeReceta": "Vous avez une recette en brouillon",
+    "momentoDelDia": "Heure de la journée",
+    "unaIntroduccionParaTuReceta": "Une introduction à votre recette"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "Erreur lors du chargement des bobines supplémentaires"
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "Essayez une autre catégorie ou ajustez les filtres.",
+    "verMasProductos": "Voir plus de produits",
+    "caracteristicas": "Caractéristiques"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "Découvrez les commerces proposant des produits locaux, artisanaux et sains. Filtrez par région et par pays."
+  },
+  "communities_explore": {
+    "alimentacion": "Alimentation",
+    "iniciaSesionParaVerTusComunidades": "Connectez-vous pour voir vos communautés",
+    "noHayComunidadesEnEstaCategoria": "Il n'y a pas de communautés dans cette catégorie.",
+    "sinResultadosParaTuBusqueda": "Aucun résultat trouvé pour votre recherche",
+    "aunNoHayComunidades": "Il n'y a pas encore de communautés.",
+    "creaLaPrimeraComunidadDeEstaCatego": "Créez la première communauté de cette catégorie",
+    "pruebaConOtrosTerminos": "Essayez d'autres termes",
+    "seElPrimeroEnCrearUnaYConectarCo": "Soyez le premier à en créer un et à interagir avec la communauté.",
+    "consigue100SeguidoresOVerificaTuCu": "Obtenez 100 abonnés ou faites vérifier votre compte vendeur"
+  },
+  "about": {
+    "envioGestionadoPorProductor": "Expédition gérée par le producteur",
+    "productosConInformacionVerificableY": "Produits avec informations vérifiables et certificat numérique.",
+    "operacionInternacional": "Opération internationale",
+    "feedPostsYReelsConectadosConConve": "Flux, publications et vidéos associés à une conversion réelle.",
+    "checkoutSeguroComisionesYConciliaci": "Paiement sécurisé, commissions et rapprochement par transaction.",
+    "contenidoUtil": "Contenu utile",
+    "clientesProductoresImportadoresEIn": "Clients, producteurs, importateurs et influenceurs, tous réunis dans un même flux.",
+    "gestionarPedidosYOperacionDiaria": "Gérer les commandes et les opérations quotidiennes",
+    "configurarEnvioYCatalogoInternaciona": "Configurer l'expédition internationale et le catalogue",
+    "trackingDeConversionYRendimiento": "Suivi des conversions et des performances",
+    "monetizacionEnPostsYReels": "Monétisation des publications et des vidéos",
+    "altaDeProductosYCatalogoPropio": "Enregistrement des produits et catalogue personnel",
+    "panelDePedidosPagosYOperacion": "Panneau de commande, de paiement et d'opérations",
+    "catalogoLimpio": "Catalogue propre",
+    "contenidoUtilEnlazadoAProductosReal": "Contenu utile lié à de vrais produits.",
+    "queEsHispaloshop": "Qu'est-ce que Hispaloshop ?",
+    "unimosCompraVentaInfluenciaYTraza": "Nous réunissons l'achat, la vente, l'influence et la traçabilité au sein d'une seule plateforme opérationnelle.",
+    "loQueYaEstaActivo": "Ce qui est déjà actif",
+    "funcionalidadRealDeProductoEnEstaV": "Fonctionnalités réelles du produit dans cette version.",
+    "porQueLaPlataformaFunciona": "Pourquoi la plateforme fonctionne",
+    "paraQuienEstaHecho": "À qui est-il destiné ?",
+    "porQueExisteHispaloshop": "Pourquoi Hispaloshop existe-t-il ?",
+    "laHistoriaRealDetrasDelProyecto": "La véritable histoire de ce projet.",
+    "aLos25Perdi15000€EnUnContainerD": "À 25 ans, j'ai perdu 15 000 € dans un emballage de pop-corn qui a pourri à Incheon. J'ai pleuré dans un parc à Séoul. À 26 ans, je suis retourné vivre chez mes parents à Reus. Il est 6 heures du matin et je n'ai pas dormi plus de 5 heures par nuit depuis deux mois, à cause de ce projet.",
+    "loHiceParaQueNingunProductorHonest": "Je l'ai fait pour qu'aucun producteur honnête ne se sente plus jamais invisible. Pour qu'aucun influenceur n'ait plus jamais à choisir entre son intégrité et ses moyens de subsistance.",
+    "exploraCatalogoTiendasYContenido": "Explorez le catalogue, les magasins et le contenu.",
+    "checkoutCentralizadoEnUnSoloFlujo": "Passage en caisse centralisé dans un flux unique."
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "Ajoutez au moins une image à la publication",
+    "laDescripcionEsDemasiadoLarga": "La description est trop longue.",
+    "publicacionCreada": "Publication créée",
+    "verEnElFeed": "Afficher dans le flux",
+    "errorAlPublicarCompruebaTuConexion": "Erreur lors de la publication. Veuillez vérifier votre connexion et réessayer.",
+    "nuevaPublicacion": "Nouvelle publication",
+    "seleccionaImagenes": "Sélectionner des images",
+    "capturaDirectamenteDesdeTuCamara": "Capturez directement depuis votre appareil photo",
+    "abrirCamaraParaTomarFoto": "Ouvrez l'appareil photo pour prendre une photo",
+    "abrirCamara": "Ouvrir la caméra",
+    "saturacion": "Saturation",
+    "vineteado": "Vignette",
+    "tamano": "Taille",
+    "descripcionDeLaPublicacion": "Description de la publication",
+    "escribeTuPieDeFotoUsaParaHas": "Rédigez votre légende… Utilisez # pour les hashtags et @ pour les mentions.",
+    "sugerenciaAnadida": "Suggestion ajoutée",
+    "noSePudoGenerarUnaSugerencia": "Impossible de générer une suggestion",
+    "errorAlConectarConDavidAi": "Erreur de connexion à David AI",
+    "anadirUbicacionEjGaliciaCosta": "Ajouter un emplacement... (par exemple, Galice, Costa Brava)",
+    "cerrarBusqueda": "Fermer la recherche",
+    "publicado": "Publié !",
+    "reintentarPublicacion": "Republier"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "La vidéo est trop volumineuse (100 Mo max.)",
+    "elVideoNoPuedeSuperarLos60Segundo": "La vidéo ne doit pas dépasser 60 secondes. Veuillez la raccourcir avant de la télécharger.",
+    "noHayVideoSeleccionado": "Aucune vidéo sélectionnée",
+    "elPuntoDeInicioDelRecorteNoPuede": "Le point de départ de la coupe ne peut être supérieur ou égal au point d'arrivée.",
+    "verEnElFeed": "Afficher dans le flux",
+    "errorAlPublicarElReelCompruebaTu": "Erreur lors de l'envoi de la bobine. Vérifiez votre connexion et réessayez.",
+    "seleccionaUnVideo": "Sélectionnez une vidéo",
+    "maximo60Segundos·Mp4OMov": "60 secondes maximum · MP4 ou MOV",
+    "elegirVideoDeLaGaleria": "Choisissez une vidéo dans la galerie",
+    "elegirDeLaGaleria": "Choisissez parmi les photos de la galerie",
+    "pausarVideo": "Mettre la vidéo en pause",
+    "controlaElVolumenDelAudioOriginalD": "Contrôle le volume de la bande son originale de la vidéo.",
+    "anadirTextoAlVideo": "Ajouter du texte à la vidéo",
+    "escribeAqui": "Écrivez ici...",
+    "textoParaElOverlay": "Texte pour la superposition",
+    "tamanoDeTexto": "Taille du texte",
+    "tienesUnBorradorDeReel": "Vous avez une bobine de tirage",
+    "descripcionDelReel": "Description de la bobine",
+    "portadaDesdeGaleria": "Couverture de la galerie",
+    "anadirUbicacion": "Ajouter un lieu...",
+    "reelPublicado": "Bobine publiée !"
+  },
+  "create_story": {
+    "ecologicoEu": "UE écologique",
+    "anadeContenidoATuHistoria": "Ajoutez du contenu à votre histoire",
+    "errorAlExportarLaHistoria": "Erreur lors de l'exportation de l'historique",
+    "errorAlPublicarLaHistoria": "Erreur lors de la publication de l'article",
+    "historiaPublicada": "Article publié !",
+    "tienesUnBorradorDeStory": "Vous avez un brouillon d'histoire",
+    "arrastraAquiParaEliminar": "Faites glisser ici pour supprimer",
+    "escribeAqui": "Écrivez ici...",
+    "textoParaLaHistoria": "Texte pour l'histoire",
+    "quePrefieres": "Que préférez-vous ?",
+    "opcion1": "Option 1",
+    "opcion2": "Option 2",
+    "anadirEncuesta": "Ajouter un sondage",
+    "anadirMencion": "Ajouter une mention",
+    "anadirEnlace": "Ajouter un lien",
+    "sevillaEspana": "Séville, Espagne",
+    "anadirUbicacion": "Ajouter l'emplacement",
+    "anadirPregunta": "Ajouter une question",
+    "buscarProductoParaEtiquetarEnLaHis": "Rechercher un produit à étiqueter dans l'historique",
+    "buscaUnProductoDeTuCatalogoParaAn": "Trouvez un produit dans votre catalogue pour l'ajouter sous forme d'autocollant interactif."
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "huile d'olive biologique",
+    "prediccion": "Prédiction",
+    "accedeATuRepresentanteDeVentasInte": "Accédez à votre représentant commercial international avec une analyse de marché,",
+    "errorAlContactarAlAgenteComercial": "Impossible de contacter le conseiller commercial. Veuillez réessayer.",
+    "tuRepresentanteDeVentasInternacional": "Votre représentant commercial international doté d'intelligence artificielle",
+    "chatConElAgente": "Discutez avec l'agent"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "Aucune donnée pour le moment",
+    "errorAlCargarAnaliticas": "Erreur lors du chargement des analyses",
+    "compruebaTuConexionEIntentaloDeNue": "Vérifiez votre connexion et réessayez.",
+    "analitica": "Analytique",
+    "productosMasVendidos": "Produits les plus vendus",
+    "deDondeVienenTusVentas": "D'où proviennent vos ventes ?",
+    "seguidoresDeLaTienda": "Suivez les abonnés du magasin",
+    "tasaDeConversion": "taux de conversion",
+    "anadidosAlCarrito": "Ajouté au panier"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "Saisissez le numéro de suivi",
+    "urlDeTrackingNoValidaDebeEmpezar": "URL de suivi invalide. Doit commencer par http:// ou https://",
+    "envioRegistrado": "Envoi recommandé",
+    "errorAlRegistrarElEnvio": "Erreur lors de l'enregistrement de l'expédition",
+    "numeroDeTracking": "Numéro de suivi",
+    "introduceUnPrecioValidoPorUnidad": "Saisissez un prix unitaire valide.",
+    "plazoDias": "Délai (jours)",
+    "ejStockDisponibleMinimo100kgPorP": "Exemple : En stock. Commande minimum de 100 kg.",
+    "ofertaEnviadaEsperandoAprobacionYP": "Offre envoyée. En attente d'approbation et de paiement de l'importateur.",
+    "gestionaLasSolicitudesB2bDeImportad": "Gérer les demandes B2B des importateurs",
+    "activaElModoB2bEnTusProductosPara": "Activez le mode B2B sur vos produits pour recevoir des demandes."
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "En attente d'examen",
+    "pdfJpgPngMax5mb": "PDF, JPG, PNG (max. 5 Mo)",
+    "100OrganicoSinPesticidasCosechaM": "100 % biologique, sans pesticides, récolté à la main...",
+    "aceitunasEspanaJaen10salPortug": "Olives : Espagne (Jaén) &#10;Sel : Portugal &#10;..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "L'intégration n'a pas pu démarrer.",
+    "configuraTuCuentaParaRecibirTransfe": "Configurez votre compte pour recevoir des virements automatiques.",
+    "tuCuentaEstaListaParaRecibirPagos": "Votre compte est prêt à recevoir des paiements.",
+    "completaLosDatosEnStripeParaActiva": "Complétez les informations dans Stripe pour activer les paiements et les versements."
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "Découverte et conversion de votre catalogue",
+    "conversionDesdeContenido": "Conversion à partir du contenu",
+    "sinDatosParaEstePeriodo": "Aucune donnée disponible pour cette période",
+    "todaviaNoHayRecetasConTusProductos": "Il n'existe pas encore de recettes utilisant vos produits.",
+    "cuandoCreadoresCompartanRecetasUsand": "Lorsque des créateurs partageront des recettes utilisant vos ingrédients, elles apparaîtront ici."
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "Vous devez compléter les informations manquantes dans Stripe.",
+    "recibirasTuPorcentajeDeCadaVentaAu": "Vous recevrez automatiquement votre pourcentage sur chaque vente, conformément à votre plan.",
+    "completaLaVerificacionEnStripePara": "Finalisez la procédure de vérification sur Stripe pour activer les paiements automatiques.",
+    "completarVerificacion": "Vérification complète",
+    "noHayDatosSuficientesTodavia": "Les données sont encore insuffisantes.",
+    "noSePudieronCargarLasMetricasDelC": "Impossible de charger les statistiques du catalogue et du magasin.",
+    "noSePudoCargarElResumenDePagos": "Le récapitulatif du paiement n'a pas pu être chargé.",
+    "noSePudieronCargarLosDatosPrincipa": "Les données du panneau principal n'ont pas pu être chargées. Veuillez actualiser la page.",
+    "errorAlCargarDatosPorFavorRefres": "Erreur lors du chargement des données. Veuillez actualiser la page.",
+    "anadirNuevoProducto": "Ajouter un nouveau produit",
+    "verAnaliticas": "Afficher les statistiques",
+    "metricasYPagos": "Indicateurs et paiements",
+    "requierenTuAtencion": "Ils requièrent votre attention.",
+    "noPuedesPublicarProductosHastaCompl": "Vous ne pouvez pas publier de produits tant que vous n'avez pas terminé le processus de vérification.",
+    "certificadoProximoACaducar": "Certificat sur le point d'expirer",
+    "renuevaloParaNoInterrumpirTusVentas": "Renouvelez-le afin de ne pas interrompre vos ventes.",
+    "senalesDeDemanda": "Signaux de la demande",
+    "ingredientesProductosYPiezasDeCont": "Ingrédients, produits et contenus présentant la plus forte intention d'achat.",
+    "sinDatosTodavia": "Aucune donnée pour le moment.",
+    "productosMasEtiquetados": "Plus de produits étiquetés",
+    "aunNoHayConversionesAtribuidas": "Aucune conversion n'est encore attribuée.",
+    "conversion": "Conversion",
+    "cuentaYConfiguracion": "Compte et paramètres",
+    "cambiarContrasena": "Changer le mot de passe"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "Aucune donnée de vente pour le moment",
+    "metodoDePagoActualizado": "Mode de paiement mis à jour",
+    "losPagosViaStripeSeProcesanAutomat": "Les paiements via Stripe sont traités automatiquement tous les 15 jours.",
+    "metodoDeCobro": "Mode de paiement",
+    "cobroAutomaticoCada15DiasDirectoA": "Paiement automatique tous les 15 jours directement sur votre compte bancaire.",
+    "solicitasElPagoYElEquipoLoTransfi": "Vous demandez le paiement et l'équipe le transfère sur votre compte.",
+    "guardarMetodo": "Méthode de sauvegarde",
+    "errorAlCargarDatosDePagos": "Erreur lors du chargement des données de paiement",
+    "noSePudoObtenerElEnlaceDeStripe": "Impossible d'obtenir le lien Stripe",
+    "errorAlAbrirElDashboardDeStripe": "Erreur lors de l'ouverture du tableau de bord Stripe",
+    "retencionFiscalAplicada": "Retenue d'impôt appliquée",
+    "tusGananciasSeAcumulanPeroNecesita": "Vos gains s'accumulent, mais vous avez besoin de Stripe Connect pour recevoir les virements automatiques.",
+    "comoFuncionanLosPagos": "Fonctionnement des paiements :"
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "Panneau de commande de base",
+    "optimizacionDePreciosConIa": "Optimisation des prix grâce à l'IA",
+    "comisionMasBaja": "Commission inférieure",
+    "suscripcionMarcadaParaCancelar": "Abonnement marqué pour annulation",
+    "suscripcionReactivada": "Abonnement réactivé",
+    "eligeElPlanQueMejorSeAdapteATuN": "Choisissez le forfait qui convient le mieux à votre entreprise",
+    "periodoDePruebaActivo": "Période d'essai active",
+    "actualizaTuMetodoDePagoParaMantene": "Mettez à jour votre mode de paiement pour conserver votre abonnement.",
+    "cancelacionProgramada": "Annulation prévue",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "Votre forfait sera annulé à la fin de la période en cours.",
+    "detallesDeSuscripcion": "Détails de l'abonnement",
+    "cancelarSuscripcion": "Annuler l'abonnement",
+    "todosLosPreciosSonEnEurEIncluyen": "Tous les prix sont indiqués en euros et incluent la TVA. Les modifications de forfait prennent effet immédiatement.",
+    "alCancelarMantienesElAccesoHastaE": "En annulant, vous conservez l'accès jusqu'à la fin de la période de facturation."
+  },
+  "producer_products": {
+    "composicion": "Composition",
+    "elNombreDelProductoEsObligatorio": "Le nom du produit est requis.",
+    "seleccionaUnaCategoria": "Sélectionnez une catégorie",
+    "seleccionaElPaisDeOrigen": "Sélectionnez le pays d'origine",
+    "crustaceos": "crustacés",
+    "frutosDeCascara": "noix",
+    "anadeAlMenosUnaImagen": "Ajoutez au moins une image",
+    "subeHasta5FotosDeTuProductoLaPr": "Téléchargez jusqu'à 5 photos de votre produit. La première servira de photo de couverture.",
+    "pedidoMinimoUds": "Commande minimale (unités)",
+    "especificaOtrosAlergenos": "Veuillez préciser les autres allergènes..."
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "Impossible de charger la politique d'expédition",
+    "politicaDeEnvioGuardada": "Politique d'expédition enregistrée",
+    "politicaDeEnvio": "Politique d'expédition",
+    "configuraCostesDeEnvioPorPedidoPar": "Configurez les frais de livraison par commande pour vos produits.",
+    "habilitarGastosDeEnvio": "Activer les frais de livraison",
+    "0SinEnvioGratis": "0 = pas de livraison gratuite",
+    "pedidosQueSuperenEsteImporteTendran": "Les commandes dépassant ce montant bénéficieront de la livraison gratuite. Laissez ce champ vide ou indiquez 0 pour désactiver cette option.",
+    "losClientesPuedenRecogerEnTuObrado": "Les clients peuvent récupérer leur commande à votre atelier (des frais de livraison s'appliquent)."
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "Image ajoutée à la galerie",
+    "anadirFotoALaGaleria": "Ajouter la photo à la galerie",
+    "fotosDelObradorEquipoProcesoDeEl": "Photos de l'atelier, de l'équipement et du processus de production",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "Cette URL de boutique est déjà utilisée. Veuillez en choisir une autre.",
+    "errorAlCargarElPerfilDeTienda": "Erreur lors du chargement du profil du magasin",
+    "compruebaTuConexionEIntentaloDeNue": "Vérifiez votre connexion et réessayez.",
+    "personalizaLaPaginaPublicaDeTuTien": "Personnalisez la page publique de votre boutique",
+    "urlDeTuTienda": "URL de votre boutique :",
+    "informacionBasica": "Informations de base",
+    "nombreDeLaTienda": "Nom du magasin",
+    "aceitesEcologicosDesde1985": "Huiles biologiques depuis 1985",
+    "historiaDeLaMarca": "Histoire de la marque",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "Racontez l'histoire de votre marque, vos débuts, votre philosophie...",
+    "carlosMartinez": "Carlos Martínez",
+    "laCalidadNoEsUnAccidente": "La qualité n'est pas le fruit du hasard...",
+    "tusCertificadosVerificadosAparecenAu": "Vos certificats vérifiés apparaissent automatiquement dans votre boutique.",
+    "ubicacionCiudadRegion": "Lieu (ville, région)",
+    "jaenAndaluciaEspana": "Jaén, Andalousie, Espagne",
+    "direccionCompleta": "Adresse complète",
+    "ctraDeLosOlivaresKm1223001Jaen": "Ctra. de los Olivares, km 12, 23001 Jaén",
+    "todaEspanaPeninsular": "Toute l'Espagne continentale",
+    "horarioDeAtencion": "Heures d'ouverture",
+    "lun-vie900-180010sab900-1400": "Du lundi au vendredi : de 9h00 à 18h00 et le samedi : de 9h00 à 14h00"
+  },
+  "producer_verification": {
+    "instalacion": "Facilité",
+    "errorAlSubirElDocumentoCifnif": "Erreur lors du chargement du document CIF/NIF",
+    "errorAlSubirLaFotoDeInstalaciones": "Erreur lors du chargement de la photo des installations",
+    "errorAlSubirElCertificado": "Erreur lors du chargement du certificat",
+    "verificacionDeCuenta": "Vérification du compte",
+    "subeTuCifEmpresarialONifPersonal": "Veuillez télécharger votre CIF professionnel ou votre NIF personnel. Il doit s'agir du document officiel de l'AEAT (Agence espagnole des impôts).",
+    "pdfJpgPng·Max5mb": "PDF, JPG, PNG · 5 Mo maximum",
+    "enRevisionManual": "Sous examen manuel",
+    "nuestroEquipoRevisaraTuDocumentoEn": "Notre équipe examinera votre document dans un délai de 48 à 72 heures ouvrables.",
+    "fotoDeInstalacion": "Photo d'installation",
+    "subeUnaFotoDeTuLocalObradorFinc": "Téléchargez une photo de vos locaux, atelier, ferme, entrepôt ou lieu de travail.",
+    "laIaVerificaraQueEsUnaInstalacion": "L'IA vérifiera qu'il s'agit bien d'une installation réelle liée à la production alimentaire.",
+    "jpgPngHeic·Max10mb": "JPG, PNG, HEIC · 10 Mo maximum",
+    "instalacionVerificada": "Installation vérifiée",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "Notre équipe examinera votre photo dans un délai de 48 à 72 heures ouvrables.",
+    "alMenos1CertificadoValido": "Au moins 1 certificat valide",
+    "enRevision": "En cours d'examen",
+    "nuestroEquipoRevisaraTuDocumentacion": "Notre équipe examinera votre dossier sous 48 à 72 heures ouvrables. Nous vous en informerons par courriel.",
+    "completaLaVerificacion": "Complétez la vérification"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "Règles d'activation par marché :"
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "Remplissez tous les champs du formulaire avec des valeurs valides."
+  },
+  "affiliate_links": {
+    "copiado": "Copié !",
+    "configuracionFiscalRequerida": "Configuration fiscale requise",
+    "generaUnLinkParaCualquierProducto": "Générez un lien pour n'importe quel produit. Lorsqu'une personne achète via votre lien, vous touchez une commission.",
+    "masIngresos": "Revenus supplémentaires",
+    "masClics": "Plus de clics",
+    "buscaUnProductoArribaParaGenerarTu": "Recherchez un produit ci-dessus pour générer votre premier lien."
+  },
+  "fiscal_setup": {
+    "sinRetencion": "Sans rétention",
+    "seleccionaUnPaisDeResidenciaFiscal": "Choisissez d'abord votre pays de résidence fiscale.",
+    "elArchivoNoPuedeSuperar5mb": "Le fichier ne peut pas dépasser 5 Mo.",
+    "certificadoEnRevisionManual": "Certificat en cours de vérification manuelle",
+    "certificadoNoValido": "Certificat invalide",
+    "formatoDeIbanNoValidoDebeEmpezar": "Format IBAN invalide. Doit commencer par l'indicatif du pays (ex. : ES12…).",
+    "errorAlConfigurarMetodoDeCobro": "Erreur lors de la configuration du mode de paiement",
+    "configuracionFiscal": "Configuration fiscale",
+    "paisFiscal": "pays fiscal",
+    "buscarPais": "Rechercher un pays...",
+    "pdfJpgOPng·Max5mb": "PDF, JPG ou PNG · 5 Mo maximum",
+    "nuestroEquipoRevisaraTuCertificadoE": "Notre équipe examinera votre certificat dans un délai de 48 à 72 heures ouvrables.",
+    "recibeEnMinutosEnTuCuentaStripe": "Vous le recevrez sur votre compte Stripe en quelques minutes.",
+    "fee025€PorTransferenciaStripeSe": "Frais : 0,25 € par transfert Stripe (déduits de votre commission)",
+    "sinComisionAdicional·ProcesadoEn1-": "Aucun frais supplémentaire · Traitement en 1 à 3 jours ouvrables",
+    "titularDeLaCuenta": "titulaire du compte",
+    "verificacionCompletada": "Vérification terminée",
+    "tuConfiguracionFiscalEstaVerificada": "Vos paramètres fiscaux sont vérifiés et actifs.",
+    "verificacionCompletadaAfiliadosActiv": "Vérification terminée. Affiliés activés.",
+    "errorAlCompletarLaVerificacion": "Erreur lors de la vérification.",
+    "completaLosPasosAnterioresParaAcced": "Suivez les étapes ci-dessus pour accéder à la vérification.",
+    "configuracionFiscalGuardadaAfiliados": "Paramètres fiscaux enregistrés. Affiliation activée.",
+    "errorAlGuardarLaConfiguracionFiscal": "Erreur lors de l'enregistrement des paramètres fiscaux.",
+    "completaTodosLosCamposParaContinuar": "Remplissez tous les champs pour continuer"
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "Erreur lors du traitement du retrait",
+    "introduceElCodigoDe6Digitos": "Saisissez le code à 6 chiffres",
+    "emailVerificado": "Adresse e-mail vérifiée !",
+    "codigoInvalido": "Code invalide",
+    "codigoEnviadoATuEmail": "Code envoyé à votre adresse e-mail",
+    "errorAlEnviarCodigo": "Erreur lors de l'envoi du code",
+    "elCodigoDebeTenerAlMenos3Caracter": "Le code doit comporter au moins 3 caractères.",
+    "codigoCreado": "Code créé",
+    "errorAlCrearCodigo": "Erreur lors de la création du code",
+    "codigosDeDescuento": "codes de réduction",
+    "eligeUnCodigoPersonalizadoYElPorce": "Choisissez un code personnalisé et un pourcentage de réduction pour votre communauté.",
+    "codigoCopiado": "code copié",
+    "misCodigosDeDescuento": "Mes codes de réduction",
+    "creaTuPrimerCodigoDeDescuento": "Créez votre premier code de réduction",
+    "pendiente15Dias": "En attente pendant 15 jours",
+    "enTransito": "En transit",
+    "productosQueMejorFuncionanEnTuCont": "Les produits les plus adaptés à votre contenu",
+    "publicaContenidoConProductosVinculad": "Publiez du contenu avec des produits associés pour commencer à constater des résultats.",
+    "pendienteDeAprobacion": "En attente d'approbation",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "Votre code est en cours d'examen par l'équipe Hispaloshop. Nous l'approuverons dans moins de 24 heures.",
+    "miCodigoHispaloshop": "Mon code Hispaloshop",
+    "comisionTotal": "Commission totale",
+    "tasaDeComision": "taux de commission",
+    "aunNoHasRealizadoNingunCobro": "Vous n'avez encore reçu aucun paiement.",
+    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL retient 15% de vos commissions et les verse au Bureau des impôts en votre nom chaque trimestre (Modèle 111).",
+    "cuandoHagasTuDeclaracionDeLaRenta": "Lorsque vous remplirez votre déclaration de revenus (IRPF), ces retenues auront déjà été payées et vous pourrez les déduire.",
+    "recibirasElCertificadoDeRetenciones": "Vous recevrez l'attestation de retenue à la source en janvier de chaque année.",
+    "evolucionDeTusComisiones": "Évolution de vos commissions",
+    "comparteloEnTusRedesSociales": "Partagez-le sur vos réseaux sociaux",
+    "tuLinkDeAfiliado": "Votre lien d'affiliation",
+    "aunNoTienesVentasComparteTuLink": "Vous n'avez pas encore réalisé de ventes. Partagez votre lien !"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "Données insuffisantes pour afficher le graphique",
+    "impactoComercialDeTuContenido": "Impact commercial de votre contenu",
+    "productosMasImpulsadosPorTuContenid": "Produits les plus influencés par votre contenu",
+    "errorDeConexion": "Erreur de connexion",
+    "noPudimosCargarTusDatosCompruebaT": "Nous n'avons pas pu charger vos données. Veuillez vérifier votre connexion et réessayer.",
+    "aunNoTienesDatos": "Vous n'avez pas encore de données.",
+    "cuandoTuContenidoImpulseClicsOComp": "Lorsque votre contenu génère des clics ou des achats, il apparaîtra ici.",
+    "losDatosMuestranInteraccionesAtribui": "Les données affichent les interactions attribuées à votre profil de créateur : clics sur les produits de votre contenu, articles ajoutés au panier et achats finalisés. Elles sont mises à jour en temps réel."
+  },
+  "payouts": {
+    "introduceUnImporteValido": "Saisissez un montant valide",
+    "elImporteSuperaTuSaldoDisponible": "Le montant dépasse votre solde disponible.",
+    "errorAlSolicitarLaRetirada": "Erreur lors de la demande de retrait",
+    "lasComisionesDeTransferenciaDeStrip": "Les frais de transfert de Stripe (environ 1 à 2 %) sont automatiquement déduits.",
+    "aunNoTienesPagosComparteTuCodigo": "Vous n'avez encore reçu aucun paiement. Partagez votre code et commencez à gagner.",
+    "noHayPagosConEsteEstado": "Aucun paiement ne présente ce statut."
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "Configuration fiscale en attente",
+    "completaTuConfiguracionFiscalAntesD": "Finalisez vos paramètres fiscaux avant de retirer des fonds.",
+    "errorAlProcesarElCobroIntentaloDe": "Erreur lors du traitement du paiement. Veuillez réessayer.",
+    "cobroEnCamino": "Le paiement est en route !",
+    "tiempoEstimado1-3DiasHabiles": "Délai estimé : 1 à 3 jours ouvrables",
+    "retencionIrpf": "Retenue d'impôt sur le revenu",
+    "metodo": "Méthode",
+    "comisionBruta": "Commission brute",
+    "laComisionRealPuedeVariarSegunTuM": "La commission réelle peut varier en fonction de votre mode de paiement.",
+    "esteCobroSeraDeclaradoPorHispalosho": "Ce paiement sera déclaré par Hispaloshop SL comme revenu d'activité économique.",
+    "recibirasUnCertificadoDeRetenciones": "Vous recevrez un certificat de retenue à la source en janvier pour votre déclaration de revenus."
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "Toutes les catégories",
+    "carnicos": "Produits carnés",
+    "errorAlEnviarLaSolicitud": "Erreur lors de l'envoi de la requête",
+    "precioEstimado·ElProductorConfirmar": "Prix estimé · Le producteur confirmera le prix final",
+    "notasParaElProductorOpcional": "Notes à l'attention du producteur (facultatif)",
+    "elProductorTiene48hParaConfirmarDi": "Le producteur dispose de 48 heures pour confirmer la disponibilité et les conditions.",
+    "soloSeProcesaElPagoTrasSuConfirma": "Le paiement n'est traité qu'après confirmation.",
+    "catalogoMayorista": "Catalogue de vente en gros",
+    "errorAlCargarElCatalogo": "Erreur lors du chargement du catalogue"
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "Sélectionnez un fournisseur pour consulter ses certificats.",
+    "errorAlCargarLosCertificados": "Erreur lors du chargement des certificats",
+    "losCertificadosDeTusProveedoresApar": "Les certificats de vos fournisseurs apparaîtront ici."
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "Contrats B2B générés automatiquement",
+    "errorAlCargarElPanel": "Panneau d'erreur lors du chargement",
+    "aunNoTienesProductosPublicados": "Vous n'avez encore aucun produit répertorié.",
+    "requierenTuAccion": "Ils ont besoin de votre action",
+    "catalogoB2b": "Catalogue B2B",
+    "aunNoTienesProveedores": "Vous n'avez pas encore de fournisseurs.",
+    "expandeTuCatalogo": "Développez votre catalogue",
+    "verAnalisis": "Voir l'analyse",
+    "anadirProducto": "Ajouter un produit",
+    "analisis": "Analyse",
+    "evolucionDeVentas": "Évolution des ventes"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "Identifiant de transaction non disponible",
+    "recepcionConfirmada": "Réception confirmée",
+    "errorAlConfirmarRecepcion": "Erreur lors de la confirmation de réception",
+    "idDePedidoNoDisponible": "Numéro de commande non disponible",
+    "rastrearEnvio": "Suivi de l'envoi",
+    "confirmarRecepcion": "Confirmer la réception"
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "Erreur lors du chargement des codes de réduction",
+    "errorAlAprobarElCodigo": "Code d'approbation d'erreur",
+    "errorAlRechazarElCodigo": "Code de rejet d'erreur",
+    "codigoDeDescuentoActualizado": "Code de réduction mis à jour",
+    "codigoDeDescuentoCreado": "Code de réduction créé",
+    "errorAlGuardarCodigoDeDescuento": "Code de réduction pour la sauvegarde des erreurs",
+    "codigoDeDescuentoEliminado": "Code de réduction supprimé",
+    "errorAlEliminarCodigoDeDescuento": "Erreur lors de la suppression du code de réduction",
+    "errorAlCambiarEstadoDelCodigo": "Erreur lors du changement d'état du code",
+    "cargandoCodigosDeDescuento": "Chargement des codes de réduction",
+    "gestionaCodigosPromocionalesEInfluen": "Gérer les codes promotionnels et les influenceurs",
+    "nuevoCodigo": "Nouveau code",
+    "editarCodigoDeDescuento": "Modifier le code de réduction",
+    "importeMinimoDelCarrito": "Montant minimum du panier",
+    "limiteDeUso": "Limite d'utilisation",
+    "actualizarCodigo": "Code de mise à jour",
+    "buscarCodigosDeDescuento": "Rechercher des codes de réduction...",
+    "codigo": "Code",
+    "noSeEncontraronCodigos": "Aucun code n'a été trouvé.",
+    "codigosActivos": "Codes actifs",
+    "totalDeCodigos": "Codes totaux"
+  },
+  "admin_fiscal": {
+    "revisionManual": "Revue manuelle",
+    "errorAlProcesarLaRevision": "Examen du traitement des erreurs",
+    "gestionFiscal": "Gestion fiscale",
+    "pendientesRevision": "En attente d'examen",
+    "revisionManualPendiente": "Examen manuel en attente"
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "Les données de croissance n'ont pas pu être chargées.",
+    "errorAlCargarLosDatos": "Erreur lors du chargement des données",
+    "analisisDeConversionYDescubrimiento": "Analyse et découverte des conversions",
+    "conversionDirecta": "Conversion directe",
+    "contenidoConMayorConversion": "Contenu avec des taux de conversion plus élevés",
+    "titulo": "Qualification",
+    "productosMasClicadosDesdeContenido": "Produits les plus cliqués du contenu",
+    "sobreLosDatosDeCrecimiento": "Concernant les données de croissance"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "Erreur lors du chargement des détails de l'influenceur",
+    "anadirInfluencer": "Ajouter un influenceur"
+  },
+  "admin_management": {
+    "paisAsignado": "Pays attribué",
+    "elAdminSoloVeraAnalyticsDeEstePai": "L'administrateur ne verra que les statistiques de ce pays. Laissez ce champ vide pour un accès global."
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "désinformation en matière de santé",
+    "claimsMedicos": "réclamations médicales",
+    "razonIa": "Raison IA",
+    "contenidoConfirmadoComoInfraccion": "Contenu confirmé comme infraction",
+    "errorAlConfirmarLaModeracion": "Erreur lors de la confirmation de la modération",
+    "errorAlRestaurarElContenido": "Erreur lors de la restauration du contenu",
+    "errorAlEscalarElContenido": "Contenu de mise à l'échelle des erreurs",
+    "revisaElContenidoModeradoPorIa": "Consulter le contenu modéré par l'IA"
+  },
+  "admin_orders": {
+    "articulos": "Articles"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "Chargement du panneau d'administration",
+    "noSePudieronCargarLasEstadisticas": "Impossible de charger les statistiques",
+    "panelDeAdministracion": "Panneau d'administration",
+    "gestionDeTuMercadoEnUnaVista": "Gérez votre marché en un seul coup d'œil",
+    "colaDeRevision": "File d'attente pour la révision",
+    "moderacionDeContenido": "Modération du contenu",
+    "certificadosQueExpiranEn30Dias": "Certificats qui expirent dans 30 jours",
+    "noHayCertificadosProximosAExpirar": "Aucun certificat n'est sur le point d'expirer.",
+    "certificadosPendientesDeRevision": "Certificats en attente d'examen"
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "numéro de transaction bancaire"
+  },
+  "admin_products": {
+    "precioNoValido": "Prix non valable",
+    "checklistDeAprobacion": "Liste de contrôle d'approbation",
+    "alMenos1FotoDelProducto": "Au moins une photo du produit",
+    "descripcionCompletaMin20Caracteres": "Description complète (min. 20 caractères)",
+    "paisDeOrigenIndicado": "Pays d'origine indiqué",
+    "alergenosRevisadosCampoPresente": "Allergènes examinés (présents sur le terrain)",
+    "marcaTodosLosItemsParaPoderAprobar": "Cochez tous les éléments pour approbation"
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "ID de commande invalide",
+    "errorAlProcesarElReembolso": "Erreur lors du traitement du remboursement",
+    "accionIrreversible": "Action irréversible",
+    "seProcesaraElReembolsoEnStripeYSe": "Le remboursement sera effectué via Stripe et les frais seront ajustés automatiquement.",
+    "gestionDeReembolsos": "Gestion des remboursements"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "Erreur lors du chargement des avis",
+    "resenaOculta": "Avis caché",
+    "resenaEliminada": "Avis supprimé",
+    "errorAlEliminarResena": "Erreur lors de la suppression de l'avis",
+    "moderarResenasDeClientes": "Avis clients modérés",
+    "totalDeResenas": "Avis totaux",
+    "calificacionPromedio": "Note moyenne",
+    "buscarResenas": "Rechercher des avis...",
+    "calificacion": "Qualification",
+    "noSeEncontraronResenas": "Aucun avis n'a été trouvé."
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "Les dossiers d'assistance n'ont pas pu être chargés.",
+    "noHayCasosDeSoporteConLosFiltros": "Aucun dossier d'assistance ne correspond aux filtres sélectionnés."
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "Demande de remplacement",
+    "resolucionManual": "Résolution manuelle",
+    "noSePudoCargarElCaso": "Impossible de charger le dossier",
+    "noSePudoActualizarElEstado": "Impossible de mettre à jour le statut",
+    "noSePudoActualizarLaPrioridad": "La priorité n'a pas pu être mise à jour.",
+    "noSePudoEnviarElMensaje": "Le message n'a pas pu être envoyé.",
+    "accionAplicada": "Mesures prises",
+    "noSePudoAplicarLaAccion": "L'action n'a pas pu être appliquée",
+    "conversacion": "Conversation",
+    "sinMensajesAun": "Aucun message pour l'instant.",
+    "tuAdmin": "Vous (administrateur)",
+    "unAgenteHumanoSeHaUnidoALaConver": "Un agent humain a rejoint la conversation.",
+    "esteCasoEstaCerradoNoSePuedenAna": "Ce dossier est clos. Aucun autre message ne peut être ajouté.",
+    "ultimaActualizacion": "Dernière mise à jour"
+  },
+  "admin_trust_safety": {
+    "enganoso": "Trompeur",
+    "resena": "Revoir",
+    "noSePudoCargarLaColaDeModeracion": "Impossible de charger la file d'attente de modération",
+    "accionAplicada": "Mesures prises",
+    "noSePudoAplicarLaAccion": "L'action n'a pas pu être appliquée",
+    "colaVacia": "File d'attente vide",
+    "noHayContenidoPendienteDeRevision": "Aucun contenu n'est en attente de validation.",
+    "senales": "Signaux",
+    "noSePudieronCargarLosReportes": "Les rapports n'ont pas pu être chargés.",
+    "noHayReportesConLosFiltrosSeleccio": "Aucun rapport ne correspond aux filtres sélectionnés.",
+    "marcadosAutomaticamente": "Marquage automatique",
+    "politicasDeLaPlataforma": "Politiques de la plateforme",
+    "productosProhibidosArmasDrogasCon": "Produits interdits : armes, drogues, contenus illégaux, contrefaçons.",
+    "resenasDebenSerAutenticasVerificad": "Les avis doivent être authentiques, vérifiés et basés sur des achats réels.",
+    "vendedoresResponsablesDeLaVeracidad": "Vendeurs : responsables de l’exactitude des descriptions et de la sécurité alimentaire.",
+    "contenidoGeneradoPorUsuariosSujeto": "Contenu généré par les utilisateurs : soumis à une modération automatique et humaine.",
+    "colaDeModeracion": "File d'attente de modération",
+    "moderacionReportesEIntegridadDeLa": "Modération, signalement et intégrité de la plateforme."
+  },
+  "admin_verification": {
+    "revision": "Révision",
+    "revisionManual": "Revue manuelle",
+    "numero": "Nombre",
+    "descripcionIa": "Description de l'IA",
+    "rechazarVerificacion": "Rejeter la vérification",
+    "documentosProblematicos": "Documents problématiques :",
+    "fotoDeInstalacionNoValida": "Photo d'installation invalide",
+    "solicitarDocumentacion": "Documentation demandée",
+    "verificacionRechazada": "Vérification refusée",
+    "revisionManualDeProductores": "Examen du manuel du producteur"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "Nom de la catégorie",
+    "descripcionOpcional": "Description (facultatif)",
+    "errorAlCargarLasCategorias": "Erreur lors du chargement des catégories",
+    "categoriaCreada": "Catégorie créée",
+    "errorAlCrearLaCategoria": "Erreur lors de la création de la catégorie",
+    "categoriaActualizada": "Catégorie mise à jour",
+    "errorAlActualizarLaCategoria": "Erreur lors de la mise à jour de la catégorie",
+    "categoriaEliminada": "Catégorie supprimée",
+    "errorAlEliminarLaCategoria": "Erreur lors de la suppression de la catégorie",
+    "nuevaCategoria": "Nouvelle catégorie",
+    "buscarCategorias": "Catégories de recherche...",
+    "noSeEncontraronCategorias": "Aucune catégorie trouvée",
+    "sinDescripcion": "Aucune description"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "Les messages n'ont pas pu être chargés.",
+    "canalDeEscalacionAbiertoUnSuperadm": "Canal d'escalade ouvert. Un super-administrateur recevra votre message.",
+    "errorAlAbrirEscalacion": "Erreur lors de l'ouverture de l'escalade",
+    "canalDeEscalacionPrivado": "Chaîne d'escalade privée",
+    "seleccionaUnaEscalacionParaVerLosM": "Sélectionnez un niveau d'escalade pour afficher les messages.",
+    "usaEsteCanalParaReportarProblemasC": "Utilisez ce canal pour signaler les problèmes critiques, les litiges non résolus ou les situations nécessitant une intervention de niveau supérieur.",
+    "elMensajeEstaCifradoDeExtremoAExt": "Le message est chiffré de bout en bout dans la base de données.",
+    "describeElProblemaOSituacionAEscal": "Décrivez le problème ou la situation à signaler...",
+    "abrirCanalDeEscalacion": "Ouvrir le canal d'escalade",
+    "sinMensajesTodavia": "Aucun message pour l'instant"
+  },
+  "content_management": {
+    "sinExpiracion": "Aucune date d'expiration"
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "Erreur de traitement de la demande RGPD",
+    "solicitudesDeDerechosDeUsuariosBajo": "Demandes relatives aux droits des utilisateurs en vertu du RGPD. Délai de réponse maximal : 30 jours."
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "stockage d'images",
+    "estadoDeServiciosYConfiguracionDel": "État du service et configuration de l'environnement",
+    "informacionDelSistema": "Informations système"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "Les données du panel Insights n'ont pas pu être chargées.",
+    "minimoDeUsuariosRequeridosParaMostr": "Nombre minimal d'utilisateurs requis pour afficher les données sensibles agrégées",
+    "detectarObjetivosDieteticosYDeSalud": "Identifier les objectifs diététiques et de santé",
+    "noHayDatosDePaisesParaMostrar": "Aucune donnée de pays à afficher.",
+    "noHayMetricasDeIaDisponibles": "Aucune métrique d'IA n'est disponible.",
+    "noHayDatosDeComplianceDisponibles": "Aucune donnée de conformité n'est disponible."
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "Activer un pays pour permettre aux vendeurs locaux de s'inscrire."
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "Saisissez votre mot de passe de superadministrateur pour appliquer cette modification à la production.",
+    "contrasenaSuperadmin": "Mot de passe superadministrateur",
+    "introduceTuContrasena": "Saisissez votre mot de passe",
+    "configuracionActualizadaYGuardada": "Paramètres mis à jour et enregistrés",
+    "configuracionDePlanes": "Paramètres du plan",
+    "losCambiosSeAplicanAutomaticamenteE": "Les modifications sont automatiquement appliquées dans Stripe. Mot de passe super-administrateur requis pour confirmer.",
+    "comisionSobreElTotalDeVentaDespue": "Commission sur le montant total de la vente (frais de port et TVA inclus). Cette commission est déduite de la marge de la plateforme."
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "Impossible de charger l'aperçu",
+    "revisaLaConexionConElBackend": "Vérifiez la connexion au serveur.",
+    "sinDatosDeTendencia": "Aucune donnée de tendance",
+    "distribucionDePlanes": "Distribution du plan"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "Erreur lors du chargement du catalogue B2B",
+    "noSePudoCambiarElEstado": "L'état n'a pas pu être modifié.",
+    "noTienesAccesoAEstaSeccion": "Vous n'avez pas accès à cette section",
+    "necesitasUnPerfilDeProductorOImpor": "Vous devez posséder un profil de producteur ou d'importateur pour accéder au catalogue B2B.",
+    "gestionaQueProductosOfrecesAlPorMa": "Gérez les produits que vous proposez en gros et les conditions de vente.",
+    "noTienesProductosEnElCatalogoB2b": "Vous n'avez aucun produit dans le catalogue B2B",
+    "empiezaAnadiendoTuPrimerProductoMay": "Commencez par ajouter votre premier produit en gros.",
+    "anadirPrimerProducto": "Ajouter le premier produit",
+    "anadirProductoAlCatalogoB2b": "Ajouter le produit au catalogue B2B"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "Démarrez la conversation en envoyant un message",
+    "noTienesAccesoAEstaSeccion": "Vous n'avez pas accès à cette section",
+    "necesitasUnPerfilDeProductorOImpor": "Vous devez posséder un profil de producteur ou d'importateur pour accéder à la messagerie B2B."
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "L'opération n'a pas pu être chargée.",
+    "noTienesAccesoAEstaSeccion": "Vous n'avez pas accès à cette section",
+    "necesitasUnPerfilDeProductorOImpor": "Vous devez posséder un profil de producteur ou d'importateur pour accéder aux contrats B2B.",
+    "operacionNoEncontrada": "Opération introuvable",
+    "laOperacionSolicitadaNoExisteONoT": "L'opération demandée n'existe pas ou vous n'y avez pas accès.",
+    "laIaEstaGenerandoElContrato": "L'IA génère le contrat...",
+    "elContratoEstaTardandoMasDeLoEspe": "Le contrat prend plus de temps que prévu.",
+    "recibirasUnaNotificacionCuandoEsteL": "Vous recevrez une notification lorsqu'elle sera prête.",
+    "cartaDeCreditoPagoDividido": "Lettre de crédit (paiement fractionné)",
+    "pagoA30Dias": "Paiement dû dans 30 jours",
+    "pagoA60Dias": "Paiement dû dans 60 jours",
+    "alFirmarConfirmasQueHasLeidoYAcep": "En signant, vous confirmez avoir lu et accepté toutes les conditions du contrat.",
+    "laFirmaQuedaRegistradaConFechaHor": "La signature est enregistrée avec la date, l'heure et l'adresse IP.",
+    "necesitasSubirTuFirmaDigitalAntesD": "Vous devez télécharger votre signature numérique avant de pouvoir signer des contrats."
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "Documentation incorrecte",
+    "maximo5Archivos": "Maximum 5 fichiers",
+    "errorAlAbrirLaDisputa": "Erreur lors de l'ouverture du litige",
+    "antesDeAbrirUnaDisputaTeRecomenda": "Avant d'ouvrir un litige, nous vous recommandons de discuter avec l'autre partie via le chat.",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "Si vous ne parvenez pas à un accord, l'administrateur d'Hispaloshop examinera le cas dans un délai de 72 heures.",
+    "describeDetalladamenteElProblemaMin": "Décrivez le problème en détail (minimum 50 caractères)...",
+    "max5Archivos10mbCadaUno": "Maximum 5 fichiers, 10 Mo chacun",
+    "estaAccionNotificaraAlAdminDeHispa": "Cette action notifiera l'administrateur d'Hispaloshop et pourrait affecter la réputation de l'autre partie."
+  },
+  "b2_b_marketplace": {
+    "catalogo": "Catalogue",
+    "precioMasBajo": "prix le plus bas",
+    "masProductos": "Plus de produits",
+    "sinAccesoAlCatalogoB2b": "Aucun accès au catalogue B2B",
+    "completaTuPerfilDeImportadorParaAc": "Complétez votre profil d'importateur pour accéder à l'accès.",
+    "sinAccesoAlDirectorioDeProductores": "Sans accès au répertoire des producteurs",
+    "indicaElProductorLosProductosYLa": "Précisez le nom du producteur, les produits et la quantité. Le producteur recevra votre demande et pourra vous faire une offre personnalisée."
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "Lettre de crédit",
+    "elCompradorAsumeTodosLosCostesDesd": "L'acheteur prend en charge tous les frais d'usine.",
+    "vendedorEntregaEnDestinoSinDescarga": "Le vendeur effectue la livraison à destination sans déchargement.",
+    "indicaElPlazoMinimoDeEntrega": "Indiquez le délai de livraison minimum",
+    "validezDias": "Validité (jours)",
+    "errorAlEnviarLaOferta": "Erreur lors de l'envoi de l'offre"
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "En cours de négociation",
+    "noTienesAccesoAEstaSeccion": "Vous n'avez pas accès à cette section",
+    "necesitasUnPerfilDeProductorOImpor": "Vous devez posséder un profil de producteur ou d'importateur pour accéder aux opérations B2B.",
+    "errorAlCargarLasOperaciones": "Erreur lors du chargement des opérations"
+  },
+  "b2_b_payment": {
+    "net30Dias": "Net 30 jours",
+    "net60Dias": "Net 60 jours",
+    "cartaDeCredito": "Lettre de crédit",
+    "errorAlCargarLosDatosDePago": "Erreur lors du chargement des détails de paiement",
+    "noSePudoInicializarElPago": "Le paiement n'a pas pu être initialisé.",
+    "noTienesAccesoAEstaSeccion": "Vous n'avez pas accès à cette section",
+    "necesitasUnPerfilDeProductorOImpor": "Vous devez posséder un profil de producteur ou d'importateur pour accéder aux paiements B2B.",
+    "esperandoElPagoDelComprador": "En attente du paiement de l'acheteur...",
+    "recibirasUnaNotificacionCuandoElPag": "Vous recevrez une notification lorsque le paiement sera traité.",
+    "losFondosEstanRetenidosHastaQueSub": "Les fonds sont retenus jusqu'à ce que vous téléchargiez les documents d'expédition."
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "Demandes de devis d'importateurs intéressés par vos produits",
+    "historialDeTusSolicitudesDeCotizaci": "Historique de vos demandes de devis en gros",
+    "noSePudieronCargarLasSolicitudes": "Les requêtes n'ont pas pu être chargées.",
+    "soloDisponibleParaCuentasDeProducto": "Disponible uniquement pour les comptes producteurs",
+    "soloDisponibleParaCuentasDeImportad": "Disponible uniquement pour les comptes importateurs",
+    "noHasEnviadoSolicitudesAun": "Vous n'avez encore envoyé aucune candidature.",
+    "usaElMarketplaceB2bParaContactarPr": "Utilisez la plateforme B2B pour contacter les producteurs"
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "Erreur lors du chargement de l'opération",
+    "envioConfirmado": "Expédition confirmée",
+    "noSePudoConfirmarElEnvio": "L'envoi n'a pas pu être confirmé.",
+    "operacionNoEncontrada": "Opération introuvable",
+    "noSePudoCargarLaOperacionSolicitad": "L'opération demandée n'a pas pu être chargée.",
+    "abrirChatDeLaOperacion": "Ouvrir le chat pour l'opération",
+    "confirmarEnvio": "Confirmer l'expédition",
+    "esperandoConfirmacionDeEnvioDelProd": "En attente de confirmation d'expédition du producteur",
+    "documentacion": "Documentation",
+    "documentosNecesariosParaEstaOperacio": "Documents requis pour cette opération",
+    "revisaLaDocumentacionPendienteAntes": "Veuillez vérifier tous les documents manquants avant de soumettre votre candidature.",
+    "proximamente": "Bientôt",
+    "elCompradorRealizaraElPagoFinalTra": "L'acheteur effectuera le paiement final après la livraison."
+  },
+  "customer_orders": {
+    "masAntiguos": "Plus vieux",
+    "errorAlCargarLosPedidos": "Erreur lors du chargement des commandes",
+    "errorAlActualizarLosPedidos": "Erreur lors de la mise à jour des commandes",
+    "noHayPedidosEnEstaCategoria": "Il n'y a aucune commande dans cette catégorie.",
+    "productosAnadidosAlCarrito": "Produits ajoutés au panier",
+    "noSePudoRepetirElPedido": "La commande ne pouvait être répétée.",
+    "cargarMasPedidos": "Charger plus de commandes"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "Certaines données n'ont pas pu être chargées. Faites glisser votre doigt vers le bas pour réessayer."
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "Erreur lors du chargement du profil",
+    "errorAlCargarLasDirecciones": "Erreur lors du chargement des adresses",
+    "generaUnCodigoDeDescuentoPersonaliz": "Générez un code de réduction personnalisé.",
+    "tusSeguidoresObtienen10DeDescuento": "Vos abonnés bénéficient d'une réduction de 10 %.",
+    "tuGanasEntre3Y7DeCadaVenta": "Vous gagnez entre 3 % et 7 % sur chaque vente.",
+    "programaDeAfiliadosActivado": "Programme d'affiliation activé !",
+    "errorAlActivarElPrograma": "Erreur lors de l'activation du programme"
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "Aucun message pour le moment. Vous recevrez une réponse sous peu.",
+    "esteCasoEstaCerrado": "Ce dossier est clos.",
+    "noSePudoCargarTuHistorialDeSoport": "Impossible de charger votre historique d'assistance",
+    "noSePudoAbrirElCaso": "L'affaire n'a pas pu être ouverte.",
+    "historialDeTusCasosDeSoporteConHi": "Historique de vos demandes d'assistance auprès d'Hispaloshop.",
+    "noTienesNingunCasoDeSoporteAbierto": "Vous n'avez aucun ticket d'assistance ouvert. Si vous avez besoin d'aide, contactez HI."
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "Produit ajouté au panier",
+    "errorAlAnadirAlCarrito": "Erreur lors de l'ajout au panier"
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "Erreur lors du chargement de l'ordre",
+    "resenaPublicada": "Critique publiée",
+    "errorAlPublicarLaResena": "Erreur lors de la publication de l'avis",
+    "esteDocumentoNoEsUnaFacturaFiscal": "Ce document n'est PAS une facture fiscale.",
+    "noSePudoDescargarLaFactura": "La facture n'a pas pu être téléchargée.",
+    "elImporteSeReflejaraEnTuCuentaEn": "Le montant sera porté à votre compte dans un délai de 5 à 10 jours ouvrables.",
+    "seHaReembolsadoParteDelImporteATu": "Une partie du montant a été remboursée sur votre compte.",
+    "elPagoNoSePudoProcesarIntentaloD": "Votre paiement n'a pas pu être traité. Veuillez réessayer ou contacter le service client.",
+    "dejaUnaResena": "Laissez un avis...",
+    "publicarResena": "Publier un avis",
+    "resenaEnviadaGracias": "Avis envoyé. Merci !"
+  },
+  "change_password": {
+    "contrasenaActualizada": "Mot de passe mis à jour",
+    "contrasenaActualIncorrecta": "Mot de passe actuel incorrect",
+    "errorAlCambiarContrasena": "Erreur lors du changement de mot de passe",
+    "tuCuentaUsaGoogleParaIniciarSesion": "Votre compte utilise Google pour se connecter. Vous n'avez pas configuré de mot de passe.",
+    "puedesAnadirUnaAContinuacion": "Vous pouvez en ajouter un ci-dessous.",
+    "contrasenaActual": "Mot de passe actuel",
+    "nuevaContrasena": "Nouveau mot de passe",
+    "repetirNuevaContrasena": "Répétez le nouveau mot de passe",
+    "lasContrasenasNoCoinciden": "Les mots de passe ne correspondent pas.",
+    "anadirContrasena": "Ajouter un mot de passe"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "Le nom d'utilisateur n'est pas disponible.",
+    "urlNoValida": "URL invalide",
+    "esteNombreDeUsuarioNoEstaDisponibl": "Ce nom d'utilisateur n'est pas disponible.",
+    "elUsuarioDebeTenerAlMenos3Caracte": "Le nom d'utilisateur doit comporter au moins 3 caractères.",
+    "biografia": "Biographie",
+    "cuentanosSobreTi": "Parlez-nous de vous...",
+    "madridEspana": "Madrid, Espagne",
+    "informacionDeContacto": "Coordonnées",
+    "elEmailNoSePuedeCambiarDesdeAqui": "L'adresse e-mail ne peut pas être modifiée à partir d'ici.",
+    "nombreDeLaEmpresa": "Nom de l'entreprise",
+    "descripcionDeLaTienda": "Description du magasin",
+    "describeTuTiendaTusProductosTuHi": "Décrivez votre magasin, vos produits, votre histoire...",
+    "maximo5Mb": "Maximum 5 Mo",
+    "eseNombreDeUsuarioYaEstaEnUso": "Ce nom d'utilisateur est déjà utilisé.",
+    "elNombreDeUsuarioDebeTenerAlMenos": "Le nom d'utilisateur doit comporter au moins 3 caractères.",
+    "noSePudoGuardarIntentaloDeNuevo": "Impossible d'enregistrer. Veuillez réessayer.",
+    "min3Caracteres": "Minimum 3 caractères",
+    "cuentanosAlgoSobreTi…": "Parlez-nous de vous…",
+    "descripcionDeTienda": "Description du magasin"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "Erreur lors du traitement de la requête",
+    "cuandoAlguienQuieraSeguirteAparecer": "Lorsqu'une personne souhaite vous suivre, elle apparaîtra ici."
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "Confirmation de commande",
+    "actualizacionesDeEnvio": "Mises à jour concernant l'expédition",
+    "solicitudesDeResena": "Demandes d'examen"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "Le format IBAN n'est pas valide.",
+    "sinComision-2-3DiasLaborables": "Sans commission - 2 à 3 jours ouvrables",
+    "tuCuentaDeStripeConnectEstaActiva": "Votre compte Stripe Connect est actif. Les paiements sont traités automatiquement.",
+    "conectaTuCuentaDeStripeParaRecibir": "Connectez votre compte Stripe pour recevoir des paiements directement. Vous serez redirigé vers la procédure de vérification Stripe.",
+    "losPagosPorVentasDeProductosSePro": "Les paiements des ventes de produits sont traités automatiquement via Stripe Connect.",
+    "configuraTuCuentaDeStripeParaEmpez": "Configurez votre compte Stripe pour commencer à recevoir des paiements."
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "Profil de base du magasin",
+    "analiticasBasicas": "Analyses de base",
+    "analiticasAvanzadas": "Analyses avancées",
+    "generacionDeContratos": "génération de contrats",
+    "errorAlAbrirFacturacion": "Erreur lors de l'ouverture de la facturation",
+    "errorAlCambiarDePlan": "Erreur lors du changement de plan",
+    "perderasLasFuncionalidadesPremiumAl": "Vous perdrez les fonctionnalités premium à la fin de la période de facturation."
+  },
+  "settings": {
+    "cuentaPublicaActivada": "Compte public activé",
+    "errorAlCambiarLaPrivacidad": "Erreur lors de la modification des paramètres de confidentialité",
+    "sesionCerradaCambiadoAOtraCuenta": "Session fermée. Passage à un autre compte.",
+    "errorAlEliminarLaCuenta": "Erreur lors de la suppression du compte",
+    "paisEIdioma": "Pays et langue",
+    "lasCuentasDeProductorSonSiemprePub": "Les comptes des producteurs sont toujours publics.",
+    "planDeSuscripcion": "Formule d'abonnement",
+    "confirmarCierreDeSesion": "Confirmer la fermeture de la session",
+    "tendrasQueVolverAIniciarSesionPara": "Vous devrez vous reconnecter pour accéder à votre compte.",
+    "confirmarEliminacionDeCuenta": "Confirmer la suppression du compte",
+    "estaAccionEsIrreversibleSeEliminar": "Cette action est irréversible. Toutes vos données, commandes et contenus seront supprimés.",
+    "escribeTuEmailParaConfirmar": "Saisissez votre adresse e-mail pour confirmer.",
+    "confirmaTuEmailParaEliminarLaCuent": "Confirmez votre adresse e-mail pour supprimer le compte"
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "Apposez votre signature avant d'enregistrer",
+    "subeUnaImagenDeTuFirma": "Téléchargez une image de votre signature",
+    "configuraTuFirmaAntesDeGuardar": "Configurez votre signature avant d'enregistrer",
+    "errorAlProcesarLaFirmaExistente": "Erreur lors du traitement de la signature existante",
+    "errorAlGuardarLaFirma": "Erreur lors de l'enregistrement de la signature",
+    "necesitasConfigurarTuFirmaParaPoder": "Vous devez configurer votre signature pour pouvoir signer des contrats B2B.",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "Votre signature numérique est automatiquement appliquée aux contrats B2B.",
+    "laFirmaQuedaRegistradaConTimestamp": "La signature est enregistrée avec un horodatage et un hachage SHA-256 pour",
+    "seSuperpondraSobreLaFirmaEnLosCon": "Elle sera apposée par-dessus la signature sur les contrats."
+  },
+  "role_onboarding": {
+    "omnivoro": "Omnivore",
+    "paraRecomendarteLosMejoresProductos": "Pour vous recommander les meilleurs produits. Vous avez le choix parmi plusieurs options.",
+    "tuFeedSePersonalizaraConSusProduct": "Votre flux sera personnalisé avec vos produits et votre contenu.",
+    "escribeElNombreDeTuTienda": "Inscrivez le nom de votre magasin",
+    "errorConectandoConStripeHazloDesde": "Erreur de connexion à Stripe. Veuillez vous connecter depuis votre tableau de bord.",
+    "estoEsLoPrimeroQueVeranTusCliente": "C'est la première chose que vos clients verront.",
+    "anadirLogo": "Ajouter un logo",
+    "jpgPngOWebp·Maximo5mb": "JPG, PNG ou WebP · Maximum 5 Mo",
+    "nombreDeTuTienda": "Nom de votre magasin",
+    "puedesAnadirMasDesdeTuPanelEsteP": "Vous pouvez en ajouter d'autres depuis votre tableau de bord. Cette étape est facultative.",
+    "necesitamosVerificarTuIdentidadPara": "Nous devons vérifier votre identité afin de vous transférer en toute sécurité le montant de vos ventes.",
+    "tusDatosBancariosNuncaPasanPorHisp": "Vos coordonnées bancaires ne transitent jamais par Hispaloshop.",
+    "recibirasTusPagosAutomaticamente": "Vous recevrez vos paiements automatiquement.",
+    "puedesHacerloMasTardeDesdeTuPanel": "Vous pouvez le faire plus tard depuis votre tableau de bord.",
+    "loHareMasTarde": "Je le ferai plus tard.",
+    "noSePudoObtenerTuCodigo": "Impossible d'obtenir votre code",
+    "apareceranEnTuPerfilCuandoAlguien": "Elles apparaîtront sur votre profil. Lorsqu'une personne les achètera, vous toucherez une commission.",
+    "tusSeguidoresObtienenUn10DeDescue": "Vos abonnés bénéficient d'une réduction de 10 % sur leur premier achat. Vous percevez une commission à vie.",
+    "comoGanasDinero": "Comment vous gagnez de l'argent :",
+    "cadaCompraQueHaganTeGeneraComision": "Chaque achat qu'ils effectuent vous génère une commission.",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "Vous êtes automatiquement payé sur votre compte bancaire.",
+    "todoListo": "Tout est prêt !",
+    "empiezaCompartiendoTuCodigoConTusS": "Commencez par partager votre code avec vos abonnés.",
+    "veTusComisionesEnTiempoReal": "Consultez vos commissions en temps réel"
+  },
+  "chats": {
+    "colaboracion": "Collaboration",
+    "aunNoTienesMensajes": "Vous n'avez pas encore de messages.",
+    "empiezaUnaConversacionConProductores": "Entamez une conversation avec des producteurs, des influenceurs et bien plus encore.",
+    "enviaMensajesPrivadosATiendasProdu": "Envoyez des messages privés aux boutiques, producteurs et influenceurs de la communauté HispaloShop."
+  },
+  "consumer_register": {
+    "datosBasicos": "Données de base",
+    "errorAlCrearLaCuentaIntentaloDeN": "Erreur lors de la création du compte. Veuillez réessayer.",
+    "completaTuRegistroEnPocosPasosYDe": "Finalisez votre inscription en quelques étapes et préparez votre personnalisation initiale pour une fois terminé."
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "Retour à la sélection des rôles",
+    "esteFlujoYaEstaConectadoDePrincipi": "Ce flux est déjà connecté de bout en bout. L'accès par téléphone et réseaux sociaux sera ajouté ultérieurement.",
+    "crearasTuCuentaYDespuesCompletaremo": "Vous créerez votre compte et nous compléterons ensuite vos préférences.",
+    "googleAppleYTelefonoVolveranCuando": "Google, Apple et le téléphone reviendront à la normale lorsqu'ils seront connectés avec le même niveau de fiabilité que ce flux."
+  },
+  "step2_basic": {
+    "datosBasicos": "Données de base",
+    "empezamosConTuInformacionEsencialPa": "Nous allons commencer par recueillir vos informations essentielles pour créer votre compte.",
+    "maria": "Marie",
+    "garciaLopez": "García López",
+    "creaUnaContrasenaSegura": "Créez un mot de passe sécurisé",
+    "debesTenerAlMenos16Anos": "Vous devez avoir au moins 16 ans."
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "Ajustez vos centres d'intérêt afin que le catalogue et les recommandations soient plus pertinents.",
+    "nosAyudaAMostrarProductoresYEnvios": "Cela nous permet de mettre en valeur les producteurs et les expéditions les plus pertinents."
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "Des suggestions adaptées à vos intérêts et à votre activité.",
+    "loMasPopular": "Les plus populaires",
+    "losProductosQueMasEstanComprandoOt": "Les produits que les autres utilisateurs achètent le plus.",
+    "ordenaPrimeroPorResenasYConfianza": "Trier d'abord par avis et par confiance.",
+    "defineComoQuieresEmpezarAVerProduc": "Définissez comment vous souhaitez commencer à consulter les produits et à quelle fréquence vous achetez habituellement."
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "L'étape suivante consiste à finaliser votre intégration afin que le flux, le catalogue et les suggestions soient plus pertinents dès le départ.",
+    "cuandoTerminesElOnboardingTeEnsenar": "Une fois votre intégration terminée, nous vous présenterons d'abord les producteurs, les catégories et les comptes qui vous correspondent le mieux."
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "Arrêtez de céder votre marge à l'intermédiaire.",
+    "conectaConProductoresRealesSinInte": "Contactez directement les producteurs. Sans intermédiaires. Sans mensonges."
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "Hispaloshop est le marché où la nourriture a une histoire.",
+    "unaPlataformaDondeCadaProductoTiene": "Une plateforme où chaque produit a un visage et une histoire. Du champ à votre table, sans intermédiaire.",
+    "entreElProductorYTuPlatoHayUnaCa": "Entre le producteur et votre assiette, il existe une chaîne d'intermédiaires qui augmente le prix, dilue la qualité et efface l'histoire de ce que vous mangez.",
+    "conectamosAlQueProduceConElQueCom": "Nous mettons en relation le producteur et le consommateur.",
+    "hispaloshopEsUnaPlataformaDeSocial": "Hispaloshop est une plateforme de commerce social où les producteurs artisans ouvrent leur propre boutique, racontent leur histoire et vendent directement au consommateur final."
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "Erreur lors de l'envoi. Veuillez réessayer.",
+    "paraDudasSobreLaPlataformaColabora": "Pour toute question concernant la plateforme, les collaborations ou les demandes de presse.",
+    "respondemosEnMenosDe24Horas": "Nous répondons en moins de 24 heures.",
+    "losProductoresGestionanElEnvioDirec": "Les producteurs gèrent directement l'expédition. Les délais de livraison varient selon le producteur et la destination.",
+    "siHispaloshopSoportaMultiplesIdioma": "Oui. HispaloShop prend en charge plusieurs langues et devises pour les ventes internationales."
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "Importez, vendez et développez votre activité. Accédez directement aux consommateurs, influenceurs et producteurs du monde entier. Découvrez tous les avantages offerts aux importateurs par HispaloShop.",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "Votre boutique B2C et B2B en un seul endroit.",
+    "accedeAConsumidoresFinalesConectaC": "Touchez les consommateurs finaux, connectez-vous avec les influenceurs locaux et achetez directement auprès des producteurs du monde entier. Le tout depuis une plateforme unique, sans intermédiaires.",
+    "vendeTusProductosImportadosDirectame": "Vendez vos produits importés directement au consommateur du pays de destination, sans intermédiaires.",
+    "conectaYColaboraConInfluencersLocal": "Entrez en contact et collaborez avec des influenceurs locaux pour promouvoir vos produits (Pro et Elite).",
+    "compraDirectamenteAProductoresDeCua": "Achetez directement auprès des producteurs de tous les pays, avec contact direct et sans intermédiaires.",
+    "panelDeGestionUnificado": "Panneau de gestion unifié",
+    "gestionaPedidosPagosLogisticaCert": "Gérez les commandes, les paiements, la logistique, les certificats et les communications depuis un tableau de bord unique.",
+    "soportePorChatInternoConAdminLocal": "L'assistance par chat interne avec l'administrateur local et l'assistance par e-mail sont disponibles pour tous les forfaits.",
+    "todasLasFuncionesBasicasVenderB2c": "Toutes les fonctions de base, vente B2C, publication de produits, certificats QR, assistance standard.",
+    "matchingConInfluencersDashboardAvan": "Mise en relation avec les influenceurs, tableau de bord avancé, analyses des ventes, assistance prioritaire.",
+    "todoLoAnteriorIaComercialAvanzada": "Tout ce qui précède + IA commerciale avancée, analyse des marchés internationaux, génération automatique de contrats, commission réduite.",
+    "colaboracionConInfluencersLocalesPr": "Collaboration avec des influenceurs locaux (Pro et Elite)",
+    "panelDeGestionPagosYLogisticaUnif": "Panneau de gestion unifié, de paiement et de logistique",
+    "iaComercialAvanzadaYGeneracionDeCo": "IA commerciale avancée et génération de contrats (Élite)",
+    "importarYVenderNuncaFueTanFacil": "Importer et vendre n'a jamais été aussi simple.",
+    "creaTuCuentaDeImportador": "Créez votre compte importateur",
+    "accedeAHerramientasDeIaYAnalitica": "Accédez aux outils d'IA et aux analyses avancées (Pro et Elite)",
+    "gestionaPagosLogisticaYCertificados": "Gérez les paiements, la logistique et les certificats depuis un tableau de bord unique.",
+    "soloCrearTuCuentaYSubirTusProduct": "Il vous suffit de créer votre compte et de télécharger vos produits.",
+    "siPuedesVenderAlConsumidorFinalY": "Oui, vous pouvez vendre au consommateur final et également accéder aux opportunités B2B.",
+    "siemprePorChatInternoYEmailConPr": "Toujours par messagerie interne et par e-mail, la priorité étant donnée aux membres Pro et Elite.",
+    "daElSaltoAlCanalDigitalYAccedeA": "Passez au canal numérique et accédez aux consommateurs, influenceurs et producteurs du monde entier."
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "Créez une communauté, soutenez les producteurs authentiques et monétisez pleinement votre travail. Commissions régulières, liberté créative et soutien direct.",
+    "estoNoVaDeVenderPorVenderVaDeD": "Il ne s'agit pas de vendre pour vendre. Il s'agit de donner de la visibilité aux producteurs honnêtes, de proposer une alimentation saine à vos abonnés et de monétiser vos efforts de façon régulière. Ici, vous bénéficiez de liberté, d'une communauté et d'un soutien direct. Je suis Bil Chanfou, et j'ai créé cette plateforme pour vous.",
+    "ganaMasDejaHuella": "Gagnez plus, laissez votre empreinte",
+    "hercules": "Hercule",
+    "laMayoriaLlegaAqui": "La plupart d'entre eux arrivent ici",
+    "comisionRecurrenteDurante18MesesPor": "Commission récurrente pendant 18 mois pour chaque utilisateur parrainé.",
+    "creaComunidadApoyaProductoresHonest1": "Créez une communauté, soutenez les producteurs authentiques et monétisez pleinement votre travail. Ici, vous bénéficiez de liberté et d'un soutien direct. N'hésitez pas à me contacter si besoin. Je suis Bil Chanfou."
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "Connectez votre production aux importateurs et clients du monde entier. Développez votre clientèle, numérisez votre catalogue et accédez à de nouvelles opportunités commerciales.",
+    "uneteALaPlataformaQueConectaProduc": "Rejoignez la plateforme qui met en relation producteurs, importateurs et clients du monde entier. Digitalisez votre catalogue et accédez à de nouvelles opportunités commerciales.",
+    "registrateGratis": "Inscrivez-vous gratuitement",
+    "publicaTuCatalogo": "Publiez votre catalogue",
+    "accesoInmediatoAUnaRedGlobalDeImp": "Accès immédiat à un réseau mondial d'importateurs vérifiés.",
+    "herramientasParaDestacarTuMarcaYPr": "Des outils pour mettre en valeur votre marque et vos produits.",
+    "opcionesDePromocionPremiumSegunTuP": "Options promotionnelles premium selon votre forfait.",
+    "gestionEficienteDeContactosYOportun": "Gestion efficace des contacts et des opportunités.",
+    "paraProductoresEnCrecimiento": "Pour les producteurs en croissance",
+    "maximaVisibilidadYVentajas": "Visibilité et avantages maximaux",
+    "sinTarjetaDeCreditoParaEmpezar": "Aucune carte de crédit n'est requise pour commencer.",
+    "elRegistroEsGratuitoPuedesAcceder": "L'inscription est gratuite. Vous pouvez accéder à des fonctionnalités avancées avec les abonnements premium.",
+    "puedesPublicarCualquierProductoQueC": "Vous pouvez référencer tout produit qui respecte nos politiques et nos normes de qualité.",
+    "unaVezRegistradoPodrasContactarImp": "Une fois inscrit, vous pourrez contacter directement les importateurs depuis la plateforme.",
+    "mayorVisibilidadAccesoPrioritarioA": "Une meilleure visibilité, un accès prioritaire aux opportunités et des outils exclusifs pour dynamiser votre entreprise.",
+    "siPuedesVenderTantoAConsumidoresF": "Oui, vous pouvez vendre à la fois aux consommateurs finaux, aux importateurs et aux entreprises.",
+    "soportePersonalizadoRecursosEducativ": "Un soutien personnalisé, des ressources pédagogiques et des conseils en matière de commerce international.",
+    "uneteACientosDeProductoresQueYaEs": "Rejoignez les centaines de producteurs qui développent déjà leur activité avec Hispaloshop."
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "Hispaloshop n'est pas responsable de la qualité des produits vendus par des tiers, bien que nous nous efforcions activement de vérifier tous les producteurs présents sur la plateforme."
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "Découvrez les produits artisanaux de votre région",
+    "basadoEnTusCompras": "En fonction de vos achats",
+    "descubreRecetasMediterraneasConTusP": "Découvrez des recettes méditerranéennes avec vos produits",
+    "aquiEstaTuResumenDeHoy": "Voici votre résumé du jour"
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "Les indicateurs avancés ne sont pas disponibles pour le moment.",
+    "noSePudoCargarElStockDeProductos": "Impossible de charger le stock de produits pour les alertes.",
+    "enPreparacion": "En préparation",
+    "anadeMasProductosParaAumentarTuVis": "Ajoutez plus de produits pour accroître votre visibilité",
+    "anadirProducto": "Ajouter un produit",
+    "colaboraConInfluencersParaPromociona": "Collaborez avec des influenceurs pour promouvoir vos produits",
+    "analisis": "Analyse",
+    "resumenDeTuNegocio": "Résumé de votre entreprise",
+    "evolucionDeVentas": "Évolution des ventes"
+  },
+  "signed_documents": {
+    "documentoIntegro": "Document complet",
+    "elContratoNoHaSidoModificadoDesde": "Le contrat n'a pas été modifié depuis sa signature.",
+    "elHashDelDocumentoNoCoincideConEl": "Le hachage du document ne correspond pas à celui enregistré lors de la signature. Veuillez contacter l'assistance.",
+    "noTienesContratosFirmadosTodavia": "Vous n'avez encore aucun contrat signé.",
+    "lasFacturasEstaranDisponiblesProxima": "Les factures seront bientôt disponibles."
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "Nouvelle collaboration",
+    "elCosteCorreACargoDelProductor": "Le coût est supporté par le producteur",
+    "holaViTuContenidoYCreoQueEncajar": "Salut ! J'ai vu ton contenu et je pense que tu serais parfaitement adapté à nos produits...",
+    "previewDeLaPropuesta": "Aperçu de la proposition",
+    "propuestaDeColaboracion": "proposition de collaboration",
+    "comisionEspecial": "Commission spéciale",
+    "duracion": "Durée"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "Veuillez vous connecter pour utiliser l'assistant d'achat.",
+    "loSientoHaOcurridoUnErrorPorFav": "Désolé, une erreur s'est produite. Veuillez réessayer.",
+    "iniciaSesionParaUnaExperienciaPerso": "Connectez-vous pour une expérience personnalisée.",
+    "busquedasRapidas": "Recherches rapides",
+    "recomendacionesBasadasEnCertificados": "Recommandations basées sur les certificats des produits."
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "Nous avons évité l'affichage d'un écran blanc. Vous pouvez retourner à l'écran d'accueil ou recharger l'application."
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "Huiles et vinaigrettes d'origine clairement identifiée.",
+    "exploraElCatalogoDesdeCategoriasCla": "Explorez le catalogue grâce à des catégories claires et sans encombrement visuel.",
+    "productoLocalEImportadoYaDisponible": "Produits locaux et importés désormais disponibles en Espagne, sans discours creux ni catégories superflues."
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "Aucun produit n'a été trouvé dans cette catégorie. Veuillez effectuer une nouvelle recherche.",
+    "anadeAlgunosProductosArtesanalesPara": "Commencez votre achat en ajoutant quelques produits artisanaux.",
+    "tusPedidosApareceranAquiCuandoReali": "Vos commandes apparaîtront ici lors de votre premier achat.",
+    "sigueAMasProductoresEInfluencersPa": "Suivez d'autres producteurs et influenceurs pour découvrir leur contenu ici.",
+    "intentaConOtrosTerminosDeBusqueda": "Essayez d'autres termes de recherche.",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "Réessayez plus tard ou modifiez vos filtres de recherche."
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "Une erreur inattendue s'est produite. Veuillez actualiser la page."
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "Les meilleures choses sont plus proches que vous ne le pensez.",
+    "descubrirCercaDeMi": "Découvrez les environs",
+    "usaTuUbicacionActualOEscribeTuCod": "Utilisez votre position actuelle ou saisissez votre code postal pour privilégier ce qui est le plus proche de chez vous.",
+    "buscandoTuUbicacion": "Recherche de votre position..."
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "Aucune donnée analytique disponible",
+    "analyticsDeTuCodigo": "Analyse de votre code",
+    "tuEnlaceDeReferido": "Votre lien de parrainage",
+    "comparteEsteEnlaceEnTusRedesCada": "Partagez ce lien sur vos réseaux sociaux. Chaque visite est automatiquement enregistrée.",
+    "usosDelCodigo": "Utilisations du code",
+    "codigoAplicado": "Code appliqué",
+    "usosCodigo": "Utilisation du code",
+    "comoFuncionanTusComisiones": "Comment fonctionnent vos commissions",
+    "calculoDeTuComision": "Calcul de votre commission :",
+    "tipsParaMejorarTusConversiones": "Conseils pour améliorer vos conversions"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "Image partagée dans le chat",
+    "noSePudoCargarLaImagen": "L'image n'a pas pu être chargée.",
+    "pegaUnEnlaceDeProductoOSuId": "Collez un lien produit ou son identifiant.",
+    "pegaUnEnlaceDeRecetaOSuId": "Collez un lien vers une recette ou votre identifiant.",
+    "pegaUnEnlaceDePostOReelDeHispalo": "Collez un lien vers un article ou une bobine de Hispaloshop.",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "Collez un lien Hispaloshop valide pour générer une carte compacte.",
+    "miembroDeLaComunidad": "Membre de la communauté",
+    "pruebaConOtroNombreOCambiaElFiltr": "Essayez un autre nom ou modifiez le filtre.",
+    "noSePudoEliminarElMensaje": "Le message n'a pas pu être supprimé.",
+    "conversacionEliminada": "Conversation supprimée",
+    "errorAlEliminarLaConversacion": "Erreur lors de la suppression de la conversation",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "Collez un lien ou un identifiant Hispaloshop valide.",
+    "noPudimosGenerarLaVistaPrevia": "Nous n'avons pas pu générer l'aperçu.",
+    "noSePudoEnviarElMensaje": "Le message n'a pas pu être envoyé.",
+    "laImagenNoPuedeSuperar5Mb": "L'image ne peut pas dépasser 5 Mo.",
+    "elArchivoNoPuedeSuperar10Mb": "Le fichier ne peut pas dépasser 10 Mo.",
+    "errorAlSubirElDocumento": "Erreur lors du chargement du document.",
+    "buscarConversacion": "Je cherche à engager la conversation.",
+    "empiezaUnChatNuevoDesdeElBotonSup": "Lancez une nouvelle conversation à partir du bouton du haut et votre boîte de réception restera beaucoup plus propre.",
+    "seleccionaUnaConversacionDelPanelIz": "Sélectionnez une conversation dans le panneau de gauche ou démarrez-en une nouvelle.",
+    "llamadaDeVozProximamente": "Appel vocal (bientôt disponible)",
+    "videollamadaProximamente": "Appel vidéo (bientôt disponible)",
+    "mensajesDeLaConversacion": "Messages de conversation",
+    "empiezaLaConversacion": "Lancez la conversation",
+    "escribeElPrimerMensajeYMantenLaCo": "Rédigez le premier message et veillez à ce que la conversation reste dans un contexte clair.",
+    "vistaPreviaDeLaImagenAdjunta": "Aperçu de l'image jointe"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "Quelque chose a mal fonctionné.",
+    "noSePudoCargarEsteContenidoIntent": "Ce contenu n'a pas pu être chargé. Veuillez réessayer."
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "Formule de base. Passez à la formule supérieure pour réduire les commissions et accéder à des outils."
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "Modification des publications non disponible pour le moment"
+  },
+  "product": {
+    "anadirAlCarrito": "Ajouter au panier"
+  },
+  "review": {
+    "valoracionEnviada": "Évaluation soumise",
+    "errorAlEnviarValoracion": "Erreur lors de l'envoi de la note",
+    "cuentanosTuExperiencia": "Parlez-nous de votre expérience...",
+    "enviarValoracion": "Envoyer des commentaires"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "Fermer la notification"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "Donnez-moi une recette rapide",
+    "ayudameConMiDieta": "Aidez-moi avec mon régime alimentaire",
+    "tuCompaneroDeCompras": "Votre partenaire d'achat",
+    "estoyAquiParaAyudarteAEncontrarLo": "Je suis là pour vous aider à trouver ce dont vous avez besoin.",
+    "preguntaleADavid": "Demandez à David...",
+    "microfono": "Microphone"
+  },
+  "auth_diagnostic": {
+    "testConexion": "Test de connexion",
+    "elBackendRespondePeroElEndpointNo": "Le serveur répond, mais le point de terminaison n'existe pas.",
+    "laConexionFuncionaRevisaLosDetalle": "La connexion est établie. Veuillez consulter les détails ci-dessus."
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "Démarrage des tests d'authentification...",
+    "sesionActiva": "Session active :"
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "Code incorrect ou expiré",
+    "codigoIncorrecto": "Code incorrect",
+    "codigoReenviadoATuEmail": "Code envoyé à votre adresse e-mail",
+    "noSePudoReenviarElCodigo": "Le code n'a pas pu être renvoyé.",
+    "maximoDeReenviosAlcanzadoRevisaTu": "Nombre maximal de transferts atteint. Veuillez vérifier votre dossier de courriers indésirables.",
+    "reenviarCodigoDeVerificacion": "Renvoyer le code de vérification"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "Produit retiré du catalogue B2B",
+    "cantidadMinimaDePedidoMoq": "Quantité minimale de commande (MOQ)",
+    "descripcionMayorista": "Description en gros",
+    "maximoDeMuestrasPorSolicitud": "Nombre maximal d'échantillons par demande",
+    "publicarEnCatalogoB2b": "Publier dans le catalogue B2B",
+    "quitarDelCatalogoB2b": "Retirer du catalogue B2B"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "Pays d'origine (ES)"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "Minimum 1 unité",
+    "codigoDePaisDebeTener2Letras": "L'indicatif du pays doit comporter 2 lettres.",
+    "elMensajeDebeTenerAlMenos10Caract": "Le message doit comporter au moins 10 caractères.",
+    "anadeAlMenosUnProducto": "Ajoutez au moins un produit",
+    "noSePudoEnviarLaRfq": "La demande de devis n'a pas pu être envoyée.",
+    "nuevaSolicitudDeCotizacionRfq": "Nouvelle demande de devis (RFQ)",
+    "describeVolumenFormatosCertificacio": "Décrivez le volume, les formats, les certifications ou les exigences logistiques."
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "Téléchargez la licence d'importation, l'attestation fiscale et l'assurance RC."
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "Erreur lors de l'ajout du produit au panier",
+    "anadirAlCarrito": "Ajouter au panier",
+    "productoAnadido": "Produit ajouté",
+    "anadido": "Ajouté !"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "Tous les messages de cette session seront supprimés."
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "Demande B2B en cours de négociation"
+  },
+  "use_h_i_chat": {
+    "buenosDias": "Bonjour",
+    "tuCompaneroDeComprasYAlimentacion": "Votre partenaire pour vos courses et vos repas",
+    "tuAsesorDeNegocioParaProductores": "Votre conseiller commercial pour les producteurs",
+    "estrategiaDeExportacion": "stratégie d'exportation",
+    "asistenteCreativoParaContenidoYCamp": "Assistante créative pour le contenu et les campagnes",
+    "disenarUnaCampana": "Concevoir une campagne",
+    "analisisDeMercadoInternacionalParaI": "Analyse du marché international pour les importateurs",
+    "analisisDeMargenes": "Analyse des marges",
+    "noTienesAccesoAEsteModoActualiza": "Vous n'avez pas accès à ce mode. Mettez à niveau votre forfait.",
+    "elAsistenteNoEstaDisponibleAhoraI": "L'assistant n'est pas disponible pour le moment. Veuillez réessayer."
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "Connectez-vous pour accéder à votre compte."
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "Mon code"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "Votre compte est en cours d'examen."
+  },
+  "dashboard_header": {
+    "buenosDias": "Bonjour"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "Suivez les producteurs, les importateurs et les influenceurs pour voir leur contenu ici.",
+    "estasAlDia": "Vous êtes à jour"
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "Votre semaine chez HispaloShop",
+    "descubrirMas": "Découvrez-en plus",
+    "sigueProductoresParaVerSuContenido": "Suivez les producteurs pour voir leur contenu ici"
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "Accès rapide"
+  },
+  "milestone_toast": {
+    "10MeGusta": "10 j'aime !",
+    "alguienTeGuardo": "Quelqu'un t'a sauvé !",
+    "50MeGusta": "50 j'aime !",
+    "7DiasSeguidos": "7 jours d'affilée !"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "Impossible de suivre l'utilisateur",
+    "seEliminaraPermanentementeJuntoConS": "Il sera définitivement supprimé, ainsi que vos commentaires et vos mentions « J’aime ».",
+    "noSePudoDejarDeSeguir": "Il était impossible d'arrêter de regarder",
+    "uneteALaConversacion": "Rejoignez la conversation...",
+    "progresoDelVideo": "Progression vidéo"
+  },
+  "stories_bar": {
+    "recetaDelDia": "Recette du jour"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "Contenu de l'histoire",
+    "sinDatosDeVistasDisponibles": "Aucune donnée de vue disponible",
+    "buscarConversacion": "Envie de discuter..."
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "Impossible de suivre cet utilisateur. Veuillez réessayer."
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "Glissez-déposez les fichiers ici ou cliquez pour les sélectionner."
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "Succès débloqué !"
+  },
+  "application": {
+    "quienEres": "Qui es-tu",
+    "confirmacion": "Confirmation",
+    "recomendadoParaLaMayoria": "Recommandé pour la plupart des gens.",
+    "pideRevisionManualPrioritaria": "Demande de révision manuelle prioritaire.",
+    "paraPerfilesConUnaComunidadMuyActi": "Pour les profils avec une communauté très active.",
+    "necesitamosSaberComoTeConocen": "Nous devons savoir comment les gens vous connaissent.",
+    "tuEmailProfesionalEsObligatorio": "Votre adresse courriel professionnelle est requise.",
+    "eseEmailNoPareceValido": "Cette adresse e-mail ne semble pas valide.",
+    "tuInstagramPrincipalEsObligatorio": "Votre compte Instagram principal est requis.",
+    "necesitamosUnaViaRealParaContactart": "Nous avons besoin d'un moyen concret de vous contacter.",
+    "seleccionaTuPais": "Sélectionnez votre pays.",
+    "eligeAlMenosUnNicho": "Choisissez au moins un créneau.",
+    "seleccionaTuRangoDeSeguidores": "Sélectionnez votre plage de followers.",
+    "seleccionaElPaisPrincipalDeTuAudie": "Sélectionnez le pays principal de votre public.",
+    "cuentanosPorQueQuieresEntrar": "Dites-nous pourquoi vous souhaitez nous rejoindre.",
+    "necesitamosAlMenos140CaracteresPara": "Il nous faut au moins 140 caractères pour filtrer les informations erronées.",
+    "eseEnlaceNoPareceValido": "Ce lien ne semble pas être valide.",
+    "debesAceptarEstaCondicion": "Vous devez accepter cette condition.",
+    "yaExisteUnaSolicitudOCuentaConEst": "Il existe déjà une demande ou un compte associé à cette adresse e-mail.",
+    "noPudimosEnviarLaSolicitudIntental": "Nous n'avons pas pu envoyer la demande. Veuillez réessayer.",
+    "solicitarRevision": "Demander un avis",
+    "aplicacionInfluencerHispaloshop": "Application d'influenceurs Hispaloshop",
+    "formularioDeTresPasosParaAplicarAl": "Formulaire en trois étapes pour candidater au programme d'influenceurs Hispaloshop.",
+    "aplicacionReal": "Application concrète",
+    "noEsUnFormularioCorporativoEsTuP": "Il ne s'agit pas d'un formulaire d'entreprise. C'est votre sortie.",
+    "tresPasosSinPagoSinHumoSiElige": "Trois étapes. Sans paiement. Sans tracas. Si vous choisissez Hercules, l'activation est rapide. Si vous visez",
+    "ateneaOZeusHacemosRevisionHumanaE": "Athéna ou Zeus, nous effectuons une vérification humaine en 24 à 48 heures.",
+    "siTuVozEncajaConComidaWellnessL": "Si votre voix s'inscrit dans les thématiques de l'alimentation, du bien-être, du mode de vie ou du développement durable.",
+    "siQuieresRecomendarCosasQueDeVerda": "Si vous voulez recommander des choses que vous pourriez réellement utiliser.",
+    "cadaCompraQueConectesSeQuedaAtribu": "Chaque achat que vous associez vous est attribué pendant 18 mois. Vous n'êtes pas obligé d'être esclave du système.",
+    "siQuieresComprobarQueSoyRealAhiM": "Si vous voulez prouver que je suis réel, me voici.",
+    "bienvenidoALaResistenciaRevisaTuE": "Bienvenue dans la résistance. Consultez votre boîte mail pour accéder à votre tableau de bord d'influenceur.",
+    "herculesEntraPorViaRapidaHemosMar": "Hercules bénéficie d'une procédure accélérée. Votre profil a été marqué pour une activation immédiate et les prochaines étapes sont en cours.",
+    "tuPerfilPasaARevisionHumanaSiApl": "Votre profil va maintenant être examiné par une personne. Si vous avez postulé pour Athena ou Zeus, nous vous répondrons sous 24 à 48 heures avec une décision humaine, et non automatisée.",
+    "verCatalogoParaPromocionar": "Consultez le catalogue à des fins promotionnelles",
+    "tuTarjetaDePresentacionSinTrajesN": "Votre carte de visite, sans costumes ni paroles en l'air.",
+    "reusSeulCiudadDeMexico": "Reus, Séoul, Mexico...",
+    "seleccionaPais": "Sélectionnez un pays",
+    "queremosSaberQueTipoDeComunidadHas": "Nous voulons savoir quel type de communauté vous avez bâtie et pourquoi ses membres vous suivraient dans un projet.",
+    "paisPrincipalDeTuAudiencia": "pays principal de votre public",
+    "cuentanosLaVerdadQueTipoDeEstabil": "Dites-nous la vérité : quel type de stabilité recherchez-vous, pourquoi avez-vous été déçu par certaines marques et comment traiteriez-vous votre communauté ?",
+    "laComisionEsTransparenteHercules3": "La commission est transparente : Hercule 3 %, Athéna 5 %, Zeus 7 %, avec un suivi sur 18 mois.",
+    "entiendoQueLaComisionSePagaSobreE": "Je comprends que la commission est calculée sur la valeur après expédition et les taxes.",
+    "entiendoQueElTrackingDe18MesesEs": "Je comprends que la période de suivi de 18 mois commence à compter du premier achat de l'utilisateur.",
+    "aceptoPromoverSoloProductosQueRealm": "Je n'accepte de promouvoir que les produits que j'essaierais ou que j'essaierai réellement.",
+    "heLeidoYAceptoLosTerminosDelProgr": "J'ai lu et j'accepte les conditions du programme d'influenceurs.",
+    "solicitudGratuitaNingunPasoDePago": "Application gratuite. Aucune étape de paiement."
+  },
+  "shared": {
+    "queEs": "Qu'est-ce que"
+  },
+  "footer_landing": {
+    "terminos": "Termes",
+    "unaFormaMasClaraDeDescubrirEntend": "Une façon plus claire de découvrir, de comprendre et d'acheter des aliments en tenant compte du contexte."
+  },
+  "navbar_landing": {
+    "iniciarSesion": "Se connecter",
+    "cerrarMenu": "Fermer le menu"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "Lorsque nous aurons de véritables voix issues de la communauté, elles apparaîtront ici."
+  },
+  "auth_layout": {
+    "terminos": "Termes"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "Posez-moi des questions sur n'importe quel produit ou producteur",
+    "terminos": "Termes"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "Fermer le menu"
+  },
+  "info_header": {
+    "queEs": "Qu'est-ce que",
+    "cerrarMenu": "Fermer le menu",
+    "iniciarSesion": "Se connecter"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "Aucune connexion internet"
+  },
+  "report_button": {
+    "informacionEnganosa": "Informations trompeuses",
+    "violacionDeDerechosDeAutor": "violation du droit d'auteur",
+    "noSePudoEnviarElReporte": "Le rapport n'a pas pu être envoyé.",
+    "anadeUnDetalleOpcional": "Ajouter un détail (facultatif)..."
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "Fermer la notification"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "Fermer la notification de message"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "Suivez au moins 3 comptes pour finaliser votre inscription.",
+    "noHemosPodidoGuardarLasCuentasSegu": "Nous n'avons pas encore pu sauvegarder les comptes consécutifs.",
+    "eligeAlMenos3ProductoresOCreadores": "Choisissez au moins 3 producteurs ou créateurs afin que votre flux initial commence par des signaux réels.",
+    "puedesFinalizarYEmpezarADescubrirC": "Vous pouvez terminer et commencer à découvrir des comptes plus tard."
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "Sélectionnez au moins 3 catégories pour continuer.",
+    "noHemosPodidoGuardarTusInteresesTo": "Nous n'avons pas encore pu préserver vos intérêts.",
+    "eligeAlMenos3CategoriasParaQueEl": "Choisissez au moins 3 catégories afin que le catalogue et le flux RSS disposent d'une base utile."
+  },
+  "location": {
+    "seleccionaUnPais": "Sélectionnez un pays.",
+    "introduceTuCodigoPostal": "Saisissez votre code postal.",
+    "noHemosPodidoGuardarTuUbicacionTod": "Nous n'avons pas encore pu enregistrer votre position.",
+    "usamosTuZonaParaMostrarCatalogoDis": "Nous utilisons votre zone géographique pour afficher le catalogue disponible, des suggestions à proximité et des options de livraison plus avantageuses."
+  },
+  "step_follow": {
+    "cordoba": "Cordoue",
+    "queseriaLaAntigua": "La fromagerie Antigua",
+    "panaderiaMaria": "Boulangerie de Maria",
+    "descubreAQuienSeguir": "Découvrez qui suivre",
+    "sigueAlMenos3ProductoresParaEmpeza": "Suivez au moins 3 producteurs pour commencer."
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "Sélectionnez au moins 3 catégories pour personnaliser votre flux"
+  },
+  "step_location": {
+    "cordoba": "Cordoue",
+    "malaga": "Malaga",
+    "estoTeMostraraProductoresCercaDeTi": "Vous trouverez ainsi les producteurs situés près de chez vous.",
+    "usarMiUbicacionActual": "Utiliser ma position actuelle",
+    "oIntroduceCodigoPostal": "Ou saisissez le code postal"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "Ajoutez plus d'informations sur vous-même",
+    "tuFeedPersonalizadoEstaPreparado": "Votre flux personnalisé est prêt.",
+    "puedesCambiarTusPreferenciasEnCualq": "Vous pouvez modifier vos préférences à tout moment depuis votre profil."
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "Votre profil est créé. Vous pouvez maintenant explorer les produits locaux."
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "Vous ne paierez rien tant que vous n'aurez pas vendu.",
+    "paraProductoresQueQuierenEmpezarAV": "Pour les producteurs qui souhaitent commencer à vendre sans risque.",
+    "tiendaVirtualPersonalizadaConTuHist": "Boutique en ligne personnalisée retraçant votre histoire et vos origines",
+    "hasta30ProductosEnCatalogo": "Jusqu'à 30 produits dans le catalogue",
+    "visibilidadNacionalEnEspana": "visibilité nationale en Espagne",
+    "paraProductoresSeriosQueQuierenEsca": "Pour les producteurs sérieux qui veulent se développer sans devenir fous.",
+    "herramientasDeIaParaMarketing": "Outils d'IA pour le marketing",
+    "recomendacionesDinamicasDePrecioPor": "Recommandations de prix dynamiques par zone géographique",
+    "analiticaAvanzadaDeVentas": "Analyses de ventes avancées",
+    "matchingAutomaticoConHasta5Influenc": "Mise en relation automatique avec jusqu'à 5 influenceurs locaux",
+    "paraCooperativasYProductoresConAmbi": "Pour les coopératives et les producteurs à vocation mondiale.",
+    "prediccionDeDemandaPorPaisYTempora": "Prévisions de la demande par pays et par saison",
+    "analisisDeMercadosInternacionalesPr": "Analyse du marché international (prix, concurrence, opportunités)",
+    "deteccionPreventivaDeRiesgoDeDesaba": "Détection préventive des risques de pénurie d'approvisionnement",
+    "matchingDirectoConImportadoresVerifi": "Mise en relation directe avec des importateurs vérifiés d'autres pays",
+    "generacionAutomaticaDeContratosB2bE": "Génération automatique de contrats B2B au format PDF",
+    "analisisDeRegulacionesYArancelesPor": "Analyse des réglementations et des tarifs par marché de destination",
+    "creacionDeDossieresDeExportacion": "Création de dossiers d'exportation",
+    "prioridadAbsolutaDeVisibilidadEnLa": "Priorité absolue à la visibilité sur la plateforme",
+    "soporteTelefonicoDirecto": "Assistance téléphonique directe",
+    "soloVendoEnEspana": "Je vends uniquement en Espagne.",
+    "yaExportoAAlgunPais": "J'exporte déjà vers certains pays.",
+    "masDe20": "Plus de 20",
+    "andalucia": "Andalousie",
+    "aragon": "Aragon",
+    "castillaYLeon": "Castille et León",
+    "cataluna": "Catalogne",
+    "paisVasco": "le Pays basque",
+    "stripeNoEstaDisponible": "Stripe n'est pas disponible.",
+    "quienEres": "Qui es-tu",
+    "stripeNoEstaConfiguradoTodavia": "Stripe n'est pas encore configuré.",
+    "noPudimosPrepararElPagoSeguro": "Nous n'avons pas pu effectuer le paiement sécurisé.",
+    "necesitamosTuNombreParaDarteDeAlta": "Nous avons besoin de votre nom pour vous inscrire.",
+    "introduceUnEmailValido": "Veuillez saisir une adresse courriel valide.",
+    "necesitamosUnTelefonoOperativo": "Nous avons besoin d'un téléphone qui fonctionne.",
+    "tuContrasenaDebeTenerAlMenos6Cara": "Votre mot de passe doit comporter au moins 6 caractères.",
+    "debesAceptarLaPoliticaDePrivacidad": "Vous devez accepter la politique de confidentialité et les conditions d'utilisation.",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "Indiquez-nous le nom de votre marque ou de votre coopérative.",
+    "seleccionaAlMenosUnTipoDeProducto": "Sélectionnez au moins un type de produit.",
+    "indicanosSiYaExportasOQuieresEmpez": "Faites-nous savoir si vous exportez déjà ou si vous souhaitez commencer.",
+    "seleccionaTuRegionDeProduccion": "Sélectionnez votre région de production.",
+    "necesitamosUnRangoAproximadoDeRefer": "Nous avons besoin d'une fourchette approximative de références.",
+    "completaLosDatosDeLaTarjetaParaCo": "Complétez les informations de la carte pour continuer.",
+    "stripeNoEstaListoTodavia": "Stripe n'est pas encore prêt.",
+    "noPudimosValidarLaTarjeta": "Nous n'avons pas pu valider la carte.",
+    "tuBancoRechazoLaOperacion": "Votre banque a refusé la transaction.",
+    "haOcurridoUnErrorConElPagoPorFa": "Une erreur s'est produite lors de votre paiement. Veuillez réessayer.",
+    "elMetodoDePagoFueRechazadoPorFav": "Votre mode de paiement a été refusé. Veuillez utiliser une autre carte.",
+    "revisaLosDatosAntesDeContinuar": "Veuillez prendre connaissance des informations avant de continuer.",
+    "noPudimosCompletarElAltaDelProduct": "Nous n'avons pas pu finaliser l'enregistrement du producteur.",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "Votre compte existe déjà. S'il a déjà été créé, il vous suffit de finaliser votre abonnement ou de vérifier vos droits d'accès.",
+    "completaLosCamposObligatoriosParaAv": "Remplissez les champs obligatoires pour continuer.",
+    "aceptoLaPoliticaDePrivacidadYLosT": "J'accepte la politique de confidentialité et les conditions d'utilisation",
+    "nombreDeTuObradorMarcaOCooperativ": "Nom de votre atelier, marque ou coopérative",
+    "exportacionActual": "Exportations actuelles",
+    "regionDeProduccion": "Région de production",
+    "seleccionaTuRegion": "Sélectionnez votre région",
+    "numeroDeReferencias": "Nombre de références",
+    "cargoOComision": "Poste ou commission",
+    "entiendoQueHispaloshopRetieneUn20": "Je comprends que Hispaloshop prélève une commission de 20 % sur les ventes.",
+    "noPagarasNadaHastaQueVendasCuando": "Vous ne paierez rien tant que vous n'aurez pas vendu. Lors de la vente, vous conserverez 80 %.",
+    "pagoSeguroPorStripeCancelaCuandoQ": "Paiement sécurisé via Stripe. Annulation possible à tout moment depuis votre tableau de bord.",
+    "pagoSeguroPorStripeSiTuBancoPide": "Paiement sécurisé via Stripe. Si votre banque exige une confirmation supplémentaire, nous nous en chargerons directement ici, sans que vous ayez à quitter la page.",
+    "bienvenidoALaRevolucionDeLosProduc": "Bienvenue dans la révolution des producteurs honnêtes.",
+    "revisaTuEmailParaVerificarTuCuenta": "Consultez votre messagerie pour vérifier votre compte et accédez à votre tableau de bord pour compléter votre profil.",
+    "siTuAltaQuedaPendienteDeRevision": "Si votre demande est en cours d'examen, vous verrez d'abord son statut d'approbation. Vous pourrez ensuite poursuivre la procédure sans rien manquer.",
+    "verGuiaRapidaParaSubirMiPrimerPro": "Consultez le guide rapide pour télécharger mon premier produit",
+    "tuCuentaYaExisteYElSiguientePaso": "Votre compte existe déjà, et la prochaine étape consiste à vérifier votre adresse e-mail et à finaliser la préparation de votre profil.",
+    "laContrasenaNoSeGuardaEnLocalstora": "Le mot de passe n'est pas enregistré dans le stockage local, évitant ainsi de laisser un secret exposé.",
+    "freeCreaLaCuentaAlInstanteProYE": "La version GRATUITE crée le compte instantanément. Les versions PRO et ELITE activent Stripe directement dans le flux de travail.",
+    "empezamosPorLoMinimoParaNoPonerte": "Nous commencerons par le strict minimum afin de ne pas vous imposer un obstacle supplémentaire.",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "Nous sommes à un pas de l'ouverture de votre magasin et de la mise en place de l'infrastructure.",
+    "completarSuscripcionYAbrirMiTienda": "Finalisez votre abonnement et ouvrez ma boutique"
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "Impossible de fermer le compte. Veuillez réessayer.",
+    "noSePudieronCargarLasHistorias": "Impossible de charger les articles",
+    "errorAlCrearElDestacado": "Erreur lors de la création de la surbrillance",
+    "seCerraraLaSesionDeEstaCuentaYTe": "Cette session va être fermée et vous devrez vous reconnecter.",
+    "soloSeEliminaDelSelectorDeCuentas": "Il est uniquement supprimé du sélecteur de compte sur cet appareil.",
+    "codigoCopiado": "Code copié :",
+    "noHayHistoriasEnEsteDestacado": "Cet élément en vedette ne contient aucun article.",
+    "lasHistoriasDelDestacadoNoSeElimin": "Les articles mis en avant ne seront pas supprimés, seule la collection le sera.",
+    "noHayHistoriasEnTuArchivo": "Votre fichier ne contient aucune histoire.",
+    "publicaUnaHistoriaPrimeroParaPoder": "Publiez d'abord un article pour pouvoir bénéficier d'une mise en avant.",
+    "lasHistoriasNoSePerderanSoloLaCo": "Les histoires ne seront pas perdues, seule la collection l'est."
+  },
+  "profile_tabs": {
+    "crearPublicacion": "Créer un message",
+    "sinPublicacionesTodavia": "Aucun message pour l'instant",
+    "sinReelsTodavia": "Pas encore de bobines",
+    "sinRecetasTodavia": "Aucune recette pour le moment",
+    "nadaGuardadoTodavia": "Rien n'est encore enregistré",
+    "publicacionGuardada": "Message enregistré"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "Manuel ou lié aux produits de la plateforme."
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "Plus de portions",
+    "anadirTodoAlCarrito": "Ajouter tout au panier"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "Ajouter au panier",
+    "iniciaSesionParaAnadirProductos": "Connectez-vous pour ajouter des produits",
+    "noHemosPodidoCompletarLaAccion": "Nous n'avons pas pu mener à bien l'action.",
+    "esteProductoAunNoTieneCertificados": "Ce produit ne possède pas encore de certificats vérifiés.",
+    "seElPrimeroEnOpinarSobreEsteProdu": "Soyez le premier à donner votre avis sur ce produit."
   }
 }

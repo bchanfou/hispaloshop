@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 // Pre-declare slugify so it's available before the component body
 function slugify(text) {
@@ -16,8 +17,8 @@ function slugify(text) {
 
 const EMOJIS = ['🌿', '🫙', '🧀', '🫒', '🍯', '👨‍🍳', '💪', '🌾', '🥗', '🌶️', '🍎', '🐟', '🌱', '🏔️', '🇪🇸'];
 const CATEGORIES = [
-  'Alimentación', 'Recetas', 'Productores', 'Dieta',
-  'Ecológico', 'Vegano', 'Sin gluten', 'Local', 'Internacional',
+  t('communities_explore.alimentacion', 'Alimentación'), 'Recetas', 'Productores', 'Dieta',
+  t('search.ecologico', 'Ecológico'), 'Vegano', 'Sin gluten', 'Local', 'Internacional',
 ];
 
 const FormField = ({ label, hint, children }) => (
@@ -55,7 +56,7 @@ const CommunityPreviewCard = ({ form, coverPreview }) => {
         {/* Name overlay */}
         <div className="absolute bottom-2 left-3 right-3">
           <p className="text-[15px] font-bold text-white m-0" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
-            {form.name || 'Nombre de la comunidad'}
+            {form.name || t('create_community.nombreDeLaComunidad', 'Nombre de la comunidad')}
           </p>
         </div>
         {/* Category badge */}
@@ -120,7 +121,7 @@ export default function CreateCommunityPage() {
         <div className="px-5 pt-10 text-center max-w-[400px] mx-auto">
           <div className="bg-stone-100 rounded-[14px] px-6 py-8">
             <p className="text-5xl">🔒</p>
-            <h2 className="text-xl font-bold text-stone-950">Necesitas más seguidores</h2>
+            <h2 className="text-xl font-bold text-stone-950">{t('create_community.necesitasMasSeguidores', 'Necesitas más seguidores')}</h2>
             <p className="text-stone-500">
               Para crear una comunidad necesitas al menos 100 seguidores o ser vendedor verificado.
             </p>
@@ -197,11 +198,11 @@ export default function CreateCommunityPage() {
   };
 
   const create = async () => {
-    if (!form.name.trim()) { toast.error('El nombre es obligatorio'); return; }
-    if (form.name.trim().length < 3) { toast.error('El nombre debe tener al menos 3 caracteres'); return; }
-    if (!form.slug.trim()) { toast.error('La URL es obligatoria'); return; }
-    if (form.slug.trim().length < 3) { toast.error('La URL debe tener al menos 3 caracteres'); return; }
-    if (!/^[a-z0-9]/.test(form.slug)) { toast.error('La URL debe empezar con una letra o número'); return; }
+    if (!form.name.trim()) { toast.error(t('register.elNombreEsObligatorio', 'El nombre es obligatorio')); return; }
+    if (form.name.trim().length < 3) { toast.error(t('create_community.elNombreDebeTenerAlMenos3Caracter', 'El nombre debe tener al menos 3 caracteres')); return; }
+    if (!form.slug.trim()) { toast.error(t('create_community.laUrlEsObligatoria', 'La URL es obligatoria')); return; }
+    if (form.slug.trim().length < 3) { toast.error(t('create_community.laUrlDebeTenerAlMenos3Caracteres', 'La URL debe tener al menos 3 caracteres')); return; }
+    if (!/^[a-z0-9]/.test(form.slug)) { toast.error(t('create_community.laUrlDebeEmpezarConUnaLetraONume', 'La URL debe empezar con una letra o número')); return; }
     if (isUploadingCover) { toast.error('Espera a que se suba la imagen'); return; }
     setIsCreating(true);
     try {
@@ -210,14 +211,14 @@ export default function CreateCommunityPage() {
         slug: form.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'),
       };
       const data = await apiClient.post('/communities', payload);
-      toast.success('¡Comunidad creada!');
+      toast.success(t('create_community.comunidadCreada', '¡Comunidad creada!'));
       navigate(`/communities/${data.slug || form.slug}`);
     } catch (err) {
       const detail = err?.response?.data?.detail || err?.detail;
       if (detail === 'slug_taken') {
-        toast.error('Esa URL ya está en uso. Prueba otra.');
+        toast.error(t('create_community.esaUrlYaEstaEnUsoPruebaOtra', 'Esa URL ya está en uso. Prueba otra.'));
       } else {
-        toast.error('Error al crear la comunidad');
+        toast.error(t('create_community.errorAlCrearLaComunidad', 'Error al crear la comunidad'));
       }
     } finally {
       setIsCreating(false);
@@ -272,7 +273,7 @@ export default function CreateCommunityPage() {
             ) : (
               <div className="text-center text-stone-500">
                 <p className="text-[32px] mb-1">{form.emoji}</p>
-                <p className="text-xs">Añadir foto de portada</p>
+                <p className="text-xs">{t('create_community.anadirFotoDePortada', 'Añadir foto de portada')}</p>
               </div>
             )}
             {isUploadingCover && (
@@ -286,7 +287,7 @@ export default function CreateCommunityPage() {
 
         <div className="flex flex-col gap-3.5">
           {/* Name */}
-          <FormField label="Nombre de la comunidad *">
+          <FormField label={t('create_community.nombreDeLaComunidad1', 'Nombre de la comunidad *')}>
             <input
               value={form.name}
               onChange={e => {
@@ -295,14 +296,14 @@ export default function CreateCommunityPage() {
                   update('slug', slugify(e.target.value));
                 }
               }}
-              placeholder="Ej: Aceites de España"
+              placeholder={t('create_community.ejAceitesDeEspana', 'Ej: Aceites de España')}
               maxLength={60}
               className="w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border"
             />
           </FormField>
 
           {/* Slug */}
-          <FormField label="URL de la comunidad *">
+          <FormField label={t('create_community.urlDeLaComunidad', 'URL de la comunidad *')}>
             <div className="flex items-center">
               <span className="px-2.5 py-2.5 bg-stone-100 border border-stone-200 border-r-0 rounded-l-xl text-xs text-stone-500 whitespace-nowrap">
                 /communities/
@@ -322,12 +323,12 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Description */}
-          <FormField label="Descripción">
+          <FormField label=t('productDetail.description', 'Descripción')>
             <div className="relative">
               <textarea
                 value={form.description}
                 onChange={e => update('description', e.target.value)}
-                placeholder="¿De qué trata tu comunidad?"
+                placeholder={t('create_community.deQueTrataTuComunidad', '¿De qué trata tu comunidad?')}
                 rows={3} maxLength={300}
                 className="resize-none w-full px-3 py-2.5 bg-stone-100 border border-stone-200 rounded-xl outline-none text-stone-950 text-sm box-border"
               />
@@ -338,7 +339,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Emoji */}
-          <FormField label="Icono de la comunidad">
+          <FormField label=t('create_community.iconoDeLaComunidad', 'Icono de la comunidad')>
             <div className="flex gap-1.5 flex-wrap">
               {EMOJIS.map(em => (
                 <button key={em} type="button"
@@ -358,7 +359,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Category */}
-          <FormField label="Categoría">
+          <FormField label=t('products.category', 'Categoría')>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map(cat => (
                 <button key={cat} type="button"
@@ -376,7 +377,7 @@ export default function CreateCommunityPage() {
           </FormField>
 
           {/* Tags */}
-          <FormField label="Etiquetas (máx. 5)" hint="Presiona Enter para añadir">
+          <FormField label=t('create_community.etiquetasMax5', 'Etiquetas (máx. 5)') hint="Presiona Enter para añadir">
             <div className="flex gap-1.5 mb-1.5 flex-wrap">
               {form.tags.map(tag => (
                 <span key={tag} className="flex items-center gap-1 text-xs px-2.5 py-0.5 bg-stone-100 text-stone-950 rounded-full">

@@ -207,7 +207,7 @@ export default function LoginPage() {
       {/* Divider */}
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-1 h-px bg-stone-200" />
-        <span className="text-xs text-stone-400">o continúa con email</span>
+        <span className="text-xs text-stone-400">{t('login.oContinuaConEmail', 'o continúa con email')}</span>
         <div className="flex-1 h-px bg-stone-200" />
       </div>
 

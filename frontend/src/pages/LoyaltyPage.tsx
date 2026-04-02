@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 export default function LoyaltyPage() {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export default function LoyaltyPage() {
   const handleCopy = (code) => {
     navigator.clipboard?.writeText(code);
     setCopiedCode(code);
-    toast.success('Código copiado');
+    toast.success(t('influencer_dashboard.codigoCopiado', 'Código copiado'));
     setTimeout(() => setCopiedCode(null), 2000);
   };
 

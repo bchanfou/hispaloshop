@@ -2627,5 +2627,1700 @@
     "firstReviewDesc": "你写了第一篇评论",
     "explorer": "探索者",
     "explorerDesc": "您关注了 5 家店铺"
+  },
+  "product_detail": {
+    "resenaEnviada": "已提交审核",
+    "chatNoDisponibleParaEsteProducto": "此产品暂不支持在线聊天服务。",
+    "noSePudoAbrirElChat": "聊天窗口无法打开。",
+    "puntuacion": "标点",
+    "comentarioDeLaResena": "评论评述",
+    "noHemosPodidoEnviarLaResena": "我们未能提交评论。",
+    "anadirAFavoritos": "添加到收藏夹",
+    "politicaDeDevolucion": "退货政策",
+    "tienes14DiasDesdeLaRecepcionParaD": "自收到商品之日起，您有14天的时间退货。易腐食品不可退货。",
+    "anadeEsteProductoAlCatalogoB2bPara": "将此产品添加到B2B产品目录中，即可接收批发订单。",
+    "anadirAlCatalogoB2b": "添加到B2B产品目录"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "将商品添加到购物车时出错",
+    "errorAlAnadir": "添加错误",
+    "noSePudoCopiarElEnlace": "链接无法复制",
+    "anadidoALaLista": "已添加到列表",
+    "noSePudoGuardarEnLaLista": "无法保存到列表中",
+    "seleccionaUnaValoracion": "选择评分",
+    "valoracionPublicada": "已公布评分",
+    "masPorciones": "更多份",
+    "errorAlPublicarLaValoracion": "发布评分时出错",
+    "preparacion": "准备",
+    "informacionNutricional": "营养信息",
+    "porRacion": "每份",
+    "proteina": "蛋白质",
+    "azucar": "糖",
+    "aunNoHayResenasSeElPrimero": "目前还没有评论。快来成为第一个评论者吧！",
+    "tuResena": "您的评价",
+    "enviarResena": "提交评论"
+  },
+  "community": {
+    "configuracion": "配置",
+    "errorAlActualizarMembresia": "会员资格更新错误",
+    "escribeAlgoOAnadeUnaImagen": "写点什么或添加一张图片",
+    "queQuieresCompartirPuedesUsarHas": "你想分享什么？你可以使用#话题标签。",
+    "anadirImagen": "添加图片",
+    "errorAlCargarLaComunidad": "加载社区时出错",
+    "salirDeLaComunidad": "离开社区",
+    "comparteAlgoConLaComunidad": "与社区分享一些内容……",
+    "aunNoHayPosts": "目前还没有帖子。",
+    "seElPrimeroEnPublicarAlgo": "抢先发布内容！",
+    "verMasPosts": "查看更多帖子",
+    "verMasComentarios": "查看更多评论",
+    "sinMiembrosTodavia": "目前尚无成员",
+    "verMasMiembros": "查看更多成员",
+    "normasDeLaComunidad": "社区准则",
+    "contenidoRelacionadoConAlimentacionY": "与食品和美食相关的内容",
+    "sinSpamNiPublicidadNoAutorizada": "禁止发送垃圾邮件或发布未经授权的广告",
+    "sinBebidasAlcoholicas": "禁止饮用酒精饮料",
+    "elAdminPuedeEliminarPostsQueNoCum": "管理员可以删除不符合规则的帖子。"
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "加载您的故事时出错",
+    "errorAlSubirLaFoto": "照片上传出错",
+    "noSePudoAbrirLaConversacion": "对话无法打开。",
+    "errorAlCrearConversacion": "创建对话时出错",
+    "atras": "后退"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "取消关注时出错",
+    "cargarMasUsuarios": "加载更多用户",
+    "pruebaConOtroTermino": "尝试使用其他术语",
+    "cargarMas": "加载更多",
+    "sinSeguidoresAun": "目前还没有关注者",
+    "noSigueANadieAun": "她目前还没有关注任何人。"
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "创建集合时出错",
+    "nombreDeLaColeccion": "收藏名称",
+    "guardaContenidoTocandoElIconoDeMar": "点击书签图标即可保存内容",
+    "nuevaColeccion": "新品系列"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "使用 Google 登录时出错。",
+    "tuContrasena": "您的密码",
+    "elEmailEsObligatorio": "必须提供电子邮件地址",
+    "laContrasenaEsObligatoria": "需要密码。",
+    "emailOContrasenaIncorrectos": "邮箱或密码错误",
+    "tuCuentaEstaRestringidaPorEdad": "您的账户有年龄限制。",
+    "noHemosPodidoIniciarTuSesion": "我们无法让您登录。",
+    "entraEnTuCuenta": "登录您的帐户",
+    "tuSesionHaExpiradoIniciaSesionDe": "您的会话已过期，请重新登录。",
+    "ocultarContrasena": "隐藏密码"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "重新发送恢复邮件",
+    "enviarEnlaceDeRecuperacion": "发送恢复链接"
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "图片大小不能超过 5 MB",
+    "noSePudoSubirLaFotoDePerfilPero": "个人资料图片上传失败，但您的帐户仍将被创建。",
+    "panaderia": "面包店",
+    "reposteria": "糖果",
+    "descubreProductosArtesanalesUnicosDe": "探索当地生产者独具特色的手工制品。",
+    "tuTiendaEstaListaEmpiezaAVenderT": "您的店铺已准备就绪。开始销售您的手工制品吧。",
+    "exploraElMarketplaceB2bYEncuentraL": "探索B2B市场，寻找最佳生产商。",
+    "errorAlGuardarTuPerfilIntentaloDe": "保存个人资料时出错，请重试。",
+    "estoEsLoQueVeranOtrosUsuarios": "这是其他用户将看到的内容。",
+    "ubicacionOpcional": "地点（可选）",
+    "validacionDeMercadoYPrimerasVentas": "市场验证和初步销售。",
+    "iaComercialAvanzadaYGeneracionDeCo": "先进的商业人工智能和合同生成。",
+    "stripeNoEstaDisponible": "Stripe 不可用",
+    "stripeNoEstaConfiguradoTodavia": "Stripe尚未设置。",
+    "noPudimosPrepararElPago": "我们无法处理该笔付款。",
+    "introduceUnEmailValido": "请输入有效的电子邮件地址。",
+    "creaUnaContrasenaDeAlMenos6Caract": "创建至少包含 6 个字符的密码。",
+    "necesitamosUnTelefonoOperativo": "我们需要一部能用的手机。",
+    "seleccionaElPaisDondeVasAOperar": "选择您将开展业务的国家/地区。",
+    "seleccionaTuPuntoDePartida": "选择您的出发点。",
+    "eligeAlMenosUnTipoDeProducto": "至少选择一种产品类型。",
+    "necesitamosUnaDireccionFiscalValida": "我们需要一个有效的税务地址。",
+    "necesitamosVatCifONifParaDarteDe": "我们需要您的增值税号、CIF号或NIF号来为您注册。",
+    "completaLosDatosDeLaTarjetaParaCo": "请填写卡片信息以继续。",
+    "stripeNoEstaListoTodavia": "Stripe 尚未准备就绪。",
+    "noSePudoValidarLaTarjeta": "该卡无法验证。",
+    "tuBancoRechazoLaOperacion": "您的银行拒绝了这笔交易。",
+    "haOcurridoUnErrorConElPagoPorFa": "您的付款出现错误，请重试。",
+    "elMetodoDePagoFueRechazadoPorFav": "您的付款方式被拒绝。请使用其他银行卡。",
+    "revisaLosDatosAntesDeContinuar": "请在继续操作前仔细阅读相关信息。",
+    "noPudimosCompletarElAlta": "我们未能完成出院手续。",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "您的账户已创建完成。您只需激活套餐或取消订阅即可。",
+    "completaLosCamposObligatoriosParaAv": "请填写必填字段以继续。",
+    "numeroSinEspacios": "数字（不含空格）",
+    "paisDondeOperaras": "您将开展业务的国家/地区",
+    "seleccionaTuPaisPrincipal": "选择您的主要国家/地区",
+    "loUsamosParaFacturacionYAprobacion": "我们将其用于计费和商业审批。",
+    "direccionFiscal": "税务地址",
+    "direccionCompletaParaFacturacion": "完整账单地址",
+    "empezamosSinCuotaFijaSiElMercado": "我们一开始不收取固定费用。如果市场反响良好，您可以再决定是否升级到专业版或精英版。",
+    "pagoSeguroCancelaCuandoQuierasNo": "安全支付，随时取消，我们不会中断您的交易流程。",
+    "bienvenidoALaRevolucion": "欢迎来到这场革命。",
+    "revisaTuEmailParaVerificarTuCuenta": "请查看您的电子邮件以验证您的帐户。你们已经拥有了可以帮我节省时间和金钱的基础设施。",
+    "verCatalogoDeProductoresDisponibles": "查看可用生产商目录",
+    "sinAlertsAgresivosYConGuardadoLoca": "不发出烦人的警报，并本地保存进度。",
+    "tuContrasenaNoSePersisteEnLocalsto": "您的密码不会保存在本地存储中。",
+    "proYEliteUsanStripeInlineFreeCre": "专业版和精英版使用 Stripe 内嵌支付。免费版则立即创建账户。"
+  },
+  "post_detail": {
+    "publicacionEditada": "编辑出版物",
+    "editarDescripcion": "编辑描述",
+    "publicacion": "发布",
+    "editarPublicacion": "编辑帖子",
+    "laImagenNoSePuedeCambiarTrasPubli": "图片发布后无法更改。",
+    "seEliminaraPermanentementeJuntoConS": "您的帖子、评论和点赞将被永久删除，此操作无法撤销。",
+    "seElPrimeroEnComentar": "抢先发表评论",
+    "masPopulares": "最受欢迎",
+    "cargarMasComentarios": "加载更多评论",
+    "compartirPublicacion": "分享此帖"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "图片加载失败。",
+    "noHemosPodidoCargarLaImagenDelPas": "我们无法加载游行队伍的图片。",
+    "numeroDeRaciones": "份量",
+    "anadirIngrediente": "添加配料",
+    "cuentaQueHaceEspecialEstaReceta": "请告诉我们这道菜的特别之处……",
+    "descripcionDeLaReceta": "食谱描述",
+    "anadirEtiqueta": "添加标签...",
+    "ensaladaRapida": "快速沙拉",
+    "postreFacil": "简易甜点",
+    "noHemosPodidoPublicarLaReceta": "我们无法发布该食谱。",
+    "recetaPublicada": "食谱已发布！",
+    "tienesUnBorradorDeReceta": "你有一份食谱草稿。",
+    "momentoDelDia": "一天中的时间",
+    "unaIntroduccionParaTuReceta": "食谱介绍"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "加载更多胶卷时出错"
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "请尝试其他类别或调整筛选条件。",
+    "verMasProductos": "查看更多产品",
+    "caracteristicas": "特征"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "探索主营本地、手工、健康食品的店铺。按地区和国家筛选。"
+  },
+  "communities_explore": {
+    "alimentacion": "喂养",
+    "iniciaSesionParaVerTusComunidades": "登录查看您的社区",
+    "noHayComunidadesEnEstaCategoria": "此类别中没有社区。",
+    "sinResultadosParaTuBusqueda": "未找到与您的搜索匹配的结果。",
+    "aunNoHayComunidades": "目前还没有社区。",
+    "creaLaPrimeraComunidadDeEstaCatego": "创建该类别中的第一个社区",
+    "pruebaConOtrosTerminos": "尝试其他术语",
+    "seElPrimeroEnCrearUnaYConectarCo": "率先创建并与社区建立联系",
+    "consigue100SeguidoresOVerificaTuCu": "获得 100 个粉丝或验证您的卖家帐户"
+  },
+  "about": {
+    "envioGestionadoPorProductor": "由生产商负责运输",
+    "productosConInformacionVerificableY": "产品需具备可验证信息和数字证书。",
+    "operacionInternacional": "国际运营",
+    "feedPostsYReelsConectadosConConve": "Feeds、帖子和视频与真正的转化率相连。",
+    "checkoutSeguroComisionesYConciliaci": "安全结账、佣金结算和交易对账。",
+    "contenidoUtil": "有用的内容",
+    "clientesProductoresImportadoresEIn": "将顾客、生产商、进口商和意见领袖汇聚于同一流程中。",
+    "gestionarPedidosYOperacionDiaria": "管理订单和日常运营",
+    "configurarEnvioYCatalogoInternaciona": "配置国际运输和目录",
+    "trackingDeConversionYRendimiento": "转化率和绩效跟踪",
+    "monetizacionEnPostsYReels": "帖子和短视频的盈利",
+    "altaDeProductosYCatalogoPropio": "产品注册及自有产品目录",
+    "panelDePedidosPagosYOperacion": "订单、支付和运营面板",
+    "catalogoLimpio": "干净的目录",
+    "contenidoUtilEnlazadoAProductosReal": "与真实产品相关的实用内容。",
+    "queEsHispaloshop": "Hispaloshop是什么？",
+    "unimosCompraVentaInfluenciaYTraza": "我们将采购、销售、影响力和可追溯性整合到一个运营平台中。",
+    "loQueYaEstaActivo": "目前有哪些活动正在进行？",
+    "funcionalidadRealDeProductoEnEstaV": "此版本中的实际产品功能。",
+    "porQueLaPlataformaFunciona": "平台运作原理",
+    "paraQuienEstaHecho": "它是为哪些用户设计的？",
+    "porQueExisteHispaloshop": "Hispaloshop存在的意义是什么？",
+    "laHistoriaRealDetrasDelProyecto": "项目背后的真实故事。",
+    "aLos25Perdi15000€EnUnContainerD": "25岁那年，我在仁川一个爆米花桶里丢了15000欧元，爆米花桶烂掉了。我在首尔的公园里哭了起来。26岁那年，我搬回了雷乌斯父母的房间。现在是早上6点，为了搭建这个网站，我已经连续两个月每晚睡眠不超过5个小时了。",
+    "loHiceParaQueNingunProductorHonest": "我这样做是为了让所有正直的制作人不再感到被忽视，也为了让所有网红不再需要在正直和生计之间做出选择。",
+    "exploraCatalogoTiendasYContenido": "浏览产品目录、商店和内容。",
+    "checkoutCentralizadoEnUnSoloFlujo": "集中式单流程结账。"
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "帖子中至少要添加一张图片。",
+    "laDescripcionEsDemasiadoLarga": "描述太长了。",
+    "publicacionCreada": "发布",
+    "verEnElFeed": "在动态中查看",
+    "errorAlPublicarCompruebaTuConexion": "发布失败。请检查您的网络连接并重试。",
+    "nuevaPublicacion": "新出版物",
+    "seleccionaImagenes": "选择图片",
+    "capturaDirectamenteDesdeTuCamara": "直接从相机拍摄",
+    "abrirCamaraParaTomarFoto": "打开相机拍照",
+    "abrirCamara": "打开摄像头",
+    "saturacion": "饱和",
+    "vineteado": "小插曲",
+    "tamano": "尺寸",
+    "descripcionDeLaPublicacion": "出版物说明",
+    "escribeTuPieDeFotoUsaParaHas": "写下你的标题……使用#添加话题标签，使用@提及。",
+    "sugerenciaAnadida": "添加建议",
+    "noSePudoGenerarUnaSugerencia": "无法生成建议。",
+    "errorAlConectarConDavidAi": "连接到 David AI 时出错",
+    "anadirUbicacionEjGaliciaCosta": "添加位置...（例如加利西亚、布拉瓦海岸）",
+    "cerrarBusqueda": "关闭搜索",
+    "publicado": "已发布！",
+    "reintentarPublicacion": "转发"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "视频文件过大（最大 100 MB）",
+    "elVideoNoPuedeSuperarLos60Segundo": "视频时长不能超过60秒。上传前请进行剪辑。",
+    "noHayVideoSeleccionado": "未选择视频",
+    "elPuntoDeInicioDelRecorteNoPuede": "切割的起点不能大于或等于终点。",
+    "verEnElFeed": "在动态中查看",
+    "errorAlPublicarElReelCompruebaTu": "发布视频片段时出错。请检查您的网络连接并重试。",
+    "seleccionaUnVideo": "选择一个视频",
+    "maximo60Segundos·Mp4OMov": "最长 60 秒 · MP4 或 MOV 格式",
+    "elegirVideoDeLaGaleria": "从图库中选择视频",
+    "elegirDeLaGaleria": "从图库中选择",
+    "pausarVideo": "暂停视频",
+    "controlaElVolumenDelAudioOriginalD": "控制视频原音频的音量。",
+    "anadirTextoAlVideo": "视频添加文字",
+    "escribeAqui": "请在此处填写……",
+    "textoParaElOverlay": "叠加层的文本",
+    "tamanoDeTexto": "文本大小",
+    "tienesUnBorradorDeReel": "你有一份草稿卷轴",
+    "descripcionDelReel": "影片描述",
+    "portadaDesdeGaleria": "封面来自画廊",
+    "anadirUbicacion": "添加位置...",
+    "reelPublicado": "影片已发布！"
+  },
+  "create_story": {
+    "ecologicoEu": "欧盟生态",
+    "anadeContenidoATuHistoria": "为你的故事添加内容",
+    "errorAlExportarLaHistoria": "导出历史记录时出错",
+    "errorAlPublicarLaHistoria": "发布新闻时出错",
+    "historiaPublicada": "故事已发布！",
+    "tienesUnBorradorDeStory": "你有一个故事草稿。",
+    "arrastraAquiParaEliminar": "拖到此处删除",
+    "escribeAqui": "请在此处填写……",
+    "textoParaLaHistoria": "历史课文",
+    "quePrefieres": "你更喜欢哪种？",
+    "opcion1": "选项 1",
+    "opcion2": "选项 2",
+    "anadirEncuesta": "添加调查",
+    "anadirMencion": "添加提及",
+    "anadirEnlace": "添加链接",
+    "sevillaEspana": "西班牙塞维利亚",
+    "anadirUbicacion": "添加位置",
+    "anadirPregunta": "添加问题",
+    "buscarProductoParaEtiquetarEnLaHis": "在历史记录中搜索要标记的产品",
+    "buscaUnProductoDeTuCatalogoParaAn": "在产品目录中找到一款产品，并将其添加为互动贴纸。"
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "有机橄榄油",
+    "prediccion": "预言",
+    "accedeATuRepresentanteDeVentasInte": "联系您的国际销售代表，获取市场分析报告。",
+    "errorAlContactarAlAgenteComercial": "联系销售代理时出错，请重试。",
+    "tuRepresentanteDeVentasInternacional": "您的AI驱动型国际销售代表",
+    "chatConElAgente": "与经纪人聊天"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "暂无数据",
+    "errorAlCargarAnaliticas": "加载分析时出错",
+    "compruebaTuConexionEIntentaloDeNue": "请检查您的网络连接并重试。",
+    "analitica": "分析",
+    "productosMasVendidos": "畅销产品",
+    "deDondeVienenTusVentas": "你们的销售额来自哪里？",
+    "seguidoresDeLaTienda": "店铺粉丝",
+    "tasaDeConversion": "转化率",
+    "anadidosAlCarrito": "加入购物车"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "请输入追踪号码",
+    "urlDeTrackingNoValidaDebeEmpezar": "无效的跟踪 URL。必须以 http:// 或 https:// 开头。",
+    "envioRegistrado": "挂号寄送",
+    "errorAlRegistrarElEnvio": "注册发货信息时出错",
+    "numeroDeTracking": "追踪号码",
+    "introduceUnPrecioValidoPorUnidad": "请输入有效的单价。",
+    "plazoDias": "截止日期（天）",
+    "ejStockDisponibleMinimo100kgPorP": "例如：有现货。每单最低订购量为100公斤。",
+    "ofertaEnviadaEsperandoAprobacionYP": "报价已发出，等待进口商批准和付款。",
+    "gestionaLasSolicitudesB2bDeImportad": "管理来自进口商的 B2B 请求",
+    "activaElModoB2bEnTusProductosPara": "启用产品B2B模式以接收订单请求。"
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "待审核",
+    "pdfJpgPngMax5mb": "PDF、JPG、PNG（最大5MB）",
+    "100OrganicoSinPesticidasCosechaM": "100% 有机，无农药，手工采摘……",
+    "aceitunasEspanaJaen10salPortug": "橄榄：西班牙（哈恩）&10;盐：葡萄牙&10;..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "入职流程无法启动",
+    "configuraTuCuentaParaRecibirTransfe": "设置您的账户以接收自动转账。",
+    "tuCuentaEstaListaParaRecibirPagos": "您的账户已准备好接收付款。",
+    "completaLosDatosEnStripeParaActiva": "请在 Stripe 中填写相关信息以激活收款和付款功能。"
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "发现并转化您的产品目录",
+    "conversionDesdeContenido": "内容转化",
+    "sinDatosParaEstePeriodo": "此期间暂无数据。",
+    "todaviaNoHayRecetasConTusProductos": "目前还没有使用您产品的食谱。",
+    "cuandoCreadoresCompartanRecetasUsand": "当创作者分享使用您提供的食材制作的食谱时，这些食谱就会出现在这里。"
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "您必须在 Stripe 中填写缺失的信息。",
+    "recibirasTuPorcentajeDeCadaVentaAu": "您将根据您的计划自动收到每笔销售的相应比例佣金。",
+    "completaLaVerificacionEnStripePara": "完成 Stripe 上的验证流程以激活自动付款。",
+    "completarVerificacion": "完整验证",
+    "noHayDatosSuficientesTodavia": "目前数据不足",
+    "noSePudieronCargarLasMetricasDelC": "目录和店铺指标无法加载。",
+    "noSePudoCargarElResumenDePagos": "付款汇总信息加载失败。",
+    "noSePudieronCargarLosDatosPrincipa": "主面板数据加载失败，请刷新页面。",
+    "errorAlCargarDatosPorFavorRefres": "数据加载出错，请刷新页面。",
+    "anadirNuevoProducto": "添加新产品",
+    "verAnaliticas": "查看分析",
+    "metricasYPagos": "指标和支付",
+    "requierenTuAtencion": "它们需要你的关注",
+    "noPuedesPublicarProductosHastaCompl": "您必须完成验证流程才能发布产品。",
+    "certificadoProximoACaducar": "证书即将到期",
+    "renuevaloParaNoInterrumpirTusVentas": "续订，以免影响销售。",
+    "senalesDeDemanda": "需求信号",
+    "ingredientesProductosYPiezasDeCont": "购买意愿最高的成分、产品和内容。",
+    "sinDatosTodavia": "暂无数据。",
+    "productosMasEtiquetados": "更多贴有标签的产品",
+    "aunNoHayConversionesAtribuidas": "目前还没有归因转换。",
+    "conversion": "转换",
+    "cuentaYConfiguracion": "帐户和设置",
+    "cambiarContrasena": "更改密码"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "暂无销售数据",
+    "metodoDePagoActualizado": "付款方式已更新",
+    "losPagosViaStripeSeProcesanAutomat": "通过 Stripe 进行的付款每 15 天自动处理一次。",
+    "metodoDeCobro": "付款方式",
+    "cobroAutomaticoCada15DiasDirectoA": "每15天自动付款，直接汇款至您的银行账户。",
+    "solicitasElPagoYElEquipoLoTransfi": "您提出付款申请，团队会将款项转入您的账户。",
+    "guardarMetodo": "保存方法",
+    "errorAlCargarDatosDePagos": "加载支付数据时出错",
+    "noSePudoObtenerElEnlaceDeStripe": "无法获取 Stripe 链接",
+    "errorAlAbrirElDashboardDeStripe": "打开 Stripe 控制面板时出错",
+    "retencionFiscalAplicada": "已预扣税款",
+    "tusGananciasSeAcumulanPeroNecesita": "您的收入会不断累积，但您需要使用 Stripe Connect 才能接收自动转账。",
+    "comoFuncionanLosPagos": "支付方式："
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "基本控制面板",
+    "optimizacionDePreciosConIa": "利用人工智能进行价格优化",
+    "comisionMasBaja": "降低佣金",
+    "suscripcionMarcadaParaCancelar": "订阅已标记为取消",
+    "suscripcionReactivada": "订阅已重新激活",
+    "eligeElPlanQueMejorSeAdapteATuN": "选择最适合您业务的方案",
+    "periodoDePruebaActivo": "积极试用期",
+    "actualizaTuMetodoDePagoParaMantene": "请更新您的付款方式以保留您的套餐。",
+    "cancelacionProgramada": "已安排取消",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "您的计划将在当前周期结束时取消。",
+    "detallesDeSuscripcion": "订阅详情",
+    "cancelarSuscripcion": "取消订阅",
+    "todosLosPreciosSonEnEurEIncluyen": "所有价格均以欧元计价，并包含增值税。方案变更立即生效。",
+    "alCancelarMantienesElAccesoHastaE": "取消订阅后，您仍可继续使用服务直至账单周期结束。"
+  },
+  "producer_products": {
+    "composicion": "作品",
+    "elNombreDelProductoEsObligatorio": "必须填写产品名称。",
+    "seleccionaUnaCategoria": "选择一个类别",
+    "seleccionaElPaisDeOrigen": "选择原产国",
+    "crustaceos": "甲壳类动物",
+    "frutosDeCascara": "坚果",
+    "anadeAlMenosUnaImagen": "至少添加一张图片",
+    "subeHasta5FotosDeTuProductoLaPr": "请上传最多5张产品照片。第一张将作为封面照片。",
+    "pedidoMinimoUds": "最低订购量（件）",
+    "especificaOtrosAlergenos": "请列明其他过敏原……"
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "无法加载运输政策。",
+    "politicaDeEnvioGuardada": "已保存的运费政策",
+    "politicaDeEnvio": "配送政策",
+    "configuraCostesDeEnvioPorPedidoPar": "配置您产品的每笔订单的运费。",
+    "habilitarGastosDeEnvio": "启用运费",
+    "0SinEnvioGratis": "0 = 不包邮",
+    "pedidosQueSuperenEsteImporteTendran": "订单金额超过此限额即可享受免运费。留空或设置为 0 可禁用此功能。",
+    "losClientesPuedenRecogerEnTuObrado": "顾客可以到您的工作室自取订单（需支付运费）。"
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "图片已添加到图库",
+    "anadirFotoALaGaleria": "将照片添加到图库",
+    "fotosDelObradorEquipoProcesoDeEl": "车间、设备和生产过程的照片",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "此店铺网址已被占用，请选择其他网址。",
+    "errorAlCargarElPerfilDeTienda": "加载商店配置文件时出错",
+    "compruebaTuConexionEIntentaloDeNue": "请检查您的网络连接并重试。",
+    "personalizaLaPaginaPublicaDeTuTien": "自定义您商店的公共页面",
+    "urlDeTuTienda": "您的店铺网址：",
+    "informacionBasica": "基本信息",
+    "nombreDeLaTienda": "店铺名称",
+    "aceitesEcologicosDesde1985": "自1985年以来一直使用有机油",
+    "historiaDeLaMarca": "品牌历史",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "讲述你的品牌故事，你的创业历程，你的理念……",
+    "carlosMartinez": "卡洛斯·马丁内斯",
+    "laCalidadNoEsUnAccidente": "品质绝非偶然……",
+    "tusCertificadosVerificadosAparecenAu": "您已验证的证书将自动显示在您的商店中。",
+    "ubicacionCiudadRegion": "地点（城市，地区）",
+    "jaenAndaluciaEspana": "西班牙安达卢西亚哈恩",
+    "direccionCompleta": "完整地址",
+    "ctraDeLosOlivaresKm1223001Jaen": "克拉。德洛斯奥利瓦雷斯, km 12, 23001 哈恩",
+    "todaEspanaPeninsular": "西班牙大陆全境",
+    "horarioDeAtencion": "营业时间",
+    "lun-vie900-180010sab900-1400": "周一至周五：9:00-18:00&#10;周六：9:00-14:00"
+  },
+  "producer_verification": {
+    "instalacion": "设施",
+    "errorAlSubirElDocumentoCifnif": "上传 CIF/NIF 文件时出错",
+    "errorAlSubirLaFotoDeInstalaciones": "上传设施照片时出错。",
+    "errorAlSubirElCertificado": "上传证书时出错",
+    "verificacionDeCuenta": "账户验证",
+    "subeTuCifEmpresarialONifPersonal": "上传您的企业税号 (CIF) 或个人税号 (NIF)。必须是西班牙税务局 (AEAT) 出具的官方文件。",
+    "pdfJpgPng·Max5mb": "PDF、JPG、PNG 格式 · 最大 5MB",
+    "enRevisionManual": "人工审核中",
+    "nuestroEquipoRevisaraTuDocumentoEn": "我们的团队将在 48-72 个工作小时内审核您的文件。",
+    "fotoDeInstalacion": "安装照片",
+    "subeUnaFotoDeTuLocalObradorFinc": "上传一张您的房屋、车间、农场、仓库或工作场所的照片。",
+    "laIaVerificaraQueEsUnaInstalacion": "人工智能将验证它是否是一个与食品生产相关的真实设施。",
+    "jpgPngHeic·Max10mb": "JPG、PNG、HEIC 格式 · 最大 10MB",
+    "instalacionVerificada": "安装已验证",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "我们的团队将在 48-72 个工作小时内审核您的照片。",
+    "alMenos1CertificadoValido": "至少1份有效证书",
+    "enRevision": "正在审核中",
+    "nuestroEquipoRevisaraTuDocumentacion": "我们的团队将在48-72个工作小时内审核您的文件，并通过电子邮件通知您。",
+    "completaLaVerificacion": "完成验证"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "按市场划分的激活规则："
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "请使用有效值填写表格中的所有字段。"
+  },
+  "affiliate_links": {
+    "copiado": "已复制！",
+    "configuracionFiscalRequerida": "所需的税务配置",
+    "generaUnLinkParaCualquierProducto": "为任何产品生成链接。当有人通过您的链接购买产品时，您将获得佣金。",
+    "masIngresos": "更多收入",
+    "masClics": "更多点击",
+    "buscaUnProductoArribaParaGenerarTu": "搜索上方产品即可生成您的第一个链接"
+  },
+  "fiscal_setup": {
+    "sinRetencion": "不保留",
+    "seleccionaUnPaisDeResidenciaFiscal": "首先选择税务居住国",
+    "elArchivoNoPuedeSuperar5mb": "文件大小不能超过 5MB",
+    "certificadoEnRevisionManual": "证书正在人工审核中",
+    "certificadoNoValido": "无效证书",
+    "formatoDeIbanNoValidoDebeEmpezar": "IBAN格式无效。必须以国家代码开头（例如，ES12...）",
+    "errorAlConfigurarMetodoDeCobro": "配置付款方式时出错",
+    "configuracionFiscal": "财政配置",
+    "paisFiscal": "税务国家",
+    "buscarPais": "搜索国家/地区...",
+    "pdfJpgOPng·Max5mb": "PDF、JPG 或 PNG 格式 · 最大 5MB",
+    "nuestroEquipoRevisaraTuCertificadoE": "我们的团队将在 48-72 个工作小时内审核您的证书。",
+    "recibeEnMinutosEnTuCuentaStripe": "几分钟内即可在您的 Stripe 账户中收到款项。",
+    "fee025€PorTransferenciaStripeSe": "手续费：每笔 Stripe 转账 0.25 欧元（从您的佣金中扣除）",
+    "sinComisionAdicional·ProcesadoEn1-": "无额外费用 · 1-3个工作日内处理完毕",
+    "titularDeLaCuenta": "账户持有人",
+    "verificacionCompletada": "验证完成",
+    "tuConfiguracionFiscalEstaVerificada": "您的税务设置已验证并生效。",
+    "verificacionCompletadaAfiliadosActiv": "验证完成。联盟会员已激活。",
+    "errorAlCompletarLaVerificacion": "验证过程中出错。",
+    "completaLosPasosAnterioresParaAcced": "完成以上步骤即可进行验证。",
+    "configuracionFiscalGuardadaAfiliados": "税务设置已保存。联盟计划已激活。",
+    "errorAlGuardarLaConfiguracionFiscal": "保存税务设置时出错。",
+    "completaTodosLosCamposParaContinuar": "请填写所有字段以继续"
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "提款处理出错",
+    "introduceElCodigoDe6Digitos": "请输入6位代码",
+    "emailVerificado": "邮箱已验证！",
+    "codigoInvalido": "无效代码",
+    "codigoEnviadoATuEmail": "验证码已发送至您的邮箱",
+    "errorAlEnviarCodigo": "发送代码时出错",
+    "elCodigoDebeTenerAlMenos3Caracter": "代码长度必须至少为 3 个字符。",
+    "codigoCreado": "创建的代码",
+    "errorAlCrearCodigo": "创建代码时出错",
+    "codigosDeDescuento": "折扣码",
+    "eligeUnCodigoPersonalizadoYElPorce": "为您的社区选择自定义代码和折扣百分比。",
+    "codigoCopiado": "复制代码",
+    "misCodigosDeDescuento": "我的折扣码",
+    "creaTuPrimerCodigoDeDescuento": "创建您的第一个折扣码",
+    "pendiente15Dias": "待处理 15 天",
+    "enTransito": "在途中",
+    "productosQueMejorFuncionanEnTuCont": "最适合您内容的产品",
+    "publicaContenidoConProductosVinculad": "发布包含相关产品的内容，即可开始看到效果。",
+    "pendienteDeAprobacion": "待批准",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "您的代码正在由 Hispaloshop 团队审核。我们将在 24 小时内批准。",
+    "miCodigoHispaloshop": "我的 Hispaloshop 代码",
+    "comisionTotal": "总佣金",
+    "tasaDeComision": "佣金率",
+    "aunNoHasRealizadoNingunCobro": "您尚未收到任何款项。",
+    "hispaloshopSlRetieneEl15DeTusCom": "Hispaloshop SL 会扣留您佣金的 15%，并按季度代表您将其支付给税务局（111 型）。",
+    "cuandoHagasTuDeclaracionDeLaRenta": "当您提交所得税申报表（IRPF）时，这些预扣税款已经缴纳，您可以扣除这些税款。",
+    "recibirasElCertificadoDeRetenciones": "您每年一月份都会收到预扣税证明。",
+    "evolucionDeTusComisiones": "佣金的演变",
+    "comparteloEnTusRedesSociales": "分享到你的社交媒体上",
+    "tuLinkDeAfiliado": "您的联盟链接",
+    "aunNoTienesVentasComparteTuLink": "你目前还没有任何销售额。分享你的链接吧！"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "数据不足，无法显示图表",
+    "impactoComercialDeTuContenido": "内容的商业影响",
+    "productosMasImpulsadosPorTuContenid": "最受您的内容驱动的产品",
+    "errorDeConexion": "连接错误",
+    "noPudimosCargarTusDatosCompruebaT": "我们无法加载您的数据。请检查您的网络连接并重试。",
+    "aunNoTienesDatos": "您目前还没有任何数据。",
+    "cuandoTuContenidoImpulseClicsOComp": "当您的内容带来点击量或购买量时，它将出现在这里。",
+    "losDatosMuestranInteraccionesAtribui": "数据显示了与您的创作者个人资料相关的互动：包括用户点击您内容中的产品、将商品添加到购物车以及完成购买等情况。数据实时更新。"
+  },
+  "payouts": {
+    "introduceUnImporteValido": "请输入有效金额",
+    "elImporteSuperaTuSaldoDisponible": "金额超过了您的可用余额。",
+    "errorAlSolicitarLaRetirada": "提款请求出错",
+    "lasComisionesDeTransferenciaDeStrip": "Stripe的转账手续费（约1-2%）会自动扣除。",
+    "aunNoTienesPagosComparteTuCodigo": "您尚未收到任何付款。分享您的邀请码，即可开始赚钱。",
+    "noHayPagosConEsteEstado": "目前没有处于此状态的付款。"
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "待定税务配置",
+    "completaTuConfiguracionFiscalAntesD": "提款前请完成税务设置。",
+    "errorAlProcesarElCobroIntentaloDe": "支付处理出错，请重试。",
+    "cobroEnCamino": "款项正在支付中！",
+    "tiempoEstimado1-3DiasHabiles": "预计时间：1-3个工作日",
+    "retencionIrpf": "所得税预扣",
+    "metodo": "方法",
+    "comisionBruta": "总佣金",
+    "laComisionRealPuedeVariarSegunTuM": "实际佣金可能因您的付款方式而异。",
+    "esteCobroSeraDeclaradoPorHispalosho": "Hispaloshop SL 将把这笔款项申报为经济活动收入。",
+    "recibirasUnCertificadoDeRetenciones": "您将于一月份收到预扣税证明，用于您的纳税申报。"
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "所有类别",
+    "carnicos": "肉制品",
+    "errorAlEnviarLaSolicitud": "发送请求时出错",
+    "precioEstimado·ElProductorConfirmar": "预估价格 · 生产商将确认最终价格",
+    "notasParaElProductorOpcional": "给制作人的备注（可选）",
+    "elProductorTiene48hParaConfirmarDi": "生产者有 48 小时的时间来确认供货情况和条件。",
+    "soloSeProcesaElPagoTrasSuConfirma": "付款将在确认后处理。",
+    "catalogoMayorista": "批发目录",
+    "errorAlCargarElCatalogo": "加载目录时出错"
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "选择提供商以查看其证书。",
+    "errorAlCargarLosCertificados": "加载证书时出错",
+    "losCertificadosDeTusProveedoresApar": "您的供应商证书将显示在此处。"
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "自动生成的B2B合同",
+    "errorAlCargarElPanel": "加载面板时出错",
+    "aunNoTienesProductosPublicados": "您目前还没有任何产品上架。",
+    "requierenTuAccion": "他们需要你的行动",
+    "catalogoB2b": "B2B产品目录",
+    "aunNoTienesProveedores": "你目前还没有任何供应商。",
+    "expandeTuCatalogo": "扩展您的产品目录",
+    "verAnalisis": "查看分析",
+    "anadirProducto": "添加产品",
+    "analisis": "分析",
+    "evolucionDeVentas": "销售演变"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "交易 ID 不可用",
+    "recepcionConfirmada": "已确认接收",
+    "errorAlConfirmarRecepcion": "确认收据时出错",
+    "idDePedidoNoDisponible": "订单号不可用",
+    "rastrearEnvio": "追踪发货",
+    "confirmarRecepcion": "确认收到"
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "加载折扣码时出错",
+    "errorAlAprobarElCodigo": "代码审批错误",
+    "errorAlRechazarElCodigo": "拒绝代码时出错",
+    "codigoDeDescuentoActualizado": "折扣码已更新",
+    "codigoDeDescuentoCreado": "已创建折扣码",
+    "errorAlGuardarCodigoDeDescuento": "保存折扣码时出错",
+    "codigoDeDescuentoEliminado": "折扣码已移除",
+    "errorAlEliminarCodigoDeDescuento": "删除折扣码时出错",
+    "errorAlCambiarEstadoDelCodigo": "更改代码状态时出错",
+    "cargandoCodigosDeDescuento": "正在加载折扣码",
+    "gestionaCodigosPromocionalesEInfluen": "管理促销代码和影响者",
+    "nuevoCodigo": "新代码",
+    "editarCodigoDeDescuento": "编辑折扣码",
+    "importeMinimoDelCarrito": "最低购物车金额",
+    "limiteDeUso": "使用限制",
+    "actualizarCodigo": "更新代码",
+    "buscarCodigosDeDescuento": "搜索折扣码……",
+    "codigo": "代码",
+    "noSeEncontraronCodigos": "未找到任何代码",
+    "codigosActivos": "活动代码",
+    "totalDeCodigos": "总代码"
+  },
+  "admin_fiscal": {
+    "revisionManual": "人工审核",
+    "errorAlProcesarLaRevision": "错误处理审查",
+    "gestionFiscal": "财政管理",
+    "pendientesRevision": "待审核",
+    "revisionManualPendiente": "人工审核待定"
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "增长数据无法加载",
+    "errorAlCargarLosDatos": "加载数据时出错",
+    "analisisDeConversionYDescubrimiento": "转化率分析与发现",
+    "conversionDirecta": "直接转换",
+    "contenidoConMayorConversion": "转化率更高的内容",
+    "titulo": "资格",
+    "productosMasClicadosDesdeContenido": "点击量最高的内容产品",
+    "sobreLosDatosDeCrecimiento": "关于增长数据"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "加载网红详情时出错",
+    "anadirInfluencer": "添加影响者"
+  },
+  "admin_management": {
+    "paisAsignado": "指定国家",
+    "elAdminSoloVeraAnalyticsDeEstePai": "管理员只能看到此国家/地区的分析数据。留空则可查看全球数据。"
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "健康错误信息",
+    "claimsMedicos": "医疗索赔",
+    "razonIa": "推理人工智能",
+    "contenidoConfirmadoComoInfraccion": "内容已被确认为侵权",
+    "errorAlConfirmarLaModeracion": "确认审核时出错",
+    "errorAlRestaurarElContenido": "恢复内容时出错",
+    "errorAlEscalarElContenido": "误差缩放内容",
+    "revisaElContenidoModeradoPorIa": "审核人工智能审核的内容"
+  },
+  "admin_orders": {
+    "articulos": "文章"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "正在加载管理员面板",
+    "noSePudieronCargarLasEstadisticas": "统计数据无法加载。",
+    "panelDeAdministracion": "管理面板",
+    "gestionDeTuMercadoEnUnaVista": "在一个视图中管理您的市场",
+    "colaDeRevision": "审核队列",
+    "moderacionDeContenido": "内容审核",
+    "certificadosQueExpiranEn30Dias": "30天内到期的证书",
+    "noHayCertificadosProximosAExpirar": "目前没有即将到期的证书。",
+    "certificadosPendientesDeRevision": "证书待审核"
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "银行交易号"
+  },
+  "admin_products": {
+    "precioNoValido": "价格无效",
+    "checklistDeAprobacion": "审批清单",
+    "alMenos1FotoDelProducto": "至少一张产品照片",
+    "descripcionCompletaMin20Caracteres": "完整描述（至少 20 个字符）",
+    "paisDeOrigenIndicado": "原产国已标明。",
+    "alergenosRevisadosCampoPresente": "已审核的过敏原（字段存在）",
+    "marcaTodosLosItemsParaPoderAprobar": "请勾选所有项目以确认"
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "无效的订单 ID",
+    "errorAlProcesarElReembolso": "退款处理出错",
+    "accionIrreversible": "不可逆作用",
+    "seProcesaraElReembolsoEnStripeYSe": "退款将通过 Stripe 处理，手续费将自动调整。",
+    "gestionDeReembolsos": "退款管理"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "加载评论时出错",
+    "resenaOculta": "隐藏评论",
+    "resenaEliminada": "评论已删除",
+    "errorAlEliminarResena": "删除评论时出错",
+    "moderarResenasDeClientes": "中等程度的客户评价",
+    "totalDeResenas": "总评论数",
+    "calificacionPromedio": "平均评分",
+    "buscarResenas": "搜索评论……",
+    "calificacion": "资格",
+    "noSeEncontraronResenas": "未找到任何评论"
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "支持案例无法加载",
+    "noHayCasosDeSoporteConLosFiltros": "所选筛选条件下没有支持案例。"
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "请求更换",
+    "resolucionManual": "手动分辨率",
+    "noSePudoCargarElCaso": "案例无法加载。",
+    "noSePudoActualizarElEstado": "状态无法更新",
+    "noSePudoActualizarLaPrioridad": "优先级无法更新",
+    "noSePudoEnviarElMensaje": "信息发送失败。",
+    "accionAplicada": "已采取的行动",
+    "noSePudoAplicarLaAccion": "该操作无法执行。",
+    "conversacion": "对话",
+    "sinMensajesAun": "暂无消息。",
+    "tuAdmin": "您（管理员）",
+    "unAgenteHumanoSeHaUnidoALaConver": "一位人工客服加入了对话。",
+    "esteCasoEstaCerradoNoSePuedenAna": "此案已结案，无法再添加任何信息。",
+    "ultimaActualizacion": "最新更新"
+  },
+  "admin_trust_safety": {
+    "enganoso": "误导",
+    "resena": "审查",
+    "noSePudoCargarLaColaDeModeracion": "审核队列无法加载",
+    "accionAplicada": "已采取的行动",
+    "noSePudoAplicarLaAccion": "该操作无法执行。",
+    "colaVacia": "空队列",
+    "noHayContenidoPendienteDeRevision": "目前没有待审核的内容。",
+    "senales": "信号",
+    "noSePudieronCargarLosReportes": "报告无法加载。",
+    "noHayReportesConLosFiltrosSeleccio": "没有符合所选筛选条件的报告。",
+    "marcadosAutomaticamente": "自动标记",
+    "politicasDeLaPlataforma": "平台政策",
+    "productosProhibidosArmasDrogasCon": "违禁品：武器、毒品、非法物品、假冒商品。",
+    "resenasDebenSerAutenticasVerificad": "评论：必须真实、经过验证，并且基于实际购买体验。",
+    "vendedoresResponsablesDeLaVeracidad": "卖家：对描述的准确性和食品安全负责。",
+    "contenidoGeneradoPorUsuariosSujeto": "用户生成内容：受自动和人工审核。",
+    "colaDeModeracion": "审核队列",
+    "moderacionReportesEIntegridadDeLa": "审核、举报和平台诚信。"
+  },
+  "admin_verification": {
+    "revision": "修订",
+    "revisionManual": "人工审核",
+    "numero": "数字",
+    "descripcionIa": "人工智能描述",
+    "rechazarVerificacion": "拒绝验证",
+    "documentosProblematicos": "问题文件：",
+    "fotoDeInstalacionNoValida": "安装照片无效",
+    "solicitarDocumentacion": "请求文档",
+    "verificacionRechazada": "验证被拒绝",
+    "revisionManualDeProductores": "生产者手册审查"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "类别名称",
+    "descripcionOpcional": "描述（可选）",
+    "errorAlCargarLasCategorias": "加载类别时出错",
+    "categoriaCreada": "创建类别",
+    "errorAlCrearLaCategoria": "创建类别时出错",
+    "categoriaActualizada": "更新类别",
+    "errorAlActualizarLaCategoria": "更新类别时出错",
+    "categoriaEliminada": "类别已移除",
+    "errorAlEliminarLaCategoria": "删除类别时出错",
+    "nuevaCategoria": "新类别",
+    "buscarCategorias": "搜索类别……",
+    "noSeEncontraronCategorias": "未找到任何类别",
+    "sinDescripcion": "无描述"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "消息无法加载。",
+    "canalDeEscalacionAbiertoUnSuperadm": "升级渠道已开启。超级管理员将收到您的消息。",
+    "errorAlAbrirEscalacion": "打开升级时出错",
+    "canalDeEscalacionPrivado": "私人攀岩频道",
+    "seleccionaUnaEscalacionParaVerLosM": "选择升级选项以查看消息",
+    "usaEsteCanalParaReportarProblemasC": "请使用此渠道报告重大问题、未解决的纠纷或需要更高层级干预的情况。",
+    "elMensajeEstaCifradoDeExtremoAExt": "数据库中的消息已进行端到端加密。",
+    "describeElProblemaOSituacionAEscal": "请描述需要上报的问题或情况……",
+    "abrirCanalDeEscalacion": "开放升级渠道",
+    "sinMensajesTodavia": "暂无消息"
+  },
+  "content_management": {
+    "sinExpiracion": "无有效期"
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "处理 GDPR 请求时出错",
+    "solicitudesDeDerechosDeUsuariosBajo": "根据GDPR提出的用户权利请求。最长回复时间：30天。"
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "图像存储",
+    "estadoDeServiciosYConfiguracionDel": "服务状态和环境配置",
+    "informacionDelSistema": "系统信息"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "洞察面板数据无法加载。",
+    "minimoDeUsuariosRequeridosParaMostr": "显示汇总敏感数据所需的最低用户数",
+    "detectarObjetivosDieteticosYDeSalud": "确定饮食和健康目标",
+    "noHayDatosDePaisesParaMostrar": "没有国家/地区数据可供显示。",
+    "noHayMetricasDeIaDisponibles": "目前没有可用的AI指标。",
+    "noHayDatosDeComplianceDisponibles": "没有合规性数据可供参考。"
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "启用某个国家/地区，以便当地卖家可以注册。"
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "请输入您的超级管理员密码，以将此更改应用到生产环境。",
+    "contrasenaSuperadmin": "超级管理员密码",
+    "introduceTuContrasena": "请输入您的密码",
+    "configuracionActualizadaYGuardada": "设置已更新并保存",
+    "configuracionDePlanes": "计划设置",
+    "losCambiosSeAplicanAutomaticamenteE": "更改将自动应用到 Stripe。需要超级管理员密码才能确认。",
+    "comisionSobreElTotalDeVentaDespue": "佣金按销售总额（扣除运费和增值税后）计算。这部分佣金将从平台利润中扣除。"
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "概览页面加载失败",
+    "revisaLaConexionConElBackend": "检查与后端的连接。",
+    "sinDatosDeTendencia": "无趋势数据",
+    "distribucionDePlanes": "计划分配"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "加载 B2B 目录时出错",
+    "noSePudoCambiarElEstado": "状态无法改变。",
+    "noTienesAccesoAEstaSeccion": "您无权访问此部分。",
+    "necesitasUnPerfilDeProductorOImpor": "您需要拥有生产商或进口商的个人资料才能访问 B2B 产品目录。",
+    "gestionaQueProductosOfrecesAlPorMa": "管理您批发销售的产品种类和批发条件。",
+    "noTienesProductosEnElCatalogoB2b": "您的B2B产品目录中没有任何产品。",
+    "empiezaAnadiendoTuPrimerProductoMay": "首先添加您的第一个批发产品。",
+    "anadirPrimerProducto": "添加首款产品",
+    "anadirProductoAlCatalogoB2b": "将产品添加到B2B产品目录"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "发送消息即可开始对话。",
+    "noTienesAccesoAEstaSeccion": "您无权访问此部分。",
+    "necesitasUnPerfilDeProductorOImpor": "您需要拥有生产商或进口商的个人资料才能访问 B2B 聊天功能。"
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "操作无法加载",
+    "noTienesAccesoAEstaSeccion": "您无权访问此部分。",
+    "necesitasUnPerfilDeProductorOImpor": "您需要拥有生产商或进口商资质才能获取B2B合同。",
+    "operacionNoEncontrada": "未找到操作",
+    "laOperacionSolicitadaNoExisteONoT": "请求的操作不存在或您没有访问权限。",
+    "laIaEstaGenerandoElContrato": "人工智能正在生成合同……",
+    "elContratoEstaTardandoMasDeLoEspe": "合同签订时间比预期要长。",
+    "recibirasUnaNotificacionCuandoEsteL": "准备就绪后，您将收到通知。",
+    "cartaDeCreditoPagoDividido": "信用证（分期付款）",
+    "pagoA30Dias": "付款期限为30天。",
+    "pagoA60Dias": "付款期限为60天",
+    "alFirmarConfirmasQueHasLeidoYAcep": "签字即表示您已阅读并同意合同的所有条款。",
+    "laFirmaQuedaRegistradaConFechaHor": "签名会记录日期、时间和 IP 地址。",
+    "necesitasSubirTuFirmaDigitalAntesD": "您需要先上传您的电子签名才能签署合同。"
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "文件错误",
+    "maximo5Archivos": "最多 5 个文件",
+    "errorAlAbrirLaDisputa": "打开争议时出错",
+    "antesDeAbrirUnaDisputaTeRecomenda": "在发起争议之前，我们建议您先通过聊天与对方沟通。",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "如果无法达成协议，Hispaloshop 管理员将在 72 小时内审核该案件。",
+    "describeDetalladamenteElProblemaMin": "请详细描述问题（至少50个字）……",
+    "max5Archivos10mbCadaUno": "最多 5 个文件，每个文件 10MB。",
+    "estaAccionNotificaraAlAdminDeHispa": "此操作将通知 Hispaloshop 管理员，并可能影响对方的声誉。"
+  },
+  "b2_b_marketplace": {
+    "catalogo": "目录",
+    "precioMasBajo": "最低价格",
+    "masProductos": "更多产品",
+    "sinAccesoAlCatalogoB2b": "无法访问B2B目录",
+    "completaTuPerfilDeImportadorParaAc": "完善您的进口商资料即可获得访问权限",
+    "sinAccesoAlDirectorioDeProductores": "无法访问制片人名录",
+    "indicaElProductorLosProductosYLa": "请注明生产商、产品和数量。生产商收到您的请求后，会回复您个性化的报价。"
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "信用证",
+    "elCompradorAsumeTodosLosCostesDesd": "买方承担工厂的所有费用。",
+    "vendedorEntregaEnDestinoSinDescarga": "卖家将货物运送到目的地，无需卸货。",
+    "indicaElPlazoMinimoDeEntrega": "请注明最短交货时间",
+    "validezDias": "有效期（天）",
+    "errorAlEnviarLaOferta": "发送报价时出错"
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "正在协商中",
+    "noTienesAccesoAEstaSeccion": "您无权访问此部分。",
+    "necesitasUnPerfilDeProductorOImpor": "您需要拥有生产商或进口商资质才能访问 B2B 业务。",
+    "errorAlCargarLasOperaciones": "加载操作错误"
+  },
+  "b2_b_payment": {
+    "net30Dias": "净额 30 天",
+    "net60Dias": "净额 60 天",
+    "cartaDeCredito": "信用证",
+    "errorAlCargarLosDatosDePago": "加载付款详情时出错",
+    "noSePudoInicializarElPago": "付款无法发起。",
+    "noTienesAccesoAEstaSeccion": "您无权访问此部分。",
+    "necesitasUnPerfilDeProductorOImpor": "您需要拥有生产商或进口商资料才能使用 B2B 付款服务。",
+    "esperandoElPagoDelComprador": "正在等待买家付款……",
+    "recibirasUnaNotificacionCuandoElPag": "付款处理完毕后，您将收到通知。",
+    "losFondosEstanRetenidosHastaQueSub": "款项将暂时保管，直到您上传发货文件。"
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "来自对贵公司产品感兴趣的进口商的询价",
+    "historialDeTusSolicitudesDeCotizaci": "您的批发报价请求历史记录",
+    "noSePudieronCargarLasSolicitudes": "请求无法加载。",
+    "soloDisponibleParaCuentasDeProducto": "仅限制作人账户使用",
+    "soloDisponibleParaCuentasDeImportad": "仅适用于进口商账户",
+    "noHasEnviadoSolicitudesAun": "你还没有提交任何申请。",
+    "usaElMarketplaceB2bParaContactarPr": "使用B2B市场联系生产商"
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "加载操作错误",
+    "envioConfirmado": "已确认发货",
+    "noSePudoConfirmarElEnvio": "无法确认该批货物的发货情况。",
+    "operacionNoEncontrada": "未找到操作",
+    "noSePudoCargarLaOperacionSolicitad": "请求的操作无法加载。",
+    "abrirChatDeLaOperacion": "开放聊天以进行操作",
+    "confirmarEnvio": "确认发货",
+    "esperandoConfirmacionDeEnvioDelProd": "等待生产商的发货确认",
+    "documentacion": "文档",
+    "documentosNecesariosParaEstaOperacio": "本次操作所需文件",
+    "revisaLaDocumentacionPendienteAntes": "请在提交前检查所有未提交的文件。",
+    "proximamente": "很快",
+    "elCompradorRealizaraElPagoFinalTra": "买方将在交货后支付尾款。"
+  },
+  "customer_orders": {
+    "masAntiguos": "老年人",
+    "errorAlCargarLosPedidos": "加载订单时出错",
+    "errorAlActualizarLosPedidos": "更新订单时出错",
+    "noHayPedidosEnEstaCategoria": "此类别下暂无订单。",
+    "productosAnadidosAlCarrito": "商品已加入购物车",
+    "noSePudoRepetirElPedido": "该订单无法重复执行。",
+    "cargarMasPedidos": "加载更多订单"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "部分数据加载失败。请向下滑动重试。"
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "加载配置文件时出错",
+    "errorAlCargarLasDirecciones": "加载地址时出错",
+    "generaUnCodigoDeDescuentoPersonaliz": "生成自定义折扣码。",
+    "tusSeguidoresObtienen10DeDescuento": "您的粉丝可享受10%的折扣。",
+    "tuGanasEntre3Y7DeCadaVenta": "每笔销售额，您可获得 3% 至 7% 的佣金。",
+    "programaDeAfiliadosActivado": "联盟计划已启动！",
+    "errorAlActivarElPrograma": "激活程序时出错"
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "目前还没有消息。您很快就会收到回复。",
+    "esteCasoEstaCerrado": "此案已结。",
+    "noSePudoCargarTuHistorialDeSoport": "您的支持记录无法加载",
+    "noSePudoAbrirElCaso": "该案无法立案。",
+    "historialDeTusCasosDeSoporteConHi": "您在 Hispaloshop 遇到的支持案例历史记录。",
+    "noTienesNingunCasoDeSoporteAbierto": "您目前没有任何未解决的支持案例。如果您需要帮助，请联系 HI。"
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "商品已加入购物车",
+    "errorAlAnadirAlCarrito": "加入购物车时出错"
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "加载订单错误",
+    "resenaPublicada": "已发表的评论",
+    "errorAlPublicarLaResena": "发布评论时出错",
+    "esteDocumentoNoEsUnaFacturaFiscal": "此文件并非税务发票。",
+    "noSePudoDescargarLaFactura": "发票无法下载。",
+    "elImporteSeReflejaraEnTuCuentaEn": "款项将在 5-10 个工作日内反映在您的账户中。",
+    "seHaReembolsadoParteDelImporteATu": "部分款项已退还至您的账户。",
+    "elPagoNoSePudoProcesarIntentaloD": "您的付款未能成功处理。请重试或联系客服。",
+    "dejaUnaResena": "留下评论……",
+    "publicarResena": "发表评论",
+    "resenaEnviadaGracias": "审核已提交。谢谢！"
+  },
+  "change_password": {
+    "contrasenaActualizada": "密码已更新",
+    "contrasenaActualIncorrecta": "当前密码错误",
+    "errorAlCambiarContrasena": "更改密码时出错",
+    "tuCuentaUsaGoogleParaIniciarSesion": "您的帐户使用 Google 登录。您尚未设置密码。",
+    "puedesAnadirUnaAContinuacion": "您可以在下方添加。",
+    "contrasenaActual": "当前密码",
+    "nuevaContrasena": "新密码",
+    "repetirNuevaContrasena": "重复新密码",
+    "lasContrasenasNoCoinciden": "密码不匹配",
+    "anadirContrasena": "添加密码"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "用户名不可用",
+    "urlNoValida": "无效的URL",
+    "esteNombreDeUsuarioNoEstaDisponibl": "此用户名不可用",
+    "elUsuarioDebeTenerAlMenos3Caracte": "用户名必须至少包含 3 个字符。",
+    "biografia": "传",
+    "cuentanosSobreTi": "请介绍一下你自己……",
+    "madridEspana": "西班牙马德里",
+    "informacionDeContacto": "联系信息",
+    "elEmailNoSePuedeCambiarDesdeAqui": "无法在此处更改电子邮件地址。",
+    "nombreDeLaEmpresa": "公司名称",
+    "descripcionDeLaTienda": "店铺描述",
+    "describeTuTiendaTusProductosTuHi": "描述一下您的店铺、您的产品、您的故事……",
+    "maximo5Mb": "最大 5 MB",
+    "eseNombreDeUsuarioYaEstaEnUso": "该用户名已被使用",
+    "elNombreDeUsuarioDebeTenerAlMenos": "用户名长度必须至少为 3 个字符。",
+    "noSePudoGuardarIntentaloDeNuevo": "保存失败，请重试。",
+    "min3Caracteres": "至少 3 个字符",
+    "cuentanosAlgoSobreTi…": "请介绍一下你自己……",
+    "descripcionDeTienda": "店铺描述"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "处理请求时出错",
+    "cuandoAlguienQuieraSeguirteAparecer": "当有人想要关注你时，他们就会出现在这里。"
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "订单确认",
+    "actualizacionesDeEnvio": "物流更新",
+    "solicitudesDeResena": "审查请求"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "IBAN格式无效",
+    "sinComision-2-3DiasLaborables": "无需佣金 - 2-3 个工作日",
+    "tuCuentaDeStripeConnectEstaActiva": "您的 Stripe Connect 账户已激活。付款将自动处理。",
+    "conectaTuCuentaDeStripeParaRecibir": "连接您的 Stripe 账户即可直接收款。您将被重定向到 Stripe 验证流程。",
+    "losPagosPorVentasDeProductosSePro": "产品销售款项通过 Stripe Connect 自动处理。",
+    "configuraTuCuentaDeStripeParaEmpez": "设置您的 Stripe 账户即可开始收款。"
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "店铺基本概况",
+    "analiticasBasicas": "基础分析",
+    "analiticasAvanzadas": "高级分析",
+    "generacionDeContratos": "合同生成",
+    "errorAlAbrirFacturacion": "打开账单时出错",
+    "errorAlCambiarDePlan": "更改计划时出错",
+    "perderasLasFuncionalidadesPremiumAl": "计费周期结束后，您将失去高级功能。"
+  },
+  "settings": {
+    "cuentaPublicaActivada": "公共账户已激活",
+    "errorAlCambiarLaPrivacidad": "更改隐私设置时出错",
+    "sesionCerradaCambiadoAOtraCuenta": "会话已关闭。已切换到另一个帐户。",
+    "errorAlEliminarLaCuenta": "删除帐户时出错",
+    "paisEIdioma": "国家和语言",
+    "lasCuentasDeProductorSonSiemprePub": "制作人账号始终是公开的。",
+    "planDeSuscripcion": "订阅计划",
+    "confirmarCierreDeSesion": "确认会话结束",
+    "tendrasQueVolverAIniciarSesionPara": "您需要重新登录才能访问您的帐户。",
+    "confirmarEliminacionDeCuenta": "确认删除帐户",
+    "estaAccionEsIrreversibleSeEliminar": "此操作不可逆。您的所有数据、订单和内容都将被删除。",
+    "escribeTuEmailParaConfirmar": "请输入您的邮箱地址进行确认。",
+    "confirmaTuEmailParaEliminarLaCuent": "请确认您的电子邮件以删除帐户"
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "保存前请签名",
+    "subeUnaImagenDeTuFirma": "上传您的签名图片",
+    "configuraTuFirmaAntesDeGuardar": "保存前请配置您的签名",
+    "errorAlProcesarLaFirmaExistente": "处理现有签名时出错",
+    "errorAlGuardarLaFirma": "保存签名时出错",
+    "necesitasConfigurarTuFirmaParaPoder": "您需要配置您的签名才能签署 B2B 合同。",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "您的数字签名将自动应用于B2B合同。",
+    "laFirmaQuedaRegistradaConTimestamp": "签名以时间戳和 SHA-256 哈希值记录。",
+    "seSuperpondraSobreLaFirmaEnLosCon": "它将覆盖在合同上的签名之上。"
+  },
+  "role_onboarding": {
+    "omnivoro": "杂食动物",
+    "paraRecomendarteLosMejoresProductos": "我们会为您推荐最合适的产品。您可以从多种选项中进行选择。",
+    "tuFeedSePersonalizaraConSusProduct": "您的信息流将根据您的产品和内容进行个性化定制。",
+    "escribeElNombreDeTuTienda": "请写下您的店铺名称",
+    "errorConectandoConStripeHazloDesde": "连接 Stripe 时出错。请从您的控制面板重新连接。",
+    "estoEsLoPrimeroQueVeranTusCliente": "这是您的客户首先看到的内容。",
+    "anadirLogo": "添加徽标",
+    "jpgPngOWebp·Maximo5mb": "JPG、PNG 或 WebP 格式 · 最大 5MB",
+    "nombreDeTuTienda": "您的店铺名称",
+    "puedesAnadirMasDesdeTuPanelEsteP": "您可以在控制面板中添加更多内容。此步骤为可选步骤。",
+    "necesitamosVerificarTuIdentidadPara": "我们需要验证您的身份，以便安全地将您的销售款项转给您。",
+    "tusDatosBancariosNuncaPasanPorHisp": "您的银行信息绝不会经过 Hispaloshop。",
+    "recibirasTusPagosAutomaticamente": "您将自动收到款项。",
+    "puedesHacerloMasTardeDesdeTuPanel": "您稍后可以从控制面板进行操作。",
+    "loHareMasTarde": "我稍后会做。",
+    "noSePudoObtenerTuCodigo": "无法获取您的代码。",
+    "apareceranEnTuPerfilCuandoAlguien": "它们会显示在您的个人资料中。当有人购买它们时，您将获得佣金。",
+    "tusSeguidoresObtienenUn10DeDescue": "您的粉丝首次购买可享受 10% 的折扣。您将获得终身佣金。",
+    "comoGanasDinero": "你如何赚钱：",
+    "cadaCompraQueHaganTeGeneraComision": "他们每购买一件商品，你都会获得佣金。",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "您的工资将自动汇入您的银行账户。",
+    "todoListo": "一切准备就绪！",
+    "empiezaCompartiendoTuCodigoConTusS": "首先将你的代码分享给你的粉丝。",
+    "veTusComisionesEnTiempoReal": "实时查看您的佣金"
+  },
+  "chats": {
+    "colaboracion": "合作",
+    "aunNoTienesMensajes": "您目前还没有任何消息。",
+    "empiezaUnaConversacionConProductores": "与制片人、影响者等展开对话",
+    "enviaMensajesPrivadosATiendasProdu": "向 HispaloShop 社区的商店、生产商和影响者发送私信。"
+  },
+  "consumer_register": {
+    "datosBasicos": "基本数据",
+    "errorAlCrearLaCuentaIntentaloDeN": "创建账户时出错，请重试。",
+    "completaTuRegistroEnPocosPasosYDe": "只需几个步骤即可完成注册，完成后即可进行初始自定义设置。"
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "返回角色选择",
+    "esteFlujoYaEstaConectadoDePrincipi": "此流程已从头到尾连接完毕。电话和社交媒体访问权限将在稍后添加。",
+    "crearasTuCuentaYDespuesCompletaremo": "您创建账户后，我们将完善您的偏好设置。",
+    "googleAppleYTelefonoVolveranCuando": "当谷歌、苹果和手机的连接可靠性与当前流程相同时，它们就会恢复正常。"
+  },
+  "step2_basic": {
+    "datosBasicos": "基本数据",
+    "empezamosConTuInformacionEsencialPa": "我们将首先收集您创建账户所需的基本信息。",
+    "maria": "玛丽亚",
+    "garciaLopez": "加西亚·洛佩兹",
+    "creaUnaContrasenaSegura": "创建安全密码",
+    "debesTenerAlMenos16Anos": "你必须年满16岁。"
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "调整您的兴趣，以便目录和推荐内容能够更有针对性。",
+    "nosAyudaAMostrarProductoresYEnvios": "它有助于我们展示最相关的生产商和货运信息。"
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "根据您的兴趣和活动量身定制的建议。",
+    "loMasPopular": "最受欢迎",
+    "losProductosQueMasEstanComprandoOt": "其他用户购买最多的产品。",
+    "ordenaPrimeroPorResenasYConfianza": "首先按评价和信任度排序。",
+    "defineComoQuieresEmpezarAVerProduc": "确定您希望如何开始查看产品以及您通常的购买频率。"
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "下一步是完成您的注册流程，以便信息流、产品目录和推荐内容能够更合理地呈现。",
+    "cuandoTerminesElOnboardingTeEnsenar": "完成注册后，我们会首先向您展示更适合您的制作人、类别和帐户。"
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "别再把利润拱手让给中间商了",
+    "conectaConProductoresRealesSinInte": "与真正的生产者直接对接。没有中间商。没有谎言。"
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "Hispaloshop是一家充满历史底蕴的食品市场。",
+    "unaPlataformaDondeCadaProductoTiene": "一个让每件产品都有面孔和故事的平台。从田间到餐桌，全程无中间环节。",
+    "entreElProductorYTuPlatoHayUnaCa": "从生产者到你的餐桌之间存在着一系列中间商，这导致价格上涨、质量下降，并抹去了你所吃食物的历史。",
+    "conectamosAlQueProduceConElQueCom": "我们连接生产者和消费者",
+    "hispaloshopEsUnaPlataformaDeSocial": "Hispaloshop 是一个社交电商平台，手工艺生产者可以在这里开设自己的店铺，讲述他们的故事，并直接向终端消费者销售产品。"
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "发送失败，请重试。",
+    "paraDudasSobreLaPlataformaColabora": "如有关于平台、合作或媒体问询方面的问题。",
+    "respondemosEnMenosDe24Horas": "我们会在24小时内回复。",
+    "losProductoresGestionanElEnvioDirec": "生产商直接负责发货。交货时间取决于各个生产商和目的地。",
+    "siHispaloshopSoportaMultiplesIdioma": "是的。HispaloShop支持多种语言和货币，方便国际销售。"
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "进口、销售、发展。直接触达全球消费者、意见领袖和生产商。探索 HispaloShop 为进口商提供的所有优势。",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "您的B2C和B2B商店尽在一处。",
+    "accedeAConsumidoresFinalesConectaC": "触达终端消费者，与当地意见领袖建立联系，并直接从任何国家的生产商处采购。所有这一切都可以在一个平台上完成，无需中间商。",
+    "vendeTusProductosImportadosDirectame": "直接将进口产品销售给目的地国家的消费者，无需中间商。",
+    "conectaYColaboraConInfluencersLocal": "与当地有影响力的人建立联系和合作，以推广您的产品（专业版和精英版）。",
+    "compraDirectamenteAProductoresDeCua": "直接从任何国家的生产商处购买，直接联系，无需中间商。",
+    "panelDeGestionUnificado": "统一管理面板",
+    "gestionaPedidosPagosLogisticaCert": "通过一个控制面板管理订单、付款、物流、证书和沟通。",
+    "soportePorChatInternoConAdminLocal": "所有套餐均提供与本地管理员的内部聊天支持和电子邮件支持。",
+    "todasLasFuncionesBasicasVenderB2c": "所有基本功能，B2C销售，产品发布，二维码证书，标准支持。",
+    "matchingConInfluencersDashboardAvan": "影响者匹配、高级仪表盘、销售分析、优先支持。",
+    "todoLoAnteriorIaComercialAvanzada": "以上所有功能 + 先进的商业人工智能、国际市场分析、自动合同生成、更低的佣金。",
+    "colaboracionConInfluencersLocalesPr": "与当地网红（专业和精英）合作",
+    "panelDeGestionPagosYLogisticaUnif": "统一管理、支付和物流面板",
+    "iaComercialAvanzadaYGeneracionDeCo": "高级商业人工智能和合同生成（精英）",
+    "importarYVenderNuncaFueTanFacil": "进出口从未如此便捷",
+    "creaTuCuentaDeImportador": "创建您的进口商帐户",
+    "accedeAHerramientasDeIaYAnalitica": "使用人工智能工具和高级分析功能（专业版和精英版）",
+    "gestionaPagosLogisticaYCertificados": "通过单一控制面板管理付款、物流和证书",
+    "soloCrearTuCuentaYSubirTusProduct": "只需创建您的帐户并上传您的产品即可。",
+    "siPuedesVenderAlConsumidorFinalY": "是的，您可以直接面向终端消费者销售产品，也可以获得 B2B 销售机会。",
+    "siemprePorChatInternoYEmailConPr": "始终通过内部聊天和电子邮件进行沟通，优先考虑专业版和精英版用户。",
+    "daElSaltoAlCanalDigitalYAccedeA": "迈向数字化渠道，接触全球消费者、影响者和生产者。"
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "建立社群，支持诚信创作者，真正实现你的劳动成果变现。持续的佣金、创作自由和直接支持。",
+    "estoNoVaDeVenderPorVenderVaDeD": "这并非为了销售而销售，而是为了让诚实的生产者获得关注，为你的粉丝提供健康食品，并让你的付出持续获得收益。在这里，你将拥有自由、社群和直接支持。我是比尔·尚福，我创建了这个平台，就是为了你。",
+    "ganaMasDejaHuella": "赚得更多，留下印记",
+    "hercules": "赫拉克勒斯",
+    "laMayoriaLlegaAqui": "他们中的大多数人都会来到这里。",
+    "comisionRecurrenteDurante18MesesPor": "每位被推荐用户，您将获得为期 18 个月的持续佣金。",
+    "creaComunidadApoyaProductoresHonest1": "建立社群，支持诚信创作者，真正实现你的劳动成果变现。在这里，你将拥有自由和直接的支持。如有任何需要，请联系我。我是比尔·陈福。"
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "将您的产品与全球进口商和客户联系起来。拓展您的业务范围，实现产品目录数字化，并获取新的商机。",
+    "uneteALaPlataformaQueConectaProduc": "加入这个连接全球生产商、进口商和客户的平台。将您的产品目录数字化，开启全新的商机。",
+    "registrateGratis": "免费注册",
+    "publicaTuCatalogo": "发布您的产品目录",
+    "accesoInmediatoAUnaRedGlobalDeImp": "立即接入全球认证进口商网络。",
+    "herramientasParaDestacarTuMarcaYPr": "用于突出您的品牌和产品的工具。",
+    "opcionesDePromocionPremiumSegunTuP": "根据您的套餐，可享受高级促销优惠。",
+    "gestionEficienteDeContactosYOportun": "高效管理人脉和商机。",
+    "paraProductoresEnCrecimiento": "对于不断壮大的生产者而言",
+    "maximaVisibilidadYVentajas": "最大程度的可见性和优势",
+    "sinTarjetaDeCreditoParaEmpezar": "无需信用卡即可开始",
+    "elRegistroEsGratuitoPuedesAcceder": "注册免费。您可以通过高级会员计划使用更多高级功能。",
+    "puedesPublicarCualquierProductoQueC": "只要符合我们的政策和质量标准，任何产品都可以上架。",
+    "unaVezRegistradoPodrasContactarImp": "注册后，您就可以通过平台直接联系进口商。",
+    "mayorVisibilidadAccesoPrioritarioA": "更高的曝光率、优先获得机会以及专属工具，助您提升业务。",
+    "siPuedesVenderTantoAConsumidoresF": "是的，您可以同时向终端消费者、进口商和企业销售产品。",
+    "soportePersonalizadoRecursosEducativ": "提供个性化支持、教育资源和国际贸易方面的建议。",
+    "uneteACientosDeProductoresQueYaEs": "加入数百家已通过 Hispaloshop 实现增长的生产商行列。"
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "Hispaloshop不对第三方销售的产品质量负责，尽管我们积极努力核实平台上的所有生产商。"
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "探索您所在地区的匠心之作",
+    "basadoEnTusCompras": "根据您的购买记录",
+    "descubreRecetasMediterraneasConTusP": "用我们的产品探索地中海食谱",
+    "aquiEstaTuResumenDeHoy": "以下是您今天的总结。"
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "目前暂不支持高级指标。",
+    "noSePudoCargarElStockDeProductos": "无法加载警报产品库存信息。",
+    "enPreparacion": "准备中",
+    "anadeMasProductosParaAumentarTuVis": "增加产品数量以提高曝光率",
+    "anadirProducto": "添加产品",
+    "colaboraConInfluencersParaPromociona": "与网红合作推广你的产品",
+    "analisis": "分析",
+    "resumenDeTuNegocio": "您的业务概要",
+    "evolucionDeVentas": "销售演变"
+  },
+  "signed_documents": {
+    "documentoIntegro": "完整文档",
+    "elContratoNoHaSidoModificadoDesde": "自签署以来，合同未作任何修改。",
+    "elHashDelDocumentoNoCoincideConEl": "文档哈希值与签署时记录的哈希值不符。请联系技术支持。",
+    "noTienesContratosFirmadosTodavia": "你目前还没有任何已签署的合同。",
+    "lasFacturasEstaranDisponiblesProxima": "发票很快就会提供。"
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "新合作",
+    "elCosteCorreACargoDelProductor": "成本由生产者承担。",
+    "holaViTuContenidoYCreoQueEncajar": "你好！我看了你的内容，觉得你非常适合我们的产品……",
+    "previewDeLaPropuesta": "提案预览",
+    "propuestaDeColaboracion": "合作提案",
+    "comisionEspecial": "特别委员会",
+    "duracion": "期间"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "请登录使用购物助手。",
+    "loSientoHaOcurridoUnErrorPorFav": "抱歉，发生错误。请重试。",
+    "iniciaSesionParaUnaExperienciaPerso": "登录即可享受个性化体验。",
+    "busquedasRapidas": "快速搜索",
+    "recomendacionesBasadasEnCertificados": "根据产品证书提出的建议。"
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "我们已避免出现黑屏。您可以返回主屏幕或重新加载应用程序。"
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "来源明确的食用油和调味料。",
+    "exploraElCatalogoDesdeCategoriasCla": "使用清晰的分类浏览产品目录，避免视觉混乱。",
+    "productoLocalEImportadoYaDisponible": "现在西班牙既有本地产品也有进口产品，没有夸大其词的宣传或无关紧要的分类。"
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "我们未找到此类别中的任何产品。请尝试其他搜索。",
+    "anadeAlgunosProductosArtesanalesPara": "不妨先选购一些手工制品。",
+    "tusPedidosApareceranAquiCuandoReali": "您首次购买后，订单将显示在此处。",
+    "sigueAMasProductoresEInfluencersPa": "关注更多制作人和网红，即可在此查看他们的作品。",
+    "intentaConOtrosTerminosDeBusqueda": "尝试其他搜索词。",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "稍后再试或更改搜索筛选条件。"
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "发生意外错误。请尝试刷新页面。"
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "好东西其实比你想象的更近。",
+    "descubrirCercaDeMi": "查找附近",
+    "usaTuUbicacionActualOEscribeTuCod": "使用您当前的位置或输入您的邮政编码，优先显示离您最近的结果。",
+    "buscandoTuUbicacion": "正在查找您的位置……"
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "暂无分析数据",
+    "analyticsDeTuCodigo": "代码分析",
+    "tuEnlaceDeReferido": "您的推荐链接",
+    "comparteEsteEnlaceEnTusRedesCada": "将此链接分享到您的社交网络。每次访问都会被自动追踪。",
+    "usosDelCodigo": "代码的用途",
+    "codigoAplicado": "应用代码",
+    "usosCodigo": "代码用途",
+    "comoFuncionanTusComisiones": "佣金运作方式",
+    "calculoDeTuComision": "计算您的佣金：",
+    "tipsParaMejorarTusConversiones": "提升转化率的技巧"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "聊天中分享的图片",
+    "noSePudoCargarLaImagen": "图片加载失败",
+    "pegaUnEnlaceDeProductoOSuId": "粘贴产品链接或其ID。",
+    "pegaUnEnlaceDeRecetaOSuId": "粘贴食谱链接或您的ID。",
+    "pegaUnEnlaceDePostOReelDeHispalo": "粘贴 Hispaloshop 上的帖子或视频链接。",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "粘贴有效的 Hispaloshop 链接以生成精简版名片。",
+    "miembroDeLaComunidad": "社区成员",
+    "pruebaConOtroNombreOCambiaElFiltr": "尝试使用其他名称或更改筛选条件。",
+    "noSePudoEliminarElMensaje": "该消息无法删除",
+    "conversacionEliminada": "对话已删除",
+    "errorAlEliminarLaConversacion": "删除对话时出错",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "粘贴有效的 Hispaloshop 链接或 ID。",
+    "noPudimosGenerarLaVistaPrevia": "我们无法生成预览。",
+    "noSePudoEnviarElMensaje": "信息发送失败。",
+    "laImagenNoPuedeSuperar5Mb": "图片大小不能超过 5 MB。",
+    "elArchivoNoPuedeSuperar10Mb": "文件大小不能超过10MB。",
+    "errorAlSubirElDocumento": "上传文件时出错。",
+    "buscarConversacion": "想找人聊天",
+    "empiezaUnChatNuevoDesdeElBotonSup": "从顶部按钮发起新的聊天，可以让你的收件箱更加整洁。",
+    "seleccionaUnaConversacionDelPanelIz": "从左侧面板中选择一个对话或发起一个新对话。",
+    "llamadaDeVozProximamente": "语音通话（即将推出）",
+    "videollamadaProximamente": "视频通话（即将推出）",
+    "mensajesDeLaConversacion": "对话消息",
+    "empiezaLaConversacion": "开始对话",
+    "escribeElPrimerMensajeYMantenLaCo": "写第一条信息时，请确保对话内容清晰明了。",
+    "vistaPreviaDeLaImagenAdjunta": "附件图片预览"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "出问题了。",
+    "noSePudoCargarEsteContenidoIntent": "此内容无法加载，请重试。"
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "基础套餐。升级可降低佣金并使用更多工具。"
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "暂不支持文章编辑"
+  },
+  "product": {
+    "anadirAlCarrito": "添加到购物车"
+  },
+  "review": {
+    "valoracionEnviada": "提交的评分",
+    "errorAlEnviarValoracion": "提交评分时出错",
+    "cuentanosTuExperiencia": "请分享您的经历……",
+    "enviarValoracion": "提交反馈"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "关闭通知"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "给我一个简单的食谱",
+    "ayudameConMiDieta": "请帮我制定饮食计划",
+    "tuCompaneroDeCompras": "您的购物伙伴",
+    "estoyAquiParaAyudarteAEncontrarLo": "我来帮你找到你需要的东西。",
+    "preguntaleADavid": "问问大卫……",
+    "microfono": "麦克风"
+  },
+  "auth_diagnostic": {
+    "testConexion": "测试连接",
+    "elBackendRespondePeroElEndpointNo": "后端有响应，但端点不存在。",
+    "laConexionFuncionaRevisaLosDetalle": "连接正常。请查看以上详细信息。"
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "开始身份验证测试……",
+    "sesionActiva": "活动会话："
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "代码错误或已过期",
+    "codigoIncorrecto": "错误代码",
+    "codigoReenviadoATuEmail": "验证码已转发至您的邮箱",
+    "noSePudoReenviarElCodigo": "代码无法重新发送",
+    "maximoDeReenviosAlcanzadoRevisaTu": "已达到转发次数上限。请检查您的垃圾邮件文件夹。",
+    "reenviarCodigoDeVerificacion": "重新发送验证码"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "该产品已从B2B产品目录中移除。",
+    "cantidadMinimaDePedidoMoq": "最低订购量（MOQ）",
+    "descripcionMayorista": "批发说明",
+    "maximoDeMuestrasPorSolicitud": "每次申请的最大样品数量",
+    "publicarEnCatalogoB2b": "在B2B目录中发布",
+    "quitarDelCatalogoB2b": "从B2B目录中移除"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "原产国（西班牙）"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "最少1个单位",
+    "codigoDePaisDebeTener2Letras": "国家代码必须由 2 个字母组成",
+    "elMensajeDebeTenerAlMenos10Caract": "消息长度必须至少为 10 个字符。",
+    "anadeAlMenosUnProducto": "至少添加一款产品",
+    "noSePudoEnviarLaRfq": "询价请求无法发送。",
+    "nuevaSolicitudDeCotizacionRfq": "新的询价单 (RFQ)",
+    "describeVolumenFormatosCertificacio": "描述数量、规格、认证或物流要求。"
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "上传进口许可证、税务登记证和车辆登记证"
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "添加商品到购物车时出错",
+    "anadirAlCarrito": "添加到购物车",
+    "productoAnadido": "产品已添加",
+    "anadido": "额外！"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "本次会话中的所有消息都将被删除。"
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "B2B 请求正在协商中"
+  },
+  "use_h_i_chat": {
+    "buenosDias": "早上好",
+    "tuCompaneroDeComprasYAlimentacion": "您的购物和食品伙伴",
+    "tuAsesorDeNegocioParaProductores": "您的生产者业务顾问",
+    "estrategiaDeExportacion": "出口战略",
+    "asistenteCreativoParaContenidoYCamp": "内容和营销活动创意助理",
+    "disenarUnaCampana": "设计一个活动",
+    "analisisDeMercadoInternacionalParaI": "进口商国际市场分析",
+    "analisisDeMargenes": "利润分析",
+    "noTienesAccesoAEsteModoActualiza": "您无权使用此模式。请升级您的套餐。",
+    "elAsistenteNoEstaDisponibleAhoraI": "助手暂时无法使用，请稍后再试。"
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "登录以访问您的帐户。"
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "我的代码"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "您的账户正在审核中。"
+  },
+  "dashboard_header": {
+    "buenosDias": "早上好"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "关注生产商、进口商和有影响力人士，即可在此查看他们的内容。",
+    "estasAlDia": "您已了解最新信息"
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "您在 HispaloShop 的一周",
+    "descubrirMas": "了解更多",
+    "sigueProductoresParaVerSuContenido": "关注制作人，即可在此查看他们的作品。"
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "快速访问"
+  },
+  "milestone_toast": {
+    "10MeGusta": "10个赞！",
+    "alguienTeGuardo": "有人救了你！",
+    "50MeGusta": "50个赞！",
+    "7DiasSeguidos": "连续7天！"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "无法关注该用户。",
+    "seEliminaraPermanentementeJuntoConS": "您的帖子、评论和点赞都将被永久删除。",
+    "noSePudoDejarDeSeguir": "根本停不下来",
+    "uneteALaConversacion": "加入讨论……",
+    "progresoDelVideo": "视频进度"
+  },
+  "stories_bar": {
+    "recetaDelDia": "今日食谱"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "故事内容",
+    "sinDatosDeVistasDisponibles": "暂无视图数据",
+    "buscarConversacion": "想找人聊聊天……"
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "无法关注该用户。请稍后再试。"
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "将文件拖到此处或点击选择。"
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "成就解锁！"
+  },
+  "application": {
+    "quienEres": "你是谁？",
+    "confirmacion": "确认",
+    "recomendadoParaLaMayoria": "适合大多数人。",
+    "pideRevisionManualPrioritaria": "请求优先人工审核。",
+    "paraPerfilesConUnaComunidadMuyActi": "适用于拥有非常活跃社群的账号。",
+    "necesitamosSaberComoTeConocen": "我们需要知道人们是如何认识你的。",
+    "tuEmailProfesionalEsObligatorio": "您必须提供工作邮箱地址。",
+    "eseEmailNoPareceValido": "这个邮箱地址似乎无效。",
+    "tuInstagramPrincipalEsObligatorio": "您需要使用您的主要Instagram账号。",
+    "necesitamosUnaViaRealParaContactart": "我们需要一种切实可行的联系方式。",
+    "seleccionaTuPais": "请选择您的国家/地区。",
+    "eligeAlMenosUnNicho": "至少选择一个细分领域。",
+    "seleccionaTuRangoDeSeguidores": "选择您的关注者范围。",
+    "seleccionaElPaisPrincipalDeTuAudie": "选择您的主要受众国家/地区。",
+    "cuentanosPorQueQuieresEntrar": "请告诉我们您加入的理由。",
+    "necesitamosAlMenos140CaracteresPara": "我们需要至少 140 个字符才能过滤掉烟雾。",
+    "eseEnlaceNoPareceValido": "该链接似乎无效。",
+    "debesAceptarEstaCondicion": "你必须接受这个条件。",
+    "yaExisteUnaSolicitudOCuentaConEst": "该电子邮件地址已存在已注册的请求或帐户。",
+    "noPudimosEnviarLaSolicitudIntental": "请求发送失败，请重试。",
+    "solicitarRevision": "请求复审",
+    "aplicacionInfluencerHispaloshop": "Hispaloshop 影响者应用程序",
+    "formularioDeTresPasosParaAplicarAl": "申请加入 Hispaloshop 影响者计划只需三步。",
+    "aplicacionReal": "实际应用",
+    "noEsUnFormularioCorporativoEsTuP": "这不是公司表格，这是你的退出表格。",
+    "tresPasosSinPagoSinHumoSiElige": "三步搞定。无需付款。轻松便捷。如果您选择 Hercules，我们将立即启动快速激活流程。如果您目标是",
+    "ateneaOZeusHacemosRevisionHumanaE": "无论是雅典娜还是宙斯，我们都会在 24-48 小时内进行人工审核。",
+    "siTuVozEncajaConComidaWellnessL": "如果你的声音与食物、健康、生活方式或可持续发展相关。",
+    "siQuieresRecomendarCosasQueDeVerda": "如果你想推荐一些真正能用得上的东西。",
+    "cadaCompraQueConectesSeQuedaAtribu": "您关联的每一笔购买都会计入您的账户，有效期为18个月。您无需成为系统的奴隶。",
+    "siQuieresComprobarQueSoyRealAhiM": "如果你想证明我是真人，我就是。",
+    "bienvenidoALaResistenciaRevisaTuE": "欢迎加入反抗军。请查看您的电子邮件以访问您的影响者控制面板。",
+    "herculesEntraPorViaRapidaHemosMar": "Hercules 已进入快速通道。我们已将您的个人资料标记为立即激活并进入后续步骤。",
+    "tuPerfilPasaARevisionHumanaSiApl": "您的个人资料将由人工审核。如果您申请的是雅典娜或宙斯职位，我们将在 24-48 小时内回复您，并提供人工审核结果，而非自动审核。",
+    "verCatalogoParaPromocionar": "查看产品目录以获取促销信息",
+    "tuTarjetaDePresentacionSinTrajesN": "你的名片，无需西装革履，也无需空洞言辞。",
+    "reusSeulCiudadDeMexico": "雷乌斯、首尔、墨西哥城……",
+    "seleccionaPais": "选择国家/地区",
+    "queremosSaberQueTipoDeComunidadHas": "我们想知道你建立了什么样的社群，以及他们为什么会追随你去做某件事。",
+    "paisPrincipalDeTuAudiencia": "您的受众主要来自哪个国家/地区",
+    "cuentanosLaVerdadQueTipoDeEstabil": "请告诉我们实话：您想要什么样的稳定性？您为什么会被某些品牌伤害？您会如何对待您的社区？",
+    "laComisionEsTransparenteHercules3": "佣金透明：赫拉克勒斯 3%，雅典娜 5%，宙斯 7%，跟踪周期为 18 个月。",
+    "entiendoQueLaComisionSePagaSobreE": "我了解到佣金是根据发货后的价值和税款支付的。",
+    "entiendoQueElTrackingDe18MesesEs": "我了解到，18 个月的跟踪期是从用户首次购买开始计算的。",
+    "aceptoPromoverSoloProductosQueRealm": "我只同意推广我真正会尝试或打算尝试的产品。",
+    "heLeidoYAceptoLosTerminosDelProgr": "我已阅读并同意该推广计划的条款。",
+    "solicitudGratuitaNingunPasoDePago": "免费申请，无需任何支付步骤。"
+  },
+  "shared": {
+    "queEs": "什么是"
+  },
+  "footer_landing": {
+    "terminos": "条款",
+    "unaFormaMasClaraDeDescubrirEntend": "更清晰地了解、理解和购买食品，并结合具体情况进行选择。"
+  },
+  "navbar_landing": {
+    "iniciarSesion": "登录",
+    "cerrarMenu": "关闭菜单"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "当我们收到来自社区的真实声音时，它们就会出现在这里。"
+  },
+  "auth_layout": {
+    "terminos": "条款"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "欢迎咨询任何产品或生产商",
+    "terminos": "条款"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "关闭菜单"
+  },
+  "info_header": {
+    "queEs": "什么是",
+    "cerrarMenu": "关闭菜单",
+    "iniciarSesion": "登录"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "没有网络连接"
+  },
+  "report_button": {
+    "informacionEnganosa": "误导性信息",
+    "violacionDeDerechosDeAutor": "侵犯版权",
+    "noSePudoEnviarElReporte": "报告无法发送。",
+    "anadeUnDetalleOpcional": "添加详情（可选）……"
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "关闭通知"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "关闭消息通知"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "关注至少 3 个账号即可完成注册。",
+    "noHemosPodidoGuardarLasCuentasSegu": "我们尚未能保存连续的账户。",
+    "eligeAlMenos3ProductoresOCreadores": "至少选择 3 位制作人或创作者，以便您的初始信息流能够获得真实的信息。",
+    "puedesFinalizarYEmpezarADescubrirC": "您可以稍后完成并开始发现账户。"
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "请至少选择 3 个类别以继续。",
+    "noHemosPodidoGuardarTusInteresesTo": "我们尚未成功保存您的权益。",
+    "eligeAlMenos3CategoriasParaQueEl": "至少选择 3 个类别，以便目录和信息流能够有一个有用的基础。"
+  },
+  "location": {
+    "seleccionaUnPais": "请选择一个国家。",
+    "introduceTuCodigoPostal": "请输入您的邮政编码。",
+    "noHemosPodidoGuardarTuUbicacionTod": "我们尚未能保存您的位置信息。",
+    "usamosTuZonaParaMostrarCatalogoDis": "我们会根据您所在的位置显示可用的产品目录、附近的推荐商品和更佳的配送选项。"
+  },
+  "step_follow": {
+    "cordoba": "科尔多瓦",
+    "queseriaLaAntigua": "安提瓜奶酪工厂",
+    "panaderiaMaria": "玛丽亚面包店",
+    "descubreAQuienSeguir": "找出应该关注的人",
+    "sigueAlMenos3ProductoresParaEmpeza": "首先关注至少 3 位制作人。"
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "选择至少 3 个类别以个性化您的信息流"
+  },
+  "step_location": {
+    "cordoba": "科尔多瓦",
+    "malaga": "马拉加",
+    "estoTeMostraraProductoresCercaDeTi": "这将向您展示您附近的生产商。",
+    "usarMiUbicacionActual": "使用我的当前位置",
+    "oIntroduceCodigoPostal": "或者输入邮政编码"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "添加更多关于您自己的信息",
+    "tuFeedPersonalizadoEstaPreparado": "您的个性化信息流已准备就绪。",
+    "puedesCambiarTusPreferenciasEnCualq": "您可随时在个人资料中更改您的偏好设置。"
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "您的个人资料已设置完毕。现在您可以浏览本地产品了。"
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "卖出之前你无需支付任何费用。",
+    "paraProductoresQueQuierenEmpezarAV": "适合想要无风险开始销售的生产者。",
+    "tiendaVirtualPersonalizadaConTuHist": "打造专属您的故事和起源的个性化在线商店",
+    "hasta30ProductosEnCatalogo": "产品目录中最多包含 30 种产品。",
+    "visibilidadNacionalEnEspana": "在西班牙的全国知名度",
+    "paraProductoresSeriosQueQuierenEsca": "适合想要扩大规模但又不想冒险的严肃制作人。",
+    "herramientasDeIaParaMarketing": "用于营销的人工智能工具",
+    "recomendacionesDinamicasDePrecioPor": "按地理区域动态价格建议",
+    "analiticaAvanzadaDeVentas": "高级销售分析",
+    "matchingAutomaticoConHasta5Influenc": "自动匹配最多 5 位本地网红",
+    "paraCooperativasYProductoresConAmbi": "面向具有全球抱负的合作社和生产商。",
+    "prediccionDeDemandaPorPaisYTempora": "按国家和季节划分的需求预测",
+    "analisisDeMercadosInternacionalesPr": "国际市场分析（价格、竞争、机遇）",
+    "deteccionPreventivaDeRiesgoDeDesaba": "预防性检测供应短缺风险",
+    "matchingDirectoConImportadoresVerifi": "直接与来自其他国家的经过验证的进口商进行匹配",
+    "generacionAutomaticaDeContratosB2bE": "自动生成PDF格式的B2B合同",
+    "analisisDeRegulacionesYArancelesPor": "按目的地市场分析法规和关税",
+    "creacionDeDossieresDeExportacion": "出口文件编制",
+    "prioridadAbsolutaDeVisibilidadEnLa": "在平台上获得绝对的曝光度是首要任务。",
+    "soporteTelefonicoDirecto": "电话直接支持",
+    "soloVendoEnEspana": "我只在西班牙销售。",
+    "yaExportoAAlgunPais": "我已经向一些国家出口产品。",
+    "masDe20": "超过20",
+    "andalucia": "安达卢西亚",
+    "aragon": "阿拉贡",
+    "castillaYLeon": "卡斯蒂利亚和莱昂",
+    "cataluna": "加泰罗尼亚",
+    "paisVasco": "巴斯克地区",
+    "stripeNoEstaDisponible": "Stripe支付方式不可用。",
+    "quienEres": "你是谁？",
+    "stripeNoEstaConfiguradoTodavia": "Stripe尚未设置。",
+    "noPudimosPrepararElPagoSeguro": "我们未能完成安全支付。",
+    "necesitamosTuNombreParaDarteDeAlta": "我们需要您的姓名来注册您的信息。",
+    "introduceUnEmailValido": "请输入有效的电子邮件地址。",
+    "necesitamosUnTelefonoOperativo": "我们需要一部能用的手机。",
+    "tuContrasenaDebeTenerAlMenos6Cara": "您的密码长度必须至少为 6 个字符。",
+    "debesAceptarLaPoliticaDePrivacidad": "您必须接受隐私政策和条款。",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "请告诉我们您的品牌或合作社名称。",
+    "seleccionaAlMenosUnTipoDeProducto": "至少选择一种产品类型。",
+    "indicanosSiYaExportasOQuieresEmpez": "如果您已经开始出口或想要开始出口，请告知我们。",
+    "seleccionaTuRegionDeProduccion": "选择您的生产区域。",
+    "necesitamosUnRangoAproximadoDeRefer": "我们需要一个大致的参考范围。",
+    "completaLosDatosDeLaTarjetaParaCo": "请填写卡片信息以继续。",
+    "stripeNoEstaListoTodavia": "Stripe 尚未准备就绪。",
+    "noPudimosValidarLaTarjeta": "我们无法验证该卡。",
+    "tuBancoRechazoLaOperacion": "您的银行拒绝了这笔交易。",
+    "haOcurridoUnErrorConElPagoPorFa": "您的付款出现错误，请重试。",
+    "elMetodoDePagoFueRechazadoPorFav": "您的付款方式被拒绝。请使用其他银行卡。",
+    "revisaLosDatosAntesDeContinuar": "请先阅读相关信息再继续。",
+    "noPudimosCompletarElAltaDelProduct": "我们未能完成生产者注册。",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "您的账户已存在。如果账户已创建，您只需完成套餐或查看您的访问权限即可。",
+    "completaLosCamposObligatoriosParaAv": "请填写必填字段以继续。",
+    "aceptoLaPoliticaDePrivacidadYLosT": "我接受隐私政策和条款",
+    "nombreDeTuObradorMarcaOCooperativ": "您的工作室、品牌或合作社名称",
+    "exportacionActual": "当前出口",
+    "regionDeProduccion": "生产区域",
+    "seleccionaTuRegion": "选择您的地区",
+    "numeroDeReferencias": "参考文献数量",
+    "cargoOComision": "职位或佣金",
+    "entiendoQueHispaloshopRetieneUn20": "我了解到 Hispaloshop 会从销售额中抽取 20% 的佣金。",
+    "noPagarasNadaHastaQueVendasCuando": "卖出之前你无需支付任何费用。卖出后，你将获得80%的收益。",
+    "pagoSeguroPorStripeCancelaCuandoQ": "通过 Stripe 安全支付。随时可从您的控制面板取消付款。",
+    "pagoSeguroPorStripeSiTuBancoPide": "通过 Stripe 安全支付。如果您的银行需要额外确认，我们会在此页面直接处理，不会让您离开当前页面。",
+    "bienvenidoALaRevolucionDeLosProduc": "欢迎来到诚信生产者的革命。",
+    "revisaTuEmailParaVerificarTuCuenta": "请查收您的电子邮件以验证您的帐户，并访问您的控制面板以完善您的个人资料。",
+    "siTuAltaQuedaPendienteDeRevision": "如果您的申请正在审核中，您首先会看到审批状态。之后，您可以继续完成整个流程，不会错过任何重要步骤。",
+    "verGuiaRapidaParaSubirMiPrimerPro": "请参阅快速指南，了解如何上传我的第一个产品",
+    "tuCuentaYaExisteYElSiguientePaso": "您的账户已存在，下一步是验证您的电子邮件并完成个人资料的填写。",
+    "laContrasenaNoSeGuardaEnLocalstora": "密码不会保存在本地存储中，从而避免了秘密信息泄露。",
+    "freeCreaLaCuentaAlInstanteProYE": "免费版可立即创建账户。专业版和精英版可在不离开流程的情况下直接激活 Stripe。",
+    "empezamosPorLoMinimoParaNoPonerte": "我们将从最基本的开始，以免给您设置其他障碍。",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "我们距离店铺开业仅一步之遥，基础设施已经准备就绪。",
+    "completarSuscripcionYAbrirMiTienda": "完成订阅并打开我的商店"
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "账户无法关闭，请稍后再试。",
+    "noSePudieronCargarLasHistorias": "故事无法加载",
+    "errorAlCrearElDestacado": "创建高亮显示时出错",
+    "seCerraraLaSesionDeEstaCuentaYTe": "此账户会话将关闭，您需要重新登录。",
+    "soloSeEliminaDelSelectorDeCuentas": "它仅从此设备的帐户选择器中移除。",
+    "codigoCopiado": "复制的代码：",
+    "noHayHistoriasEnEsteDestacado": "此专题文章中没有故事。",
+    "lasHistoriasDelDestacadoNoSeElimin": "精选文章不会被删除，只会删除文章合集。",
+    "noHayHistoriasEnTuArchivo": "您的文件中没有故事",
+    "publicaUnaHistoriaPrimeroParaPoder": "先发布一篇报道，以便打造专题文章。",
+    "lasHistoriasNoSePerderanSoloLaCo": "故事本身不会消失，消失的只是故事的收藏。"
+  },
+  "profile_tabs": {
+    "crearPublicacion": "创建帖子",
+    "sinPublicacionesTodavia": "暂无帖子",
+    "sinReelsTodavia": "目前还没有卷轴",
+    "sinRecetasTodavia": "暂无食谱",
+    "nadaGuardadoTodavia": "尚未保存任何内容",
+    "publicacionGuardada": "已保存的帖子"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "手动或与平台产品连接。"
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "更多份",
+    "anadirTodoAlCarrito": "所有商品加入购物车"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "添加到购物车",
+    "iniciaSesionParaAnadirProductos": "登录以添加产品",
+    "noHemosPodidoCompletarLaAccion": "我们未能完成该操作。",
+    "esteProductoAunNoTieneCertificados": "该产品尚未获得认证。",
+    "seElPrimeroEnOpinarSobreEsteProdu": "成为第一个评价这款产品的人。"
   }
 }

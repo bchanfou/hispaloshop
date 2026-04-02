@@ -170,7 +170,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     <ChevronDown size={16} className="text-stone-400 -rotate-90" />
                   </Link>
 
-                  <MenuItem to="/settings" icon={<Settings size={20} />} label="Configuración" onClose={onClose} />
+                  <MenuItem to="/settings" icon={<Settings size={20} />} label={t('community.configuracion', 'Configuración')} onClose={onClose} />
                   <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />
                   <MenuItem to="/messages" icon={<MessageCircle size={20} />} label="Mensajes" onClose={onClose} />
                 </>
@@ -328,13 +328,13 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               {/* ── PIE ── */}
               <SectionLabel>SOPORTE</SectionLabel>
               <MenuItem to="/about" icon={<HelpCircle size={20} />} label="Ayuda" onClose={onClose} />
-              <MenuItem to="/terms" icon={<FileText size={20} />} label="Términos y condiciones" onClose={onClose} />
+              <MenuItem to="/terms" icon={<FileText size={20} />} label={t('register.terminosYCondiciones', 'Términos y condiciones')} onClose={onClose} />
 
               <Divider />
 
               {/* ── HISPALOSHOP ── */}
               <SectionLabel>HISPALOSHOP</SectionLabel>
-              <MenuItem to="/que-es" icon={<Info size={20} />} label="¿Qué es HispaloShop?" onClose={onClose} />
+              <MenuItem to="/que-es" icon={<Info size={20} />} label={t('hamburger_menu.queEsHispaloshop', '¿Qué es HispaloShop?')} onClose={onClose} />
               <MenuItem to="/certificates" icon={<ShieldCheck size={20} />} label="Certificados" onClose={onClose} />
               <MenuItem to="/influencer/aplicar" icon={<Megaphone size={20} />} label="Soy Influencer" onClose={onClose} />
               <MenuItem to="/informativas/soy-productor" icon={<Truck size={20} />} label="Soy Productor" onClose={onClose} />

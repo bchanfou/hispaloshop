@@ -90,7 +90,7 @@ function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel, 
       <div className="flex flex-col gap-1.5">
         <SummaryRow label="Subtotal" value={fmt(subtotal)} />
         {discount > 0 && <SummaryRow label="Descuento" value={`-${fmt(discount)}`} />}
-        <SummaryRow label="Envío" value={shipping === 0 ? (shippingLabel || 'Calculando...') : fmt(shipping)} />
+        <SummaryRow label={t('products.shippingCost', 'Envío')} value={shipping === 0 ? (shippingLabel || 'Calculando...') : fmt(shipping)} />
         <div className="h-px bg-stone-200 my-1" />
         <SummaryRow label="Total" value={fmt(total)} bold />
       </div>

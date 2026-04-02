@@ -2627,5 +2627,1700 @@
     "firstReviewDesc": "لقد كتبت أول مراجعة لك",
     "explorer": "مستكشف",
     "explorerDesc": "لقد تابعت 5 متاجر"
+  },
+  "product_detail": {
+    "resenaEnviada": "تم تقديم المراجعة",
+    "chatNoDisponibleParaEsteProducto": "خدمة الدردشة غير متاحة لهذا المنتج.",
+    "noSePudoAbrirElChat": "تعذر فتح المحادثة",
+    "puntuacion": "علامات الترقيم",
+    "comentarioDeLaResena": "تعليق المراجعة",
+    "noHemosPodidoEnviarLaResena": "لم نتمكن من إرسال المراجعة.",
+    "anadirAFavoritos": "أضف إلى المفضلة",
+    "politicaDeDevolucion": "سياسة العائدات",
+    "tienes14DiasDesdeLaRecepcionParaD": "لديك 14 يوماً من تاريخ الاستلام لإرجاع طلبك. المنتجات الغذائية القابلة للتلف غير قابلة للإرجاع.",
+    "anadeEsteProductoAlCatalogoB2bPara": "أضف هذا المنتج إلى كتالوج B2B لتلقي طلبات الجملة.",
+    "anadirAlCatalogoB2b": "أضف إلى كتالوج B2B"
+  },
+  "recipe_detail": {
+    "errorAlAnadirProductosAlCarrito": "حدث خطأ أثناء إضافة المنتجات إلى سلة التسوق",
+    "errorAlAnadir": "خطأ في الإضافة",
+    "noSePudoCopiarElEnlace": "تعذر نسخ الرابط",
+    "anadidoALaLista": "تمت إضافته إلى القائمة",
+    "noSePudoGuardarEnLaLista": "تعذر حفظها في القائمة",
+    "seleccionaUnaValoracion": "اختر تقييمًا",
+    "valoracionPublicada": "التقييم المنشور",
+    "masPorciones": "أجزاء أخرى",
+    "errorAlPublicarLaValoracion": "تقييم نشر الخطأ",
+    "preparacion": "تحضير",
+    "informacionNutricional": "المعلومات الغذائية",
+    "porRacion": "لكل حصة",
+    "proteina": "بروتين",
+    "azucar": "سكر",
+    "aunNoHayResenasSeElPrimero": "لا توجد تقييمات حتى الآن. كن أول من يكتب تقييمًا!",
+    "tuResena": "تقييمك",
+    "enviarResena": "أرسل مراجعتك"
+  },
+  "community": {
+    "configuracion": "إعدادات",
+    "errorAlActualizarMembresia": "خطأ في تحديث العضوية",
+    "escribeAlgoOAnadeUnaImagen": "اكتب شيئًا أو أضف صورة",
+    "queQuieresCompartirPuedesUsarHas": "ماذا تريد أن تشارك؟ يمكنك استخدام الهاشتاغات.",
+    "anadirImagen": "أضف صورة",
+    "errorAlCargarLaComunidad": "حدث خطأ في تحميل المجتمع",
+    "salirDeLaComunidad": "مغادرة المجتمع",
+    "comparteAlgoConLaComunidad": "شارك شيئًا مع المجتمع...",
+    "aunNoHayPosts": "لا توجد منشورات حتى الآن.",
+    "seElPrimeroEnPublicarAlgo": "كن أول من ينشر شيئاً!",
+    "verMasPosts": "اطلع على المزيد من المنشورات",
+    "verMasComentarios": "اطلع على المزيد من التعليقات",
+    "sinMiembrosTodavia": "لا يوجد طلاب حتى الآن",
+    "verMasMiembros": "اطلع على المزيد من الأعضاء",
+    "normasDeLaComunidad": "إرشادات المجتمع",
+    "contenidoRelacionadoConAlimentacionY": "محتوى متعلق بالطعام وفن الطهي",
+    "sinSpamNiPublicidadNoAutorizada": "ممنوع الإعلانات المزعجة أو غير المصرح بها",
+    "sinBebidasAlcoholicas": "ممنوع تناول المشروبات الكحولية",
+    "elAdminPuedeEliminarPostsQueNoCum": "بإمكان المسؤول حذف المنشورات التي لا تتوافق مع القواعد."
+  },
+  "user_profile": {
+    "errorAlCargarTusStories": "حدث خطأ أثناء تحميل قصصك",
+    "errorAlSubirLaFoto": "حدث خطأ أثناء تحميل الصورة",
+    "noSePudoAbrirLaConversacion": "تعذر فتح المحادثة",
+    "errorAlCrearConversacion": "حدث خطأ أثناء إنشاء المحادثة",
+    "atras": "خلف"
+  },
+  "followers": {
+    "errorAlDejarDeSeguir": "خطأ في إلغاء المتابعة",
+    "cargarMasUsuarios": "تحميل المزيد من المستخدمين",
+    "pruebaConOtroTermino": "جرب مصطلحًا آخر",
+    "cargarMas": "تحميل المزيد",
+    "sinSeguidoresAun": "لا يوجد متابعين حتى الآن",
+    "noSigueANadieAun": "هي لا تتابع أحداً حتى الآن"
+  },
+  "saved": {
+    "errorAlCrearLaColeccion": "خطأ في إنشاء المجموعة",
+    "nombreDeLaColeccion": "اسم المجموعة",
+    "guardaContenidoTocandoElIconoDeMar": "احفظ المحتوى بالنقر على أيقونة الإشارة المرجعية",
+    "nuevaColeccion": "مجموعة جديدة"
+  },
+  "login": {
+    "errorAlIniciarSesionConGoogle": "حدث خطأ أثناء تسجيل الدخول باستخدام حساب جوجل.",
+    "tuContrasena": "كلمة مرورك",
+    "elEmailEsObligatorio": "البريد الإلكتروني مطلوب",
+    "laContrasenaEsObligatoria": "كلمة المرور مطلوبة.",
+    "emailOContrasenaIncorrectos": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "tuCuentaEstaRestringidaPorEdad": "حسابك مقيد بالعمر.",
+    "noHemosPodidoIniciarTuSesion": "لم نتمكن من تسجيل دخولك.",
+    "entraEnTuCuenta": "سجل الدخول إلى حسابك",
+    "tuSesionHaExpiradoIniciaSesionDe": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "ocultarContrasena": "إخفاء كلمة المرور"
+  },
+  "forgot_password": {
+    "reenviarEmailDeRecuperacion": "أعد إرسال بريد إلكتروني للاسترداد",
+    "enviarEnlaceDeRecuperacion": "إرسال رابط الاسترداد"
+  },
+  "onboarding": {
+    "laImagenNoPuedeSuperar5Mb": "لا يمكن أن يتجاوز حجم الصورة 5 ميجابايت",
+    "noSePudoSubirLaFotoDePerfilPero": "لم يتم تحميل صورة الملف الشخصي، ولكن سيتم إنشاء حسابك على أي حال.",
+    "panaderia": "مخبز",
+    "reposteria": "الحلويات",
+    "descubreProductosArtesanalesUnicosDe": "اكتشف منتجات يدوية فريدة من نوعها من منتجين محليين.",
+    "tuTiendaEstaListaEmpiezaAVenderT": "متجرك جاهز. ابدأ ببيع منتجاتك المصنوعة يدوياً.",
+    "exploraElMarketplaceB2bYEncuentraL": "استكشف سوق الأعمال بين الشركات (B2B) واعثر على أفضل المنتجين.",
+    "errorAlGuardarTuPerfilIntentaloDe": "حدث خطأ في حفظ ملفك الشخصي. يرجى المحاولة مرة أخرى.",
+    "estoEsLoQueVeranOtrosUsuarios": "هذا ما سيراه المستخدمون الآخرون",
+    "ubicacionOpcional": "الموقع (اختياري)",
+    "validacionDeMercadoYPrimerasVentas": "التحقق من صحة السوق والمبيعات الأولية.",
+    "iaComercialAvanzadaYGeneracionDeCo": "الذكاء الاصطناعي المتقدم للأعمال التجارية وإنشاء العقود.",
+    "stripeNoEstaDisponible": "خدمة Stripe غير متاحة",
+    "stripeNoEstaConfiguradoTodavia": "لم يتم إعداد Stripe بعد.",
+    "noPudimosPrepararElPago": "لم نتمكن من معالجة الدفعة.",
+    "introduceUnEmailValido": "أدخل عنوان بريد إلكتروني صحيح.",
+    "creaUnaContrasenaDeAlMenos6Caract": "أنشئ كلمة مرور لا تقل عن 6 أحرف.",
+    "necesitamosUnTelefonoOperativo": "نحتاج إلى هاتف يعمل.",
+    "seleccionaElPaisDondeVasAOperar": "اختر الدولة التي ستعمل فيها.",
+    "seleccionaTuPuntoDePartida": "اختر نقطة البداية.",
+    "eligeAlMenosUnTipoDeProducto": "اختر نوعًا واحدًا على الأقل من المنتجات.",
+    "necesitamosUnaDireccionFiscalValida": "نحتاج إلى عنوان ضريبي صالح.",
+    "necesitamosVatCifONifParaDarteDe": "نحتاج إلى رقم ضريبة القيمة المضافة أو رقم تعريف المركبة (CIF) أو رقم تعريف التأمين الوطني (NIF) الخاص بك لتسجيلك.",
+    "completaLosDatosDeLaTarjetaParaCo": "أكمل بيانات البطاقة للمتابعة.",
+    "stripeNoEstaListoTodavia": "لم يتم تجهيز Stripe بعد.",
+    "noSePudoValidarLaTarjeta": "لم يتم التحقق من صحة البطاقة.",
+    "tuBancoRechazoLaOperacion": "رفض البنك الذي تتعامل معه هذه العملية.",
+    "haOcurridoUnErrorConElPagoPorFa": "حدث خطأ في عملية الدفع. يرجى المحاولة مرة أخرى.",
+    "elMetodoDePagoFueRechazadoPorFav": "تم رفض طريقة الدفع الخاصة بك. يرجى استخدام بطاقة أخرى.",
+    "revisaLosDatosAntesDeContinuar": "راجع المعلومات قبل المتابعة.",
+    "noPudimosCompletarElAlta": "لم نتمكن من إتمام عملية الخروج.",
+    "tuCuentaYaEstaCreadaSoloFaltaAct": "تم إنشاء حسابك بالفعل. ما عليك سوى تفعيل الخطة أو إنهاء الاشتراك.",
+    "completaLosCamposObligatoriosParaAv": "أكمل الحقول المطلوبة للمتابعة.",
+    "numeroSinEspacios": "رقم بدون مسافات",
+    "paisDondeOperaras": "البلد الذي ستعمل فيه",
+    "seleccionaTuPaisPrincipal": "اختر بلدك الرئيسي",
+    "loUsamosParaFacturacionYAprobacion": "نستخدمه لأغراض الفوترة والموافقة التجارية.",
+    "direccionFiscal": "عنوان الضرائب",
+    "direccionCompletaParaFacturacion": "عنوان الفاتورة الكامل",
+    "empezamosSinCuotaFijaSiElMercado": "نبدأ بدون رسوم ثابتة. إذا لاقى ذلك استحسان السوق، يمكنك حينها تحديد ما إذا كنت ترغب في الترقية إلى PRO أو ELITE.",
+    "pagoSeguroCancelaCuandoQuierasNo": "دفع آمن. يمكنك الإلغاء في أي وقت. لن نؤثر على سير عملك.",
+    "bienvenidoALaRevolucion": "أهلاً بكم في الثورة.",
+    "revisaTuEmailParaVerificarTuCuenta": "تحقق من بريدك الإلكتروني لتأكيد حسابك. لديك بالفعل البنية التحتية التي كانت ستوفر عليّ المال والوقت.",
+    "verCatalogoDeProductoresDisponibles": "اطلع على قائمة المنتجين المتاحين",
+    "sinAlertsAgresivosYConGuardadoLoca": "بدون تنبيهات مزعجة ومع حفظ التقدم محليًا.",
+    "tuContrasenaNoSePersisteEnLocalsto": "كلمة مرورك غير محفوظة في التخزين المحلي.",
+    "proYEliteUsanStripeInlineFreeCre": "تستخدم باقات PRO و ELITE خدمة Stripe بشكل مباشر. أما الباقة المجانية فتنشئ الحساب فوراً."
+  },
+  "post_detail": {
+    "publicacionEditada": "منشور مُحرَّر",
+    "editarDescripcion": "تعديل الوصف",
+    "publicacion": "منشور",
+    "editarPublicacion": "تعديل المنشور",
+    "laImagenNoSePuedeCambiarTrasPubli": "لا يمكن تغيير الصورة بعد نشرها.",
+    "seEliminaraPermanentementeJuntoConS": "سيتم حذف هذا المنشور نهائياً مع تعليقاتك وإعجاباتك. لا يمكن التراجع عن هذا الإجراء.",
+    "seElPrimeroEnComentar": "كن أول من يعلق",
+    "masPopulares": "الأكثر شعبية",
+    "cargarMasComentarios": "عرض المزيد من التعليقات",
+    "compartirPublicacion": "شارك هذا المنشور"
+  },
+  "create_recipe": {
+    "noHemosPodidoCargarLaImagen": "لم نتمكن من تحميل الصورة.",
+    "noHemosPodidoCargarLaImagenDelPas": "لم نتمكن من تحميل صورة الموكب.",
+    "numeroDeRaciones": "عدد الحصص",
+    "anadirIngrediente": "أضف المكون",
+    "cuentaQueHaceEspecialEstaReceta": "أخبرنا ما الذي يجعل هذه الوصفة مميزة...",
+    "descripcionDeLaReceta": "وصف الوصفة",
+    "anadirEtiqueta": "أضف علامة...",
+    "ensaladaRapida": "سلطة سريعة",
+    "postreFacil": "حلوى سهلة التحضير",
+    "noHemosPodidoPublicarLaReceta": "لم نتمكن من نشر الوصفة",
+    "recetaPublicada": "تم نشر الوصفة!",
+    "tienesUnBorradorDeReceta": "لديك وصفة مسودة",
+    "momentoDelDia": "وقت اليوم",
+    "unaIntroduccionParaTuReceta": "مقدمة لوصفتك"
+  },
+  "reels": {
+    "errorAlCargarMasReels": "حدث خطأ أثناء تحميل المزيد من البكرات"
+  },
+  "category": {
+    "pruebaConOtraCategoriaOAjustaLosF": "جرب فئة أخرى أو عدّل عوامل التصفية.",
+    "verMasProductos": "اطلع على المزيد من المنتجات",
+    "caracteristicas": "صفات"
+  },
+  "stores_list": {
+    "exploraTiendasDeProductoresArtesanal": "استكشف المتاجر التي تعرض منتجات غذائية محلية وحرفية وصحية. يمكنك تصفية النتائج حسب المنطقة والبلد."
+  },
+  "communities_explore": {
+    "alimentacion": "تغذية",
+    "iniciaSesionParaVerTusComunidades": "سجّل الدخول للاطلاع على مجتمعاتك",
+    "noHayComunidadesEnEstaCategoria": "لا توجد مجتمعات في هذه الفئة.",
+    "sinResultadosParaTuBusqueda": "لم يتم العثور على نتائج لبحثك",
+    "aunNoHayComunidades": "لا توجد مجتمعات حتى الآن.",
+    "creaLaPrimeraComunidadDeEstaCatego": "أنشئ أول مجتمع من هذه الفئة",
+    "pruebaConOtrosTerminos": "جرب مصطلحات أخرى",
+    "seElPrimeroEnCrearUnaYConectarCo": "كن أول من ينشئ حسابًا وتواصل مع المجتمع",
+    "consigue100SeguidoresOVerificaTuCu": "احصل على 100 متابع أو فعّل حساب البائع الخاص بك"
+  },
+  "about": {
+    "envioGestionadoPorProductor": "تتم إدارة الشحن من قبل المنتج",
+    "productosConInformacionVerificableY": "منتجات بمعلومات قابلة للتحقق وشهادة رقمية.",
+    "operacionInternacional": "عملية دولية",
+    "feedPostsYReelsConectadosConConve": "المحتوى والمنشورات والبكرات المرتبطة بتحويل حقيقي.",
+    "checkoutSeguroComisionesYConciliaci": "عملية دفع آمنة، وعمولات، وتسوية لكل معاملة.",
+    "contenidoUtil": "محتوى مفيد",
+    "clientesProductoresImportadoresEIn": "العملاء والمنتجون والمستوردون والمؤثرون في تدفق واحد.",
+    "gestionarPedidosYOperacionDiaria": "إدارة الطلبات والعمليات اليومية",
+    "configurarEnvioYCatalogoInternaciona": "إعداد الشحن الدولي والكتالوج",
+    "trackingDeConversionYRendimiento": "تتبع التحويل والأداء",
+    "monetizacionEnPostsYReels": "تحقيق الربح من المنشورات ومقاطع الفيديو القصيرة",
+    "altaDeProductosYCatalogoPropio": "تسجيل المنتج وامتلاك كتالوج خاص",
+    "panelDePedidosPagosYOperacion": "لوحة الطلبات والدفع والعمليات",
+    "catalogoLimpio": "كتالوج نظيف",
+    "contenidoUtilEnlazadoAProductosReal": "محتوى مفيد مرتبط بمنتجات حقيقية.",
+    "queEsHispaloshop": "ما هو متجر هيسبالوشوب؟",
+    "unimosCompraVentaInfluenciaYTraza": "نحن نجمع بين الشراء والبيع والتأثير وإمكانية التتبع في منصة تشغيلية واحدة.",
+    "loQueYaEstaActivo": "ما هو نشط بالفعل",
+    "funcionalidadRealDeProductoEnEstaV": "الوظائف الفعلية للمنتج في هذا الإصدار.",
+    "porQueLaPlataformaFunciona": "لماذا تنجح هذه المنصة",
+    "paraQuienEstaHecho": "لمن صُنع هذا المنتج؟",
+    "porQueExisteHispaloshop": "لماذا يوجد موقع Hispaloshop؟",
+    "laHistoriaRealDetrasDelProyecto": "القصة الحقيقية وراء المشروع.",
+    "aLos25Perdi15000€EnUnContainerD": "في الخامسة والعشرين من عمري، خسرت 15 ألف يورو في علبة فشار تعفّنت في إنتشون. بكيت في حديقة في سيول. في السادسة والعشرين، عدت للعيش في غرفة والديّ في ريوس. الساعة الآن السادسة صباحًا، ولم أنم أكثر من خمس ساعات في الليلة طوال شهرين وأنا أعمل على هذا المشروع.",
+    "loHiceParaQueNingunProductorHonest": "فعلتُ ذلك لكي لا يشعر أي منتج نزيه بالتجاهل مجدداً، ولكي لا يضطر أي مؤثر للاختيار بين نزاهته ومصدر رزقه.",
+    "exploraCatalogoTiendasYContenido": "استكشف الكتالوج والمتاجر والمحتوى.",
+    "checkoutCentralizadoEnUnSoloFlujo": "إتمام عملية الدفع مركزياً في مسار واحد."
+  },
+  "create_post": {
+    "anadeAlMenosUnaImagenParaPublicar": "أضف صورة واحدة على الأقل إلى المنشور",
+    "laDescripcionEsDemasiadoLarga": "الوصف طويل جدًا",
+    "publicacionCreada": "تم إنشاء المنشور",
+    "verEnElFeed": "عرض في موجز الأخبار",
+    "errorAlPublicarCompruebaTuConexion": "حدث خطأ في النشر. تحقق من اتصالك وحاول مرة أخرى.",
+    "nuevaPublicacion": "منشور جديد",
+    "seleccionaImagenes": "اختر الصور",
+    "capturaDirectamenteDesdeTuCamara": "التقط الصورة مباشرة من كاميرتك",
+    "abrirCamaraParaTomarFoto": "افتح الكاميرا لالتقاط صورة",
+    "abrirCamara": "افتح الكاميرا",
+    "saturacion": "التشبع",
+    "vineteado": "مشهد قصير",
+    "tamano": "مقاس",
+    "descripcionDeLaPublicacion": "وصف المنشور",
+    "escribeTuPieDeFotoUsaParaHas": "اكتب تعليقك... استخدم # للهاشتاجات و @ للإشارة إلى الآخرين",
+    "sugerenciaAnadida": "اقتراح إضافي",
+    "noSePudoGenerarUnaSugerencia": "تعذر إنشاء اقتراح",
+    "errorAlConectarConDavidAi": "حدث خطأ في الاتصال بـ David AI",
+    "anadirUbicacionEjGaliciaCosta": "إضافة موقع... (على سبيل المثال، غاليسيا، كوستا برافا)",
+    "cerrarBusqueda": "إغلاق البحث",
+    "publicado": "تم النشر!",
+    "reintentarPublicacion": "إعادة نشر"
+  },
+  "create_reel": {
+    "elVideoEsDemasiadoGrandeMax100M": "حجم الفيديو كبير جدًا (الحد الأقصى 100 ميجابايت)",
+    "elVideoNoPuedeSuperarLos60Segundo": "يجب ألا تتجاوز مدة الفيديو 60 ثانية. قم بتقصيره قبل تحميله.",
+    "noHayVideoSeleccionado": "لم يتم تحديد أي فيديو",
+    "elPuntoDeInicioDelRecorteNoPuede": "لا يمكن أن تكون نقطة بداية القطع أكبر من أو تساوي نقطة النهاية.",
+    "verEnElFeed": "عرض في موجز الأخبار",
+    "errorAlPublicarElReelCompruebaTu": "حدث خطأ أثناء نشر الفيديو. تحقق من اتصالك وحاول مرة أخرى.",
+    "seleccionaUnVideo": "اختر فيديو",
+    "maximo60Segundos·Mp4OMov": "مدة أقصاها 60 ثانية · MP4 أو MOV",
+    "elegirVideoDeLaGaleria": "اختر فيديو من المعرض",
+    "elegirDeLaGaleria": "اختر من المعرض",
+    "pausarVideo": "إيقاف الفيديو مؤقتًا",
+    "controlaElVolumenDelAudioOriginalD": "يتحكم في مستوى صوت الفيديو الأصلي.",
+    "anadirTextoAlVideo": "أضف نصًا إلى الفيديو",
+    "escribeAqui": "اكتب هنا...",
+    "textoParaElOverlay": "نص الطبقة العلوية",
+    "tamanoDeTexto": "حجم النص",
+    "tienesUnBorradorDeReel": "لديك بكرة مسودة",
+    "descripcionDelReel": "وصف البكرة",
+    "portadaDesdeGaleria": "غلاف من المعرض",
+    "anadirUbicacion": "أضف الموقع...",
+    "reelPublicado": "تم نشر الفيلم!"
+  },
+  "create_story": {
+    "ecologicoEu": "الاتحاد الأوروبي البيئي",
+    "anadeContenidoATuHistoria": "أضف محتوى إلى قصتك",
+    "errorAlExportarLaHistoria": "حدث خطأ أثناء تصدير السجل",
+    "errorAlPublicarLaHistoria": "حدث خطأ أثناء نشر الخبر",
+    "historiaPublicada": "تم نشر القصة!",
+    "tienesUnBorradorDeStory": "لديك مسودة قصة",
+    "arrastraAquiParaEliminar": "اسحب هنا للحذف",
+    "escribeAqui": "اكتب هنا...",
+    "textoParaLaHistoria": "نص تاريخي",
+    "quePrefieres": "ماذا تفضل؟",
+    "opcion1": "الخيار 1",
+    "opcion2": "الخيار الثاني",
+    "anadirEncuesta": "إضافة استطلاع رأي",
+    "anadirMencion": "أضف إشارة",
+    "anadirEnlace": "أضف رابطًا",
+    "sevillaEspana": "إشبيلية، إسبانيا",
+    "anadirUbicacion": "إضافة موقع",
+    "anadirPregunta": "أضف سؤالاً",
+    "buscarProductoParaEtiquetarEnLaHis": "ابحث عن المنتج المراد وضع علامة عليه في السجل",
+    "buscaUnProductoDeTuCatalogoParaAn": "ابحث عن منتج في كتالوجك لإضافته كملصق تفاعلي."
+  },
+  "commercial_a_i": {
+    "aceiteDeOlivaEcologico": "زيت زيتون عضوي",
+    "prediccion": "تنبؤ",
+    "accedeATuRepresentanteDeVentasInte": "يمكنك الوصول إلى مندوب المبيعات الدولي الخاص بك من خلال تحليل السوق،",
+    "errorAlContactarAlAgenteComercial": "حدث خطأ أثناء الاتصال بوكيل المبيعات. يرجى المحاولة مرة أخرى.",
+    "tuRepresentanteDeVentasInternacional": "مندوب مبيعاتك الدولي المدعوم بالذكاء الاصطناعي",
+    "chatConElAgente": "تحدث مع الوكيل"
+  },
+  "producer_analytics": {
+    "sinDatosAun": "لا توجد بيانات حتى الآن",
+    "errorAlCargarAnaliticas": "تحليلات أخطاء التحميل",
+    "compruebaTuConexionEIntentaloDeNue": "تحقق من اتصالك وحاول مرة أخرى.",
+    "analitica": "التحليلات",
+    "productosMasVendidos": "المنتجات الأكثر مبيعاً",
+    "deDondeVienenTusVentas": "من أين تأتي مبيعاتك؟",
+    "seguidoresDeLaTienda": "متابعي المتجر",
+    "tasaDeConversion": "مُحَوِّل",
+    "anadidosAlCarrito": "تمت إضافته إلى سلة التسوق"
+  },
+  "producer_b2_b_requests": {
+    "introduceElNumeroDeTracking": "أدخل رقم التتبع",
+    "urlDeTrackingNoValidaDebeEmpezar": "رابط التتبع غير صالح. يجب أن يبدأ بـ http:// أو https://",
+    "envioRegistrado": "الشحن المسجل",
+    "errorAlRegistrarElEnvio": "حدث خطأ في تسجيل الشحنة",
+    "numeroDeTracking": "عدد تتبع",
+    "introduceUnPrecioValidoPorUnidad": "أدخل سعرًا صحيحًا للوحدة الواحدة",
+    "plazoDias": "الموعد النهائي (بالأيام)",
+    "ejStockDisponibleMinimo100kgPorP": "مثال: المخزون متوفر. الحد الأدنى للطلب 100 كجم.",
+    "ofertaEnviadaEsperandoAprobacionYP": "تم إرسال العرض. في انتظار الموافقة والدفع من المستورد.",
+    "gestionaLasSolicitudesB2bDeImportad": "إدارة طلبات الشركات من المستوردين",
+    "activaElModoB2bEnTusProductosPara": "فعّل وضع B2B على منتجاتك لتلقي الطلبات."
+  },
+  "producer_certificates": {
+    "pendienteDeRevision": "قيد المراجعة",
+    "pdfJpgPngMax5mb": "PDF، JPG، PNG (بحد أقصى 5 ميجابايت)",
+    "100OrganicoSinPesticidasCosechaM": "عضوي 100%، خالٍ من المبيدات، محصود يدوياً...",
+    "aceitunasEspanaJaen10salPortug": "زيتون: إسبانيا (خاين) ○ ملح: البرتغال ○ ..."
+  },
+  "producer_connect": {
+    "noSePudoIniciarElOnboarding": "تعذر بدء عملية الإعداد",
+    "configuraTuCuentaParaRecibirTransfe": "قم بإعداد حسابك لتلقي التحويلات التلقائية.",
+    "tuCuentaEstaListaParaRecibirPagos": "حسابك جاهز لاستقبال المدفوعات.",
+    "completaLosDatosEnStripeParaActiva": "أكمل المعلومات في Stripe لتفعيل المدفوعات والتحويلات المالية."
+  },
+  "producer_insights": {
+    "descubrimientoYConversionDeTuCatalo": "اكتشاف وتحويل الكتالوج الخاص بك",
+    "conversionDesdeContenido": "التحويل من المحتوى",
+    "sinDatosParaEstePeriodo": "لا تتوفر بيانات لهذه الفترة",
+    "todaviaNoHayRecetasConTusProductos": "لا توجد وصفات حتى الآن تستخدم منتجاتك.",
+    "cuandoCreadoresCompartanRecetasUsand": "عندما يشارك المبدعون وصفات باستخدام مكوناتك، ستظهر هنا."
+  },
+  "producer_overview": {
+    "debesCompletarLosDatosPendientesEn": "يجب عليك إكمال المعلومات الناقصة في Stripe.",
+    "recibirasTuPorcentajeDeCadaVentaAu": "ستتلقى تلقائيًا حصتك من كل عملية بيع وفقًا لخطة اشتراكك.",
+    "completaLaVerificacionEnStripePara": "أكمل عملية التحقق على Stripe لتفعيل المدفوعات التلقائية.",
+    "completarVerificacion": "إتمام عملية التحقق",
+    "noHayDatosSuficientesTodavia": "لا توجد بيانات كافية حتى الآن",
+    "noSePudieronCargarLasMetricasDelC": "تعذر تحميل بيانات الكتالوج ومقاييس المتجر.",
+    "noSePudoCargarElResumenDePagos": "تعذر تحميل ملخص الدفع.",
+    "noSePudieronCargarLosDatosPrincipa": "تعذر تحميل بيانات اللوحة الرئيسية. يرجى تحديث الصفحة.",
+    "errorAlCargarDatosPorFavorRefres": "حدث خطأ أثناء تحميل البيانات. يرجى تحديث الصفحة.",
+    "anadirNuevoProducto": "إضافة منتج جديد",
+    "verAnaliticas": "عرض التحليلات",
+    "metricasYPagos": "المقاييس والمدفوعات",
+    "requierenTuAtencion": "إنهم بحاجة إلى اهتمامك",
+    "noPuedesPublicarProductosHastaCompl": "لا يمكنك نشر المنتجات حتى تكمل عملية التحقق.",
+    "certificadoProximoACaducar": "الشهادة على وشك الانتهاء",
+    "renuevaloParaNoInterrumpirTusVentas": "جدد اشتراكك حتى لا تعطل مبيعاتك.",
+    "senalesDeDemanda": "إشارات الطلب",
+    "ingredientesProductosYPiezasDeCont": "المكونات والمنتجات والمحتوى الذي يحقق أعلى نية للشراء.",
+    "sinDatosTodavia": "لا توجد بيانات حتى الآن.",
+    "productosMasEtiquetados": "منتجات أخرى تحمل علامات تجارية",
+    "aunNoHayConversionesAtribuidas": "لا توجد تحويلات منسوبة حتى الآن.",
+    "conversion": "تحويل",
+    "cuentaYConfiguracion": "الحساب والإعدادات",
+    "cambiarContrasena": "تغيير كلمة المرور"
+  },
+  "producer_payments": {
+    "sinDatosDeVentasAun": "لا توجد بيانات مبيعات حتى الآن",
+    "metodoDePagoActualizado": "تم تحديث طريقة الدفع",
+    "losPagosViaStripeSeProcesanAutomat": "تتم معالجة المدفوعات عبر Stripe تلقائيًا كل 15 يومًا",
+    "metodoDeCobro": "طريقة الدفع",
+    "cobroAutomaticoCada15DiasDirectoA": "يتم الدفع التلقائي كل 15 يومًا مباشرة إلى حسابك المصرفي.",
+    "solicitasElPagoYElEquipoLoTransfi": "تطلب الدفعة ويقوم الفريق بتحويلها إلى حسابك.",
+    "guardarMetodo": "طريقة الحفظ",
+    "errorAlCargarDatosDePagos": "حدث خطأ أثناء تحميل بيانات الدفع",
+    "noSePudoObtenerElEnlaceDeStripe": "تعذر الحصول على رابط Stripe",
+    "errorAlAbrirElDashboardDeStripe": "حدث خطأ أثناء فتح لوحة تحكم Stripe",
+    "retencionFiscalAplicada": "يتم تطبيق اقتطاع الضريبة",
+    "tusGananciasSeAcumulanPeroNecesita": "تتراكم أرباحك، ولكنك تحتاج إلى Stripe Connect لتلقي التحويلات التلقائية.",
+    "comoFuncionanLosPagos": "كيفية عمل المدفوعات:"
+  },
+  "producer_plan": {
+    "panelDeControlBasico": "لوحة التحكم الأساسية",
+    "optimizacionDePreciosConIa": "تحسين الأسعار باستخدام الذكاء الاصطناعي",
+    "comisionMasBaja": "عمولة أقل",
+    "suscripcionMarcadaParaCancelar": "تم وضع علامة على الاشتراك لإلغائه",
+    "suscripcionReactivada": "تم إعادة تفعيل الاشتراك",
+    "eligeElPlanQueMejorSeAdapteATuN": "اختر الخطة التي تناسب عملك بشكل أفضل",
+    "periodoDePruebaActivo": "فترة تجريبية فعالة",
+    "actualizaTuMetodoDePagoParaMantene": "قم بتحديث طريقة الدفع الخاصة بك للاحتفاظ بخطتك.",
+    "cancelacionProgramada": "إلغاء مُجدول",
+    "tuPlanSeCancelaraAlFinalDelPeriod": "سيتم إلغاء خطتك في نهاية الفترة الحالية",
+    "detallesDeSuscripcion": "تفاصيل الاشتراك",
+    "cancelarSuscripcion": "إلغاء الاشتراك",
+    "todosLosPreciosSonEnEurEIncluyen": "جميع الأسعار باليورو وتشمل ضريبة القيمة المضافة. تُصبح تغييرات الخطة سارية المفعول فوراً.",
+    "alCancelarMantienesElAccesoHastaE": "بإلغاء الاشتراك، تحتفظ بإمكانية الوصول حتى نهاية فترة الفوترة."
+  },
+  "producer_products": {
+    "composicion": "تعبير",
+    "elNombreDelProductoEsObligatorio": "اسم المنتج مطلوب",
+    "seleccionaUnaCategoria": "اختر فئة",
+    "seleccionaElPaisDeOrigen": "اختر بلد المنشأ",
+    "crustaceos": "القشريات",
+    "frutosDeCascara": "المكسرات",
+    "anadeAlMenosUnaImagen": "أضف صورة واحدة على الأقل",
+    "subeHasta5FotosDeTuProductoLaPr": "قم بتحميل ما يصل إلى 5 صور لمنتجك. ستكون الصورة الأولى هي صورة الغلاف.",
+    "pedidoMinimoUds": "الحد الأدنى للطلب (بالوحدات)",
+    "especificaOtrosAlergenos": "حدد مسببات الحساسية الأخرى..."
+  },
+  "producer_shipping_policy": {
+    "noSePudoCargarLaPoliticaDeEnvio": "تعذر تحميل سياسة الشحن",
+    "politicaDeEnvioGuardada": "تم حفظ سياسة الشحن",
+    "politicaDeEnvio": "سياسة الشحن",
+    "configuraCostesDeEnvioPorPedidoPar": "قم بتحديد تكاليف الشحن لكل طلب لمنتجاتك.",
+    "habilitarGastosDeEnvio": "تفعيل تكاليف الشحن",
+    "0SinEnvioGratis": "0 = لا يوجد شحن مجاني",
+    "pedidosQueSuperenEsteImporteTendran": "الطلبات التي تتجاوز هذا المبلغ ستشمل شحنًا مجانيًا. اتركه فارغًا أو اضبطه على 0 لتعطيل هذه الميزة.",
+    "losClientesPuedenRecogerEnTuObrado": "يمكن للعملاء استلام طلباتهم من ورشتك (تُطبق رسوم الشحن)."
+  },
+  "producer_store_profile": {
+    "imagenAnadidaALaGaleria": "تمت إضافة الصورة إلى المعرض",
+    "anadirFotoALaGaleria": "أضف الصورة إلى المعرض",
+    "fotosDelObradorEquipoProcesoDeEl": "صور للورشة والمعدات وعملية الإنتاج",
+    "estaUrlDeTiendaYaEstaEnUsoElige": "هذا الرابط الخاص بالمتجر مستخدم بالفعل. يرجى اختيار رابط آخر.",
+    "errorAlCargarElPerfilDeTienda": "حدث خطأ أثناء تحميل ملف تعريف المتجر",
+    "compruebaTuConexionEIntentaloDeNue": "تحقق من اتصالك وحاول مرة أخرى.",
+    "personalizaLaPaginaPublicaDeTuTien": "قم بتخصيص الصفحة العامة لمتجرك",
+    "urlDeTuTienda": "رابط متجرك الإلكتروني:",
+    "informacionBasica": "معلومات أساسية",
+    "nombreDeLaTienda": "اسم المتجر",
+    "aceitesEcologicosDesde1985": "زيوت عضوية منذ عام 1985",
+    "historiaDeLaMarca": "تاريخ العلامة التجارية",
+    "cuentaLaHistoriaDeTuMarcaComoEmp": "اروِ قصة علامتك التجارية، وكيف بدأت، وفلسفتك...",
+    "carlosMartinez": "كارلوس مارتينيز",
+    "laCalidadNoEsUnAccidente": "الجودة ليست وليدة الصدفة...",
+    "tusCertificadosVerificadosAparecenAu": "تظهر شهاداتك الموثقة تلقائيًا في متجرك.",
+    "ubicacionCiudadRegion": "الموقع (المدينة، المنطقة)",
+    "jaenAndaluciaEspana": "خاين، الأندلس، إسبانيا",
+    "direccionCompleta": "العنوان الكامل",
+    "ctraDeLosOlivaresKm1223001Jaen": "كترا. دي لوس أوليفاريس، كم 12، 23001 جيان",
+    "todaEspanaPeninsular": "جميع أنحاء البر الرئيسي لإسبانيا",
+    "horarioDeAtencion": "ساعات العمل",
+    "lun-vie900-180010sab900-1400": "من الاثنين إلى الجمعة: 9:00-18:00&#10;السبت: 9:00-14:00"
+  },
+  "producer_verification": {
+    "instalacion": "منشأة",
+    "errorAlSubirElDocumentoCifnif": "حدث خطأ أثناء تحميل مستند CIF/NIF",
+    "errorAlSubirLaFotoDeInstalaciones": "حدث خطأ أثناء تحميل صورة المرافق",
+    "errorAlSubirElCertificado": "حدث خطأ أثناء تحميل الشهادة",
+    "verificacionDeCuenta": "التحقق من الحساب",
+    "subeTuCifEmpresarialONifPersonal": "قم بتحميل رقم تعريف الشركة (CIF) أو رقم التعريف الضريبي الشخصي (NIF). يجب أن تكون الوثيقة الرسمية صادرة عن مصلحة الضرائب الإسبانية (AEAT).",
+    "pdfJpgPng·Max5mb": "PDF، JPG، PNG · الحد الأقصى 5 ميجابايت",
+    "enRevisionManual": "قيد المراجعة اليدوية",
+    "nuestroEquipoRevisaraTuDocumentoEn": "سيقوم فريقنا بمراجعة مستندك خلال 48-72 ساعة عمل.",
+    "fotoDeInstalacion": "صور التركيب",
+    "subeUnaFotoDeTuLocalObradorFinc": "قم بتحميل صورة لمكان عملك، أو ورشتك، أو مزرعتك، أو مستودعك، أو مكان عملك.",
+    "laIaVerificaraQueEsUnaInstalacion": "سيقوم الذكاء الاصطناعي بالتحقق من أنها منشأة حقيقية مرتبطة بإنتاج الغذاء.",
+    "jpgPngHeic·Max10mb": "JPG، PNG، HEIC · الحد الأقصى 10 ميجابايت",
+    "instalacionVerificada": "التحقق من التثبيت",
+    "nuestroEquipoRevisaraTuFotoEn48-72": "سيقوم فريقنا بمراجعة صورتك خلال 48-72 ساعة عمل.",
+    "alMenos1CertificadoValido": "شهادة واحدة سارية على الأقل",
+    "enRevision": "قيد المراجعة",
+    "nuestroEquipoRevisaraTuDocumentacion": "سيقوم فريقنا بمراجعة مستنداتك خلال 48-72 ساعة عمل. وسنبلغك بذلك عبر البريد الإلكتروني.",
+    "completaLaVerificacion": "أكمل عملية التحقق"
+  },
+  "product_country_management": {
+    "reglasDeActivacionPorMercado": "قواعد التفعيل حسب السوق:"
+  },
+  "variant_pack_manager": {
+    "rellenaTodosLosCamposDelPackConVa": "املأ جميع حقول الحزمة بقيم صحيحة"
+  },
+  "affiliate_links": {
+    "copiado": "تم النسخ!",
+    "configuracionFiscalRequerida": "تكوين الضرائب المطلوب",
+    "generaUnLinkParaCualquierProducto": "أنشئ رابطًا لأي منتج. عندما يشتري شخص ما من خلال رابطك، ستحصل على عمولة.",
+    "masIngresos": "زيادة الدخل",
+    "masClics": "المزيد من النقرات",
+    "buscaUnProductoArribaParaGenerarTu": "ابحث عن منتج أعلاه لإنشاء رابطك الأول"
+  },
+  "fiscal_setup": {
+    "sinRetencion": "بدون احتفاظ",
+    "seleccionaUnPaisDeResidenciaFiscal": "حدد بلد الإقامة الضريبية أولاً",
+    "elArchivoNoPuedeSuperar5mb": "لا يمكن أن يتجاوز حجم الملف 5 ميجابايت",
+    "certificadoEnRevisionManual": "الشهادة قيد المراجعة اليدوية",
+    "certificadoNoValido": "شهادة غير صالحة",
+    "formatoDeIbanNoValidoDebeEmpezar": "تنسيق رقم الحساب المصرفي الدولي (IBAN) غير صالح. يجب أن يبدأ برمز الدولة (مثلاً، ES12...).",
+    "errorAlConfigurarMetodoDeCobro": "خطأ في تهيئة طريقة الدفع",
+    "configuracionFiscal": "التكوين المالي",
+    "paisFiscal": "البلد الضريبي",
+    "buscarPais": "ابحث عن البلد...",
+    "pdfJpgOPng·Max5mb": "PDF أو JPG أو PNG · بحد أقصى 5 ميجابايت",
+    "nuestroEquipoRevisaraTuCertificadoE": "سيقوم فريقنا بمراجعة شهادتك خلال 48-72 ساعة عمل",
+    "recibeEnMinutosEnTuCuentaStripe": "استلمها في حسابك على Stripe خلال دقائق.",
+    "fee025€PorTransferenciaStripeSe": "الرسوم: 0.25 يورو لكل عملية تحويل عبر Stripe (تُخصم من عمولتك)",
+    "sinComisionAdicional·ProcesadoEn1-": "لا توجد رسوم إضافية · تتم المعالجة خلال 1-3 أيام عمل",
+    "titularDeLaCuenta": "صاحب الحساب",
+    "verificacionCompletada": "تم التحقق",
+    "tuConfiguracionFiscalEstaVerificada": "تم التحقق من إعدادات الضرائب الخاصة بك وهي نشطة.",
+    "verificacionCompletadaAfiliadosActiv": "تم التحقق بنجاح. تم تفعيل الشركاء.",
+    "errorAlCompletarLaVerificacion": "حدث خطأ أثناء إتمام عملية التحقق.",
+    "completaLosPasosAnterioresParaAcced": "أكمل الخطوات المذكورة أعلاه للوصول إلى عملية التحقق.",
+    "configuracionFiscalGuardadaAfiliados": "تم حفظ إعدادات الضرائب. تم تفعيل برنامج الشركاء.",
+    "errorAlGuardarLaConfiguracionFiscal": "حدث خطأ أثناء حفظ إعدادات الضرائب.",
+    "completaTodosLosCamposParaContinuar": "أكمل جميع الحقول للمتابعة"
+  },
+  "influencer_dashboard": {
+    "errorAlProcesarElRetiro": "حدث خطأ أثناء معالجة عملية السحب",
+    "introduceElCodigoDe6Digitos": "أدخل الرمز المكون من 6 أرقام",
+    "emailVerificado": "تم التحقق من البريد الإلكتروني!",
+    "codigoInvalido": "رمز غير صالح",
+    "codigoEnviadoATuEmail": "تم إرسال الرمز إلى بريدك الإلكتروني",
+    "errorAlEnviarCodigo": "حدث خطأ في إرسال الرمز",
+    "elCodigoDebeTenerAlMenos3Caracter": "يجب أن يكون الرمز مكونًا من 3 أحرف على الأقل",
+    "codigoCreado": "تم إنشاء الكود",
+    "errorAlCrearCodigo": "خطأ في إنشاء الكود",
+    "codigosDeDescuento": "أكواد الخصم",
+    "eligeUnCodigoPersonalizadoYElPorce": "اختر رمزًا مخصصًا ونسبة خصم لمجتمعك.",
+    "codigoCopiado": "الكود المنسوخ",
+    "misCodigosDeDescuento": "أكواد الخصم الخاصة بي",
+    "creaTuPrimerCodigoDeDescuento": "أنشئ رمز الخصم الأول الخاص بك",
+    "pendiente15Dias": "معلق لمدة 15 يومًا",
+    "enTransito": "في مرحلة انتقالية",
+    "productosQueMejorFuncionanEnTuCont": "المنتجات التي تناسب محتواك بشكل أفضل",
+    "publicaContenidoConProductosVinculad": "انشر محتوى يتضمن منتجات مرتبطة به لتبدأ بملاحظة النتائج.",
+    "pendienteDeAprobacion": "بانتظار الموافقة",
+    "tuCodigoEstaSiendoRevisadoPorElEq": "يقوم فريق Hispaloshop بمراجعة الكود الخاص بك. سنوافق عليه في أقل من 24 ساعة.",
+    "miCodigoHispaloshop": "كود متجر هيسبالوشوب الخاص بي",
+    "comisionTotal": "إجمالي العمولة",
+    "tasaDeComision": "سعر العمولة",
+    "aunNoHasRealizadoNingunCobro": "لم تستلم أي دفعة حتى الآن.",
+    "hispaloshopSlRetieneEl15DeTusCom": "تقوم شركة Hispaloshop SL بحجز 15٪ من عمولاتك ودفعها إلى مصلحة الضرائب نيابة عنك كل ثلاثة أشهر (النموذج 111).",
+    "cuandoHagasTuDeclaracionDeLaRenta": "عند تقديم إقرار ضريبة الدخل (IRPF)، ستكون تلك الاستقطاعات قد دُفعت بالفعل ويمكنك خصمها.",
+    "recibirasElCertificadoDeRetenciones": "ستتلقى شهادة الاستقطاع الضريبي في شهر يناير من كل عام.",
+    "evolucionDeTusComisiones": "تطور عمولاتك",
+    "comparteloEnTusRedesSociales": "شاركها على وسائل التواصل الاجتماعي الخاصة بك",
+    "tuLinkDeAfiliado": "رابط الإحالة الخاص بك",
+    "aunNoTienesVentasComparteTuLink": "ليس لديك أي مبيعات حتى الآن. شارك رابطك!"
+  },
+  "influencer_insights": {
+    "sinDatosSuficientesParaMostrarGrafi": "البيانات غير كافية لعرض الرسم البياني",
+    "impactoComercialDeTuContenido": "الأثر التجاري لمحتواك",
+    "productosMasImpulsadosPorTuContenid": "المنتجات الأكثر تأثراً بمحتواك",
+    "errorDeConexion": "خطأ في الاتصال",
+    "noPudimosCargarTusDatosCompruebaT": "لم نتمكن من تحميل بياناتك. تحقق من اتصالك وحاول مرة أخرى.",
+    "aunNoTienesDatos": "ليس لديك أي بيانات حتى الآن.",
+    "cuandoTuContenidoImpulseClicsOComp": "عندما يؤدي المحتوى الخاص بك إلى زيادة عدد النقرات أو عمليات الشراء، سيظهر هنا.",
+    "losDatosMuestranInteraccionesAtribui": "تُظهر البيانات التفاعلات المنسوبة إلى ملفك الشخصي كمنشئ محتوى: النقرات على المنتجات من محتواك، والعناصر المضافة إلى سلة التسوق، وعمليات الشراء المكتملة. ويتم تحديثها في الوقت الفعلي."
+  },
+  "payouts": {
+    "introduceUnImporteValido": "أدخل مبلغًا صحيحًا",
+    "elImporteSuperaTuSaldoDisponible": "المبلغ يتجاوز رصيدك المتاح.",
+    "errorAlSolicitarLaRetirada": "حدث خطأ أثناء طلب السحب",
+    "lasComisionesDeTransferenciaDeStrip": "يتم خصم رسوم التحويل الخاصة بـ Stripe (حوالي 1-2%) تلقائيًا.",
+    "aunNoTienesPagosComparteTuCodigo": "لم تستلم أي مدفوعات حتى الآن. شارك رمزك وابدأ في الربح.",
+    "noHayPagosConEsteEstado": "لا توجد مدفوعات بهذا الوضع."
+  },
+  "withdrawal": {
+    "configuracionFiscalPendiente": "إعداد الضرائب معلق",
+    "completaTuConfiguracionFiscalAntesD": "أكمل إعدادات الضرائب قبل سحب الأموال",
+    "errorAlProcesarElCobroIntentaloDe": "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى.",
+    "cobroEnCamino": "الدفعة في طريقها إليكم!",
+    "tiempoEstimado1-3DiasHabiles": "المدة المتوقعة: من يوم إلى ثلاثة أيام عمل",
+    "retencionIrpf": "اقتطاع ضريبة الدخل",
+    "metodo": "طريقة",
+    "comisionBruta": "إجمالي العمولة",
+    "laComisionRealPuedeVariarSegunTuM": "قد تختلف العمولة الفعلية حسب طريقة الدفع الخاصة بك.",
+    "esteCobroSeraDeclaradoPorHispalosho": "ستعلن شركة Hispaloshop SL عن هذا المبلغ كدخل من النشاط الاقتصادي.",
+    "recibirasUnCertificadoDeRetenciones": "ستتلقى شهادة حجز في شهر يناير لإقرارك الضريبي."
+  },
+  "importer_catalog": {
+    "todasLasCategorias": "جميع الفئات",
+    "carnicos": "منتجات اللحوم",
+    "errorAlEnviarLaSolicitud": "حدث خطأ أثناء إرسال الطلب",
+    "precioEstimado·ElProductorConfirmar": "السعر التقديري · سيؤكد المنتج السعر النهائي",
+    "notasParaElProductorOpcional": "ملاحظات للمنتج (اختياري)",
+    "elProductorTiene48hParaConfirmarDi": "أمام المنتج 48 ساعة لتأكيد التوافر والشروط.",
+    "soloSeProcesaElPagoTrasSuConfirma": "لا تتم معالجة الدفع إلا بعد التأكيد.",
+    "catalogoMayorista": "كتالوج البيع بالجملة",
+    "errorAlCargarElCatalogo": "حدث خطأ أثناء تحميل الكتالوج"
+  },
+  "importer_certificates": {
+    "seleccionaUnProveedorParaVerSusCer": "اختر مزود خدمة لعرض شهاداته",
+    "errorAlCargarLosCertificados": "حدث خطأ أثناء تحميل الشهادات",
+    "losCertificadosDeTusProveedoresApar": "ستظهر شهادات مورديك هنا."
+  },
+  "importer_dashboard": {
+    "contratosB2bGeneradosAutomaticamente": "عقود B2B التي يتم إنشاؤها تلقائيًا",
+    "errorAlCargarElPanel": "لوحة تحميل الأخطاء",
+    "aunNoTienesProductosPublicados": "ليس لديك أي منتجات مدرجة حتى الآن.",
+    "requierenTuAccion": "إنهم بحاجة إلى قيامك بعملك",
+    "catalogoB2b": "كتالوج B2B",
+    "aunNoTienesProveedores": "ليس لديك أي موردين حتى الآن.",
+    "expandeTuCatalogo": "قم بتوسيع نطاق منتجاتك",
+    "verAnalisis": "تحليل العرض",
+    "anadirProducto": "إضافة منتج",
+    "analisis": "تحليل",
+    "evolucionDeVentas": "تطور المبيعات"
+  },
+  "importer_orders": {
+    "idDeOperacionNoDisponible": "رقم المعاملة غير متوفر",
+    "recepcionConfirmada": "تم تأكيد الاستقبال",
+    "errorAlConfirmarRecepcion": "خطأ في تأكيد الاستلام",
+    "idDePedidoNoDisponible": "رقم الطلب غير متوفر",
+    "rastrearEnvio": "تتبع الشحنة",
+    "confirmarRecepcion": "تأكيد الاستلام"
+  },
+  "admin_discount_codes": {
+    "errorAlCargarLosCodigosDeDescuento": "حدث خطأ أثناء تحميل أكواد الخصم",
+    "errorAlAprobarElCodigo": "خطأ في الموافقة على الرمز",
+    "errorAlRechazarElCodigo": "تم رفض رمز الخطأ",
+    "codigoDeDescuentoActualizado": "تم تحديث رمز الخصم",
+    "codigoDeDescuentoCreado": "تم إنشاء رمز الخصم",
+    "errorAlGuardarCodigoDeDescuento": "خطأ في حفظ رمز الخصم",
+    "codigoDeDescuentoEliminado": "تم حذف رمز الخصم",
+    "errorAlEliminarCodigoDeDescuento": "خطأ في حذف رمز الخصم",
+    "errorAlCambiarEstadoDelCodigo": "خطأ في تغيير حالة الكود",
+    "cargandoCodigosDeDescuento": "جارٍ تحميل أكواد الخصم",
+    "gestionaCodigosPromocionalesEInfluen": "إدارة الرموز الترويجية والمؤثرين",
+    "nuevoCodigo": "الكود الجديد",
+    "editarCodigoDeDescuento": "تعديل رمز الخصم",
+    "importeMinimoDelCarrito": "الحد الأدنى لمبلغ سلة التسوق",
+    "limiteDeUso": "حد الاستخدام",
+    "actualizarCodigo": "تحديث الكود",
+    "buscarCodigosDeDescuento": "ابحث عن أكواد الخصم...",
+    "codigo": "شفرة",
+    "noSeEncontraronCodigos": "لم يتم العثور على أي رموز",
+    "codigosActivos": "الرموز النشطة",
+    "totalDeCodigos": "إجمالي الرموز"
+  },
+  "admin_fiscal": {
+    "revisionManual": "مراجعة الدليل",
+    "errorAlProcesarLaRevision": "مراجعة معالجة الأخطاء",
+    "gestionFiscal": "الإدارة المالية",
+    "pendientesRevision": "قيد المراجعة",
+    "revisionManualPendiente": "مراجعة الدليل قيد الانتظار"
+  },
+  "admin_growth_analytics": {
+    "noSePudieronCargarLosDatosDeCreci": "تعذر تحميل بيانات النمو",
+    "errorAlCargarLosDatos": "حدث خطأ أثناء تحميل البيانات",
+    "analisisDeConversionYDescubrimiento": "تحليل التحويل واكتشافه",
+    "conversionDirecta": "التحويل المباشر",
+    "contenidoConMayorConversion": "محتوى ذو معدلات تحويل أعلى",
+    "titulo": "مؤهل",
+    "productosMasClicadosDesdeContenido": "أكثر المنتجات التي تم النقر عليها من المحتوى",
+    "sobreLosDatosDeCrecimiento": "فيما يتعلق ببيانات النمو"
+  },
+  "admin_influencers": {
+    "errorAlCargarDetallesDelInfluencer": "حدث خطأ أثناء تحميل تفاصيل المؤثر",
+    "anadirInfluencer": "أضف مؤثرًا"
+  },
+  "admin_management": {
+    "paisAsignado": "البلد المخصص",
+    "elAdminSoloVeraAnalyticsDeEstePai": "لن يرى المسؤول سوى إحصائيات هذا البلد. اترك هذا الحقل فارغًا للوصول إلى الإحصائيات العالمية."
+  },
+  "admin_moderation": {
+    "desinformacionSalud": "معلومات صحية مضللة",
+    "claimsMedicos": "المطالبات الطبية",
+    "razonIa": "الذكاء الاصطناعي العقلاني",
+    "contenidoConfirmadoComoInfraccion": "تم تأكيد أن المحتوى يمثل انتهاكًا",
+    "errorAlConfirmarLaModeracion": "خطأ في تأكيد الإشراف",
+    "errorAlRestaurarElContenido": "حدث خطأ أثناء استعادة المحتوى",
+    "errorAlEscalarElContenido": "خطأ في تغيير حجم المحتوى",
+    "revisaElContenidoModeradoPorIa": "مراجعة المحتوى الذي تتم مراجعته بواسطة الذكاء الاصطناعي"
+  },
+  "admin_orders": {
+    "articulos": "مقالات"
+  },
+  "admin_overview": {
+    "cargandoPanelDeAdministracion": "جارٍ تحميل لوحة التحكم الإدارية",
+    "noSePudieronCargarLasEstadisticas": "تعذر تحميل الإحصائيات",
+    "panelDeAdministracion": "لجنة الإدارة",
+    "gestionDeTuMercadoEnUnaVista": "إدارة سوقك من خلال عرض واحد",
+    "colaDeRevision": "قائمة المراجعة",
+    "moderacionDeContenido": "إدارة المحتوى",
+    "certificadosQueExpiranEn30Dias": "الشهادات التي تنتهي صلاحيتها خلال 30 يومًا",
+    "noHayCertificadosProximosAExpirar": "لا توجد شهادات على وشك الانتهاء.",
+    "certificadosPendientesDeRevision": "الشهادات قيد المراجعة"
+  },
+  "admin_payouts": {
+    "nºDeOperacionBancaria": "رقم المعاملة المصرفية"
+  },
+  "admin_products": {
+    "precioNoValido": "السعر غير صالح",
+    "checklistDeAprobacion": "قائمة التحقق من الموافقة",
+    "alMenos1FotoDelProducto": "صورة واحدة على الأقل للمنتج",
+    "descripcionCompletaMin20Caracteres": "الوصف الكامل (20 حرفًا على الأقل)",
+    "paisDeOrigenIndicado": "تم تحديد بلد المنشأ",
+    "alergenosRevisadosCampoPresente": "المواد المسببة للحساسية التي تمت مراجعتها (الموجودة في الحقل)",
+    "marcaTodosLosItemsParaPoderAprobar": "يرجى مراجعة جميع البنود للموافقة عليها."
+  },
+  "admin_refunds": {
+    "idDePedidoNoValido": "رقم الطلب غير صالح",
+    "errorAlProcesarElReembolso": "حدث خطأ أثناء معالجة استرداد الأموال",
+    "accionIrreversible": "فعل لا رجعة فيه",
+    "seProcesaraElReembolsoEnStripeYSe": "ستتم معالجة عملية رد الأموال من خلال Stripe وسيتم تعديل الرسوم تلقائيًا.",
+    "gestionDeReembolsos": "إدارة المبالغ المستردة"
+  },
+  "admin_reviews": {
+    "errorAlCargarResenas": "حدث خطأ أثناء تحميل المراجعات",
+    "resenaOculta": "مراجعة مخفية",
+    "resenaEliminada": "تم حذف التقييم",
+    "errorAlEliminarResena": "حدث خطأ أثناء حذف التقييم",
+    "moderarResenasDeClientes": "تقييمات العملاء متوسطة",
+    "totalDeResenas": "إجمالي التقييمات",
+    "calificacionPromedio": "متوسط التقييم",
+    "buscarResenas": "ابحث عن التقييمات...",
+    "calificacion": "مؤهل",
+    "noSeEncontraronResenas": "لم يتم العثور على أي مراجعات"
+  },
+  "admin_support": {
+    "noSePudieronCargarLosCasosDeSopor": "تعذر تحميل حالات الدعم",
+    "noHayCasosDeSoporteConLosFiltros": "لا توجد حالات دعم تتعلق بالفلاتر المحددة."
+  },
+  "admin_support_case": {
+    "solicitarReposicion": "طلب استبدال",
+    "resolucionManual": "حل يدوي",
+    "noSePudoCargarElCaso": "تعذر تحميل الملف",
+    "noSePudoActualizarElEstado": "تعذر تحديث الحالة",
+    "noSePudoActualizarLaPrioridad": "تعذر تحديث الأولوية",
+    "noSePudoEnviarElMensaje": "تعذر إرسال الرسالة.",
+    "accionAplicada": "الإجراء المتخذ",
+    "noSePudoAplicarLaAccion": "لا يمكن تطبيق الإجراء",
+    "conversacion": "محادثة",
+    "sinMensajesAun": "لا توجد رسائل حتى الآن.",
+    "tuAdmin": "أنت (المسؤول)",
+    "unAgenteHumanoSeHaUnidoALaConver": "انضم وكيل بشري إلى المحادثة.",
+    "esteCasoEstaCerradoNoSePuedenAna": "تم إغلاق هذه القضية. لا يمكن إضافة أي رسائل أخرى.",
+    "ultimaActualizacion": "آخر تحديث"
+  },
+  "admin_trust_safety": {
+    "enganoso": "مضلل",
+    "resena": "مراجعة",
+    "noSePudoCargarLaColaDeModeracion": "تعذر تحميل قائمة انتظار الإشراف",
+    "accionAplicada": "الإجراء المتخذ",
+    "noSePudoAplicarLaAccion": "لا يمكن تطبيق الإجراء",
+    "colaVacia": "قائمة انتظار فارغة",
+    "noHayContenidoPendienteDeRevision": "لا يوجد محتوى قيد المراجعة.",
+    "senales": "الإشارات",
+    "noSePudieronCargarLosReportes": "تعذر تحميل التقارير",
+    "noHayReportesConLosFiltrosSeleccio": "لا توجد تقارير باستخدام الفلاتر المحددة.",
+    "marcadosAutomaticamente": "يتم وضع علامة تلقائية",
+    "politicasDeLaPlataforma": "سياسات المنصة",
+    "productosProhibidosArmasDrogasCon": "المنتجات المحظورة: الأسلحة، المخدرات، المحتويات غير القانونية، البضائع المقلدة.",
+    "resenasDebenSerAutenticasVerificad": "التقييمات: يجب أن تكون أصلية وموثقة ومبنية على عمليات شراء فعلية.",
+    "vendedoresResponsablesDeLaVeracidad": "البائعون: مسؤولون عن دقة الأوصاف وسلامة الغذاء.",
+    "contenidoGeneradoPorUsuariosSujeto": "المحتوى الذي ينشئه المستخدمون: يخضع للمراجعة الآلية والبشرية.",
+    "colaDeModeracion": "قائمة انتظار الإشراف",
+    "moderacionReportesEIntegridadDeLa": "الإشراف، والإبلاغ، وسلامة المنصة."
+  },
+  "admin_verification": {
+    "revision": "مراجعة",
+    "revisionManual": "مراجعة الدليل",
+    "numero": "رقم",
+    "descripcionIa": "وصف الذكاء الاصطناعي",
+    "rechazarVerificacion": "رفض التحقق",
+    "documentosProblematicos": "الوثائق الإشكالية:",
+    "fotoDeInstalacionNoValida": "صورة تثبيت غير صالحة",
+    "solicitarDocumentacion": "طلب الوثائق",
+    "verificacionRechazada": "تم رفض التحقق",
+    "revisionManualDeProductores": "مراجعة يدوية للمنتجين"
+  },
+  "categories": {
+    "nombreDeLaCategoria": "اسم الفئة",
+    "descripcionOpcional": "الوصف (اختياري)",
+    "errorAlCargarLasCategorias": "خطأ في تحميل الفئات",
+    "categoriaCreada": "تم إنشاء الفئة",
+    "errorAlCrearLaCategoria": "خطأ في إنشاء الفئة",
+    "categoriaActualizada": "تم تحديث الفئة",
+    "errorAlActualizarLaCategoria": "حدث خطأ أثناء تحديث الفئة",
+    "categoriaEliminada": "تمت إزالة الفئة",
+    "errorAlEliminarLaCategoria": "حدث خطأ أثناء حذف الفئة",
+    "nuevaCategoria": "فئة جديدة",
+    "buscarCategorias": "ابحث عن الفئات...",
+    "noSeEncontraronCategorias": "لم يتم العثور على أي تصنيفات",
+    "sinDescripcion": "لا يوجد وصف"
+  },
+  "escalation_chat": {
+    "noSePudieronCargarLosMensajes": "تعذر تحميل الرسائل.",
+    "canalDeEscalacionAbiertoUnSuperadm": "تم فتح قناة التصعيد. سيتلقى المشرف الأعلى رسالتك.",
+    "errorAlAbrirEscalacion": "خطأ في فتح التصعيد",
+    "canalDeEscalacionPrivado": "قناة تسلق خاصة",
+    "seleccionaUnaEscalacionParaVerLosM": "اختر مستوى التصعيد لعرض الرسائل",
+    "usaEsteCanalParaReportarProblemasC": "استخدم هذه القناة للإبلاغ عن المشاكل الحرجة، أو النزاعات التي لم يتم حلها، أو المواقف التي تتطلب تدخلاً على مستوى أعلى.",
+    "elMensajeEstaCifradoDeExtremoAExt": "يتم تشفير الرسالة من طرف إلى طرف في قاعدة البيانات.",
+    "describeElProblemaOSituacionAEscal": "صف المشكلة أو الموقف الذي يجب تصعيده...",
+    "abrirCanalDeEscalacion": "فتح قناة التصعيد",
+    "sinMensajesTodavia": "لم يتم إرسال أي رسالة بعد"
+  },
+  "content_management": {
+    "sinExpiracion": "بدون تاريخ انتهاء صلاحية"
+  },
+  "g_d_p_r": {
+    "errorAlProcesarLaSolicitudGdpr": "معالجة خطأ في طلب اللائحة العامة لحماية البيانات",
+    "solicitudesDeDerechosDeUsuariosBajo": "طلبات حقوق المستخدم بموجب اللائحة العامة لحماية البيانات (GDPR). الحد الأقصى لوقت الاستجابة: 30 يومًا."
+  },
+  "infrastructure": {
+    "almacenamientoDeImagenes": "تخزين الصور",
+    "estadoDeServiciosYConfiguracionDel": "حالة الخدمة وتكوين البيئة",
+    "informacionDelSistema": "معلومات النظام"
+  },
+  "insights_dashboard": {
+    "noSePudieronCargarLosDatosDelPane": "تعذر تحميل بيانات لوحة التحليلات.",
+    "minimoDeUsuariosRequeridosParaMostr": "الحد الأدنى لعدد المستخدمين المطلوب لعرض البيانات الحساسة المجمعة",
+    "detectarObjetivosDieteticosYDeSalud": "تحديد الأهداف الغذائية والصحية",
+    "noHayDatosDePaisesParaMostrar": "لا توجد بيانات خاصة بكل دولة لعرضها.",
+    "noHayMetricasDeIaDisponibles": "لا تتوفر أي مقاييس للذكاء الاصطناعي.",
+    "noHayDatosDeComplianceDisponibles": "لا تتوفر بيانات الامتثال."
+  },
+  "market_coverage": {
+    "activaUnPaisParaQueLosVendedoresL": "قم بتفعيل بلد ما حتى يتمكن البائعون المحليون من التسجيل."
+  },
+  "plans_config": {
+    "introduceTuContrasenaDeSuperadminPa": "أدخل كلمة مرور المشرف الرئيسي لتطبيق هذا التغيير على بيئة الإنتاج.",
+    "contrasenaSuperadmin": "كلمة مرور المشرف الرئيسي",
+    "introduceTuContrasena": "أدخل كلمة المرور الخاصة بك",
+    "configuracionActualizadaYGuardada": "تم تحديث الإعدادات وحفظها",
+    "configuracionDePlanes": "إعدادات الخطة",
+    "losCambiosSeAplicanAutomaticamenteE": "يتم تطبيق التغييرات تلقائيًا في Stripe. يلزم كلمة مرور المشرف الرئيسي للتأكيد.",
+    "comisionSobreElTotalDeVentaDespue": "عمولة على إجمالي المبيعات (بعد الشحن وضريبة القيمة المضافة). يتم خصم هذه العمولة من هامش ربح المنصة."
+  },
+  "super_admin_overview": {
+    "noSePudoCargarElOverview": "تعذر تحميل النظرة العامة",
+    "revisaLaConexionConElBackend": "تحقق من الاتصال بالخادم الخلفي.",
+    "sinDatosDeTendencia": "لا توجد بيانات اتجاه",
+    "distribucionDePlanes": "توزيع الخطة"
+  },
+  "b2_b_catalog": {
+    "errorAlCargarElCatalogoB2b": "حدث خطأ أثناء تحميل كتالوج B2B",
+    "noSePudoCambiarElEstado": "لم يكن من الممكن تغيير الحالة",
+    "noTienesAccesoAEstaSeccion": "ليس لديك صلاحية الوصول إلى هذا القسم",
+    "necesitasUnPerfilDeProductorOImpor": "أنت بحاجة إلى ملف تعريف للمنتج أو المستورد للوصول إلى كتالوج B2B.",
+    "gestionaQueProductosOfrecesAlPorMa": "قم بإدارة المنتجات التي تعرضها للبيع بالجملة والشروط التي تخضع لها.",
+    "noTienesProductosEnElCatalogoB2b": "ليس لديك أي منتجات في كتالوج B2B",
+    "empiezaAnadiendoTuPrimerProductoMay": "ابدأ بإضافة أول منتج لك بالجملة.",
+    "anadirPrimerProducto": "أضف المنتج الأول",
+    "anadirProductoAlCatalogoB2b": "أضف المنتج إلى كتالوج B2B"
+  },
+  "b2_b_chat": {
+    "iniciaLaConversacionEnviandoUnMensa": "ابدأ المحادثة بإرسال رسالة",
+    "noTienesAccesoAEstaSeccion": "ليس لديك صلاحية الوصول إلى هذا القسم",
+    "necesitasUnPerfilDeProductorOImpor": "أنت بحاجة إلى ملف تعريف للمنتج أو المستورد للوصول إلى دردشة B2B."
+  },
+  "b2_b_contract": {
+    "noSePudoCargarLaOperacion": "تعذر تحميل العملية",
+    "noTienesAccesoAEstaSeccion": "ليس لديك صلاحية الوصول إلى هذا القسم",
+    "necesitasUnPerfilDeProductorOImpor": "أنت بحاجة إلى ملف تعريف للمنتج أو المستورد للوصول إلى عقود الأعمال بين الشركات (B2B).",
+    "operacionNoEncontrada": "لم يتم العثور على العملية",
+    "laOperacionSolicitadaNoExisteONoT": "العملية المطلوبة غير موجودة أو ليس لديك صلاحية الوصول إليها.",
+    "laIaEstaGenerandoElContrato": "يقوم الذكاء الاصطناعي بإنشاء العقد...",
+    "elContratoEstaTardandoMasDeLoEspe": "يستغرق تنفيذ العقد وقتاً أطول من المتوقع.",
+    "recibirasUnaNotificacionCuandoEsteL": "ستتلقى إشعارًا عندما يصبح جاهزًا.",
+    "cartaDeCreditoPagoDividido": "خطاب الاعتماد (دفع مجزأ)",
+    "pagoA30Dias": "يُستحق الدفع خلال 30 يومًا",
+    "pagoA60Dias": "يُستحق الدفع خلال 60 يومًا",
+    "alFirmarConfirmasQueHasLeidoYAcep": "بتوقيعك، فإنك تؤكد أنك قد قرأت جميع بنود العقد ووافقت عليها.",
+    "laFirmaQuedaRegistradaConFechaHor": "يتم تسجيل التوقيع مع التاريخ والوقت وعنوان IP.",
+    "necesitasSubirTuFirmaDigitalAntesD": "يجب عليك تحميل توقيعك الرقمي قبل أن تتمكن من توقيع العقود"
+  },
+  "b2_b_dispute": {
+    "documentacionIncorrecta": "وثائق غير صحيحة",
+    "maximo5Archivos": "خمسة ملفات كحد أقصى",
+    "errorAlAbrirLaDisputa": "خطأ في فتح نزاع",
+    "antesDeAbrirUnaDisputaTeRecomenda": "قبل فتح نزاع، نوصي بالتحدث مع الطرف الآخر في المحادثة.",
+    "siNoLlegaisAUnAcuerdoElAdminDe": "إذا لم تتمكن من التوصل إلى اتفاق، فسيقوم مسؤول Hispaloshop بمراجعة الحالة في غضون 72 ساعة.",
+    "describeDetalladamenteElProblemaMin": "صف المشكلة بالتفصيل (بحد أدنى 50 حرفًا)...",
+    "max5Archivos10mbCadaUno": "الحد الأقصى 5 ملفات، حجم كل منها 10 ميجابايت",
+    "estaAccionNotificaraAlAdminDeHispa": "سيؤدي هذا الإجراء إلى إخطار إدارة Hispaloshop وقد يؤثر على سمعة الطرف الآخر."
+  },
+  "b2_b_marketplace": {
+    "catalogo": "الكتالوج",
+    "precioMasBajo": "أقل سعر",
+    "masProductos": "المزيد من المنتجات",
+    "sinAccesoAlCatalogoB2b": "لا يمكن الوصول إلى كتالوج B2B",
+    "completaTuPerfilDeImportadorParaAc": "أكمل ملف تعريف المستورد الخاص بك للوصول إلى",
+    "sinAccesoAlDirectorioDeProductores": "بدون الوصول إلى دليل المنتجين",
+    "indicaElProductorLosProductosYLa": "حدد المنتج والمنتجات والكمية. سيتلقى المنتج طلبك ويمكنه الرد بعرض مخصص."
+  },
+  "b2_b_offer": {
+    "cartaDeCredito": "خطاب اعتماد",
+    "elCompradorAsumeTodosLosCostesDesd": "يتحمل المشتري جميع التكاليف من المصنع.",
+    "vendedorEntregaEnDestinoSinDescarga": "يقوم البائع بالتوصيل إلى الوجهة دون تفريغ الشحنة.",
+    "indicaElPlazoMinimoDeEntrega": "حدد الحد الأدنى لوقت التسليم",
+    "validezDias": "مدة الصلاحية (بالأيام)",
+    "errorAlEnviarLaOferta": "حدث خطأ أثناء إرسال العرض"
+  },
+  "b2_b_operations_dashboard": {
+    "enNegociacion": "قيد التفاوض",
+    "noTienesAccesoAEstaSeccion": "ليس لديك صلاحية الوصول إلى هذا القسم",
+    "necesitasUnPerfilDeProductorOImpor": "أنت بحاجة إلى ملف تعريف للمنتج أو المستورد للوصول إلى عمليات B2B.",
+    "errorAlCargarLasOperaciones": "حدث خطأ أثناء تحميل العمليات"
+  },
+  "b2_b_payment": {
+    "net30Dias": "صافي 30 يومًا",
+    "net60Dias": "صافي 60 يومًا",
+    "cartaDeCredito": "خطاب اعتماد",
+    "errorAlCargarLosDatosDePago": "حدث خطأ أثناء تحميل تفاصيل الدفع",
+    "noSePudoInicializarElPago": "تعذر بدء عملية الدفع.",
+    "noTienesAccesoAEstaSeccion": "ليس لديك صلاحية الوصول إلى هذا القسم",
+    "necesitasUnPerfilDeProductorOImpor": "أنت بحاجة إلى ملف تعريف للمنتج أو المستورد للوصول إلى مدفوعات B2B.",
+    "esperandoElPagoDelComprador": "في انتظار الدفع من المشتري...",
+    "recibirasUnaNotificacionCuandoElPag": "ستتلقى إشعارًا عند معالجة الدفعة.",
+    "losFondosEstanRetenidosHastaQueSub": "سيتم الاحتفاظ بالأموال حتى تقوم بتحميل مستندات الشحن."
+  },
+  "b2_b_quotes_history": {
+    "rfqsDeImportadoresInteresadosEnTus": "طلبات عروض أسعار من مستوردين مهتمين بمنتجاتك",
+    "historialDeTusSolicitudesDeCotizaci": "سجل طلبات عروض أسعار الجملة الخاصة بك",
+    "noSePudieronCargarLasSolicitudes": "تعذر تحميل الطلبات.",
+    "soloDisponibleParaCuentasDeProducto": "متاح فقط لحسابات المنتجين",
+    "soloDisponibleParaCuentasDeImportad": "متاح فقط لحسابات المستوردين",
+    "noHasEnviadoSolicitudesAun": "لم ترسل أي طلبات حتى الآن.",
+    "usaElMarketplaceB2bParaContactarPr": "استخدم سوق الأعمال بين الشركات (B2B) للتواصل مع المنتجين"
+  },
+  "b2_b_tracking": {
+    "errorAlCargarLaOperacion": "حدث خطأ أثناء عملية التحميل",
+    "envioConfirmado": "تم تأكيد الشحن",
+    "noSePudoConfirmarElEnvio": "لم يتم تأكيد الشحنة",
+    "operacionNoEncontrada": "لم يتم العثور على العملية",
+    "noSePudoCargarLaOperacionSolicitad": "تعذر تحميل العملية المطلوبة.",
+    "abrirChatDeLaOperacion": "افتح الدردشة لإجراء العملية",
+    "confirmarEnvio": "تأكيد الشحنة",
+    "esperandoConfirmacionDeEnvioDelProd": "في انتظار تأكيد الشحن من المُصنِّع",
+    "documentacion": "الوثائق",
+    "documentosNecesariosParaEstaOperacio": "المستندات المطلوبة لهذه العملية",
+    "revisaLaDocumentacionPendienteAntes": "يرجى مراجعة أي وثائق غير مكتملة قبل التقديم.",
+    "proximamente": "قريباً",
+    "elCompradorRealizaraElPagoFinalTra": "سيقوم المشتري بدفع المبلغ النهائي بعد التسليم."
+  },
+  "customer_orders": {
+    "masAntiguos": "كبار السن",
+    "errorAlCargarLosPedidos": "حدث خطأ في تحميل الطلبات",
+    "errorAlActualizarLosPedidos": "حدث خطأ أثناء تحديث الطلبات",
+    "noHayPedidosEnEstaCategoria": "لا توجد طلبات في هذه الفئة.",
+    "productosAnadidosAlCarrito": "تمت إضافة المنتجات إلى سلة التسوق",
+    "noSePudoRepetirElPedido": "لا يمكن تكرار الطلب",
+    "cargarMasPedidos": "تحميل المزيد من الطلبات"
+  },
+  "customer_overview": {
+    "algunosDatosNoSeHanPodidoCargarD": "تعذر تحميل بعض البيانات. اسحب لأسفل للمحاولة مرة أخرى."
+  },
+  "customer_profile": {
+    "errorAlCargarElPerfil": "حدث خطأ أثناء تحميل الملف الشخصي",
+    "errorAlCargarLasDirecciones": "حدث خطأ أثناء تحميل العناوين",
+    "generaUnCodigoDeDescuentoPersonaliz": "قم بإنشاء رمز خصم مخصص.",
+    "tusSeguidoresObtienen10DeDescuento": "يحصل متابعوك على خصم 10%.",
+    "tuGanasEntre3Y7DeCadaVenta": "تحصل على ما بين 3% و 7% من كل عملية بيع.",
+    "programaDeAfiliadosActivado": "تم تفعيل برنامج التسويق بالعمولة!",
+    "errorAlActivarElPrograma": "حدث خطأ أثناء تفعيل البرنامج"
+  },
+  "customer_support": {
+    "aunNoHayMensajesRecibirasUnaRespu": "لا توجد رسائل حتى الآن. ستتلقى ردًا قريبًا.",
+    "esteCasoEstaCerrado": "تم إغلاق هذه القضية.",
+    "noSePudoCargarTuHistorialDeSoport": "تعذر تحميل سجل الدعم الخاص بك",
+    "noSePudoAbrirElCaso": "لم يتم فتح القضية",
+    "historialDeTusCasosDeSoporteConHi": "سجل طلبات الدعم الخاصة بك مع Hispaloshop.",
+    "noTienesNingunCasoDeSoporteAbierto": "ليس لديك أي طلبات دعم مفتوحة. إذا كنت بحاجة إلى مساعدة، فاتصل بـ HI."
+  },
+  "hispalo_predictions": {
+    "productoAnadidoAlCarrito": "تمت إضافة المنتج إلى سلة التسوق",
+    "errorAlAnadirAlCarrito": "حدث خطأ أثناء إضافة المنتج إلى سلة التسوق"
+  },
+  "order_detail": {
+    "errorAlCargarElPedido": "خطأ في ترتيب التحميل",
+    "resenaPublicada": "مراجعة منشورة",
+    "errorAlPublicarLaResena": "مراجعة نشر الخطأ",
+    "esteDocumentoNoEsUnaFacturaFiscal": "هذه الوثيقة ليست فاتورة ضريبية.",
+    "noSePudoDescargarLaFactura": "تعذر تنزيل الفاتورة.",
+    "elImporteSeReflejaraEnTuCuentaEn": "سيظهر المبلغ في حسابك خلال 5-10 أيام عمل.",
+    "seHaReembolsadoParteDelImporteATu": "تم رد جزء من المبلغ إلى حسابك.",
+    "elPagoNoSePudoProcesarIntentaloD": "لم تتم معالجة دفعتك. يرجى المحاولة مرة أخرى أو الاتصال بالدعم.",
+    "dejaUnaResena": "اترك تعليقًا...",
+    "publicarResena": "انشر مراجعة",
+    "resenaEnviadaGracias": "تم إرسال التقييم. شكرًا لك!"
+  },
+  "change_password": {
+    "contrasenaActualizada": "تم تحديث كلمة المرور",
+    "contrasenaActualIncorrecta": "كلمة المرور الحالية غير صحيحة",
+    "errorAlCambiarContrasena": "حدث خطأ أثناء تغيير كلمة المرور",
+    "tuCuentaUsaGoogleParaIniciarSesion": "يستخدم حسابك جوجل لتسجيل الدخول. ليس لديك كلمة مرور مُعينة.",
+    "puedesAnadirUnaAContinuacion": "يمكنك إضافة واحد أدناه.",
+    "contrasenaActual": "كلمة المرور الحالية",
+    "nuevaContrasena": "كلمة المرور الجديدة",
+    "repetirNuevaContrasena": "كرر كلمة المرور الجديدة",
+    "lasContrasenasNoCoinciden": "كلمات المرور غير متطابقة",
+    "anadirContrasena": "أضف كلمة المرور"
+  },
+  "edit_profile": {
+    "elNombreDeUsuarioNoEstaDisponible": "اسم المستخدم غير متاح",
+    "urlNoValida": "عنوان URL غير صالح",
+    "esteNombreDeUsuarioNoEstaDisponibl": "اسم المستخدم هذا غير متاح",
+    "elUsuarioDebeTenerAlMenos3Caracte": "يجب أن يتكون اسم المستخدم من 3 أحرف على الأقل",
+    "biografia": "سيرة",
+    "cuentanosSobreTi": "أخبرنا عن نفسك...",
+    "madridEspana": "مدريد، إسبانيا",
+    "informacionDeContacto": "معلومات الاتصال",
+    "elEmailNoSePuedeCambiarDesdeAqui": "لا يمكن تغيير عنوان البريد الإلكتروني من هنا.",
+    "nombreDeLaEmpresa": "اسم الشركة",
+    "descripcionDeLaTienda": "وصف المتجر",
+    "describeTuTiendaTusProductosTuHi": "صف متجرك، منتجاتك، قصتك...",
+    "maximo5Mb": "الحد الأقصى 5 ميجابايت",
+    "eseNombreDeUsuarioYaEstaEnUso": "اسم المستخدم هذا مستخدم بالفعل",
+    "elNombreDeUsuarioDebeTenerAlMenos": "يجب أن يتكون اسم المستخدم من 3 أحرف على الأقل.",
+    "noSePudoGuardarIntentaloDeNuevo": "تعذر حفظ الملف. يرجى المحاولة مرة أخرى.",
+    "min3Caracteres": "ثلاثة أحرف على الأقل",
+    "cuentanosAlgoSobreTi…": "أخبرنا شيئاً عن نفسك...",
+    "descripcionDeTienda": "وصف المتجر"
+  },
+  "follow_requests": {
+    "errorAlProcesarLaSolicitud": "حدث خطأ أثناء معالجة الطلب",
+    "cuandoAlguienQuieraSeguirteAparecer": "عندما يرغب شخص ما في متابعتك، سيظهر هنا."
+  },
+  "notifications_settings": {
+    "confirmacionDePedido": "تأكيد الطلب",
+    "actualizacionesDeEnvio": "تحديثات الشحن",
+    "solicitudesDeResena": "طلبات المراجعة"
+  },
+  "payout_settings": {
+    "elFormatoDelIbanNoEsValido": "تنسيق IBAN غير صالح",
+    "sinComision-2-3DiasLaborables": "بدون عمولة - ٢-٣ أيام عمل",
+    "tuCuentaDeStripeConnectEstaActiva": "حسابك على Stripe Connect نشط. تتم معالجة المدفوعات تلقائيًا.",
+    "conectaTuCuentaDeStripeParaRecibir": "قم بربط حسابك على Stripe لتلقي المدفوعات مباشرةً. سيتم تحويلك إلى عملية التحقق من Stripe.",
+    "losPagosPorVentasDeProductosSePro": "تتم معالجة مدفوعات مبيعات المنتجات تلقائيًا عبر Stripe Connect.",
+    "configuraTuCuentaDeStripeParaEmpez": "قم بإعداد حسابك على Stripe لبدء تلقي المدفوعات."
+  },
+  "plan": {
+    "perfilDeTiendaBasico": "نبذة تعريفية أساسية عن المتجر",
+    "analiticasBasicas": "التحليلات الأساسية",
+    "analiticasAvanzadas": "التحليلات المتقدمة",
+    "generacionDeContratos": "توليد العقود",
+    "errorAlAbrirFacturacion": "خطأ في فتح الفاتورة",
+    "errorAlCambiarDePlan": "حدث خطأ أثناء تغيير الخطة",
+    "perderasLasFuncionalidadesPremiumAl": "ستفقد الميزات المميزة في نهاية فترة الفوترة."
+  },
+  "settings": {
+    "cuentaPublicaActivada": "تم تفعيل الحساب العام",
+    "errorAlCambiarLaPrivacidad": "خطأ في تغيير إعدادات الخصوصية",
+    "sesionCerradaCambiadoAOtraCuenta": "تم إغلاق الجلسة. تم التبديل إلى حساب آخر.",
+    "errorAlEliminarLaCuenta": "خطأ في حذف الحساب",
+    "paisEIdioma": "البلد واللغة",
+    "lasCuentasDeProductorSonSiemprePub": "حسابات المنتجين تكون دائماً عامة.",
+    "planDeSuscripcion": "خطة الاشتراك",
+    "confirmarCierreDeSesion": "تأكيد إغلاق الجلسة",
+    "tendrasQueVolverAIniciarSesionPara": "ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى حسابك.",
+    "confirmarEliminacionDeCuenta": "تأكيد حذف الحساب",
+    "estaAccionEsIrreversibleSeEliminar": "هذا الإجراء لا رجعة فيه. سيتم حذف جميع بياناتك وطلباتك ومحتواك.",
+    "escribeTuEmailParaConfirmar": "أدخل بريدك الإلكتروني للتأكيد.",
+    "confirmaTuEmailParaEliminarLaCuent": "قم بتأكيد بريدك الإلكتروني لحذف الحساب"
+  },
+  "signature_settings": {
+    "dibujaTuFirmaAntesDeGuardar": "ارسم توقيعك قبل الحفظ",
+    "subeUnaImagenDeTuFirma": "قم بتحميل صورة لتوقيعك",
+    "configuraTuFirmaAntesDeGuardar": "قم بضبط توقيعك قبل الحفظ",
+    "errorAlProcesarLaFirmaExistente": "حدث خطأ أثناء معالجة التوقيع الحالي",
+    "errorAlGuardarLaFirma": "حدث خطأ أثناء حفظ التوقيع",
+    "necesitasConfigurarTuFirmaParaPoder": "يجب عليك ضبط توقيعك لتتمكن من توقيع عقود B2B.",
+    "tuFirmaDigitalSeAplicaAutomaticamen": "يتم تطبيق توقيعك الرقمي تلقائيًا على عقود الشركات التي تتم بين الشركات (B2B) والتي",
+    "laFirmaQuedaRegistradaConTimestamp": "يتم تسجيل التوقيع مع الطابع الزمني وتجزئة SHA-256 لـ",
+    "seSuperpondraSobreLaFirmaEnLosCon": "سيتم وضعها فوق التوقيع الموجود على العقود."
+  },
+  "role_onboarding": {
+    "omnivoro": "آكل اللحوم والنباتات",
+    "paraRecomendarteLosMejoresProductos": "لنقدم لك أفضل المنتجات. يمكنك الاختيار من بين عدة خيارات.",
+    "tuFeedSePersonalizaraConSusProduct": "سيتم تخصيص موجز الأخبار الخاص بك بمنتجاتك ومحتواك.",
+    "escribeElNombreDeTuTienda": "اكتب اسم متجرك",
+    "errorConectandoConStripeHazloDesde": "حدث خطأ في الاتصال بـ Stripe. يرجى الاتصال من لوحة التحكم الخاصة بك.",
+    "estoEsLoPrimeroQueVeranTusCliente": "هذا هو أول شيء سيراه عملاؤك.",
+    "anadirLogo": "إضافة شعار",
+    "jpgPngOWebp·Maximo5mb": "JPG أو PNG أو WebP · الحد الأقصى 5 ميجابايت",
+    "nombreDeTuTienda": "اسم متجرك",
+    "puedesAnadirMasDesdeTuPanelEsteP": "يمكنك إضافة المزيد من لوحة التحكم الخاصة بك. هذه الخطوة اختيارية.",
+    "necesitamosVerificarTuIdentidadPara": "نحتاج إلى التحقق من هويتك لنقل أموال مبيعاتك إليك بشكل آمن.",
+    "tusDatosBancariosNuncaPasanPorHisp": "لا تمر بياناتك المصرفية عبر Hispaloshop",
+    "recibirasTusPagosAutomaticamente": "ستتلقى مدفوعاتك تلقائيًا.",
+    "puedesHacerloMasTardeDesdeTuPanel": "يمكنك القيام بذلك لاحقاً من لوحة التحكم الخاصة بك.",
+    "loHareMasTarde": "سأفعل ذلك لاحقاً.",
+    "noSePudoObtenerTuCodigo": "تعذر الحصول على رمزك",
+    "apareceranEnTuPerfilCuandoAlguien": "ستظهر هذه المنتجات على ملفك الشخصي. وعندما يشتريها شخص ما، ستحصل على عمولة.",
+    "tusSeguidoresObtienenUn10DeDescue": "يحصل متابعوك على خصم 10% على أول عملية شراء لهم. وتحصل أنت على عمولة مدى الحياة.",
+    "comoGanasDinero": "كيف تربح المال:",
+    "cadaCompraQueHaganTeGeneraComision": "كل عملية شراء يقومون بها تُدرّ عليك عمولة.",
+    "cobrasAutomaticamenteEnTuCuentaBanc": "يتم تحويل المبلغ تلقائياً إلى حسابك المصرفي",
+    "todoListo": "كل شيء جاهز!",
+    "empiezaCompartiendoTuCodigoConTusS": "ابدأ بمشاركة الكود الخاص بك مع متابعيك.",
+    "veTusComisionesEnTiempoReal": "اطلع على عمولاتك في الوقت الفعلي"
+  },
+  "chats": {
+    "colaboracion": "تعاون",
+    "aunNoTienesMensajes": "ليس لديك أي رسائل حتى الآن.",
+    "empiezaUnaConversacionConProductores": "ابدأ محادثة مع المنتجين والمؤثرين وغيرهم",
+    "enviaMensajesPrivadosATiendasProdu": "أرسل رسائل خاصة إلى المتاجر والمنتجين والمؤثرين في مجتمع HispaloShop."
+  },
+  "consumer_register": {
+    "datosBasicos": "البيانات الأساسية",
+    "errorAlCrearLaCuentaIntentaloDeN": "حدث خطأ أثناء إنشاء الحساب. يرجى المحاولة مرة أخرى.",
+    "completaTuRegistroEnPocosPasosYDe": "أكمل عملية التسجيل في بضع خطوات، وجهّز التخصيص الأولي لتكون جاهزًا عند الانتهاء."
+  },
+  "step1_method": {
+    "volverASeleccionDeRol": "العودة إلى اختيار الدور",
+    "esteFlujoYaEstaConectadoDePrincipi": "هذا المسار متصل بالفعل من البداية إلى النهاية. سيتم إضافة إمكانية الوصول عبر الهاتف ووسائل التواصل الاجتماعي لاحقًا.",
+    "crearasTuCuentaYDespuesCompletaremo": "ستقوم بإنشاء حسابك ثم سنقوم بإكمال تفضيلاتك.",
+    "googleAppleYTelefonoVolveranCuando": "ستعود خدمات جوجل وآبل والهواتف عندما يتم الاتصال بنفس مستوى الموثوقية الذي يتمتع به هذا التدفق."
+  },
+  "step2_basic": {
+    "datosBasicos": "البيانات الأساسية",
+    "empezamosConTuInformacionEsencialPa": "سنبدأ بمعلوماتك الأساسية لإنشاء الحساب.",
+    "maria": "ماريا",
+    "garciaLopez": "غارسيا لوبيز",
+    "creaUnaContrasenaSegura": "أنشئ كلمة مرور آمنة",
+    "debesTenerAlMenos16Anos": "يجب أن يكون عمرك 16 عامًا على الأقل."
+  },
+  "step3_profile": {
+    "ajustaTusInteresesParaQueElCatalog": "عدّل اهتماماتك بحيث يبدأ الكتالوج والتوصيات بمزيد من التمييز.",
+    "nosAyudaAMostrarProductoresYEnvios": "يساعدنا ذلك في عرض المنتجين والشحنات الأكثر صلة."
+  },
+  "step4_preferences": {
+    "sugerenciasAjustadasATusInteresesY": "اقتراحات مصممة خصيصاً لتناسب اهتماماتك ونشاطك.",
+    "loMasPopular": "الأكثر شعبية",
+    "losProductosQueMasEstanComprandoOt": "المنتجات التي يشتريها المستخدمون الآخرون بكثرة.",
+    "ordenaPrimeroPorResenasYConfianza": "رتب النتائج أولاً حسب التقييمات والثقة.",
+    "defineComoQuieresEmpezarAVerProduc": "حدد كيف تريد أن تبدأ في عرض المنتجات وعدد مرات الشراء المعتادة."
+  },
+  "step5_welcome": {
+    "elSiguientePasoEsCompletarTuOnboar": "الخطوة التالية هي إكمال عملية الإعداد الخاصة بك حتى تبدأ الخلاصة والكتالوج والاقتراحات بشكل أكثر منطقية.",
+    "cuandoTerminesElOnboardingTeEnsenar": "بمجرد الانتهاء من عملية الإعداد، سنعرض لك أولاً المنتجين والفئات والحسابات التي تناسبك بشكل أفضل."
+  },
+  "landing": {
+    "dejaDeRegalarTuMargenAlIntermediar": "توقف عن التنازل عن هامش ربحك للوسيط",
+    "conectaConProductoresRealesSinInte": "تواصل مع المنتجين الحقيقيين. بدون وسطاء. بدون أكاذيب."
+  },
+  "que_es": {
+    "hispaloshopEsElMercadoDondeLaComid": "هيسبالوشوب هو السوق الذي يحمل فيه الطعام تاريخاً.",
+    "unaPlataformaDondeCadaProductoTiene": "منصةٌ لكل منتج فيها وجهٌ وقصة. من الحقل إلى مائدتك، دون وسيط.",
+    "entreElProductorYTuPlatoHayUnaCa": "توجد بين المنتج وطبقك سلسلة من الوسطاء الذين يزيدون السعر، ويخففون الجودة، ويمحون تاريخ ما تأكله.",
+    "conectamosAlQueProduceConElQueCom": "نحن نربط المنتج بالمستهلك",
+    "hispaloshopEsUnaPlataformaDeSocial": "Hispaloshop هي منصة تجارة اجتماعية حيث يقوم المنتجون الحرفيون بفتح متجرهم الخاص، وسرد قصصهم، والبيع مباشرة للمستهلك النهائي."
+  },
+  "contact": {
+    "errorAlEnviarIntentaloDeNuevo": "حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.",
+    "paraDudasSobreLaPlataformaColabora": "للاستفسارات المتعلقة بالمنصة، أو التعاون، أو الاستفسارات الصحفية.",
+    "respondemosEnMenosDe24Horas": "نرد في أقل من 24 ساعة.",
+    "losProductoresGestionanElEnvioDirec": "يتولى المنتجون عملية الشحن مباشرة. وتختلف أوقات التسليم باختلاف المنتج والوجهة.",
+    "siHispaloshopSoportaMultiplesIdioma": "نعم. يدعم متجر HispaloShop لغات وعملات متعددة للمبيعات الدولية."
+  },
+  "for_importers": {
+    "importaVendeYCreceAccesoDirectoA": "استورد، بِع، ونمّي أعمالك. تواصل مباشر مع المستهلكين والمؤثرين والمنتجين حول العالم. اكتشف جميع مزايا الاستيراد في HispaloShop.",
+    "tuTiendaB2cYB2bEnUnSoloLugar": "متجرك الإلكتروني B2C و B2B في مكان واحد.",
+    "accedeAConsumidoresFinalesConectaC": "تواصل مع المستهلكين النهائيين، وتفاعل مع المؤثرين المحليين، واشترِ مباشرةً من المنتجين في أي بلد. كل ذلك من منصة واحدة، بدون وسطاء.",
+    "vendeTusProductosImportadosDirectame": "قم ببيع منتجاتك المستوردة مباشرة إلى المستهلك في بلد المقصد، بدون وسطاء.",
+    "conectaYColaboraConInfluencersLocal": "تواصل وتعاون مع المؤثرين المحليين للترويج لمنتجاتك (الاحترافية والنخبة).",
+    "compraDirectamenteAProductoresDeCua": "اشتر مباشرة من المنتجين في أي بلد، من خلال الاتصال المباشر وبدون وسطاء.",
+    "panelDeGestionUnificado": "لجنة الإدارة الموحدة",
+    "gestionaPedidosPagosLogisticaCert": "إدارة الطلبات والمدفوعات والخدمات اللوجستية والشهادات والاتصالات من لوحة تحكم واحدة.",
+    "soportePorChatInternoConAdminLocal": "يتوفر دعم الدردشة الداخلية مع المسؤول المحلي ودعم البريد الإلكتروني في جميع الخطط.",
+    "todasLasFuncionesBasicasVenderB2c": "جميع الوظائف الأساسية، البيع المباشر للمستهلكين، نشر المنتجات، شهادات رمز الاستجابة السريعة، الدعم القياسي.",
+    "matchingConInfluencersDashboardAvan": "مطابقة المؤثرين، لوحة تحكم متقدمة، تحليلات المبيعات، دعم ذو أولوية.",
+    "todoLoAnteriorIaComercialAvanzada": "كل ما سبق بالإضافة إلى الذكاء الاصطناعي المتقدم للأعمال، وتحليل السوق الدولية، وإنشاء العقود تلقائيًا، وعمولة أقل.",
+    "colaboracionConInfluencersLocalesPr": "التعاون مع المؤثرين المحليين (المحترفين والنخبة)",
+    "panelDeGestionPagosYLogisticaUnif": "لوحة إدارة موحدة، ولوحة مدفوعات، ولوحة لوجستية",
+    "iaComercialAvanzadaYGeneracionDeCo": "الذكاء الاصطناعي التجاري المتقدم وتوليد العقود (النخبة)",
+    "importarYVenderNuncaFueTanFacil": "لم يكن الاستيراد والبيع أسهل من أي وقت مضى",
+    "creaTuCuentaDeImportador": "أنشئ حساب الاستيراد الخاص بك",
+    "accedeAHerramientasDeIaYAnalitica": "الوصول إلى أدوات الذكاء الاصطناعي والتحليلات المتقدمة (الإصدارين الاحترافي والنخبة)",
+    "gestionaPagosLogisticaYCertificados": "إدارة المدفوعات والخدمات اللوجستية والشهادات من لوحة تحكم واحدة",
+    "soloCrearTuCuentaYSubirTusProduct": "ما عليك سوى إنشاء حسابك وتحميل منتجاتك.",
+    "siPuedesVenderAlConsumidorFinalY": "نعم، يمكنك البيع للمستهلك النهائي والوصول أيضاً إلى فرص الأعمال بين الشركات.",
+    "siemprePorChatInternoYEmailConPr": "يتم التواصل دائمًا عبر الدردشة الداخلية والبريد الإلكتروني، مع إعطاء الأولوية للمحترفين والنخبة.",
+    "daElSaltoAlCanalDigitalYAccedeA": "انطلق نحو القنوات الرقمية وتواصل مع المستهلكين والمؤثرين والمنتجين العالميين."
+  },
+  "for_influencers": {
+    "creaComunidadApoyaProductoresHonest": "ابنِ مجتمعًا، وادعم المنتجين النزيهين، وحقق ربحًا حقيقيًا من جهودك. عمولات متكررة، وحرية إبداعية، ودعم مباشر.",
+    "estoNoVaDeVenderPorVenderVaDeD": "لا يتعلق الأمر هنا بالبيع لمجرد البيع، بل بإبراز المنتجين النزيهين، وتقديم طعام صحي لمتابعيك، وتحقيق دخل مستمر من جهودك. هنا ستجد الحرية، والتواصل، والدعم المباشر. أنا بيل شانفو، وقد أنشأت هذا من أجلك.",
+    "ganaMasDejaHuella": "اربح أكثر، واترك بصمة",
+    "hercules": "هرقل",
+    "laMayoriaLlegaAqui": "يصل معظمهم إلى هنا",
+    "comisionRecurrenteDurante18MesesPor": "عمولة متكررة لمدة 18 شهرًا لكل مستخدم مُحال.",
+    "creaComunidadApoyaProductoresHonest1": "ابنِ مجتمعًا، وادعم المنتجين النزيهين، وحقق ربحًا حقيقيًا من جهودك. هنا ستجد الحرية والدعم المباشر. إذا احتجت إلى أي شيء، فتواصل معي. أنا بيل شانفو."
+  },
+  "for_producers": {
+    "conectaTuProduccionConImportadoresY": "اربط إنتاجك بالمستوردين والعملاء في جميع أنحاء العالم. وسّع نطاق وصولك، وحوّل كتالوج منتجاتك إلى صيغة رقمية، واحصل على فرص تجارية جديدة.",
+    "uneteALaPlataformaQueConectaProduc": "انضم إلى المنصة التي تربط المنتجين بالمستوردين والعملاء في جميع أنحاء العالم. حوّل كتالوج منتجاتك إلى صيغة رقمية واحصل على فرص تجارية جديدة.",
+    "registrateGratis": "سجل مجاناً",
+    "publicaTuCatalogo": "انشر كتالوجك",
+    "accesoInmediatoAUnaRedGlobalDeImp": "الوصول الفوري إلى شبكة عالمية من المستوردين المعتمدين.",
+    "herramientasParaDestacarTuMarcaYPr": "أدوات لإبراز علامتك التجارية ومنتجاتك.",
+    "opcionesDePromocionPremiumSegunTuP": "تتوفر خيارات ترويجية مميزة حسب خطتك.",
+    "gestionEficienteDeContactosYOportun": "إدارة فعّالة للاتصالات والفرص.",
+    "paraProductoresEnCrecimiento": "للمنتجين المتنامين",
+    "maximaVisibilidadYVentajas": "أقصى قدر من الرؤية والمزايا",
+    "sinTarjetaDeCreditoParaEmpezar": "لا يلزم وجود بطاقة ائتمان للبدء",
+    "elRegistroEsGratuitoPuedesAcceder": "التسجيل مجاني. يمكنك الوصول إلى الميزات المتقدمة من خلال الخطط المميزة.",
+    "puedesPublicarCualquierProductoQueC": "يمكنك إدراج أي منتج يفي بسياساتنا ومعايير الجودة الخاصة بنا.",
+    "unaVezRegistradoPodrasContactarImp": "بمجرد التسجيل، ستتمكن من الاتصال بالمستوردين مباشرة من المنصة.",
+    "mayorVisibilidadAccesoPrioritarioA": "رؤية أكبر، وأولوية الوصول إلى الفرص، وأدوات حصرية لتعزيز أعمالك.",
+    "siPuedesVenderTantoAConsumidoresF": "نعم، يمكنك البيع لكل من المستهلكين النهائيين والمستوردين والشركات.",
+    "soportePersonalizadoRecursosEducativ": "دعم شخصي، وموارد تعليمية، ونصائح حول التجارة الدولية.",
+    "uneteACientosDeProductoresQueYaEs": "انضم إلى مئات المنتجين الذين يحققون نمواً بالفعل مع Hispaloshop."
+  },
+  "legal": {
+    "hispaloshopNoEsResponsableDeLaCali": "لا تتحمل Hispaloshop مسؤولية جودة المنتجات التي يبيعها أطراف ثالثة، على الرغم من أننا نعمل بنشاط على التحقق من جميع المنتجين على المنصة."
+  },
+  "consumer_dashboard": {
+    "descubreProductosArtesanalesDeTuZon": "اكتشف المنتجات الحرفية من منطقتك",
+    "basadoEnTusCompras": "بناءً على مشترياتك",
+    "descubreRecetasMediterraneasConTusP": "اكتشف وصفات البحر الأبيض المتوسط باستخدام منتجاتك",
+    "aquiEstaTuResumenDeHoy": "إليكم ملخص أحداث اليوم"
+  },
+  "producer_dashboard": {
+    "lasMetricasAvanzadasNoEstanDisponib": "المقاييس المتقدمة غير متاحة حاليًا.",
+    "noSePudoCargarElStockDeProductos": "تعذر تحميل مخزون المنتج الخاص بالتنبيهات.",
+    "enPreparacion": "في إطار التحضير",
+    "anadeMasProductosParaAumentarTuVis": "أضف المزيد من المنتجات لزيادة ظهورك",
+    "anadirProducto": "إضافة منتج",
+    "colaboraConInfluencersParaPromociona": "تعاون مع المؤثرين للترويج لمنتجاتك",
+    "analisis": "تحليل",
+    "resumenDeTuNegocio": "ملخص أعمالك",
+    "evolucionDeVentas": "تطور المبيعات"
+  },
+  "signed_documents": {
+    "documentoIntegro": "الوثيقة الكاملة",
+    "elContratoNoHaSidoModificadoDesde": "لم يتم تعديل العقد منذ توقيعه.",
+    "elHashDelDocumentoNoCoincideConEl": "لا تتطابق قيمة التجزئة للمستند مع القيمة المسجلة وقت التوقيع. يرجى الاتصال بالدعم.",
+    "noTienesContratosFirmadosTodavia": "ليس لديك أي عقود موقعة حتى الآن.",
+    "lasFacturasEstaranDisponiblesProxima": "ستكون الفواتير متاحة قريباً."
+  },
+  "collab_proposal": {
+    "nuevaColaboracion": "تعاون جديد",
+    "elCosteCorreACargoDelProductor": "يتحمل المنتج التكلفة",
+    "holaViTuContenidoYCreoQueEncajar": "مرحباً! لقد اطلعت على محتواك وأعتقد أنك ستكون مناسباً تماماً لمنتجاتنا...",
+    "previewDeLaPropuesta": "معاينة المقترح",
+    "propuestaDeColaboracion": "مقترح تعاون",
+    "comisionEspecial": "لجنة خاصة",
+    "duracion": "مدة"
+  },
+  "a_i_assistant": {
+    "porFavorIniciaSesionParaUsarElAs": "يرجى تسجيل الدخول لاستخدام مساعد التسوق.",
+    "loSientoHaOcurridoUnErrorPorFav": "عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "iniciaSesionParaUnaExperienciaPerso": "سجّل الدخول للحصول على تجربة مخصصة.",
+    "busquedasRapidas": "عمليات بحث سريعة",
+    "recomendacionesBasadasEnCertificados": "توصيات مبنية على شهادات المنتج."
+  },
+  "app_error_boundary": {
+    "hemosEvitadoUnaPantallaEnBlancoPu": "لقد منعنا ظهور شاشة فارغة. يمكنك العودة إلى الشاشة الرئيسية أو إعادة تحميل التطبيق."
+  },
+  "category_nav": {
+    "aceitesYAlinosConOrigenClaro": "زيوت ومستحضرات ذات أصل واضح.",
+    "exploraElCatalogoDesdeCategoriasCla": "استكشف الكتالوج باستخدام فئات واضحة دون فوضى بصرية.",
+    "productoLocalEImportadoYaDisponible": "المنتجات المحلية والمستوردة متوفرة الآن في إسبانيا، بدون قصص مبالغ فيها أو فئات حشو."
+  },
+  "empty_state": {
+    "noEncontramosProductosEnEstaCategor": "لم نعثر على أي منتجات في هذه الفئة. يرجى المحاولة مرة أخرى.",
+    "anadeAlgunosProductosArtesanalesPara": "أضف بعض المنتجات المصنوعة يدوياً لبدء عملية الشراء.",
+    "tusPedidosApareceranAquiCuandoReali": "ستظهر طلباتك هنا عند قيامك بأول عملية شراء.",
+    "sigueAMasProductoresEInfluencersPa": "تابع المزيد من المنتجين والمؤثرين للاطلاع على محتواهم هنا.",
+    "intentaConOtrosTerminosDeBusqueda": "جرب مصطلحات بحث أخرى.",
+    "pruebaMasTardeOCambiaLosFiltrosDe": "حاول مرة أخرى لاحقاً أو غيّر معايير البحث."
+  },
+  "error_boundary": {
+    "haOcurridoUnErrorInesperadoPorFav": "حدث خطأ غير متوقع. يرجى محاولة تحديث الصفحة."
+  },
+  "hero_section": {
+    "loBuenoEstaMasCerca": "الأشياء الجيدة أقرب مما تظن.",
+    "descubrirCercaDeMi": "اكتشف ما هو قريب مني",
+    "usaTuUbicacionActualOEscribeTuCod": "استخدم موقعك الحالي أو أدخل الرمز البريدي الخاص بك لتحديد أولويات ما هو الأقرب إليك.",
+    "buscandoTuUbicacion": "البحث عن موقعك..."
+  },
+  "influencer_analytics": {
+    "noHayDatosDeAnalyticsDisponibles": "لا تتوفر بيانات تحليلية",
+    "analyticsDeTuCodigo": "تحليل الكود الخاص بك",
+    "tuEnlaceDeReferido": "رابط الإحالة الخاص بك",
+    "comparteEsteEnlaceEnTusRedesCada": "شارك هذا الرابط على شبكات التواصل الاجتماعي الخاصة بك. يتم تتبع كل زيارة تلقائيًا.",
+    "usosDelCodigo": "استخدامات الكود",
+    "codigoAplicado": "الكود المطبق",
+    "usosCodigo": "استخدامات الكود",
+    "comoFuncionanTusComisiones": "كيفية عمل عمولاتك",
+    "calculoDeTuComision": "حساب عمولتك:",
+    "tipsParaMejorarTusConversiones": "نصائح لتحسين معدلات التحويل"
+  },
+  "internal_chat": {
+    "imagenCompartidaEnElChat": "تمت مشاركة الصورة في الدردشة",
+    "noSePudoCargarLaImagen": "تعذر تحميل الصورة",
+    "pegaUnEnlaceDeProductoOSuId": "ألصق رابط المنتج أو معرّفه.",
+    "pegaUnEnlaceDeRecetaOSuId": "ألصق رابط وصفة أو معرفك الشخصي.",
+    "pegaUnEnlaceDePostOReelDeHispalo": "ألصق رابطًا لمنشور أو مقطع فيديو من Hispaloshop.",
+    "pegaUnEnlaceValidoDeHispaloshopPar": "ألصق رابط Hispaloshop صالحًا لإنشاء بطاقة مختصرة.",
+    "miembroDeLaComunidad": "عضو في المجتمع",
+    "pruebaConOtroNombreOCambiaElFiltr": "جرب اسمًا مختلفًا أو غيّر الفلتر.",
+    "noSePudoEliminarElMensaje": "تعذر حذف الرسالة",
+    "conversacionEliminada": "تم حذف المحادثة",
+    "errorAlEliminarLaConversacion": "خطأ في حذف المحادثة",
+    "pegaUnEnlaceOIdValidoDeHispalosho": "ألصق رابط أو معرّف Hispaloshop صالح.",
+    "noPudimosGenerarLaVistaPrevia": "لم نتمكن من إنشاء المعاينة.",
+    "noSePudoEnviarElMensaje": "تعذر إرسال الرسالة.",
+    "laImagenNoPuedeSuperar5Mb": "لا يمكن أن يتجاوز حجم الصورة 5 ميجابايت.",
+    "elArchivoNoPuedeSuperar10Mb": "لا يمكن أن يتجاوز حجم الملف 10 ميجابايت.",
+    "errorAlSubirElDocumento": "حدث خطأ أثناء تحميل المستند.",
+    "buscarConversacion": "أبحث عن محادثة",
+    "empiezaUnChatNuevoDesdeElBotonSup": "ابدأ محادثة جديدة من الزر العلوي وستحافظ على صندوق الوارد الخاص بك أنظف بكثير.",
+    "seleccionaUnaConversacionDelPanelIz": "اختر محادثة من اللوحة اليسرى أو ابدأ محادثة جديدة.",
+    "llamadaDeVozProximamente": "مكالمة صوتية (قريبًا)",
+    "videollamadaProximamente": "مكالمة فيديو (قريبًا)",
+    "mensajesDeLaConversacion": "رسائل المحادثة",
+    "empiezaLaConversacion": "ابدأ المحادثة",
+    "escribeElPrimerMensajeYMantenLaCo": "اكتب الرسالة الأولى وحافظ على سياق المحادثة واضحاً.",
+    "vistaPreviaDeLaImagenAdjunta": "معاينة الصورة المرفقة"
+  },
+  "overlay_error_boundary": {
+    "algoSalioMal": "حدث خطأ ما.",
+    "noSePudoCargarEsteContenidoIntent": "تعذر تحميل هذا المحتوى. يرجى المحاولة مرة أخرى."
+  },
+  "plan_manager": {
+    "planBasicoUpgradeParaReducirComisi": "الخطة الأساسية. قم بالترقية لتقليل العمولة والوصول إلى الأدوات."
+  },
+  "post_viewer": {
+    "edicionDePostsNoDisponibleAun": "التحرير اللاحق غير متاح حاليًا"
+  },
+  "product": {
+    "anadirAlCarrito": "أضف إلى السلة"
+  },
+  "review": {
+    "valoracionEnviada": "تم تقديم التقييم",
+    "errorAlEnviarValoracion": "حدث خطأ أثناء إرسال التقييم",
+    "cuentanosTuExperiencia": "أخبرنا عن تجربتك...",
+    "enviarValoracion": "أرسل ملاحظاتك"
+  },
+  "toast_container": {
+    "cerrarNotificacion": "إغلاق الإشعار"
+  },
+  "hispal_a_i": {
+    "hazmeUnaRecetaRapida": "أعطني وصفة سريعة",
+    "ayudameConMiDieta": "ساعدني في نظامي الغذائي",
+    "tuCompaneroDeCompras": "شريكك في التسوق",
+    "estoyAquiParaAyudarteAEncontrarLo": "أنا هنا لمساعدتك في العثور على ما تحتاجه",
+    "preguntaleADavid": "اسأل ديفيد...",
+    "microfono": "ميكروفون"
+  },
+  "auth_diagnostic": {
+    "testConexion": "اختبار الاتصال",
+    "elBackendRespondePeroElEndpointNo": "يستجيب النظام الخلفي، لكن نقطة النهاية غير موجودة.",
+    "laConexionFuncionaRevisaLosDetalle": "الاتصال يعمل. راجع التفاصيل أعلاه."
+  },
+  "auth_test_panel": {
+    "iniciandoPruebasDeAutenticacion": "بدء اختبارات المصادقة...",
+    "sesionActiva": "جلسة نشطة:"
+  },
+  "verify_email_wall": {
+    "codigoIncorrectoOExpirado": "رمز غير صحيح أو منتهي الصلاحية",
+    "codigoIncorrecto": "رمز غير صحيح",
+    "codigoReenviadoATuEmail": "تم إرسال الرمز إلى بريدك الإلكتروني",
+    "noSePudoReenviarElCodigo": "تعذر إعادة إرسال الرمز",
+    "maximoDeReenviosAlcanzadoRevisaTu": "تم الوصول إلى الحد الأقصى لعدد عمليات إعادة التوجيه. تحقق من مجلد الرسائل غير المرغوب فيها.",
+    "reenviarCodigoDeVerificacion": "أعد إرسال رمز التحقق"
+  },
+  "b2_b_product": {
+    "productoRetiradoDelCatalogoB2b": "تمت إزالة المنتج من كتالوج B2B",
+    "cantidadMinimaDePedidoMoq": "الحد الأدنى لكمية الطلب (MOQ)",
+    "descripcionMayorista": "وصف البيع بالجملة",
+    "maximoDeMuestrasPorSolicitud": "الحد الأقصى لعدد العينات لكل طلب",
+    "publicarEnCatalogoB2b": "انشر في كتالوج B2B",
+    "quitarDelCatalogoB2b": "إزالة من كتالوج B2B"
+  },
+  "importer_profile_form": {
+    "paisOrigenEs": "بلد المنشأ (إسبانيا)"
+  },
+  "quote_builder": {
+    "minimo1Unidad": "وحدة واحدة كحد أدنى",
+    "codigoDePaisDebeTener2Letras": "يجب أن يتكون رمز الدولة من حرفين",
+    "elMensajeDebeTenerAlMenos10Caract": "يجب ألا يقل طول الرسالة عن 10 أحرف",
+    "anadeAlMenosUnProducto": "أضف منتجًا واحدًا على الأقل",
+    "noSePudoEnviarLaRfq": "لم يتم إرسال طلب عرض الأسعار.",
+    "nuevaSolicitudDeCotizacionRfq": "طلب عرض أسعار جديد (RFQ)",
+    "describeVolumenFormatosCertificacio": "صف الحجم، والتنسيقات، والشهادات، أو المتطلبات اللوجستية."
+  },
+  "verification_uploader": {
+    "subeLicenciaDeImportacionRegistroF": "قم بتحميل رخصة الاستيراد، وشهادة التسجيل الضريبي، وتأمين RC"
+  },
+  "add_to_cart_button": {
+    "errorAlAnadirElProductoAlCarrito": "حدث خطأ أثناء إضافة المنتج إلى سلة التسوق",
+    "anadirAlCarrito": "أضف إلى السلة",
+    "productoAnadido": "تمت إضافة المنتج",
+    "anadido": "تمت الإضافة!"
+  },
+  "chat_container": {
+    "seEliminaranTodosLosMensajesDeEsta": "سيتم حذف جميع الرسائل من هذه الجلسة."
+  },
+  "b2_b_context_banner": {
+    "solicitudB2bEnNegociacion": "طلب بين الشركات قيد التفاوض"
+  },
+  "use_h_i_chat": {
+    "buenosDias": "صباح الخير",
+    "tuCompaneroDeComprasYAlimentacion": "شريكك في التسوق والطعام",
+    "tuAsesorDeNegocioParaProductores": "مستشارك التجاري للمنتجين",
+    "estrategiaDeExportacion": "استراتيجية التصدير",
+    "asistenteCreativoParaContenidoYCamp": "مساعد إبداعي للمحتوى والحملات",
+    "disenarUnaCampana": "صمم حملة إعلانية",
+    "analisisDeMercadoInternacionalParaI": "تحليل السوق الدولية للمستوردين",
+    "analisisDeMargenes": "تحليل الهامش",
+    "noTienesAccesoAEsteModoActualiza": "ليس لديك صلاحية الوصول إلى هذا الوضع. قم بترقية خطتك.",
+    "elAsistenteNoEstaDisponibleAhoraI": "المساعد غير متاح حاليًا. يرجى المحاولة مرة أخرى."
+  },
+  "customer_layout_responsive": {
+    "iniciaSesionParaAccederATuCuenta": "قم بتسجيل الدخول للوصول إلى حسابك."
+  },
+  "influencer_layout_responsive": {
+    "miCodigo": "كودي"
+  },
+  "producer_layout_responsive": {
+    "tuCuentaEstaEnRevision": "حسابك قيد المراجعة."
+  },
+  "dashboard_header": {
+    "buenosDias": "صباح الخير"
+  },
+  "following_feed": {
+    "sigueAProductoresImportadoresEInfl": "تابع المنتجين والمستوردين والمؤثرين للاطلاع على محتواهم هنا.",
+    "estasAlDia": "أنت على اطلاع دائم"
+  },
+  "for_you_feed": {
+    "tuSemanaEnHispaloshop": "أسبوعك في هيسبالو شوب",
+    "descubrirMas": "اكتشف المزيد",
+    "sigueProductoresParaVerSuContenido": "تابع المنتجين للاطلاع على محتواهم هنا"
+  },
+  "landing_nav_pills": {
+    "accesosRapidos": "وصول سريع"
+  },
+  "milestone_toast": {
+    "10MeGusta": "١٠ إعجابات!",
+    "alguienTeGuardo": "لقد أنقذك أحدهم!",
+    "50MeGusta": "50 إعجابًا!",
+    "7DiasSeguidos": "سبعة أيام متتالية!"
+  },
+  "reel": {
+    "noSePudoSeguirAlUsuario": "تعذر تتبع المستخدم",
+    "seEliminaraPermanentementeJuntoConS": "سيتم حذفها نهائياً مع تعليقاتك وإعجاباتك.",
+    "noSePudoDejarDeSeguir": "كان من المستحيل التوقف عن المشاهدة",
+    "uneteALaConversacion": "انضم إلى الحوار...",
+    "progresoDelVideo": "تقدم الفيديو"
+  },
+  "stories_bar": {
+    "recetaDelDia": "وصفة اليوم"
+  },
+  "story_viewer": {
+    "contenidoDeLaHistoria": "محتوى القصة",
+    "sinDatosDeVistasDisponibles": "لا تتوفر بيانات العرض",
+    "buscarConversacion": "أبحث عن محادثة..."
+  },
+  "suggested_users": {
+    "noSePudoSeguirAlUsuarioIntentalo": "تعذر تتبع المستخدم. يرجى المحاولة مرة أخرى."
+  },
+  "file_upload": {
+    "arrastraArchivosAquiOHazClicParaS": "اسحب الملفات إلى هنا أو انقر لتحديدها."
+  },
+  "badge_toast": {
+    "logroDesbloqueado": "تم تحقيق الإنجاز!"
+  },
+  "application": {
+    "quienEres": "من أنت",
+    "confirmacion": "تأكيد",
+    "recomendadoParaLaMayoria": "يُنصح به لمعظم الناس.",
+    "pideRevisionManualPrioritaria": "طلب مراجعة يدوية ذات أولوية.",
+    "paraPerfilesConUnaComunidadMuyActi": "للملفات الشخصية التي تضم مجتمعًا نشطًا للغاية.",
+    "necesitamosSaberComoTeConocen": "نحتاج أن نعرف كيف يعرفك الناس.",
+    "tuEmailProfesionalEsObligatorio": "عنوان بريدك الإلكتروني المهني مطلوب.",
+    "eseEmailNoPareceValido": "يبدو أن عنوان البريد الإلكتروني هذا غير صالح.",
+    "tuInstagramPrincipalEsObligatorio": "حسابك الأساسي على إنستغرام مطلوب.",
+    "necesitamosUnaViaRealParaContactart": "نحن بحاجة إلى وسيلة حقيقية للتواصل معك.",
+    "seleccionaTuPais": "اختر بلدك.",
+    "eligeAlMenosUnNicho": "اختر مجالاً متخصصاً واحداً على الأقل.",
+    "seleccionaTuRangoDeSeguidores": "حدد نطاق المتابعين.",
+    "seleccionaElPaisPrincipalDeTuAudie": "اختر البلد الرئيسي لجمهورك.",
+    "cuentanosPorQueQuieresEntrar": "أخبرنا لماذا ترغب بالانضمام.",
+    "necesitamosAlMenos140CaracteresPara": "نحتاج إلى 140 حرفًا على الأقل لتصفية الدخان.",
+    "eseEnlaceNoPareceValido": "يبدو أن هذا الرابط غير صالح.",
+    "debesAceptarEstaCondicion": "يجب عليك قبول هذا الشرط.",
+    "yaExisteUnaSolicitudOCuentaConEst": "يوجد بالفعل طلب أو حساب مرتبط بعنوان البريد الإلكتروني هذا.",
+    "noPudimosEnviarLaSolicitudIntental": "لم نتمكن من إرسال الطلب. يرجى المحاولة مرة أخرى.",
+    "solicitarRevision": "اطلب مراجعة",
+    "aplicacionInfluencerHispaloshop": "تطبيق Hispaloshop للمؤثرين",
+    "formularioDeTresPasosParaAplicarAl": "نموذج من ثلاث خطوات للتقديم لبرنامج المؤثرين في Hispaloshop.",
+    "aplicacionReal": "تطبيق عملي في العالم الحقيقي",
+    "noEsUnFormularioCorporativoEsTuP": "هذا ليس نموذجًا خاصًا بالشركات. إنه مخرجك.",
+    "tresPasosSinPagoSinHumoSiElige": "ثلاث خطوات. بدون دفع. بدون أي متاعب. إذا اخترتَ هرقل، فسنبدأ التفعيل السريع. إذا كنتَ تطمح إلى",
+    "ateneaOZeusHacemosRevisionHumanaE": "سواء كان الأمر يتعلق بأثينا أو زيوس، فإننا نقوم بمراجعة بشرية خلال 24-48 ساعة.",
+    "siTuVozEncajaConComidaWellnessL": "إذا كان صوتك يتناسب مع الطعام، أو الصحة، أو نمط الحياة، أو الاستدامة.",
+    "siQuieresRecomendarCosasQueDeVerda": "إذا كنت ترغب في التوصية بأشياء يمكنك استخدامها بالفعل.",
+    "cadaCompraQueConectesSeQuedaAtribu": "كل عملية شراء تقوم بربطها تُنسب إليك لمدة 18 شهرًا. لستَ مضطرًا لأن تكون تابعًا للنظام.",
+    "siQuieresComprobarQueSoyRealAhiM": "إذا كنت تريد أن تثبت أنني حقيقي، فأنا هنا.",
+    "bienvenidoALaResistenciaRevisaTuE": "أهلاً بك في المقاومة. تحقق من بريدك الإلكتروني للوصول إلى لوحة تحكم المؤثرين الخاصة بك.",
+    "herculesEntraPorViaRapidaHemosMar": "تم تسريع عملية تفعيل حساب هرقل. لقد قمنا بتحديد ملفك الشخصي لتفعيله فوراً ولإبلاغك بالخطوات التالية.",
+    "tuPerfilPasaARevisionHumanaSiApl": "سيخضع ملفك الشخصي الآن لمراجعة بشرية. إذا كنت قد تقدمت بطلب إلى برنامج أثينا أو زيوس، فسوف نرد عليك خلال 24-48 ساعة بقرار حقيقي، وليس قرارًا آليًا.",
+    "verCatalogoParaPromocionar": "اطلع على الكتالوج لأغراض ترويجية",
+    "tuTarjetaDePresentacionSinTrajesN": "بطاقة عملك، بدون بدلات رسمية أو كلمات جوفاء.",
+    "reusSeulCiudadDeMexico": "ريوس، سيول، مكسيكو سيتي...",
+    "seleccionaPais": "اختر البلد",
+    "queremosSaberQueTipoDeComunidadHas": "نريد أن نعرف نوع المجتمع الذي بنيته ولماذا سيتبعونك في شيء ما.",
+    "paisPrincipalDeTuAudiencia": "البلد الرئيسي لجمهورك",
+    "cuentanosLaVerdadQueTipoDeEstabil": "أخبرنا الحقيقة: ما نوع الاستقرار الذي تبحث عنه، ولماذا تعرضت للخداع من قبل علامات تجارية معينة، وكيف ستتعامل مع مجتمعك؟",
+    "laComisionEsTransparenteHercules3": "العمولة شفافة: هرقل 3%، أثينا 5%، زيوس 7%، مع متابعة لمدة 18 شهرًا.",
+    "entiendoQueLaComisionSePagaSobreE": "أفهم أن العمولة تُدفع على قيمة ما بعد الشحن والضرائب.",
+    "entiendoQueElTrackingDe18MesesEs": "أفهم أن فترة التتبع التي تبلغ 18 شهرًا تبدأ من أول عملية شراء للمستخدم.",
+    "aceptoPromoverSoloProductosQueRealm": "لا أوافق إلا على الترويج للمنتجات التي سأجربها بالفعل أو سأجربها.",
+    "heLeidoYAceptoLosTerminosDelProgr": "لقد قرأت شروط برنامج المؤثرين وأوافق عليها.",
+    "solicitudGratuitaNingunPasoDePago": "تطبيق مجاني. لا توجد خطوات دفع."
+  },
+  "shared": {
+    "queEs": "ما هو"
+  },
+  "footer_landing": {
+    "terminos": "شروط",
+    "unaFormaMasClaraDeDescubrirEntend": "طريقة أوضح لاكتشاف وفهم وشراء الطعام في سياقه."
+  },
+  "navbar_landing": {
+    "iniciarSesion": "تسجيل الدخول",
+    "cerrarMenu": "إغلاق القائمة"
+  },
+  "testimonial_carousel": {
+    "cuandoTengamosVocesRealesDeLaComun": "عندما نسمع أصواتاً حقيقية من المجتمع، ستظهر هنا."
+  },
+  "auth_layout": {
+    "terminos": "شروط"
+  },
+  "desktop_sidebar": {
+    "preguntameSobreCualquierProductoOPr": "اسألني عن أي منتج أو منتج",
+    "terminos": "شروط"
+  },
+  "hamburger_menu": {
+    "cerrarMenu": "إغلاق القائمة"
+  },
+  "info_header": {
+    "queEs": "ما هو",
+    "cerrarMenu": "إغلاق القائمة",
+    "iniciarSesion": "تسجيل الدخول"
+  },
+  "offline_banner": {
+    "sinConexionAInternet": "لا يوجد اتصال بالإنترنت"
+  },
+  "report_button": {
+    "informacionEnganosa": "معلومات مضللة",
+    "violacionDeDerechosDeAutor": "انتهاك حقوق النشر",
+    "noSePudoEnviarElReporte": "تعذر إرسال التقرير",
+    "anadeUnDetalleOpcional": "أضف تفصيلاً (اختياري)..."
+  },
+  "chat_toast_notification": {
+    "cerrarNotificacion": "إغلاق الإشعار"
+  },
+  "message_toast": {
+    "cerrarNotificacionDeMensaje": "إشعار إغلاق الرسائل"
+  },
+  "follow": {
+    "sigueAlMenos3CuentasParaCompletar": "تابع 3 حسابات على الأقل لإكمال عملية التسجيل.",
+    "noHemosPodidoGuardarLasCuentasSegu": "لم نتمكن من حفظ الحسابات المتتالية حتى الآن.",
+    "eligeAlMenos3ProductoresOCreadores": "اختر ما لا يقل عن 3 منتجين أو مبدعين حتى تبدأ خلاصتك الأولية بإشارات حقيقية.",
+    "puedesFinalizarYEmpezarADescubrirC": "يمكنك إنهاء العملية والبدء في اكتشاف الحسابات لاحقًا."
+  },
+  "interests": {
+    "seleccionaAlMenos3CategoriasParaCo": "اختر 3 فئات على الأقل للمتابعة.",
+    "noHemosPodidoGuardarTusInteresesTo": "لم نتمكن من حفظ مصالحكم بعد.",
+    "eligeAlMenos3CategoriasParaQueEl": "اختر 3 فئات على الأقل حتى يبدأ الكتالوج والموجز بأساس مفيد."
+  },
+  "location": {
+    "seleccionaUnPais": "اختر دولة.",
+    "introduceTuCodigoPostal": "أدخل الرمز البريدي الخاص بك.",
+    "noHemosPodidoGuardarTuUbicacionTod": "لم نتمكن من حفظ موقعك بعد.",
+    "usamosTuZonaParaMostrarCatalogoDis": "نستخدم منطقتك لعرض الكتالوج المتاح، والاقتراحات القريبة، وخيارات الشحن الأفضل."
+  },
+  "step_follow": {
+    "cordoba": "كوردوفا",
+    "queseriaLaAntigua": "مصنع جبن لا أنتيغوا",
+    "panaderiaMaria": "مخبز ماريا",
+    "descubreAQuienSeguir": "تعرّف على من تتابع",
+    "sigueAlMenos3ProductoresParaEmpeza": "تابع ثلاثة منتجين على الأقل للبدء"
+  },
+  "step_interests": {
+    "seleccionaAlMenos3CategoriasParaPe": "اختر 3 فئات على الأقل لتخصيص موجز الأخبار الخاص بك"
+  },
+  "step_location": {
+    "cordoba": "كوردوفا",
+    "malaga": "مالقة",
+    "estoTeMostraraProductoresCercaDeTi": "سيعرض لك هذا المنتجين القريبين منك.",
+    "usarMiUbicacionActual": "استخدم موقعي الحالي",
+    "oIntroduceCodigoPostal": "أو أدخل الرمز البريدي"
+  },
+  "step_welcome": {
+    "anadeMasInformacionSobreTi": "أضف المزيد من المعلومات عن نفسك",
+    "tuFeedPersonalizadoEstaPreparado": "صفحتك الشخصية جاهزة.",
+    "puedesCambiarTusPreferenciasEnCualq": "يمكنك تغيير تفضيلاتك في أي وقت من ملفك الشخصي."
+  },
+  "welcome": {
+    "tuPerfilEstaConfiguradoAhoraPuedes": "تم إعداد ملفك الشخصي. يمكنك الآن استكشاف المنتجات المحلية."
+  },
+  "signup": {
+    "noPagarasNadaHastaQueVendas": "لن تدفع أي شيء حتى تبيع.",
+    "paraProductoresQueQuierenEmpezarAV": "للمنتجين الذين يرغبون في بدء البيع بدون مخاطرة.",
+    "tiendaVirtualPersonalizadaConTuHist": "متجر إلكتروني شخصي يحمل قصتك وأصلك",
+    "hasta30ProductosEnCatalogo": "يحتوي الكتالوج على ما يصل إلى 30 منتجًا",
+    "visibilidadNacionalEnEspana": "الظهور الوطني في إسبانيا",
+    "paraProductoresSeriosQueQuierenEsca": "للمنتجين الجادين الذين يرغبون في التوسع دون أن يكونوا مجانين.",
+    "herramientasDeIaParaMarketing": "أدوات الذكاء الاصطناعي للتسويق",
+    "recomendacionesDinamicasDePrecioPor": "توصيات أسعار ديناميكية حسب المنطقة الجغرافية",
+    "analiticaAvanzadaDeVentas": "تحليلات المبيعات المتقدمة",
+    "matchingAutomaticoConHasta5Influenc": "مطابقة تلقائية مع ما يصل إلى 5 مؤثرين محليين",
+    "paraCooperativasYProductoresConAmbi": "للتعاونيات والمنتجين ذوي الطموح العالمي.",
+    "prediccionDeDemandaPorPaisYTempora": "توقعات الطلب حسب البلد والموسم",
+    "analisisDeMercadosInternacionalesPr": "تحليل السوق الدولية (السعر، المنافسة، الفرص)",
+    "deteccionPreventivaDeRiesgoDeDesaba": "الكشف الوقائي عن مخاطر نقص الإمدادات",
+    "matchingDirectoConImportadoresVerifi": "المطابقة المباشرة مع المستوردين المعتمدين من دول أخرى",
+    "generacionAutomaticaDeContratosB2bE": "إنشاء تلقائي لعقود بين الشركات بصيغة PDF",
+    "analisisDeRegulacionesYArancelesPor": "تحليل اللوائح والتعريفات الجمركية حسب السوق المستهدف",
+    "creacionDeDossieresDeExportacion": "إعداد ملفات التصدير",
+    "prioridadAbsolutaDeVisibilidadEnLa": "أولوية مطلقة للظهور على المنصة",
+    "soporteTelefonicoDirecto": "الدعم عبر الهاتف المباشر",
+    "soloVendoEnEspana": "أبيع منتجاتي في إسبانيا فقط.",
+    "yaExportoAAlgunPais": "أقوم بالفعل بالتصدير إلى بعض البلدان",
+    "masDe20": "أكثر من 20",
+    "andalucia": "الأندلس",
+    "aragon": "أراغون",
+    "castillaYLeon": "قشتالة وليون",
+    "cataluna": "كاتالونيا",
+    "paisVasco": "إقليم الباسك",
+    "stripeNoEstaDisponible": "خدمة Stripe غير متوفرة.",
+    "quienEres": "من أنت",
+    "stripeNoEstaConfiguradoTodavia": "لم يتم إعداد Stripe بعد.",
+    "noPudimosPrepararElPagoSeguro": "لم نتمكن من إعداد عملية الدفع الآمنة.",
+    "necesitamosTuNombreParaDarteDeAlta": "نحتاج إلى اسمك لتسجيلك.",
+    "introduceUnEmailValido": "أدخل عنوان بريد إلكتروني صحيح.",
+    "necesitamosUnTelefonoOperativo": "نحتاج إلى هاتف يعمل.",
+    "tuContrasenaDebeTenerAlMenos6Cara": "يجب أن تتكون كلمة مرورك من 6 أحرف على الأقل.",
+    "debesAceptarLaPoliticaDePrivacidad": "يجب عليك قبول سياسة الخصوصية والشروط.",
+    "cuentanosComoSeLlamaTuMarcaOCoope": "أخبرنا باسم علامتك التجارية أو تعاونيتك.",
+    "seleccionaAlMenosUnTipoDeProducto": "اختر نوع منتج واحد على الأقل.",
+    "indicanosSiYaExportasOQuieresEmpez": "أخبرنا إذا كنت تقوم بالتصدير بالفعل أو ترغب في البدء.",
+    "seleccionaTuRegionDeProduccion": "اختر منطقة الإنتاج الخاصة بك.",
+    "necesitamosUnRangoAproximadoDeRefer": "نحتاج إلى نطاق تقريبي من المراجع.",
+    "completaLosDatosDeLaTarjetaParaCo": "أكمل بيانات البطاقة للمتابعة.",
+    "stripeNoEstaListoTodavia": "لم يتم تجهيز Stripe بعد.",
+    "noPudimosValidarLaTarjeta": "لم نتمكن من التحقق من صحة البطاقة.",
+    "tuBancoRechazoLaOperacion": "رفض البنك الذي تتعامل معه هذه العملية.",
+    "haOcurridoUnErrorConElPagoPorFa": "حدث خطأ في عملية الدفع. يرجى المحاولة مرة أخرى.",
+    "elMetodoDePagoFueRechazadoPorFav": "تم رفض طريقة الدفع الخاصة بك. يرجى استخدام بطاقة أخرى.",
+    "revisaLosDatosAntesDeContinuar": "راجع المعلومات قبل المتابعة.",
+    "noPudimosCompletarElAltaDelProduct": "لم نتمكن من إكمال تسجيل المنتج.",
+    "tuCuentaYaExisteSiYaSeCreoSolo": "حسابك موجود بالفعل. إذا كان قد تم إنشاؤه مسبقاً، فكل ما عليك فعله هو إكمال الخطة أو التحقق من صلاحيات الوصول الخاصة بك.",
+    "completaLosCamposObligatoriosParaAv": "أكمل الحقول المطلوبة للمتابعة.",
+    "aceptoLaPoliticaDePrivacidadYLosT": "أوافق على سياسة الخصوصية والشروط",
+    "nombreDeTuObradorMarcaOCooperativ": "اسم ورشتك أو علامتك التجارية أو تعاونيتك",
+    "exportacionActual": "الصادرات الحالية",
+    "regionDeProduccion": "منطقة الإنتاج",
+    "seleccionaTuRegion": "اختر منطقتك",
+    "numeroDeReferencias": "عدد المراجع",
+    "cargoOComision": "المنصب أو التكليف",
+    "entiendoQueHispaloshopRetieneUn20": "أفهم أن موقع Hispaloshop يحتفظ بعمولة قدرها 20% على المبيعات.",
+    "noPagarasNadaHastaQueVendasCuando": "لن تدفع أي شيء حتى تبيع. وعند البيع، ستحتفظ بنسبة 80%.",
+    "pagoSeguroPorStripeCancelaCuandoQ": "دفع آمن عبر Stripe. يمكنك الإلغاء في أي وقت من لوحة التحكم الخاصة بك.",
+    "pagoSeguroPorStripeSiTuBancoPide": "عملية دفع آمنة عبر Stripe. إذا طلب مصرفك تأكيدًا إضافيًا، فسنتولى الأمر هنا مباشرةً دون إخراجك من الصفحة.",
+    "bienvenidoALaRevolucionDeLosProduc": "أهلاً بكم في ثورة المنتجين النزيهين.",
+    "revisaTuEmailParaVerificarTuCuenta": "تحقق من بريدك الإلكتروني للتحقق من حسابك والوصول إلى لوحة التحكم الخاصة بك لإكمال ملفك الشخصي.",
+    "siTuAltaQuedaPendienteDeRevision": "إذا كان طلبك قيد المراجعة، فسترى أولاً حالة الموافقة. ومن هناك، يمكنك متابعة العملية دون أن يفوتك أي شيء.",
+    "verGuiaRapidaParaSubirMiPrimerPro": "اطلع على الدليل السريع لتحميل أول منتج لي",
+    "tuCuentaYaExisteYElSiguientePaso": "حسابك موجود بالفعل، والخطوة التالية هي التحقق من بريدك الإلكتروني وإنهاء إعداد ملفك الشخصي.",
+    "laContrasenaNoSeGuardaEnLocalstora": "لا يتم حفظ كلمة المرور في وحدة التخزين المحلية، وبالتالي تجنب ترك سر مكشوفًا.",
+    "freeCreaLaCuentaAlInstanteProYE": "يُنشئ الحساب المجاني الحساب فورًا. أما الحسابان الاحترافي والنخبة فيُفعّلان خدمة Stripe مباشرةً دون الحاجة إلى مغادرة العملية.",
+    "empezamosPorLoMinimoParaNoPonerte": "سنبدأ بالحد الأدنى حتى لا نضع عائقاً آخر في طريقك.",
+    "estamosAUnPasoDeAbrirTuTiendaYD": "نحن على بعد خطوة واحدة من افتتاح متجرك وترك البنية التحتية جاهزة.",
+    "completarSuscripcionYAbrirMiTienda": "أكمل اشتراكك وافتح متجري"
+  },
+  "profile_header": {
+    "noSePudoCerrarLaCuentaIntentaloD": "تعذر إغلاق الحساب. يرجى المحاولة مرة أخرى.",
+    "noSePudieronCargarLasHistorias": "تعذر تحميل القصص",
+    "errorAlCrearElDestacado": "حدث خطأ أثناء إنشاء التمييز",
+    "seCerraraLaSesionDeEstaCuentaYTe": "سيتم إغلاق جلسة الحساب هذه، وسيتعين عليك تسجيل الدخول مرة أخرى.",
+    "soloSeEliminaDelSelectorDeCuentas": "تمت إزالته فقط من قائمة اختيار الحساب على هذا الجهاز.",
+    "codigoCopiado": "تم نسخ الكود:",
+    "noHayHistoriasEnEsteDestacado": "لا توجد قصص في هذا العنصر المميز.",
+    "lasHistoriasDelDestacadoNoSeElimin": "لن يتم حذف القصص المميزة، بل سيتم حذف المجموعة فقط.",
+    "noHayHistoriasEnTuArchivo": "لا توجد قصص في ملفك",
+    "publicaUnaHistoriaPrimeroParaPoder": "انشر قصة أولاً لإنشاء ميزة مميزة",
+    "lasHistoriasNoSePerderanSoloLaCo": "لن تضيع القصص، بل ستضيع المجموعة فقط."
+  },
+  "profile_tabs": {
+    "crearPublicacion": "إنشاء منشور",
+    "sinPublicacionesTodavia": "لا توجد منشورات حتى الآن",
+    "sinReelsTodavia": "لا توجد بكرات حتى الآن",
+    "sinRecetasTodavia": "لا توجد وصفات حتى الآن",
+    "nadaGuardadoTodavia": "لم يتم حفظ أي شيء بعد",
+    "publicacionGuardada": "المنشور المحفوظ"
+  },
+  "recipe_overlay": {
+    "manualOConectadosConProductosDeLa": "يدوي أو متصل بمنتجات المنصة."
+  },
+  "recipe_shopping_list_overlay": {
+    "masRaciones": "حصص إضافية",
+    "anadirTodoAlCarrito": "أضف كل شيء إلى سلة التسوق"
+  },
+  "product_detail_overlay": {
+    "anadirAlCarrito": "أضف إلى السلة",
+    "iniciaSesionParaAnadirProductos": "سجّل الدخول لإضافة المنتجات",
+    "noHemosPodidoCompletarLaAccion": "لم نتمكن من إتمام العملية",
+    "esteProductoAunNoTieneCertificados": "هذا المنتج لا يملك شهادات معتمدة حتى الآن.",
+    "seElPrimeroEnOpinarSobreEsteProdu": "كن أول من يقيّم هذا المنتج."
   }
 }

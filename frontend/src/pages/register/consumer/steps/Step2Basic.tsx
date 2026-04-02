@@ -88,7 +88,7 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
         <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-3">
           <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} className="mt-0.5 h-5 w-5 rounded border-stone-400 accent-stone-950" />
           <span className="text-sm text-stone-600">
-            Acepto los <a href="/terms" className="font-medium text-stone-950 hover:underline">términos</a> y la <a href="/privacy" className="font-medium text-stone-950 hover:underline">política de privacidad</a><span className="ml-1 text-stone-500">*</span>
+            Acepto los <a href="/terms" className="font-medium text-stone-950 hover:underline">{t('step2_basic.terminos', 'términos')}</a> y la <a href="/privacy" className="font-medium text-stone-950 hover:underline">{t('step2_basic.politicaDePrivacidad', 'política de privacidad')}</a><span className="ml-1 text-stone-500">*</span>
           </span>
         </label>
 

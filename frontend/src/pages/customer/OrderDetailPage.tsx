@@ -331,7 +331,7 @@ export default function OrderDetailPage() {
           <div className="flex flex-col gap-1.5">
             {subtotalNum != null && <PaymentRow label="Subtotal" value={fmtPrice(subtotalNum)} />}
             {discountNum != null && discountNum > 0 && <PaymentRow label="Descuento" value={`-${fmtPrice(discountNum)}`} />}
-            {shippingNum != null && <PaymentRow label="Envío" value={shippingNum === 0 ? 'Gratis' : fmtPrice(shippingNum)} />}
+            {shippingNum != null && <PaymentRow label={t('products.shippingCost', 'Envío')} value={shippingNum === 0 ? 'Gratis' : fmtPrice(shippingNum)} />}
             <div className="h-px bg-stone-200 my-1" />
             <PaymentRow label="Total" value={fmtPrice(totalNum)} bold />
           </div>

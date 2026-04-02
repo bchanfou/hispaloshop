@@ -21,7 +21,7 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     if (!token) {
-      setError('Enlace de recuperación no válido');
+      setError(t('reset_password.enlaceDeRecuperacionNoValido', 'Enlace de recuperación no válido'));
     }
   }, [token]);
 
@@ -144,7 +144,7 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-950 transition-colors"
-              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              aria-label={showPassword ? t('login.ocultarContrasena', 'Ocultar contraseña') : 'Mostrar contraseña'}
               data-testid="toggle-password-btn"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -179,7 +179,7 @@ export default function ResetPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          aria-label="Restablecer contraseña"
+          aria-label={t('reset_password.restablecerContrasena', 'Restablecer contraseña')}
           className="w-full h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
           data-testid="submit-btn"
         >

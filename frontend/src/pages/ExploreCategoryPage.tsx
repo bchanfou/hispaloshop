@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
 import { getGroupBySlug, getCategoriesByGroup } from '../constants/categories';
+import { useTranslation } from 'react-i18next';
 
 const ICON_MAP = { Leaf, Package, Cookie, CupSoda, Baby, PawPrint, Crown, Sprout, Apple, Beef, Fish, MilkOff, Egg, Droplets, Wine, Bean, Wheat, Candy, Flame, Nut, Popcorn, CakeSlice, Citrus, Coffee, Droplet, Smile, Dog, Cat, Award };
 const getIcon = (name) => ICON_MAP[name] || Package;
@@ -62,7 +63,7 @@ export default function ExploreCategoryPage() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
         <Search size={48} className="text-stone-300" strokeWidth={1.5} />
-        <p className="text-[15px] text-stone-500">Categoría no encontrada</p>
+        <p className="text-[15px] text-stone-500">{t('explore_category.categoriaNoEncontrada', 'Categoría no encontrada')}</p>
         <button
           onClick={() => navigate('/explore')}
           className="border-none bg-transparent text-sm font-semibold text-stone-950 underline"

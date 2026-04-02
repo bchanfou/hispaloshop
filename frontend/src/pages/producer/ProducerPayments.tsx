@@ -428,7 +428,7 @@ export default function ProducerPayments() {
           </div>
           <div>
             <p className="text-sm font-medium text-stone-950">{t('producer_payments.retencionFiscalAplicada', 'Retención fiscal aplicada')}</p>
-            <p className="text-xs text-stone-500">Se retiene el <strong className="text-stone-700">{data.tax_withholding_pct}%</strong> sobre tus ganancias netas según tu configuración fiscal.</p>
+            <p className="text-xs text-stone-500">Se retiene el <strong className="text-stone-700">{data.tax_withholding_pct}%</strong> {t('producer_payments.sobreTusGananciasNetasSegunTuConfi', 'sobre tus ganancias netas según tu configuración fiscal.')}</p>
           </div>
         </div>
       )}

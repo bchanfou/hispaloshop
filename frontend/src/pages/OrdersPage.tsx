@@ -5,6 +5,7 @@ import { ArrowLeft, Package, Truck, ChevronRight, ExternalLink, Loader2, Clock, 
 import apiClient from '../services/api/client';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const TABS = [
   { id: 'active', label: 'En curso' },
@@ -226,7 +227,7 @@ export default function OrdersPage() {
                             e.stopPropagation();
                             try {
                               await apiClient.post(`/customer/orders/${orderId}/reorder`, {});
-                              toast.success('Productos añadidos al carrito');
+                              toast.success(t('customer_orders.productosAnadidosAlCarrito', 'Productos añadidos al carrito'));
                             } catch (err) {
                               toast.error(err?.message || 'Error al volver a pedir');
                             }

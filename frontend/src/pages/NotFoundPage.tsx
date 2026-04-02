@@ -3,12 +3,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Compass } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function NotFoundPage() {
   return (
     <main
       role="main"
-      aria-label="Página no encontrada"
+      aria-label={t('not_found.paginaNoEncontrada', 'Página no encontrada')}
       className="min-h-screen bg-stone-50 flex items-center justify-center px-4 py-6"
     >
       <div className="text-center max-w-[400px] w-full">

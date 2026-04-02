@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
 import LocaleSelector from '../components/LocaleSelector';
+import { useTranslation } from 'react-i18next';
 
 export default function LocaleSettingsPage() {
   return (
@@ -14,7 +15,7 @@ export default function LocaleSettingsPage() {
         <BackButton />
         <div className="flex items-center gap-2 mb-6 mt-4">
           <Globe className="h-5 w-5 text-stone-500" />
-          <h1 className="text-xl font-semibold text-stone-950">Idioma y región</h1>
+          <h1 className="text-xl font-semibold text-stone-950">{t('locale_settings.idiomaYRegion', 'Idioma y región')}</h1>
         </div>
         <div className="bg-white rounded-2xl border border-stone-200 p-5">
           <LocaleSelector />

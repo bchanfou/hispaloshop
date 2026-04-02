@@ -142,8 +142,8 @@ export default function CertificatesListPage() {
               value={selectedCert}
               onChange={setSelectedCert}
               options={certOptions}
-              placeholder="Filtrar por certificación"
-              ariaLabel="Filtrar por certificación"
+              placeholder={t('certificates_list.filtrarPorCertificacion', 'Filtrar por certificación')}
+              ariaLabel=t('certificates_list.filtrarPorCertificacion', 'Filtrar por certificación')
             />
 
             {hasFilters ? (

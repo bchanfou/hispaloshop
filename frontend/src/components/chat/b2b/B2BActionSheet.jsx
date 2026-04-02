@@ -101,7 +101,7 @@ export default function B2BActionSheet({
                 />
                 <ActionOption
                   icon={Video}
-                  label="Vídeo"
+                  label={t('b2_b_action.video', 'Vídeo')}
                   onClick={() => { onClose?.(); onSelectVideo?.(); }}
                 />
                 <ActionOption

@@ -8,6 +8,7 @@ import { captureException } from '../lib/sentry';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 function estimateDeliveryRange(createdAt) {
   const base = createdAt ? new Date(createdAt) : new Date();
@@ -107,8 +108,8 @@ export default function CheckoutSuccessPage() {
           </h1>
           <p className="text-[15px] text-stone-500 leading-relaxed mb-6" aria-live="polite">
             {status === 'timeout'
-              ? 'Tu pago se ha procesado correctamente. Recibirás un email de confirmación con los detalles de tu pedido en los próximos minutos.'
-              : 'Ha ocurrido un error al verificar tu pago. Si se ha realizado el cobro, contacta con soporte.'}
+              ? t('checkout_success.tuPagoSeHaProcesadoCorrectamenteR', 'Tu pago se ha procesado correctamente. Recibirás un email de confirmación con los detalles de tu pedido en los próximos minutos.')
+              : t('checkout_success.haOcurridoUnErrorAlVerificarTuPag', 'Ha ocurrido un error al verificar tu pago. Si se ha realizado el cobro, contacta con soporte.')}
           </p>
           <div className="flex flex-col gap-2.5">
             <Link to="/orders" className="flex items-center justify-center h-12 bg-stone-950 text-white rounded-full text-[15px] font-semibold no-underline hover:bg-stone-800 transition-colors">

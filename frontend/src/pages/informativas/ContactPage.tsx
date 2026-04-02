@@ -182,7 +182,7 @@ export default function ContactPage() {
           <h3 className="text-lg font-bold text-stone-950 mb-6">Preguntas frecuentes</h3>
           <div>
             {[
-              { q: '¿Cuánto cuesta usar HispaloShop?', a: 'Para compradores es gratis. Productores tienen planes desde 0€. Influencers ganan comisiones.' },
+              { q: '¿Cuánto cuesta usar HispaloShop?', a: t('contact.paraCompradoresEsGratisProductores', 'Para compradores es gratis. Productores tienen planes desde 0€. Influencers ganan comisiones.') },
               { q: '¿Cómo recibo mis pedidos?', a: t('contact.losProductoresGestionanElEnvioDirec', 'Los productores gestionan el envío directamente. Los plazos dependen de cada productor y destino.') },
               { q: '¿Puedo vender internacionalmente?', a: t('contact.siHispaloshopSoportaMultiplesIdioma', 'Sí. HispaloShop soporta múltiples idiomas y divisas para venta internacional.') },
               { q: '¿Cómo se verifican los productores?', a: 'Verificamos identidad, certificaciones y calidad antes de aprobar cada productor.' },

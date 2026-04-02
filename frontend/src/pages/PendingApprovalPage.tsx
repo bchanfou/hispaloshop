@@ -5,6 +5,7 @@ import { Clock3, ShieldCheck, FileCheck } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function PendingApprovalPage() {
   const { user } = useAuth();
@@ -28,8 +29,8 @@ export default function PendingApprovalPage() {
             <div className="flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-stone-950 mt-0.5 shrink-0" />
               <div className="space-y-1 text-sm text-stone-600">
-                <p>Recibirás acceso completo cuando el equipo valide tu alta.</p>
-                <p>Mientras tanto, algunas funciones comerciales seguirán restringidas.</p>
+                <p>{t('pending_approval.recibirasAccesoCompletoCuandoElEqui', 'Recibirás acceso completo cuando el equipo valide tu alta.')}</p>
+                <p>{t('pending_approval.mientrasTantoAlgunasFuncionesComerc', 'Mientras tanto, algunas funciones comerciales seguirán restringidas.')}</p>
                 <p>Si tarda demasiado, usa contacto o soporte interno.</p>
               </div>
             </div>

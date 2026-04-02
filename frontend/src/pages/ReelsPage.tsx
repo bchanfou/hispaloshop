@@ -202,8 +202,8 @@ export default function ReelsPage() {
         <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-2">
           <Film className="w-9 h-9 text-white/50" />
         </div>
-        <p className="text-white text-lg font-semibold font-sans text-center">Aún no hay reels</p>
-        <p className="text-white/50 text-sm font-sans text-center -mt-2">Sé el primero en publicar</p>
+        <p className="text-white text-lg font-semibold font-sans text-center">{t('reels.aunNoHayReels', 'Aún no hay reels')}</p>
+        <p className="text-white/50 text-sm font-sans text-center -mt-2">{t('reels.seElPrimeroEnPublicar', 'Sé el primero en publicar')}</p>
         <button
           onClick={() => navigate('/create/reel')}
           className="mt-2 text-black text-sm font-semibold font-sans bg-white rounded-full px-6 py-3 border-none cursor-pointer hover:bg-stone-100 transition-colors"

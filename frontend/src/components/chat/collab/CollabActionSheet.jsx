@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
 import { Camera, Video, Package, FileText, Link } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 function ActionOption({ icon: Icon, label, onClick, bgColor }) {
   return (
@@ -75,7 +76,7 @@ export default function CollabActionSheet({
                 />
                 <ActionOption
                   icon={Video}
-                  label="Vídeo"
+                  label={t('collab_action.video', 'Vídeo')}
                   onClick={onSelectVideo}
                 />
                 <ActionOption

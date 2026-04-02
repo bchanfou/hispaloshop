@@ -516,7 +516,7 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
             {[
               { emoji: '📊', title: 'Tu dashboard', desc: t('role_onboarding.veTusComisionesEnTiempoReal', 'Ve tus comisiones en tiempo real') },
               { emoji: '🔗', title: 'Tus links', desc: 'Genera links para cada producto' },
-              { emoji: '💸', title: 'Cobra cada mes', desc: 'Mínimo 20€, transferencia automática' },
+              { emoji: '💸', title: 'Cobra cada mes', desc: t('role_onboarding.minimo20€TransferenciaAutomatica', 'Mínimo 20€, transferencia automática') },
             ].map(item => (
               <div key={item.title} className="flex items-center gap-3.5 rounded-xl border border-stone-200 bg-stone-100 px-4 py-3.5">
                 <span className="text-[28px]">{item.emoji}</span>

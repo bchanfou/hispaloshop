@@ -6,20 +6,21 @@ import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import SEO from '../components/SEO';
 import BackButton from '../components/BackButton';
+import { useTranslation } from 'react-i18next';
 
 /* ── Static editorial collections (Apple-style curated lists) ── */
 const EDITORIAL_COLLECTIONS = [
   {
     id: 'aceite-oliva',
-    title: 'El mejor aceite de oliva',
-    subtitle: 'Selección de productores andaluces',
+    title: t('editorial_collections.elMejorAceiteDeOliva', 'El mejor aceite de oliva'),
+    subtitle: t('editorial_collections.seleccionDeProductoresAndaluces', 'Selección de productores andaluces'),
     tag: 'aceite',
     gradient: 'from-stone-900 to-stone-700',
   },
   {
     id: 'desayuno-saludable',
     title: 'Desayunos que nutren',
-    subtitle: 'Empieza el día con energía real',
+    subtitle: t('editorial_collections.empiezaElDiaConEnergiaReal', 'Empieza el día con energía real'),
     tag: 'desayuno',
     gradient: 'from-stone-800 to-stone-500',
   },
@@ -32,8 +33,8 @@ const EDITORIAL_COLLECTIONS = [
   },
   {
     id: 'despensa-basica',
-    title: 'Despensa básica premium',
-    subtitle: 'Los esenciales que marcan la diferencia',
+    title: t('editorial_collections.despensaBasicaPremium', 'Despensa básica premium'),
+    subtitle: t('editorial_collections.losEsencialesQueMarcanLaDiferencia', 'Los esenciales que marcan la diferencia'),
     tag: 'despensa',
     gradient: 'from-stone-700 to-stone-400',
   },
@@ -46,7 +47,7 @@ const EDITORIAL_COLLECTIONS = [
   },
   {
     id: 'eco-certificado',
-    title: 'Certificado ecológico',
+    title: t('editorial_collections.certificadoEcologico', 'Certificado ecológico'),
     subtitle: '100% productos con sello oficial',
     tag: 'ecologico',
     gradient: 'from-stone-600 to-stone-900',
@@ -86,7 +87,7 @@ export default function EditorialCollectionsPage() {
                 className="block no-underline"
               >
                 <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${col.gradient} p-5 h-[140px] flex flex-col justify-end`}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">Colección</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">{t('editorial_collections.coleccion', 'Colección')}</p>
                   <p className="text-[17px] font-bold text-white leading-tight">{col.title}</p>
                   <p className="text-[13px] text-white/70 mt-0.5">{col.subtitle}</p>
                   <ChevronRight size={20} className="absolute right-4 bottom-5 text-white/40" />
