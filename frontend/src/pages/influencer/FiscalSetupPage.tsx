@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, Upload, FileCheck, AlertTriangle, Loader2, Check, X,
@@ -11,8 +11,8 @@ import { useLocale } from '../../context/LocaleContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
-/* ─── Country list (subset, popular first) ─── */
-const COUNTRIES = [
+/* ─── Country list: derived from LocaleContext at component level ─── */
+const _FALLBACK_COUNTRIES = [
   { code: 'ES', name: 'España' },
   { code: 'FR', name: 'Francia' },
   { code: 'DE', name: 'Alemania' },
@@ -76,9 +76,17 @@ function getWithholdingInfo(code) {
 export default function FiscalSetupPage() {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
-  const { convertAndFormatPrice } = useLocale();
+  const { convertAndFormatPrice, countries: ctxCountries } = useLocale();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const fileRef = useRef(null);
+
+  // Derive country list from backend (135 countries) with fallback
+  const COUNTRIES = useMemo(() => {
+    const entries = Object.entries(ctxCountries || {});
+    if (entries.length > 10) return entries.map(([code, data]) => ({ code, name: data.name || code }));
+    return _FALLBACK_COUNTRIES;
+  }, [ctxCountries]);
 
   const [fiscal, setFiscal] = useState(null);
   const [loading, setLoading] = useState(true);

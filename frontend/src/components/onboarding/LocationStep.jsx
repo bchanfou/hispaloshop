@@ -1,26 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { onboardingApi } from '../../lib/onboardingApi';
-
-const COUNTRIES = [
-  'España',
-  'Portugal',
-  'Francia',
-  'Italia',
-  'Alemania',
-  'Reino Unido',
-  'Estados Unidos',
-  'México',
-  'Argentina',
-  'Colombia',
-  'Chile',
-  'Perú',
-  'Corea del Sur',
-  'Japón',
-  'China',
-  'Otro',
-];
+import { useLocale } from '../../context/LocaleContext';
 
 export default function LocationStep({ onNext, onBack, onError }) {
+  const { countries: ctxCountries } = useLocale();
+  const COUNTRIES = useMemo(() => {
+    const list = Object.entries(ctxCountries || {}).map(([code, data]) => data.name || code);
+    return list.length > 0 ? [...list, 'Otro'] : ['España', 'Otro'];
+  }, [ctxCountries]);
+
   const [country, setCountry] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [city, setCity] = useState('');

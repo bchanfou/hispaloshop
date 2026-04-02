@@ -21,42 +21,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useLocale } from '../../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { useUnreadNotifications } from '../../hooks/api/useNotifications';
 import apiClient from '../../services/api/client';
 
-/* ── Locale Dropdowns ── */
-const LANGS = [
-  { code: 'es', label: 'Español' },
-  { code: 'en', label: 'English' },
-  { code: 'fr', label: 'Français' },
-  { code: 'de', label: 'Deutsch' },
-];
-const COUNTRIES = [
-  { code: 'ES', label: 'España' },
-  { code: 'PT', label: 'Portugal' },
-  { code: 'FR', label: 'Francia' },
-  { code: 'DE', label: 'Alemania' },
-  { code: 'IT', label: 'Italia' },
-  { code: 'US', label: 'EE.UU.' },
-];
-const CURRENCIES = [
-  { code: 'EUR', label: '€ EUR' },
-  { code: 'USD', label: '$ USD' },
-  { code: 'GBP', label: '£ GBP' },
-];
-
+/* ── Locale Dropdowns — uses LocaleContext (60 langs, 135 countries, 106 currencies) ── */
 function LocaleDropdowns() {
-  const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'es');
-  const [country, setCountry] = useState(() => localStorage.getItem('country') || 'ES');
-  const [currency, setCurrency] = useState(() => localStorage.getItem('currency') || 'EUR');
-
-  const handleChange = (key, value) => {
-    localStorage.setItem(key, value);
-    if (key === 'lang') setLang(value);
-    if (key === 'country') setCountry(value);
-    if (key === 'currency') setCurrency(value);
-  };
+  const { language, country, currency, languages, countries, currencies, updateLanguage, updateCountry, updateCurrency } = useLocale();
 
   const selectClass =
     'w-full text-xs text-stone-600 bg-transparent border border-stone-200 rounded-xl px-2 py-1.5 focus:outline-none focus:border-stone-400 cursor-pointer';
@@ -64,29 +36,35 @@ function LocaleDropdowns() {
   return (
     <div className="px-3 pb-3 space-y-1.5 border-t border-stone-100 pt-3">
       <select
-        value={lang}
-        onChange={e => handleChange('lang', e.target.value)}
+        value={language}
+        onChange={e => updateLanguage(e.target.value)}
         className={selectClass}
         aria-label="Idioma"
       >
-        {LANGS.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+        {Object.entries(languages || {}).map(([code, data]) => (
+          <option key={code} value={code}>{data.native || code}</option>
+        ))}
       </select>
       <div className="grid grid-cols-2 gap-1.5">
         <select
           value={country}
-          onChange={e => handleChange('country', e.target.value)}
+          onChange={e => updateCountry(e.target.value)}
           className={selectClass}
           aria-label="País"
         >
-          {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.label}</option>)}
+          {Object.entries(countries || {}).map(([code, data]) => (
+            <option key={code} value={code}>{data.name || code}</option>
+          ))}
         </select>
         <select
           value={currency}
-          onChange={e => handleChange('currency', e.target.value)}
+          onChange={e => updateCurrency(e.target.value)}
           className={selectClass}
           aria-label="Moneda"
         >
-          {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.label}</option>)}
+          {Object.entries(currencies || {}).map(([code, data]) => (
+            <option key={code} value={code}>{data.symbol || ''} {code}</option>
+          ))}
         </select>
       </div>
     </div>

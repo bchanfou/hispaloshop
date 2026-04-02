@@ -14,31 +14,7 @@ import { getDefaultRoute } from '../../lib/navigation';
 import Logo from '../brand/Logo';
 import apiClient from '../../services/api/client';
 
-/* ── Data ── */
-
-const COUNTRIES = [
-  { code: 'ES', flag: '🇪🇸', name: 'España', status: 'active' },
-  { code: 'FR', flag: '🇫🇷', name: 'Francia', status: 'active' },
-  { code: 'KR', flag: '🇰🇷', name: 'Corea', status: 'beta' },
-  { code: 'IT', flag: '🇮🇹', name: 'Italia', status: 'soon' },
-  { code: 'PT', flag: '🇵🇹', name: 'Portugal', status: 'soon' },
-  { code: 'DE', flag: '🇩🇪', name: 'Alemania', status: 'soon' },
-];
-
-const LANGUAGES = [
-  { code: 'es', flag: '🇪🇸', name: 'Español' },
-  { code: 'fr', flag: '🇫🇷', name: 'Français' },
-  { code: 'en', flag: '🇬🇧', name: 'English' },
-  { code: 'ko', flag: '🇰🇷', name: '한국어' },
-];
-
-const CURRENCIES = [
-  { code: 'EUR', name: 'Euro' },
-  { code: 'USD', name: 'Dólar' },
-  { code: 'KRW', name: 'Won coreano' },
-  { code: 'JPY', name: 'Yen japonés' },
-  { code: 'GBP', name: 'Libra esterlina' },
-];
+/* ── Data: derived from LocaleContext (no hardcoded lists) ── */
 
 /* ── Component ── */
 
@@ -48,6 +24,18 @@ export default function HamburgerMenu({ isOpen, onClose }) {
   const { user, logout } = useAuth();
   const locale = useLocale();
   const [openAccordion, setOpenAccordion] = useState(null);
+  const [localeSearch, setLocaleSearch] = useState('');
+
+  // Derive lists from backend data (LocaleContext)
+  const COUNTRIES = Object.entries(locale.countries || {}).map(([code, data]) => ({
+    code, name: data.name, flag: data.flag || '',
+  }));
+  const LANGUAGES = Object.entries(locale.languages || {}).map(([code, data]) => ({
+    code, name: data.native || data.name || code,
+  }));
+  const CURRENCIES = Object.entries(locale.currencies || {}).map(([code, data]) => ({
+    code, name: data.name || code, symbol: data.symbol || code,
+  }));
   const [wishlistCount, setWishlistCount] = useState(0);
 
   // Fetch wishlist count when menu opens
@@ -240,26 +228,30 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                 isOpen={openAccordion === 'country'}
                 onToggle={() => setOpenAccordion(openAccordion === 'country' ? null : 'country')}
               >
-                {COUNTRIES.map((c) => {
-                  const isActive = locale?.country === c.code;
-                  const disabled = c.status === 'soon';
-                  return (
-                    <AccordionOption
-                      key={c.code}
-                      label={`${c.flag} ${c.name}`}
-                      isActive={isActive}
-                      disabled={disabled}
-                      badge={c.status === 'beta' ? 'Beta' : c.status === 'soon' ? 'Próx.' : null}
-                      badgeVariant={c.status === 'beta' ? 'dark' : 'gray'}
-                      onClick={() => {
-                        if (disabled) return;
-                        locale?.updateCountry?.(c.code);
-                        localStorage.setItem('hsp_country', c.code);
-                        setOpenAccordion(null);
-                      }}
-                    />
-                  );
-                })}
+                <input
+                  type="text"
+                  placeholder="Buscar país..."
+                  value={localeSearch}
+                  onChange={e => setLocaleSearch(e.target.value)}
+                  className="w-full px-3 py-2 mb-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                />
+                <div className="max-h-60 overflow-y-auto">
+                  {COUNTRIES.filter(c => !localeSearch || c.name.toLowerCase().includes(localeSearch.toLowerCase()) || c.code.toLowerCase().includes(localeSearch.toLowerCase())).map((c) => {
+                    const isActive = locale?.country === c.code;
+                    return (
+                      <AccordionOption
+                        key={c.code}
+                        label={`${c.flag} ${c.name}`}
+                        isActive={isActive}
+                        onClick={() => {
+                          locale?.updateCountry?.(c.code);
+                          setOpenAccordion(null);
+                          setLocaleSearch('');
+                        }}
+                      />
+                    );
+                  })}
+                </div>
               </AccordionRow>
 
               {/* Idioma */}
@@ -270,21 +262,30 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                 isOpen={openAccordion === 'language'}
                 onToggle={() => setOpenAccordion(openAccordion === 'language' ? null : 'language')}
               >
-                {LANGUAGES.map((l) => {
-                  const isActive = locale?.language === l.code;
-                  return (
-                    <AccordionOption
-                      key={l.code}
-                      label={`${l.flag} ${l.name}`}
-                      isActive={isActive}
-                      onClick={() => {
-                        locale?.updateLanguage?.(l.code);
-                        localStorage.setItem('hsp_lang', l.code);
-                        setOpenAccordion(null);
-                      }}
-                    />
-                  );
-                })}
+                <input
+                  type="text"
+                  placeholder="Buscar idioma..."
+                  value={localeSearch}
+                  onChange={e => setLocaleSearch(e.target.value)}
+                  className="w-full px-3 py-2 mb-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                />
+                <div className="max-h-60 overflow-y-auto">
+                  {LANGUAGES.filter(l => !localeSearch || l.name.toLowerCase().includes(localeSearch.toLowerCase()) || l.code.includes(localeSearch.toLowerCase())).map((l) => {
+                    const isActive = locale?.language === l.code;
+                    return (
+                      <AccordionOption
+                        key={l.code}
+                        label={`${l.code.toUpperCase()} — ${l.name}`}
+                        isActive={isActive}
+                        onClick={() => {
+                          locale?.updateLanguage?.(l.code);
+                          setOpenAccordion(null);
+                          setLocaleSearch('');
+                        }}
+                      />
+                    );
+                  })}
+                </div>
               </AccordionRow>
 
               {/* Divisa */}
@@ -295,21 +296,30 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                 isOpen={openAccordion === 'currency'}
                 onToggle={() => setOpenAccordion(openAccordion === 'currency' ? null : 'currency')}
               >
-                {CURRENCIES.map((c) => {
+                <input
+                  type="text"
+                  placeholder="Buscar divisa..."
+                  value={localeSearch}
+                  onChange={e => setLocaleSearch(e.target.value)}
+                  className="w-full px-3 py-2 mb-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"
+                />
+                <div className="max-h-60 overflow-y-auto">
+                {CURRENCIES.filter(c => !localeSearch || c.name.toLowerCase().includes(localeSearch.toLowerCase()) || c.code.toLowerCase().includes(localeSearch.toLowerCase())).map((c) => {
                   const isActive = locale?.currency === c.code;
                   return (
                     <AccordionOption
                       key={c.code}
-                      label={`${c.code} — ${c.name}`}
+                      label={`${c.symbol} ${c.code} — ${c.name}`}
                       isActive={isActive}
                       onClick={() => {
                         locale?.updateCurrency?.(c.code);
-                        localStorage.setItem('hsp_currency', c.code);
                         setOpenAccordion(null);
+                        setLocaleSearch('');
                       }}
                     />
                   );
                 })}
+                </div>
               </AccordionRow>
 
               <Divider />

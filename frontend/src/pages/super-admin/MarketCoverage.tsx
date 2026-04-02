@@ -1,46 +1,14 @@
 // @ts-nocheck
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import apiClient from '../../services/api/client';
 import {
   Globe, Package, Users, Clock, AlertTriangle,
   Loader2, RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLocale } from '../../context/LocaleContext';
 
-const ALL_COUNTRIES = [
-  { code: 'ES', name: 'España', flag: '🇪🇸' },
-  { code: 'DE', name: 'Alemania', flag: '🇩🇪' },
-  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
-  { code: 'IT', name: 'Italia', flag: '🇮🇹' },
-  { code: 'PT', name: 'Portugal', flag: '🇵🇹' },
-  { code: 'GB', name: 'Reino Unido', flag: '🇬🇧' },
-  { code: 'NL', name: 'Países Bajos', flag: '🇳🇱' },
-  { code: 'BE', name: 'Bélgica', flag: '🇧🇪' },
-  { code: 'US', name: 'Estados Unidos', flag: '🇺🇸' },
-  { code: 'MX', name: 'México', flag: '🇲🇽' },
-  { code: 'CO', name: 'Colombia', flag: '🇨🇴' },
-  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
-  { code: 'JP', name: 'Japón', flag: '🇯🇵' },
-  { code: 'KR', name: 'Corea del Sur', flag: '🇰🇷' },
-  { code: 'AE', name: 'Emiratos', flag: '🇦🇪' },
-  { code: 'CN', name: 'China', flag: '🇨🇳' },
-];
-
-const COUNTRY_META = {
-  ES: { currency: 'EUR', lang: 'es' },
-  US: { currency: 'USD', lang: 'en' },
-  DE: { currency: 'EUR', lang: 'de' },
-  FR: { currency: 'EUR', lang: 'fr' },
-  IT: { currency: 'EUR', lang: 'it' },
-  PT: { currency: 'EUR', lang: 'pt' },
-  GB: { currency: 'GBP', lang: 'en' },
-  KR: { currency: 'KRW', lang: 'ko' },
-  JP: { currency: 'JPY', lang: 'ja' },
-  CA: { currency: 'CAD', lang: 'en' },
-  MX: { currency: 'MXN', lang: 'es' },
-  BR: { currency: 'BRL', lang: 'pt' },
-  AU: { currency: 'AUD', lang: 'en' },
-};
+// ALL_COUNTRIES and COUNTRY_META now derived from LocaleContext (135 countries)
 
 function SACard({ children, className = '' }) {
   return (
@@ -67,9 +35,25 @@ function ToggleSwitch({ active, onClick, disabled }) {
 }
 
 export default function MarketCoverage() {
+  const { countries: ctxCountries } = useLocale();
   const [marketData, setMarketData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(null);
+
+  // Derive ALL_COUNTRIES and COUNTRY_META from backend (135 countries)
+  const ALL_COUNTRIES = useMemo(() =>
+    Object.entries(ctxCountries || {}).map(([code, data]) => ({
+      code, name: data.name || code, flag: data.flag || '',
+    })),
+    [ctxCountries]
+  );
+  const COUNTRY_META = useMemo(() => {
+    const meta = {};
+    Object.entries(ctxCountries || {}).forEach(([code, data]) => {
+      meta[code] = { currency: data.currency || 'EUR', lang: (data.languages || ['en'])[0] };
+    });
+    return meta;
+  }, [ctxCountries]);
 
   const fetchData = useCallback(async () => {
     try {

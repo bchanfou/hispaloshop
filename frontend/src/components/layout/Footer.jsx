@@ -1,16 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram } from 'lucide-react';
 import Logo from '../brand/Logo';
-
-const COUNTRIES = [
-  { code: 'ES', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espa\u00f1a', active: true },
-  { code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'France', active: true },
-  { code: 'KR', flag: '\u{1F1F0}\u{1F1F7}', name: '\uD55C\uAD6D', active: false, label: 'Beta' },
-  { code: 'IT', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italia', active: false },
-  { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugal', active: false },
-  { code: 'DE', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutschland', active: false },
-];
+import { useLocale } from '../../context/LocaleContext';
 
 const LEGAL_LINKS = [
   { label: 'Privacidad', to: '/privacy' },
@@ -20,13 +12,17 @@ const LEGAL_LINKS = [
 ];
 
 export default function Footer() {
-  const [country, setCountry] = useState(() => {
-    try { return localStorage.getItem('hsp_country') || 'ES'; } catch { return 'ES'; }
-  });
+  const { country, countries, updateCountry } = useLocale();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [footerSearch, setFooterSearch] = useState('');
 
-  const selectedCountry = COUNTRIES.find(c => c.code === country) || COUNTRIES[0];
+  const COUNTRIES = useMemo(() =>
+    Object.entries(countries || {}).map(([code, data]) => ({ code, flag: data.flag || '', name: data.name || code })),
+    [countries]
+  );
+  const selectedCountry = COUNTRIES.find(c => c.code === country) || COUNTRIES[0] || { code: 'ES', flag: '', name: 'España' };
+  const setCountry = (code) => updateCountry(code);
 
   const selectCountry = (code) => {
     setCountry(code);
@@ -87,24 +83,30 @@ export default function Footer() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute bottom-[calc(100%+8px)] right-0 w-[200px] bg-stone-900 border border-white/10 rounded-2xl overflow-hidden z-50 shadow-lg">
-                  {COUNTRIES.map(c => (
+                <div className="absolute bottom-[calc(100%+8px)] right-0 w-[220px] bg-stone-900 border border-white/10 rounded-2xl overflow-hidden z-50 shadow-lg">
+                  <div className="p-2">
+                    <input
+                      type="text"
+                      placeholder="Buscar..."
+                      value={footerSearch}
+                      onChange={e => setFooterSearch(e.target.value)}
+                      className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-white/30"
+                    />
+                  </div>
+                  <div className="max-h-52 overflow-y-auto">
+                  {COUNTRIES.filter(c => !footerSearch || c.name.toLowerCase().includes(footerSearch.toLowerCase()) || c.code.toLowerCase().includes(footerSearch.toLowerCase())).map(c => (
                     <button
                       key={c.code}
-                      onClick={() => c.active && selectCountry(c.code)}
-                      className={`flex items-center gap-2 w-full px-3 py-2.5 border-none text-left text-sm ${
-                        country === c.code ? 'bg-white/[0.08]' : 'bg-transparent'
-                      } ${c.active ? 'cursor-pointer text-white font-semibold' : 'cursor-default text-stone-500 font-normal opacity-50'}`}
+                      onClick={() => { selectCountry(c.code); setFooterSearch(''); }}
+                      className={`flex items-center gap-2 w-full px-3 py-2 border-none text-left text-sm ${
+                        country === c.code ? 'bg-white/[0.08] text-white font-semibold' : 'text-stone-400 hover:bg-white/[0.04]'
+                      } cursor-pointer`}
                     >
                       <span>{c.flag}</span>
-                      <span className="flex-1">{c.name}</span>
-                      {!c.active && (
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-white/10 text-stone-500">
-                          {c.label || 'Pr\u00f3x.'}
-                        </span>
-                      )}
+                      <span className="flex-1 truncate">{c.name}</span>
                     </button>
                   ))}
+                  </div>
                 </div>
               )}
             </div>
