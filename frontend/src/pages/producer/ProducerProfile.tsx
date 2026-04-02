@@ -5,7 +5,26 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { Building2, Warehouse, Save, User, Phone, Mail, MapPin, Shield, AlertTriangle, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLocale } from '../../context/LocaleContext';
 import apiClient from '../../services/api/client';
+
+function CountrySelect({ value, onChange, testId }) {
+  const { countries } = useLocale();
+  const entries = Object.entries(countries || {});
+  return (
+    <select
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value)}
+      data-testid={testId}
+      className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 bg-white"
+    >
+      <option value="">Seleccionar país</option>
+      {entries.map(([code, data]) => (
+        <option key={code} value={code}>{data.name || code}</option>
+      ))}
+    </select>
+  );
+}
 import FocusTrap from 'focus-trap-react';
 
 
@@ -353,12 +372,10 @@ export default function ProducerProfile() {
                 <label className="block text-sm font-medium text-stone-600 mb-1">
                   {t('checkout.country', 'Country')}
                 </label>
-                <input
+                <CountrySelect
                   value={officeAddress.country}
-                  onChange={(e) => setOfficeAddress({...officeAddress, country: e.target.value})}
-                  placeholder={t('checkout.country', 'Country')}
-                  data-testid="office-country"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  onChange={(val) => setOfficeAddress({...officeAddress, country: val})}
+                  testId="office-country"
                 />
               </div>
             </div>
@@ -438,12 +455,10 @@ export default function ProducerProfile() {
                 <label className="block text-sm font-medium text-stone-600 mb-1">
                   {t('checkout.country', 'Country')}
                 </label>
-                <input
+                <CountrySelect
                   value={warehouseAddress.country}
-                  onChange={(e) => setWarehouseAddress({...warehouseAddress, country: e.target.value})}
-                  placeholder={t('checkout.country', 'Country')}
-                  data-testid="warehouse-country"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
+                  onChange={(val) => setWarehouseAddress({...warehouseAddress, country: val})}
+                  testId="warehouse-country"
                 />
               </div>
             </div>
