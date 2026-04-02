@@ -24,7 +24,9 @@ import { captureException } from '../../lib/sentry';
 /* -- Helpers -- */
 const fmtDate = (iso) => {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString('es-ES', {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('es-ES', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

@@ -36,6 +36,7 @@ export default function B2BCatalogPage() {
 
   /* Toggle pause / activate */
   const handleToggle = useCallback(async (item) => {
+    if (togglingId) return; // prevent double-click
     const nextStatus = item.status === 'active' ? 'paused' : 'active';
     try {
       setTogglingId(item.id);
@@ -49,7 +50,7 @@ export default function B2BCatalogPage() {
     } finally {
       setTogglingId(null);
     }
-  }, []);
+  }, [togglingId]);
 
   /* Guard render */
   if (!user || (user.role !== 'producer' && user.role !== 'importer')) {

@@ -270,11 +270,14 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
       toast.error(`Cantidad mínima: ${moq} ${product.unit || 'uds'}`);
       return;
     }
+    const producerId = product.producer_id || product.seller_id;
+    const productId = product.product_id || product.id;
+    if (!producerId || !productId) { toast.error('Datos del producto incompletos'); return; }
     setSubmitting(true);
     try {
       await apiClient.post('/rfq/contact', {
-        producer_id: product.producer_id || product.seller_id,
-        product_ids: [product.product_id || product.id],
+        producer_id: producerId,
+        product_ids: [productId],
         message: `Solicitud B2B: ${quantity} ${product.unit || 'uds'} de ${product.name}. ${notes.trim()}`.trim(),
         target_country: 'ES',
       });

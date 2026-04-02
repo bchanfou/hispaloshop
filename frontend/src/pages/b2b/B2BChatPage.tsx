@@ -28,7 +28,7 @@ function ConvRow({ conv, active, onClick }) {
   const name = other?.company || other?.name || 'Desconocido';
   const preview = conv.last_message_preview || 'Sin mensajes aun';
   const date = conv.last_message_at
-    ? new Date(conv.last_message_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+    ? (() => { const d = new Date(conv.last_message_at); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }); })()
     : '';
   return (
     <button
@@ -63,7 +63,7 @@ function Bubble({ msg, myId }) {
     );
   }
   const time = msg.created_at
-    ? new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    ? (() => { const d = new Date(msg.created_at); return isNaN(d.getTime()) ? '' : d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); })()
     : '';
   return (
     <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mb-2 md:mb-1.5`}>
@@ -188,7 +188,7 @@ export default function B2BChatPage() {
 
   // Auto-start conversation if ?producer= is set
   useEffect(() => {
-    if (!targetProducerId || createConv.isPending) return;
+    if (!targetProducerId || createConv.isPending || convsQuery.isLoading) return;
     const existing = conversations.find(
       (c) => c.producer_id === targetProducerId || c.importer_id === targetProducerId
     );
@@ -201,7 +201,7 @@ export default function B2BChatPage() {
         return params;
       }, { replace: true });
       navigate(`/b2b/chat/${nextId}`, { replace: true });
-    } else if (conversations !== undefined && !createConv.data) {
+    } else if (!createConv.data) {
       createConv.mutate(
         { producerId: targetProducerId },
         {
@@ -220,8 +220,7 @@ export default function B2BChatPage() {
         }
       );
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetProducerId, conversations]);
+  }, [targetProducerId, conversations, convsQuery.isLoading, createConv.isPending, createConv.data, navigate, setSearchParams]);
 
   const activeConv = conversations.find((c) => getB2BConversationId(c) === activeConvId);
   const otherName = activeConv?.other_participant?.company || activeConv?.other_participant?.name || '';

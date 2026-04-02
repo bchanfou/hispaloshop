@@ -29,8 +29,10 @@ const formatPrice = (v) =>
 
 const formatRelativeDate = (dateStr) => {
   if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
   const now = Date.now();
-  const diff = now - new Date(dateStr).getTime();
+  const diff = now - d.getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'Ahora';
   if (mins < 60) return `Hace ${mins} min`;
@@ -38,7 +40,7 @@ const formatRelativeDate = (dateStr) => {
   if (hrs < 24) return `Hace ${hrs} h`;
   const days = Math.floor(hrs / 24);
   if (days <= 7) return `Hace ${days} d`;
-  return new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 };
 
 const getCounterpart = (op, userId) => {
@@ -204,6 +206,7 @@ const B2BOperationsDashboard = () => {
   const [changedIds, setChangedIds] = useState(new Set());
   const [secondsAgo, setSecondsAgo] = useState(0);
   const prevOpsRef = useRef(null);
+  const highlightTimerRef = useRef(null);
 
   const loadOperations = useCallback(async (silent = false) => {
     let cancelled = false;
@@ -229,7 +232,8 @@ const B2BOperationsDashboard = () => {
           }
           if (changed.size > 0) {
             setChangedIds(changed);
-            setTimeout(() => setChangedIds(new Set()), 2500);
+            clearTimeout(highlightTimerRef.current);
+            highlightTimerRef.current = setTimeout(() => setChangedIds(new Set()), 2500);
           }
         }
         prevOpsRef.current = incoming;
@@ -241,7 +245,7 @@ const B2BOperationsDashboard = () => {
     } finally {
       if (!cancelled && !silent) setLoading(false);
     }
-    return () => { cancelled = true; };
+    return () => { cancelled = true; clearTimeout(highlightTimerRef.current); };
   }, []);
 
   useEffect(() => {

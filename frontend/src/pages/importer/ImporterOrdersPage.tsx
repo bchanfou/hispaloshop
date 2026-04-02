@@ -75,7 +75,7 @@ function B2BOrderCard({ order, onRefresh }) {
     setProcessing(true);
     try {
       const data = await apiClient.post(`/b2b/orders/${order.id}/approve-and-pay`, {});
-      if (data?.checkout_url) {
+      if (data?.checkout_url && data.checkout_url.startsWith('http')) {
         window.location.href = data.checkout_url;
       } else {
         toast.success('Pedido aprobado y pago procesado');

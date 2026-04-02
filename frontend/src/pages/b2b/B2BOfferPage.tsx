@@ -142,6 +142,7 @@ function ProductAutocomplete({ value, onSelect, onChange }) {
   const [open, setOpen] = useState(false);
   const debounceRef = useRef(null);
   const wrapperRef = useRef(null);
+  useEffect(() => () => clearTimeout(debounceRef.current), []);
 
   useEffect(() => {
     setQuery(value || '');
@@ -689,8 +690,8 @@ export default function B2BOfferPage() {
       payment_terms: form.payment_terms,
       incoterm: form.incoterm,
       incoterm_city: (form.incoterm_city || '').trim(),
-      delivery_days: form.delivery_days ? Number(form.delivery_days) : undefined,
-      validity_days: Number(form.validity_days),
+      delivery_days: form.delivery_days && !isNaN(Number(form.delivery_days)) ? Number(form.delivery_days) : undefined,
+      validity_days: !isNaN(Number(form.validity_days)) ? Number(form.validity_days) : 7,
     };
 
     /* compute modified fields for counteroffers */

@@ -32,7 +32,7 @@ function RFQCard({ rfq, isProducer }) {
   const navigate = useNavigate();
   const status = STATUS_CONFIG[rfq.status] || STATUS_CONFIG.pending;
   const StatusIcon = status.icon;
-  const date = rfq.created_at ? new Date(rfq.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+  const date = rfq.created_at ? (() => { const d = new Date(rfq.created_at); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }); })() : '';
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
@@ -136,7 +136,7 @@ function RFQCard({ rfq, isProducer }) {
                   <div>
                     <p className="text-xs text-stone-500 font-medium mb-1">Entrega solicitada</p>
                     <p className="text-sm text-stone-700">
-                      {new Date(rfq.delivery_date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {(() => { const d = new Date(rfq.delivery_date); return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }); })()}
                     </p>
                   </div>
                 )}
@@ -144,7 +144,7 @@ function RFQCard({ rfq, isProducer }) {
                   <div>
                     <p className="text-xs text-stone-500 font-medium mb-1">Expira</p>
                     <p className="text-sm text-stone-700">
-                      {new Date(rfq.expires_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {(() => { const d = new Date(rfq.expires_at); return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }); })()}
                     </p>
                   </div>
                 )}
@@ -211,12 +211,12 @@ export default function B2BQuotesHistoryPage() {
     // Sort
     result = [...result].sort((a, b) => {
       if (sortBy === 'recent') {
-        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        const dateA = a.created_at ? new Date(a.created_at).getTime() || 0 : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() || 0 : 0;
         return dateB - dateA;
       }
       if (sortBy === 'amount') {
-        return (b.total_amount || 0) - (a.total_amount || 0);
+        return (Number(b.total_amount) || 0) - (Number(a.total_amount) || 0);
       }
       if (sortBy === 'status') {
         return (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);

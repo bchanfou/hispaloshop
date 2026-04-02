@@ -76,9 +76,15 @@ const STAGE_ICONS = {
 const fmtTimestamp = (iso) => {
   if (!iso) return null;
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
   const date = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
   const time = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
   return { date, time };
+};
+const safeDateStr = (iso, opts) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('es-ES', opts);
 };
 
 const PULSE_CSS = `
@@ -318,7 +324,7 @@ export default function B2BTrackingPage() {
                       {/* date */}
                       {stageDate && (
                         <span className="text-[9px] text-stone-500 mt-0.5">
-                          {new Date(stageDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                          {safeDateStr(stageDate, { day: 'numeric', month: 'short' })}
                         </span>
                       )}
                     </div>
@@ -333,7 +339,7 @@ export default function B2BTrackingPage() {
             <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3">
               <Clock size={16} className="text-stone-500 flex-shrink-0" />
               <span className="text-[13px] text-stone-950 font-medium">
-                Entrega estimada: {new Date(shipment.estimated_delivery).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                Entrega estimada: {safeDateStr(shipment.estimated_delivery, { day: 'numeric', month: 'long', year: 'numeric' })}
               </span>
             </div>
           )}
@@ -456,7 +462,7 @@ export default function B2BTrackingPage() {
 
                 {shipment.estimated_delivery && (
                   <div className="text-[13px] text-stone-500">
-                    Entrega estimada: {new Date(shipment.estimated_delivery).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    Entrega estimada: {safeDateStr(shipment.estimated_delivery, { day: 'numeric', month: 'long', year: 'numeric' })}
                   </div>
                 )}
 
@@ -559,7 +565,7 @@ export default function B2BTrackingPage() {
 
                       {isExpired && doc.expiry_date && (
                         <span className="text-[10px] text-stone-500">
-                          Renueva antes del {new Date(doc.expiry_date).toLocaleDateString('es-ES')}
+                          Renueva antes del {safeDateStr(doc.expiry_date)}
                         </span>
                       )}
                     </div>

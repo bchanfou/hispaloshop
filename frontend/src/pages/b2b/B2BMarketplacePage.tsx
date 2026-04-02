@@ -30,7 +30,7 @@ function ProductCard({ product, convertAndFormatPrice }) {
   const lowestPrice = product.b2b_prices?.[0];
   return (
     <div
-      onClick={() => navigate(`/products/${product.id || product.product_id}`)}
+      onClick={() => { const pid = product.id || product.product_id; if (pid) navigate(`/products/${pid}`); }}
       className="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer hover:shadow-md hover:scale-[1.01] hover:-translate-y-0.5 transition-all duration-200"
     >
       {product.image_url ? (
@@ -131,16 +131,16 @@ function sortItems(items, sortBy, tab) {
   if (tab === 'catalog') {
     if (sortBy === 'price_asc') sorted.sort((a, b) => getLowestPrice(a) - getLowestPrice(b));
     if (sortBy === 'newest') sorted.sort((a, b) => {
-      const da = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+      const da = a.created_at ? new Date(a.created_at).getTime() || 0 : 0;
+      const db = b.created_at ? new Date(b.created_at).getTime() || 0 : 0;
       return db - da;
     });
   }
   if (tab === 'producers') {
     if (sortBy === 'most_products') sorted.sort((a, b) => (b.product_count || 0) - (a.product_count || 0));
     if (sortBy === 'newest') sorted.sort((a, b) => {
-      const da = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+      const da = a.created_at ? new Date(a.created_at).getTime() || 0 : 0;
+      const db = b.created_at ? new Date(b.created_at).getTime() || 0 : 0;
       return db - da;
     });
   }
@@ -211,11 +211,13 @@ export default function B2BMarketplacePage() {
     : visibleCount < filteredProducers.length;
 
   const handleContactProducer = (producerId) => {
+    if (!producerId) return;
     setRfqProducerId(producerId);
     setActiveTab('rfq');
   };
 
   const handleChat = (producerId) => {
+    if (!producerId) return;
     navigate(`/b2b/chat?producer=${producerId}`);
   };
 
