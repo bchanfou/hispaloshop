@@ -5,6 +5,7 @@ import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { ArrowLeft, Package, Percent, Clock, Send, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const DURATIONS = [
   { days: 30, label: '30 días' },
@@ -111,7 +112,7 @@ export default function CollabProposalPage() {
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <h1 className="text-lg font-bold text-stone-950">Nueva colaboración</h1>
+            <h1 className="text-lg font-bold text-stone-950">{t('collab_proposal.nuevaColaboracion', 'Nueva colaboración')}</h1>
           </div>
           <button
             onClick={handleSubmit}
@@ -222,7 +223,7 @@ export default function CollabProposalPage() {
           <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-4">
             <div>
               <p className="text-sm font-semibold text-stone-950">Enviar muestra</p>
-              <p className="mt-0.5 text-xs text-stone-500">El coste corre a cargo del productor</p>
+              <p className="mt-0.5 text-xs text-stone-500">{t('collab_proposal.elCosteCorreACargoDelProductor', 'El coste corre a cargo del productor')}</p>
             </div>
             <button
               onClick={() => setSendSample(!sendSample)}
@@ -260,7 +261,7 @@ export default function CollabProposalPage() {
             value={notes}
             onChange={e => setNotes(e.target.value)}
             rows={3}
-            placeholder="Hola! Vi tu contenido y creo que encajarías perfectamente con nuestros productos..."
+            placeholder={t('collab_proposal.holaViTuContenidoYCreoQueEncajar', 'Hola! Vi tu contenido y creo que encajarías perfectamente con nuestros productos...')}
             className="h-12 min-h-[80px] w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400"
           />
         </section>

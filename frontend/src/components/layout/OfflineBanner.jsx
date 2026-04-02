@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WifiOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function OfflineBanner() {
   const [offline, setOffline] = useState(!navigator.onLine);

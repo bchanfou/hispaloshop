@@ -6,21 +6,22 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = [
-  { value: '', label: 'Todas las categorías' },
+  { value: '', label: t('importer_catalog.todasLasCategorias', 'Todas las categorías') },
   { value: 'aceites', label: 'Aceites' },
   { value: 'conservas', label: 'Conservas' },
   { value: 'bebidas', label: 'Bebidas' },
-  { value: 'carnicos', label: 'Cárnicos' },
-  { value: 'lacteos', label: 'Lácteos' },
+  { value: 'carnicos', label: t('importer_catalog.carnicos', 'Cárnicos') },
+  { value: 'lacteos', label: t('home.dairy', 'Lácteos') },
   { value: 'dulces', label: 'Dulces' },
   { value: 'especias', label: 'Especias' },
 ];
 
 const CERTIFICATIONS = [
   { value: '', label: 'Todas las certs.' },
-  { value: 'ecologico', label: 'Ecológico' },
+  { value: 'ecologico', label: t('search.ecologico', 'Ecológico') },
   { value: 'vegano', label: 'Vegano' },
   { value: 'halal', label: 'Halal' },
   { value: 'sin_gluten', label: 'Sin Gluten' },
@@ -28,15 +29,15 @@ const CERTIFICATIONS = [
 ];
 
 const COUNTRIES = [
-  { value: '', label: 'Todos los países' },
-  { value: 'ES', label: 'España' },
+  { value: '', label: t('userManagement.filters.allCountries', 'Todos los países') },
+  { value: 'ES', label: t('admin.countries.ES', 'España') },
   { value: 'PT', label: 'Portugal' },
   { value: 'IT', label: 'Italia' },
   { value: 'FR', label: 'Francia' },
   { value: 'GR', label: 'Grecia' },
   { value: 'MA', label: 'Marruecos' },
-  { value: 'TR', label: 'Turquía' },
-  { value: 'MX', label: 'México' },
+  { value: 'TR', label: t('admin.countries.TR', 'Turquía') },
+  { value: 'MX', label: t('admin.countries.MX', 'México') },
   { value: 'CO', label: 'Colombia' },
   { value: 'AR', label: 'Argentina' },
   { value: 'CL', label: 'Chile' },
@@ -172,7 +173,7 @@ function ProductDetailModal({ product, onClose, onRequestOffer, convertAndFormat
           {/* Description */}
           {product.description && (
             <div className="mb-4">
-              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Descripción</p>
+              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{t('productDetail.description', 'Descripción')}</p>
               <p className="text-sm text-stone-700 leading-relaxed">{product.description}</p>
             </div>
           )}
@@ -283,7 +284,7 @@ function B2BOrderRequestModal({ product, onClose, onSuccess, convertAndFormatPri
       });
       onSuccess();
     } catch {
-      toast.error('Error al enviar la solicitud');
+      toast.error(t('importer_catalog.errorAlEnviarLaSolicitud', 'Error al enviar la solicitud'));
     } finally {
       setSubmitting(false);
     }
@@ -523,7 +524,7 @@ export default function ImporterCatalogPage() {
     <div>
       {/* Header */}
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-stone-950 mb-3">Catálogo mayorista</h1>
+        <h1 className="text-2xl font-bold text-stone-950 mb-3">{t('importer_catalog.catalogoMayorista', 'Catálogo mayorista')}</h1>
 
         {/* Product search */}
         <div className="relative mb-2">
@@ -588,7 +589,7 @@ export default function ImporterCatalogPage() {
       {error && products.length === 0 ? (
         <div className="text-center py-16">
           <AlertTriangle className="w-10 h-10 text-stone-300 mx-auto mb-3" />
-          <p className="text-sm font-semibold text-stone-950 mb-1">Error al cargar el catálogo</p>
+          <p className="text-sm font-semibold text-stone-950 mb-1">{t('importer_catalog.errorAlCargarElCatalogo', 'Error al cargar el catálogo')}</p>
           <button
             onClick={() => fetchProducts(1, false)}
             className="mt-3 bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"

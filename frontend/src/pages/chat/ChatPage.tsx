@@ -34,6 +34,7 @@ import ProductCardMessage from '../../components/chat/ProductCardMessage';
 import SampleShipmentCard from '../../components/chat/collab/SampleShipmentCard';
 import { useHaptics } from '../../hooks/useHaptics';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 /* ────────── Date helpers ────────── */
 function isSameDay(a, b) {
@@ -59,7 +60,7 @@ function formatOnlineStatus(lastSeen) {
   const now = new Date();
   const seen = new Date(lastSeen);
   const diffMin = Math.floor((now - seen) / 60000);
-  if (diffMin < 2) return { text: 'En línea', online: true };
+  if (diffMin < 2) return { text: t('chat.online', 'En línea'), online: true };
   if (diffMin < 60) return { text: `Hace ${diffMin} min`, online: false };
   if (seen.toDateString() === now.toDateString())
     return { text: `Hoy a las ${seen.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`, online: false };
@@ -139,7 +140,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
             </p>
             <div className="mt-0.5 flex items-center gap-1">
               {isOnline ? (
-                <span className={`font-medium text-stone-950 ${showBackButton ? 'text-xs' : 'text-[11px]'}`}>En línea</span>
+                <span className={`font-medium text-stone-950 ${showBackButton ? 'text-xs' : 'text-[11px]'}`}>{t('chat.online', 'En línea')}</span>
               ) : (
                 <span className={`${showBackButton ? 'text-xs' : 'text-[11px]'} text-stone-500`}>{status?.text || ''}</span>
               )}
@@ -160,7 +161,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
           <button
             onClick={() => setShowMenu((s) => !s)}
             className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-950 active:bg-stone-100 md:min-h-[40px] md:min-w-[40px] md:rounded-lg md:transition-colors md:duration-150 md:hover:bg-stone-100 md:focus-visible:outline md:focus-visible:outline-2 md:focus-visible:outline-offset-[-2px] md:focus-visible:outline-stone-300"
-            aria-label="Más opciones"
+            aria-label={t('common.moreOptions', 'Más opciones')}
           >
             <MoreVertical size={20} />
           </button>
@@ -212,7 +213,7 @@ function ChatHeader({ conversation, navigate, showSearch, onToggleSearch, search
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Buscar en la conversación..."
+                placeholder={t('chat.buscarEnLaConversacion', 'Buscar en la conversación...')}
                 autoFocus
                 className="min-w-0 flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
               />
@@ -520,7 +521,7 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, isCons
       <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
         <div className="min-w-0 max-w-[75%]">
           <div className={`px-3.5 py-2.5 ${isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-950'}`} style={{ borderRadius: '20px' }}>
-            <span className="text-[11px] text-stone-400 block mb-1">Respondió a tu story</span>
+            <span className="text-[11px] text-stone-400 block mb-1">{t('chat.respondioATuStory', 'Respondió a tu story')}</span>
             <p className="whitespace-pre-wrap break-words text-[15px]">{message.content}</p>
           </div>
           <ReactionBar reactions={message.reactions} />
@@ -862,8 +863,8 @@ function ImageLightbox({ src, onClose }) {
 const SUGGESTION_PILLS = {
   b2c: ['¿Hacéis envíos a...?', '¿Tenéis stock de...?', '¿Cuál es el plazo de entrega?'],
   b2b: ['Estamos interesados en...', '¿Tienen precio mayorista para...?', '¿Pueden enviar muestras?'],
-  c2c: ['¡Hola!', '¿Dónde compraste...?', 'Te vi en el feed y...'],
-  collab: ['Hola, me gustaría colaborar...', 'Vi tu tienda y...', '¿Enviáis muestras?'],
+  c2c: [t('chat.hola', '¡Hola!'), '¿Dónde compraste...?', 'Te vi en el feed y...'],
+  collab: [t('chat.holaMeGustariaColaborar', 'Hola, me gustaría colaborar...'), 'Vi tu tienda y...', '¿Enviáis muestras?'],
 };
 
 function EmptyConversation({ conversation, onSendSuggestion }) {
@@ -889,7 +890,7 @@ function EmptyConversation({ conversation, onSendSuggestion }) {
           {conversation.role}
         </span>
       )}
-      <p className="mt-2 text-[13px] text-stone-500">Inicia la conversación</p>
+      <p className="mt-2 text-[13px] text-stone-500">{t('chat.iniciaLaConversacion', 'Inicia la conversación')}</p>
 
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         {suggestions.map((text) => (
@@ -963,7 +964,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, onAttachDocument, reply
   // Voice recording
   const startRecording = async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      toast.error('Tu navegador no soporta grabación de audio. Usa HTTPS o un navegador compatible.');
+      toast.error(t('chat.tuNavegadorNoSoportaGrabacionDeAud', 'Tu navegador no soporta grabación de audio. Usa HTTPS o un navegador compatible.'));
       return;
     }
     try {
@@ -991,7 +992,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, onAttachDocument, reply
         setRecordingSecs(recordingSecsRef.current);
       }, 1000);
     } catch (err) {
-      toast.error('No se pudo acceder al micrófono. Comprueba los permisos de tu navegador.');
+      toast.error(t('chat.noSePudoAccederAlMicrofonoComprue', 'No se pudo acceder al micrófono. Comprueba los permisos de tu navegador.'));
     }
   };
 
@@ -1120,7 +1121,7 @@ function MessageInput({ onSend, onTyping, onAttachImage, onAttachDocument, reply
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 onClick={() => onSend('❤️')}
                 className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-stone-950 active:scale-125 active:opacity-75"
-                aria-label="Enviar corazón"
+                aria-label={t('chat.enviarCorazon', 'Enviar corazón')}
               >
                 <span className="text-[22px] leading-none">❤️</span>
               </motion.button>
@@ -1279,7 +1280,7 @@ export default function ChatPage() {
   // Handle document upload (PDF)
   const handleAttachDocument = useCallback(async (file) => {
     if (!conversationId || !file) return;
-    if (file.size > 10 * 1024 * 1024) { toast.error('Máximo 10 MB'); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error(t('chat.maximo10Mb', 'Máximo 10 MB')); return; }
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -1297,7 +1298,7 @@ export default function ChatPage() {
         requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }));
       }
     } catch {
-      toast.error('Error al enviar el documento');
+      toast.error(t('chat.errorAlEnviarElDocumento', 'Error al enviar el documento'));
     }
   }, [conversationId, sendMessage, user]);
 
@@ -1322,7 +1323,7 @@ export default function ChatPage() {
         requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }));
       }
     } catch {
-      toast.error('No se pudo enviar el audio');
+      toast.error(t('chat.noSePudoEnviarElAudio', 'No se pudo enviar el audio'));
     }
   }, [conversationId, sendMessage, user]);
 
@@ -1556,7 +1557,7 @@ export default function ChatPage() {
                 <div className="flex h-full flex-col items-center justify-center px-6 text-center">
                   <MessageCircle size={40} className="text-stone-300" />
                   <p className="mt-3 text-sm font-medium text-stone-950">Sin conversaciones</p>
-                  <p className="mt-1 text-xs text-stone-500">Prueba otro término de búsqueda.</p>
+                  <p className="mt-1 text-xs text-stone-500">{t('chat.pruebaOtroTerminoDeBusqueda', 'Prueba otro término de búsqueda.')}</p>
                 </div>
               ) : (
                 filteredDesktopConversations.map((conv) => {
@@ -1586,7 +1587,7 @@ export default function ChatPage() {
                           <span className="text-[11px] font-medium text-stone-500">{formatConversationListTimestamp(conv.last_message_at)}</span>
                         </div>
                         <p className={`mt-0.5 truncate text-[13px] ${isUnread ? 'font-medium text-stone-900' : 'text-stone-400'}`}>
-                          {conv.last_message || 'Sin mensajes aún'}
+                          {conv.last_message || t('chat.noMessages', 'Sin mensajes aún')}
                         </p>
                       </div>
                       {isUnread && (

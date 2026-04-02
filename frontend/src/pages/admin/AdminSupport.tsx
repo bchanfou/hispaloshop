@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -82,7 +83,7 @@ export default function AdminSupport() {
       setTotal(data.total || 0);
       setPages(data.pages || 1);
     } catch {
-      toast.error('No se pudieron cargar los casos de soporte');
+      toast.error(t('admin_support.noSePudieronCargarLosCasosDeSopor', 'No se pudieron cargar los casos de soporte'));
       setCases([]);
     } finally {
       setLoading(false);
@@ -157,7 +158,7 @@ export default function AdminSupport() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <MessageSquare className="h-10 w-10 text-stone-200" />
             <p className="mt-4 text-sm font-medium text-stone-950">No hay casos</p>
-            <p className="mt-1 text-sm text-stone-500">No hay casos de soporte con los filtros seleccionados.</p>
+            <p className="mt-1 text-sm text-stone-500">{t('admin_support.noHayCasosDeSoporteConLosFiltros', 'No hay casos de soporte con los filtros seleccionados.')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">

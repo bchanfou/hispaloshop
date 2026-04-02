@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import SEO from '../../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 const TABS = [
   { id: 'privacidad', label: 'Privacidad' },
@@ -71,7 +72,7 @@ const CONTENT: Record<string, { title: string; updated: string; sections: { head
       },
       {
         heading: '6. Limitaci\u00f3n de responsabilidad',
-        body: 'Hispaloshop no es responsable de la calidad de los productos vendidos por terceros, aunque trabajamos activamente para verificar a todos los productores de la plataforma.',
+        body: t('legal.hispaloshopNoEsResponsableDeLaCali', 'Hispaloshop no es responsable de la calidad de los productos vendidos por terceros, aunque trabajamos activamente para verificar a todos los productores de la plataforma.'),
       },
       {
         heading: '7. Resoluci\u00f3n de disputas',

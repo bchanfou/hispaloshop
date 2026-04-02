@@ -1,4 +1,5 @@
 import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const icons = {
   success: CheckCircle,
@@ -34,7 +35,7 @@ export function ToastContainer({ toasts, onRemove }) {
             <button
               onClick={() => onRemove(toast.id)}
               className="opacity-75 hover:opacity-100 transition-opacity"
-              aria-label="Cerrar notificación"
+              aria-label={t('toast_container.cerrarNotificacion', 'Cerrar notificación')}
             >
               <X className="w-4 h-4" />
             </button>

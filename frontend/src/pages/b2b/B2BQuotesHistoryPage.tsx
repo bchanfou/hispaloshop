@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useInquiries, useReceivedRFQs } from '../../features/b2b/queries';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_CONFIG = {
   pending: { label: 'Pendiente', color: 'bg-stone-100 text-stone-700', icon: Clock },
@@ -20,7 +21,7 @@ const TABS = [
 ];
 
 const SORT_OPTIONS = [
-  { value: 'recent', label: 'Más reciente' },
+  { value: 'recent', label: t('search.masReciente', 'Más reciente') },
   { value: 'amount', label: 'Mayor importe' },
   { value: 'status', label: 'Por estado' },
 ];
@@ -235,8 +236,8 @@ export default function B2BQuotesHistoryPage() {
         </h1>
         <p className="text-sm text-stone-500 mt-1">
           {isProducer
-            ? 'RFQs de importadores interesados en tus productos'
-            : 'Historial de tus solicitudes de cotización mayorista'}
+            ? t('b2_b_quotes_history.rfqsDeImportadoresInteresadosEnTus', 'RFQs de importadores interesados en tus productos')
+            : t('b2_b_quotes_history.historialDeTusSolicitudesDeCotizaci', 'Historial de tus solicitudes de cotización mayorista')}
         </p>
       </div>
 
@@ -281,11 +282,11 @@ export default function B2BQuotesHistoryPage() {
         ) : activeQuery.isError ? (
           <div className="text-center py-16 text-stone-500">
             <FileText className="w-12 h-12 mx-auto mb-3 text-stone-300" />
-            <p className="font-medium">No se pudieron cargar las solicitudes</p>
+            <p className="font-medium">{t('b2_b_quotes_history.noSePudieronCargarLasSolicitudes', 'No se pudieron cargar las solicitudes')}</p>
             <p className="text-sm mt-1">
               {isProducer
-                ? 'Solo disponible para cuentas de productor'
-                : 'Solo disponible para cuentas de importador'}
+                ? t('b2_b_quotes_history.soloDisponibleParaCuentasDeProducto', 'Solo disponible para cuentas de productor')
+                : t('b2_b_quotes_history.soloDisponibleParaCuentasDeImportad', 'Solo disponible para cuentas de importador')}
             </p>
           </div>
         ) : filteredAndSorted.length === 0 ? (
@@ -294,7 +295,7 @@ export default function B2BQuotesHistoryPage() {
             <p className="font-medium">
               {activeTab
                 ? `No hay solicitudes ${TABS.find(t => t.value === activeTab)?.label.toLowerCase() || ''}`
-                : isProducer ? 'No hay solicitudes recibidas' : 'No has enviado solicitudes aún'}
+                : isProducer ? 'No hay solicitudes recibidas' : t('b2_b_quotes_history.noHasEnviadoSolicitudesAun', 'No has enviado solicitudes aún')}
             </p>
             {!isProducer && !activeTab && (
               <p className="text-sm mt-1">

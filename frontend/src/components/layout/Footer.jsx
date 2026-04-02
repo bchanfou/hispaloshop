@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Instagram } from 'lucide-react';
 import Logo from '../brand/Logo';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 const LEGAL_LINKS = [
   { label: 'Privacidad', to: '/privacy' },
@@ -21,7 +22,7 @@ export default function Footer() {
     Object.entries(countries || {}).map(([code, data]) => ({ code, flag: data.flag || '', name: data.name || code })),
     [countries]
   );
-  const selectedCountry = COUNTRIES.find(c => c.code === country) || COUNTRIES[0] || { code: 'ES', flag: '', name: 'España' };
+  const selectedCountry = COUNTRIES.find(c => c.code === country) || COUNTRIES[0] || { code: 'ES', flag: '', name: t('admin.countries.ES', 'España') };
   const setCountry = (code) => updateCountry(code);
 
   const selectCountry = (code) => {

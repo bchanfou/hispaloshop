@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowDown, ArrowUp, BarChart3, RefreshCw, ShoppingCart, TrendingUp, Users, Zap, AlertTriangle } from 'lucide-react';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const PERIODS = [
   { label: '7 días', value: 7 },
@@ -72,12 +73,12 @@ export default function AdminGrowthAnalytics() {
       apiClient.get(`/discovery/growth-analytics?days=${d * 2}`).catch(() => null),
     ]).then(([current, prior]) => {
       if (!current && !prior) {
-        setError('No se pudieron cargar los datos de crecimiento');
+        setError(t('admin_growth_analytics.noSePudieronCargarLosDatosDeCreci', 'No se pudieron cargar los datos de crecimiento'));
       }
       setData(current);
       setPrevData(prior);
     }).catch(() => {
-      setError('Error al cargar los datos');
+      setError(t('admin_growth_analytics.errorAlCargarLosDatos', 'Error al cargar los datos'));
     }).finally(() => setLoading(false));
   };
 
@@ -97,7 +98,7 @@ export default function AdminGrowthAnalytics() {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-stone-950">Crecimiento</h1>
-              <p className="text-sm text-stone-500">Análisis de conversión y descubrimiento</p>
+              <p className="text-sm text-stone-500">{t('admin_growth_analytics.analisisDeConversionYDescubrimiento', 'Análisis de conversión y descubrimiento')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -159,7 +160,7 @@ export default function AdminGrowthAnalytics() {
             icon={TrendingUp}
             label="Compras desde contenido"
             value={overview.content_driven_purchases?.toLocaleString('es-ES') ?? '—'}
-            sub="Conversión directa"
+            sub=t('admin_growth_analytics.conversionDirecta', 'Conversión directa')
             current={overview.content_driven_purchases}
             previous={prevOverview.content_driven_purchases != null ? Math.max(1, prevOverview.content_driven_purchases - (overview.content_driven_purchases ?? 0)) : null}
           />
@@ -167,12 +168,12 @@ export default function AdminGrowthAnalytics() {
 
         {/* Top converting content */}
         <div>
-          <SectionTitle title="Contenido con mayor conversión" />
+          <SectionTitle title={t('admin_growth_analytics.contenidoConMayorConversion', 'Contenido con mayor conversión')} />
           <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white">
             <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="border-b border-stone-100 bg-stone-50">
-                  <th className="px-4 py-3 text-left font-medium text-stone-500">Título</th>
+                  <th className="px-4 py-3 text-left font-medium text-stone-500">{t('admin_growth_analytics.titulo', 'Título')}</th>
                   <th className="px-4 py-3 text-left font-medium text-stone-500">Tipo</th>
                   <th className="px-4 py-3 text-right font-medium text-stone-500">Carritos</th>
                   <th className="px-4 py-3 text-right font-medium text-stone-500">Compras</th>
@@ -222,7 +223,7 @@ export default function AdminGrowthAnalytics() {
 
         {/* Top clicked products */}
         <div>
-          <SectionTitle title="Productos más clicados desde contenido" />
+          <SectionTitle title={t('admin_growth_analytics.productosMasClicadosDesdeContenido', 'Productos más clicados desde contenido')} />
           <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white">
             <table className="w-full min-w-[500px] text-sm">
               <thead>
@@ -320,7 +321,7 @@ export default function AdminGrowthAnalytics() {
           <div className="flex items-start gap-3">
             <Users className="mt-0.5 h-5 w-5 shrink-0 text-stone-400" />
             <div>
-              <p className="text-sm font-medium text-stone-950">Sobre los datos de crecimiento</p>
+              <p className="text-sm font-medium text-stone-950">{t('admin_growth_analytics.sobreLosDatosDeCrecimiento', 'Sobre los datos de crecimiento')}</p>
               <p className="mt-1 text-sm text-stone-500">
                 Los scores se calculan con pesos por tipo de interacción: vista (×1), guardado (×5), clic producto (×8), añadir al carrito (×12), compra (×20). Los datos se agregan en tiempo real desde <code className="rounded bg-stone-100 px-1 text-xs">growth_interactions</code>.
               </p>

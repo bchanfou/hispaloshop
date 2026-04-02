@@ -48,7 +48,7 @@ export default function ProducerLayout() {
     { to: '/recipes/create', icon: BookOpen, label: 'Crear Receta', shortLabel: 'Receta' },
     ...(user?.role === 'importer' ? [
       { to: '/importer/dashboard', icon: Globe, label: 'Panel Importador', shortLabel: 'Import' },
-      { to: '/importer/catalog', icon: Search, label: 'Catálogo B2B', shortLabel: 'B2B' },
+      { to: '/importer/catalog', icon: Search, label: t('importer_dashboard.catalogoB2b', 'Catálogo B2B'), shortLabel: 'B2B' },
       { to: '/importer/orders', icon: Package, label: 'Pedidos B2B', shortLabel: 'B2B Ped.' },
       { to: '/importer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' },
     ] : [
@@ -56,7 +56,7 @@ export default function ProducerLayout() {
       { to: '/producer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' },
     ]),
     { to: '/producer/insights', icon: BarChart3, label: 'Insights', shortLabel: 'Insights' },
-    { to: '/producer/analytics', icon: TrendingUp, label: 'Analítica', shortLabel: 'Analítica' },
+    { to: '/producer/analytics', icon: TrendingUp, label: t('producer_analytics.analitica', 'Analítica'), shortLabel: 'Analítica' },
     { to: '/producer/plan', icon: Crown, label: 'Mi Plan', shortLabel: 'Plan' },
   ];
 
@@ -186,8 +186,8 @@ export default function ProducerLayout() {
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-stone-600 mt-0.5" strokeWidth={1.5} />
               <div>
-                <p className="text-sm font-medium text-stone-950">Pendiente de aprobación</p>
-                <p className="text-xs text-stone-700">Tu cuenta está en revisión.</p>
+                <p className="text-sm font-medium text-stone-950">{t('influencer_dashboard.pendienteDeAprobacion', 'Pendiente de aprobación')}</p>
+                <p className="text-xs text-stone-700">{t('producer_layout_responsive.tuCuentaEstaEnRevision', 'Tu cuenta está en revisión.')}</p>
               </div>
             </div>
           </div>
@@ -236,8 +236,8 @@ export default function ProducerLayout() {
             <button
               onClick={handleLogout}
               className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-              aria-label="Cerrar sesión"
-              title="Cerrar sesión"
+              aria-label={t('common.logout', 'Cerrar sesión')}
+              title={t('common.logout', 'Cerrar sesión')}
               data-testid="desktop-logout-button"
             >
               <LogOut className="w-5 h-5" strokeWidth={1.5} />

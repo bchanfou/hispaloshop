@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { authApi } from '../../lib/authApi';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const TEST_ACCOUNTS = [
   { email: 'consumer@test.com', password: 'Test1234', role: 'customer', name: 'Consumidor' },
@@ -50,7 +51,7 @@ export default function AuthTestPanel() {
     setTesting(true);
     setResults([]);
     
-    toast.info('Iniciando pruebas de autenticación...');
+    toast.info(t('auth_test_panel.iniciandoPruebasDeAutenticacion', 'Iniciando pruebas de autenticación...'));
     
     const testResults = [];
     
@@ -93,7 +94,7 @@ export default function AuthTestPanel() {
       
       {user && (
         <div className="mb-3 p-2 bg-stone-50 rounded text-xs">
-          <strong>Sesión activa:</strong><br />
+          <strong>{t('auth_test_panel.sesionActiva', 'Sesión activa:')}</strong><br />
           {user.email} ({user.role})
         </div>
       )}

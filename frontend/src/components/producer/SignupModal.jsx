@@ -25,6 +25,7 @@ import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 import { useAuth } from '../../context/AuthContext';
 import { redirectAfterAuth } from '../../lib/navigation';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'hispalo_producer_signup';
 
@@ -34,16 +35,16 @@ export const PRODUCER_PLANS = {
     name: 'FREE',
     badge: 'Empieza hoy',
     price: '0€ / mes',
-    chargeLabel: 'No pagarás nada hasta que vendas.',
+    chargeLabel: t('signup.noPagarasNadaHastaQueVendas', 'No pagarás nada hasta que vendas.'),
     commission: '20%',
     accentClass: 'border-stone-400 bg-white',
     buttonClass: 'bg-stone-950 text-white hover:bg-stone-800',
-    summary: 'Para productores que quieren empezar a vender sin riesgo.',
+    summary: t('signup.paraProductoresQueQuierenEmpezarAV', 'Para productores que quieren empezar a vender sin riesgo.'),
     features: [
-      'Tienda virtual personalizada con tu historia y origen',
-      'Hasta 30 productos en catálogo',
+      t('signup.tiendaVirtualPersonalizadaConTuHist', 'Tienda virtual personalizada con tu historia y origen'),
+      t('signup.hasta30ProductosEnCatalogo', 'Hasta 30 productos en catálogo'),
       'Acceso a comunidad de productores',
-      'Visibilidad nacional en España',
+      t('signup.visibilidadNacionalEnEspana', 'Visibilidad nacional en España'),
       'Comisión del 20% solo sobre ventas realizadas',
     ],
   },
@@ -56,13 +57,13 @@ export const PRODUCER_PLANS = {
     commission: '18%',
     accentClass: 'border-stone-600 bg-white shadow-[0_26px_60px_-38px_rgba(80,80,80,0.45)] lg:scale-[1.04]',
     buttonClass: 'bg-stone-950 text-white hover:bg-stone-800',
-    summary: 'Para productores serios que quieren escalar sin locura.',
+    summary: t('signup.paraProductoresSeriosQueQuierenEsca', 'Para productores serios que quieren escalar sin locura.'),
     features: [
-      'Herramientas de IA para marketing',
+      t('signup.herramientasDeIaParaMarketing', 'Herramientas de IA para marketing'),
       'Genera copy, optimiza fotos y traduce a 5 idiomas',
-      'Recomendaciones dinámicas de precio por zona geográfica',
-      'Analítica avanzada de ventas',
-      'Matching automático con hasta 5 influencers locales',
+      t('signup.recomendacionesDinamicasDePrecioPor', 'Recomendaciones dinámicas de precio por zona geográfica'),
+      t('signup.analiticaAvanzadaDeVentas', 'Analítica avanzada de ventas'),
+      t('signup.matchingAutomaticoConHasta5Influenc', 'Matching automático con hasta 5 influencers locales'),
       'Comisión reducida al 18%',
       'Soporte prioritario por email',
     ],
@@ -76,20 +77,20 @@ export const PRODUCER_PLANS = {
     commission: '15%',
     accentClass: 'border-stone-500 bg-white',
     buttonClass: 'bg-stone-950 text-white hover:bg-stone-800',
-    summary: 'Para cooperativas y productores con ambición global.',
+    summary: t('signup.paraCooperativasYProductoresConAmbi', 'Para cooperativas y productores con ambición global.'),
     features: [
       'Todo lo del PRO',
       'Pedro AI — Tu socio comercial internacional',
-      'Predicción de demanda por país y temporada',
-      'Análisis de mercados internacionales (precio, competencia, oportunidad)',
-      'Detección preventiva de riesgo de desabastecimiento',
-      'Matching directo con importadores verificados de otros países',
-      'Generación automática de contratos B2B en PDF',
-      'Análisis de regulaciones y aranceles por mercado destino',
-      'Creación de dossieres de exportación',
-      'Prioridad absoluta de visibilidad en la plataforma',
+      t('signup.prediccionDeDemandaPorPaisYTempora', 'Predicción de demanda por país y temporada'),
+      t('signup.analisisDeMercadosInternacionalesPr', 'Análisis de mercados internacionales (precio, competencia, oportunidad)'),
+      t('signup.deteccionPreventivaDeRiesgoDeDesaba', 'Detección preventiva de riesgo de desabastecimiento'),
+      t('signup.matchingDirectoConImportadoresVerifi', 'Matching directo con importadores verificados de otros países'),
+      t('signup.generacionAutomaticaDeContratosB2bE', 'Generación automática de contratos B2B en PDF'),
+      t('signup.analisisDeRegulacionesYArancelesPor', 'Análisis de regulaciones y aranceles por mercado destino'),
+      t('signup.creacionDeDossieresDeExportacion', 'Creación de dossieres de exportación'),
+      t('signup.prioridadAbsolutaDeVisibilidadEnLa', 'Prioridad absoluta de visibilidad en la plataforma'),
       'Comisión reducida al 17%',
-      'Soporte telefónico directo',
+      t('signup.soporteTelefonicoDirecto', 'Soporte telefónico directo'),
     ],
   },
 };
@@ -110,34 +111,34 @@ const PRODUCT_TYPES = [
   'Aceites',
   'Embutidos',
   'Quesos',
-  'Panadería',
+  t('onboarding.panaderia', 'Panadería'),
   'Bebidas',
-  'Orgánico',
+  t('home.organic', 'Orgánico'),
   'Otros',
 ];
 
 const EXPORT_OPTIONS = [
-  'Solo vendo en España',
-  'Ya exporto a algún país',
+  t('signup.soloVendoEnEspana', 'Solo vendo en España'),
+  t('signup.yaExportoAAlgunPais', 'Ya exporto a algún país'),
   'Quiero empezar a exportar',
 ];
 
 const REFERENCE_OPTIONS = [
   '1-5 productos',
   '6-20',
-  'Más de 20',
+  t('signup.masDe20', 'Más de 20'),
 ];
 
 const REGIONS = [
-  'Andalucía',
-  'Aragón',
+  t('signup.andalucia', 'Andalucía'),
+  t('signup.aragon', 'Aragón'),
   'Asturias',
   'Baleares',
   'Canarias',
   'Cantabria',
   'Castilla-La Mancha',
-  'Castilla y León',
-  'Cataluña',
+  t('signup.castillaYLeon', 'Castilla y León'),
+  t('signup.cataluna', 'Cataluña'),
   'Ceuta',
   'Comunidad Valenciana',
   'Extremadura',
@@ -147,7 +148,7 @@ const REGIONS = [
   'Melilla',
   'Murcia',
   'Navarra',
-  'País Vasco',
+  t('signup.paisVasco', 'País Vasco'),
 ];
 
 let stripeLoader;
@@ -192,7 +193,7 @@ function getPasswordStrength(password) {
 
 function loadStripeJs() {
   if (typeof window === 'undefined') {
-    return Promise.reject(new Error('Stripe no está disponible.'));
+    return Promise.reject(new Error(t('signup.stripeNoEstaDisponible', 'Stripe no está disponible.')));
   }
   if (window.Stripe) {
     return Promise.resolve(window.Stripe);
@@ -300,7 +301,7 @@ function ProgressDots({ step, success }) {
         <div className="relative flex items-center justify-between">
           {[1, 2, 3].map((point) => {
             const active = success || step >= point;
-            const label = point === 1 ? 'Quién eres' : point === 2 ? 'Tu producción' : 'Confirma tu plan';
+            const label = point === 1 ? t('signup.quienEres', 'Quién eres') : point === 2 ? 'Tu producción' : 'Confirma tu plan';
             return (
               <div key={label} className="flex flex-col items-center gap-2">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-500'}`}>
@@ -431,7 +432,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           const data = await apiClient.get(`/sellers/plans`);
           key = data?.stripe_publishable_key || '';
           if (!key) {
-            throw new Error('Stripe no está configurado todavía.');
+            throw new Error(t('signup.stripeNoEstaConfiguradoTodavia', 'Stripe no está configurado todavía.'));
           }
           if (active) {
             setStripeKey(key);
@@ -469,7 +470,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
         setCardReady(true);
       } catch (error) {
         if (active) {
-          setStripeError(error.message || 'No pudimos preparar el pago seguro.');
+          setStripeError(error.message || t('signup.noPudimosPrepararElPagoSeguro', 'No pudimos preparar el pago seguro.'));
         }
       } finally {
         if (active) {
@@ -542,22 +543,22 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
     const nextErrors = {};
 
     if (targetStep === 1) {
-      if (!validity.fullName) nextErrors.fullName = 'Necesitamos tu nombre para darte de alta.';
-      if (!validity.email) nextErrors.email = 'Introduce un email válido.';
-      if (!validity.phoneNumber) nextErrors.phoneNumber = 'Necesitamos un teléfono operativo.';
-      if (!validity.password) nextErrors.password = 'Tu contraseña debe tener al menos 6 caracteres.';
-      if (!formData.acceptLegal) nextErrors.acceptLegal = 'Debes aceptar la política de privacidad y los términos.';
+      if (!validity.fullName) nextErrors.fullName = t('signup.necesitamosTuNombreParaDarteDeAlta', 'Necesitamos tu nombre para darte de alta.');
+      if (!validity.email) nextErrors.email = t('signup.introduceUnEmailValido', 'Introduce un email válido.');
+      if (!validity.phoneNumber) nextErrors.phoneNumber = t('signup.necesitamosUnTelefonoOperativo', 'Necesitamos un teléfono operativo.');
+      if (!validity.password) nextErrors.password = t('signup.tuContrasenaDebeTenerAlMenos6Cara', 'Tu contraseña debe tener al menos 6 caracteres.');
+      if (!formData.acceptLegal) nextErrors.acceptLegal = t('signup.debesAceptarLaPoliticaDePrivacidad', 'Debes aceptar la política de privacidad y los términos.');
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['fullName', 'email', 'phoneNumber', 'password', 'acceptLegal']);
       }
     }
 
     if (targetStep === 2) {
-      if (!validity.brandName) nextErrors.brandName = 'Cuéntanos cómo se llama tu marca o cooperativa.';
-      if (!validity.productTypes) nextErrors.productTypes = 'Selecciona al menos un tipo de producto.';
-      if (!validity.exportStage) nextErrors.exportStage = 'Indícanos si ya exportas o quieres empezar.';
-      if (!validity.region) nextErrors.region = 'Selecciona tu región de producción.';
-      if (!validity.references) nextErrors.references = 'Necesitamos un rango aproximado de referencias.';
+      if (!validity.brandName) nextErrors.brandName = t('signup.cuentanosComoSeLlamaTuMarcaOCoope', 'Cuéntanos cómo se llama tu marca o cooperativa.');
+      if (!validity.productTypes) nextErrors.productTypes = t('signup.seleccionaAlMenosUnTipoDeProducto', 'Selecciona al menos un tipo de producto.');
+      if (!validity.exportStage) nextErrors.exportStage = t('signup.indicanosSiYaExportasOQuieresEmpez', 'Indícanos si ya exportas o quieres empezar.');
+      if (!validity.region) nextErrors.region = t('signup.seleccionaTuRegionDeProduccion', 'Selecciona tu región de producción.');
+      if (!validity.references) nextErrors.references = t('signup.necesitamosUnRangoAproximadoDeRefer', 'Necesitamos un rango aproximado de referencias.');
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['brandName', 'productTypes', 'exportStage', 'region', 'references']);
       }
@@ -570,7 +571,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
       if (isPaidPlan(selectedPlan)) {
         if (stripeLoading) nextErrors.card = 'Estamos preparando Stripe. Espera un segundo.';
         else if (stripeError) nextErrors.card = stripeError;
-        else if (!cardReady || !cardComplete) nextErrors.card = 'Completa los datos de la tarjeta para continuar.';
+        else if (!cardReady || !cardComplete) nextErrors.card = t('signup.completaLosDatosDeLaTarjetaParaCo', 'Completa los datos de la tarjeta para continuar.');
       }
     }
 
@@ -609,7 +610,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
     const card = cardRef.current;
 
     if (!stripe || !card) {
-      throw new Error('Stripe no está listo todavía.');
+      throw new Error(t('signup.stripeNoEstaListoTodavia', 'Stripe no está listo todavía.'));
     }
 
     const paymentMethodResult = await stripe.createPaymentMethod({
@@ -623,7 +624,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
     });
 
     if (paymentMethodResult.error) {
-      throw new Error(paymentMethodResult.error.message || 'No pudimos validar la tarjeta.');
+      throw new Error(paymentMethodResult.error.message || t('signup.noPudimosValidarLaTarjeta', 'No pudimos validar la tarjeta.'));
     }
 
     const subscribeData = await apiClient.post(
@@ -641,13 +642,13 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
       const confirmation = await stripe.confirmCardPayment(subscribeData.client_secret);
       if (confirmation.error) {
         if (confirmation.error.type === 'card_error' || confirmation.error.type === 'validation_error') {
-          throw new Error(confirmation.error.message || 'Tu banco rechazó la operación.');
+          throw new Error(confirmation.error.message || t('signup.tuBancoRechazoLaOperacion', 'Tu banco rechazó la operación.'));
         }
-        throw new Error('Ha ocurrido un error con el pago. Por favor inténtalo de nuevo.');
+        throw new Error(t('signup.haOcurridoUnErrorConElPagoPorFa', 'Ha ocurrido un error con el pago. Por favor inténtalo de nuevo.'));
       }
 
       if (confirmation.paymentIntent?.status === 'requires_payment_method') {
-        throw new Error('El método de pago fue rechazado. Por favor usa otra tarjeta.');
+        throw new Error(t('signup.elMetodoDePagoFueRechazadoPorFav', 'El método de pago fue rechazado. Por favor usa otra tarjeta.'));
       }
 
       await apiClient.post(
@@ -662,7 +663,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
 
   const submitFlow = async () => {
     if (!validateStep(3)) {
-      toast.error('Revisa los datos antes de continuar.');
+      toast.error(t('signup.revisaLosDatosAntesDeContinuar', 'Revisa los datos antes de continuar.'));
       return;
     }
 
@@ -686,10 +687,10 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
       setErrors({});
       setTouched({});
     } catch (error) {
-      const message = error.message || 'No pudimos completar el alta del productor.';
+      const message = error.message || t('signup.noPudimosCompletarElAltaDelProduct', 'No pudimos completar el alta del productor.');
 
       if (message.toLowerCase().includes('email already registered')) {
-        setPaymentNotice('Tu cuenta ya existe. Si ya se creo, solo falta terminar el plan o revisar tu acceso.');
+        setPaymentNotice(t('signup.tuCuentaYaExisteSiYaSeCreoSolo', 'Tu cuenta ya existe. Si ya se creo, solo falta terminar el plan o revisar tu acceso.'));
       }
 
       toast.error(message);
@@ -700,7 +701,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
 
   const proceed = () => {
     if (!validateStep(step)) {
-      toast.error('Completa los campos obligatorios para avanzar.');
+      toast.error(t('signup.completaLosCamposObligatoriosParaAv', 'Completa los campos obligatorios para avanzar.'));
       return;
     }
     setStep((current) => Math.min(current + 1, 3));
@@ -794,7 +795,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           value={formData.password}
           onChange={(event) => updateField('password', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, password: true }))}
-              placeholder="Mínimo 6 caracteres"
+              placeholder={t('common.minCharacters', 'Mínimo 6 caracteres')}
           className={`mt-2 h-12 w-full rounded-[10px] border bg-white pl-11 pr-12 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
         />
         <button
@@ -858,7 +859,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           value={formData.brandName}
           onChange={(event) => updateField('brandName', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, brandName: true }))}
-          placeholder="Nombre de tu obrador, marca o cooperativa"
+          placeholder={t('signup.nombreDeTuObradorMarcaOCooperativ', 'Nombre de tu obrador, marca o cooperativa')}
           className={`mt-2 h-12 w-full rounded-[10px] border bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.brandName), touched.brandName && validity.brandName)}`}
         />
         <StatusIcon valid={touched.brandName && validity.brandName} />
@@ -886,7 +887,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
       </div>
 
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">Exportación actual</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t('signup.exportacionActual', 'Exportación actual')}</p>
         <div className="mt-3 grid gap-3 lg:grid-cols-3">
           {EXPORT_OPTIONS.map((option) => (
             <button
@@ -915,7 +916,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               onChange={(event) => updateField('region', event.target.value)}
               className={`mt-2 h-12 w-full rounded-[10px] bg-white pl-11 pr-4 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.region), touched.region && validity.region)}`}
             >
-              <option value="">Selecciona tu región</option>
+              <option value="">{t('signup.seleccionaTuRegion', 'Selecciona tu región')}</option>
               {REGIONS.map((region) => (
                 <option key={region} value={region}>
                   {region}
@@ -927,7 +928,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
         </div>
 
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">Número de referencias</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">{t('signup.numeroDeReferencias', 'Número de referencias')}</p>
           <div className="mt-3 space-y-3">
             {REFERENCE_OPTIONS.map((option) => (
               <button
@@ -988,7 +989,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                     <h3 className="mt-4 text-3xl font-bold tracking-[-0.03em] text-stone-900">{plan.name}</h3>
                     <p className="mt-2 text-sm leading-7 text-stone-600">{plan.summary}</p>
                     <div className="mt-5 rounded-[18px] border border-stone-200 bg-stone-50 p-4">
-                      <p className="text-sm font-semibold text-stone-500">Cargo o comisión</p>
+                      <p className="text-sm font-semibold text-stone-500">{t('signup.cargoOComision', 'Cargo o comisión')}</p>
                       <p className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-stone-900">{plan.chargeLabel}</p>
                       <p className="mt-2 text-sm text-stone-600">Comisión de plataforma: {plan.commission}</p>
                     </div>
@@ -1147,7 +1148,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-stone-400">Productor Hispaloshop</p>
                 <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-stone-900">
-                  {successState ? 'Alta completada' : step === 1 ? 'Quién eres' : step === 2 ? 'Tu producción' : 'Confirma tu plan'}
+                  {successState ? 'Alta completada' : step === 1 ? t('signup.quienEres', 'Quién eres') : step === 2 ? 'Tu producción' : 'Confirma tu plan'}
                 </h2>
               </div>
               <button
@@ -1172,7 +1173,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 </h3>
                 <p className="mt-4 text-sm leading-7 text-white/78">
                   {successState
-                    ? 'Tu cuenta ya existe y el siguiente paso es verificar el email y terminar de preparar tu perfil.'
+                    ? t('signup.tuCuentaYaExisteYElSiguientePaso', 'Tu cuenta ya existe y el siguiente paso es verificar el email y terminar de preparar tu perfil.')
                     : activePlan.summary}
                 </p>
                 <div className="mt-7 rounded-[22px] border border-white/10 bg-white/5 p-5">
@@ -1187,11 +1188,11 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                   </div>
                   <div className="flex items-start gap-3">
                     <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-stone-400" />
-                    <p>La contraseña no se guarda en localStorage, así evitas dejar un secreto expuesto.</p>
+                    <p>{t('signup.laContrasenaNoSeGuardaEnLocalstora', 'La contraseña no se guarda en localStorage, así evitas dejar un secreto expuesto.')}</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CreditCard className="mt-1 h-4 w-4 shrink-0 text-stone-400" />
-                    <p>FREE crea la cuenta al instante. PRO y ELITE activan Stripe inline sin salir del flujo.</p>
+                    <p>{t('signup.freeCreaLaCuentaAlInstanteProYE', 'FREE crea la cuenta al instante. PRO y ELITE activan Stripe inline sin salir del flujo.')}</p>
                   </div>
                 </div>
               </aside>
@@ -1222,10 +1223,10 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                       <div className="mt-10 flex flex-col gap-4 border-t border-stone-200 pt-6 lg:flex-row lg:items-center lg:justify-between">
                         <div className="text-sm leading-7 text-stone-500">
                           {step === 1
-                            ? 'Empezamos por lo mínimo para no ponerte otra barrera más.'
+                            ? t('signup.empezamosPorLoMinimoParaNoPonerte', 'Empezamos por lo mínimo para no ponerte otra barrera más.')
                             : step === 2
                               ? 'Esto nos ayuda a entender tu realidad y orientarte mejor.'
-                              : 'Estamos a un paso de abrir tu tienda y dejar la infraestructura preparada.'}
+                              : t('signup.estamosAUnPasoDeAbrirTuTiendaYD', 'Estamos a un paso de abrir tu tienda y dejar la infraestructura preparada.')}
                         </div>
 
                         <div className="flex flex-col gap-3 sm:flex-row">

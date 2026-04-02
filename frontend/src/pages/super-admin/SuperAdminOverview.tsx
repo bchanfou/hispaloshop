@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight } from 'lucide-react';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const MONTH_LABELS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
@@ -97,8 +98,8 @@ export default function SuperAdminOverview() {
       <div className="max-w-[1100px] mx-auto">
         <SACard className="text-center py-12">
           <AlertTriangle className="w-8 h-8 mx-auto mb-3 text-stone-500" />
-          <h2 className="text-lg font-bold mb-1 text-stone-100">No se pudo cargar el overview</h2>
-          <p className="text-sm text-stone-400">Revisa la conexión con el backend.</p>
+          <h2 className="text-lg font-bold mb-1 text-stone-100">{t('super_admin_overview.noSePudoCargarElOverview', 'No se pudo cargar el overview')}</h2>
+          <p className="text-sm text-stone-400">{t('super_admin_overview.revisaLaConexionConElBackend', 'Revisa la conexión con el backend.')}</p>
         </SACard>
       </div>
     );
@@ -159,7 +160,7 @@ export default function SuperAdminOverview() {
         {(() => {
           const mrrHistory = data?.mrr_history || [];
           if (mrrHistory.length === 0) {
-            return <p className="text-sm py-4 text-center text-stone-500">Sin datos de tendencia</p>;
+            return <p className="text-sm py-4 text-center text-stone-500">{t('super_admin_overview.sinDatosDeTendencia', 'Sin datos de tendencia')}</p>;
           }
           const last6 = mrrHistory.slice(-6);
           const maxVal = Math.max(...last6.map(m => m.revenue || 0), 1);
@@ -249,7 +250,7 @@ export default function SuperAdminOverview() {
       {countries.length > 0 && (
         <SACard className="mb-5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-stone-100">Países</h3>
+            <h3 className="text-sm font-bold text-stone-100">{t('breadcrumbs.countries', 'Países')}</h3>
             <Link to="/super-admin/markets" className="text-xs font-semibold text-stone-500 hover:text-stone-300 transition-colors">
               Gestionar
             </Link>
@@ -288,7 +289,7 @@ export default function SuperAdminOverview() {
 
       {/* Plan distribution */}
       <SACard className="mb-5">
-        <h3 className="text-sm font-bold mb-3 text-stone-100">Distribución de planes</h3>
+        <h3 className="text-sm font-bold mb-3 text-stone-100">{t('super_admin_overview.distribucionDePlanes', 'Distribución de planes')}</h3>
         <div className="space-y-3">
           {[
             { label: 'FREE', count: planDist.FREE || 0, barClass: 'bg-stone-500' },
@@ -421,7 +422,7 @@ export default function SuperAdminOverview() {
       {/* Quick links */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-5">
         {[
-          { label: 'Países', to: '/super-admin/markets' },
+          { label: t('breadcrumbs.countries', 'Países'), to: '/super-admin/markets' },
           { label: 'Admins', to: '/super-admin/admins' },
           { label: 'Finanzas', to: '/super-admin/finance' },
           { label: 'GDPR', to: '/super-admin/gdpr' },

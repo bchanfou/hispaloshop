@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { onboardingApi } from '../../lib/onboardingApi';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = [
   'Aceites',
   'Miel',
   'Conservas',
-  'Panadería',
+  t('onboarding.panaderia', 'Panadería'),
   'Quesos',
   'Embutidos',
   'Salsas',
@@ -36,7 +37,7 @@ export default function InterestsStep({ onNext, onError }) {
 
   const handleContinue = async () => {
     if (selected.length < 3) {
-      onError?.('Selecciona al menos 3 categorías para continuar.');
+      onError?.(t('interests.seleccionaAlMenos3CategoriasParaCo', 'Selecciona al menos 3 categorías para continuar.'));
       return;
     }
 
@@ -45,7 +46,7 @@ export default function InterestsStep({ onNext, onError }) {
       await onboardingApi.saveInterests(selected);
       onNext();
     } catch (error) {
-      onError?.(error?.response?.data?.detail || 'No hemos podido guardar tus intereses todavía.');
+      onError?.(error?.response?.data?.detail || t('interests.noHemosPodidoGuardarTusInteresesTo', 'No hemos podido guardar tus intereses todavía.'));
     } finally {
       setLoading(false);
     }

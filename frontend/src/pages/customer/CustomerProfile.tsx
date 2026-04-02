@@ -98,7 +98,7 @@ export default function CustomerProfile() {
         setHasConsent(profileResp.consent?.analytics_consent || false);
         setAddresses(addrResp.addresses || []);
       } catch {
-        if (mounted) toast.error('Error al cargar el perfil');
+        if (mounted) toast.error(t('customer_profile.errorAlCargarElPerfil', 'Error al cargar el perfil'));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -111,7 +111,7 @@ export default function CustomerProfile() {
       const data = await apiClient.get('/customer/addresses');
       setAddresses(data.addresses || []);
     } catch {
-      toast.error('Error al cargar las direcciones');
+      toast.error(t('customer_profile.errorAlCargarLasDirecciones', 'Error al cargar las direcciones'));
     }
   };
 
@@ -825,10 +825,10 @@ export default function CustomerProfile() {
                     onClick={async () => {
                       try {
                         await apiClient.post('/account/enable-affiliate');
-                        toast.success('¡Programa de afiliados activado!');
+                        toast.success(t('customer_profile.programaDeAfiliadosActivado', '¡Programa de afiliados activado!'));
                         checkAuth();
                       } catch (err) {
-                        toast.error(err?.message || 'Error al activar el programa');
+                        toast.error(err?.message || t('customer_profile.errorAlActivarElPrograma', 'Error al activar el programa'));
                       }
                     }}
                   >

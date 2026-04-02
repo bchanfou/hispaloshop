@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, Search, Wallet, Check, X, Clock, Download, Banknote } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const TABS = [
   { id: 'pending', label: 'Pendientes' },
@@ -230,7 +231,7 @@ export default function AdminPayouts() {
                 <label className="text-xs font-medium text-stone-600 mb-1 block">Referencia de transferencia</label>
                 <input type="text" value={transferRef} onChange={e => setTransferRef(e.target.value)}
                   className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-1 focus:ring-stone-400"
-                  placeholder="Nº de operación bancaria" />
+                  placeholder={t('admin_payouts.nºDeOperacionBancaria', 'Nº de operación bancaria')} />
               </div>
             )}
 

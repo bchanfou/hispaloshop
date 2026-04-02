@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Upload, X, FileText, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FileUpload = ({ 
   label, 

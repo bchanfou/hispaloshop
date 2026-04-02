@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ErrorBoundaryProps {
   children: ReactNode;

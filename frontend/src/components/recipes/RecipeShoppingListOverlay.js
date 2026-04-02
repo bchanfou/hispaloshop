@@ -4,6 +4,7 @@ import apiClient from '../../services/api/client';
 import { Loader2, Minus, Plus, ShoppingCart, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { resolveUserImage } from '../../features/user/queries';
+import { useTranslation } from 'react-i18next';
 
 export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 1, onClose }) {
   const [preview, setPreview] = useState(null);
@@ -57,7 +58,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
       toast.success(`${data.added} ingredientes añadidos al carrito`);
       onClose?.();
     } catch (error) {
-      toast.error(error.message || 'Inicia sesión para continuar');
+      toast.error(error.message || t('errors.unauthorized', 'Inicia sesión para continuar'));
     } finally {
       setSubmitting(false);
     }
@@ -96,7 +97,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
                 <Minus className="h-4 w-4" />
               </button>
               <span className="w-8 text-center text-sm font-semibold text-stone-950">{servings}</span>
-              <button type="button" onClick={() => setServings((value) => value + 1)} aria-label="Más raciones" className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 cursor-pointer">
+              <button type="button" onClick={() => setServings((value) => value + 1)} aria-label={t('recipe_shopping_list_overlay.masRaciones', 'Más raciones')} className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 cursor-pointer">
                 <Plus className="h-4 w-4" />
               </button>
             </div>

@@ -13,6 +13,7 @@ import apiClient from '../../services/api/client';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { toast } from 'sonner';
 import { OperationCard } from '../b2b/B2BOperationsDashboard';
+import { useTranslation } from 'react-i18next';
 
 /* ─── Shared Components ─── */
 
@@ -100,7 +101,7 @@ function ImporterPlanCard({ plan }) {
         {[
           'Agente Comercial IA para importadores',
           'Matching con productores globales',
-          'Contratos B2B generados automáticamente',
+          t('importer_dashboard.contratosB2bGeneradosAutomaticamente', 'Contratos B2B generados automáticamente'),
           'Comisión reducida al 15%',
         ].map(f => (
           <p key={f} className="text-xs flex items-center gap-1.5 text-stone-500">
@@ -207,7 +208,7 @@ export default function ImporterDashboardPage() {
       const conversationId = conv?.id || conv?.conversation_id;
       if (conversationId) navigate(`/messages/${conversationId}`);
     } catch {
-      toast.error('No se pudo abrir el chat');
+      toast.error(t('product_detail.noSePudoAbrirElChat', 'No se pudo abrir el chat'));
     }
   };
 
@@ -270,7 +271,7 @@ export default function ImporterDashboardPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3" >
         <AlertTriangle className="w-10 h-10 text-stone-500" />
-        <p className="text-sm font-semibold text-stone-950">Error al cargar el panel</p>
+        <p className="text-sm font-semibold text-stone-950">{t('importer_dashboard.errorAlCargarElPanel', 'Error al cargar el panel')}</p>
         <button
           onClick={loadData}
           className="px-5 py-2 text-sm font-semibold transition-colors bg-stone-950 text-white rounded-2xl border-none cursor-pointer"
@@ -420,7 +421,7 @@ export default function ImporterDashboardPage() {
 
           {/* Quick actions B2C */}
           <div className="mb-5">
-            <h2 className="text-sm font-bold mb-3 text-stone-950">Acciones rápidas</h2>
+            <h2 className="text-sm font-bold mb-3 text-stone-950">{t('sellerAI.quickActions', 'Acciones rápidas')}</h2>
             <div className="grid grid-cols-2 gap-2">
               <QuickAction icon={Store} label="Ver mi tienda" href="/producer/store-profile" />
               <QuickAction icon={Plus} label="Publicar producto" href="/producer/products/new" variant="primary" />
@@ -545,7 +546,7 @@ export default function ImporterDashboardPage() {
               <KPICard
                 icon={Store}
                 value="3%"
-                label="Comisión"
+                label=t('influencer.commissionRate', 'Comisión')
               />
             )}
           </div>
@@ -554,7 +555,7 @@ export default function ImporterDashboardPage() {
           {actionableOps.length > 0 && (
             <div className="mb-5">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-bold text-stone-950">Requieren tu acción</h2>
+                <h2 className="text-sm font-bold text-stone-950">{t('importer_dashboard.requierenTuAccion', 'Requieren tu acción')}</h2>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700">
                   {actionableOps.length}
                 </span>
@@ -582,7 +583,7 @@ export default function ImporterDashboardPage() {
 
           {/* Quick actions */}
           <div className="grid grid-cols-2 gap-2 mb-5">
-            <QuickAction icon={Search} label="Catálogo B2B" href="/importer/catalog" />
+            <QuickAction icon={Search} label=t('importer_dashboard.catalogoB2b', 'Catálogo B2B') href="/importer/catalog" />
             <QuickAction icon={Package} label="Mis pedidos B2B" href="/importer/orders" />
             <QuickAction icon={Award} label="Certificados" href="/importer/certificates" />
             <QuickAction icon={FileCheck} label="Operaciones B2B" href="/b2b/operations" />
@@ -641,7 +642,7 @@ export default function ImporterDashboardPage() {
             ) : (
               <div className="flex flex-col items-center py-6 gap-3">
                 <Factory className="w-8 h-8 text-stone-300" />
-                <p className="text-sm text-stone-500">Aún no tienes proveedores</p>
+                <p className="text-sm text-stone-500">{t('importer_dashboard.aunNoTienesProveedores', 'Aún no tienes proveedores')}</p>
                 <Link
                   to="/b2b/marketplace"
                   className="px-5 py-2.5 bg-stone-950 text-white rounded-full text-sm font-bold hover:bg-stone-800 transition-colors inline-flex items-center gap-1.5"
@@ -720,7 +721,7 @@ export default function ImporterDashboardPage() {
 
       {/* Account & Configuration */}
       <div className="mt-5 p-4 bg-white rounded-2xl shadow-sm">
-        <h3 className="text-sm font-bold mb-3 text-stone-950">Cuenta y configuración</h3>
+        <h3 className="text-sm font-bold mb-3 text-stone-950">{t('producer_overview.cuentaYConfiguracion', 'Cuenta y configuración')}</h3>
         <div className="space-y-1">
           {[
             {
@@ -731,8 +732,8 @@ export default function ImporterDashboardPage() {
               to: '/settings/signature',
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },
-            { icon: CreditCard, label: 'Método de cobro', sublabel: 'Stripe o transferencia', to: '/producer/payments' },
-            { icon: KeyRound, label: 'Cambiar contraseña', sublabel: '', to: '/settings/password' },
+            { icon: CreditCard, label: t('producer_payments.metodoDeCobro', 'Método de cobro'), sublabel: 'Stripe o transferencia', to: '/producer/payments' },
+            { icon: KeyRound, label: t('producer_overview.cambiarContrasena', 'Cambiar contraseña'), sublabel: '', to: '/settings/password' },
           ].map((item, i) => (
             <Link
               key={i}

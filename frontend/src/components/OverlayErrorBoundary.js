@@ -1,6 +1,7 @@
 import React from 'react';
 import FocusTrap from 'focus-trap-react';
 import { AlertCircle, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Error boundary for overlay components (PostViewer, ProductDetailOverlay, RecipeOverlay).
@@ -56,8 +57,8 @@ export default class OverlayErrorBoundary extends React.Component {
             <AlertCircle className="h-7 w-7 text-stone-600" />
           </div>
           <div>
-            <p className="text-base font-semibold text-stone-950">Algo salió mal</p>
-            <p className="mt-1 text-sm text-stone-500">No se pudo cargar este contenido. Inténtalo de nuevo.</p>
+            <p className="text-base font-semibold text-stone-950">{t('overlay_error_boundary.algoSalioMal', 'Algo salió mal')}</p>
+            <p className="mt-1 text-sm text-stone-500">{t('overlay_error_boundary.noSePudoCargarEsteContenidoIntent', 'No se pudo cargar este contenido. Inténtalo de nuevo.')}</p>
           </div>
           <button
             type="button"

@@ -2,6 +2,7 @@ import React, { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, ShoppingCart, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const RecipeOverlay = lazy(() => import('../recipes/RecipeOverlay'));
 
@@ -23,7 +24,7 @@ export default function FeedRecipeCard({ recipe }) {
   const ingredients = recipe.ingredients || [];
   const authorName = recipe.author_name || '';
   const difficulty = recipe.difficulty;
-  const DIFF_LABELS = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' };
+  const DIFF_LABELS = { easy: 'Fácil', medium: 'Media', hard: t('recipes.hard', 'Difícil') };
 
   return (
     <div className="mx-3 my-3 rounded-2xl shadow-sm bg-white overflow-hidden lg:hover:shadow-md lg:hover:-translate-y-0.5 transition-all duration-200">

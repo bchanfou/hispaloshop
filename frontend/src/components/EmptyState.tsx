@@ -1,5 +1,6 @@
 import React from 'react';
 import { Package, ShoppingBag, Users, Search, Heart, Inbox } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface EmptyStateProps {
   icon?: 'product' | 'cart' | 'users' | 'search' | 'heart' | 'inbox';
@@ -47,7 +48,7 @@ export function EmptyProducts({ onBrowse }: { onBrowse?: () => void }) {
     <EmptyState
       icon="product"
       title="No hay productos"
-      description="No encontramos productos en esta categoría. Prueba con otra búsqueda."
+      description=t('empty_state.noEncontramosProductosEnEstaCategor', 'No encontramos productos en esta categoría. Prueba con otra búsqueda.')
       action={onBrowse && (
         <button
           onClick={onBrowse}
@@ -64,8 +65,8 @@ export function EmptyCart({ onBrowse }: { onBrowse?: () => void }) {
   return (
     <EmptyState
       icon="cart"
-      title="Tu carrito está vacío"
-      description="Añade algunos productos artesanales para comenzar tu compra."
+      title={t('cart.empty', 'Tu carrito está vacío')}
+      description=t('empty_state.anadeAlgunosProductosArtesanalesPara', 'Añade algunos productos artesanales para comenzar tu compra.')
       action={onBrowse && (
         <button
           onClick={onBrowse}
@@ -83,7 +84,7 @@ export function EmptyOrders() {
     <EmptyState
       icon="inbox"
       title="No tienes pedidos"
-      description="Tus pedidos aparecerán aquí cuando realices tu primera compra."
+      description=t('empty_state.tusPedidosApareceranAquiCuandoReali', 'Tus pedidos aparecerán aquí cuando realices tu primera compra.')
     />
   );
 }
@@ -93,7 +94,7 @@ export function EmptyFeed() {
     <EmptyState
       icon="heart"
       title="No hay publicaciones"
-      description="Sigue a más productores e influencers para ver su contenido aquí."
+      description=t('empty_state.sigueAMasProductoresEInfluencersPa', 'Sigue a más productores e influencers para ver su contenido aquí.')
     />
   );
 }
@@ -103,7 +104,7 @@ export function EmptySearch({ searchTerm }: { searchTerm?: string }) {
     <EmptyState
       icon="search"
       title="No encontramos resultados"
-      description={searchTerm ? `No hay productos que coincidan con "${searchTerm}".` : 'Intenta con otros términos de búsqueda.'}
+      description={searchTerm ? `No hay productos que coincidan con "${searchTerm}".` : t('empty_state.intentaConOtrosTerminosDeBusqueda', 'Intenta con otros términos de búsqueda.')}
     />
   );
 }
@@ -113,7 +114,7 @@ export function EmptyStores() {
     <EmptyState
       icon="users"
       title="No hay tiendas disponibles"
-      description="Prueba más tarde o cambia los filtros de búsqueda."
+      description=t('empty_state.pruebaMasTardeOCambiaLosFiltrosDe', 'Prueba más tarde o cambia los filtros de búsqueda.')
     />
   );
 }

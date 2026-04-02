@@ -4,6 +4,7 @@ import { Search, Download, Loader2, ExternalLink, Award, AlertTriangle } from 'l
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const FILTER_TABS = [
   { id: 'all', label: 'Todos' },
@@ -143,7 +144,7 @@ export default function ImporterCertificatesPage() {
       <div className="flex items-center justify-center min-h-[60vh] px-4">
         <div className="bg-white shadow-sm rounded-2xl p-8 text-center max-w-sm w-full">
           <Award className="w-10 h-10 text-stone-300 mx-auto mb-3" />
-          <p className="text-sm font-semibold text-stone-950 mb-1">Selecciona un proveedor para ver sus certificados</p>
+          <p className="text-sm font-semibold text-stone-950 mb-1">{t('importer_certificates.seleccionaUnProveedorParaVerSusCer', 'Selecciona un proveedor para ver sus certificados')}</p>
           <Link
             to="/b2b/marketplace"
             className="inline-block mt-4 text-sm font-medium text-stone-950 underline underline-offset-2"
@@ -198,7 +199,7 @@ export default function ImporterCertificatesPage() {
       {error ? (
         <div className="text-center py-16">
           <AlertTriangle className="w-10 h-10 text-stone-300 mx-auto mb-3" />
-          <p className="text-sm font-semibold text-stone-950 mb-1">Error al cargar los certificados</p>
+          <p className="text-sm font-semibold text-stone-950 mb-1">{t('importer_certificates.errorAlCargarLosCertificados', 'Error al cargar los certificados')}</p>
           <button
             onClick={loadCerts}
             className="mt-3 px-5 py-2 bg-stone-950 text-white text-sm font-medium rounded-2xl hover:bg-stone-800 transition-colors"
@@ -216,7 +217,7 @@ export default function ImporterCertificatesPage() {
         <div className="text-center py-16">
           <Award className="w-10 h-10 text-stone-300 mx-auto mb-3" />
           <p className="text-sm font-semibold text-stone-950">Sin certificados registrados</p>
-          <p className="text-sm text-stone-500">Los certificados de tus proveedores aparecerán aquí</p>
+          <p className="text-sm text-stone-500">{t('importer_certificates.losCertificadosDeTusProveedoresApar', 'Los certificados de tus proveedores aparecerán aquí')}</p>
         </div>
       ) : (
         <div className="space-y-2">

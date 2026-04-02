@@ -4,13 +4,14 @@ import { Flag, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const REASONS = [
   { key: 'spam',       label: 'Spam o contenido repetitivo' },
-  { key: 'misleading', label: 'Información engañosa' },
+  { key: 'misleading', label: t('report_button.informacionEnganosa', 'Información engañosa') },
   { key: 'offensive',  label: 'Contenido ofensivo' },
   { key: 'fraud',      label: 'Fraude o estafa' },
-  { key: 'copyright',  label: 'Violación de derechos de autor' },
+  { key: 'copyright',  label: t('report_button.violacionDeDerechosDeAutor', 'Violación de derechos de autor') },
   { key: 'other',      label: 'Otro motivo' },
 ];
 
@@ -41,7 +42,7 @@ export default function ReportButton({ contentType, contentId, contentOwnerId })
       setReason('');
       setDescription('');
     } catch (err) {
-      toast.error(err.message || 'No se pudo enviar el reporte');
+      toast.error(err.message || t('report_button.noSePudoEnviarElReporte', 'No se pudo enviar el reporte'));
     } finally {
       setSending(false);
     }
@@ -122,7 +123,7 @@ export default function ReportButton({ contentType, contentId, contentOwnerId })
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Añade un detalle (opcional)..."
+                    placeholder={t('report_button.anadeUnDetalleOpcional', 'Añade un detalle (opcional)...')}
                     rows={2}
                     className="w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none focus:border-stone-400"
                   />

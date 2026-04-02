@@ -3,6 +3,7 @@ import { X, Star, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 interface OrderItem {
   product_id?: string;
@@ -39,7 +40,7 @@ export default function ReviewModal({ open, onClose, order }: ReviewModalProps) 
 
   const handleSubmit = async () => {
     if (rating === 0) {
-      toast.error('Selecciona una valoración');
+      toast.error(t('recipe_detail.seleccionaUnaValoracion', 'Selecciona una valoración'));
       return;
     }
     setSubmitting(true);
@@ -50,13 +51,13 @@ export default function ReviewModal({ open, onClose, order }: ReviewModalProps) 
         rating,
         comment: comment.trim() || undefined,
       });
-      toast.success('Valoración enviada');
+      toast.success(t('review.valoracionEnviada', 'Valoración enviada'));
       setRating(0);
       setComment('');
       setSelectedProduct(null);
       onClose();
     } catch (error: any) {
-      toast.error(error.message || 'Error al enviar valoración');
+      toast.error(error.message || t('review.errorAlEnviarValoracion', 'Error al enviar valoración'));
     } finally {
       setSubmitting(false);
     }
@@ -175,7 +176,7 @@ export default function ReviewModal({ open, onClose, order }: ReviewModalProps) 
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Cuéntanos tu experiencia..."
+                  placeholder={t('review.cuentanosTuExperiencia', 'Cuéntanos tu experiencia...')}
                   rows={3}
                   maxLength={500}
                   className="w-full px-3 py-2.5 rounded-2xl border border-stone-200 text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-300 resize-none"
@@ -195,7 +196,7 @@ export default function ReviewModal({ open, onClose, order }: ReviewModalProps) 
                     Enviando...
                   </>
                 ) : (
-                  'Enviar valoración'
+                  t('review.enviarValoracion', 'Enviar valoración')
                 )}
               </button>
             </div>

@@ -10,6 +10,7 @@ import {
   FileSignature,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function ActionOption({ icon: Icon, label, onClick, isBlack }) {
   return (
@@ -110,7 +111,7 @@ export default function B2BActionSheet({
                 />
                 <ActionOption
                   icon={BookOpen}
-                  label="Catálogo"
+                  label=t('b2_b_marketplace.catalogo', 'Catálogo')
                   onClick={() => { onClose?.(); onSelectCatalog?.(); }}
                 />
                 <ActionOption

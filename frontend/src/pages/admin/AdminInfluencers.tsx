@@ -99,7 +99,7 @@ export default function AdminInfluencers() {
       fetchInfluencers();
       fetchStats();
     } catch (err) {
-      toast.error(err?.response?.data?.detail || err.message || 'Error al procesar el pago');
+      toast.error(err?.response?.data?.detail || err.message || t('checkout.errorAlProcesarElPago', 'Error al procesar el pago'));
     } finally {
       setActionBusy(false);
     }
@@ -111,7 +111,7 @@ export default function AdminInfluencers() {
       const data = await apiClient.get(`/admin/influencers/${influencerId}`);
       setSelectedInfluencer(data);
     } catch (err) {
-      toast.error(err?.response?.data?.detail || 'Error al cargar detalles del influencer');
+      toast.error(err?.response?.data?.detail || t('admin_influencers.errorAlCargarDetallesDelInfluencer', 'Error al cargar detalles del influencer'));
     }
   };
 
@@ -194,7 +194,7 @@ export default function AdminInfluencers() {
               <tr className="border-b border-stone-200">
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Nombre</th>
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Estado</th>
-                <th className="text-left py-3 px-4 font-medium text-stone-500">Comisión</th>
+                <th className="text-left py-3 px-4 font-medium text-stone-500">{t('influencer.commissionRate', 'Comisión')}</th>
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Ventas</th>
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Ganado</th>
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Saldo</th>
@@ -339,7 +339,7 @@ export default function AdminInfluencers() {
                   <p className="font-medium">{selectedInfluencer.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-stone-500">Código de descuento</p>
+                  <p className="text-sm text-stone-500">{t('cart.discountCode', 'Código de descuento')}</p>
                   <p className="font-mono font-bold">{selectedInfluencer.discount_code_info?.code || 'N/A'}</p>
                 </div>
                 <div>
@@ -357,7 +357,7 @@ export default function AdminInfluencers() {
                         <tr className="border-b">
                           <th className="text-left py-2">Pedido</th>
                           <th className="text-left py-2">Total</th>
-                          <th className="text-left py-2">Comisión</th>
+                          <th className="text-left py-2">{t('influencer.commissionRate', 'Comisión')}</th>
                           <th className="text-left py-2">Estado</th>
                         </tr>
                       </thead>

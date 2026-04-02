@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import { Search, MessageCircle, PenSquare, Trash2, ArrowLeft } from 'lucide-react';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const SWIPE_HINT_KEY = 'chat_swipe_hint_shown';
 
@@ -13,13 +14,13 @@ const FILTERS = [
   { key: 'b2c',    label: 'Tiendas' },
   { key: 'b2b',    label: 'B2B' },
   { key: 'c2c',    label: 'Personas' },
-  { key: 'collab', label: 'Colaboración' },
+  { key: 'collab', label: t('chats.colaboracion', 'Colaboración') },
 ];
 
 const TYPE_BADGES = {
   b2c:    { label: 'Tienda', classes: 'bg-stone-100 text-stone-500' },
   b2b:    { label: 'B2B',    classes: 'bg-stone-100 text-stone-500' },
-  collab: { label: 'Colaboración', classes: 'bg-stone-100 text-stone-950' },
+  collab: { label: t('chats.colaboracion', 'Colaboración'), classes: 'bg-stone-100 text-stone-950' },
   c2c:    null,
 };
 
@@ -142,7 +143,7 @@ function ConversationItem({ conversation, index, onClick, onDelete, isTyping, is
             </span>
           ) : (
             <span className={`truncate text-[13px] leading-[18px] ${isUnread ? 'font-medium text-stone-950' : 'text-stone-500'}`}>
-              {last_message || 'Sin mensajes aún'}
+              {last_message || t('chat.noMessages', 'Sin mensajes aún')}
             </span>
           )}
 
@@ -361,8 +362,8 @@ export default function ChatsPage() {
                   className="flex flex-col items-center justify-center gap-3 px-6 pt-28"
                 >
                   <MessageCircle size={48} className="text-stone-300" strokeWidth={1.5} />
-                  <span className="text-base font-semibold text-stone-950">Aún no tienes mensajes</span>
-                  <span className="text-center text-[13px] text-stone-500">Empieza una conversación con productores, influencers y más</span>
+                  <span className="text-base font-semibold text-stone-950">{t('chats.aunNoTienesMensajes', 'Aún no tienes mensajes')}</span>
+                  <span className="text-center text-[13px] text-stone-500">{t('chats.empiezaUnaConversacionConProductores', 'Empieza una conversación con productores, influencers y más')}</span>
                   <button
                     onClick={() => navigate('/messages/new')}
                     className="mt-2 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white active:opacity-80"

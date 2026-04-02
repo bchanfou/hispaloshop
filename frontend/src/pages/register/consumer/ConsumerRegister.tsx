@@ -11,10 +11,11 @@ import Step3Profile from './steps/Step3Profile';
 import Step4Preferences from './steps/Step4Preferences';
 import Step5Welcome from './steps/Step5Welcome';
 import { useAuth } from '../../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const STEP_LABELS = [
   'Acceso',
-  'Datos básicos',
+  t('consumer_register.datosBasicos', 'Datos básicos'),
   'Perfil alimentario',
   'Preferencias',
   'Cuenta lista',
@@ -52,7 +53,7 @@ const ConsumerRegister = () => {
       navigate('/onboarding', { replace: true });
       clearProgress();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al crear la cuenta. Inténtalo de nuevo.');
+      toast.error(error?.response?.data?.detail || t('consumer_register.errorAlCrearLaCuentaIntentaloDeN', 'Error al crear la cuenta. Inténtalo de nuevo.'));
     } finally {
       setIsSubmitting(false);
     }

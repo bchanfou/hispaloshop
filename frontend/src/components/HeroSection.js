@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LocateFixed, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const HERO_STATS = [
   '200+ productores locales',
@@ -117,14 +118,14 @@ export default function HeroSection({
                       className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-medium text-stone-950 transition-colors hover:bg-stone-100"
                     >
                       <LocateFixed className="h-4 w-4" />
-                {geolocationStatus === 'requesting' ? 'Buscando tu ubicación...' : 'Usar mi ubicación'}
+                {geolocationStatus === 'requesting' ? t('hero_section.buscandoTuUbicacion', 'Buscando tu ubicación...') : 'Usar mi ubicación'}
                     </button>
 
                     <form onSubmit={handlePostalSubmit} className="flex flex-1 gap-2">
                       <input
                         value={postalCode}
                         onChange={(event) => setPostalCode(event.target.value)}
-                        placeholder="Código postal"
+                        placeholder={t('checkout.codigoPostal', 'Código postal')}
                         className="min-w-0 flex-1 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-stone-950"
                       />
                       <button

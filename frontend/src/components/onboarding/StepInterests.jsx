@@ -6,19 +6,20 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Droplets, Package, Leaf, UtensilsCrossed, Wheat, Baby, PawPrint } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = [
   { id: 'aceites', label: 'Aceites', icon: <Droplets size={18} className="text-stone-950" /> },
   { id: 'quesos', label: 'Quesos', emoji: '🧀' },
   { id: 'embutidos', label: 'Embutidos', emoji: '🥩' },
-  { id: 'panadería', label: 'Panadería', emoji: '🍞' },
+  { id: 'panadería', label: t('onboarding.panaderia', 'Panadería'), emoji: '🍞' },
   { id: 'miel', label: 'Miel', emoji: '🍯' },
   { id: 'conservas', label: 'Conservas', icon: <Package size={18} className="text-stone-950" /> },
   { id: 'vinos', label: 'Vinos', emoji: '🍷' },
   { id: 'dulces', label: 'Dulces', emoji: '🍪' },
   { id: 'bebes', label: 'Bebés', icon: <Baby size={18} className="text-stone-950" /> },
   { id: 'mascotas', label: 'Mascotas', icon: <PawPrint size={18} className="text-stone-950" /> },
-  { id: 'orgánico', label: 'Orgánico', icon: <Leaf size={18} className="text-stone-950" /> },
+  { id: 'orgánico', label: t('home.organic', 'Orgánico'), icon: <Leaf size={18} className="text-stone-950" /> },
   { id: 'singluten', label: 'Sin gluten', icon: <Wheat size={18} className="text-stone-950" /> },
 ];
 

@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { API } from '../../utils/api';
+import { useTranslation } from 'react-i18next';
 
 const TEST_ENDPOINTS = [
   { name: 'GET /auth/me (sesión)', method: 'get', url: '/auth/me' },
@@ -68,7 +69,7 @@ export default function AuthDiagnostic() {
           disabled={testing}
           className="px-3 py-1 bg-stone-950 text-white text-sm rounded-2xl disabled:opacity-50"
         >
-          {testing ? 'Probando...' : 'Test Conexión'}
+          {testing ? 'Probando...' : t('auth_diagnostic.testConexion', 'Test Conexión')}
         </button>
       </div>
 

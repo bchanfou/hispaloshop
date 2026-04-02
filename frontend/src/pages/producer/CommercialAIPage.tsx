@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useProducerPlan } from '../../context/ProducerPlanContext';
 import apiClient from '../../services/api/client';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 /* ───────── constants ───────── */
 
@@ -22,8 +23,8 @@ const SUGGESTIONS = [
 ];
 
 const OPPORTUNITIES = [
-  { flag: '🇩🇪', country: 'Alemania', product: 'Aceite de oliva ecológico', trend: '+34%', period: 'Q2 2026' },
-  { flag: '🇫🇷', country: 'Francia', product: 'Jamón ibérico', trend: '+22%', period: 'Q1 2026' },
+  { flag: '🇩🇪', country: 'Alemania', product: t('commercial_a_i.aceiteDeOlivaEcologico', 'Aceite de oliva ecológico'), trend: '+34%', period: 'Q2 2026' },
+  { flag: '🇫🇷', country: 'Francia', product: t('search.jamonIberico', 'Jamón ibérico'), trend: '+22%', period: 'Q1 2026' },
   { flag: '🇬🇧', country: 'Reino Unido', product: 'Vino tinto D.O.', trend: '+18%', period: 'Q3 2026' },
   { flag: '🇯🇵', country: 'Japón', product: 'Aceite AOVE premium', trend: '+15%', period: 'Q4 2026' },
 ];
@@ -31,7 +32,7 @@ const OPPORTUNITIES = [
 const TOOL_LABELS = {
   search_importers: { icon: Users, label: 'Importadores', color: '#57534e' },
   analyze_market: { icon: BarChart3, label: 'Mercado', color: '#44403c' },
-  predict_demand: { icon: TrendingUp, label: 'Predicción', color: '#0c0a09' },
+  predict_demand: { icon: TrendingUp, label: t('commercial_a_i.prediccion', 'Predicción'), color: '#0c0a09' },
   generate_contract: { icon: FileText, label: 'Contrato', color: '#78716c' },
   check_producer_plan: { icon: Sparkles, label: 'Plan', color: '#6E6E73' },
 };
@@ -176,7 +177,7 @@ export default function CommercialAIPage() {
         ...prev,
         {
           role: 'assistant',
-          content: 'Error al contactar al agente comercial. Inténtalo de nuevo.',
+          content: t('commercial_a_i.errorAlContactarAlAgenteComercial', 'Error al contactar al agente comercial. Inténtalo de nuevo.'),
           timestamp: new Date().toISOString(),
         },
       ]);

@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Crown, Zap, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const PLANS = [
   {
@@ -13,9 +14,9 @@ const PLANS = [
     price: '0€/mes',
     features: [
       'Hasta 10 productos',
-      'Perfil de tienda básico',
+      t('plan.perfilDeTiendaBasico', 'Perfil de tienda básico'),
       'Soporte por email',
-      'Analíticas básicas',
+      t('plan.analiticasBasicas', 'Analíticas básicas'),
       'Comisión 20%',
     ],
   },
@@ -27,7 +28,7 @@ const PLANS = [
       'Productos ilimitados',
       'Perfil de tienda completo',
       'Soporte prioritario',
-      'Analíticas avanzadas',
+      t('plan.analiticasAvanzadas', 'Analíticas avanzadas'),
       'Envío gratis desde 30€',
       'Certificados digitales',
       'Comisión 18%',
@@ -41,7 +42,7 @@ const PLANS = [
       'Todo lo de PRO',
       'Tienda destacada',
       'IA comercial avanzada',
-      'Generación de contratos',
+      t('plan.generacionDeContratos', 'Generación de contratos'),
       'B2B marketplace',
       'Firma digital ilimitada',
       'Comisión 15%',
@@ -66,7 +67,7 @@ export default function PlanPage() {
       const data = await apiClient.get('/billing/portal-url');
       if (data.url) window.location.href = data.url;
     } catch {
-      toast.error('Error al abrir facturación');
+      toast.error(t('plan.errorAlAbrirFacturacion', 'Error al abrir facturación'));
     } finally {
       setLoading(false);
     }
@@ -83,7 +84,7 @@ export default function PlanPage() {
       const data = await apiClient.post('/billing/change-plan', { plan: planId });
       if (data.url) window.location.href = data.url;
     } catch {
-      toast.error('Error al cambiar de plan');
+      toast.error(t('plan.errorAlCambiarDePlan', 'Error al cambiar de plan'));
     }
   }, [currentPlan]);
 
@@ -95,7 +96,7 @@ export default function PlanPage() {
       const data = await apiClient.post('/billing/change-plan', { plan: planId });
       if (data.url) window.location.href = data.url;
     } catch {
-      toast.error('Error al cambiar de plan');
+      toast.error(t('plan.errorAlCambiarDePlan', 'Error al cambiar de plan'));
     }
   }, [downgradeTarget]);
 

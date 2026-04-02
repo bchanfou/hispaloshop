@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, Zap, AlertTriangle } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const SELLER_PLANS = [
   { id: 'producer_free', name: 'Productor FREE', price: 0, commission_pct: 20 },
@@ -42,7 +43,7 @@ function ConfirmModal({ onClose, onConfirm, isSaving }) {
           value={password}
           onChange={e => setPassword(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && onConfirm(password)}
-          placeholder="Contraseña superadmin"
+          placeholder={t('plans_config.contrasenaSuperadmin', 'Contraseña superadmin')}
           autoFocus
           className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-700 rounded-2xl text-stone-100 text-sm outline-none focus:border-stone-500 mb-3"
         />
@@ -103,7 +104,7 @@ export default function PlansConfigPage() {
 
   const handleConfirm = async (password) => {
     if (!password) {
-      toast.error('Introduce tu contraseña');
+      toast.error(t('plans_config.introduceTuContrasena', 'Introduce tu contraseña'));
       return;
     }
     setIsSaving(true);
@@ -130,10 +131,10 @@ export default function PlansConfigPage() {
         };
       });
       await apiClient.put('/superadmin/plans', { seller_plans, influencer_tiers, password });
-      toast.success('Configuración actualizada y guardada');
+      toast.success(t('plans_config.configuracionActualizadaYGuardada', 'Configuración actualizada y guardada'));
       setShowConfirm(false);
     } catch (err) {
-      toast.error(err?.response?.data?.detail || 'Error al guardar configuración');
+      toast.error(err?.response?.data?.detail || t('superAdmin.insights.failedToSaveConfig', 'Error al guardar configuración'));
     } finally {
       setIsSaving(false);
     }
@@ -205,7 +206,7 @@ export default function PlansConfigPage() {
                 )}
               </div>
               <div>
-                <p className="text-[10px] text-stone-500 mb-0.5">Comisión</p>
+                <p className="text-[10px] text-stone-500 mb-0.5">{t('influencer.commissionRate', 'Comisión')}</p>
                 <div className="flex items-center gap-1">
                   <input
                     type="number"

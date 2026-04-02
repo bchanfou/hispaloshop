@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, AlertTriangle, Upload, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -13,7 +14,7 @@ const REASONS = [
   'Producto no recibido',
   'Producto diferente',
   'Calidad inferior',
-  'Documentación incorrecta',
+  t('b2_b_dispute.documentacionIncorrecta', 'Documentación incorrecta'),
   'Precio incorrecto',
   'Otro',
 ];
@@ -46,7 +47,7 @@ export default function B2BDisputePage() {
     const selected = Array.from(e.target.files || []);
     const remaining = 5 - files.length;
     if (remaining <= 0) {
-      toast.error('Máximo 5 archivos');
+      toast.error(t('b2_b_dispute.maximo5Archivos', 'Máximo 5 archivos'));
       return;
     }
 
@@ -90,7 +91,7 @@ export default function B2BDisputePage() {
       toast.success('Disputa abierta');
       navigate(-1);
     } catch (err) {
-      const msg = err?.response?.data?.detail || 'Error al abrir la disputa';
+      const msg = err?.response?.data?.detail || t('b2_b_dispute.errorAlAbrirLaDisputa', 'Error al abrir la disputa');
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -159,7 +160,7 @@ export default function B2BDisputePage() {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe detalladamente el problema (mínimo 50 caracteres)..."
+            placeholder={t('b2_b_dispute.describeDetalladamenteElProblemaMin', 'Describe detalladamente el problema (mínimo 50 caracteres)...')}
             className="w-full min-h-[120px] border border-stone-200 rounded-xl p-3 text-sm resize-y outline-none bg-white text-stone-950 box-border"
           />
           <div className={`text-[10px] mt-1 ${description.length < 50 ? 'text-red-600' : 'text-stone-500'}`}>

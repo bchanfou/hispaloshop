@@ -2,6 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Clock3 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Step1Method = ({ onNext, onMethodSelect }) => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
         <button
           type="button"
           onClick={() => navigate('/register')}
-          aria-label="Volver a selección de rol"
+          aria-label={t('step1_method.volverASeleccionDeRol', 'Volver a selección de rol')}
           className="rounded-full p-2 transition-colors hover:bg-stone-100"
         >
           <ArrowLeft className="h-5 w-5 text-stone-950" />
@@ -42,7 +43,7 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
         </div>
         <div className="flex-1">
           <span className="block font-medium text-stone-950">Continuar con email</span>
-          <span className="mt-1 block text-sm text-stone-500">Crearás tu cuenta y después completaremos tus preferencias.</span>
+          <span className="mt-1 block text-sm text-stone-500">{t('step1_method.crearasTuCuentaYDespuesCompletaremo', 'Crearás tu cuenta y después completaremos tus preferencias.')}</span>
         </div>
       </button>
 
@@ -52,7 +53,7 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
             <Clock3 className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-medium text-stone-950">Próximamente</p>
+            <p className="font-medium text-stone-950">{t('b2_b_tracking.proximamente', 'Próximamente')}</p>
             <p className="mt-1 text-sm leading-6 text-stone-600">
               Google, Apple y teléfono volverán cuando estén conectados al mismo nivel de fiabilidad que este flujo.
             </p>

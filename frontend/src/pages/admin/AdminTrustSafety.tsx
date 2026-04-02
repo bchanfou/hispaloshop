@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ const RISK_COLORS = (score) => {
 
 const REASON_LABELS = {
   spam:       'Spam',
-  misleading: 'Engañoso',
+  misleading: t('admin_trust_safety.enganoso', 'Engañoso'),
   offensive:  'Ofensivo',
   fraud:      'Fraude',
   copyright:  'Copyright',
@@ -36,11 +37,11 @@ const REASON_LABELS = {
 };
 
 const CONTENT_TYPE_LABELS = {
-  post:     'Publicación',
+  post:     t('post_detail.publicacion', 'Publicación'),
   reel:     'Reel',
   story:    'Historia',
   product:  'Producto',
-  review:   'Reseña',
+  review:   t('admin_trust_safety.resena', 'Reseña'),
   recipe:   'Receta',
   user_bio: 'Perfil',
   profile:  'Perfil',
@@ -125,7 +126,7 @@ function QueueTab() {
       setTotal(data.total || 0);
       setPages(data.pages || 1);
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'No se pudo cargar la cola de moderación');
+      toast.error(error?.response?.data?.detail || t('admin_trust_safety.noSePudoCargarLaColaDeModeracion', 'No se pudo cargar la cola de moderación'));
     } finally {
       setLoading(false);
     }
@@ -141,11 +142,11 @@ function QueueTab() {
         `/moderation/queue/${item_id}/action`,
         { action }
       );
-      toast.success(action === 'approve' ? 'Contenido aprobado' : 'Acción aplicada');
+      toast.success(action === 'approve' ? 'Contenido aprobado' : t('admin_trust_safety.accionAplicada', 'Acción aplicada'));
       setItems((prev) => prev.filter((i) => i.item_id !== item_id));
       setTotal((t) => Math.max(0, t - 1));
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'No se pudo aplicar la acción');
+      toast.error(error?.response?.data?.detail || t('admin_trust_safety.noSePudoAplicarLaAccion', 'No se pudo aplicar la acción'));
     } finally {
       setActing(null);
     }
@@ -176,8 +177,8 @@ function QueueTab() {
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center">
           <ShieldCheck className="h-10 w-10 text-stone-200" />
-          <p className="mt-4 text-sm font-semibold text-stone-950">Cola vacía</p>
-          <p className="mt-1 text-sm text-stone-500">No hay contenido pendiente de revisión.</p>
+          <p className="mt-4 text-sm font-semibold text-stone-950">{t('admin_trust_safety.colaVacia', 'Cola vacía')}</p>
+          <p className="mt-1 text-sm text-stone-500">{t('admin_trust_safety.noHayContenidoPendienteDeRevision', 'No hay contenido pendiente de revisión.')}</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-[24px] border border-stone-100 bg-white">
@@ -187,7 +188,7 @@ function QueueTab() {
                 <tr className="border-b border-stone-100 text-left text-xs font-semibold uppercase tracking-[0.08em] text-stone-400">
                   <th className="px-5 py-4">Tipo</th>
                   <th className="px-5 py-4">ID contenido</th>
-                  <th className="px-5 py-4">Señales</th>
+                  <th className="px-5 py-4">{t('admin_trust_safety.senales', 'Señales')}</th>
                   <th className="px-5 py-4">Riesgo</th>
                   <th className="px-5 py-4">Fuente</th>
                   <th className="px-5 py-4">Fecha</th>
@@ -298,7 +299,7 @@ function ReportsTab() {
       setTotal(data.total || 0);
       setPages(data.pages || 1);
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'No se pudieron cargar los reportes');
+      toast.error(error?.response?.data?.detail || t('admin_trust_safety.noSePudieronCargarLosReportes', 'No se pudieron cargar los reportes'));
     } finally {
       setLoading(false);
     }
@@ -343,7 +344,7 @@ function ReportsTab() {
         <div className="flex flex-col items-center py-16 text-center">
           <Flag className="h-10 w-10 text-stone-200" />
           <p className="mt-4 text-sm font-semibold text-stone-950">Sin reportes</p>
-          <p className="mt-1 text-sm text-stone-500">No hay reportes con los filtros seleccionados.</p>
+          <p className="mt-1 text-sm text-stone-500">{t('admin_trust_safety.noHayReportesConLosFiltrosSeleccio', 'No hay reportes con los filtros seleccionados.')}</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-[24px] border border-stone-100 bg-white">
@@ -354,7 +355,7 @@ function ReportsTab() {
                   <th className="px-5 py-4">Tipo</th>
                   <th className="px-5 py-4">ID contenido</th>
                   <th className="px-5 py-4">Motivo</th>
-                  <th className="px-5 py-4">Descripción</th>
+                  <th className="px-5 py-4">{t('productDetail.description', 'Descripción')}</th>
                   <th className="px-5 py-4">Fecha</th>
                 </tr>
               </thead>
@@ -409,7 +410,7 @@ function StatsTab({ stats, loading }) {
     { icon: AlertTriangle,label: 'Alto riesgo (≥70)',      value: stats?.high_risk_items,   highlight: (stats?.high_risk_items || 0) > 0 },
     { icon: Flag,         label: 'Reportes pendientes',    value: stats?.pending_reports,   highlight: false },
     { icon: Shield,       label: 'Acciones hoy',           value: stats?.actions_today,     highlight: false },
-    { icon: ShieldCheck,  label: 'Marcados automáticamente', value: stats?.auto_flagged,    highlight: false },
+    { icon: ShieldCheck,  label: t('admin_trust_safety.marcadosAutomaticamente', 'Marcados automáticamente'), value: stats?.auto_flagged,    highlight: false },
   ];
 
   return (
@@ -421,14 +422,14 @@ function StatsTab({ stats, loading }) {
       </div>
 
       <div className="rounded-[24px] border border-stone-100 bg-white p-6">
-        <h3 className="mb-2 text-sm font-semibold text-stone-950">Políticas de la plataforma</h3>
+        <h3 className="mb-2 text-sm font-semibold text-stone-950">{t('admin_trust_safety.politicasDeLaPlataforma', 'Políticas de la plataforma')}</h3>
         <ul className="mt-3 space-y-2 text-sm text-stone-600">
           {[
-            'Productos prohibidos: armas, drogas, contenido ilegal, artículos falsificados.',
+            t('admin_trust_safety.productosProhibidosArmasDrogasCon', 'Productos prohibidos: armas, drogas, contenido ilegal, artículos falsificados.'),
             'Comportamiento: no se permite acoso, odio ni spam.',
-            'Reseñas: deben ser auténticas, verificadas y basadas en compras reales.',
-            'Vendedores: responsables de la veracidad de las descripciones y la seguridad alimentaria.',
-            'Contenido generado por usuarios: sujeto a moderación automática y humana.',
+            t('admin_trust_safety.resenasDebenSerAutenticasVerificad', 'Reseñas: deben ser auténticas, verificadas y basadas en compras reales.'),
+            t('admin_trust_safety.vendedoresResponsablesDeLaVeracidad', 'Vendedores: responsables de la veracidad de las descripciones y la seguridad alimentaria.'),
+            t('admin_trust_safety.contenidoGeneradoPorUsuariosSujeto', 'Contenido generado por usuarios: sujeto a moderación automática y humana.'),
           ].map((policy) => (
             <li key={policy} className="flex items-start gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-stone-400" />
@@ -444,9 +445,9 @@ function StatsTab({ stats, loading }) {
 // ── Main component ────────────────────────────────────────────────────
 
 const TABS = [
-  { key: 'queue',   label: 'Cola de moderación' },
+  { key: 'queue',   label: t('admin_trust_safety.colaDeModeracion', 'Cola de moderación') },
   { key: 'reports', label: 'Reportes' },
-  { key: 'stats',   label: 'Estadísticas' },
+  { key: 'stats',   label: t('store.stats', 'Estadísticas') },
 ];
 
 export default function AdminTrustSafety() {

@@ -11,7 +11,7 @@ import apiClient from '../../services/api/client';
 import { DashboardStatsSkeleton } from '../../components/Skeleton';
 
 const COUNTRIES = {
-  ES: { name: 'España', currency: 'EUR' },
+  ES: { name: t('admin.countries.ES', 'España'), currency: 'EUR' },
   US: { name: 'Estados Unidos', currency: 'USD' },
   DE: { name: 'Alemania', currency: 'EUR' },
   FR: { name: 'Francia', currency: 'EUR' },
@@ -20,8 +20,8 @@ const COUNTRIES = {
   GB: { name: 'Reino Unido', currency: 'GBP' },
   KR: { name: 'Corea del Sur', currency: 'KRW' },
   JP: { name: 'Japón', currency: 'JPY' },
-  CA: { name: 'Canadá', currency: 'CAD' },
-  MX: { name: 'México', currency: 'MXN' },
+  CA: { name: t('admin.countries.CA', 'Canadá'), currency: 'CAD' },
+  MX: { name: t('admin.countries.MX', 'México'), currency: 'MXN' },
   BR: { name: 'Brasil', currency: 'BRL' },
   AU: { name: 'Australia', currency: 'AUD' },
 };
@@ -218,7 +218,7 @@ export default function ProductCountryManagement() {
       <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 text-sm text-stone-700 flex items-start gap-3">
         <Warehouse className="w-5 h-5 text-stone-500 shrink-0 mt-0.5" />
         <div>
-          <p className="font-medium mb-1">Reglas de activación por mercado:</p>
+          <p className="font-medium mb-1">{t('product_country_management.reglasDeActivacionPorMercado', 'Reglas de activación por mercado:')}</p>
           <ul className="text-xs space-y-0.5 text-stone-600">
             <li>{t('producer.stockRequired')}</li>
             <li>SLA de entrega maximo 48 horas</li>

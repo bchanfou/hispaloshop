@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Save } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 function toEuros(cents) {
   return (Number(cents || 0) / 100).toFixed(2);
@@ -42,7 +43,7 @@ export default function ProducerShippingPolicy() {
           local_pickup_enabled: !!res.local_pickup_enabled,
         });
       } catch (error) {
-        toast.error(error.message || 'No se pudo cargar la política de envío');
+        toast.error(error.message || t('producer_shipping_policy.noSePudoCargarLaPoliticaDeEnvio', 'No se pudo cargar la política de envío'));
       } finally {
         setLoading(false);
       }
@@ -61,7 +62,7 @@ export default function ProducerShippingPolicy() {
         local_pickup_enabled: !!policy.local_pickup_enabled,
       };
       await apiClient.put('/producer/shipping/policy', payload);
-      toast.success('Política de envío guardada');
+      toast.success(t('producer_shipping_policy.politicaDeEnvioGuardada', 'Política de envío guardada'));
     } catch (error) {
       toast.error(error.message || 'No se pudo guardar');
     } finally {
@@ -76,13 +77,13 @@ export default function ProducerShippingPolicy() {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-stone-950">Política de Envío</h1>
-        <p className="text-sm text-stone-500 mt-1">Configura costes de envío por pedido para tus productos.</p>
+        <h1 className="text-2xl font-bold text-stone-950">{t('producer_shipping_policy.politicaDeEnvio', 'Política de Envío')}</h1>
+        <p className="text-sm text-stone-500 mt-1">{t('producer_shipping_policy.configuraCostesDeEnvioPorPedidoPar', 'Configura costes de envío por pedido para tus productos.')}</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-stone-200 p-5 space-y-5">
         <label className="flex items-center justify-between gap-4">
-          <span className="text-sm font-medium text-stone-950">Habilitar gastos de envío</span>
+          <span className="text-sm font-medium text-stone-950">{t('producer_shipping_policy.habilitarGastosDeEnvio', 'Habilitar gastos de envío')}</span>
           <input
             type="checkbox"
             checked={policy.enabled}
@@ -122,7 +123,7 @@ export default function ProducerShippingPolicy() {
                 type="number"
                 min="0"
                 step="0.01"
-                placeholder="0 = sin envío gratis"
+                placeholder={t('producer_shipping_policy.0SinEnvioGratis', '0 = sin envío gratis')}
                 value={policy.free_threshold_cents === null ? '' : toEuros(policy.free_threshold_cents)}
                 onChange={(e) =>
                   setPolicy((prev) => ({
@@ -132,7 +133,7 @@ export default function ProducerShippingPolicy() {
                 }
                 className="w-full h-12 px-3 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
               />
-              <p className="text-xs text-stone-500 mt-1">Pedidos que superen este importe tendrán envío gratuito. Déjalo vacío o en 0 para desactivar.</p>
+              <p className="text-xs text-stone-500 mt-1">{t('producer_shipping_policy.pedidosQueSuperenEsteImporteTendran', 'Pedidos que superen este importe tendrán envío gratuito. Déjalo vacío o en 0 para desactivar.')}</p>
             </div>
 
             <div className="rounded-2xl bg-stone-50 border border-stone-200 p-3 text-sm text-stone-700">
@@ -145,7 +146,7 @@ export default function ProducerShippingPolicy() {
         <label className="flex items-center justify-between gap-4 pt-2 border-t border-stone-200">
           <div>
             <span className="text-sm font-medium text-stone-950">Recogida local disponible</span>
-            <p className="text-xs text-stone-500 mt-0.5">Los clientes pueden recoger en tu obrador (sin coste de envío)</p>
+            <p className="text-xs text-stone-500 mt-0.5">{t('producer_shipping_policy.losClientesPuedenRecogerEnTuObrado', 'Los clientes pueden recoger en tu obrador (sin coste de envío)')}</p>
           </div>
           <input
             type="checkbox"

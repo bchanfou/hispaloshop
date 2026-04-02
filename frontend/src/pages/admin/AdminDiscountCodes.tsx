@@ -44,7 +44,7 @@ export default function AdminDiscountCodes() {
       setDiscountCodes(Array.isArray(codesData) ? codesData : []);
       setPendingInfluencerCodes(Array.isArray(pendingData) ? pendingData : []);
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al cargar los códigos de descuento');
+      toast.error(error?.response?.data?.detail || t('admin_discount_codes.errorAlCargarLosCodigosDeDescuento', 'Error al cargar los códigos de descuento'));
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export default function AdminDiscountCodes() {
       toast.success(`Código ${codeName} aprobado y activado`);
       fetchAll();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || error.message || 'Error al aprobar el código');
+      toast.error(error?.response?.data?.detail || error.message || t('admin_discount_codes.errorAlAprobarElCodigo', 'Error al aprobar el código'));
     } finally {
       setActionBusy(false);
     }
@@ -76,7 +76,7 @@ export default function AdminDiscountCodes() {
       toast.success(`Código ${codeName} rechazado`);
       fetchAll();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || error.message || 'Error al rechazar el código');
+      toast.error(error?.response?.data?.detail || error.message || t('admin_discount_codes.errorAlRechazarElCodigo', 'Error al rechazar el código'));
     } finally {
       setActionBusy(false);
     }
@@ -100,15 +100,15 @@ export default function AdminDiscountCodes() {
     try {
       if (editingCode) {
         await apiClient.put(`/admin/discount-codes/${editingCode.code_id}`, payload);
-        toast.success('Código de descuento actualizado');
+        toast.success(t('admin_discount_codes.codigoDeDescuentoActualizado', 'Código de descuento actualizado'));
       } else {
         await apiClient.post('/admin/discount-codes', payload);
-        toast.success('Código de descuento creado');
+        toast.success(t('admin_discount_codes.codigoDeDescuentoCreado', 'Código de descuento creado'));
       }
       resetForm();
       fetchDiscountCodes();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || error.message || 'Error al guardar código de descuento');
+      toast.error(error?.response?.data?.detail || error.message || t('admin_discount_codes.errorAlGuardarCodigoDeDescuento', 'Error al guardar código de descuento'));
     }
   };
 
@@ -119,10 +119,10 @@ export default function AdminDiscountCodes() {
     setActionBusy(true);
     try {
       await apiClient.delete(`/admin/discount-codes/${codeId}`);
-      toast.success('Código de descuento eliminado');
+      toast.success(t('admin_discount_codes.codigoDeDescuentoEliminado', 'Código de descuento eliminado'));
       fetchDiscountCodes();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al eliminar código de descuento');
+      toast.error(error?.response?.data?.detail || t('admin_discount_codes.errorAlEliminarCodigoDeDescuento', 'Error al eliminar código de descuento'));
     } finally {
       setActionBusy(false);
     }
@@ -136,7 +136,7 @@ export default function AdminDiscountCodes() {
       toast.success(`Código ${code.active ? 'desactivado' : 'activado'}`);
       fetchDiscountCodes();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al cambiar estado del código');
+      toast.error(error?.response?.data?.detail || t('admin_discount_codes.errorAlCambiarEstadoDelCodigo', 'Error al cambiar estado del código'));
     } finally {
       setActionBusy(false);
     }
@@ -187,7 +187,7 @@ export default function AdminDiscountCodes() {
     switch (type) {
       case 'percentage': return 'Porcentaje';
       case 'fixed': return 'Importe fijo';
-      case 'free_shipping': return 'Envío gratis';
+      case 'free_shipping': return t('common.freeShipping', 'Envío gratis');
       default: return type;
     }
   };
@@ -195,7 +195,7 @@ export default function AdminDiscountCodes() {
   const formatValue = (code) => {
     if (code.type === 'percentage') return `${code.value}%`;
     if (code.type === 'fixed') { const v = Number(code.value); return `${isNaN(v) ? '0.00' : v.toFixed(2)} €`; }
-    return 'Envío gratis';
+    return t('common.freeShipping', 'Envío gratis');
   };
 
   const filteredCodes = discountCodes.filter(code =>
@@ -204,7 +204,7 @@ export default function AdminDiscountCodes() {
 
   if (loading) {
     return (
-      <div className="space-y-6" aria-busy="true" aria-label="Cargando códigos de descuento">
+      <div className="space-y-6" aria-busy="true" aria-label={t('admin_discount_codes.cargandoCodigosDeDescuento', 'Cargando códigos de descuento')}>
         <div className="flex items-center justify-between">
           <div className="space-y-2">
             <div className="h-6 w-56 animate-pulse rounded-full bg-stone-100" />
@@ -231,8 +231,8 @@ export default function AdminDiscountCodes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-stone-950">Códigos de Descuento</h1>
-          <p className="text-stone-500 text-sm mt-1">Gestiona códigos promocionales e influencers</p>
+          <h1 className="text-2xl font-semibold text-stone-950">{t('admin.discounts', 'Códigos de Descuento')}</h1>
+          <p className="text-stone-500 text-sm mt-1">{t('admin_discount_codes.gestionaCodigosPromocionalesEInfluen', 'Gestiona códigos promocionales e influencers')}</p>
         </div>
         <button
           type="button"
@@ -295,7 +295,7 @@ export default function AdminDiscountCodes() {
       {showCreateForm && (
         <div className="bg-white border border-stone-200 rounded-2xl p-6" data-testid="discount-form">
           <h2 className="text-lg font-semibold text-stone-950 mb-4">
-            {editingCode ? 'Editar código de descuento' : 'Crear código de descuento'}
+            {editingCode ? t('admin_discount_codes.editarCodigoDeDescuento', 'Editar código de descuento') : 'Crear código de descuento'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -440,7 +440,7 @@ export default function AdminDiscountCodes() {
             {/* Form Actions */}
             <div className="flex gap-3 pt-4 border-t border-stone-200">
               <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-2xl transition-colors" data-testid="save-discount-btn">
-                {editingCode ? 'Actualizar código' : 'Crear código'}
+                {editingCode ? t('admin_discount_codes.actualizarCodigo', 'Actualizar código') : 'Crear código'}
               </button>
               <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors" data-testid="cancel-discount-btn">
                 Cancelar
@@ -454,7 +454,7 @@ export default function AdminDiscountCodes() {
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
         <input
-          placeholder="Buscar códigos de descuento..."
+          placeholder={t('admin_discount_codes.buscarCodigosDeDescuento', 'Buscar códigos de descuento...')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
@@ -467,7 +467,7 @@ export default function AdminDiscountCodes() {
         <table className="w-full">
           <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Código</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">{t('admin_discount_codes.codigo', 'Código')}</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Tipo</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Valor</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Uso</th>
@@ -479,7 +479,7 @@ export default function AdminDiscountCodes() {
             {filteredCodes.length === 0 ? (
               <tr>
                 <td colSpan="6" className="px-6 py-12 text-center text-stone-500">
-                  {searchTerm ? 'No se encontraron códigos' : 'Aún no hay códigos de descuento. Crea uno para empezar.'}
+                  {searchTerm ? t('admin_discount_codes.noSeEncontraronCodigos', 'No se encontraron códigos') : 'Aún no hay códigos de descuento. Crea uno para empezar.'}
                 </td>
               </tr>
             ) : (
@@ -566,7 +566,7 @@ export default function AdminDiscountCodes() {
                 <Check className="w-5 h-5 text-stone-700" />
               </div>
               <div>
-                <p className="text-xs text-stone-500 uppercase tracking-wider">Códigos activos</p>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">{t('admin_discount_codes.codigosActivos', 'Códigos activos')}</p>
                 <p className="text-xl font-semibold text-stone-950">
                   {discountCodes.filter(c => c.active).length}
                 </p>
@@ -592,7 +592,7 @@ export default function AdminDiscountCodes() {
                 <Tag className="w-5 h-5 text-stone-700" />
               </div>
               <div>
-                <p className="text-xs text-stone-500 uppercase tracking-wider">Total de códigos</p>
+                <p className="text-xs text-stone-500 uppercase tracking-wider">{t('admin_discount_codes.totalDeCodigos', 'Total de códigos')}</p>
                 <p className="text-xl font-semibold text-stone-950">
                   {discountCodes.length}
                 </p>

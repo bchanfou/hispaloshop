@@ -5,6 +5,7 @@ import { ArrowLeft, Camera, Loader2, Check, X, Youtube } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 export default function EditProfilePage() {
   const navigate = useNavigate();
@@ -105,14 +106,14 @@ export default function EditProfilePage() {
 
   const handleSave = async () => {
     if (usernameStatus === 'taken') {
-      toast.error('El nombre de usuario no está disponible');
+      toast.error(t('edit_profile.elNombreDeUsuarioNoEstaDisponible', 'El nombre de usuario no está disponible'));
       return;
     }
     // Auto-prepend https:// to website if user typed a bare domain; block dangerous protocols
     let website = form.website.trim();
     if (website) {
       if (/^(javascript|data|ftp|file):/i.test(website)) {
-        toast.error('URL no válida');
+        toast.error(t('edit_profile.urlNoValida', 'URL no válida'));
         return;
       }
       if (!/^https?:\/\//i.test(website)) {
@@ -248,13 +249,13 @@ export default function EditProfilePage() {
             )}
           </div>
           {usernameStatus === 'taken' && (
-            <p className="mt-1 text-xs text-stone-600">Este nombre de usuario no está disponible</p>
+            <p className="mt-1 text-xs text-stone-600">{t('edit_profile.esteNombreDeUsuarioNoEstaDisponibl', 'Este nombre de usuario no está disponible')}</p>
           )}
           {usernameStatus === 'available' && (
             <p className="mt-1 text-xs text-stone-500">Disponible</p>
           )}
           {usernameStatus == null && form.username.trim().length > 0 && form.username.trim().length < 3 && (
-            <p className="mt-1 text-xs text-stone-600">El usuario debe tener al menos 3 caracteres</p>
+            <p className="mt-1 text-xs text-stone-600">{t('edit_profile.elUsuarioDebeTenerAlMenos3Caracte', 'El usuario debe tener al menos 3 caracteres')}</p>
           )}
         </div>
 
@@ -266,7 +267,7 @@ export default function EditProfilePage() {
             value={form.bio}
             onChange={e => setForm(f => ({ ...f, bio: e.target.value.slice(0, 150) }))}
             maxLength={150}
-            placeholder="Cuéntanos sobre ti..."
+            placeholder={t('edit_profile.cuentanosSobreTi', 'Cuéntanos sobre ti...')}
             rows={3}
             className="w-full resize-none rounded-2xl border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
           />
@@ -278,7 +279,7 @@ export default function EditProfilePage() {
         <FormField label="Sitio web" value={form.website} type="url" placeholder="https://..."
           onChange={v => setForm(f => ({ ...f, website: v }))} />
 
-        <FormField label="Ubicación" value={form.location} placeholder="Madrid, España"
+        <FormField label=t('store.location', 'Ubicación') value={form.location} placeholder={t('edit_profile.madridEspana', 'Madrid, España')}
           onChange={v => setForm(f => ({ ...f, location: v }))} />
 
         {/* ── Social Links ── */}
@@ -355,10 +356,10 @@ export default function EditProfilePage() {
             readOnly
             className="h-11 w-full rounded-2xl border border-stone-200 bg-stone-100 px-3.5 text-sm text-stone-500 outline-none"
           />
-          <p className="mt-1 text-[11px] text-stone-400">El email no se puede cambiar desde aquí</p>
+          <p className="mt-1 text-[11px] text-stone-400">{t('edit_profile.elEmailNoSePuedeCambiarDesdeAqui', 'El email no se puede cambiar desde aquí')}</p>
         </div>
 
-        <FormField label="Teléfono" value={form.phone} placeholder="+34 600 000 000"
+        <FormField label=t('common.phone', 'Teléfono') value={form.phone} placeholder="+34 600 000 000"
           onChange={v => setForm(f => ({ ...f, phone: v }))} />
 
         {/* ── Producer Fields ── */}
@@ -370,7 +371,7 @@ export default function EditProfilePage() {
               </p>
             </div>
 
-            <FormField label="Nombre de la empresa" value={form.company_name}
+            <FormField label=t('edit_profile.nombreDeLaEmpresa', 'Nombre de la empresa') value={form.company_name}
               onChange={v => setForm(f => ({ ...f, company_name: v }))} />
 
             <div className="mb-5">
@@ -401,7 +402,7 @@ export default function EditProfilePage() {
                 value={form.store_description}
                 onChange={e => setForm(f => ({ ...f, store_description: e.target.value.slice(0, 500) }))}
                 maxLength={500}
-                placeholder="Describe tu tienda, tus productos, tu historia..."
+                placeholder={t('edit_profile.describeTuTiendaTusProductosTuHi', 'Describe tu tienda, tus productos, tu historia...')}
                 rows={4}
                 className="w-full resize-none rounded-2xl border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
               />

@@ -455,7 +455,7 @@ export default function AdminProducts() {
                         <button
                           type="button"
                           className="px-2 py-1 text-xs font-medium bg-stone-950 text-white rounded-2xl hover:bg-stone-800 transition-colors"
-                          onClick={() => { const p = parseFloat(editingPrice.value); if (isNaN(p) || p <= 0) { toast.error('Precio no válido'); return; } updatePrice(product.product_id, p); }}
+                          onClick={() => { const p = parseFloat(editingPrice.value); if (isNaN(p) || p <= 0) { toast.error(t('admin_products.precioNoValido', 'Precio no válido')); return; } updatePrice(product.product_id, p); }}
                         >
                           {t('common.save')}
                         </button>
@@ -542,18 +542,18 @@ export default function AdminProducts() {
         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
           <div className="flex items-center gap-3 mb-4">
             <ClipboardList className="w-6 h-6 text-stone-600" aria-hidden="true" />
-            <h2 id="checklist-title" className="text-lg font-semibold text-stone-950">Checklist de Aprobación</h2>
+            <h2 id="checklist-title" className="text-lg font-semibold text-stone-950">{t('admin_products.checklistDeAprobacion', 'Checklist de Aprobación')}</h2>
           </div>
           <p className="text-sm text-stone-500 mb-5">
             Verifica que el producto <strong>{checklistProduct.name}</strong> cumple todos los requisitos antes de aprobar.
           </p>
           <div className="space-y-3 mb-6">
             {[
-              { key: 'photos', label: 'Al menos 1 foto del producto', auto: true },
-              { key: 'description', label: 'Descripción completa (mín. 20 caracteres)', auto: true },
-              { key: 'country', label: 'País de origen indicado', auto: true },
+              { key: 'photos', label: t('admin_products.alMenos1FotoDelProducto', 'Al menos 1 foto del producto'), auto: true },
+              { key: 'description', label: t('admin_products.descripcionCompletaMin20Caracteres', 'Descripción completa (mín. 20 caracteres)'), auto: true },
+              { key: 'country', label: t('admin_products.paisDeOrigenIndicado', 'País de origen indicado'), auto: true },
               { key: 'ingredients', label: 'Ingredientes listados', auto: true },
-              { key: 'allergens', label: 'Alérgenos revisados (campo presente)', auto: true },
+              { key: 'allergens', label: t('admin_products.alergenosRevisadosCampoPresente', 'Alérgenos revisados (campo presente)'), auto: true },
               { key: 'certifications', label: 'Certificaciones o normativas adjuntas', auto: true },
             ].map(({ key, label }) => (
               <label key={key} className="flex items-start gap-3 cursor-pointer group">

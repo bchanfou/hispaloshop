@@ -1,13 +1,14 @@
 import React from 'react';
 import { Bell, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function DashboardHeader({ userName, subtitle, notificationCount = 0 }) {
   const navigate = useNavigate();
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Buenos días';
+    if (hour < 12) return t('dashboard_header.buenosDias', 'Buenos días');
     if (hour < 18) return 'Buenas tardes';
     return 'Buenas noches';
   };
@@ -35,7 +36,7 @@ function DashboardHeader({ userName, subtitle, notificationCount = 0 }) {
           type="button"
           onClick={() => navigate('/settings/locale')}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 transition-all duration-200 hover:shadow-sm"
-          aria-label="Configuración"
+          aria-label={t('community.configuracion', 'Configuración')}
         >
           <Settings className="h-4 w-4" />
         </button>

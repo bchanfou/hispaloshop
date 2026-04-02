@@ -15,6 +15,7 @@ import {
 import SEO from '../../components/SEO';
 import AnimatedNumber from '../../components/motion/AnimatedNumber';
 import { InfoNav } from '../../components/info/shared';
+import { useTranslation } from 'react-i18next';
 
 /* ─────────────────────────────────────────────
    Role section data
@@ -30,7 +31,7 @@ const ROLES = [
   },
   {
     eyebrow: 'PARA PRODUCTORES',
-    headline: 'Deja de regalar tu margen al intermediario',
+    headline: t('landing.dejaDeRegalarTuMargenAlIntermediar', 'Deja de regalar tu margen al intermediario'),
     body: 'Trabajas 14 horas al d\u00eda para que otro ponga el precio a tu producto. Tu aceite vale lo que t\u00fa dices que vale. Abre tu tienda propia, vende directo y qu\u00e9date con el 100%.',
     cta: 'Abre tu tienda gratis',
     to: '/register?role=producer',

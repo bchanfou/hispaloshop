@@ -18,7 +18,7 @@ import { asNumber } from '../../utils/safe';
 const WIZARD_STEPS = [
   { key: 'images', label: 'Fotos', icon: ImageIcon },
   { key: 'info', label: 'Info', icon: Package },
-  { key: 'composition', label: 'Composición', icon: Apple },
+  { key: 'composition', label: t('producer_products.composicion', 'Composición'), icon: Apple },
   { key: 'publish', label: 'Publicar', icon: Send },
 ];
 
@@ -426,7 +426,7 @@ export default function ProducerProducts() {
 
   // Country options for origin dropdown
   const countryOriginOptions = [
-    { code: 'ES', name: 'España' }, { code: 'IT', name: 'Italia' },
+    { code: 'ES', name: t('admin.countries.ES', 'España') }, { code: 'IT', name: 'Italia' },
     { code: 'FR', name: 'Francia' }, { code: 'PT', name: 'Portugal' },
     { code: 'DE', name: 'Alemania' }, { code: 'GR', name: 'Grecia' },
     { code: 'NL', name: 'Paises Bajos' }, { code: 'BE', name: 'Belgica' },
@@ -435,7 +435,7 @@ export default function ProducerProducts() {
     { code: 'IE', name: 'Irlanda' }, { code: 'SE', name: 'Suecia' },
     { code: 'DK', name: 'Dinamarca' }, { code: 'NO', name: 'Noruega' },
     { code: 'TR', name: 'Turquia' }, { code: 'US', name: 'Estados Unidos' },
-    { code: 'CA', name: 'Canadá' }, { code: 'MX', name: 'México' },
+    { code: 'CA', name: t('admin.countries.CA', 'Canadá') }, { code: 'MX', name: 'México' },
     { code: 'CO', name: 'Colombia' }, { code: 'AR', name: 'Argentina' },
     { code: 'CL', name: 'Chile' }, { code: 'PE', name: 'Peru' },
     { code: 'BR', name: 'Brasil' }, { code: 'EC', name: 'Ecuador' },
@@ -451,19 +451,19 @@ export default function ProducerProducts() {
 
     // Name validation
     if (!formData.name?.trim()) {
-      toast.error('El nombre del producto es obligatorio');
+      toast.error(t('producer_products.elNombreDelProductoEsObligatorio', 'El nombre del producto es obligatorio'));
       return;
     }
 
     // Category validation
     if (!formData.category_id) {
-      toast.error('Selecciona una categoría');
+      toast.error(t('producer_products.seleccionaUnaCategoria', 'Selecciona una categoría'));
       return;
     }
 
     // Country origin validation
     if (!formData.country_origin) {
-      toast.error('Selecciona el país de origen');
+      toast.error(t('producer_products.seleccionaElPaisDeOrigen', 'Selecciona el país de origen'));
       return;
     }
 
@@ -709,16 +709,16 @@ export default function ProducerProducts() {
     // 14 EU mandatory allergens (official Spanish names)
     const EU_ALLERGENS = [
       { key: 'gluten',      label: 'Gluten' },
-      { key: 'crustaceans', label: 'Crustáceos' },
+      { key: 'crustaceans', label: t('producer_products.crustaceos', 'Crustáceos') },
       { key: 'egg',         label: 'Huevo' },
       { key: 'fish',        label: 'Pescado' },
       { key: 'peanuts',     label: 'Cacahuetes' },
       { key: 'soy',         label: 'Soja' },
-      { key: 'dairy',       label: 'Lácteos' },
-      { key: 'nuts',        label: 'Frutos de cáscara' },
+      { key: 'dairy',       label: t('home.dairy', 'Lácteos') },
+      { key: 'nuts',        label: t('producer_products.frutosDeCascara', 'Frutos de cáscara') },
       { key: 'celery',      label: 'Apio' },
       { key: 'mustard',     label: 'Mostaza' },
-      { key: 'sesame',      label: 'Sésamo' },
+      { key: 'sesame',      label: t('producerProducts.commonAllergens.sesame', 'Sésamo') },
       { key: 'sulfites',    label: 'Sulfitos' },
       { key: 'lupin',       label: 'Altramuces' },
       { key: 'mollusks',    label: 'Moluscos' },
@@ -747,7 +747,7 @@ export default function ProducerProducts() {
 
     const handleNext = () => {
       if (!canAdvance(wizardStep)) {
-        if (wizardStep === 0) toast.error('Añade al menos una imagen');
+        if (wizardStep === 0) toast.error(t('producer_products.anadeAlMenosUnaImagen', 'Añade al menos una imagen'));
         if (wizardStep === 1) toast.error('Completa todos los campos obligatorios');
         return;
       }
@@ -788,7 +788,7 @@ export default function ProducerProducts() {
                       <ImageIcon className="w-4 h-4" />
                       {t('producerProducts.productImages')}
                     </h3>
-                    <p className="text-sm text-stone-500 mb-4">Sube hasta 5 fotos de tu producto. La primera será la portada.</p>
+                    <p className="text-sm text-stone-500 mb-4">{t('producer_products.subeHasta5FotosDeTuProductoLaPr', 'Sube hasta 5 fotos de tu producto. La primera será la portada.')}</p>
                     <ImageUploader
                       images={formData.images}
                       setImages={(newImages) => {
@@ -956,7 +956,7 @@ export default function ProducerProducts() {
                       <div className="space-y-3">
                         {/* MOQ */}
                         <div>
-                          <label className="block text-xs text-stone-600 mb-0.5">Pedido mínimo (uds.)</label>
+                          <label className="block text-xs text-stone-600 mb-0.5">{t('producer_products.pedidoMinimoUds', 'Pedido mínimo (uds.)')}</label>
                           <input
                             type="number"
                             min="1"
@@ -1159,7 +1159,7 @@ export default function ProducerProducts() {
                     <input
                       value={allergensStr}
                       onChange={(e) => setAllergensStr(e.target.value)}
-                      placeholder="Especifica otros alérgenos..."
+                      placeholder={t('producer_products.especificaOtrosAlergenos', 'Especifica otros alérgenos...')}
                       className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                       data-testid="allergens-text-input"
                     />

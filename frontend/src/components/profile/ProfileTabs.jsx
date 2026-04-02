@@ -28,6 +28,7 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import SlideTabIndicator from '../motion/SlideTabIndicator';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const ALL_TABS = [
   { id: 'posts', icon: Grid3X3, label: 'Publicaciones' },
@@ -254,9 +255,9 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     if (loading.posts && !items) return <SkeletonGrid />;
     if (!items || items.length === 0) {
       return isOwn ? (
-        <EmptyState icon={Camera} title="Comparte tu primera foto" buttonLabel="Crear publicación" onButtonClick={() => navigate('/create/post')} />
+        <EmptyState icon={Camera} title="Comparte tu primera foto" buttonLabel=t('profile_tabs.crearPublicacion', 'Crear publicación') onButtonClick={() => navigate('/create/post')} />
       ) : (
-        <EmptyState icon={Camera} title="Sin publicaciones todavía" />
+        <EmptyState icon={Camera} title={t('profile_tabs.sinPublicacionesTodavia', 'Sin publicaciones todavía')} />
       );
     }
     return (
@@ -280,7 +281,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               >
                 <img
                   src={src}
-                  alt={post.caption ? post.caption.slice(0, 80) : 'Publicación'}
+                  alt={post.caption ? post.caption.slice(0, 80) : t('post_detail.publicacion', 'Publicación')}
                   loading="lazy"
                   className="w-full h-full object-cover"
                 />
@@ -300,7 +301,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       return isOwn ? (
         <EmptyState icon={Film} title="Sube tu primer reel" buttonLabel="Crear reel" onButtonClick={() => navigate('/create/reel')} />
       ) : (
-        <EmptyState icon={Film} title="Sin reels todavía" />
+        <EmptyState icon={Film} title={t('profile_tabs.sinReelsTodavia', 'Sin reels todavía')} />
       );
     }
     return (
@@ -346,7 +347,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     if (loading.products && !items) return <SkeletonGrid count={6} columns={2} />;
     if (!items || items.length === 0) {
       return isOwn ? (
-        <EmptyState icon={Package} title="Publica tu primer producto" buttonLabel="Añadir producto" onButtonClick={() => navigate('/producer/products/new')} />
+        <EmptyState icon={Package} title="Publica tu primer producto" buttonLabel=t('importer_dashboard.anadirProducto', 'Añadir producto') onButtonClick={() => navigate('/producer/products/new')} />
       ) : (
         <EmptyState icon={Package} title="Sin productos" />
       );
@@ -400,7 +401,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
       return isOwn ? (
         <EmptyState icon={BookOpen} title="Comparte tu primera receta" buttonLabel="Crear receta" onButtonClick={() => navigate('/create/recipe')} />
       ) : (
-        <EmptyState icon={BookOpen} title="Sin recetas todavía" />
+        <EmptyState icon={BookOpen} title={t('profile_tabs.sinRecetasTodavia', 'Sin recetas todavía')} />
       );
     }
     return (
@@ -456,7 +457,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
     const items = data.saved;
     if (loading.saved && !items) return <SkeletonGrid />;
     if (!items || items.length === 0) {
-      return <EmptyState icon={Bookmark} title="Nada guardado todavía" />;
+      return <EmptyState icon={Bookmark} title={t('profile_tabs.nadaGuardadoTodavia', 'Nada guardado todavía')} />;
     }
     return (
       <div className="grid grid-cols-3 gap-1">
@@ -478,7 +479,7 @@ const ProfileTabs = forwardRef(function ProfileTabs({
               >
                 <img
                   src={src}
-                  alt="Publicación guardada"
+                  alt=t('profile_tabs.publicacionGuardada', 'Publicación guardada')
                   loading="lazy"
                   className="w-full h-full object-cover"
                 />
@@ -802,7 +803,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
               className="absolute left-4 right-4 top-1/2 -translate-y-1/2 z-[111] bg-white rounded-2xl p-5 shadow-xl"
             >
               <p className="text-stone-950 font-semibold text-base mb-1">¿Eliminar este reel?</p>
-              <p className="text-stone-500 text-sm mb-4">Esta acción no se puede deshacer.</p>
+              <p className="text-stone-500 text-sm mb-4">{t('contentManagement.deleteModal.warning', 'Esta acción no se puede deshacer.')}</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
@@ -839,7 +840,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
             {commentsLoading && comments.length === 0 ? (
               <p className="text-white/50 text-sm text-center py-4">Cargando...</p>
             ) : comments.length === 0 ? (
-              <p className="text-white/50 text-sm text-center py-4">Sin comentarios aún</p>
+              <p className="text-white/50 text-sm text-center py-4">{t('feed.noComments', 'Sin comentarios aún')}</p>
             ) : comments.map((c, i) => (
               <div key={c.comment_id || i} className="flex gap-2">
                 {c.user_profile_image ? (
@@ -860,7 +861,7 @@ function ReelViewer({ reel, reelIndex, totalReels, isOwn, onClose, onPrev, onNex
             <input
               value={newComment}
               onChange={e => setNewComment(e.target.value)}
-              placeholder="Añade un comentario..."
+              placeholder={t('feed.addComment', 'Añade un comentario...')}
               className="flex-1 bg-white/10 text-white text-sm rounded-full px-4 py-2.5 min-h-[44px] outline-none placeholder:text-white/30"
               onKeyDown={async (e) => {
                 if (e.key === 'Enter' && newComment.trim() && !sendingComment) {

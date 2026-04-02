@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const isSafeUrl = (url) => {
   if (!url) return false;
@@ -18,7 +19,7 @@ function StatusBadge({ verified, needsReview, blocked, hasUrl }) {
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-950">Verificado</span>
   );
   if (needsReview) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">Revisión manual</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">{t('admin_fiscal.revisionManual', 'Revisión manual')}</span>
   );
   if (hasUrl && !verified) return (
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-stone-200 bg-white text-stone-400">Rechazado</span>
@@ -90,7 +91,7 @@ export default function AdminFiscalPage() {
       setRejectReason('');
       await fetchAll();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al procesar la revisión');
+      toast.error(error?.response?.data?.detail || t('admin_fiscal.errorAlProcesarLaRevision', 'Error al procesar la revisión'));
     } finally {
       setReviewing(false);
     }
@@ -111,7 +112,7 @@ export default function AdminFiscalPage() {
         <button type="button" onClick={() => navigate('/admin')} aria-label="Volver" className="bg-transparent border-none cursor-pointer">
           <ArrowLeft className="w-5 h-5 text-stone-950" />
         </button>
-        <h1 className="text-xl font-bold text-stone-950">Gestión fiscal</h1>
+        <h1 className="text-xl font-bold text-stone-950">{t('admin_fiscal.gestionFiscal', 'Gestión fiscal')}</h1>
       </div>
       <p className="text-sm mb-5 ml-8 text-stone-500">Retenciones, certificados y Modelo 190</p>
 
@@ -128,7 +129,7 @@ export default function AdminFiscalPage() {
           </div>
           <div className="p-4 bg-white rounded-2xl border border-stone-200">
             <p className={`text-2xl font-extrabold ${stats.pending_review > 0 ? 'text-stone-700' : 'text-stone-950'}`}>{stats.pending_review || 0}</p>
-            <p className="text-xs mt-0.5 text-stone-500">Pendientes revisión</p>
+            <p className="text-xs mt-0.5 text-stone-500">{t('admin_fiscal.pendientesRevision', 'Pendientes revisión')}</p>
           </div>
           <div className="p-4 bg-white rounded-2xl border border-stone-200">
             <p className="text-sm font-bold text-stone-950">{stats.next_190_quarter}</p>
@@ -140,7 +141,7 @@ export default function AdminFiscalPage() {
       {/* Pending manual reviews */}
       {pendingReviews.length > 0 && (
         <div className="mb-5">
-          <h2 className="text-sm font-bold mb-3 text-stone-950">Revisión manual pendiente</h2>
+          <h2 className="text-sm font-bold mb-3 text-stone-950">{t('admin_fiscal.revisionManualPendiente', 'Revisión manual pendiente')}</h2>
           <div className="space-y-2">
             {pendingReviews.map(inf => (
               <div key={inf.influencer_id} className="flex items-center gap-3 p-3.5 bg-white rounded-2xl border border-stone-200">
@@ -272,7 +273,7 @@ export default function AdminFiscalPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate text-stone-950">{inf.full_name || inf.email}</p>
                 <p className="text-xs text-stone-500">
-                  {inf.tax_country || '—'} · {inf.withholding_pct > 0 ? `${inf.withholding_pct}% IRPF` : 'Sin retención'}
+                  {inf.tax_country || '—'} · {inf.withholding_pct > 0 ? `${inf.withholding_pct}% IRPF` : t('fiscal_setup.sinRetencion', 'Sin retención')}
                   {inf.payout_method ? ` · ${inf.payout_method === 'sepa' ? 'SEPA' : 'Stripe'}` : ''}
                 </p>
               </div>

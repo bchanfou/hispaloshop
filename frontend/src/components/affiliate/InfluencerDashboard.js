@@ -11,6 +11,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export function InfluencerDashboard() {
   const [copied, setCopied] = useState(false);
@@ -54,7 +55,7 @@ export function InfluencerDashboard() {
   const copyLink = () => {
     navigator.clipboard.writeText(affiliate_link);
     setCopied(true);
-    toast.success('Link copiado', { description: 'Compartelo en tus redes sociales' });
+    toast.success('Link copiado', { description: t('influencer_dashboard.comparteloEnTusRedesSociales', 'Compartelo en tus redes sociales') });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -65,7 +66,7 @@ export function InfluencerDashboard() {
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex-1 min-w-0">
-              <p className="text-stone-300 text-sm mb-1">Tu link de afiliado</p>
+              <p className="text-stone-300 text-sm mb-1">{t('influencer_dashboard.tuLinkDeAfiliado', 'Tu link de afiliado')}</p>
               <p className="text-xl md:text-2xl font-bold font-mono truncate">
                 {affiliate_link}
               </p>

@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { removeToken } from '../../lib/auth';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 /* ── Section header ── */
 function SectionLabel({ children }) {
@@ -128,10 +129,10 @@ export default function SettingsPage() {
     setIsPrivate(val);
     try {
       await apiClient.put('/customer/profile', { is_private: val });
-      toast.success(val ? 'Cuenta privada activada' : 'Cuenta pública activada');
+      toast.success(val ? 'Cuenta privada activada' : t('settings.cuentaPublicaActivada', 'Cuenta pública activada'));
     } catch {
       setIsPrivate(!val);
-      toast.error('Error al cambiar la privacidad');
+      toast.error(t('settings.errorAlCambiarLaPrivacidad', 'Error al cambiar la privacidad'));
     }
   };
 
@@ -140,7 +141,7 @@ export default function SettingsPage() {
       // Use multi-account aware logout — switches to fallback account if available
       const result = await logoutAccount(user);
       if (result?.switched && result?.user) {
-        toast.success('Sesión cerrada. Cambiado a otra cuenta.');
+        toast.success(t('settings.sesionCerradaCambiadoAOtraCuenta', 'Sesión cerrada. Cambiado a otra cuenta.'));
         navigate(result.user.username ? `/${result.user.username}` : '/', { replace: true });
         return;
       }
@@ -162,7 +163,7 @@ export default function SettingsPage() {
       logout();
       navigate('/login', { replace: true });
     } catch (e) {
-      toast.error(e?.response?.data?.detail || 'Error al eliminar la cuenta');
+      toast.error(e?.response?.data?.detail || t('settings.errorAlEliminarLaCuenta', 'Error al eliminar la cuenta'));
       setDeleting(false);
     }
   };
@@ -178,7 +179,7 @@ export default function SettingsPage() {
         >
           <ArrowLeft size={20} className="text-stone-950" />
         </button>
-        <h1 className="text-[17px] font-semibold text-stone-950">Configuración</h1>
+        <h1 className="text-[17px] font-semibold text-stone-950">{t('community.configuracion', 'Configuración')}</h1>
       </div>
 
       <div className="mx-auto max-w-[960px] lg:flex lg:gap-8 lg:px-4">
@@ -187,10 +188,10 @@ export default function SettingsPage() {
       <aside className="hidden lg:block lg:w-[240px] lg:shrink-0 lg:pt-6 lg:pb-8 lg:sticky lg:top-[60px] lg:self-start lg:max-h-[calc(100vh-60px)] lg:overflow-y-auto">
         <nav className="space-y-0.5">
           <SettingsSidebarLink icon={<User size={16} />} label="Editar perfil" to="/settings/profile" />
-          <SettingsSidebarLink icon={<Lock size={16} />} label="Contraseña" to="/settings/password" />
+          <SettingsSidebarLink icon={<Lock size={16} />} label=t('auth.password', 'Contraseña') to="/settings/password" />
           <SettingsSidebarLink icon={<Bell size={16} />} label="Notificaciones" to="/settings/notifications" />
           <SettingsSidebarLink icon={<Eye size={16} />} label="Privacidad" to={null} active />
-          <SettingsSidebarLink icon={<Globe size={16} />} label="País e idioma" to="/settings/locale" />
+          <SettingsSidebarLink icon={<Globe size={16} />} label=t('settings.paisEIdioma', 'País e idioma') to="/settings/locale" />
           <SettingsSidebarLink icon={<Shield size={16} />} label="Solicitudes" to="/settings/follow-requests" />
           {(isProducer || isInfluencer) && (
             <>
@@ -221,14 +222,14 @@ export default function SettingsPage() {
           <SettingsItem
             icon={<Lock size={16} />}
             iconClass="bg-stone-100 text-stone-600"
-            label="Contraseña"
+            label=t('auth.password', 'Contraseña')
             to="/settings/password"
           />
           <SettingsItem
             icon={<Eye size={16} />}
             iconClass="bg-stone-100 text-stone-600"
             label="Privacidad"
-            sublabel={isProducer ? 'Las cuentas de productor son siempre públicas' : (isPrivate ? 'Cuenta privada' : 'Cuenta pública')}
+            sublabel={isProducer ? t('settings.lasCuentasDeProductorSonSiemprePub', 'Las cuentas de productor son siempre públicas') : (isPrivate ? 'Cuenta privada' : 'Cuenta pública')}
             rightContent={
               isProducer
                 ? <ToggleSwitch value={false} onChange={() => {}} disabled />
@@ -238,8 +239,8 @@ export default function SettingsPage() {
           <SettingsItem
             icon={<Globe size={16} />}
             iconClass="bg-stone-100 text-stone-600"
-            label="País e idioma"
-            sublabel={user?.country || 'España'}
+            label=t('settings.paisEIdioma', 'País e idioma')
+            sublabel={user?.country || t('admin.countries.ES', 'España')}
             to="/settings/locale"
           />
         </SettingsGroup>
@@ -277,7 +278,7 @@ export default function SettingsPage() {
                   <SettingsItem
                     icon={<CreditCard size={16} />}
                     iconClass="bg-stone-100 text-stone-600"
-                    label="Plan de suscripción"
+                    label=t('settings.planDeSuscripcion', 'Plan de suscripción')
                     to="/settings/plan"
                   />
                   <SettingsItem
@@ -293,13 +294,13 @@ export default function SettingsPage() {
                   <SettingsItem
                     icon={<Receipt size={16} />}
                     iconClass="bg-stone-100 text-stone-600"
-                    label="Configuración fiscal"
+                    label=t('fiscal_setup.configuracionFiscal', 'Configuración fiscal')
                     to="/influencer/fiscal-setup"
                   />
                   <SettingsItem
                     icon={<CreditCard size={16} />}
                     iconClass="bg-stone-100 text-stone-600"
-                    label="Método de cobro"
+                    label=t('producer_payments.metodoDeCobro', 'Método de cobro')
                     to="/settings/payout"
                   />
                   <SettingsItem
@@ -338,13 +339,13 @@ export default function SettingsPage() {
           <SettingsItem
             icon={<FileText size={16} />}
             iconClass="bg-stone-100 text-stone-600"
-            label="Términos y condiciones"
+            label=t('register.terminosYCondiciones', 'Términos y condiciones')
             to="/legal/terminos"
           />
           <SettingsItem
             icon={<Shield size={16} />}
             iconClass="bg-stone-100 text-stone-600"
-            label="Política de privacidad"
+            label=t('register.politicaDePrivacidad', 'Política de privacidad')
             to="/legal/privacidad"
           />
         </SettingsGroup>
@@ -377,7 +378,7 @@ export default function SettingsPage() {
           className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Confirmar cierre de sesión"
+          aria-label={t('settings.confirmarCierreDeSesion', 'Confirmar cierre de sesión')}
           onClick={() => setShowLogoutConfirm(false)}
         >
           <div
@@ -412,7 +413,7 @@ export default function SettingsPage() {
           className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Confirmar eliminación de cuenta"
+          aria-label={t('settings.confirmarEliminacionDeCuenta', 'Confirmar eliminación de cuenta')}
           onClick={() => setShowDeleteConfirm(false)}
         >
           <div
@@ -429,7 +430,7 @@ export default function SettingsPage() {
               value={deleteEmail}
               onChange={e => setDeleteEmail(e.target.value)}
               placeholder={user?.email || 'tu@email.com'}
-              aria-label="Confirma tu email para eliminar la cuenta"
+              aria-label={t('settings.confirmaTuEmailParaEliminarLaCuent', 'Confirma tu email para eliminar la cuenta')}
               className="w-full h-11 px-3.5 border border-stone-200 rounded-2xl text-[14px] text-stone-950 outline-none focus:border-stone-950 transition-colors mb-4"
             />
             <div className="flex gap-2.5">

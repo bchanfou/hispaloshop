@@ -118,12 +118,29 @@ def process_file(filepath):
         new_keys[final_key] = text
         return final_key
 
+    # Track whether we're inside a function/component (indent > 0)
+    inside_component = False
+    brace_depth = 0
+
     for i, line in enumerate(lines):
         stripped = line.strip()
+        # Track brace depth to know if we're inside a function
+        brace_depth += line.count('{') - line.count('}')
+        if re.match(r'^(export\s+)?(default\s+)?function\s', stripped) or re.match(r'^const\s+\w+\s*=\s*\(', stripped):
+            inside_component = True
+        if brace_depth <= 0:
+            inside_component = False
+            brace_depth = 0
+
         if stripped.startswith('import ') or stripped.startswith('//') or stripped.startswith('/*') or stripped.startswith('*'):
             continue
         # Skip lines that are already using t()
         if "t('" in line or 't("' in line:
+            continue
+        # CRITICAL: Skip module-level code (const ARRAY = [...], etc.)
+        # Only migrate strings inside component functions
+        indent = len(line) - len(line.lstrip())
+        if indent < 2 and not inside_component:
             continue
 
         modified = False

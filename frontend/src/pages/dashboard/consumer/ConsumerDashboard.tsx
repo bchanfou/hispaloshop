@@ -20,6 +20,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { asNumber, firstToken } from '../../../utils/safe';
+import { useTranslation } from 'react-i18next';
 
 function generateMonthlyData(orders) {
   const months = ['Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb'];
@@ -45,14 +46,14 @@ function generateSuggestions(orders, navigate) {
     suggestions.push({
       id: 1,
       title: 'Bienvenido a Hispaloshop',
-      description: 'Descubre productos artesanales de tu zona',
+      description: t('consumer_dashboard.descubreProductosArtesanalesDeTuZon', 'Descubre productos artesanales de tu zona'),
       actionLabel: 'Explorar',
       onAction: () => navigate('/products')
     });
   } else {
     suggestions.push({
       id: 1,
-      title: 'Basado en tus compras',
+      title: t('consumer_dashboard.basadoEnTusCompras', 'Basado en tus compras'),
       description: 'Descubre productos similares a los que te gustan',
       actionLabel: 'Ver recomendaciones',
       onAction: () => navigate('/discover')
@@ -62,7 +63,7 @@ function generateSuggestions(orders, navigate) {
   suggestions.push({
     id: 2,
     title: 'Tienes ingredientes para recetas',
-    description: 'Descubre recetas mediterraneas con tus productos',
+    description: t('consumer_dashboard.descubreRecetasMediterraneasConTusP', 'Descubre recetas mediterraneas con tus productos'),
     actionLabel: 'Ver recetas',
     onAction: () => navigate('/recipes')
   });
@@ -153,7 +154,7 @@ function ConsumerDashboard() {
     <div className="min-h-screen bg-stone-50 p-4 pb-24">
       <DashboardHeader
         userName={firstToken(user?.name, 'Usuario')}
-        subtitle="Aqui esta tu resumen de hoy"
+        subtitle={t('consumer_dashboard.aquiEstaTuResumenDeHoy', 'Aqui esta tu resumen de hoy')}
         notificationCount={0}
       />
 
@@ -193,7 +194,7 @@ function ConsumerDashboard() {
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-stone-950 mb-3">Acciones rápidas</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">{t('sellerAI.quickActions', 'Acciones rápidas')}</h3>
         <QuickActions actions={quickActions} />
       </div>
 

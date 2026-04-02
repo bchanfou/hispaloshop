@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Users, Target, Loader2, ShoppingBag, ArrowUp, ArrowDown, Euro, Star } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, LineChart, Line, CartesianGrid } from 'recharts';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 function AnalyticsSection({ title, icon: Icon, children }) {
   return (
@@ -26,7 +27,7 @@ function SalesSourcesChart({ sources }) {
   ].filter(d => d.value > 0);
 
   const total = data.reduce((s, d) => s + d.value, 0);
-  if (!total) return <p className="text-sm text-stone-500 text-center py-4">Sin datos aún</p>;
+  if (!total) return <p className="text-sm text-stone-500 text-center py-4">{t('producer_analytics.sinDatosAun', 'Sin datos aún')}</p>;
 
   // Add percentage to each entry
   const chartData = data.map(d => ({ ...d, pct: Math.round((d.value / total) * 100) }));
@@ -178,8 +179,8 @@ export default function ProducerAnalytics() {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <BarChart3 className="w-12 h-12 text-stone-300 mb-4" />
-        <p className="text-stone-600 font-medium mb-2">Error al cargar analíticas</p>
-        <p className="text-stone-500 text-sm mb-4">Comprueba tu conexión e inténtalo de nuevo.</p>
+        <p className="text-stone-600 font-medium mb-2">{t('producer_analytics.errorAlCargarAnaliticas', 'Error al cargar analíticas')}</p>
+        <p className="text-stone-500 text-sm mb-4">{t('producer_analytics.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo.')}</p>
         <button
           type="button"
           onClick={fetchAnalytics}
@@ -194,15 +195,15 @@ export default function ProducerAnalytics() {
   return (
     <div className="max-w-[975px] mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-stone-950">Analítica</h1>
+        <h1 className="text-2xl font-bold text-stone-950">{t('producer_analytics.analitica', 'Analítica')}</h1>
         <select
           value={period}
           onChange={e => setPeriod(e.target.value)}
           className="px-3 py-2 rounded-2xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400"
         >
-          <option value="7d">Últimos 7 días</option>
-          <option value="30d">Últimos 30 días</option>
-          <option value="90d">Últimos 90 días</option>
+          <option value="7d">{t('producer.followerGrowth.last7Days', 'Últimos 7 días')}</option>
+          <option value="30d">{t('producer.followerGrowth.last30Days', 'Últimos 30 días')}</option>
+          <option value="90d">{t('producer.followerGrowth.last90Days', 'Últimos 90 días')}</option>
           <option value="12m">Últimos 12 meses</option>
         </select>
       </div>
@@ -277,7 +278,7 @@ export default function ProducerAnalytics() {
       </div>
 
       {/* Todos los productos vendidos */}
-      <AnalyticsSection title="Productos más vendidos" icon={ShoppingBag}>
+      <AnalyticsSection title={t('producer_analytics.productosMasVendidos', 'Productos más vendidos')} icon={ShoppingBag}>
         {data?.top_products?.length ? (
           <div className="space-y-0">
             {data.top_products.map((product, i) => (
@@ -301,12 +302,12 @@ export default function ProducerAnalytics() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-stone-500 text-center py-4">Sin datos aún</p>
+          <p className="text-sm text-stone-500 text-center py-4">{t('producer_analytics.sinDatosAun', 'Sin datos aún')}</p>
         )}
       </AnalyticsSection>
 
       {/* Sales sources */}
-      <AnalyticsSection title="¿De dónde vienen tus ventas?" icon={BarChart3}>
+      <AnalyticsSection title={t('producer_analytics.deDondeVienenTusVentas', '¿De dónde vienen tus ventas?')} icon={BarChart3}>
         <SalesSourcesChart sources={data?.sales_sources} />
       </AnalyticsSection>
 
@@ -314,7 +315,7 @@ export default function ProducerAnalytics() {
       <RevenueTrendChart trend={data?.revenue_trend} />
 
       {/* Followers */}
-      <AnalyticsSection title="Seguidores de la tienda" icon={Users}>
+      <AnalyticsSection title={t('producer_analytics.seguidoresDeLaTienda', 'Seguidores de la tienda')} icon={Users}>
         <div className="flex items-end gap-4">
           <div>
             <p className="text-3xl font-extrabold text-stone-950 tracking-tight">
@@ -331,11 +332,11 @@ export default function ProducerAnalytics() {
       </AnalyticsSection>
 
       {/* Conversion */}
-      <AnalyticsSection title="Tasa de conversión" icon={Target}>
+      <AnalyticsSection title={t('producer_analytics.tasaDeConversion', 'Tasa de conversión')} icon={Target}>
         <div className="grid grid-cols-3 gap-3 mb-3">
           {[
             { label: 'Visitas tienda', value: data?.conversion?.store_visits || 0 },
-            { label: 'Añadidos al carrito', value: data?.conversion?.cart_adds || 0 },
+            { label: t('producer_analytics.anadidosAlCarrito', 'Añadidos al carrito'), value: data?.conversion?.cart_adds || 0 },
             { label: 'Compras', value: data?.conversion?.purchases || 0 },
           ].map(stat => (
             <div key={stat.label} className="bg-stone-50 rounded-2xl p-3 text-center">

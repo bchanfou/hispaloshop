@@ -226,7 +226,7 @@ export default function FinancialDashboard() {
           <h1 className="text-2xl font-extrabold tracking-tight text-stone-100 mb-1" data-testid="financial-title">
             Contabilidad
           </h1>
-          <p className="text-sm text-stone-400">Ledger financiero, impuestos y consolidación USD</p>
+          <p className="text-sm text-stone-400">{t('finance.subtitle', 'Ledger financiero, impuestos y consolidación USD')}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -446,7 +446,7 @@ export default function FinancialDashboard() {
           {filteredEntries.length === 0 ? (
             <div className="py-12 text-center">
               <Receipt className="w-10 h-10 mx-auto mb-2 text-stone-100/10" />
-              <p className="text-sm text-stone-500">Sin entradas en el ledger</p>
+              <p className="text-sm text-stone-500">{t('finance.noEntries', 'Sin entradas en el ledger')}</p>
             </div>
           ) : (
             <table className="w-full text-xs">

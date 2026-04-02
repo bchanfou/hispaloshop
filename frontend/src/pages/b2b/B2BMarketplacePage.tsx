@@ -5,9 +5,10 @@ import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2, M
 import { useB2BCatalog, useB2BProducers } from '../../features/b2b/queries';
 import QuoteBuilder from '../../components/b2b/QuoteBuilder';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 const TABS = [
-  { id: 'catalog', label: 'Catálogo', icon: Package },
+  { id: 'catalog', label: t('b2_b_marketplace.catalogo', 'Catálogo'), icon: Package },
   { id: 'producers', label: 'Productores', icon: Users },
   { id: 'rfq', label: 'Solicitar oferta', icon: FileText },
 ];
@@ -18,9 +19,9 @@ const CATEGORIES = [
 
 const SORT_OPTIONS = [
   { value: 'relevance', label: 'Relevancia' },
-  { value: 'price_asc', label: 'Precio más bajo' },
-  { value: 'most_products', label: 'Más productos' },
-  { value: 'newest', label: 'Más reciente' },
+  { value: 'price_asc', label: t('b2_b_marketplace.precioMasBajo', 'Precio más bajo') },
+  { value: 'most_products', label: t('b2_b_marketplace.masProductos', 'Más productos') },
+  { value: 'newest', label: t('search.masReciente', 'Más reciente') },
 ];
 
 const PAGE_SIZE = 20;
@@ -321,8 +322,8 @@ export default function B2BMarketplacePage() {
             ) : catalogQuery.isError ? (
               <div className="text-center py-16 text-stone-500">
                 <Package className="w-12 h-12 mx-auto mb-3 text-stone-300" />
-                <p className="font-medium">Sin acceso al catálogo B2B</p>
-                <p className="text-sm mt-1">Completa tu perfil de importador para acceder</p>
+                <p className="font-medium">{t('b2_b_marketplace.sinAccesoAlCatalogoB2b', 'Sin acceso al catálogo B2B')}</p>
+                <p className="text-sm mt-1">{t('b2_b_marketplace.completaTuPerfilDeImportadorParaAc', 'Completa tu perfil de importador para acceder')}</p>
                 <button
                   onClick={() => catalogQuery.refetch()}
                   className="mt-3 bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
@@ -366,7 +367,7 @@ export default function B2BMarketplacePage() {
             ) : producersQuery.isError ? (
               <div className="text-center py-16 text-stone-500">
                 <Users className="w-12 h-12 mx-auto mb-3 text-stone-300" />
-                <p className="font-medium">Sin acceso al directorio de productores</p>
+                <p className="font-medium">{t('b2_b_marketplace.sinAccesoAlDirectorioDeProductores', 'Sin acceso al directorio de productores')}</p>
                 <button
                   onClick={() => producersQuery.refetch()}
                   className="mt-3 bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
@@ -412,7 +413,7 @@ export default function B2BMarketplacePage() {
               <div className="flex items-start gap-3">
                 <Tag className="w-5 h-5 text-stone-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-stone-950 text-sm">Cómo funciona</p>
+                  <p className="font-semibold text-stone-950 text-sm">{t('becomeInfluencer.howItWorksTitle', 'Cómo funciona')}</p>
                   <p className="text-xs text-stone-600 mt-1">
                     Indica el productor, los productos y la cantidad. El productor recibirá tu solicitud y podrá responderte con una oferta personalizada.
                   </p>

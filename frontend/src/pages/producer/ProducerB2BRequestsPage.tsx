@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { Loader2, Package, Truck, X, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 function formatRelativeTime(dateStr) {
   if (!dateStr) return '';
@@ -45,11 +46,11 @@ function ShipForm({ requestId, onSuccess }) {
 
   const submit = async () => {
     if (!tracking.trim()) {
-      toast.error('Introduce el número de tracking');
+      toast.error(t('producer_b2_b_requests.introduceElNumeroDeTracking', 'Introduce el número de tracking'));
       return;
     }
     if (trackUrl.trim() && !/^https?:\/\/.+/.test(trackUrl.trim())) {
-      toast.error('URL de tracking no válida. Debe empezar con http:// o https://');
+      toast.error(t('producer_b2_b_requests.urlDeTrackingNoValidaDebeEmpezar', 'URL de tracking no válida. Debe empezar con http:// o https://'));
       return;
     }
     setSaving(true);
@@ -58,10 +59,10 @@ function ShipForm({ requestId, onSuccess }) {
         tracking_number: tracking.trim(),
         tracking_url: trackUrl.trim(),
       });
-      toast.success('Envío registrado');
+      toast.success(t('producer_b2_b_requests.envioRegistrado', 'Envío registrado'));
       onSuccess();
     } catch {
-      toast.error('Error al registrar el envío');
+      toast.error(t('producer_b2_b_requests.errorAlRegistrarElEnvio', 'Error al registrar el envío'));
     } finally {
       setSaving(false);
     }
@@ -84,7 +85,7 @@ function ShipForm({ requestId, onSuccess }) {
         type="text"
         value={tracking}
         onChange={e => setTracking(e.target.value)}
-        placeholder="Número de tracking"
+        placeholder={t('producer_b2_b_requests.numeroDeTracking', 'Número de tracking')}
         className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm focus:outline-none focus:border-stone-950"
       />
       <input
@@ -124,7 +125,7 @@ function RequestCard({ request, onAction }) {
   const confirm = async () => {
     const parsedPrice = parseFloat(confirmedPrice);
     if (!confirmedPrice || isNaN(parsedPrice) || parsedPrice <= 0) {
-      toast.error('Introduce un precio válido por unidad');
+      toast.error(t('producer_b2_b_requests.introduceUnPrecioValidoPorUnidad', 'Introduce un precio válido por unidad'));
       return;
     }
     setProcessing(true);
@@ -240,7 +241,7 @@ function RequestCard({ request, onAction }) {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-stone-600 block mb-1">Plazo (días)</label>
+                <label className="text-xs font-semibold text-stone-600 block mb-1">{t('producer_b2_b_requests.plazoDias', 'Plazo (días)')}</label>
                 <input
                   type="number"
                   value={estimatedDays}
@@ -266,7 +267,7 @@ function RequestCard({ request, onAction }) {
               <textarea
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                placeholder="Ej: Stock disponible. Mínimo 100kg por pedido."
+                placeholder={t('producer_b2_b_requests.ejStockDisponibleMinimo100kgPorP', 'Ej: Stock disponible. Mínimo 100kg por pedido.')}
                 rows={2}
                 className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-sm resize-none focus:outline-none focus:border-stone-950"
               />
@@ -383,7 +384,7 @@ export default function ProducerB2BRequestsPage() {
           )}
         </h1>
       </div>
-      <p className="text-sm text-stone-500 mb-5">Gestiona las solicitudes B2B de importadores</p>
+      <p className="text-sm text-stone-500 mb-5">{t('producer_b2_b_requests.gestionaLasSolicitudesB2bDeImportad', 'Gestiona las solicitudes B2B de importadores')}</p>
 
       {/* Filter tabs */}
       <div className="flex gap-1.5 mb-5 overflow-x-auto">

@@ -41,7 +41,7 @@ function EmptyFollowing() {
       <p className="mt-1.5 max-w-[260px] text-[13px] leading-relaxed text-stone-400">
         {t(
           'feed.following.empty.description',
-          'Sigue a productores, importadores e influencers para ver su contenido aquí.'
+          t('following_feed.sigueAProductoresImportadoresEInfl', 'Sigue a productores, importadores e influencers para ver su contenido aquí.')
         )}
       </p>
       <button
@@ -371,7 +371,7 @@ function FollowingFeed() {
                   <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-stone-200">
                     <Check className="h-7 w-7 text-stone-400" />
                   </div>
-                  <p className="text-[14px] font-semibold text-stone-950">Estás al día</p>
+                  <p className="text-[14px] font-semibold text-stone-950">{t('following_feed.estasAlDia', 'Estás al día')}</p>
                   <p className="text-[13px] text-stone-400">Has visto todas las publicaciones nuevas</p>
                 </div>
               );

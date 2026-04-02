@@ -40,7 +40,7 @@ function WeeklySummaryCard() {
 
   return (
     <div className="mx-3 my-3 rounded-2xl bg-stone-950 p-5 text-white">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Tu semana en HispaloShop</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">{t('for_you_feed.tuSemanaEnHispaloshop', 'Tu semana en HispaloShop')}</p>
       <p className="text-[15px] font-bold leading-snug mb-4">Resumen semanal</p>
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div className="flex flex-col items-center gap-1">
@@ -225,7 +225,7 @@ export default function ForYouFeed() {
         <div className="px-4 py-8 space-y-6">
           <div className="text-center">
             <p className="text-lg font-semibold text-stone-950">Bienvenido a HispaloShop</p>
-            <p className="text-sm text-stone-500 mt-1">Sigue productores para ver su contenido aquí</p>
+            <p className="text-sm text-stone-500 mt-1">{t('for_you_feed.sigueProductoresParaVerSuContenido', 'Sigue productores para ver su contenido aquí')}</p>
           </div>
           <SuggestedUsersCard />
           <button

@@ -7,9 +7,10 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
 import { useHaptics } from '../hooks/useHaptics';
+import { useTranslation } from 'react-i18next';
 
 const CERT_LABELS = {
-  organic: 'Ecológico',
+  organic: t('search.ecologico', 'Ecológico'),
   dop: 'DOP',
   igp: 'IGP',
   gluten_free: 'Sin Gluten',
@@ -53,7 +54,7 @@ function AddButton({ onAdd, isDisabled, testId }) {
       onClick={handleClick}
       disabled={isDisabled}
       data-testid={testId}
-      aria-label="Añadir al carrito"
+      aria-label={t('product.anadirAlCarrito', 'Añadir al carrito')}
       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-none transition-all ${
         isDisabled ? 'cursor-not-allowed bg-stone-100 text-stone-500'
         : confirmed ? 'cursor-pointer bg-stone-100 text-stone-500'

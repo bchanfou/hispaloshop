@@ -50,7 +50,7 @@ export default function WishlistPage() {
     } else if (added > 0) {
       toast.error(`${added} añadidos, ${failed} fallaron`);
     } else {
-      toast.error('Error al añadir productos al carrito');
+      toast.error(t('recipe_detail.errorAlAnadirProductosAlCarrito', 'Error al añadir productos al carrito'));
     }
   };
 

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { timeAgo } from '../utils/time';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 interface PostUser {
   name?: string;
@@ -81,7 +82,7 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
     setDeleting(true);
     try {
       await apiClient.delete(`/posts/${postId}`);
-      toast.success('Publicación eliminada');
+      toast.success(t('social.deleted', 'Publicación eliminada'));
       onDelete?.(postId);
       if (posts.length <= 1) onClose?.();
     } catch {
@@ -199,7 +200,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
   const handleShare = useCallback(async () => {
     const url = `${window.location.origin}/posts/${postId}`;
     if (navigator.share) {
-      try { await navigator.share({ title: caption?.slice(0, 60) || 'Publicación', url }); } catch { /* cancelled */ }
+      try { await navigator.share({ title: caption?.slice(0, 60) || t('post_detail.publicacion', 'Publicación'), url }); } catch { /* cancelled */ }
     } else {
       try { await navigator.clipboard.writeText(url); toast.success('Enlace copiado'); } catch { /* fallback */ }
     }
@@ -245,7 +246,7 @@ function PostFeedCard({ post: currentPost, profile, index, isOwn, showMenu, setS
                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(null)} />
                 <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-2xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-stone-100 overflow-hidden">
                   <button
-                    onClick={() => { onClose?.(); toast?.('Edición de posts no disponible aún'); }}
+                    onClick={() => { onClose?.(); toast?.(t('post_viewer.edicionDePostsNoDisponibleAun', 'Edición de posts no disponible aún')); }}
                     className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-stone-950 hover:bg-stone-50"
                   >
                     <Pencil size={16} /> Editar

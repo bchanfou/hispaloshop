@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, UserPlus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 export default function FollowRequestsPage() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function FollowRequestsPage() {
       setRequests(prev => prev.filter(r => r.request_id !== requestId));
       toast.success(action === 'accept' ? 'Solicitud aceptada' : 'Solicitud rechazada');
     } catch {
-      toast.error('Error al procesar la solicitud');
+      toast.error(t('follow_requests.errorAlProcesarLaSolicitud', 'Error al procesar la solicitud'));
     } finally {
       setProcessing(prev => { const next = new Set(prev); next.delete(requestId); return next; });
     }

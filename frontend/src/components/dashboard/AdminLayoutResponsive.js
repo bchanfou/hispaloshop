@@ -178,8 +178,8 @@ export default function AdminLayoutResponsive() {
             <button
               onClick={handleLogout}
               className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-              aria-label="Cerrar sesión"
-              title="Cerrar sesión"
+              aria-label={t('common.logout', 'Cerrar sesión')}
+              title={t('common.logout', 'Cerrar sesión')}
               data-testid="desktop-logout-button"
             >
               <LogOut className="w-5 h-5" strokeWidth={1.5} />

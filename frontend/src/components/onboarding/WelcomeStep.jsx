@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Smartphone, Trophy } from 'lucide-react';
 import { onboardingApi } from '../../lib/onboardingApi';
+import { useTranslation } from 'react-i18next';
 
 export default function WelcomeStep({ onComplete, onError }) {
   const [loading, setLoading] = useState(false);

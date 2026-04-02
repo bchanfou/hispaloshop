@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, RotateCcw, Search, AlertTriangle, ChevronDown, Download } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const TABS = [
   { id: 'eligible', label: 'Pedidos elegibles' },
@@ -44,10 +45,10 @@ function RefundModal({ order, onClose, onRefunded }) {
   const total = order?.total_amount || 0;
 
   const handleRefund = async () => {
-    if (!order?.order_id) { toast.error('ID de pedido no válido'); return; }
+    if (!order?.order_id) { toast.error(t('admin_refunds.idDePedidoNoValido', 'ID de pedido no válido')); return; }
     const parsedAmount = parseFloat(amount);
     if (type === 'partial' && (!amount || isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > total)) {
-      toast.error('Introduce un importe válido');
+      toast.error(t('payouts.introduceUnImporteValido', 'Introduce un importe válido'));
       return;
     }
     if (!window.confirm(`¿Confirmar reembolso ${type === 'full' ? 'total' : 'parcial'} de ${fmtPrice(type === 'full' ? total : parsedAmount)}?`)) return;
@@ -61,7 +62,7 @@ function RefundModal({ order, onClose, onRefunded }) {
       toast.success('Reembolso procesado correctamente');
       onRefunded();
     } catch (err) {
-      toast.error(err?.response?.data?.detail || err?.message || 'Error al procesar el reembolso');
+      toast.error(err?.response?.data?.detail || err?.message || t('admin_refunds.errorAlProcesarElReembolso', 'Error al procesar el reembolso'));
     } finally {
       setProcessing(false);
     }
@@ -126,8 +127,8 @@ function RefundModal({ order, onClose, onRefunded }) {
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-stone-700 mb-0.5">Acción irreversible</p>
-              <p>Se procesará el reembolso en Stripe y se ajustarán las comisiones automáticamente.</p>
+              <p className="font-semibold text-stone-700 mb-0.5">{t('admin_refunds.accionIrreversible', 'Acción irreversible')}</p>
+              <p>{t('admin_refunds.seProcesaraElReembolsoEnStripeYSe', 'Se procesará el reembolso en Stripe y se ajustarán las comisiones automáticamente.')}</p>
             </div>
           </div>
         </div>
@@ -277,7 +278,7 @@ export default function AdminRefunds() {
   return (
     <div>
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-stone-950 mb-1">Gestión de reembolsos</h1>
+        <h1 className="text-2xl font-bold text-stone-950 mb-1">{t('admin_refunds.gestionDeReembolsos', 'Gestión de reembolsos')}</h1>
         <p className="text-sm text-stone-500">
           {data.refunded.length} reembolsos procesados · {fmtPrice(totalRefunded)} total
         </p>

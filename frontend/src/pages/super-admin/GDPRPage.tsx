@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, Lock, Download, Trash2, FileText, AlertTriangle } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const TYPE_CONFIG = {
   deletion: { label: 'Derecho al olvido', icon: Trash2, color: '#44403c' },
@@ -84,7 +85,7 @@ export default function GDPRPage() {
         : 'Solicitud rechazada.');
       fetchData();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al procesar la solicitud GDPR');
+      toast.error(error?.response?.data?.detail || t('g_d_p_r.errorAlProcesarLaSolicitudGdpr', 'Error al procesar la solicitud GDPR'));
     }
   };
 

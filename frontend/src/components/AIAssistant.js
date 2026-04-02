@@ -481,7 +481,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     if (!user) {
       setMessages([...messages, {
         role: 'assistant',
-        content: 'Por favor, inicia sesión para usar el asistente de compras.',
+        content: t('a_i_assistant.porFavorIniciaSesionParaUsarElAs', 'Por favor, inicia sesión para usar el asistente de compras.'),
         products: []
       }]);
       return;
@@ -580,7 +580,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
         ...prev,
         { 
           role: 'assistant',
-          content: error.message || 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.',
+          content: error.message || t('a_i_assistant.loSientoHaOcurridoUnErrorPorFav', 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.'),
           products: []
         }
       ]);
@@ -756,12 +756,12 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                     {user ? `Hola${user.name ? `, ${user.name.split(' ')[0]}` : ''}` : 'Bienvenido'}
                   </h4>
                   <p className="text-sm text-stone-500 mb-6 leading-relaxed px-4">
-                    {user ? getPersonalizedWelcome() : 'Inicia sesión para una experiencia personalizada.'}
+                    {user ? getPersonalizedWelcome() : t('a_i_assistant.iniciaSesionParaUnaExperienciaPerso', 'Inicia sesión para una experiencia personalizada.')}
                   </p>
                   
                   {/* Suggestion Chips */}
                   <div className="space-y-3">
-                    <p className="text-xs text-stone-500 uppercase tracking-wider">Búsquedas rápidas</p>
+                    <p className="text-xs text-stone-500 uppercase tracking-wider">{t('a_i_assistant.busquedasRapidas', 'Búsquedas rápidas')}</p>
                     <div className="flex flex-wrap gap-2 justify-center px-2">
                       {SUGGESTION_CHIPS.slice(0, 3).map((chip) => (
                         <button

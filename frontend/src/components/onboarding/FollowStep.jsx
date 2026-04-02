@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { onboardingApi } from '../../lib/onboardingApi';
+import { useTranslation } from 'react-i18next';
 
 export default function FollowStep({ onBack, onComplete, onError }) {
   const [suggestions, setSuggestions] = useState([]);
@@ -30,7 +31,7 @@ export default function FollowStep({ onBack, onComplete, onError }) {
 
   const handleFinish = async () => {
     if (suggestions.length > 0 && selected.length < 3) {
-      onError?.('Sigue al menos 3 cuentas para completar el onboarding.');
+      onError?.(t('follow.sigueAlMenos3CuentasParaCompletar', 'Sigue al menos 3 cuentas para completar el onboarding.'));
       return;
     }
 
@@ -39,7 +40,7 @@ export default function FollowStep({ onBack, onComplete, onError }) {
       await onboardingApi.followUsers(selected);
       await onComplete?.();
     } catch (error) {
-      onError?.(error?.response?.data?.detail || 'No hemos podido guardar las cuentas seguidas todavía.');
+      onError?.(error?.response?.data?.detail || t('follow.noHemosPodidoGuardarLasCuentasSegu', 'No hemos podido guardar las cuentas seguidas todavía.'));
     } finally {
       setSaving(false);
     }
@@ -65,7 +66,7 @@ export default function FollowStep({ onBack, onComplete, onError }) {
       {suggestions.length === 0 ? (
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center">
           <p className="text-stone-700">No hay sugerencias disponibles ahora mismo.</p>
-          <p className="mt-2 text-sm text-stone-500">Puedes finalizar y empezar a descubrir cuentas más tarde.</p>
+          <p className="mt-2 text-sm text-stone-500">{t('follow.puedesFinalizarYEmpezarADescubrirC', 'Puedes finalizar y empezar a descubrir cuentas más tarde.')}</p>
         </div>
       ) : (
         <div className="space-y-3">

@@ -82,7 +82,7 @@ export default function GlobalSearch() {
               data-testid="search-input"
             />
             {loading && <Loader2 className="w-4 h-4 animate-spin text-stone-500" />}
-            <button onClick={() => setOpen(false)} className="p-1 hover:bg-stone-100 rounded" aria-label="Cerrar búsqueda">
+            <button onClick={() => setOpen(false)} className="p-1 hover:bg-stone-100 rounded" aria-label={t('create_post.cerrarBusqueda', 'Cerrar búsqueda')}>
               <X className="w-4 h-4 text-stone-500" />
             </button>
           </div>

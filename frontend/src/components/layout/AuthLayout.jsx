@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../brand/Logo';
+import { useTranslation } from 'react-i18next';
 
 /**
  * AuthLayout — centered layout for auth pages (login, register, verify, etc.)
@@ -24,7 +25,7 @@ export default function AuthLayout({ children }) {
       {/* Footer links */}
       <div className="py-6 px-4 flex gap-4 justify-center flex-wrap">
         {[
-          { label: 'Términos', to: '/terms' },
+          { label: t('auth_layout.terminos', 'Términos'), to: '/terms' },
           { label: 'Privacidad', to: '/privacy' },
           { label: 'Ayuda', to: '/help' },
         ].map(link => (

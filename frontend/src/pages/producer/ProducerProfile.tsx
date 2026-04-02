@@ -18,7 +18,7 @@ function CountrySelect({ value, onChange, testId }) {
       data-testid={testId}
       className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 bg-white"
     >
-      <option value="">Seleccionar país</option>
+      <option value="">{t('register.seleccionarPais', 'Seleccionar país')}</option>
       {entries.map(([code, data]) => (
         <option key={code} value={code}>{data.name || code}</option>
       ))}

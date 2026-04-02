@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { timeAgo } from '../../utils/time';
+import { useTranslation } from 'react-i18next';
 
 const STORY_DURATION = 5000;
 
@@ -961,7 +962,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
               <img
                 key={currentItem?.image_url}
                 src={currentItem?.image_url}
-                alt={currentItem?.caption || 'Contenido de la historia'}
+                alt={currentItem?.caption || t('story_viewer.contenidoDeLaHistoria', 'Contenido de la historia')}
                 className="w-full h-full object-cover"
                 draggable={false}
               />
@@ -1063,7 +1064,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
                         </div>
                       ))
                     ) : (
-                      <p className="text-center text-sm text-white/40 font-sans py-6">Sin datos de vistas disponibles</p>
+                      <p className="text-center text-sm text-white/40 font-sans py-6">{t('story_viewer.sinDatosDeVistasDisponibles', 'Sin datos de vistas disponibles')}</p>
                     )}
                   </div>
                 </motion.div>
@@ -1326,7 +1327,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
                 <input
                   value={shareSearch}
                   onChange={(e) => setShareSearch(e.target.value)}
-                  placeholder="Buscar conversación..."
+                  placeholder={t('story_viewer.buscarConversacion', 'Buscar conversación...')}
                   className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
                   autoFocus
                 />
@@ -1399,7 +1400,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose, readOn
               onClick={(e) => e.stopPropagation()}
             >
               <p className="mb-1 text-center text-[15px] font-semibold text-stone-950">¿Eliminar esta historia?</p>
-              <p className="mb-4 text-center text-sm text-stone-500">Esta acción no se puede deshacer.</p>
+              <p className="mb-4 text-center text-sm text-stone-500">{t('contentManagement.deleteModal.warning', 'Esta acción no se puede deshacer.')}</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => { setShowDeleteConfirm(false); isPaused.current = false; setPaused(false); }}

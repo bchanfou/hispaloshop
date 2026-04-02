@@ -64,7 +64,7 @@ export default function CustomerLayoutResponsive() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-stone-600 mb-4">Inicia sesión para acceder a tu cuenta.</p>
+          <p className="text-stone-600 mb-4">{t('customer_layout_responsive.iniciaSesionParaAccederATuCuenta', 'Inicia sesión para acceder a tu cuenta.')}</p>
           <button 
             onClick={() => navigate('/login')} 
             className="text-stone-950 hover:underline font-medium"
@@ -178,7 +178,7 @@ export default function CustomerLayoutResponsive() {
             <button
               onClick={handleLogout}
               className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
-              title="Cerrar sesión"
+              title={t('common.logout', 'Cerrar sesión')}
               data-testid="desktop-logout-button"
             >
               <LogOut className="w-5 h-5" strokeWidth={1.5} />

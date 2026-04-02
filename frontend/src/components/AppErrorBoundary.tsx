@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { ErrorInfo, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AppErrorBoundaryProps {
   children: ReactNode;

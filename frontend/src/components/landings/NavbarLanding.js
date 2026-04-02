@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
             onClick={() => setIsOpen((current) => !current)}
             className={`p-2 md:hidden ${textColor}`}
             aria-expanded={isOpen}
-            aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
+            aria-label={isOpen ? t('navbar_landing.cerrarMenu', 'Cerrar menú') : 'Abrir menú'}
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>

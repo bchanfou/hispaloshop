@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileText, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const V2 = {
   black: '#0A0A0A',

@@ -62,7 +62,7 @@ function StripeConnectSection() {
       setTimeout(fetchStripeStatus, 800);
     }
     if (searchParams.get('stripe_refresh') === 'true') {
-      toast.info('Debes completar los datos pendientes en Stripe.');
+      toast.info(t('producer_overview.debesCompletarLosDatosPendientesEn', 'Debes completar los datos pendientes en Stripe.'));
     }
   }, [searchParams]);
 
@@ -165,9 +165,9 @@ function StripeConnectSection() {
             </p>
             <p className="text-xs mt-1 text-stone-500">
               {isConnected
-                ? 'Recibirás tu porcentaje de cada venta automáticamente según tu plan.'
+                ? t('producer_overview.recibirasTuPorcentajeDeCadaVentaAu', 'Recibirás tu porcentaje de cada venta automáticamente según tu plan.')
                 : isPending
-                  ? 'Completa la verificación en Stripe para activar los pagos automáticos.'
+                  ? t('producer_overview.completaLaVerificacionEnStripePara', 'Completa la verificación en Stripe para activar los pagos automáticos.')
                   : 'Conecta Stripe para recibir pagos.'}
             </p>
             {!isConnected && pendingRequirements.length > 0 && (
@@ -251,7 +251,7 @@ function HealthScoreCard() {
 
   if (!healthData) return (
     <div className="rounded-2xl bg-stone-100 p-6 text-center">
-      <p className="text-sm text-stone-500">No hay datos suficientes todavía</p>
+      <p className="text-sm text-stone-500">{t('producer_overview.noHayDatosSuficientesTodavia', 'No hay datos suficientes todavía')}</p>
     </div>
   );
 
@@ -592,7 +592,7 @@ export default function ProducerOverview() {
           low_stock_products: [],
           recent_reviews: [],
         });
-        warnings.push('No se pudieron cargar las métricas del catálogo y la tienda.');
+        warnings.push(t('producer_overview.noSePudieronCargarLasMetricasDelC', 'No se pudieron cargar las métricas del catálogo y la tienda.'));
       }
 
       if (paymentsRes.status === 'fulfilled') {
@@ -606,7 +606,7 @@ export default function ProducerOverview() {
           pending_orders: 0,
           stripe_connected: false,
         });
-        warnings.push('No se pudo cargar el resumen de pagos.');
+        warnings.push(t('producer_overview.noSePudoCargarElResumenDePagos', 'No se pudo cargar el resumen de pagos.'));
       }
 
       if (demandRes.status === 'fulfilled') {
@@ -617,10 +617,10 @@ export default function ProducerOverview() {
 
       setDataWarnings(warnings);
       if (warnings.length >= 2) {
-        setError('No se pudieron cargar los datos principales del panel. Por favor, refresca la página.');
+        setError(t('producer_overview.noSePudieronCargarLosDatosPrincipa', 'No se pudieron cargar los datos principales del panel. Por favor, refresca la página.'));
       }
     } catch {
-      setError('Error al cargar datos. Por favor, refresca la página.');
+      setError(t('producer_overview.errorAlCargarDatosPorFavorRefres', 'Error al cargar datos. Por favor, refresca la página.'));
     } finally {
       setLoading(false);
     }
@@ -685,7 +685,7 @@ export default function ProducerOverview() {
     {
       icon: Package,
       label: t('producer.createNewProduct'),
-      description: 'Añadir nuevo producto',
+      description: t('producer_overview.anadirNuevoProducto', 'Añadir nuevo producto'),
       to: '/producer/products',
       bgColor: 'bg-stone-950',
       iconColor: 'text-white',
@@ -711,8 +711,8 @@ export default function ProducerOverview() {
     },
     {
       icon: TrendingUp,
-      label: 'Ver analíticas',
-      description: 'Métricas y pagos',
+      label: t('producer_overview.verAnaliticas', 'Ver analíticas'),
+      description: t('producer_overview.metricasYPagos', 'Métricas y pagos'),
       to: '/producer/payments',
       bgColor: 'bg-stone-100',
       iconColor: 'text-stone-500',
@@ -748,7 +748,7 @@ export default function ProducerOverview() {
         <div className="bg-stone-950 text-white rounded-2xl p-4 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold">{stats.pending_orders} pedido{stats.pending_orders > 1 ? 's' : ''} pendiente{stats.pending_orders > 1 ? 's' : ''}</p>
-            <p className="text-xs text-white/70">Requieren tu atención</p>
+            <p className="text-xs text-white/70">{t('producer_overview.requierenTuAtencion', 'Requieren tu atención')}</p>
           </div>
           <button
             onClick={() => navigate('/producer/orders?filter=pending')}
@@ -768,7 +768,7 @@ export default function ProducerOverview() {
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-stone-500" />
           <div className="flex-1">
             <p className="text-sm font-semibold text-stone-500">Cuenta no verificada</p>
-            <p className="text-xs mt-0.5 text-stone-500">No puedes publicar productos hasta completar la verificación.</p>
+            <p className="text-xs mt-0.5 text-stone-500">{t('producer_overview.noPuedesPublicarProductosHastaCompl', 'No puedes publicar productos hasta completar la verificación.')}</p>
           </div>
           <ChevronRight className="w-5 h-5 shrink-0 text-stone-500" />
         </Link>
@@ -783,8 +783,8 @@ export default function ProducerOverview() {
         >
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-stone-500" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-stone-500">Certificado próximo a caducar</p>
-            <p className="text-xs mt-0.5 text-stone-500">Renuévalo para no interrumpir tus ventas.</p>
+            <p className="text-sm font-semibold text-stone-500">{t('producer_overview.certificadoProximoACaducar', 'Certificado próximo a caducar')}</p>
+            <p className="text-xs mt-0.5 text-stone-500">{t('producer_overview.renuevaloParaNoInterrumpirTusVentas', 'Renuévalo para no interrumpir tus ventas.')}</p>
           </div>
           <ChevronRight className="w-5 h-5 shrink-0 text-stone-500" />
         </Link>
@@ -886,8 +886,8 @@ export default function ProducerOverview() {
       <section className="p-5 rounded-2xl shadow-sm bg-white">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-medium text-stone-950">Señales de demanda</h2>
-            <p className="mt-1 text-sm text-stone-500">Ingredientes, productos y piezas de contenido con más intención de compra.</p>
+            <h2 className="text-xl font-medium text-stone-950">{t('producer_overview.senalesDeDemanda', 'Señales de demanda')}</h2>
+            <p className="mt-1 text-sm text-stone-500">{t('producer_overview.ingredientesProductosYPiezasDeCont', 'Ingredientes, productos y piezas de contenido con más intención de compra.')}</p>
           </div>
           <Target className="h-5 w-5 text-stone-500" />
         </div>
@@ -901,11 +901,11 @@ export default function ProducerOverview() {
                   <span className="text-stone-500">{item.count}</span>
                 </div>
               ))}
-              {!(demandSignals.trending_ingredients || []).length ? <p className="text-sm text-stone-500">Sin datos todavía.</p> : null}
+              {!(demandSignals.trending_ingredients || []).length ? <p className="text-sm text-stone-500">{t('producer_overview.sinDatosTodavia', 'Sin datos todavía.')}</p> : null}
             </div>
           </div>
           <div className="p-4 rounded-2xl shadow-sm bg-stone-100">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Productos más etiquetados</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">{t('producer_overview.productosMasEtiquetados', 'Productos más etiquetados')}</p>
             <div className="mt-3 space-y-2">
               {(demandSignals.most_tagged_products || []).slice(0, 4).map((item) => (
                 <div key={item.product_id} className="flex items-center justify-between gap-3 text-sm text-stone-950">
@@ -925,7 +925,7 @@ export default function ProducerOverview() {
                   <span className="text-stone-500">{item.score}</span>
                 </div>
               ))}
-              {!(demandSignals.content_driving_sales || []).length ? <p className="text-sm text-stone-500">Aún no hay conversiones atribuidas.</p> : null}
+              {!(demandSignals.content_driving_sales || []).length ? <p className="text-sm text-stone-500">{t('producer_overview.aunNoHayConversionesAtribuidas', 'Aún no hay conversiones atribuidas.')}</p> : null}
             </div>
           </div>
         </div>
@@ -962,7 +962,7 @@ export default function ProducerOverview() {
             trend: visitsTrend,
           },
           {
-            label: 'Conversión',
+            label: t('producer_overview.conversion', 'Conversión'),
             value: '—',
             trend: null,
           },
@@ -1218,7 +1218,7 @@ export default function ProducerOverview() {
 
       {/* Account & Configuration */}
       <section className="p-5 rounded-2xl shadow-sm bg-white">
-        <h2 className="text-sm font-bold mb-3 text-stone-950">Cuenta y configuración</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">{t('producer_overview.cuentaYConfiguracion', 'Cuenta y configuración')}</h2>
         <div className="space-y-1">
           {[
             {
@@ -1230,7 +1230,7 @@ export default function ProducerOverview() {
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },
             { icon: CreditCard, label: 'Datos bancarios', sublabel: 'Stripe Connect', to: '/producer/connect' },
-            { icon: KeyRound, label: 'Cambiar contraseña', sublabel: '', to: '/settings/password' },
+            { icon: KeyRound, label: t('producer_overview.cambiarContrasena', 'Cambiar contraseña'), sublabel: '', to: '/settings/password' },
           ].map((item, i) => (
             <Link
               key={i}

@@ -6,6 +6,7 @@ import {
   Plus, Edit2, Trash2, Search, FolderOpen, Check, X, Loader2, Tag
 } from 'lucide-react';
 import { asLowerText, asText } from '../../utils/safe';
+import { useTranslation } from 'react-i18next';
 
 // ─── Inline edit/create form ────────────────────────────────────────────────
 function CategoryForm({ initial = {}, onSave, onCancel, saving }) {
@@ -23,7 +24,7 @@ function CategoryForm({ initial = {}, onSave, onCancel, saving }) {
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Nombre de la categoría"
+        placeholder={t('categories.nombreDeLaCategoria', 'Nombre de la categoría')}
         className="flex-1 w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
         autoFocus
         required
@@ -31,7 +32,7 @@ function CategoryForm({ initial = {}, onSave, onCancel, saving }) {
       <input
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="Descripción (opcional)"
+        placeholder={t('categories.descripcionOpcional', 'Descripción (opcional)')}
         className="flex-1 w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950"
       />
       <div className="flex gap-2 shrink-0">
@@ -74,7 +75,7 @@ export default function CategoriesPage() {
       const data = await apiClient.get('/categories');
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al cargar las categorías');
+      toast.error(error?.response?.data?.detail || t('categories.errorAlCargarLasCategorias', 'Error al cargar las categorías'));
     } finally {
       setLoading(false);
     }
@@ -84,11 +85,11 @@ export default function CategoriesPage() {
     setSaving(true);
     try {
       await apiClient.post('/categories', data);
-      toast.success('Categoría creada');
+      toast.success(t('categories.categoriaCreada', 'Categoría creada'));
       setShowCreateForm(false);
       fetchCategories();
     } catch (e) {
-      toast.error(e?.response?.data?.detail || e.message || 'Error al crear la categoría');
+      toast.error(e?.response?.data?.detail || e.message || t('categories.errorAlCrearLaCategoria', 'Error al crear la categoría'));
     } finally {
       setSaving(false);
     }
@@ -98,11 +99,11 @@ export default function CategoriesPage() {
     setSaving(true);
     try {
       await apiClient.put(`/categories/${categoryId}`, data);
-      toast.success('Categoría actualizada');
+      toast.success(t('categories.categoriaActualizada', 'Categoría actualizada'));
       setEditingId(null);
       fetchCategories();
     } catch (e) {
-      toast.error(e?.response?.data?.detail || e.message || 'Error al actualizar la categoría');
+      toast.error(e?.response?.data?.detail || e.message || t('categories.errorAlActualizarLaCategoria', 'Error al actualizar la categoría'));
     } finally {
       setSaving(false);
     }
@@ -114,10 +115,10 @@ export default function CategoriesPage() {
     setSaving(true);
     try {
       await apiClient.delete(`/categories/${categoryId}`);
-      toast.success('Categoría eliminada');
+      toast.success(t('categories.categoriaEliminada', 'Categoría eliminada'));
       fetchCategories();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al eliminar la categoría');
+      toast.error(error?.response?.data?.detail || t('categories.errorAlEliminarLaCategoria', 'Error al eliminar la categoría'));
     } finally {
       setSaving(false);
     }
@@ -156,7 +157,7 @@ export default function CategoriesPage() {
       {/* Create Form */}
       {showCreateForm && (
         <div className="bg-white rounded-2xl border border-stone-200 p-4 mb-6">
-          <p className="text-sm font-medium text-stone-950 mb-3">Nueva categoría</p>
+          <p className="text-sm font-medium text-stone-950 mb-3">{t('categories.nuevaCategoria', 'Nueva categoría')}</p>
           <CategoryForm
             onSave={handleCreate}
             onCancel={() => setShowCreateForm(false)}
@@ -169,7 +170,7 @@ export default function CategoriesPage() {
       <div className="relative max-w-sm mb-5">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
         <input
-          placeholder="Buscar categorías..."
+          placeholder={t('categories.buscarCategorias', 'Buscar categorías...')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 pl-10"
@@ -188,7 +189,7 @@ export default function CategoriesPage() {
           <div className="p-12 text-center">
             <Tag className="w-10 h-10 text-stone-500 mx-auto mb-3" />
             <p className="text-stone-500">
-              {searchTerm ? 'No se encontraron categorías' : 'Aún no hay categorías. Crea la primera.'}
+              {searchTerm ? t('categories.noSeEncontraronCategorias', 'No se encontraron categorías') : 'Aún no hay categorías. Crea la primera.'}
             </p>
           </div>
         ) : (
@@ -196,7 +197,7 @@ export default function CategoriesPage() {
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
                 <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">Nombre</th>
-                <th className="text-left px-6 py-3 text-sm font-medium text-stone-600 hidden sm:table-cell">Descripción</th>
+                <th className="text-left px-6 py-3 text-sm font-medium text-stone-600 hidden sm:table-cell">{t('productDetail.description', 'Descripción')}</th>
                 <th className="text-left px-6 py-3 text-sm font-medium text-stone-600 hidden md:table-cell">Slug</th>
                 <th className="text-right px-6 py-3 text-sm font-medium text-stone-600">Acciones</th>
               </tr>
@@ -225,7 +226,7 @@ export default function CategoriesPage() {
                       </td>
                       <td className="px-6 py-4 hidden sm:table-cell">
                         <span className="text-sm text-stone-500 line-clamp-1">
-                          {cat.description || <span className="italic">Sin descripción</span>}
+                          {cat.description || <span className="italic">{t('categories.sinDescripcion', 'Sin descripción')}</span>}
                         </span>
                       </td>
                       <td className="px-6 py-4 hidden md:table-cell">

@@ -7,6 +7,7 @@ import RecipeShoppingListOverlay from './RecipeShoppingListOverlay';
 import ContextualProductSuggestions from '../intelligence/ContextualProductSuggestions';
 import apiClient from '../../services/api/client';
 import { resolveUserImage } from '../../features/user/queries';
+import { useTranslation } from 'react-i18next';
 
 function normalizeStep(step) {
   if (typeof step === 'string') {
@@ -201,7 +202,7 @@ export default function RecipeOverlay({
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <h3 className="text-base font-semibold text-stone-950">Ingredientes</h3>
-                        <p className="mt-1 text-sm text-stone-500">Manual o conectados con productos de la plataforma.</p>
+                        <p className="mt-1 text-sm text-stone-500">{t('recipe_overlay.manualOConectadosConProductosDeLa', 'Manual o conectados con productos de la plataforma.')}</p>
                       </div>
                       <span className="text-sm text-stone-400">{recipeDetail?.ingredients?.length || 0}</span>
                     </div>

@@ -45,7 +45,7 @@ export default function Footer() {
               <p className="mt-3 max-w-xl text-sm leading-6 text-stone-300">
                 {t(
                   'footer.heroDescription',
-                  'Unimos productores, importadores, creadores y consumidores en una experiencia más clara y útil.',
+                  t('footer.unimosProductoresImportadoresCreado', 'Unimos productores, importadores, creadores y consumidores en una experiencia más clara y útil.'),
                 )}
               </p>
             </div>
@@ -76,7 +76,7 @@ export default function Footer() {
             <p className="mb-5 text-sm leading-6 text-stone-300">
               {t(
                 'footer.description',
-                'Una plataforma para descubrir productos honestos, seguir a productores reales y comprar con más contexto.',
+                t('footer.unaPlataformaParaDescubrirProductos', 'Una plataforma para descubrir productos honestos, seguir a productores reales y comprar con más contexto.'),
               )}
             </p>
 

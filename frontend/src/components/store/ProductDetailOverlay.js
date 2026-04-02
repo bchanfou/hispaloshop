@@ -10,6 +10,7 @@ import { useCart } from '../../context/CartContext';
 import { useLocale } from '../../context/LocaleContext';
 import { useProductReviews as useProductReviewsHook } from '../../features/products/hooks';
 import { useProductCertificate } from '../../features/products/queries';
+import { useTranslation } from 'react-i18next';
 
 const normalizeEntityId = (value) => (value == null ? '' : String(value));
 
@@ -48,7 +49,7 @@ function AddButton({ onAdd, isDisabled }) {
       type="button"
       onClick={handleClick}
       disabled={isDisabled}
-      aria-label="Añadir al carrito"
+      aria-label={t('product_detail_overlay.anadirAlCarrito', 'Añadir al carrito')}
       className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-95 ${
         confirmed
           ? 'bg-stone-200 text-stone-700'
@@ -164,14 +165,14 @@ export default function ProductDetailOverlay({
 
   const handleAddToCart = async () => {
     if (!user) {
-      toast.error('Inicia sesión para añadir productos');
+      toast.error(t('product_detail_overlay.iniciaSesionParaAnadirProductos', 'Inicia sesión para añadir productos'));
       return;
     }
     try {
       const success = await addToCart(productId, 1);
-      if (!success) toast.error('No hemos podido completar la acción');
+      if (!success) toast.error(t('product_detail_overlay.noHemosPodidoCompletarLaAccion', 'No hemos podido completar la acción'));
     } catch {
-      toast.error('No hemos podido completar la acción');
+      toast.error(t('product_detail_overlay.noHemosPodidoCompletarLaAccion', 'No hemos podido completar la acción'));
     }
   };
 
@@ -308,7 +309,7 @@ export default function ProductDetailOverlay({
 
                 {/* Botón único añadir */}
                 <div className="mt-4 flex items-center justify-between gap-3">
-                  <span className="text-[13px] text-stone-500">Añadir al carrito</span>
+                  <span className="text-[13px] text-stone-500">{t('product_detail_overlay.anadirAlCarrito', 'Añadir al carrito')}</span>
                   <AddButton onAdd={handleAddToCart} isDisabled={product?.is_out_of_stock || (product?.track_stock !== false && (product?.market_stock ?? product?.stock ?? 100) <= 0)} />
                 </div>
               </div>
@@ -317,7 +318,7 @@ export default function ProductDetailOverlay({
               <div className="grid gap-2.5">
                 <InfoRow label="Ingredientes" value={Array.isArray(product.ingredients) ? product.ingredients.map(i => typeof i === 'object' ? i.name : i).join(', ') : product.ingredients} />
                 <InfoRow label="Valores nutricionales" value={typeof (product.nutritional_info || product.nutritional_values) === 'object' && !Array.isArray(product.nutritional_info || product.nutritional_values) ? Object.entries(product.nutritional_info || product.nutritional_values).map(([k,v]) => `${k}: ${v}`).join(', ') : (product.nutritional_info || product.nutritional_values)} />
-                <InfoRow label="Alérgenos" value={Array.isArray(product.allergens) ? product.allergens.join(', ') : product.allergens} icon={AlertTriangle} />
+                <InfoRow label=t('productDetail.allergens', 'Alérgenos') value={Array.isArray(product.allergens) ? product.allergens.join(', ') : product.allergens} icon={AlertTriangle} />
               </div>
             </div>
           </div>
@@ -356,7 +357,7 @@ export default function ProductDetailOverlay({
             ) : (
               <div className="mt-3 flex items-center gap-2 text-stone-400">
                 <ShieldCheck size={16} />
-                <p className="text-[13px] m-0">Este producto aún no tiene certificados verificados.</p>
+                <p className="text-[13px] m-0">{t('product_detail_overlay.esteProductoAunNoTieneCertificados', 'Este producto aún no tiene certificados verificados.')}</p>
               </div>
             )}
           </section>
@@ -364,7 +365,7 @@ export default function ProductDetailOverlay({
           {/* Reseñas */}
           <section className="mt-4 rounded-3xl border border-stone-100 p-4">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-[14px] font-semibold text-stone-950">Reseñas</h3>
+              <h3 className="text-[14px] font-semibold text-stone-950">{t('store.reviews', 'Reseñas')}</h3>
               <span className="text-[12px] text-stone-400">{relatedReviews.length}</span>
             </div>
 
@@ -389,7 +390,7 @@ export default function ProductDetailOverlay({
             ) : (
               <div className="mt-3 flex items-center gap-2 text-stone-400">
                 <MessageSquare size={16} />
-                <p className="text-[13px] m-0">Sé el primero en opinar sobre este producto.</p>
+                <p className="text-[13px] m-0">{t('product_detail_overlay.seElPrimeroEnOpinarSobreEsteProdu', 'Sé el primero en opinar sobre este producto.')}</p>
               </div>
             )}
           </section>

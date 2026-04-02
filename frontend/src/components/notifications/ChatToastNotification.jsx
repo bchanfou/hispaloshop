@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { getToastConversationId } from './ChatToastContainer';
+import { useTranslation } from 'react-i18next';
 
 const TYPE_BADGES = {
   c2c: {
@@ -169,7 +170,7 @@ export default function ChatToastNotification({ notification, onClose, onOpen })
             height: 28,
             color: '#78716c',
           }}
-          aria-label="Cerrar notificación"
+          aria-label={t('chat_toast_notification.cerrarNotificacion', 'Cerrar notificación')}
         >
           <X style={{ width: 16, height: 16 }} />
         </button>

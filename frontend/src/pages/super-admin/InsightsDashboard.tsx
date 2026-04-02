@@ -151,7 +151,7 @@ export default function InsightsDashboard() {
       <div className="flex flex-col items-center justify-center h-64 gap-4">
         <AlertTriangle className="h-10 w-10 text-stone-400" />
         <p className="text-sm font-medium text-stone-950">Datos no disponibles</p>
-        <p className="text-sm text-stone-500">No se pudieron cargar los datos del panel de insights.</p>
+        <p className="text-sm text-stone-500">{t('insights_dashboard.noSePudieronCargarLosDatosDelPane', 'No se pudieron cargar los datos del panel de insights.')}</p>
         <button
           onClick={fetchAllData}
           className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800"
@@ -280,7 +280,7 @@ export default function InsightsDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <label className="text-sm font-medium text-stone-600">Inferencia de salud</label>
-                  <p className="text-xs text-stone-500">Detectar objetivos dietéticos y de salud</p>
+                  <p className="text-xs text-stone-500">{t('insights_dashboard.detectarObjetivosDieteticosYDeSalud', 'Detectar objetivos dietéticos y de salud')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -449,7 +449,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
   if (!globalData) {
     return (
       <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center">
-        <p className="text-sm text-stone-500">No hay datos de países para mostrar.</p>
+        <p className="text-sm text-stone-500">{t('insights_dashboard.noHayDatosDePaisesParaMostrar', 'No hay datos de países para mostrar.')}</p>
       </div>
     );
   }
@@ -607,7 +607,7 @@ function AIPerformanceTab({ data }) {
   if (!data) {
     return (
       <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center">
-        <p className="text-sm text-stone-500">No hay métricas de IA disponibles.</p>
+        <p className="text-sm text-stone-500">{t('insights_dashboard.noHayMetricasDeIaDisponibles', 'No hay métricas de IA disponibles.')}</p>
       </div>
     );
   }
@@ -827,7 +827,7 @@ function ComplianceTab({ data, config }) {
   if (!data) {
     return (
       <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center">
-        <p className="text-sm text-stone-500">No hay datos de compliance disponibles.</p>
+        <p className="text-sm text-stone-500">{t('insights_dashboard.noHayDatosDeComplianceDisponibles', 'No hay datos de compliance disponibles.')}</p>
       </div>
     );
   }

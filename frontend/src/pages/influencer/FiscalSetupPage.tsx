@@ -13,31 +13,31 @@ import { useTranslation } from 'react-i18next';
 
 /* ─── Country list: derived from LocaleContext at component level ─── */
 const _FALLBACK_COUNTRIES = [
-  { code: 'ES', name: 'España' },
+  { code: 'ES', name: t('admin.countries.ES', 'España') },
   { code: 'FR', name: 'Francia' },
   { code: 'DE', name: 'Alemania' },
   { code: 'IT', name: 'Italia' },
   { code: 'PT', name: 'Portugal' },
   { code: 'GB', name: 'Reino Unido' },
   { code: 'US', name: 'Estados Unidos' },
-  { code: 'MX', name: 'México' },
+  { code: 'MX', name: t('admin.countries.MX', 'México') },
   { code: 'AR', name: 'Argentina' },
   { code: 'CO', name: 'Colombia' },
   { code: 'CL', name: 'Chile' },
   { code: 'BR', name: 'Brasil' },
   { code: 'KR', name: 'Corea del Sur' },
   { code: 'JP', name: 'Japón' },
-  { code: 'NL', name: 'Países Bajos' },
-  { code: 'BE', name: 'Bélgica' },
+  { code: 'NL', name: t('countries.Netherlands', 'Países Bajos') },
+  { code: 'BE', name: t('countries.Belgium', 'Bélgica') },
   { code: 'AT', name: 'Austria' },
   { code: 'SE', name: 'Suecia' },
   { code: 'DK', name: 'Dinamarca' },
   { code: 'PL', name: 'Polonia' },
   { code: 'IE', name: 'Irlanda' },
   { code: 'GR', name: 'Grecia' },
-  { code: 'RO', name: 'Rumanía' },
-  { code: 'CZ', name: 'República Checa' },
-  { code: 'HU', name: 'Hungría' },
+  { code: 'RO', name: t('countries.RO', 'Rumanía') },
+  { code: 'CZ', name: t('countries.CZ', 'República Checa') },
+  { code: 'HU', name: t('countries.Hungary', 'Hungría') },
   { code: 'BG', name: 'Bulgaria' },
   { code: 'HR', name: 'Croacia' },
   { code: 'FI', name: 'Finlandia' },
@@ -52,11 +52,11 @@ const _FALLBACK_COUNTRIES = [
   { code: 'CH', name: 'Suiza' },
   { code: 'NO', name: 'Noruega' },
   { code: 'MA', name: 'Marruecos' },
-  { code: 'TR', name: 'Turquía' },
+  { code: 'TR', name: t('admin.countries.TR', 'Turquía') },
   { code: 'IN', name: 'India' },
   { code: 'CN', name: 'China' },
   { code: 'AU', name: 'Australia' },
-  { code: 'CA', name: 'Canadá' },
+  { code: 'CA', name: t('admin.countries.CA', 'Canadá') },
   { code: 'PE', name: 'Perú' },
   { code: 'EC', name: 'Ecuador' },
 ];
@@ -70,7 +70,7 @@ const EU_CODES = new Set([
 function getWithholdingInfo(code) {
   if (!code) return null;
   if (code === 'ES') return { pct: 15, label: 'Retención 15% IRPF', color: 'stone-dark' };
-  return { pct: 0, label: 'Sin retención', color: 'stone-light' };
+  return { pct: 0, label: t('fiscal_setup.sinRetencion', 'Sin retención'), color: 'stone-light' };
 }
 
 export default function FiscalSetupPage() {
@@ -141,11 +141,11 @@ export default function FiscalSetupPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!country) {
-      toast.error('Selecciona un país de residencia fiscal primero');
+      toast.error(t('fiscal_setup.seleccionaUnPaisDeResidenciaFiscal', 'Selecciona un país de residencia fiscal primero'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('El archivo no puede superar 5MB');
+      toast.error(t('fiscal_setup.elArchivoNoPuedeSuperar5mb', 'El archivo no puede superar 5MB'));
       return;
     }
 
@@ -161,15 +161,15 @@ export default function FiscalSetupPage() {
         toast.success('Certificado verificado');
       } else if (res.status === 'manual_review') {
         setCertStatus('manual_review');
-        toast.info('Certificado en revisión manual');
+        toast.info(t('fiscal_setup.certificadoEnRevisionManual', 'Certificado en revisión manual'));
       } else {
         setCertStatus('rejected');
-        toast.error(res.reason || 'Certificado no válido');
+        toast.error(res.reason || t('fiscal_setup.certificadoNoValido', 'Certificado no válido'));
       }
       await loadFiscal();
     } catch (err) {
       setCertStatus('rejected');
-      toast.error('Error al subir el certificado');
+      toast.error(t('producer_verification.errorAlSubirElCertificado', 'Error al subir el certificado'));
     } finally {
       setUploading(false);
     }
@@ -189,7 +189,7 @@ export default function FiscalSetupPage() {
         // Basic IBAN format validation
         const ibanClean = iban.replace(/\s/g, '').toUpperCase();
         if (!/^[A-Z]{2}\d{2}[A-Z0-9]{4,}$/.test(ibanClean)) {
-          toast.error('Formato de IBAN no válido. Debe empezar con código de país (ej: ES12...)');
+          toast.error(t('fiscal_setup.formatoDeIbanNoValidoDebeEmpezar', 'Formato de IBAN no válido. Debe empezar con código de país (ej: ES12...)'));
           setSavingPayout(false);
           return;
         }
@@ -205,7 +205,7 @@ export default function FiscalSetupPage() {
       toast.success(method === 'stripe' ? 'Stripe conectado' : 'Datos bancarios guardados');
       await loadFiscal();
     } catch (err) {
-      toast.error(err?.message || 'Error al configurar método de cobro');
+      toast.error(err?.message || t('fiscal_setup.errorAlConfigurarMetodoDeCobro', 'Error al configurar método de cobro'));
     } finally {
       setSavingPayout(false);
     }
@@ -246,12 +246,12 @@ export default function FiscalSetupPage() {
         <button onClick={() => navigate(-1)} className="shrink-0 bg-transparent border-none cursor-pointer">
           <ArrowLeft className="w-5 h-5 text-stone-950" />
         </button>
-        <h1 className="text-lg font-bold text-stone-950">Configuración fiscal</h1>
+        <h1 className="text-lg font-bold text-stone-950">{t('fiscal_setup.configuracionFiscal', 'Configuración fiscal')}</h1>
       </div>
 
       {/* Step indicator */}
       <div className="flex items-center gap-2 mb-6 px-1">
-        {['País fiscal', 'Certificado', 'Método de cobro', 'Verificación'].map((stepLabel, i) => {
+        {[t('fiscal_setup.paisFiscal', 'País fiscal'), 'Certificado', 'Método de cobro', 'Verificación'].map((stepLabel, i) => {
           const stepNum = i + 1;
           const isComplete = (stepNum === 1 && country) || (stepNum === 2 && certStatus === 'verified') || (stepNum === 3 && payoutMethod) || (stepNum === 4 && fiscal?.fiscal_setup_status === 'completed');
           const isCurrent = (!country && stepNum === 1) || (country && certStatus !== 'verified' && stepNum === 2) || (country && certStatus === 'verified' && !payoutMethod && stepNum === 3) || (canSave && stepNum === 4);
@@ -305,7 +305,7 @@ export default function FiscalSetupPage() {
             onClick={() => setShowCountryDropdown(!showCountryDropdown)}
             className={`w-full flex items-center justify-between h-12 px-3.5 text-sm text-left bg-white rounded-xl border border-stone-200 ${country ? 'text-stone-950' : 'text-stone-500'}`}
           >
-            {country ? COUNTRIES.find(c => c.code === country)?.name || country : 'Selecciona tu país'}
+            {country ? COUNTRIES.find(c => c.code === country)?.name || country : t('register.selectCountry', 'Selecciona tu país')}
             <ChevronDown className="w-4 h-4 shrink-0 text-stone-500" />
           </button>
 
@@ -317,7 +317,7 @@ export default function FiscalSetupPage() {
                   <input
                     value={countrySearch}
                     onChange={(e) => setCountrySearch(e.target.value)}
-                    placeholder="Buscar país..."
+                    placeholder={t('fiscal_setup.buscarPais', 'Buscar país...')}
                     autoFocus
                     className="w-full h-12 px-3 text-sm rounded-xl bg-stone-100 text-stone-950 focus:outline-none border-none"
                   />
@@ -375,7 +375,7 @@ export default function FiscalSetupPage() {
             >
               <Upload className="w-6 h-6 text-stone-500" />
               <p className="text-sm font-semibold text-stone-950">Sube tu certificado</p>
-              <p className="text-xs text-stone-500">PDF, JPG o PNG · Máx 5MB</p>
+              <p className="text-xs text-stone-500">{t('fiscal_setup.pdfJpgOPng·Max5mb', 'PDF, JPG o PNG · Máx 5MB')}</p>
             </button>
           </>
         )}
@@ -421,7 +421,7 @@ export default function FiscalSetupPage() {
             <div className="flex items-start gap-3">
               <X className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>
-                <p className="text-sm font-semibold text-stone-950">Certificado no válido</p>
+                <p className="text-sm font-semibold text-stone-950">{t('fiscal_setup.certificadoNoValido', 'Certificado no válido')}</p>
                 {fiscal?.block_reason && (
                   <p className="text-xs mt-1 text-stone-500">{fiscal.block_reason}</p>
                 )}
@@ -442,7 +442,7 @@ export default function FiscalSetupPage() {
             <div className="flex items-start gap-3">
               <Clock className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>
-                <p className="text-sm font-semibold text-stone-950">En revisión manual</p>
+                <p className="text-sm font-semibold text-stone-950">{t('producer_verification.enRevisionManual', 'En revisión manual')}</p>
                 <p className="text-xs mt-1 text-stone-500">
                   Nuestro equipo revisará tu certificado en 48-72h hábiles
                 </p>
@@ -522,7 +522,7 @@ export default function FiscalSetupPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1 text-stone-500">Titular de la cuenta</label>
+                  <label className="block text-xs font-medium mb-1 text-stone-500">{t('fiscal_setup.titularDeLaCuenta', 'Titular de la cuenta')}</label>
                   <input
                     value={accountName}
                     onChange={(e) => setAccountName(e.target.value)}
@@ -576,13 +576,13 @@ export default function FiscalSetupPage() {
 
       {/* 4. Verification status */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3 text-stone-950">Verificación</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">{t('becomeSeller.step2Title', 'Verificación')}</h2>
         {fiscal?.fiscal_setup_status === 'completed' ? (
           <div className="p-4 bg-stone-100 rounded-2xl shadow-sm">
             <div className="flex items-start gap-3">
               <Check className="w-5 h-5 shrink-0 mt-0.5 text-stone-950" />
               <div>
-                <p className="text-sm font-semibold text-stone-950">Verificación completada</p>
+                <p className="text-sm font-semibold text-stone-950">{t('fiscal_setup.verificacionCompletada', 'Verificación completada')}</p>
                 <p className="text-xs mt-1 text-stone-500">
                   Tu configuración fiscal está verificada y activa.
                 </p>
@@ -594,7 +594,7 @@ export default function FiscalSetupPage() {
             <div className="flex items-start gap-3">
               <Clock className="w-5 h-5 shrink-0 mt-0.5 text-stone-600" />
               <div>
-                <p className="text-sm font-semibold text-stone-950">Verificación pendiente</p>
+                <p className="text-sm font-semibold text-stone-950">{t('producer.stripeConnect.pendingVerification', 'Verificación pendiente')}</p>
                 <p className="text-xs mt-1 text-stone-500">
                   Has completado todos los pasos. Pulsa el botón para finalizar la verificación y activar tus afiliados.
                 </p>
@@ -602,11 +602,11 @@ export default function FiscalSetupPage() {
                   onClick={async () => {
                     try {
                       await apiClient.post('/influencer/fiscal/complete-verification', {});
-                      toast.success('Verificación completada. Afiliados activados.');
+                      toast.success(t('fiscal_setup.verificacionCompletadaAfiliadosActiv', 'Verificación completada. Afiliados activados.'));
                       await refreshUser();
                       navigate('/influencer/links');
                     } catch (err) {
-                      toast.error(err?.response?.data?.detail || 'Error al completar la verificación.');
+                      toast.error(err?.response?.data?.detail || t('fiscal_setup.errorAlCompletarLaVerificacion', 'Error al completar la verificación.'));
                     }
                   }}
                   className="mt-3 px-4 py-2 text-sm font-semibold bg-stone-950 text-white rounded-full border-none cursor-pointer transition-colors hover:bg-stone-800"
@@ -635,11 +635,11 @@ export default function FiscalSetupPage() {
         onClick={async () => {
           try {
             await apiClient.post('/influencer/fiscal/complete-verification', {});
-            toast.success('Configuración fiscal guardada. Afiliados activados.');
+            toast.success(t('fiscal_setup.configuracionFiscalGuardadaAfiliados', 'Configuración fiscal guardada. Afiliados activados.'));
             await refreshUser();
             navigate('/influencer/links');
           } catch (err) {
-            toast.error(err?.response?.data?.detail || 'Error al guardar la configuración fiscal.');
+            toast.error(err?.response?.data?.detail || t('fiscal_setup.errorAlGuardarLaConfiguracionFiscal', 'Error al guardar la configuración fiscal.'));
           }
         }}
         disabled={!canSave}
@@ -649,7 +649,7 @@ export default function FiscalSetupPage() {
             : 'bg-stone-100 text-stone-500 cursor-not-allowed'
         }`}
       >
-        {canSave ? 'Guardar y activar afiliados' : 'Completa todos los campos para continuar'}
+        {canSave ? 'Guardar y activar afiliados' : t('fiscal_setup.completaTodosLosCamposParaContinuar', 'Completa todos los campos para continuar')}
       </button>
       </div>
     </div>

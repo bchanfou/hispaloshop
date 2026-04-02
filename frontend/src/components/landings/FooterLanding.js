@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FooterLanding = () => {
   const navigate = useNavigate();
 
   const footerLinks = {
     producto: [
-      { label: 'Cómo funciona', href: '/que-es' },
+      { label: t('becomeInfluencer.howItWorksTitle', 'Cómo funciona'), href: '/que-es' },
       { label: 'Para productores', href: '/productor' },
       { label: 'Para influencers', href: '/influencer' },
       { label: 'Para importadores', href: '/importador' },
@@ -21,7 +22,7 @@ const FooterLanding = () => {
     soporte: [
       { label: 'Centro de ayuda', href: '/help' },
       { label: 'Contacto', href: '/contact' },
-      { label: 'Términos', href: '/terms' },
+      { label: t('footer_landing.terminos', 'Términos'), href: '/terms' },
       { label: 'Privacidad', href: '/privacy' },
     ],
   };

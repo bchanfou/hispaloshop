@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { MessageSquare, Send, ArrowLeft, Loader2, RefreshCw, Search, X, Sparkles, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import {
   useB2BConversations,
   useB2BMessages,
@@ -123,7 +124,7 @@ function MessageThread({ convId, myId, operationId, searchFilter = '' }) {
       <div className="flex-1 overflow-y-auto px-4 py-4 md:py-3">
         {messages.length === 0 ? (
           <p className="text-center text-stone-400 text-sm mt-8">
-            {activeFilter ? 'Sin resultados' : 'Inicia la conversacion enviando un mensaje'}
+            {activeFilter ? 'Sin resultados' : t('b2_b_chat.iniciaLaConversacionEnviandoUnMensa', 'Inicia la conversacion enviando un mensaje')}
           </p>
         ) : (
           messages.map((msg) => (
@@ -301,7 +302,7 @@ export default function B2BChatPage() {
         <div className="ml-auto flex items-center gap-1">
           <button
             className="p-1.5 rounded-2xl hover:bg-stone-100 transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-stone-300"
-            aria-label={showSearch ? 'Cerrar búsqueda' : 'Buscar en mensajes'}
+            aria-label={showSearch ? t('create_post.cerrarBusqueda', 'Cerrar búsqueda') : 'Buscar en mensajes'}
             onClick={() => {
               setShowSearch((prev) => !prev);
               if (showSearch) setThreadSearchQuery('');
@@ -350,8 +351,8 @@ export default function B2BChatPage() {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center">
         <ShieldAlert size={36} className="text-stone-400" />
-        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
-        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder al chat B2B.</p>
+        <p className="text-stone-950 text-[15px] font-semibold">{t('b2_b_chat.noTienesAccesoAEstaSeccion', 'No tienes acceso a esta sección')}</p>
+        <p className="text-stone-500 text-[13px]">{t('b2_b_chat.necesitasUnPerfilDeProductorOImpor', 'Necesitas un perfil de productor o importador para acceder al chat B2B.')}</p>
         <button
           onClick={() => navigate('/')}
           className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"

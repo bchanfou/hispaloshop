@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { timeAgo } from '../../utils/time';
 import { useAutocomplete } from '../../hooks/useAutocomplete';
 import MentionDropdown from './MentionDropdown';
+import { useTranslation } from 'react-i18next';
 
 /* ── Single comment row (memoized) ── */
 const CommentRow = memo(function CommentRow({ comment, isOwner, onDelete, onLike, liked, onReply, isReply, parentUsername }) {
@@ -261,8 +262,8 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
         </div>
       ) : sortedComments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-[14px] font-semibold text-stone-950">Sin comentarios aún</p>
-          <p className="text-[12px] text-stone-400 mt-1">Sé el primero en comentar</p>
+          <p className="text-[14px] font-semibold text-stone-950">{t('feed.noComments', 'Sin comentarios aún')}</p>
+          <p className="text-[12px] text-stone-400 mt-1">{t('post_detail.seElPrimeroEnComentar', 'Sé el primero en comentar')}</p>
         </div>
       ) : (
         (() => {
@@ -327,7 +328,7 @@ function CommentsPanel({ post, comments, commentsLoading, user, onDelete, onLike
           {loadingMore ? (
             <Loader2 size={14} className="animate-spin mx-auto text-stone-400" />
           ) : (
-            'Cargar más comentarios'
+            t('post_detail.cargarMasComentarios', 'Cargar más comentarios')
           )}
         </button>
       )}
@@ -378,7 +379,7 @@ function CommentInput({ isAuthenticated, user, replyTo, setReplyTo, newComment, 
               }
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend(); }
             }}
-            placeholder="Añade un comentario..."
+            placeholder={t('feed.addComment', 'Añade un comentario...')}
             className="w-full bg-transparent border-none outline-none text-[13px] text-stone-950 placeholder:text-stone-400 font-sans min-h-[36px]"
             disabled={sending}
           />
@@ -755,8 +756,8 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
             <button onClick={onClose} className="bg-transparent border-none cursor-pointer p-2 flex items-center -ml-2" aria-label="Volver">
               <ChevronLeft size={24} className="text-stone-950" />
             </button>
-            <span className="text-[15px] font-semibold text-stone-950 tracking-tight">Publicación</span>
-            <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Compartir publicación">
+            <span className="text-[15px] font-semibold text-stone-950 tracking-tight">{t('post_detail.publicacion', 'Publicación')}</span>
+            <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={t('post_detail.compartirPublicacion', 'Compartir publicación')}>
               <Send size={20} className="text-stone-950" />
             </button>
           </div>
@@ -882,7 +883,7 @@ export default function PostDetailModal({ postId, post: initialPost, onClose, ne
                 </Link>
                 {post.location && <p className="text-[11px] text-stone-400 truncate">{post.location}</p>}
               </div>
-              <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Compartir publicación">
+              <button onClick={handleShare} className="bg-transparent border-none cursor-pointer p-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={t('post_detail.compartirPublicacion', 'Compartir publicación')}>
                 <Send size={18} className="text-stone-950" />
               </button>
             </div>

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 /* ───────────────────────── constants ───────────────────────── */
 
@@ -313,11 +314,11 @@ export default function CreatePostPage() {
   const handlePublish = async () => {
     if (publishing) return;
     if (!selectedFiles.length) {
-      toast.error('Añade al menos una imagen para publicar');
+      toast.error(t('create_post.anadeAlMenosUnaImagenParaPublicar', 'Añade al menos una imagen para publicar'));
       return;
     }
     if (caption.length > 2200) {
-      toast.error('La descripción es demasiado larga');
+      toast.error(t('create_post.laDescripcionEsDemasiadoLarga', 'La descripción es demasiado larga'));
       return;
     }
     setPublishing(true);
@@ -359,8 +360,8 @@ export default function CreatePostPage() {
       setPublishing(false);
       setPublishSuccess(true);
       setTimeout(() => {
-        toast.success('Publicación creada', {
-          action: postId ? { label: 'Ver en el feed', onClick: () => navigate(`/posts/${postId}`) } : undefined,
+        toast.success(t('create_post.publicacionCreada', 'Publicación creada'), {
+          action: postId ? { label: t('create_post.verEnElFeed', 'Ver en el feed'), onClick: () => navigate(`/posts/${postId}`) } : undefined,
           duration: 4000,
         });
         navigate(postId ? `/posts/${postId}` : '/');
@@ -370,7 +371,7 @@ export default function CreatePostPage() {
       // If user cancelled, don't show error
       if (err?.name === 'AbortError' || err?.name === 'CanceledError') return;
       const detail = err?.response?.data?.detail;
-      const msg = typeof detail === 'string' ? detail : 'Error al publicar. Comprueba tu conexión e inténtalo de nuevo.';
+      const msg = typeof detail === 'string' ? detail : t('create_post.errorAlPublicarCompruebaTuConexion', 'Error al publicar. Comprueba tu conexión e inténtalo de nuevo.');
       toast.error(msg, { duration: 5000 });
       setPublishing(false);
       setPublishError(true);
@@ -477,7 +478,7 @@ export default function CreatePostPage() {
           >
             <X size={22} className="text-white" />
           </button>
-          <span className="text-white text-[15px] font-medium tracking-tight">Nueva publicación</span>
+          <span className="text-white text-[15px] font-medium tracking-tight">{t('create_post.nuevaPublicacion', 'Nueva publicación')}</span>
           <button
             disabled={!hasFiles}
             onClick={() => goToStep(2)}
@@ -563,7 +564,7 @@ export default function CreatePostPage() {
                     uploadTab === tab ? 'bg-white text-black' : 'bg-transparent text-white/60'
                   }`}
                 >
-                  {tab === 'foto' ? 'Foto' : 'Galería'}
+                  {tab === 'foto' ? 'Foto' : t('store.gallery', 'Galería')}
                 </button>
               ))}
             </div>
@@ -575,19 +576,19 @@ export default function CreatePostPage() {
                 : <Image size={48} className="text-white/25" />
               }
               <span className="text-base text-white font-medium">
-                {uploadTab === 'foto' ? 'Toma una foto' : 'Selecciona imágenes'}
+                {uploadTab === 'foto' ? 'Toma una foto' : t('create_post.seleccionaImagenes', 'Selecciona imágenes')}
               </span>
               <span className="text-xs text-white/40 text-center">
-                {uploadTab === 'foto' ? 'Captura directamente desde tu cámara' : 'Hasta 10 imágenes · JPG, PNG o WebP'}
+                {uploadTab === 'foto' ? t('create_post.capturaDirectamenteDesdeTuCamara', 'Captura directamente desde tu cámara') : 'Hasta 10 imágenes · JPG, PNG o WebP'}
               </span>
               <button
                 onClick={() =>
                   uploadTab === 'foto' ? cameraInputRef.current?.click() : fileInputRef.current?.click()
                 }
                 className="bg-white text-black border-none text-sm font-semibold py-3 px-7 rounded-full cursor-pointer mt-2 transition-all hover:bg-white/90 active:scale-95 min-h-[44px]"
-                aria-label={uploadTab === 'foto' ? 'Abrir cámara para tomar foto' : 'Elegir imágenes de la galería'}
+                aria-label={uploadTab === 'foto' ? t('create_post.abrirCamaraParaTomarFoto', 'Abrir cámara para tomar foto') : 'Elegir imágenes de la galería'}
               >
-                {uploadTab === 'foto' ? 'Abrir cámara' : 'Elegir de la galería'}
+                {uploadTab === 'foto' ? t('create_post.abrirCamara', 'Abrir cámara') : 'Elegir de la galería'}
               </button>
             </div>
           </>
@@ -798,12 +799,12 @@ export default function CreatePostPage() {
               {[
                 { key: 'brightness', label: 'Brillo', min: -100, max: 100 },
                 { key: 'contrast', label: 'Contraste', min: -100, max: 100 },
-                { key: 'saturation', label: 'Saturación', min: -100, max: 100 },
+                { key: 'saturation', label: t('create_post.saturacion', 'Saturación'), min: -100, max: 100 },
                 { key: 'warmth', label: 'Temperatura', min: -100, max: 100 },
                 { key: 'shadows', label: 'Sombras', min: -100, max: 100 },
                 { key: 'highlights', label: 'Altas luces', min: -100, max: 100 },
                 { key: 'sharpness', label: 'Nitidez', min: 0, max: 100 },
-                { key: 'vignette', label: 'Viñeteado', min: 0, max: 100 },
+                { key: 'vignette', label: t('create_post.vineteado', 'Viñeteado'), min: 0, max: 100 },
               ].map((s) => (
                 <div key={s.key} className="flex items-center gap-2.5">
                   <span className="text-xs text-white/70 min-w-[72px]">{s.label}</span>
@@ -903,7 +904,7 @@ export default function CreatePostPage() {
                   </div>
                   {/* size */}
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-white/60">Tamaño</span>
+                    <span className="text-[11px] text-white/60">{t('create_post.tamano', 'Tamaño')}</span>
                     <input
                       type="range"
                       min={14}
@@ -952,7 +953,7 @@ export default function CreatePostPage() {
         <button onClick={() => goToStep(2)} className="bg-transparent border-none cursor-pointer text-stone-950 text-[13px] font-medium flex items-center gap-1">
           <ChevronLeft size={18} /> Volver
         </button>
-        <span className="flex-1 text-center text-stone-950 text-[15px] font-medium">Nueva publicación</span>
+        <span className="flex-1 text-center text-stone-950 text-[15px] font-medium">{t('create_post.nuevaPublicacion', 'Nueva publicación')}</span>
         <div className="w-[60px]" />
       </div>
 
@@ -1037,8 +1038,8 @@ export default function CreatePostPage() {
               e.target.style.height = e.target.scrollHeight + 'px';
             }}
             maxLength={2200}
-            aria-label="Descripción de la publicación"
-            placeholder="Escribe tu pie de foto... Usa # para hashtags y @ para menciones"
+            aria-label={t('create_post.descripcionDeLaPublicacion', 'Descripción de la publicación')}
+            placeholder={t('create_post.escribeTuPieDeFotoUsaParaHas', 'Escribe tu pie de foto... Usa # para hashtags y @ para menciones')}
             className="w-full border-[1.5px] border-stone-200 rounded-xl p-3 resize-none min-h-[80px] text-sm leading-relaxed outline-none box-border overflow-hidden bg-transparent relative caret-stone-950"
           />
           <span className={`absolute bottom-2 right-3 text-[11px] ${caption.length > 2200 ? 'text-stone-950 font-semibold' : caption.length > 2000 ? 'text-stone-700 font-semibold' : 'text-stone-500'}`}>
@@ -1059,12 +1060,12 @@ export default function CreatePostPage() {
               const suggestion = res?.suggestion || res?.data?.suggestion || res?.text || res?.data?.text;
               if (suggestion) {
                 setCaption((prev) => prev ? `${prev}\n\n${suggestion}` : suggestion);
-                toast.success('Sugerencia añadida');
+                toast.success(t('create_post.sugerenciaAnadida', 'Sugerencia añadida'));
               } else {
-                toast.error('No se pudo generar una sugerencia');
+                toast.error(t('create_post.noSePudoGenerarUnaSugerencia', 'No se pudo generar una sugerencia'));
               }
             } catch {
-              toast.error('Error al conectar con David AI');
+              toast.error(t('create_post.errorAlConectarConDavidAi', 'Error al conectar con David AI'));
             } finally {
               setAiLoading(false);
             }
@@ -1114,8 +1115,8 @@ export default function CreatePostPage() {
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Añadir ubicación... (ej. Galicia, Costa Brava)"
-              aria-label="Ubicación"
+              placeholder={t('create_post.anadirUbicacionEjGaliciaCosta', 'Añadir ubicación... (ej. Galicia, Costa Brava)')}
+              aria-label={t('store.location', 'Ubicación')}
               className="flex-1 border-none outline-none text-[13px] bg-transparent"
             />
           </div>
@@ -1184,7 +1185,7 @@ export default function CreatePostPage() {
                 autoFocus
                 className="flex-1 border-none outline-none text-sm bg-transparent"
               />
-              <button onClick={() => { setShowProductSearch(false); setSearchQuery(''); setSearchResults([]); }} aria-label="Cerrar búsqueda" className="bg-transparent border-none cursor-pointer">
+              <button onClick={() => { setShowProductSearch(false); setSearchQuery(''); setSearchResults([]); }} aria-label={t('create_post.cerrarBusqueda', 'Cerrar búsqueda')} className="bg-transparent border-none cursor-pointer">
                 <X size={18} />
               </button>
             </div>
@@ -1228,7 +1229,7 @@ export default function CreatePostPage() {
           <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
             <Check size={28} color="#fff" strokeWidth={2.5} />
           </div>
-          <span className="text-base font-semibold text-stone-950">¡Publicado!</span>
+          <span className="text-base font-semibold text-stone-950">{t('create_post.publicado', '¡Publicado!')}</span>
         </div>
       )}
 
@@ -1278,7 +1279,7 @@ export default function CreatePostPage() {
             onClick={handlePublish}
             className="w-full bg-stone-950 text-white text-[15px] font-semibold py-3.5 rounded-full border-none flex items-center justify-center gap-2 transition-all duration-150 hover:bg-stone-800 cursor-pointer min-h-[48px]"
           >
-            {publishError ? 'Reintentar publicación' : 'Publicar ahora'}
+            {publishError ? t('create_post.reintentarPublicacion', 'Reintentar publicación') : 'Publicar ahora'}
           </button>
         )}
       </div>

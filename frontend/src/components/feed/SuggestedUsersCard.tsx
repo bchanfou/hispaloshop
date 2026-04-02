@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface SuggestedUser {
   user_id: string;
@@ -58,7 +59,7 @@ export default function SuggestedUsersCard({ onDismiss }: SuggestedUsersCardProp
         next.delete(userId);
         return next;
       });
-      toast.error('No se pudo seguir al usuario. Inténtalo de nuevo.');
+      toast.error(t('suggested_users.noSePudoSeguirAlUsuarioIntentalo', 'No se pudo seguir al usuario. Inténtalo de nuevo.'));
     }
   }, []);
 

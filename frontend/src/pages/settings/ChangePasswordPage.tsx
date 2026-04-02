@@ -5,6 +5,7 @@ import { ArrowLeft, Eye, EyeOff, Loader2, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 function getStrength(pw) {
   if (!pw || pw.length < 6) return { level: 0, label: 'Muy corta', weak: true };
@@ -49,14 +50,14 @@ export default function ChangePasswordPage() {
           new_password: newPw,
         });
       }
-      toast.success('Contraseña actualizada');
+      toast.success(t('change_password.contrasenaActualizada', 'Contraseña actualizada'));
       navigate('/settings');
     } catch (err) {
       const status = err?.response?.status;
       if (status === 401) {
-        toast.error('Contraseña actual incorrecta');
+        toast.error(t('change_password.contrasenaActualIncorrecta', 'Contraseña actual incorrecta'));
       } else {
-        toast.error(err?.response?.data?.detail || 'Error al cambiar contraseña');
+        toast.error(err?.response?.data?.detail || t('change_password.errorAlCambiarContrasena', 'Error al cambiar contraseña'));
       }
     } finally {
       setSubmitting(false);
@@ -66,7 +67,7 @@ export default function ChangePasswordPage() {
   const eyeBtn = (show, toggle) => (
     <button
       onClick={toggle}
-      aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+      aria-label={show ? t('login.ocultarContrasena', 'Ocultar contraseña') : 'Mostrar contraseña'}
       className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 flex"
     >
       {show ? <EyeOff size={18} className="text-stone-500" /> : <Eye size={18} className="text-stone-500" />}
@@ -83,7 +84,7 @@ export default function ChangePasswordPage() {
         >
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span className="text-[17px] font-bold text-stone-950">Contraseña</span>
+        <span className="text-[17px] font-bold text-stone-950">{t('auth.password', 'Contraseña')}</span>
       </div>
 
       <div className="max-w-[400px] mx-auto px-4 pt-6 pb-[100px]">
@@ -192,7 +193,7 @@ export default function ChangePasswordPage() {
           ) : (
             <>
               <Lock size={18} />
-              {isGoogleUser ? 'Añadir contraseña' : 'Cambiar contraseña'}
+              {isGoogleUser ? t('change_password.anadirContrasena', 'Añadir contraseña') : 'Cambiar contraseña'}
             </>
           )}
         </button>

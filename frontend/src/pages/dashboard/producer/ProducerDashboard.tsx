@@ -21,6 +21,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { asNumber } from '../../../utils/safe';
+import { useTranslation } from 'react-i18next';
 
 function ProducerDashboard() {
   const navigate = useNavigate();
@@ -34,10 +35,10 @@ function ProducerDashboard() {
     const warnings = [];
 
     if (!dashboardQuery.data?.stats) {
-      warnings.push('Las métricas avanzadas no están disponibles ahora mismo.');
+      warnings.push(t('producer_dashboard.lasMetricasAvanzadasNoEstanDisponib', 'Las métricas avanzadas no están disponibles ahora mismo.'));
     }
     if (!dashboardQuery.data?.products) {
-      warnings.push('No se pudo cargar el stock de productos para las alertas.');
+      warnings.push(t('producer_dashboard.noSePudoCargarElStockDeProductos', 'No se pudo cargar el stock de productos para las alertas.'));
     }
 
     const pendingOrders = (ordersData?.orders || []).slice(0, 3).map((order) => ({
@@ -47,7 +48,7 @@ function ProducerDashboard() {
         order.status === 'pending'
           ? 'Nuevo'
           : order.status === 'processing'
-            ? 'En preparación'
+            ? t('producer_dashboard.enPreparacion', 'En preparación')
             : `Pedido ${order.status}`,
       description: order.items?.map((item) => item.product_name).join(', ') || 'Productos',
       amount: `EUR ${asNumber(order.total_amount).toFixed(2)}`,
@@ -90,14 +91,14 @@ function ProducerDashboard() {
           {
             id: 1,
             title: 'Optimiza tus ventas',
-            description: 'Añade más productos para aumentar tu visibilidad',
-            actionLabel: 'Añadir producto',
+            description: t('producer_dashboard.anadeMasProductosParaAumentarTuVis', 'Añade más productos para aumentar tu visibilidad'),
+            actionLabel: t('producer_dashboard.anadirProducto', 'Añadir producto'),
             onAction: () => navigate('/producer/products')
           },
           {
             id: 2,
             title: 'Conecta con influencers',
-            description: 'Colabora con influencers para promocionar tus productos',
+            description: t('producer_dashboard.colaboraConInfluencersParaPromociona', 'Colabora con influencers para promocionar tus productos'),
             actionLabel: 'Ver influencers',
             onAction: () => navigate('/producer/influencers')
           }
@@ -110,7 +111,7 @@ function ProducerDashboard() {
     {
       id: 'add',
       icon: Plus,
-      label: 'Añadir producto',
+      label: t('producer_dashboard.anadirProducto', 'Añadir producto'),
       color: '#0c0a09',
       onClick: () => navigate('/producer/products')
     },
@@ -124,7 +125,7 @@ function ProducerDashboard() {
     {
       id: 'analytics',
       icon: BarChart3,
-      label: 'Análisis',
+      label: t('producer_dashboard.analisis', 'Análisis'),
       color: '#78716c',
       onClick: () => navigate('/producer/payments')
     },
@@ -149,7 +150,7 @@ function ProducerDashboard() {
     <div className="min-h-screen bg-stone-50 p-4 pb-24">
       <DashboardHeader
         userName={user?.name || 'Productor'}
-        subtitle="Resumen de tu negocio"
+        subtitle={t('producer_dashboard.resumenDeTuNegocio', 'Resumen de tu negocio')}
         notificationCount={dashboardData.alerts.length}
       />
 
@@ -200,14 +201,14 @@ function ProducerDashboard() {
 
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-stone-950">Evolución de ventas</h3>
+          <h3 className="font-semibold text-stone-950">{t('producer_dashboard.evolucionDeVentas', 'Evolución de ventas')}</h3>
           <p className="text-xs text-stone-500">Ingresos semanales</p>
         </div>
         <AreaChart data={dashboardData.chart.actual} labels={dashboardData.chart.labels} color="#1c1917" />
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-stone-950 mb-3">Acciones rápidas</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">{t('sellerAI.quickActions', 'Acciones rápidas')}</h3>
         <QuickActions actions={quickActions} />
       </div>
 

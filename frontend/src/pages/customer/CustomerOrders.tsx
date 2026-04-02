@@ -11,6 +11,7 @@ import PullIndicator from '../../components/ui/PullIndicator';
 import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
 import { useLocale } from '../../context/LocaleContext';
 import { useCart } from '../../context/CartContext';
+import { useTranslation } from 'react-i18next';
 
 
 const TIMELINE_STEPS = [
@@ -33,8 +34,8 @@ function getTimelineStep(status: string): number {
 }
 
 const SORT_OPTIONS = [
-  { key: 'recent', label: 'Más recientes' },
-  { key: 'oldest', label: 'Más antiguos' },
+  { key: 'recent', label: t('products.newest', 'Más recientes') },
+  { key: 'oldest', label: t('customer_orders.masAntiguos', 'Más antiguos') },
   { key: 'highest', label: 'Mayor importe' },
 ];
 
@@ -128,7 +129,7 @@ export default function CustomerOrders() {
         setHasMore(fetched.length >= LIMIT);
       }
     } catch (error) {
-      toast.error('Error al cargar los pedidos');
+      toast.error(t('customer_orders.errorAlCargarLosPedidos', 'Error al cargar los pedidos'));
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -151,7 +152,7 @@ export default function CustomerOrders() {
       setPage(1);
       setHasMore(data?.has_more ?? fetched.length >= LIMIT);
     } catch {
-      toast.error('Error al actualizar los pedidos');
+      toast.error(t('customer_orders.errorAlActualizarLosPedidos', 'Error al actualizar los pedidos'));
     } finally {
       setLoading(false);
       refreshingRef.current = false;
@@ -235,8 +236,8 @@ export default function CustomerOrders() {
             <ShoppingBag className="w-12 h-12 text-stone-300 mx-auto mb-4" />
             <p className="text-stone-500 mb-4">
               {activeFilter === 'all'
-                ? 'Aún no tienes pedidos'
-                : 'No hay pedidos en esta categoría'}
+                ? t('orders.noOrders', 'Aún no tienes pedidos')
+                : t('customer_orders.noHayPedidosEnEstaCategoria', 'No hay pedidos en esta categoría')}
             </p>
             {activeFilter === 'all' && (
               <Link to="/discover" className="text-stone-950 hover:underline font-medium">
@@ -337,10 +338,10 @@ export default function CustomerOrders() {
                               setReorderingId(order.order_id);
                               await apiClient.post(`/customer/orders/${order.order_id}/reorder`);
                               await fetchCart();
-                              toast.success('Productos añadidos al carrito');
+                              toast.success(t('customer_orders.productosAnadidosAlCarrito', 'Productos añadidos al carrito'));
                               navigate('/cart');
                             } catch (err: any) {
-                              toast.error(err?.message || 'No se pudo repetir el pedido');
+                              toast.error(err?.message || t('customer_orders.noSePudoRepetirElPedido', 'No se pudo repetir el pedido'));
                             } finally {
                               setReorderingId(null);
                             }
@@ -366,7 +367,7 @@ export default function CustomerOrders() {
           disabled={loadingMore}
           className="w-full mt-4 py-3 min-h-[44px] text-sm font-semibold text-stone-700 bg-white rounded-2xl shadow-sm hover:bg-stone-50 transition-colors disabled:opacity-50"
         >
-          {loadingMore ? 'Cargando...' : 'Cargar más pedidos'}
+          {loadingMore ? 'Cargando...' : t('customer_orders.cargarMasPedidos', 'Cargar más pedidos')}
         </button>
       )}
       </div>

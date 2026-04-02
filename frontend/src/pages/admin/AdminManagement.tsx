@@ -42,14 +42,14 @@ export default function AdminManagement() {
 
   const COUNTRIES = [
     { code: '', name: 'Sin asignar (Global)' },
-    { code: 'ES', name: 'España' },
+    { code: 'ES', name: t('admin.countries.ES', 'España') },
     { code: 'FR', name: 'Francia' },
     { code: 'DE', name: 'Alemania' },
     { code: 'IT', name: 'Italia' },
     { code: 'PT', name: 'Portugal' },
     { code: 'UK', name: 'Reino Unido' },
     { code: 'US', name: 'Estados Unidos' },
-    { code: 'MX', name: 'México' },
+    { code: 'MX', name: t('admin.countries.MX', 'México') },
     { code: 'AR', name: 'Argentina' },
     { code: 'CL', name: 'Chile' },
     { code: 'CO', name: 'Colombia' }

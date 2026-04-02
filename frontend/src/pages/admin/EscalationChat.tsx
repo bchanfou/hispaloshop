@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient, { getWSUrl } from '../../services/api/client';
 import { Send, ShieldAlert, Lock, RefreshCw, User, ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // WS_URL derived from centralized getWSUrl helper
 
@@ -65,7 +66,7 @@ export default function EscalationChat() {
         setMessages(data);
         clearTimeout(scrollTimerRef.current); scrollTimerRef.current = setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
       } catch {
-        toast.error('No se pudieron cargar los mensajes');
+        toast.error(t('escalation_chat.noSePudieronCargarLosMensajes', 'No se pudieron cargar los mensajes'));
       }
     };
     load();
@@ -105,9 +106,9 @@ export default function EscalationChat() {
       setInitialMessage('');
       setActiveConvId(getEscalationConversationId(data));
       fetchEscalations();
-      toast.success('Canal de escalación abierto. Un superadmin recibirá tu mensaje.');
+      toast.success(t('escalation_chat.canalDeEscalacionAbiertoUnSuperadm', 'Canal de escalación abierto. Un superadmin recibirá tu mensaje.'));
     } catch (err) {
-      toast.error(err?.response?.data?.detail || err.message || 'Error al abrir escalación');
+      toast.error(err?.response?.data?.detail || err.message || t('escalation_chat.errorAlAbrirEscalacion', 'Error al abrir escalación'));
     } finally {
       setSending(false);
     }
@@ -220,7 +221,7 @@ export default function EscalationChat() {
           )}
           <ShieldAlert className="w-5 h-5 text-stone-700 shrink-0" />
           <div>
-            <h1 className="font-semibold text-stone-950 text-sm">Canal de Escalación Privado</h1>
+            <h1 className="font-semibold text-stone-950 text-sm">{t('escalation_chat.canalDeEscalacionPrivado', 'Canal de Escalación Privado')}</h1>
             <p className="text-xs text-stone-500 flex items-center gap-1">
               <Lock className="w-3 h-3" /> Cifrado AES-256 · Solo visible para admins y superadmins
             </p>
@@ -232,7 +233,7 @@ export default function EscalationChat() {
           <div className="flex-1 flex items-center justify-center text-center p-8">
             <div>
               <ShieldAlert className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-              <p className="text-stone-500">Selecciona una escalación para ver los mensajes</p>
+              <p className="text-stone-500">{t('escalation_chat.seleccionaUnaEscalacionParaVerLosM', 'Selecciona una escalación para ver los mensajes')}</p>
             </div>
           </div>
         )}
@@ -252,7 +253,7 @@ export default function EscalationChat() {
               <textarea
                 className="w-full border border-stone-200 rounded-2xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-200 mb-3"
                 rows={4}
-                placeholder="Describe el problema o situación a escalar..."
+                placeholder={t('escalation_chat.describeElProblemaOSituacionAEscal', 'Describe el problema o situación a escalar...')}
                 value={initialMessage}
                 onChange={e => setInitialMessage(e.target.value)}
               />
@@ -273,7 +274,7 @@ export default function EscalationChat() {
           <>
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
               {messages.length === 0 && (
-                <p className="text-center text-sm text-stone-500 mt-8">Sin mensajes todavía</p>
+                <p className="text-center text-sm text-stone-500 mt-8">{t('escalation_chat.sinMensajesTodavia', 'Sin mensajes todavía')}</p>
               )}
               {messages.map(msg => {
                 const isMe = msg.sender_id === user?.user_id;

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const INCOTERM_OPTIONS = ['EXW', 'FCA', 'DAP', 'DDP', 'FOB'];
 const PAYMENT_OPTIONS = [
@@ -83,7 +84,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
     setRemoving(true);
     try {
       await apiClient.delete(`/products/${productId}/b2b`);
-      toast.success('Producto retirado del catálogo B2B');
+      toast.success(t('b2_b_product.productoRetiradoDelCatalogoB2b', 'Producto retirado del catálogo B2B'));
       onSaved?.();
       onClose();
     } catch (err) {
@@ -157,7 +158,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
 
               {/* 2. MOQ */}
               <div className="mb-[22px]">
-                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">Cantidad mínima de pedido (MOQ)</div>
+                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">{t('b2_b_product.cantidadMinimaDePedidoMoq', 'Cantidad mínima de pedido (MOQ)')}</div>
                 <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden bg-white">
                   <input
                     type="number"
@@ -240,7 +241,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
 
               {/* 6. Wholesale description */}
               <div className="mb-[22px]">
-                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">Descripción mayorista</div>
+                <div className="text-[11px] font-semibold tracking-wide uppercase text-stone-500 mb-1.5">{t('b2_b_product.descripcionMayorista', 'Descripción mayorista')}</div>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -297,7 +298,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                   ? 'Guardando...'
                   : product?.b2b_enabled
                     ? 'Guardar cambios'
-                    : 'Publicar en catálogo B2B'}
+                    : t('b2_b_product.publicarEnCatalogoB2b', 'Publicar en catálogo B2B')}
               </button>
 
               {product?.b2b_enabled && (
@@ -308,7 +309,7 @@ function B2BProductModal({ isOpen, onClose, product, onSaved }) {
                     removing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer opacity-100'
                   }`}
                 >
-                  {removing ? 'Eliminando...' : 'Quitar del catálogo B2B'}
+                  {removing ? 'Eliminando...' : t('b2_b_product.quitarDelCatalogoB2b', 'Quitar del catálogo B2B')}
                 </button>
               )}
             </div>

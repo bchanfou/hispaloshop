@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Bookmark, Star, Flame } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MILESTONES = {
-  'first_10_likes': { icon: Heart, title: '¡10 me gusta!', subtitle: 'Tu publicación está gustando', threshold: 10 },
-  'first_save': { icon: Bookmark, title: '¡Alguien te guardó!', subtitle: 'Tu contenido inspira', threshold: 1 },
-  'first_50_likes': { icon: Star, title: '¡50 me gusta!', subtitle: 'Estás en racha', threshold: 50 },
-  'streak_7': { icon: Flame, title: '¡7 días seguidos!', subtitle: 'Racha de publicación', threshold: 7 },
+  'first_10_likes': { icon: Heart, title: t('milestone_toast.10MeGusta', '¡10 me gusta!'), subtitle: 'Tu publicación está gustando', threshold: 10 },
+  'first_save': { icon: Bookmark, title: t('milestone_toast.alguienTeGuardo', '¡Alguien te guardó!'), subtitle: 'Tu contenido inspira', threshold: 1 },
+  'first_50_likes': { icon: Star, title: t('milestone_toast.50MeGusta', '¡50 me gusta!'), subtitle: 'Estás en racha', threshold: 50 },
+  'streak_7': { icon: Flame, title: t('milestone_toast.7DiasSeguidos', '¡7 días seguidos!'), subtitle: 'Racha de publicación', threshold: 7 },
 };
 
 export function checkMilestone(type, count) {

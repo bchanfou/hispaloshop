@@ -3,12 +3,13 @@ import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import apiClient from '../../services/api/client';
 import { AlertCircle, CheckCircle2, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const ONBOARDING_STEPS = [
   { key: 'account', label: 'Cuenta' },
   { key: 'business', label: 'Negocio' },
   { key: 'bank', label: 'Banco' },
-  { key: 'verification', label: 'Verificación' },
+  { key: 'verification', label: t('becomeSeller.step2Title', 'Verificación') },
 ];
 
 function deriveStep(status) {
@@ -100,7 +101,7 @@ export default function ProducerConnectPage() {
         await loadStatus();
       }
     } catch (error) {
-      toast.error(error.message || 'No se pudo iniciar el onboarding');
+      toast.error(error.message || t('producer_connect.noSePudoIniciarElOnboarding', 'No se pudo iniciar el onboarding'));
     } finally {
       setSubmitting(false);
     }
@@ -121,7 +122,7 @@ export default function ProducerConnectPage() {
   return (
     <div className="max-w-[600px] mx-auto p-4 md:p-6">
       <h1 className="text-2xl font-bold text-stone-950 mb-2">Stripe Connect</h1>
-      <p className="text-sm text-stone-500 mb-6">Configura tu cuenta para recibir transferencias automaticas.</p>
+      <p className="text-sm text-stone-500 mb-6">{t('producer_connect.configuraTuCuentaParaRecibirTransfe', 'Configura tu cuenta para recibir transferencias automaticas.')}</p>
 
       {/* 4-step progress indicator */}
       <div className="mb-8">
@@ -182,8 +183,8 @@ export default function ProducerConnectPage() {
             </p>
             <p className="text-sm text-stone-500 mt-1">
               {isReady
-                ? 'Tu cuenta esta lista para recibir pagos.'
-                : 'Completa los datos en Stripe para activar cobros y payouts.'}
+                ? t('producer_connect.tuCuentaEstaListaParaRecibirPagos', 'Tu cuenta esta lista para recibir pagos.')
+                : t('producer_connect.completaLosDatosEnStripeParaActiva', 'Completa los datos en Stripe para activar cobros y payouts.')}
             </p>
             {!isReady && status?.requirements_due?.length > 0 && (
               <p className="text-xs text-stone-600 mt-2">

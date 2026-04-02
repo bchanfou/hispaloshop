@@ -23,6 +23,7 @@ import { motion } from 'framer-motion';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 /* -- Timeline stages -- */
 const STAGES = [
@@ -119,7 +120,7 @@ export default function B2BTrackingPage() {
       const { data } = await apiClient.get(`/b2b/operations/${operationId}`);
       setOperation(data);
     } catch {
-      toast.error('Error al cargar la operación');
+      toast.error(t('b2_b_tracking.errorAlCargarLaOperacion', 'Error al cargar la operación'));
     } finally {
       setLoading(false);
     }
@@ -162,10 +163,10 @@ export default function B2BTrackingPage() {
         tracking_number: trackingNum.trim(),
         carrier: selectedCarrier,
       });
-      toast.success('Envío confirmado');
+      toast.success(t('b2_b_tracking.envioConfirmado', 'Envío confirmado'));
       fetchOperation();
     } catch {
-      toast.error('No se pudo confirmar el envío');
+      toast.error(t('b2_b_tracking.noSePudoConfirmarElEnvio', 'No se pudo confirmar el envío'));
     } finally {
       setSubmitting(false);
     }
@@ -224,8 +225,8 @@ export default function B2BTrackingPage() {
   if (!operation) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6">
-        <div className="text-stone-950 text-[15px] font-semibold">Operación no encontrada</div>
-        <p className="text-stone-500 text-[13px] text-center">No se pudo cargar la operación solicitada.</p>
+        <div className="text-stone-950 text-[15px] font-semibold">{t('b2_b_tracking.operacionNoEncontrada', 'Operación no encontrada')}</div>
+        <p className="text-stone-500 text-[13px] text-center">{t('b2_b_tracking.noSePudoCargarLaOperacionSolicitad', 'No se pudo cargar la operación solicitada.')}</p>
         <button
           onClick={() => { setLoading(true); fetchOperation(); }}
           className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer"
@@ -258,7 +259,7 @@ export default function B2BTrackingPage() {
         </div>
         <button
           onClick={() => navigate(`/b2b/chat/${operationId}`)}
-          aria-label="Abrir chat de la operación"
+          aria-label={t('b2_b_tracking.abrirChatDeLaOperacion', 'Abrir chat de la operación')}
           className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer"
         >
           <MessageCircle size={20} className="text-stone-950" />
@@ -396,12 +397,12 @@ export default function B2BTrackingPage() {
           <div className="bg-white shadow-sm rounded-xl p-4">
             {!shipment && isProducer && (
               <div className="flex flex-col gap-3.5">
-                <div className="text-sm font-semibold text-stone-950">Confirmar envío</div>
+                <div className="text-sm font-semibold text-stone-950">{t('b2_b_tracking.confirmarEnvio', 'Confirmar envío')}</div>
 
                 {/* tracking number input */}
                 <input
                   type="text"
-                  placeholder="Número de seguimiento"
+                  placeholder={t('orders.shipping.trackingNumber', 'Número de seguimiento')}
                   value={trackingNum}
                   onChange={(e) => setTrackingNum(e.target.value)}
                   className="w-full h-11 border border-stone-200 rounded-xl px-3 text-[13px] text-stone-950 bg-white outline-none box-border"
@@ -433,7 +434,7 @@ export default function B2BTrackingPage() {
                   disabled={submitting}
                   className="w-full h-11 rounded-full bg-stone-950 text-white text-sm font-semibold border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {submitting ? 'Enviando...' : 'Confirmar envío'}
+                  {submitting ? 'Enviando...' : t('b2_b_tracking.confirmarEnvio', 'Confirmar envío')}
                 </button>
               </div>
             )}
@@ -488,7 +489,7 @@ export default function B2BTrackingPage() {
           <div className="bg-white shadow-sm rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
               <FileText size={18} className="text-stone-950" />
-              <span className="text-sm font-semibold text-stone-950">Documentación</span>
+              <span className="text-sm font-semibold text-stone-950">{t('b2_b_tracking.documentacion', 'Documentación')}</span>
             </div>
             <div className="text-xs text-stone-500 mb-3.5">
               Documentos necesarios para esta operación
@@ -598,7 +599,7 @@ export default function B2BTrackingPage() {
             </div>
 
             <button
-              onClick={() => toast.info('Próximamente')}
+              onClick={() => toast.info(t('b2_b_tracking.proximamente', 'Próximamente'))}
               className="flex items-center justify-center w-full h-10 rounded-full bg-white border border-stone-200 text-[13px] font-medium text-stone-950 cursor-pointer"
             >
               Consultar a la IA

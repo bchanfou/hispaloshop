@@ -65,7 +65,7 @@ export default function B2BContractPage() {
       return op;
     } catch (err) {
       captureException(err);
-      setError(err?.data?.detail || err?.response?.data?.detail || err?.message || 'No se pudo cargar la operación');
+      setError(err?.data?.detail || err?.response?.data?.detail || err?.message || t('b2_b_contract.noSePudoCargarLaOperacion', 'No se pudo cargar la operación'));
       return null;
     } finally {
       setLoading(false);
@@ -149,8 +149,8 @@ export default function B2BContractPage() {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center">
         <ShieldAlert size={36} className="text-stone-400" />
-        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
-        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a los contratos B2B.</p>
+        <p className="text-stone-950 text-[15px] font-semibold">{t('b2_b_contract.noTienesAccesoAEstaSeccion', 'No tienes acceso a esta sección')}</p>
+        <p className="text-stone-500 text-[13px]">{t('b2_b_contract.necesitasUnPerfilDeProductorOImpor', 'Necesitas un perfil de productor o importador para acceder a los contratos B2B.')}</p>
         <button
           onClick={() => navigate('/')}
           className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"
@@ -181,7 +181,7 @@ export default function B2BContractPage() {
           Operación no encontrada
         </p>
         <p className="text-stone-500 text-[13px] text-center">
-          {error || 'La operación solicitada no existe o no tienes acceso.'}
+          {error || t('b2_b_contract.laOperacionSolicitadaNoExisteONoT', 'La operación solicitada no existe o no tienes acceso.')}
         </p>
         <div className="flex gap-3 mt-3">
           <button
@@ -388,9 +388,9 @@ export default function B2BContractPage() {
                     <span className="text-[11px] text-stone-500 block">Condiciones de pago</span>
                     <span className="text-[13px] text-stone-950">
                       {(lastOffer.payment_terms === 'prepaid' || lastOffer.payment_terms === 'full_prepay') ? 'Pago completo por adelantado'
-                        : lastOffer.payment_terms === 'letter_of_credit' ? 'Carta de crédito (pago dividido)'
-                        : lastOffer.payment_terms === 'net_30' ? 'Pago a 30 días'
-                        : lastOffer.payment_terms === 'net_60' ? 'Pago a 60 días'
+                        : lastOffer.payment_terms === 'letter_of_credit' ? t('b2_b_contract.cartaDeCreditoPagoDividido', 'Carta de crédito (pago dividido)')
+                        : lastOffer.payment_terms === 'net_30' ? t('b2_b_contract.pagoA30Dias', 'Pago a 30 días')
+                        : lastOffer.payment_terms === 'net_60' ? t('b2_b_contract.pagoA60Dias', 'Pago a 60 días')
                         : lastOffer.payment_terms}
                     </span>
                   </div>

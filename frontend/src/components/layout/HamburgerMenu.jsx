@@ -13,6 +13,7 @@ import { useLocale } from '../../context/LocaleContext';
 import { getDefaultRoute } from '../../lib/navigation';
 import Logo from '../brand/Logo';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 /* ── Data: derived from LocaleContext (no hardcoded lists) ── */
 
@@ -123,7 +124,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   hispaloshop
                 </span>
               </div>
-              <button onClick={onClose} aria-label="Cerrar menú" className="flex items-center justify-center w-8 h-8 rounded-full border-none bg-stone-100 cursor-pointer">
+              <button onClick={onClose} aria-label={t('hamburger_menu.cerrarMenu', 'Cerrar menú')} className="flex items-center justify-center w-8 h-8 rounded-full border-none bg-stone-100 cursor-pointer">
                 <X size={18} className="text-stone-950" strokeWidth={2} />
               </button>
             </div>
@@ -230,7 +231,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               >
                 <input
                   type="text"
-                  placeholder="Buscar país..."
+                  placeholder={t('fiscal_setup.buscarPais', 'Buscar país...')}
                   value={localeSearch}
                   onChange={e => setLocaleSearch(e.target.value)}
                   className="w-full px-3 py-2 mb-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-stone-400"

@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 function Avatar({ src, name }) {
   const initial = (name || 'U').trim().charAt(0).toUpperCase();
@@ -53,7 +54,7 @@ export default function MessageToast({ notification, onClose, onOpen }) {
               type="button"
               onClick={onClose}
               className="flex h-8 w-8 items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
-              aria-label="Cerrar notificación de mensaje"
+              aria-label={t('message_toast.cerrarNotificacionDeMensaje', 'Cerrar notificación de mensaje')}
             >
               <X className="h-4 w-4" />
             </button>

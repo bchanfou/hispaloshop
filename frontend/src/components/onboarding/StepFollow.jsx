@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const RECOMMENDED_PRODUCERS = [
   {
@@ -15,11 +16,11 @@ const RECOMMENDED_PRODUCERS = [
     avatar: 'https://images.unsplash.com/photo-1548685913-fe6678babe8d?w=100',
     rating: 4.9,
     products: 23,
-    location: 'Córdoba',
+    location: t('step_follow.cordoba', 'Córdoba'),
   },
   {
     id: 'prod_2',
-    name: 'Quesería La Antigua',
+    name: t('step_follow.queseriaLaAntigua', 'Quesería La Antigua'),
     category: 'Quesos',
     avatar: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=100',
     rating: 4.8,
@@ -46,8 +47,8 @@ const RECOMMENDED_PRODUCERS = [
   },
   {
     id: 'prod_5',
-    name: 'Panadería María',
-    category: 'Panadería',
+    name: t('step_follow.panaderiaMaria', 'Panadería María'),
+    category: t('onboarding.panaderia', 'Panadería'),
     avatar: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100',
     rating: 4.8,
     products: 8,
@@ -91,7 +92,7 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-stone-950">Descubre a quién seguir</h2>
+        <h2 className="text-2xl font-bold text-stone-950">{t('step_follow.descubreAQuienSeguir', 'Descubre a quién seguir')}</h2>
         <p className="text-stone-500 mt-2">
           Sigue al menos 3 productores para empezar
         </p>

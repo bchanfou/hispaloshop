@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mail, RefreshCw, CheckCircle, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 export default function VerifyEmailWall({ email, onVerified, onLogout }) {
   const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -93,8 +94,8 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
       toast.success('Email verificado correctamente');
       setTimeout(() => onVerified?.(), 1500);
     } catch (err) {
-      const msg = err?.response?.data?.detail || 'Código incorrecto o expirado';
-      toast.error(typeof msg === 'string' ? msg : 'Código incorrecto');
+      const msg = err?.response?.data?.detail || t('verify_email_wall.codigoIncorrectoOExpirado', 'Código incorrecto o expirado');
+      toast.error(typeof msg === 'string' ? msg : t('verify_email_wall.codigoIncorrecto', 'Código incorrecto'));
       setCode(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {
@@ -109,9 +110,9 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
       await apiClient.post('/auth/resend-verification');
       setResendCount(prev => prev + 1);
       setCooldown(60);
-      toast.success('Código reenviado a tu email');
+      toast.success(t('verify_email_wall.codigoReenviadoATuEmail', 'Código reenviado a tu email'));
     } catch (err) {
-      toast.error('No se pudo reenviar el código');
+      toast.error(t('verify_email_wall.noSePudoReenviarElCodigo', 'No se pudo reenviar el código'));
     } finally {
       setIsResending(false);
     }
@@ -192,7 +193,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
               onClick={handleResend}
               disabled={isResending}
               className="text-sm font-semibold text-stone-950 hover:underline disabled:opacity-50 flex items-center gap-1.5 mx-auto min-h-[44px] px-4"
-              aria-label="Reenviar código de verificación"
+              aria-label={t('verify_email_wall.reenviarCodigoDeVerificacion', 'Reenviar código de verificación')}
             >
               <RefreshCw size={14} className={isResending ? 'animate-spin' : ''} />
               Reenviar código
@@ -209,7 +210,7 @@ export default function VerifyEmailWall({ email, onVerified, onLogout }) {
         <button
           onClick={onLogout}
           className="text-xs text-stone-400 hover:text-stone-950 flex items-center gap-1.5 mx-auto transition-colors min-h-[44px] px-4"
-          aria-label="Cerrar sesión"
+          aria-label={t('common.logout', 'Cerrar sesión')}
         >
           <LogOut size={12} />
           Cerrar sesión

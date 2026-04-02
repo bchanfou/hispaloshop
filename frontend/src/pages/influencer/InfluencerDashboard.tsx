@@ -41,7 +41,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, hasSEPA, onWithd
       await refetchWithdrawals();
       if (onWithdrawSuccess) onWithdrawSuccess();
     } catch (error) {
-      toast.error(error?.message || 'Error al procesar el retiro');
+      toast.error(error?.message || t('influencer_dashboard.errorAlProcesarElRetiro', 'Error al procesar el retiro'));
     }
   }, [availableToWithdraw, convertAndFormatPrice, requestWithdrawal, refetchWithdrawals, onWithdrawSuccess]);
 
@@ -146,24 +146,24 @@ function EmailVerificationBanner({ user, onVerified }) {
 
   const handleVerify = async () => {
     if (!code || code.length !== 6) {
-      toast.error('Introduce el código de 6 dígitos');
+      toast.error(t('influencer_dashboard.introduceElCodigoDe6Digitos', 'Introduce el código de 6 dígitos'));
       return;
     }
     try {
       await verifyEmailCode(code);
-      toast.success('¡Email verificado!');
+      toast.success(t('influencer_dashboard.emailVerificado', '¡Email verificado!'));
       onVerified();
     } catch (error) {
-      toast.error(error?.message || 'Código inválido');
+      toast.error(error?.message || t('influencer_dashboard.codigoInvalido', 'Código inválido'));
     }
   };
 
   const handleResend = async () => {
     try {
       await resendVerificationCode();
-      toast.success('Código enviado a tu email');
+      toast.success(t('influencer_dashboard.codigoEnviadoATuEmail', 'Código enviado a tu email'));
     } catch (error) {
-      toast.error(error?.message || 'Error al enviar código');
+      toast.error(error?.message || t('influencer_dashboard.errorAlEnviarCodigo', 'Error al enviar código'));
     }
   };
 
@@ -189,7 +189,7 @@ function EmailVerificationBanner({ user, onVerified }) {
               {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
             </button>
             <button onClick={handleResend} disabled={resending} className="px-4 py-2 transition-colors border border-stone-200 text-stone-500 rounded-xl bg-white">
-              {resending ? 'Enviando...' : 'Reenviar código'}
+              {resending ? 'Enviando...' : t('influencer.resendCode', 'Reenviar código')}
             </button>
           </div>
         </div>
@@ -209,17 +209,17 @@ function CreateCodeCard({ onCodeCreated }) {
 
   const handleCreate = async () => {
     if (!code || code.length < 3) {
-      toast.error('El código debe tener al menos 3 caracteres');
+      toast.error(t('influencer_dashboard.elCodigoDebeTenerAlMenos3Caracter', 'El código debe tener al menos 3 caracteres'));
       return;
     }
     try {
       const res = await createDiscountCode(code, discountPercent);
-      toast.success(res?.message || 'Código creado');
+      toast.success(res?.message || t('influencer_dashboard.codigoCreado', 'Código creado'));
       onCodeCreated(res?.code || code);
       setCode('');
       setShowForm(false);
     } catch (error) {
-      toast.error(error?.message || 'Error al crear código');
+      toast.error(error?.message || t('influencer_dashboard.errorAlCrearCodigo', 'Error al crear código'));
     }
   };
 
@@ -296,7 +296,7 @@ function DiscountCodesList({ codes, convertAndFormatPrice }) {
   const handleCopy = useCallback((code) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
-    toast.success('Código copiado');
+    toast.success(t('influencer_dashboard.codigoCopiado', 'Código copiado'));
     clearTimeout(copyTimerRef.current);
     copyTimerRef.current = setTimeout(() => setCopiedCode(null), 2000);
   }, []);
@@ -311,7 +311,7 @@ function DiscountCodesList({ codes, convertAndFormatPrice }) {
           </h3>
         </div>
         <div className="px-6 pb-6 text-center py-4">
-          <p className="text-sm text-stone-500">Crea tu primer código de descuento</p>
+          <p className="text-sm text-stone-500">{t('influencer_dashboard.creaTuPrimerCodigoDeDescuento', 'Crea tu primer código de descuento')}</p>
         </div>
       </div>
     );
@@ -350,7 +350,7 @@ function DiscountCodesList({ codes, convertAndFormatPrice }) {
               <button
                 onClick={() => handleCopy(dc.code)}
                 className="p-2 rounded-full transition-colors bg-stone-100 hover:bg-stone-200 text-stone-600"
-                title="Copiar código"
+                title={t('influencer.copyCode', 'Copiar código')}
               >
                 {copiedCode === dc.code ? (
                   <Check className="w-4 h-4 text-stone-950" />
@@ -543,11 +543,11 @@ export default function InfluencerDashboard() {
               <span className="text-sm font-semibold">{convertAndFormatPrice(asNumber(dashboard.available_balance))}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-white/50">Pendiente 15 días</span>
+              <span className="text-xs text-white/50">{t('influencer_dashboard.pendiente15Dias', 'Pendiente 15 días')}</span>
               <span className="text-sm font-semibold">{convertAndFormatPrice(asNumber(dashboard.payment_schedule?.available_soon))}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-white/50">En tránsito</span>
+              <span className="text-xs text-white/50">{t('influencer_dashboard.enTransito', 'En tránsito')}</span>
               <span className="text-sm font-semibold">{convertAndFormatPrice(asNumber(dashboard.payment_schedule?.in_transit))}</span>
             </div>
           </div>
@@ -660,7 +660,7 @@ export default function InfluencerDashboard() {
                   <div><p className="font-semibold text-stone-950">{item.sales}</p><p>Ventas</p></div>
                 </div>
               </div>
-            )) : <p className="text-sm text-stone-500">Publica contenido con productos vinculados para empezar a ver rendimiento.</p>}
+            )) : <p className="text-sm text-stone-500">{t('influencer_dashboard.publicaContenidoConProductosVinculad', 'Publica contenido con productos vinculados para empezar a ver rendimiento.')}</p>}
           </div>
         </div>
 
@@ -700,20 +700,20 @@ export default function InfluencerDashboard() {
         {/* === CODE HERO - active === */}
         {dashboard.discount_code && dashboard.discount_code_active && (
           <div className="mb-6 p-6 text-center rounded-2xl shadow-sm bg-white" data-testid="code-hero">
-            <p className="mb-2 text-xs uppercase tracking-widest text-stone-500">Tu código</p>
+            <p className="mb-2 text-xs uppercase tracking-widest text-stone-500">{t('influencerDashboard.yourCode', 'Tu código')}</p>
             <p className="mb-4 text-4xl font-semibold tracking-tight md:text-5xl font-mono text-stone-950" data-testid="influencer-code">
               {dashboard.discount_code}
             </p>
             <div className="flex justify-center gap-3 mb-4">
               <button
-                onClick={() => { navigator.clipboard.writeText(dashboard.discount_code); toast.success('Código copiado'); }}
+                onClick={() => { navigator.clipboard.writeText(dashboard.discount_code); toast.success(t('influencer_dashboard.codigoCopiado', 'Código copiado')); }}
                 className="rounded-full px-6 py-2 flex items-center gap-2 transition-colors bg-stone-950 text-white"
                 data-testid="copy-code-btn"
               >
                 <Copy className="w-4 h-4" /> Copiar
               </button>
               <button
-                onClick={() => { if (navigator.share) navigator.share({ title: 'Mi código Hispaloshop', text: `Usa mi código ${dashboard.discount_code} para descuento en hispaloshop.com` }); else { navigator.clipboard.writeText(`Usa mi código ${dashboard.discount_code} en hispaloshop.com`); toast.success('Link copiado'); }}}
+                onClick={() => { if (navigator.share) navigator.share({ title: t('influencer_dashboard.miCodigoHispaloshop', 'Mi código Hispaloshop'), text: `Usa mi código ${dashboard.discount_code} para descuento en hispaloshop.com` }); else { navigator.clipboard.writeText(`Usa mi código ${dashboard.discount_code} en hispaloshop.com`); toast.success('Link copiado'); }}}
                 className="rounded-full px-6 py-2 transition-colors border border-stone-200 text-stone-500 bg-white"
               >
                 Compartir
@@ -731,11 +731,11 @@ export default function InfluencerDashboard() {
           </div>
           <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
             <p className="text-2xl font-bold text-stone-950">{convertAndFormatPrice(asNumber(dashboard.total_commission_earned))}</p>
-            <p className="text-xs mt-1 text-stone-500">Comisión total</p>
+            <p className="text-xs mt-1 text-stone-500">{t('influencer_dashboard.comisionTotal', 'Comisión total')}</p>
           </div>
           <div className="p-4 text-center bg-white shadow-sm rounded-2xl">
             <p className="text-2xl font-bold text-stone-950">{`${tierPercent}%`}</p>
-            <p className="text-xs mt-1 text-stone-500">Tasa de comisión</p>
+            <p className="text-xs mt-1 text-stone-500">{t('influencer_dashboard.tasaDeComision', 'Tasa de comisión')}</p>
           </div>
         </div>
 
@@ -1076,7 +1076,7 @@ export default function InfluencerDashboard() {
             {Array.isArray(payoutHistory) && payoutHistory.length === 0 && (
               <div className="p-4 text-center bg-white rounded-2xl shadow-sm">
                 <p className="text-[10px] uppercase tracking-wider font-bold mb-2 text-stone-500">Cobros realizados</p>
-                <p className="text-sm text-stone-500">Aún no has realizado ningún cobro</p>
+                <p className="text-sm text-stone-500">{t('influencer_dashboard.aunNoHasRealizadoNingunCobro', 'Aún no has realizado ningún cobro')}</p>
               </div>
             )}
           </div>

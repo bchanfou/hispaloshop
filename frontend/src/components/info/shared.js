@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // -- Animacion de entrada al scroll --
 export const FadeUp = ({ children, delay = 0 }) => (
@@ -193,7 +194,7 @@ export const InfoNav = ({ activePage }) => (
     </a>
     <div className="flex gap-1">
       {[
-        { href: '/que-es-hispaloshop', label: 'Qué es' },
+        { href: '/que-es-hispaloshop', label: t('shared.queEs', 'Qué es') },
         { href: '/productor',  label: 'Productor'  },
         { href: '/importador', label: 'Importador' },
         { href: '/influencer', label: 'Influencer' },

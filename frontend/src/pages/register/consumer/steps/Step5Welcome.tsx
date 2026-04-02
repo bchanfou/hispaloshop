@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Loader2, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Step5Welcome = ({ data, onComplete, isSubmitting }) => {
   const firstName = data.firstName || '';

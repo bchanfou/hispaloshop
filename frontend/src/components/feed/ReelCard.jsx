@@ -33,6 +33,7 @@ import { useDwellTime } from '../../hooks/useDwellTime';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useAutocomplete } from '../../hooks/useAutocomplete';
 import MentionDropdown from './MentionDropdown';
+import { useTranslation } from 'react-i18next';
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
@@ -575,9 +576,9 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
     setAddingToCart(productId);
     try {
       await addToCart(productId, 1);
-      toast.success('Añadido al carrito', { duration: 1500 });
+      toast.success(t('ai.addedToCart', 'Añadido al carrito'), { duration: 1500 });
     } catch (err) {
-      toast.error('Error al añadir');
+      toast.error(t('recipe_detail.errorAlAnadir', 'Error al añadir'));
     } finally {
       setAddingToCart(null);
     }
@@ -646,7 +647,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                   const res = await apiClient.post(`/users/${reelUserId}/follow`, {});
                   if (res?.status === 'pending') { toast.success('Solicitud enviada'); }
                   else { setIsFollowing(true); }
-                } catch { toast.error('No se pudo seguir al usuario'); }
+                } catch { toast.error(t('reel.noSePudoSeguirAlUsuario', 'No se pudo seguir al usuario')); }
               }}
               className="text-[13px] font-semibold text-stone-950 bg-transparent border border-stone-200 rounded-full px-3.5 py-1.5 cursor-pointer hover:bg-stone-50 transition-colors shrink-0"
             >
@@ -705,7 +706,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                             await apiClient.delete(`/users/${reelUserId}/follow`);
                             setIsFollowing(false);
                             toast.success(`Has dejado de seguir a ${userName}`);
-                          } catch { toast.error('Error al dejar de seguir'); }
+                          } catch { toast.error(t('followers.errorAlDejarDeSeguir', 'Error al dejar de seguir')); }
                           setShowOwnerMenu(false);
                         }}
                       >
@@ -735,7 +736,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
               muted={muted}
               preload={priority ? 'metadata' : 'none'}
               onLoadedMetadata={() => { if (videoRef.current) setVideoDuration(videoRef.current.duration); }}
-              aria-label={playing ? 'Pausar vídeo' : 'Reproducir vídeo'}
+              aria-label={playing ? t('create_reel.pausarVideo', 'Pausar vídeo') : 'Reproducir vídeo'}
             />
           ) : thumbnailUrl ? (
             <img src={thumbnailUrl} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
@@ -1014,7 +1015,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           {showEditCaption && isOwner && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-3 pb-3">
               <div className="bg-stone-50 rounded-xl p-3 flex flex-col gap-2">
-                <span className="text-xs font-semibold text-stone-500">Editar descripción</span>
+                <span className="text-xs font-semibold text-stone-500">{t('post_detail.editarDescripcion', 'Editar descripción')}</span>
                 <textarea
                   value={editCaption}
                   onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
@@ -1036,7 +1037,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         <BottomSheet isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} maxHeight="50vh">
           <div className="p-5 flex flex-col gap-3 text-center">
             <p className="text-base font-semibold text-stone-950">¿Eliminar este reel?</p>
-            <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes.</p>
+            <p className="text-sm text-stone-500">{t('reel.seEliminaraPermanentementeJuntoConS', 'Se eliminará permanentemente junto con sus comentarios y likes.')}</p>
             <div className="flex gap-3 mt-2">
               <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer">Cancelar</button>
               <button onClick={handleDeleteReel} className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer">Eliminar</button>
@@ -1057,7 +1058,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
               {commentsLoading ? (
                 <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" /></div>
               ) : comments.length === 0 ? (
-                <p className="text-center text-stone-400 text-sm py-8">Sé el primero en comentar</p>
+                <p className="text-center text-stone-400 text-sm py-8">{t('post_detail.seElPrimeroEnComentar', 'Sé el primero en comentar')}</p>
               ) : (
                 comments.slice(0, commentsPage * COMMENTS_PER_PAGE).map((c, i) => {
                   const cId = c.comment_id || c.id || c._id;
@@ -1136,7 +1137,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                     if (reelAutocomplete.isOpen) { reelAutocomplete.handleKeyDown(e); if (e.defaultPrevented) return; }
                     if (e.key === 'Enter') submitComment();
                   }}
-                  placeholder="Añade un comentario..."
+                  placeholder={t('feed.addComment', 'Añade un comentario...')}
                   className="w-full bg-stone-50 text-stone-950 border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-stone-400"
                   aria-label="Escribir comentario"
                 />
@@ -1175,7 +1176,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
           preload={priority ? 'metadata' : 'none'}
           onClick={handleVideoTap}
           onLoadedMetadata={() => { if (videoRef.current) setVideoDuration(videoRef.current.duration); }}
-          aria-label={playing ? 'Pausar vídeo' : 'Reproducir vídeo'}
+          aria-label={playing ? t('create_reel.pausarVideo', 'Pausar vídeo') : 'Reproducir vídeo'}
         />
       ) : (
         <div
@@ -1243,7 +1244,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-white/70">Editar descripción</span>
+              <span className="text-xs font-semibold text-white/70">{t('post_detail.editarDescripcion', 'Editar descripción')}</span>
               <button className="bg-transparent border-none cursor-pointer p-1 min-w-[36px] min-h-[36px] flex items-center justify-center" onClick={() => setShowEditCaption(false)} aria-label="Cerrar">
                 <XIcon size={14} className="text-white/50" />
               </button>
@@ -1252,7 +1253,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
               value={editCaption}
               onChange={e => setEditCaption(e.target.value.slice(0, 2200))}
               className="w-full bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-white/40 min-h-[60px] box-border placeholder:text-white/30"
-              aria-label="Editar descripción"
+              aria-label={t('post_detail.editarDescripcion', 'Editar descripción')}
               autoFocus
             />
             <button
@@ -1270,7 +1271,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
       <BottomSheet isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} maxHeight="50vh">
         <div className="p-5 flex flex-col gap-3 text-center">
           <p className="text-base font-semibold text-stone-950">¿Eliminar este reel?</p>
-          <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes.</p>
+          <p className="text-sm text-stone-500">{t('reel.seEliminaraPermanentementeJuntoConS', 'Se eliminará permanentemente junto con sus comentarios y likes.')}</p>
           <div className="flex gap-3 mt-2">
             <button
               onClick={() => setShowDeleteConfirm(false)}
@@ -1403,7 +1404,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                       }
                     }
                   } catch (err) {
-                    toast.error(isFollowing ? 'No se pudo dejar de seguir' : 'No se pudo seguir al usuario');
+                    toast.error(isFollowing ? t('reel.noSePudoDejarDeSeguir', 'No se pudo dejar de seguir') : 'No se pudo seguir al usuario');
                   }
                 }}
               >
@@ -1613,7 +1614,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
             aria-label={`Añadir ${product.name || product.title || 'producto'} al carrito`}
           >
             <Plus size={14} strokeWidth={2.5} />
-            {addingToCart === (product.product_id || product.id) ? 'Añadiendo…' : 'Añadir'}
+            {addingToCart === (product.product_id || product.id) ? 'Añadiendo…' : t('common.add', 'Añadir')}
           </button>
         </div>
       )}
@@ -1635,7 +1636,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                 <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
               </div>
             ) : comments.length === 0 ? (
-              <p className="text-center text-white/40 text-sm py-8">Sé el primero en comentar</p>
+              <p className="text-center text-white/40 text-sm py-8">{t('post_detail.seElPrimeroEnComentar', 'Sé el primero en comentar')}</p>
             ) : (
               comments.slice(0, commentsPage * COMMENTS_PER_PAGE).map((c, i) => {
                 const cId = c.comment_id || c.id || c._id;
@@ -1755,7 +1756,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                   }
                   if (e.key === 'Enter') submitComment();
                 }}
-                placeholder="Únete a la conversación..."
+                placeholder={t('reel.uneteALaConversacion', 'Únete a la conversación...')}
                 className="w-full bg-white/10 text-white border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
                 aria-label="Escribir comentario"
               />
@@ -1831,7 +1832,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
                     aria-label={`Añadir ${p.name || p.title || 'producto'} al carrito`}
                   >
                     <Plus size={14} strokeWidth={2.5} />
-                    {addingToCart === pid ? '…' : 'Añadir'}
+                    {addingToCart === pid ? '…' : t('common.add', 'Añadir')}
                   </button>
                 </div>
               );
@@ -1870,7 +1871,7 @@ function ReelCardInner({ reel, isActive, onLike, onComment, onShare, embedded = 
         }}
         onTouchEnd={() => setScrubbing(false)}
         role="slider"
-        aria-label="Progreso del vídeo"
+        aria-label={t('reel.progresoDelVideo', 'Progreso del vídeo')}
         aria-valuenow={Math.round(progress * 100)}
         aria-valuemin={0}
         aria-valuemax={100}

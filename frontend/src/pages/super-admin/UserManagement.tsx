@@ -16,9 +16,9 @@ import FocusTrap from 'focus-trap-react';
 
 // Country code to name mapping
 const COUNTRY_NAMES = {
-  ES: 'España',
+  ES: t('admin.countries.ES', 'España'),
   US: 'Estados Unidos',
-  MX: 'México',
+  MX: t('admin.countries.MX', 'México'),
   AR: 'Argentina',
   CO: 'Colombia',
   CL: 'Chile',

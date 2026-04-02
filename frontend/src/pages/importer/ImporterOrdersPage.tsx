@@ -62,14 +62,14 @@ function B2BOrderCard({ order, onRefresh }) {
 
   const handleConfirmDelivery = async () => {
     const opId = order.operation_id || order.id;
-    if (!opId) { toast.error('ID de operación no disponible'); return; }
+    if (!opId) { toast.error(t('importer_orders.idDeOperacionNoDisponible', 'ID de operación no disponible')); return; }
     setConfirming(true);
     try {
       await apiClient.post(`/b2b/operations/${opId}/confirm-delivery`, {});
-      toast.success('Recepción confirmada');
+      toast.success(t('importer_orders.recepcionConfirmada', 'Recepción confirmada'));
       onRefresh();
     } catch {
-      toast.error('Error al confirmar recepción');
+      toast.error(t('importer_orders.errorAlConfirmarRecepcion', 'Error al confirmar recepción'));
     } finally {
       setConfirming(false);
     }
@@ -77,13 +77,13 @@ function B2BOrderCard({ order, onRefresh }) {
 
   const handleApproveAndPay = async () => {
     const opId = order.operation_id || order.id;
-    if (!opId) { toast.error('ID de operación no disponible'); return; }
+    if (!opId) { toast.error(t('importer_orders.idDeOperacionNoDisponible', 'ID de operación no disponible')); return; }
     setProcessing(true);
     try {
       // Navigate to B2B payment page for this operation
       navigate(`/b2b/payment/${opId}`);
     } catch {
-      toast.error('Error al procesar el pago');
+      toast.error(t('checkout.errorAlProcesarElPago', 'Error al procesar el pago'));
     } finally {
       setProcessing(false);
     }
@@ -91,7 +91,7 @@ function B2BOrderCard({ order, onRefresh }) {
 
   const handleReject = async () => {
     const opId = order.operation_id || order.id;
-    if (!opId) { toast.error('ID de pedido no disponible'); return; }
+    if (!opId) { toast.error(t('importer_orders.idDePedidoNoDisponible', 'ID de pedido no disponible')); return; }
     if (!window.confirm('¿Rechazar esta solicitud?')) return;
     try {
       // Cancel the operation (set status to cancelled)

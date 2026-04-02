@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 function AffiliateLinkCard({ link, convertAndFormatPrice }) {
   const [copied, setCopied] = useState(false);
@@ -45,7 +46,7 @@ function AffiliateLinkCard({ link, convertAndFormatPrice }) {
         {[
           { label: 'Clics', value: link.clicks || 0 },
           { label: 'Conversiones', value: link.conversions || 0 },
-          { label: 'Comisión', value: convertAndFormatPrice(Number(link.commission_eur || 0)) },
+          { label: t('influencer.commissionRate', 'Comisión'), value: convertAndFormatPrice(Number(link.commission_eur || 0)) },
         ].map((stat) => (
           <div key={stat.label} className="bg-stone-50 rounded-2xl p-2 text-center">
             <p className="text-base font-bold text-stone-950">{stat.value}</p>
@@ -70,7 +71,7 @@ function AffiliateLinkCard({ link, convertAndFormatPrice }) {
         }`}
       >
         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-        {copied ? '¡Copiado!' : 'Copiar link'}
+        {copied ? t('affiliate_links.copiado', '¡Copiado!') : 'Copiar link'}
       </button>
     </div>
   );
@@ -303,9 +304,9 @@ export default function AffiliateLinksPage() {
               onChange={(e) => setSortBy(e.target.value)}
               className="rounded-xl border border-stone-200 bg-white text-sm text-stone-950 px-3 py-1.5 focus:outline-none focus:border-stone-400"
             >
-              <option value="revenue">Más ingresos</option>
-              <option value="clicks">Más clics</option>
-              <option value="recent">Más recientes</option>
+              <option value="revenue">{t('affiliate_links.masIngresos', 'Más ingresos')}</option>
+              <option value="clicks">{t('affiliate_links.masClics', 'Más clics')}</option>
+              <option value="recent">{t('products.newest', 'Más recientes')}</option>
             </select>
           )}
         </div>

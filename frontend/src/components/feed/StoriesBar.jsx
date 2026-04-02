@@ -6,6 +6,7 @@ import { RefreshCw, Plus, ChefHat } from 'lucide-react';
 import StoryRing from './StoryRing';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 // Normalize backend story format → StoryViewer-compatible format
 function normalizeStories(raw) {
@@ -191,7 +192,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
                 {featuredRecipe.image_url ? (
                   <img
                     src={featuredRecipe.image_url}
-                    alt="Receta del día"
+                    alt=t('stories_bar.recetaDelDia', 'Receta del día')
                     className="h-full w-full rounded-full object-cover"
                   />
                 ) : (

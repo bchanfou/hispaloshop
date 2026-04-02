@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -38,8 +39,8 @@ const PRIORITIES = ['baja', 'media', 'alta', 'urgente'];
 
 const ADMIN_ACTIONS = [
   { key: 'refund_recommendation', label: 'Recomendar reembolso' },
-  { key: 'replacement_request',   label: 'Solicitar reposición' },
-  { key: 'manual_resolution',     label: 'Resolución manual' },
+  { key: 'replacement_request',   label: t('admin_support_case.solicitarReposicion', 'Solicitar reposición') },
+  { key: 'manual_resolution',     label: t('admin_support_case.resolucionManual', 'Resolución manual') },
   { key: 'close',                 label: 'Cerrar caso' },
 ];
 
@@ -82,7 +83,7 @@ export default function AdminSupportCase() {
       const data = await apiClient.get(`/support/cases/${caseId}`);
       setCaseData(data);
     } catch {
-      toast.error('No se pudo cargar el caso');
+      toast.error(t('admin_support_case.noSePudoCargarElCaso', 'No se pudo cargar el caso'));
     } finally {
       setLoading(false);
     }
@@ -104,7 +105,7 @@ export default function AdminSupportCase() {
       setCaseData((prev) => ({ ...prev, status: newStatus }));
       toast.success('Estado actualizado');
     } catch {
-      toast.error('No se pudo actualizar el estado');
+      toast.error(t('admin_support_case.noSePudoActualizarElEstado', 'No se pudo actualizar el estado'));
     } finally {
       setUpdatingStatus(false);
     }
@@ -122,7 +123,7 @@ export default function AdminSupportCase() {
       setCaseData((prev) => ({ ...prev, priority: newPriority }));
       toast.success('Prioridad actualizada');
     } catch {
-      toast.error('No se pudo actualizar la prioridad');
+      toast.error(t('admin_support_case.noSePudoActualizarLaPrioridad', 'No se pudo actualizar la prioridad'));
     } finally {
       setUpdatingPriority(false);
     }
@@ -143,7 +144,7 @@ export default function AdminSupportCase() {
       }));
       setReply('');
     } catch {
-      toast.error('No se pudo enviar el mensaje');
+      toast.error(t('admin_support_case.noSePudoEnviarElMensaje', 'No se pudo enviar el mensaje'));
     } finally {
       setSending(false);
     }
@@ -157,9 +158,9 @@ export default function AdminSupportCase() {
         { action }
       );
       setCaseData((prev) => ({ ...prev, status: data.new_status }));
-      toast.success('Acción aplicada');
+      toast.success(t('admin_support_case.accionAplicada', 'Acción aplicada'));
     } catch {
-      toast.error('No se pudo aplicar la acción');
+      toast.error(t('admin_support_case.noSePudoAplicarLaAccion', 'No se pudo aplicar la acción'));
     } finally {
       setActionLoading(false);
     }
@@ -232,10 +233,10 @@ export default function AdminSupportCase() {
 
           {/* Chat thread */}
           <div className="rounded-[24px] border border-stone-100 bg-white p-6">
-            <h2 className="mb-4 text-base font-semibold text-stone-950">Conversación</h2>
+            <h2 className="mb-4 text-base font-semibold text-stone-950">{t('admin_support_case.conversacion', 'Conversación')}</h2>
 
             {messages.length === 0 ? (
-              <p className="py-6 text-center text-sm text-stone-400">Sin mensajes aún.</p>
+              <p className="py-6 text-center text-sm text-stone-400">{t('admin_support_case.sinMensajesAun', 'Sin mensajes aún.')}</p>
             ) : (
               <div className="space-y-4">
                 {messages.map((msg) => {
@@ -244,7 +245,7 @@ export default function AdminSupportCase() {
                     <div key={msg.message_id} className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${isAdmin ? 'bg-stone-950 text-white rounded-br-md' : 'bg-stone-100 text-stone-950 rounded-bl-md'}`}>
                         <p className="font-semibold text-[10px] mb-1 opacity-60 uppercase tracking-wider">
-                          {isAdmin ? 'Tú (admin)' : 'Usuario'}
+                          {isAdmin ? t('admin_support_case.tuAdmin', 'Tú (admin)') : 'Usuario'}
                         </p>
                         <p className="leading-relaxed">{msg.content}</p>
                         {msg.created_at && (
@@ -369,7 +370,7 @@ export default function AdminSupportCase() {
           {/* Timestamps */}
           <div className="rounded-[24px] border border-stone-100 bg-white p-5 space-y-3">
             <InfoRow label="Abierto el" value={formatTs(caseData.created_at)} />
-            <InfoRow label="Última actualización" value={formatTs(caseData.updated_at)} />
+            <InfoRow label=t('admin_support_case.ultimaActualizacion', 'Última actualización') value={formatTs(caseData.updated_at)} />
             {caseData.resolved_at && (
               <InfoRow label="Resuelto el" value={formatTs(caseData.resolved_at)} />
             )}

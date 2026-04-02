@@ -32,15 +32,15 @@ const PAYMENT_TERMS = [
   { label: 'Prepago', value: 'prepaid' },
   { label: 'Net 30', value: 'net_30' },
   { label: 'Net 60', value: 'net_60' },
-  { label: 'Carta de crédito', value: 'letter_of_credit' },
+  { label: t('b2_b_offer.cartaDeCredito', 'Carta de crédito'), value: 'letter_of_credit' },
 ];
 
 const INCOTERMS = [
-  { code: 'EXW', name: 'Ex Works', desc: 'El comprador asume todos los costes desde fábrica' },
+  { code: 'EXW', name: 'Ex Works', desc: t('b2_b_offer.elCompradorAsumeTodosLosCostesDesd', 'El comprador asume todos los costes desde fábrica') },
   { code: 'FCA', name: 'Free Carrier', desc: 'Vendedor entrega en punto acordado' },
   { code: 'CPT', name: 'Carriage Paid To', desc: 'Vendedor paga transporte hasta destino' },
   { code: 'CIP', name: 'Carriage Insurance Paid', desc: 'Como CPT + seguro incluido' },
-  { code: 'DAP', name: 'Delivered at Place', desc: 'Vendedor entrega en destino sin descargar' },
+  { code: 'DAP', name: 'Delivered at Place', desc: t('b2_b_offer.vendedorEntregaEnDestinoSinDescarga', 'Vendedor entrega en destino sin descargar') },
   { code: 'DPU', name: 'Delivered at Place Unloaded', desc: 'Vendedor entrega y descarga' },
   { code: 'DDP', name: 'Delivered Duty Paid', desc: 'Vendedor asume todos los costes hasta destino' },
   { code: 'FOB', name: 'Free on Board', desc: 'Vendedor entrega a bordo del buque' },
@@ -463,11 +463,11 @@ function StepLogistica({ form, set, submitted }) {
             className="w-full h-11 rounded-xl border border-stone-200 px-3.5 text-sm text-stone-950 bg-white outline-none box-border"
           />
           {(!form.delivery_days || Number(form.delivery_days) < 1) && (
-            <p className="text-xs text-stone-500 mt-1">Indica el plazo mínimo de entrega</p>
+            <p className="text-xs text-stone-500 mt-1">{t('b2_b_offer.indicaElPlazoMinimoDeEntrega', 'Indica el plazo mínimo de entrega')}</p>
           )}
         </div>
         <div className="flex-1">
-          <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">Validez (días)</label>
+          <label className="text-[13px] font-medium text-stone-950 mb-1.5 block">{t('b2_b_offer.validezDias', 'Validez (días)')}</label>
           <input
             type="number"
             min="1"
@@ -717,7 +717,7 @@ export default function B2BOfferPage() {
       toast.success(isCounteroffer ? 'Contraoferta enviada' : 'Oferta enviada correctamente');
       navigate(-1);
     } catch (err) {
-      toast.error(err?.response?.data?.detail || err?.message || 'Error al enviar la oferta');
+      toast.error(err?.response?.data?.detail || err?.message || t('b2_b_offer.errorAlEnviarLaOferta', 'Error al enviar la oferta'));
     } finally {
       setSubmitting(false);
     }

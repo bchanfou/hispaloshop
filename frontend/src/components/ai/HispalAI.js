@@ -6,11 +6,12 @@ import DOMPurify from 'dompurify';
 import useHispalAI from '../../hooks/useHispalAI';
 import { useAuth } from '../../context/AuthContext';
 import ProductCardInChat from './ProductCardInChat';
+import { useTranslation } from 'react-i18next';
 
 const QUICK_SUGGESTIONS = [
   { label: '¿Qué me recomiendas hoy?', Icon: Sparkles },
-  { label: 'Hazme una receta rápida', Icon: ChefHat },
-  { label: 'Ayúdame con mi dieta', Icon: BarChart3 },
+  { label: t('hispal_a_i.hazmeUnaRecetaRapida', 'Hazme una receta rápida'), Icon: ChefHat },
+  { label: t('hispal_a_i.ayudameConMiDieta', 'Ayúdame con mi dieta'), Icon: BarChart3 },
   { label: 'Productos halal', emoji: '☪️' },
   { label: 'Opciones sin gluten', Icon: Wheat },
   { label: '¿Qué llevo en el carrito?', Icon: ShoppingCart },
@@ -157,7 +158,7 @@ export default function HispalAI() {
                       <span className="text-[16px] font-semibold text-stone-950">David</span>
                       <span className="h-2 w-2 rounded-full bg-stone-950" />
                     </div>
-                    <p className="text-[12px] text-stone-500">Tu compañero de compras</p>
+                    <p className="text-[12px] text-stone-500">{t('hispal_a_i.tuCompaneroDeCompras', 'Tu compañero de compras')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -278,12 +279,12 @@ export default function HispalAI() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Pregúntale a David..."
+                    placeholder={t('hispal_a_i.preguntaleADavid', 'Pregúntale a David...')}
                     className="flex-1 border-none bg-transparent text-[15px] text-stone-950 placeholder-stone-400 outline-none"
                   />
                   <button
                     className="p-1 text-stone-400 transition-colors"
-                    aria-label="Micrófono"
+                    aria-label={t('hispal_a_i.microfono', 'Micrófono')}
                     disabled
                   >
                     <Mic className="h-5 w-5" />

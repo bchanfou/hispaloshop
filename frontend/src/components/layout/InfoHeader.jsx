@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Logo from '../brand/Logo';
+import { useTranslation } from 'react-i18next';
 
 const NAV_LINKS = [
-  { label: 'Qué es',       to: '/about' },
+  { label: t('info_header.queEs', 'Qué es'),       to: '/about' },
   { label: 'Productores',  to: '/productor' },
   { label: 'Influencers',  to: '/influencer' },
   { label: 'Precios',      to: '/pricing' },
@@ -69,7 +70,7 @@ export default function InfoHeader() {
             <button
               onClick={() => setDrawerOpen(v => !v)}
               className="flex items-center justify-center w-[38px] h-[38px] border-none bg-transparent cursor-pointer text-white"
-              aria-label={drawerOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-label={drawerOpen ? t('info_header.cerrarMenu', 'Cerrar menú') : 'Abrir menú'}
             >
               {drawerOpen ? <X size={22} /> : <Menu size={22} />}
             </button>

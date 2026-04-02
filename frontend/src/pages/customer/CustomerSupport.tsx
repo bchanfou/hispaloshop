@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Loader2, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ function CaseDetail({ caseData, onBack, onMessageSent }) {
       onMessageSent(caseData.case_id, msg);
       setReply('');
     } catch (err) {
-      toast.error(err?.response?.data?.detail || err?.message || 'No se pudo enviar el mensaje');
+      toast.error(err?.response?.data?.detail || err?.message || t('admin_support_case.noSePudoEnviarElMensaje', 'No se pudo enviar el mensaje'));
     } finally {
       setSending(false);
     }
@@ -100,7 +101,7 @@ function CaseDetail({ caseData, onBack, onMessageSent }) {
 
       {/* Thread */}
       <div className="rounded-[24px] border border-stone-100 bg-white p-5">
-        <h3 className="mb-4 text-sm font-semibold text-stone-950">Conversación</h3>
+        <h3 className="mb-4 text-sm font-semibold text-stone-950">{t('admin_support_case.conversacion', 'Conversación')}</h3>
 
         {messages.length === 0 ? (
           <p className="py-8 text-center text-sm text-stone-400">
@@ -177,7 +178,7 @@ export default function CustomerSupport() {
       const data = await apiClient.get('/support/my-cases');
       setCases(Array.isArray(data) ? data : []);
     } catch {
-      toast.error('No se pudo cargar tu historial de soporte');
+      toast.error(t('customer_support.noSePudoCargarTuHistorialDeSoport', 'No se pudo cargar tu historial de soporte'));
       setCases([]);
     } finally {
       setLoading(false);
@@ -191,7 +192,7 @@ export default function CustomerSupport() {
       const data = await apiClient.get(`/support/my-cases/${caseItem.case_id}`);
       setSelectedCase(data);
     } catch {
-      toast.error('No se pudo abrir el caso');
+      toast.error(t('customer_support.noSePudoAbrirElCaso', 'No se pudo abrir el caso'));
     }
   };
 

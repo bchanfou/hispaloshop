@@ -2,11 +2,12 @@ import { useState, useCallback, useEffect } from 'react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 // ── Time-based greeting ────────────────────────────────────────────
 export function getTimeGreeting() {
   const h = new Date().getHours();
-  if (h >= 5 && h < 12) return 'Buenos días';
+  if (h >= 5 && h < 12) return t('use_h_i_chat.buenosDias', 'Buenos días');
   if (h >= 12 && h < 20) return 'Buenas tardes';
   return 'Buenas noches';
 }
@@ -16,7 +17,7 @@ export const ROLE_CONFIG = {
   consumer: {
     name: 'David',
     mode: 'David',
-    description: 'Tu compañero de compras y alimentación',
+    description: t('use_h_i_chat.tuCompaneroDeComprasYAlimentacion', 'Tu compañero de compras y alimentación'),
     welcomeMessage:
       '¡Hola! Soy David, estoy aquí para echarte una mano con lo que necesites. ¿Qué te apetece hoy?',
     suggestions: [
@@ -29,38 +30,38 @@ export const ROLE_CONFIG = {
   producer: {
     name: 'Pedro',
     mode: 'Pedro',
-    description: 'Tu asesor de negocio para productores',
+    description: t('use_h_i_chat.tuAsesorDeNegocioParaProductores', 'Tu asesor de negocio para productores'),
     welcomeMessage:
       '¡Hola! Soy Pedro, tu asesor de negocio. ¿Qué quieres analizar hoy?',
     suggestions: [
       { id: 'sales',    label: 'Analizar ventas',          action: 'sales_analysis',  emoji: '📊' },
       { id: 'pricing',  label: 'Optimizar precios',         action: 'pricing',         emoji: '💰' },
       { id: 'listing',  label: 'Mejorar ficha',             action: 'listing',         emoji: '✏️' },
-      { id: 'strategy', label: 'Estrategia de exportación', action: 'export_strategy', emoji: '🌍' },
+      { id: 'strategy', label: t('use_h_i_chat.estrategiaDeExportacion', 'Estrategia de exportación'), action: 'export_strategy', emoji: '🌍' },
     ],
   },
   influencer: {
     name: 'Hispal Creativo',
     mode: 'Hispal Creativo',
-    description: 'Asistente creativo para contenido y campañas',
+    description: t('use_h_i_chat.asistenteCreativoParaContenidoYCamp', 'Asistente creativo para contenido y campañas'),
     welcomeMessage:
       '¡Hola! Soy Hispal Creativo, tu asistente de contenido. ¿Qué vamos a crear hoy?',
     suggestions: [
       { id: 'caption',      label: 'Escribir un caption',   action: 'caption',       emoji: '✍️' },
       { id: 'reel',         label: 'Ideas para reels',       action: 'reel_ideas',    emoji: '🎬' },
-      { id: 'campaign',     label: 'Diseñar una campaña',    action: 'campaign',      emoji: '🎯' },
+      { id: 'campaign',     label: t('use_h_i_chat.disenarUnaCampana', 'Diseñar una campaña'),    action: 'campaign',      emoji: '🎯' },
       { id: 'storytelling', label: 'Storytelling de marca',  action: 'product_story', emoji: '📖' },
     ],
   },
   importer: {
     name: 'Pedro',
     mode: 'Pedro',
-    description: 'Análisis de mercado internacional para importadores',
+    description: t('use_h_i_chat.analisisDeMercadoInternacionalParaI', 'Análisis de mercado internacional para importadores'),
     welcomeMessage:
       '¡Hola! Soy Pedro, tu analista de mercado internacional. ¿Cómo puedo ayudarte?',
     suggestions: [
       { id: 'find_producers', label: 'Encontrar productores',  action: 'find_producers', emoji: '🏭' },
-      { id: 'margins',        label: 'Análisis de márgenes',   action: 'margins',         emoji: '📈' },
+      { id: 'margins',        label: t('use_h_i_chat.analisisDeMargenes', 'Análisis de márgenes'),   action: 'margins',         emoji: '📈' },
       { id: 'trends',         label: 'Tendencias de mercado',  action: 'trends',          emoji: '🔍' },
       { id: 'b2b',            label: 'Estrategia B2B',         action: 'b2b',             emoji: '🤝' },
     ],
@@ -180,9 +181,9 @@ export function useHIChat() {
       } catch (error) {
         const detail = error?.message;
         if (error?.status === 403) {
-          toast.error(detail || 'No tienes acceso a este modo. Actualiza tu plan.');
+          toast.error(detail || t('use_h_i_chat.noTienesAccesoAEsteModoActualiza', 'No tienes acceso a este modo. Actualiza tu plan.'));
         } else {
-          toast.error('El asistente no está disponible ahora. Inténtalo de nuevo.');
+          toast.error(t('use_h_i_chat.elAsistenteNoEstaDisponibleAhoraI', 'El asistente no está disponible ahora. Inténtalo de nuevo.'));
         }
         return null;
       } finally {

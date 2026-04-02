@@ -3,13 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, RefreshCw, Settings } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const SERVICES = [
   { key: 'api', name: 'API (Railway)', description: 'Backend principal FastAPI' },
   { key: 'frontend', name: 'Frontend (Vercel)', description: 'React SPA' },
   { key: 'database', name: 'MongoDB Atlas', description: 'Base de datos principal' },
   { key: 'stripe', name: 'Stripe', description: 'Pasarela de pagos' },
-  { key: 'cloudinary', name: 'Cloudinary', description: 'Almacenamiento de imágenes' },
+  { key: 'cloudinary', name: 'Cloudinary', description: t('infrastructure.almacenamientoDeImagenes', 'Almacenamiento de imágenes') },
   { key: 'sentry', name: 'Sentry', description: 'Rastreo de errores' },
 ];
 
@@ -109,7 +110,7 @@ export default function InfrastructurePage() {
       <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">Infraestructura</h1>
-          <p className="text-sm text-white/40">Estado de servicios y configuración del entorno</p>
+          <p className="text-sm text-white/40">{t('infrastructure.estadoDeServiciosYConfiguracionDel', 'Estado de servicios y configuración del entorno')}</p>
         </div>
         <button
           onClick={handleRefresh}
@@ -191,7 +192,7 @@ export default function InfrastructurePage() {
 
       {/* System info */}
       <SACard>
-        <h3 className="text-[15px] font-bold text-white mb-4">Información del sistema</h3>
+        <h3 className="text-[15px] font-bold text-white mb-4">{t('infrastructure.informacionDelSistema', 'Información del sistema')}</h3>
         <div className="grid grid-cols-2 gap-3">
           {[
             { label: 'Backend', value: 'FastAPI + Python 3.11' },

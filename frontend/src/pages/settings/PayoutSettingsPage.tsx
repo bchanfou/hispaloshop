@@ -5,6 +5,7 @@ import { ArrowLeft, CreditCard, Building2, Check, ExternalLink, Loader2, AlertCi
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 export default function PayoutSettingsPage() {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ export default function PayoutSettingsPage() {
         toast.success('Stripe Connect activado');
       }
     } catch {
-      toast.error('Error al conectar con Stripe');
+      toast.error(t('influencer.stripeError', 'Error al conectar con Stripe'));
     } finally {
       setSaving(false);
     }
@@ -62,7 +63,7 @@ export default function PayoutSettingsPage() {
       return;
     }
     if (!/^[A-Z]{2}\d{2}[A-Z0-9]{4,}$/i.test(iban.replace(/\s/g, ''))) {
-      toast.error('El formato del IBAN no es valido');
+      toast.error(t('payout_settings.elFormatoDelIbanNoEsValido', 'El formato del IBAN no es valido'));
       return;
     }
     setSaving(true);
@@ -100,7 +101,7 @@ export default function PayoutSettingsPage() {
         >
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span className="text-[17px] font-bold text-stone-950">Método de cobro</span>
+        <span className="text-[17px] font-bold text-stone-950">{t('producer_payments.metodoDeCobro', 'Método de cobro')}</span>
       </div>
 
       <div className="max-w-[600px] mx-auto px-4 pt-6 pb-[100px]">

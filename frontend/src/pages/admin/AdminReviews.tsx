@@ -6,6 +6,7 @@ import {
   Search, Star, Eye, EyeOff, Trash2, User, Package
 } from 'lucide-react';
 import { asLowerText } from '../../utils/safe';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -24,7 +25,7 @@ export default function AdminReviews() {
       const data = await apiClient.get('/admin/reviews');
       setReviews(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al cargar reseñas');
+      toast.error(error?.response?.data?.detail || t('admin_reviews.errorAlCargarResenas', 'Error al cargar reseñas'));
     } finally {
       setLoading(false);
     }
@@ -39,7 +40,7 @@ export default function AdminReviews() {
         : `/admin/reviews/${review.review_id}/show`;
 
       await apiClient.put(endpoint, {});
-      toast.success(review.visible ? 'Reseña oculta' : 'Reseña visible');
+      toast.success(review.visible ? t('admin_reviews.resenaOculta', 'Reseña oculta') : 'Reseña visible');
       fetchReviews();
     } catch (error) {
       toast.error(error?.response?.data?.detail || 'Error al actualizar visibilidad');
@@ -57,10 +58,10 @@ export default function AdminReviews() {
     setActionBusy(true);
     try {
       await apiClient.delete(`/admin/reviews/${reviewId}`);
-      toast.success('Reseña eliminada');
+      toast.success(t('admin_reviews.resenaEliminada', 'Reseña eliminada'));
       fetchReviews();
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al eliminar reseña');
+      toast.error(error?.response?.data?.detail || t('admin_reviews.errorAlEliminarResena', 'Error al eliminar reseña'));
     } finally {
       setActionBusy(false);
     }
@@ -111,8 +112,8 @@ export default function AdminReviews() {
     <div className="space-y-6" data-testid="admin-reviews">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-stone-950">Reseñas</h1>
-        <p className="text-stone-500 text-sm mt-1">Moderar reseñas de clientes</p>
+        <h1 className="text-2xl font-semibold text-stone-950">{t('store.reviews', 'Reseñas')}</h1>
+        <p className="text-stone-500 text-sm mt-1">{t('admin_reviews.moderarResenasDeClientes', 'Moderar reseñas de clientes')}</p>
       </div>
 
       {/* Stats */}
@@ -123,7 +124,7 @@ export default function AdminReviews() {
               <Star className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <p className="text-xs text-stone-500 uppercase tracking-wider">Total de reseñas</p>
+              <p className="text-xs text-stone-500 uppercase tracking-wider">{t('admin_reviews.totalDeResenas', 'Total de reseñas')}</p>
               <p className="text-xl font-semibold text-stone-950">{reviews.length}</p>
             </div>
           </div>
@@ -147,7 +148,7 @@ export default function AdminReviews() {
               <Star className="w-5 h-5 text-stone-500 fill-stone-400" />
             </div>
             <div>
-              <p className="text-xs text-stone-500 uppercase tracking-wider">Calificación promedio</p>
+              <p className="text-xs text-stone-500 uppercase tracking-wider">{t('admin_reviews.calificacionPromedio', 'Calificación promedio')}</p>
               <p className="text-xl font-semibold text-stone-950">
                 {(() => {
                   if (reviews.length === 0) return '—';
@@ -164,7 +165,7 @@ export default function AdminReviews() {
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
         <input
-          placeholder="Buscar reseñas..."
+          placeholder={t('admin_reviews.buscarResenas', 'Buscar reseñas...')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
@@ -180,7 +181,7 @@ export default function AdminReviews() {
             <tr>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Producto</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Usuario</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Calificación</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">{t('admin_reviews.calificacion', 'Calificación')}</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Comentario</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Fecha</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Visibilidad</th>
@@ -191,7 +192,7 @@ export default function AdminReviews() {
             {filteredReviews.length === 0 ? (
               <tr>
                 <td colSpan="7" className="px-6 py-12 text-center text-stone-500">
-                  {searchTerm ? 'No se encontraron reseñas' : 'Aún no hay reseñas'}
+                  {searchTerm ? t('admin_reviews.noSeEncontraronResenas', 'No se encontraron reseñas') : 'Aún no hay reseñas'}
                 </td>
               </tr>
             ) : (

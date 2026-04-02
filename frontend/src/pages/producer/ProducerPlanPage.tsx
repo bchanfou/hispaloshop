@@ -4,6 +4,7 @@ import { Star, Zap, Crown, Check, Loader2, AlertTriangle, Calendar, Shield, Arro
 import { toast } from 'sonner';
 import { useProducerPlan } from '../../context/ProducerPlanContext';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const PLANS = [
   {
@@ -14,12 +15,12 @@ const PLANS = [
     icon: Star,
     features: [
       'Listado de productos ilimitados',
-      'Panel de control básico',
+      t('producer_plan.panelDeControlBasico', 'Panel de control básico'),
       'Soporte por email',
     ],
     missing: [
       'Analytics avanzados',
-      'Optimización de precios con IA',
+      t('producer_plan.optimizacionDePreciosConIa', 'Optimización de precios con IA'),
       'Matching con influencers',
       'Agente comercial IA',
       'B2B internacional',
@@ -36,7 +37,7 @@ const PLANS = [
     features: [
       'Todo en Free',
       'Analytics avanzados',
-      'Optimización de precios con IA',
+      t('producer_plan.optimizacionDePreciosConIa', 'Optimización de precios con IA'),
       'Badge PRO en tienda',
       'Matching con influencers',
     ],
@@ -57,7 +58,7 @@ const PLANS = [
       'Agente comercial IA',
       'B2B internacional',
       'Manager dedicado',
-      'Comisión más baja',
+      t('producer_plan.comisionMasBaja', 'Comisión más baja'),
     ],
     missing: [],
   },
@@ -185,7 +186,7 @@ export default function ProducerPlanPage() {
     setCancelling(true);
     try {
       await apiClient.post('/subscriptions/cancel', {});
-      toast.success('Suscripción marcada para cancelar');
+      toast.success(t('producer_plan.suscripcionMarcadaParaCancelar', 'Suscripción marcada para cancelar'));
       refetch();
     } catch (err) {
       toast.error(err.message || 'Error al cancelar');
@@ -198,7 +199,7 @@ export default function ProducerPlanPage() {
     setCancelling(true);
     try {
       await apiClient.post('/subscriptions/reactivate', {});
-      toast.success('Suscripción reactivada');
+      toast.success(t('producer_plan.suscripcionReactivada', 'Suscripción reactivada'));
       refetch();
     } catch (err) {
       toast.error(err.message || 'Error al reactivar');
@@ -221,7 +222,7 @@ export default function ProducerPlanPage() {
         <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 rounded-2xl p-4 mb-4">
           <Calendar className="w-5 h-5 text-stone-700 shrink-0" />
           <div>
-            <p className="text-sm font-medium text-stone-950">Período de prueba activo</p>
+            <p className="text-sm font-medium text-stone-950">{t('producer_plan.periodoDePruebaActivo', 'Período de prueba activo')}</p>
             <p className="text-xs text-stone-500">
               Tu trial termina el {new Date(planData.trial_ends_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
@@ -248,7 +249,7 @@ export default function ProducerPlanPage() {
         <div className="flex items-center gap-3 bg-stone-50 border border-stone-200 rounded-2xl p-4 mb-4">
           <AlertTriangle className="w-5 h-5 text-stone-500 shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-stone-950">Cancelación programada</p>
+            <p className="text-sm font-medium text-stone-950">{t('producer_plan.cancelacionProgramada', 'Cancelación programada')}</p>
             <p className="text-xs text-stone-500">
               Tu plan se cancelará al final del período actual
               {planData?.current_period_end && (
@@ -293,14 +294,14 @@ export default function ProducerPlanPage() {
               <span className="font-medium text-stone-950">{currentPlan}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-stone-500">Comisión</span>
+              <span className="text-stone-500">{t('influencer.commissionRate', 'Comisión')}</span>
               <span className="font-medium text-stone-950">
                 {planData?.commission_rate ? `${(planData.commission_rate * 100).toFixed(0)}%` : '—'}
               </span>
             </div>
             {planData?.current_period_end && (
               <div className="flex justify-between">
-                <span className="text-stone-500">Próximo cobro</span>
+                <span className="text-stone-500">{t('sellerDashboard.nextBilling', 'Próximo cobro')}</span>
                 <span className="font-medium text-stone-950">
                   {new Date(planData.current_period_end).toLocaleDateString('es-ES')}
                 </span>
@@ -313,7 +314,7 @@ export default function ProducerPlanPage() {
             disabled={cancelling}
             className="mt-4 w-full py-2 text-sm text-stone-500 hover:text-stone-950 transition-colors disabled:opacity-50"
           >
-            {cancelling ? 'Cancelando...' : 'Cancelar suscripción'}
+            {cancelling ? 'Cancelando...' : t('producer_plan.cancelarSuscripcion', 'Cancelar suscripción')}
           </button>
         </div>
       )}

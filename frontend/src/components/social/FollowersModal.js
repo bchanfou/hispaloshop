@@ -7,6 +7,7 @@ import { useFollowers, useFollowing } from '../../hooks/useFollowList';
 import { useToggleUserFollowMutation } from '../../features/user/queries';
 import { getCloudinarySrcSet } from '../../utils/cloudinary';
 import { resolveUserImage } from '../../features/user/queries';
+import { useTranslation } from 'react-i18next';
 
 // ── Fila de usuario ──────────────────────────────────────
 function UserRow({ user, onToggleFollow, isMutating, currentUserId }) {
@@ -202,8 +203,8 @@ export default function FollowersModal({
                   {search
                     ? 'Sin resultados'
                     : tab === 'followers'
-                      ? 'Sin seguidores aún'
-                      : 'No sigue a nadie aún'}
+                      ? t('followers.sinSeguidoresAun', 'Sin seguidores aún')
+                      : t('followers.noSigueANadieAun', 'No sigue a nadie aún')}
                 </p>
                 {search ? (
                   <p className="text-[13px]">Prueba con otro nombre</p>

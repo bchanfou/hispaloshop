@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const isSafeUrl = (url) => {
   if (!url) return false;
@@ -17,7 +18,7 @@ const isSafeUrl = (url) => {
 const STATUS_LABELS = {
   verified: { label: 'Verificado', bg: 'bg-stone-100', color: 'text-stone-950' },
   rejected: { label: 'Rechazado', bg: 'border border-stone-200 bg-white', color: 'text-stone-400' },
-  manual_review: { label: 'Revisión', bg: 'bg-stone-50', color: 'text-stone-500' },
+  manual_review: { label: t('admin_verification.revision', 'Revisión'), bg: 'bg-stone-50', color: 'text-stone-500' },
   pending: { label: 'Pendiente', bg: 'bg-stone-200', color: 'text-stone-500' },
   expired: { label: 'Caducado', bg: 'border border-stone-200 bg-white', color: 'text-stone-400' },
 };
@@ -95,7 +96,7 @@ function VerificationCard({ item, onApprove, onReject, onRequestDocs, onViewDoc 
         />
         <DocThumb
           url={facility.url}
-          label="Instalación"
+          label=t('producer_verification.instalacion', 'Instalación')
           status={facility.status}
           onClick={() => onViewDoc(item, 'facility_photo', facility)}
         />
@@ -158,7 +159,7 @@ function DocumentModal({ doc, docType, item, onClose }) {
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-stone-950">
-            {docType === 'cif_nif' ? 'CIF/NIF' : docType === 'facility_photo' ? 'Foto de instalación' : 'Certificado'}
+            {docType === 'cif_nif' ? 'CIF/NIF' : docType === 'facility_photo' ? t('producer_verification.fotoDeInstalacion', 'Foto de instalación') : 'Certificado'}
           </h3>
           <button type="button" onClick={onClose} aria-label="Cerrar">
             <X className="w-5 h-5 text-stone-500" />
@@ -184,12 +185,12 @@ function DocumentModal({ doc, docType, item, onClose }) {
         <div className="space-y-2 mb-4">
           {docType === 'cif_nif' && (
             <>
-              {doc.number && <InfoRow label="Número" value={doc.number} />}
+              {doc.number && <InfoRow label=t('admin_verification.numero', 'Número') value={doc.number} />}
               {doc.entity_name && <InfoRow label="Entidad" value={doc.entity_name} />}
             </>
           )}
           {docType === 'facility_photo' && doc.ai_assessment && (
-            <InfoRow label="Descripción IA" value={doc.ai_assessment} />
+            <InfoRow label=t('admin_verification.descripcionIa', 'Descripción IA') value={doc.ai_assessment} />
           )}
           {docType === 'certificate' && (
             <>
@@ -263,7 +264,7 @@ function RejectModal({ item, onClose, onConfirm }) {
         className="w-full sm:max-w-md bg-white rounded-t-[20px] sm:rounded-2xl p-5"
         onClick={e => e.stopPropagation()}
       >
-        <h3 className="font-bold mb-4 text-stone-950">Rechazar verificación</h3>
+        <h3 className="font-bold mb-4 text-stone-950">{t('admin_verification.rechazarVerificacion', 'Rechazar verificación')}</h3>
 
         <textarea
           value={reason}
@@ -273,9 +274,9 @@ function RejectModal({ item, onClose, onConfirm }) {
           className="w-full p-3 text-sm mb-3 resize-none border border-stone-200 rounded-xl outline-none text-stone-950"
         />
 
-        <p className="text-xs font-medium mb-2 text-stone-500">Documentos problemáticos:</p>
+        <p className="text-xs font-medium mb-2 text-stone-500">{t('admin_verification.documentosProblematicos', 'Documentos problemáticos:')}</p>
         <div className="space-y-2 mb-4">
-          {['CIF/NIF no válido', 'Foto de instalación no válida', 'Certificado no válido', 'Datos inconsistentes'].map(d => (
+          {['CIF/NIF no válido', t('admin_verification.fotoDeInstalacionNoValida', 'Foto de instalación no válida'), 'Certificado no válido', 'Datos inconsistentes'].map(d => (
             <label key={d} className="flex items-center gap-2 text-sm cursor-pointer text-stone-950">
               <input
                 type="checkbox"
@@ -337,7 +338,7 @@ function RequestDocsModal({ item, onClose, onConfirm }) {
         className="w-full sm:max-w-md bg-white rounded-t-[20px] sm:rounded-2xl p-5"
         onClick={e => e.stopPropagation()}
       >
-        <h3 className="font-bold mb-4 text-stone-950">Solicitar documentación</h3>
+        <h3 className="font-bold mb-4 text-stone-950">{t('admin_verification.solicitarDocumentacion', 'Solicitar documentación')}</h3>
 
         <textarea
           value={message}
@@ -408,7 +409,7 @@ export default function AdminVerificationPage() {
     if (!userId) return;
     try {
       await apiClient.post(`/admin/verification/${userId}/reject`, { reason, documents: docs });
-      toast.success('Verificación rechazada');
+      toast.success(t('admin_verification.verificacionRechazada', 'Verificación rechazada'));
       setRejectModal(null);
       fetchQueue();
     } catch (error) {
@@ -446,7 +447,7 @@ export default function AdminVerificationPage() {
           </span>
         )}
       </div>
-      <p className="text-sm mb-4 text-stone-500">Revisión manual de productores</p>
+      <p className="text-sm mb-4 text-stone-500">{t('admin_verification.revisionManualDeProductores', 'Revisión manual de productores')}</p>
 
       {/* Filters */}
       <div className="flex gap-2 mb-5">

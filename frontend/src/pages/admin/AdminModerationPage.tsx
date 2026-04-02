@@ -7,6 +7,7 @@ import {
   CheckCircle, RotateCcw, AlertTriangle, ChevronUp, X
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const FILTERS = [
   { key: 'all', label: 'Todo' },
@@ -19,12 +20,12 @@ const VIOLATION_LABELS = {
   nudity: 'Desnudos',
   violence: 'Violencia',
   spam: 'Spam',
-  health_misinformation: 'Desinformación salud',
+  health_misinformation: t('admin_moderation.desinformacionSalud', 'Desinformación salud'),
   minor_safety: 'Seguridad menores',
   off_topic: 'Fuera de tema',
   alcohol: 'Alcohol',
   non_food_product: 'No alimentario',
-  medical_claims: 'Claims médicos',
+  medical_claims: t('admin_moderation.claimsMedicos', 'Claims médicos'),
 };
 
 const CONTENT_TYPE_LABELS = {
@@ -212,9 +213,9 @@ export default function AdminModerationPage() {
     try {
       await apiClient.post(`/moderation/queue/${id}/action`, { action: 'remove' });
       setQueue(q => q.filter(i => i.id !== id));
-      toast.success('Contenido confirmado como infracción');
+      toast.success(t('admin_moderation.contenidoConfirmadoComoInfraccion', 'Contenido confirmado como infracción'));
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al confirmar la moderación');
+      toast.error(error?.response?.data?.detail || t('admin_moderation.errorAlConfirmarLaModeracion', 'Error al confirmar la moderación'));
     }
     setBusy(false);
   };
@@ -226,7 +227,7 @@ export default function AdminModerationPage() {
       setQueue(q => q.filter(i => i.id !== id));
       toast.success('Contenido restaurado');
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al restaurar el contenido');
+      toast.error(error?.response?.data?.detail || t('admin_moderation.errorAlRestaurarElContenido', 'Error al restaurar el contenido'));
     }
     setBusy(false);
   };
@@ -238,7 +239,7 @@ export default function AdminModerationPage() {
       setQueue(q => q.filter(i => i.id !== id));
       toast.success('Contenido escalado');
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Error al escalar el contenido');
+      toast.error(error?.response?.data?.detail || t('admin_moderation.errorAlEscalarElContenido', 'Error al escalar el contenido'));
     }
     setBusy(false);
   };

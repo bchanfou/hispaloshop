@@ -1,18 +1,19 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { ArrowRight, MapPin, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const DISCOVERY_OPTIONS = [
   {
     value: 'personalized',
     label: 'Recomendaciones personalizadas',
-    description: 'Sugerencias ajustadas a tus intereses y tu actividad.',
+    description: t('step4_preferences.sugerenciasAjustadasATusInteresesY', 'Sugerencias ajustadas a tus intereses y tu actividad.'),
     icon: Sparkles,
   },
   {
     value: 'popular',
-    label: 'Lo más popular',
-    description: 'Los productos que más están comprando otros usuarios.',
+    label: t('step4_preferences.loMasPopular', 'Lo más popular'),
+    description: t('step4_preferences.losProductosQueMasEstanComprandoOt', 'Los productos que más están comprando otros usuarios.'),
     icon: TrendingUp,
   },
   {
@@ -24,7 +25,7 @@ const DISCOVERY_OPTIONS = [
   {
     value: 'rated',
     label: 'Mejor valorados',
-    description: 'Ordena primero por reseñas y confianza.',
+    description: t('step4_preferences.ordenaPrimeroPorResenasYConfianza', 'Ordena primero por reseñas y confianza.'),
     icon: Star,
   },
 ];

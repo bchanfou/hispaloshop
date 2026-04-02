@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { InfoNav } from '../../components/info/shared';
 import SEO from '../../components/SEO';
+import { useTranslation } from 'react-i18next';
 
 /* ─────────────────────────────────────────────
    Social proof stats

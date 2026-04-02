@@ -20,6 +20,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { asNumber } from '../../../utils/safe';
+import { useTranslation } from 'react-i18next';
 
 function ImporterDashboard() {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ function ImporterDashboard() {
       suggestions: [
         {
           id: 1,
-          title: 'Expande tu catálogo',
+          title: t('importer_dashboard.expandeTuCatalogo', 'Expande tu catálogo'),
           description: 'Descubre nuevos productores en Italia y Grecia',
           actionLabel: 'Explorar',
           onAction: () => navigate('/b2b/producers')
@@ -73,7 +74,7 @@ function ImporterDashboard() {
           id: 2,
           title: 'Optimiza precios',
           description: 'Tus productos italianos tienen alta demanda',
-          actionLabel: 'Ver análisis',
+          actionLabel: t('importer_dashboard.verAnalisis', 'Ver análisis'),
           onAction: () => navigate('/importer/analytics')
         }
       ]
@@ -84,7 +85,7 @@ function ImporterDashboard() {
     {
       id: 'add',
       icon: Plus,
-      label: 'Añadir producto',
+      label: t('importer_dashboard.anadirProducto', 'Añadir producto'),
       color: '#0c0a09',
       onClick: () => navigate('/importer/products/new')
     },
@@ -105,7 +106,7 @@ function ImporterDashboard() {
     {
       id: 'analytics',
       icon: TrendingUp,
-      label: 'Análisis',
+      label: t('importer_dashboard.analisis', 'Análisis'),
       color: '#0c0a09',
       onClick: () => navigate('/importer/analytics')
     }
@@ -141,7 +142,7 @@ function ImporterDashboard() {
         <KPICard
           icon={Globe}
           value={dashboardData.kpis.countries}
-          label="Países"
+          label=t('breadcrumbs.countries', 'Países')
           subtext="de origen"
           accentColor="#78716c"
         />
@@ -156,14 +157,14 @@ function ImporterDashboard() {
 
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-stone-950">Evolución de ventas</h3>
+          <h3 className="font-semibold text-stone-950">{t('importer_dashboard.evolucionDeVentas', 'Evolución de ventas')}</h3>
           <p className="text-xs text-stone-500">Ingresos semanales</p>
         </div>
         <AreaChart data={dashboardData.chart.data} labels={dashboardData.chart.labels} color="#1c1917" />
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-stone-950 mb-3">Acciones rápidas</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">{t('sellerAI.quickActions', 'Acciones rápidas')}</h3>
         <QuickActions actions={quickActions} />
       </div>
 

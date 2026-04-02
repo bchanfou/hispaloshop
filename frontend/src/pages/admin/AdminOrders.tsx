@@ -52,7 +52,7 @@ export default function AdminOrders() {
   );
 
   const exportCSV = () => {
-    const headers = ['ID Pedido', 'Cliente', 'Artículos', 'Total', 'Estado', 'Fecha'];
+    const headers = ['ID Pedido', 'Cliente', t('admin_orders.articulos', 'Artículos'), 'Total', 'Estado', 'Fecha'];
     const rows = filteredOrders.map(o => [
       o.order_id,
       `${o.user_name || ''} <${o.user_email || ''}>`,

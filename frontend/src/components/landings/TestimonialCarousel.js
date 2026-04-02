@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const TestimonialCarousel = ({ testimonials = [] }) => {
   const [current, setCurrent] = useState(0);
@@ -20,7 +21,7 @@ const TestimonialCarousel = ({ testimonials = [] }) => {
   if (!testimonials.length) {
     return (
       <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-        <p className="text-lg font-medium text-stone-950">Próximamente</p>
+        <p className="text-lg font-medium text-stone-950">{t('b2_b_tracking.proximamente', 'Próximamente')}</p>
         <p className="mt-2 text-sm leading-6 text-stone-600">
           Cuando tengamos voces reales de la comunidad, aparecerán aquí.
         </p>

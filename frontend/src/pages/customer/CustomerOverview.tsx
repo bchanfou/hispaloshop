@@ -213,7 +213,7 @@ export default function CustomerOverview() {
 
         {/* ── Quick actions 2×2 grid ── */}
         <div className="px-4">
-          <h2 className="text-sm font-semibold text-stone-950 mb-3">Acciones rápidas</h2>
+          <h2 className="text-sm font-semibold text-stone-950 mb-3">{t('sellerAI.quickActions', 'Acciones rápidas')}</h2>
           <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
             {quickActions.map(({ label, icon: Icon, path, onClick }) => {
               const inner = (

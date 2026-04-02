@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check, Video, Search } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const FILTERS = [
   { name: 'Natural', emoji: '✨', value: 'none' },
@@ -106,7 +107,7 @@ export default function CreateReelPage() {
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      toast.error('El vídeo es demasiado grande (máx. 100 MB)');
+      toast.error(t('create_reel.elVideoEsDemasiadoGrandeMax100M', 'El vídeo es demasiado grande (máx. 100 MB)'));
       e.target.value = '';
       return;
     }
@@ -161,7 +162,7 @@ export default function CreateReelPage() {
     if (!v) return;
     const dur = v.duration;
     if (dur > 60) {
-      toast.error('El vídeo no puede superar los 60 segundos. Recórtalo antes de subirlo.');
+      toast.error(t('create_reel.elVideoNoPuedeSuperarLos60Segundo', 'El vídeo no puede superar los 60 segundos. Recórtalo antes de subirlo.'));
     }
     setDuration(dur);
     setTrimEnd(Math.min(dur, 60));
@@ -340,11 +341,11 @@ export default function CreateReelPage() {
 
   const handlePublish = useCallback(async () => {
     if (!videoFile) {
-      toast.error('No hay vídeo seleccionado');
+      toast.error(t('create_reel.noHayVideoSeleccionado', 'No hay vídeo seleccionado'));
       return;
     }
     if (trimStart > 0 && trimEnd > 0 && trimStart >= trimEnd) {
-      toast.error('El punto de inicio del recorte no puede ser mayor o igual al de fin.');
+      toast.error(t('create_reel.elPuntoDeInicioDelRecorteNoPuede', 'El punto de inicio del recorte no puede ser mayor o igual al de fin.'));
       return;
     }
     setPublishing(true);
@@ -390,7 +391,7 @@ export default function CreateReelPage() {
       setPublishSuccess(true);
       setTimeout(() => {
         toast.success('Reel publicado', {
-          action: postId ? { label: 'Ver en el feed', onClick: () => navigate(`/posts/${postId}`) } : undefined,
+          action: postId ? { label: t('create_reel.verEnElFeed', 'Ver en el feed'), onClick: () => navigate(`/posts/${postId}`) } : undefined,
           duration: 4000,
         });
         navigate(postId ? `/posts/${postId}` : '/');
@@ -399,7 +400,7 @@ export default function CreateReelPage() {
       abortControllerRef.current = null;
       if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED') return;
       const detail = err?.response?.data?.detail;
-      const msg = typeof detail === 'string' ? detail : 'Error al publicar el reel. Comprueba tu conexión e inténtalo de nuevo.';
+      const msg = typeof detail === 'string' ? detail : t('create_reel.errorAlPublicarElReelCompruebaTu', 'Error al publicar el reel. Comprueba tu conexión e inténtalo de nuevo.');
       toast.error(msg, { duration: 5000 });
       setPublishing(false);
       setPublishError(true);
@@ -445,7 +446,7 @@ export default function CreateReelPage() {
         <div className="flex-1 flex flex-col items-center justify-center gap-4 px-8">
           <Video size={48} className="text-white/30" />
           <span className="text-base text-white font-medium">
-            {uploadTab === 'subir' ? 'Selecciona un vídeo' : 'Graba un vídeo'}
+            {uploadTab === 'subir' ? t('create_reel.seleccionaUnVideo', 'Selecciona un vídeo') : 'Graba un vídeo'}
           </span>
           <span className="text-xs text-white/50">
             Máximo 60 segundos · MP4 o MOV
@@ -455,9 +456,9 @@ export default function CreateReelPage() {
               uploadTab === 'subir' ? fileInputRef.current?.click() : cameraInputRef.current?.click()
             }
             className="bg-white text-black border-none text-sm font-semibold py-3 px-6 rounded-full cursor-pointer mt-2 transition-all hover:bg-white/90 active:scale-95 min-h-[44px]"
-            aria-label={uploadTab === 'subir' ? 'Elegir video de la galería' : 'Abrir cámara para grabar'}
+            aria-label={uploadTab === 'subir' ? t('create_reel.elegirVideoDeLaGaleria', 'Elegir video de la galería') : 'Abrir cámara para grabar'}
           >
-            {uploadTab === 'subir' ? 'Elegir de la galería' : 'Abrir cámara'}
+            {uploadTab === 'subir' ? t('create_reel.elegirDeLaGaleria', 'Elegir de la galería') : 'Abrir cámara'}
           </button>
         </div>
 
@@ -524,7 +525,7 @@ export default function CreateReelPage() {
           onClick={togglePlay}
           role="button"
           tabIndex={0}
-          aria-label={isPlaying ? 'Pausar vídeo' : 'Reproducir vídeo'}
+          aria-label={isPlaying ? t('create_reel.pausarVideo', 'Pausar vídeo') : 'Reproducir vídeo'}
           onKeyDown={(e) => { if (e.key === ' ') { e.preventDefault(); togglePlay(); } }}
         >
           <video
@@ -814,7 +815,7 @@ export default function CreateReelPage() {
                   className={`bg-white/10 text-white border border-dashed border-white/30 rounded-2xl py-3.5 text-sm cursor-pointer ${
                     textOverlays.length >= 3 ? 'opacity-40 cursor-not-allowed' : ''
                   }`}
-                  aria-label="Añadir texto al vídeo"
+                  aria-label={t('create_reel.anadirTextoAlVideo', 'Añadir texto al vídeo')}
                 >
                   + Añadir texto {textOverlays.length > 0 && `(${textOverlays.length}/3)`}
                 </button>
@@ -824,10 +825,10 @@ export default function CreateReelPage() {
                     value={textDraft}
                     onChange={(e) => setTextDraft(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && addTextOverlay()}
-                    placeholder="Escribe aquí..."
+                    placeholder={t('create_reel.escribeAqui', 'Escribe aquí...')}
                     className="bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/40"
                     autoFocus
-                    aria-label="Texto para el overlay"
+                    aria-label={t('create_reel.textoParaElOverlay', 'Texto para el overlay')}
                   />
                   {/* Fonts */}
                   <div className="flex gap-1.5">
@@ -893,7 +894,7 @@ export default function CreateReelPage() {
                       value={textSize}
                       onChange={(e) => setTextSize(Number(e.target.value))}
                       className="flex-1 accent-white"
-                      aria-label="Tamaño de texto"
+                      aria-label={t('create_reel.tamanoDeTexto', 'Tamaño de texto')}
                     />
                     <span className="text-white text-sm font-semibold">A</span>
                   </div>
@@ -1035,7 +1036,7 @@ export default function CreateReelPage() {
             rows={4}
             maxLength={500}
             className="w-full bg-transparent text-stone-950 border border-stone-200 rounded-2xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border relative caret-stone-950"
-            aria-label="Descripción del reel"
+            aria-label={t('create_reel.descripcionDelReel', 'Descripción del reel')}
           />
           <div className={`text-right text-xs mt-1 ${caption.length > 450 ? 'text-stone-950 font-semibold' : 'text-stone-400'}`}>
             {caption.length}/500
@@ -1091,14 +1092,14 @@ export default function CreateReelPage() {
               className={`w-14 h-20 rounded-2xl bg-stone-100 shrink-0 flex flex-col items-center justify-center p-1 overflow-hidden border-2 cursor-pointer ${
                 coverFromGallery ? 'border-stone-950' : 'border-dashed border-stone-200'
               }`}
-              aria-label="Portada desde galería"
+              aria-label={t('create_reel.portadaDesdeGaleria', 'Portada desde galería')}
             >
               {coverFromGallery ? (
                 <img src={coverUrl} alt="Portada del reel" className="w-full h-full object-cover rounded-xl" />
               ) : (
                 <>
                   <span className="text-stone-400 text-lg">+</span>
-                  <span className="text-[8px] text-stone-400">Galería</span>
+                  <span className="text-[8px] text-stone-400">{t('store.gallery', 'Galería')}</span>
                 </>
               )}
             </button>
@@ -1118,8 +1119,8 @@ export default function CreateReelPage() {
           <input
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="Añadir ubicación..."
-            aria-label="Ubicación"
+            placeholder={t('create_reel.anadirUbicacion', 'Añadir ubicación...')}
+            aria-label={t('store.location', 'Ubicación')}
             className="flex-1 bg-transparent border-none outline-none text-[13px] font-sans text-stone-950 placeholder:text-stone-400"
           />
         </div>
@@ -1173,7 +1174,7 @@ export default function CreateReelPage() {
           <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
             <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
-          <span className="text-base font-semibold text-stone-950">¡Reel publicado!</span>
+          <span className="text-base font-semibold text-stone-950">{t('create_reel.reelPublicado', '¡Reel publicado!')}</span>
         </div>
       )}
 

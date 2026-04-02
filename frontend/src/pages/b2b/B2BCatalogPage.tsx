@@ -5,6 +5,7 @@ import { ChevronLeft, Plus, Pause, Play, Edit3, Package, ShieldAlert } from 'luc
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 /* ── Component ──────────────────────────────────────────────── */
 export default function B2BCatalogPage() {
@@ -22,7 +23,7 @@ export default function B2BCatalogPage() {
       const res = await apiClient.get('/b2b/my-catalog');
       setProducts(res.data?.products ?? res.data ?? []);
     } catch (err) {
-      toast.error('Error al cargar el catálogo B2B');
+      toast.error(t('b2_b_catalog.errorAlCargarElCatalogoB2b', 'Error al cargar el catálogo B2B'));
     } finally {
       setLoading(false);
     }
@@ -46,7 +47,7 @@ export default function B2BCatalogPage() {
       );
       toast.success(nextStatus === 'active' ? 'Producto activado' : 'Producto pausado');
     } catch {
-      toast.error('No se pudo cambiar el estado');
+      toast.error(t('b2_b_catalog.noSePudoCambiarElEstado', 'No se pudo cambiar el estado'));
     } finally {
       setTogglingId(null);
     }
@@ -57,8 +58,8 @@ export default function B2BCatalogPage() {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center">
         <ShieldAlert size={36} className="text-stone-400" />
-        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
-        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder al catálogo B2B.</p>
+        <p className="text-stone-950 text-[15px] font-semibold">{t('b2_b_catalog.noTienesAccesoAEstaSeccion', 'No tienes acceso a esta sección')}</p>
+        <p className="text-stone-500 text-[13px]">{t('b2_b_catalog.necesitasUnPerfilDeProductorOImpor', 'Necesitas un perfil de productor o importador para acceder al catálogo B2B.')}</p>
         <button
           onClick={() => navigate('/')}
           className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"
@@ -84,14 +85,14 @@ export default function B2BCatalogPage() {
         >
           <ChevronLeft size={20} />
         </button>
-        <span className="text-lg font-bold text-stone-950">Catálogo B2B</span>
+        <span className="text-lg font-bold text-stone-950">{t('importer_dashboard.catalogoB2b', 'Catálogo B2B')}</span>
       </div>
 
       {/* Description card */}
       <div className="mx-4 mt-4 p-4 rounded-2xl bg-stone-100 flex gap-3 items-start">
         <span className="text-[28px] leading-none shrink-0">📋</span>
         <div>
-          <div className="text-[15px] font-semibold text-stone-950 mb-0.5">Catálogo mayorista</div>
+          <div className="text-[15px] font-semibold text-stone-950 mb-0.5">{t('importer_catalog.catalogoMayorista', 'Catálogo mayorista')}</div>
           <div className="text-[13px] text-stone-500 leading-snug">
             Gestiona qué productos ofreces al por mayor y a qué condiciones.
           </div>
@@ -111,7 +112,7 @@ export default function B2BCatalogPage() {
           <div className="w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center mb-4 text-stone-500">
             <Package size={28} />
           </div>
-          <div className="text-base font-semibold text-stone-950 mb-1.5">No tienes productos en el catálogo B2B</div>
+          <div className="text-base font-semibold text-stone-950 mb-1.5">{t('b2_b_catalog.noTienesProductosEnElCatalogoB2b', 'No tienes productos en el catálogo B2B')}</div>
           <div className="text-[13px] text-stone-500 mb-5">
             Empieza añadiendo tu primer producto mayorista.
           </div>

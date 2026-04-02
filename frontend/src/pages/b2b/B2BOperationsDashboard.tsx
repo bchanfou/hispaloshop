@@ -18,7 +18,7 @@ const STATUS_MAP = {
   contract_signed:    { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Firmado' },
   payment_pending:    { bg: 'bg-stone-50',   text: 'text-stone-500',     label: 'Pago pendiente' },
   payment_confirmed:  { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Pagado' },
-  in_transit:         { bg: 'bg-stone-100',  text: 'text-stone-600',     label: 'En tránsito' },
+  in_transit:         { bg: 'bg-stone-100',  text: 'text-stone-600',     label: t('influencer_dashboard.enTransito', 'En tránsito') },
   delivered:          { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Entregado' },
   completed:          { bg: 'bg-stone-100',  text: 'text-stone-950',     label: 'Completado' },
   disputed:           { bg: 'bg-stone-100',  text: 'text-stone-600',     label: 'En disputa' },
@@ -296,7 +296,7 @@ const B2BOperationsDashboard = () => {
       ['payment_pending'].includes(o.status),
     ).length;
     return [
-      { label: 'En negociación', count: negotiating, ...KPI_STYLES.negotiating },
+      { label: t('b2_b_operations_dashboard.enNegociacion', 'En negociación'), count: negotiating, ...KPI_STYLES.negotiating },
       { label: 'En curso', count: inProgress, ...KPI_STYLES.inProgress },
       { label: 'Pendientes', count: pending, ...KPI_STYLES.pending },
     ];
@@ -309,8 +309,8 @@ const B2BOperationsDashboard = () => {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center">
         <ShieldAlert size={36} className="text-stone-400" />
-        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
-        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a las operaciones B2B.</p>
+        <p className="text-stone-950 text-[15px] font-semibold">{t('b2_b_operations_dashboard.noTienesAccesoAEstaSeccion', 'No tienes acceso a esta sección')}</p>
+        <p className="text-stone-500 text-[13px]">{t('b2_b_operations_dashboard.necesitasUnPerfilDeProductorOImpor', 'Necesitas un perfil de productor o importador para acceder a las operaciones B2B.')}</p>
         <button
           onClick={() => navigate('/')}
           className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"

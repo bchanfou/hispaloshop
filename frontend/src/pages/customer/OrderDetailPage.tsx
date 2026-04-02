@@ -8,6 +8,7 @@ import {
   ArrowLeft, Truck, Check, Clock, Package, ExternalLink, Star, MessageCircle, Loader2, FileText, XCircle,
 } from 'lucide-react';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_FLOW = ['confirmed', 'preparing', 'shipped', 'delivered'];
 const STATUS_LABELS = {
@@ -54,7 +55,7 @@ export default function OrderDetailPage() {
       const data = await apiClient.get(`/customer/orders/${orderId}`);
       setOrder(data);
     } catch (error) {
-      toast.error(error?.status === 404 ? 'Pedido no encontrado' : 'Error al cargar el pedido');
+      toast.error(error?.status === 404 ? 'Pedido no encontrado' : t('order_detail.errorAlCargarElPedido', 'Error al cargar el pedido'));
       navigate('/dashboard/orders');
     } finally {
       setLoading(false);
@@ -75,18 +76,18 @@ export default function OrderDetailPage() {
   };
 
   const submitReview = async () => {
-    if (reviewRating === 0) { toast.error('Selecciona una valoración'); return; }
+    if (reviewRating === 0) { toast.error(t('recipe_detail.seleccionaUnaValoracion', 'Selecciona una valoración')); return; }
     setReviewSubmitting(true);
     try {
       await apiClient.post(`/customer/orders/${orderId}/review`, {
         rating: reviewRating, comment: reviewText,
       });
-      toast.success('Reseña publicada');
+      toast.success(t('order_detail.resenaPublicada', 'Reseña publicada'));
       setReviewSubmitted(true);
       setReviewRating(0);
       setReviewText('');
     } catch {
-      toast.error('Error al publicar la reseña');
+      toast.error(t('order_detail.errorAlPublicarLaResena', 'Error al publicar la reseña'));
     } finally {
       setReviewSubmitting(false);
     }
@@ -109,13 +110,13 @@ export default function OrderDetailPage() {
       const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Pedido ${data.invoice_number}</title>
 <style>body{font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;color:#1c1917}h1{font-size:20px}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #e7e5e4}th{text-align:left;padding:8px 12px;font-size:13px;color:#78716c}tfoot td{font-weight:600;border-top:2px solid #1c1917}.meta{color:#78716c;font-size:13px}</style></head>
 <body><h1>Resumen de pedido ${data.invoice_number}</h1>
-<p class="meta">Este documento NO es una factura fiscal</p>
+<p class="meta">{t('order_detail.esteDocumentoNoEsUnaFacturaFiscal', 'Este documento NO es una factura fiscal')}</p>
 <p class="meta">Fecha: ${new Date(data.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
 <p class="meta">Cliente: ${data.customer?.name || ''} · ${data.customer?.email || ''}</p>
 <table><thead><tr><th>Producto</th><th style="text-align:center">Cant.</th><th style="text-align:right">Total</th></tr></thead>
 <tbody>${itemsHtml}</tbody>
 <tfoot><tr><td colspan="2" style="padding:6px 12px">Subtotal</td><td style="padding:6px 12px;text-align:right">${convertAndFormatPrice(Number(data.subtotal), cur)}</td></tr>
-<tr><td colspan="2" style="padding:6px 12px">Envío</td><td style="padding:6px 12px;text-align:right">${convertAndFormatPrice(Number(data.shipping), cur)}</td></tr>
+<tr><td colspan="2" style="padding:6px 12px">{t('products.shippingCost', 'Envío')}</td><td style="padding:6px 12px;text-align:right">${convertAndFormatPrice(Number(data.shipping), cur)}</td></tr>
 <tr><td colspan="2" style="padding:6px 12px">IVA</td><td style="padding:6px 12px;text-align:right">${convertAndFormatPrice(Number(data.tax), cur)}</td></tr>
 <tr><td colspan="2" style="padding:6px 12px;font-size:16px">TOTAL</td><td style="padding:6px 12px;text-align:right;font-size:16px">${convertAndFormatPrice(Number(data.total), cur)}</td></tr></tfoot></table>
 <p class="meta" style="margin-top:20px">Estado: ${INVOICE_STATUS_ES[data.status] || data.status} · Pago: ${data.payment_method}</p></body></html>`;
@@ -129,7 +130,7 @@ export default function OrderDetailPage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch {
-      toast.error('No se pudo descargar la factura');
+      toast.error(t('order_detail.noSePudoDescargarLaFactura', 'No se pudo descargar la factura'));
     } finally {
       setInvoiceLoading(false);
     }
@@ -195,9 +196,9 @@ export default function OrderDetailPage() {
                   : 'Pedido cancelado'}
               </p>
               <p className="text-xs text-stone-500">
-                {status === 'refunded' ? 'El importe se reflejará en tu cuenta en 5-10 días hábiles'
-                  : status === 'partially_refunded' ? 'Se ha reembolsado parte del importe a tu cuenta'
-                  : status === 'payment_failed' ? 'El pago no se pudo procesar. Inténtalo de nuevo o contacta con soporte.'
+                {status === 'refunded' ? t('order_detail.elImporteSeReflejaraEnTuCuentaEn', 'El importe se reflejará en tu cuenta en 5-10 días hábiles')
+                  : status === 'partially_refunded' ? t('order_detail.seHaReembolsadoParteDelImporteATu', 'Se ha reembolsado parte del importe a tu cuenta')
+                  : status === 'payment_failed' ? t('order_detail.elPagoNoSePudoProcesarIntentaloD', 'El pago no se pudo procesar. Inténtalo de nuevo o contacta con soporte.')
                   : 'Este pedido fue cancelado'}
               </p>
             </div>
@@ -397,7 +398,7 @@ export default function OrderDetailPage() {
             <textarea
               value={reviewText}
               onChange={e => setReviewText(e.target.value)}
-              placeholder="Deja una reseña..."
+              placeholder={t('order_detail.dejaUnaResena', 'Deja una reseña...')}
               rows={3}
               className="w-full p-3 text-sm border border-stone-200 rounded-xl bg-white text-stone-950 outline-none resize-y box-border"
             />
@@ -406,12 +407,12 @@ export default function OrderDetailPage() {
               disabled={reviewSubmitting}
               className="mt-2.5 px-5 py-2.5 min-h-[44px] bg-stone-950 text-white border-none rounded-xl text-[13px] font-semibold cursor-pointer"
             >
-              {reviewSubmitting ? 'Publicando...' : 'Publicar reseña'}
+              {reviewSubmitting ? 'Publicando...' : t('order_detail.publicarResena', 'Publicar reseña')}
             </button>
           </div>
         )}
         {isDelivered && reviewSubmitted && (
-          <p className="text-sm text-stone-500 mt-6">Reseña enviada. ¡Gracias!</p>
+          <p className="text-sm text-stone-500 mt-6">{t('order_detail.resenaEnviadaGracias', 'Reseña enviada. ¡Gracias!')}</p>
         )}
 
         {/* ── Actions ── */}

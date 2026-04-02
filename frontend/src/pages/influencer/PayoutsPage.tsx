@@ -32,11 +32,11 @@ function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPric
     e.preventDefault();
     const numAmount = parseFloat(amount);
     if (!numAmount || numAmount <= 0) {
-      toast.error('Introduce un importe válido');
+      toast.error(t('payouts.introduceUnImporteValido', 'Introduce un importe válido'));
       return;
     }
     if (numAmount > (availableBalance || 0)) {
-      toast.error('El importe supera tu saldo disponible');
+      toast.error(t('payouts.elImporteSuperaTuSaldoDisponible', 'El importe supera tu saldo disponible'));
       return;
     }
     setSubmitting(true);
@@ -49,7 +49,7 @@ function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPric
       onSuccess?.();
       onClose();
     } catch {
-      toast.error('Error al solicitar la retirada');
+      toast.error(t('payouts.errorAlSolicitarLaRetirada', 'Error al solicitar la retirada'));
     } finally {
       setSubmitting(false);
     }
@@ -90,7 +90,7 @@ function WithdrawalModal({ open, onClose, availableBalance, convertAndFormatPric
 
           {/* Method */}
           <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1">Método de pago</label>
+            <label className="block text-xs font-semibold text-stone-700 mb-1">{t('checkout.metodoDePago', 'Método de pago')}</label>
             <select
               value={method}
               onChange={(e) => setMethod(e.target.value)}
@@ -361,8 +361,8 @@ export default function PayoutsPage() {
             <Wallet className="w-10 h-10 text-stone-300 mx-auto mb-3" />
             <p className="text-sm text-stone-500">
               {statusFilter === 'all'
-                ? 'Aún no tienes pagos. Comparte tu código y empieza a ganar.'
-                : 'No hay pagos con este estado.'}
+                ? t('payouts.aunNoTienesPagosComparteTuCodigo', 'Aún no tienes pagos. Comparte tu código y empieza a ganar.')
+                : t('payouts.noHayPagosConEsteEstado', 'No hay pagos con este estado.')}
             </p>
           </div>
         ) : (<>

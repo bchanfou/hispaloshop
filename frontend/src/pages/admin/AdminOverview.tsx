@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 import {
   FileCheck, Package, ShieldAlert, ShoppingBag, Users,
   TrendingUp, UserPlus, RotateCcw, HeadphonesIcon, Shield, ArrowRight, Clock
@@ -84,7 +85,7 @@ export default function AdminOverview() {
 
   if (loading) {
     return (
-      <div className="bg-stone-50 min-h-full p-6 space-y-6" aria-busy="true" aria-label="Cargando panel de administración">
+      <div className="bg-stone-50 min-h-full p-6 space-y-6" aria-busy="true" aria-label={t('admin_overview.cargandoPanelDeAdministracion', 'Cargando panel de administración')}>
         <div className="space-y-2">
           <div className="h-7 w-48 animate-pulse rounded-full bg-stone-200" />
           <div className="h-4 w-72 animate-pulse rounded-full bg-stone-100" />
@@ -119,17 +120,17 @@ export default function AdminOverview() {
     <div className="bg-stone-50 min-h-full">
       {statsError && (
         <div className="mx-6 mt-4 flex items-center justify-between rounded-2xl bg-stone-100 border border-stone-200 px-4 py-3">
-          <span className="text-sm text-stone-800">No se pudieron cargar las estadísticas</span>
+          <span className="text-sm text-stone-800">{t('admin_overview.noSePudieronCargarLasEstadisticas', 'No se pudieron cargar las estadísticas')}</span>
           <button onClick={fetchStats} className="text-sm font-semibold text-stone-800 hover:underline">Reintentar</button>
         </div>
       )}
      <div className="max-w-[975px] mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
-        <h1 className="text-2xl font-bold text-stone-950">Panel de administración</h1>
+        <h1 className="text-2xl font-bold text-stone-950">{t('admin_overview.panelDeAdministracion', 'Panel de administración')}</h1>
         <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-stone-100 text-stone-500">ADMIN</span>
       </div>
-      <p className="text-sm mb-6 text-stone-500">Gestión de tu mercado en una vista</p>
+      <p className="text-sm mb-6 text-stone-500">{t('admin_overview.gestionDeTuMercadoEnUnaVista', 'Gestión de tu mercado en una vista')}</p>
 
       {/* KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
@@ -164,13 +165,13 @@ export default function AdminOverview() {
 
       {/* Pending review queue */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3 text-stone-950">Cola de revisión</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">{t('admin_overview.colaDeRevision', 'Cola de revisión')}</h2>
         <div className="space-y-2">
           <PendingRow label="Productores pendientes" count={pendingProducers} to="/admin/producers" />
           <PendingRow label="Verificaciones pendientes" count={stats?.pending_verifications || 0} to="/admin/verification" />
           <PendingRow label="Productos por revisar" count={pendingProducts} to="/admin/products" />
           <PendingRow label="Certificados" count={pendingCertificates} to="/admin/certificates" />
-          <PendingRow label="Moderación de contenido" count={pendingModeration} to="/admin/moderation" />
+          <PendingRow label=t('admin_overview.moderacionDeContenido', 'Moderación de contenido') count={pendingModeration} to="/admin/moderation" />
           <PendingRow label="Soporte abierto" count={openSupport} to="/admin/support" />
           <PendingRow label="Reembolsos" count={stats?.refunded_orders || 0} to="/admin/refunds" />
           <PendingRow label="Payouts manuales" count={stats?.pending_payouts || 0} to="/admin/payouts" />
@@ -188,7 +189,7 @@ export default function AdminOverview() {
             >
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-stone-600" />
-                <span className="font-medium text-stone-800">Certificados que expiran en 30 días</span>
+                <span className="font-medium text-stone-800">{t('admin_overview.certificadosQueExpiranEn30Dias', 'Certificados que expiran en 30 días')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center bg-stone-100 text-stone-800">
@@ -200,7 +201,7 @@ export default function AdminOverview() {
           ) : (
             <div className="flex items-center gap-2 p-3.5 bg-white rounded-2xl shadow-sm text-sm">
               <Clock className="w-4 h-4 text-stone-400" />
-              <span className="text-stone-500">No hay certificados próximos a expirar</span>
+              <span className="text-stone-500">{t('admin_overview.noHayCertificadosProximosAExpirar', 'No hay certificados próximos a expirar')}</span>
             </div>
           )}
         </div>
@@ -234,7 +235,7 @@ export default function AdminOverview() {
       <div className="mb-5">
         <h2 className="text-sm font-bold mb-3 text-stone-950">Fiscal</h2>
         <div className="space-y-2">
-          <PendingRow label="Certificados pendientes de revisión" count={stats?.fiscal_pending_review || 0} to="/admin/fiscal" />
+          <PendingRow label=t('admin_overview.certificadosPendientesDeRevision', 'Certificados pendientes de revisión') count={stats?.fiscal_pending_review || 0} to="/admin/fiscal" />
           <PendingRow
             label={`Retenciones YTD${fiscalStats === null ? '' : `: ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format((fiscalStats?.total_withheld_ytd_cents || 0) / 100)}`}`}
             count={0}
@@ -251,10 +252,10 @@ export default function AdminOverview() {
 
       {/* Quick actions */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3 text-stone-950">Acciones rápidas</h2>
+        <h2 className="text-sm font-bold mb-3 text-stone-950">{t('sellerAI.quickActions', 'Acciones rápidas')}</h2>
         <div className="grid grid-cols-2 gap-2">
           <QuickLink icon={ShoppingBag} label="Pedidos" to="/admin/orders" />
-          <QuickLink icon={ShieldAlert} label="Reseñas" to="/admin/reviews" />
+          <QuickLink icon={ShieldAlert} label=t('store.reviews', 'Reseñas') to="/admin/reviews" />
           <QuickLink icon={FileCheck} label="Descuentos" to="/admin/discount-codes" />
           <QuickLink icon={Users} label="Influencers" to="/admin/influencers" />
           <QuickLink icon={HeadphonesIcon} label="Soporte" to="/admin/support" />

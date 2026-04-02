@@ -33,7 +33,7 @@ const STATUS_CONFIG = {
     icon: Clock,
     color: 'text-stone-700',
     bg: 'bg-stone-100',
-    label: 'Pendiente de revisión'
+    label: t('producer_certificates.pendienteDeRevision', 'Pendiente de revisión')
   },
   rejected: {
     icon: XCircle,
@@ -368,7 +368,7 @@ export default function ProducerCertificates() {
                               : t('certificates.dragOrClick', 'Arrastra o haz clic para subir')
                             }
                           </p>
-                          <p className="text-sm text-stone-500">PDF, JPG, PNG (máx. 5MB)</p>
+                          <p className="text-sm text-stone-500">{t('producer_certificates.pdfJpgPngMax5mb', 'PDF, JPG, PNG (máx. 5MB)')}</p>
                           <input
                             type="file"
                             accept=".pdf,.jpg,.jpeg,.png,.webp"
@@ -437,7 +437,7 @@ export default function ProducerCertificates() {
                         ...formData,
                         data: { ...formData.data, claims: e.target.value }
                       })}
-                      placeholder="100% Orgánico, Sin Pesticidas, Cosecha Manual..."
+                      placeholder={t('producer_certificates.100OrganicoSinPesticidasCosechaM', '100% Orgánico, Sin Pesticidas, Cosecha Manual...')}
                       className="w-full h-12 px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                     />
                   </div>
@@ -453,7 +453,7 @@ export default function ProducerCertificates() {
                         data: { ...formData.data, ingredient_origins: e.target.value }
                       })}
                       className="w-full px-4 py-3 rounded-2xl border border-stone-200 min-h-[100px] focus:outline-none focus:border-stone-950"
-                      placeholder="Aceitunas: España (Jaén)&#10;Sal: Portugal&#10;..."
+                      placeholder={t('producer_certificates.aceitunasEspanaJaen10salPortug', 'Aceitunas: España (Jaén)&#10;Sal: Portugal&#10;...')}
                     />
                   </div>
                 </div>

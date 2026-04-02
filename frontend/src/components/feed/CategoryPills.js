@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   Baby,
   Beef,
@@ -23,12 +24,12 @@ const CATEGORIES = [
   { id: 'aceites', label: 'Aceites', icon: Droplets, badge: null },
   { id: 'quesos', label: 'Quesos', icon: Milk, badge: null },
   { id: 'embutidos', label: 'Embutidos', icon: Beef, badge: null },
-  { id: 'panaderia', label: 'Panadería', icon: Croissant, badge: null },
+  { id: 'panaderia', label: t('onboarding.panaderia', 'Panadería'), icon: Croissant, badge: null },
   { id: 'bebidas', label: 'Bebidas', icon: CupSoda, badge: null },
   { id: 'bebes', label: 'Bebés', icon: Baby, badge: null },
   { id: 'mascotas', label: 'Mascotas', icon: Dog, badge: null },
   { id: 'snacks', label: 'Snacks', icon: Cherry, badge: null },
-  { id: 'organico', label: 'Orgánico', icon: Leaf, badge: null },
+  { id: 'organico', label: t('home.organic', 'Orgánico'), icon: Leaf, badge: null },
   { id: 'singluten', label: 'Sin gluten', icon: WheatOff, badge: null },
   { id: 'packs', label: 'Packs', icon: Gift, badge: null },
   { id: 'novedades', label: 'Novedades', icon: Sparkle, badge: 'Nuevo' },

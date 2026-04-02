@@ -12,9 +12,9 @@ const makeFmt = (cur = 'EUR') => new Intl.NumberFormat(undefined, { style: 'curr
 
 const PAYMENT_TERMS = {
   prepaid: '100% adelantado',
-  net_30: 'Net 30 días',
-  net_60: 'Net 60 días',
-  letter_of_credit: 'Carta de crédito',
+  net_30: t('b2_b_payment.net30Dias', 'Net 30 días'),
+  net_60: t('b2_b_payment.net60Dias', 'Net 60 días'),
+  letter_of_credit: t('b2_b_payment.cartaDeCredito', 'Carta de crédito'),
 };
 
 let stripeLoader;
@@ -82,7 +82,7 @@ export default function B2BPaymentPage() {
       setPaymentInfo(piRes?.data ?? piRes);
     } catch (err) {
       captureException(err);
-      setError(err?.data?.detail || err?.message || 'Error al cargar los datos de pago');
+      setError(err?.data?.detail || err?.message || t('b2_b_payment.errorAlCargarLosDatosDePago', 'Error al cargar los datos de pago'));
     } finally {
       setLoading(false);
     }
@@ -142,7 +142,7 @@ export default function B2BPaymentPage() {
       } catch (err) {
         captureException(err);
         if (!cancelled) {
-          toast.error('No se pudo inicializar el pago');
+          toast.error(t('b2_b_payment.noSePudoInicializarElPago', 'No se pudo inicializar el pago'));
         }
       }
     })();
@@ -165,7 +165,7 @@ export default function B2BPaymentPage() {
       }
     } catch (err) {
       captureException(err);
-      toast.error('Error al procesar el pago');
+      toast.error(t('checkout.errorAlProcesarElPago', 'Error al procesar el pago'));
     } finally {
       setPaying(false);
     }
@@ -176,8 +176,8 @@ export default function B2BPaymentPage() {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center">
         <ShieldAlert size={36} className="text-stone-400" />
-        <p className="text-stone-950 text-[15px] font-semibold">No tienes acceso a esta sección</p>
-        <p className="text-stone-500 text-[13px]">Necesitas un perfil de productor o importador para acceder a los pagos B2B.</p>
+        <p className="text-stone-950 text-[15px] font-semibold">{t('b2_b_payment.noTienesAccesoAEstaSeccion', 'No tienes acceso a esta sección')}</p>
+        <p className="text-stone-500 text-[13px]">{t('b2_b_payment.necesitasUnPerfilDeProductorOImpor', 'Necesitas un perfil de productor o importador para acceder a los pagos B2B.')}</p>
         <button
           onClick={() => navigate('/')}
           className="bg-stone-950 text-white rounded-full px-6 py-2.5 text-sm font-semibold border-none cursor-pointer mt-2"

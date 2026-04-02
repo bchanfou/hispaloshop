@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Info, Upload, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const CHECKERBOARD_BG =
   'repeating-conic-gradient(#d4d4d4 0% 25%, transparent 0% 50%) 0 0 / 12px 12px';
@@ -155,7 +156,7 @@ export default function SignatureSettingsPage() {
 
     if (activeTab === 'draw') {
       if (!hasDrawn && !existingSig) {
-        toast.error('Dibuja tu firma antes de guardar');
+        toast.error(t('signature_settings.dibujaTuFirmaAntesDeGuardar', 'Dibuja tu firma antes de guardar'));
         return;
       }
       if (hasDrawn) {
@@ -163,7 +164,7 @@ export default function SignatureSettingsPage() {
       }
     } else {
       if (!uploadedSig && !existingSig) {
-        toast.error('Sube una imagen de tu firma');
+        toast.error(t('signature_settings.subeUnaImagenDeTuFirma', 'Sube una imagen de tu firma'));
         return;
       }
       if (uploadedSig) {
@@ -172,7 +173,7 @@ export default function SignatureSettingsPage() {
     }
 
     if (!sigBlob && !existingSig && !stampFile) {
-      toast.error('Configura tu firma antes de guardar');
+      toast.error(t('signature_settings.configuraTuFirmaAntesDeGuardar', 'Configura tu firma antes de guardar'));
       return;
     }
 
@@ -192,7 +193,7 @@ export default function SignatureSettingsPage() {
         const blob = await resp.blob();
         fd.append('signature', blob, 'signature.png');
       } catch {
-        toast.error('Error al procesar la firma existente');
+        toast.error(t('signature_settings.errorAlProcesarLaFirmaExistente', 'Error al procesar la firma existente'));
         return;
       }
     }
@@ -210,7 +211,7 @@ export default function SignatureSettingsPage() {
         navigate(-1);
       }
     } catch {
-      toast.error('Error al guardar la firma');
+      toast.error(t('signature_settings.errorAlGuardarLaFirma', 'Error al guardar la firma'));
     } finally {
       setSaving(false);
     }

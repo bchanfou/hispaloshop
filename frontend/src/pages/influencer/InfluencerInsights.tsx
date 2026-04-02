@@ -5,6 +5,7 @@ import { BarChart3, MousePointerClick, RefreshCw, ShoppingCart, TrendingUp, Tren
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 const PERIODS = [
   { label: '7 días', value: 7 },
@@ -50,7 +51,7 @@ function RevenueChart({ dailyEarnings, days }) {
   if (bars.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-8 text-center">
-        <p className="text-sm text-stone-500">Sin datos suficientes para mostrar gráfico</p>
+        <p className="text-sm text-stone-500">{t('influencer_insights.sinDatosSuficientesParaMostrarGrafi', 'Sin datos suficientes para mostrar gráfico')}</p>
       </div>
     );
   }
@@ -131,7 +132,7 @@ export default function InfluencerInsights() {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-stone-950">Mis Insights</h1>
-              <p className="text-sm text-stone-500">Impacto comercial de tu contenido</p>
+              <p className="text-sm text-stone-500">{t('influencer_insights.impactoComercialDeTuContenido', 'Impacto comercial de tu contenido')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -170,7 +171,7 @@ export default function InfluencerInsights() {
           />
           <KpiCard
             icon={ShoppingCart}
-            label="Añadidos al carrito"
+            label=t('producer_analytics.anadidosAlCarrito', 'Añadidos al carrito')
             value={overview.add_to_cart ?? '—'}
             prevValue={prevOverview.add_to_cart}
           />
@@ -207,7 +208,7 @@ export default function InfluencerInsights() {
             </div>
           ) : error ? (
             <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-8 text-center">
-              <p className="text-sm font-medium text-stone-950">Error de conexión</p>
+              <p className="text-sm font-medium text-stone-950">{t('influencer_insights.errorDeConexion', 'Error de conexión')}</p>
               <p className="mt-1 text-sm text-stone-500 mb-3">
                 No pudimos cargar tus datos. Comprueba tu conexión e inténtalo de nuevo.
               </p>
@@ -220,7 +221,7 @@ export default function InfluencerInsights() {
             </div>
           ) : topProducts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-8 text-center">
-              <p className="text-sm font-medium text-stone-950">Aún no tienes datos</p>
+              <p className="text-sm font-medium text-stone-950">{t('influencer_insights.aunNoTienesDatos', 'Aún no tienes datos')}</p>
               <p className="mt-1 text-sm text-stone-500">
                 Cuando tu contenido impulse clics o compras aparecerá aquí.
               </p>

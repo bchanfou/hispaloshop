@@ -6,6 +6,7 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 function StatCard({ icon: Icon, title, value, subtitle, color = "text-stone-950" }) {
   return (
@@ -61,7 +62,7 @@ export default function InfluencerAnalytics() {
         <div className="p-4">
           <div className="py-12 text-center">
             <BarChart3 className="w-12 h-12 text-stone-300 mx-auto mb-4" />
-            <p className="text-stone-500">No hay datos de analytics disponibles</p>
+            <p className="text-stone-500">{t('influencer_analytics.noHayDatosDeAnalyticsDisponibles', 'No hay datos de analytics disponibles')}</p>
           </div>
         </div>
       </div>
@@ -107,9 +108,9 @@ export default function InfluencerAnalytics() {
             onChange={(e) => setPeriod(Number(e.target.value))}
             className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 focus:outline-none focus:border-stone-950 text-sm"
           >
-            <option value={7}>Últimos 7 días</option>
-            <option value={30}>Últimos 30 días</option>
-            <option value={90}>Últimos 90 días</option>
+            <option value={7}>{t('producer.followerGrowth.last7Days', 'Últimos 7 días')}</option>
+            <option value={30}>{t('producer.followerGrowth.last30Days', 'Últimos 30 días')}</option>
+            <option value={90}>{t('producer.followerGrowth.last90Days', 'Últimos 90 días')}</option>
           </select>
         </div>
       </div>
@@ -120,7 +121,7 @@ export default function InfluencerAnalytics() {
           <div className="p-4">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <p className="text-sm font-medium text-stone-950 mb-1">Tu enlace de referido</p>
+                <p className="text-sm font-medium text-stone-950 mb-1">{t('influencer_analytics.tuEnlaceDeReferido', 'Tu enlace de referido')}</p>
                 <p className="font-mono text-stone-700 bg-white px-3 py-1.5 rounded border border-stone-200 text-sm">
                   {window.location.origin}{referral_link}
                 </p>
@@ -149,9 +150,9 @@ export default function InfluencerAnalytics() {
         />
         <StatCard
           icon={ShoppingCart}
-          title="Usos del código"
+          title={t('influencer_analytics.usosDelCodigo', 'Usos del código')}
           value={summary.total_code_uses || 0}
-          subtitle="Código aplicado"
+          subtitle={t('influencer_analytics.codigoAplicado', 'Código aplicado')}
         />
         <StatCard
           icon={ShoppingCart}
@@ -206,7 +207,7 @@ export default function InfluencerAnalytics() {
                   />
                   <Legend />
                   <Bar dataKey="link_clicks" fill="#1c1917" name="Clics Enlace" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="code_uses" fill="#78716c" name="Usos Código" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="code_uses" fill="#78716c" name=t('influencer_analytics.usosCodigo', 'Usos Código') radius={[4, 4, 0, 0]} />
                   <Bar dataKey="conversions" fill="#a8a29e" name="Conversiones" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -252,7 +253,7 @@ export default function InfluencerAnalytics() {
                     stroke="#78716c"
                     fill="#78716c"
                     fillOpacity={0.3}
-                    name="Tu comisión"
+                    name=t('influencer.yourCommission', 'Tu comisión')
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -269,7 +270,7 @@ export default function InfluencerAnalytics() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white rounded-2xl p-4 border border-stone-200">
-              <p className="text-sm font-medium text-stone-950 mb-2">Cálculo de tu comisión:</p>
+              <p className="text-sm font-medium text-stone-950 mb-2">{t('influencer_analytics.calculoDeTuComision', 'Cálculo de tu comisión:')}</p>
               <ul className="space-y-1 text-sm text-stone-600">
                 <li>• Tu comisión depende de tu tier activo (3% a 7%)</li>
                 <li>• Atribución de cliente activa durante 18 meses</li>

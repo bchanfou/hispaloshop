@@ -86,7 +86,7 @@ export default function WithdrawalPage() {
         <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5 bg-stone-100">
           <Settings2 className="w-6 h-6 text-stone-500" />
         </div>
-        <h2 className="text-lg font-bold text-stone-950 mb-2 text-center">Configuración fiscal pendiente</h2>
+        <h2 className="text-lg font-bold text-stone-950 mb-2 text-center">{t('withdrawal.configuracionFiscalPendiente', 'Configuración fiscal pendiente')}</h2>
         <p className="text-sm text-stone-500 text-center mb-6 max-w-xs">
           Completa tu configuración fiscal antes de retirar fondos
         </p>
@@ -125,7 +125,7 @@ export default function WithdrawalPage() {
         transfer_fee: res.transfer_fee || transferFee,
       });
     } catch (err) {
-      toast.error(err?.message || err?.detail || 'Error al procesar el cobro. Inténtalo de nuevo.', {
+      toast.error(err?.message || err?.detail || t('withdrawal.errorAlProcesarElCobroIntentaloDe', 'Error al procesar el cobro. Inténtalo de nuevo.'), {
         action: { label: 'Reintentar', onClick: () => handleSubmit() },
       });
     } finally {
@@ -140,12 +140,12 @@ export default function WithdrawalPage() {
         <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5 bg-stone-950">
           <Check className="w-7 h-7 text-white" strokeWidth={2.5} />
         </div>
-        <h2 className="text-xl font-bold mb-2 text-stone-950">¡Cobro en camino!</h2>
+        <h2 className="text-xl font-bold mb-2 text-stone-950">{t('withdrawal.cobroEnCamino', '¡Cobro en camino!')}</h2>
         <p className="text-sm text-center mb-6 text-stone-500">
           Transferiremos {convertAndFormatPrice(Number(success.net_amount || 0))} a tu {(success.method === 'sepa' || success.method === 'bank_transfer') ? 'cuenta bancaria' : 'cuenta Stripe'}
         </p>
         <p className="text-xs mb-6 text-stone-500">
-          {(success.method === 'sepa' || success.method === 'bank_transfer') ? 'Tiempo estimado: 1-3 días hábiles' : 'Tiempo estimado: En minutos'}
+          {(success.method === 'sepa' || success.method === 'bank_transfer') ? t('withdrawal.tiempoEstimado1-3DiasHabiles', 'Tiempo estimado: 1-3 días hábiles') : 'Tiempo estimado: En minutos'}
         </p>
 
         <div className="w-full max-w-xs p-4 space-y-2 mb-6 bg-stone-100 rounded-2xl">
@@ -155,7 +155,7 @@ export default function WithdrawalPage() {
           </div>
           {success.withholding > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-stone-500">Retención IRPF</span>
+              <span className="text-stone-500">{t('withdrawal.retencionIrpf', 'Retención IRPF')}</span>
               <span className="text-stone-500">−{convertAndFormatPrice(Number(success.withholding || 0))}</span>
             </div>
           )}
@@ -170,7 +170,7 @@ export default function WithdrawalPage() {
             <span className="text-stone-950">{convertAndFormatPrice(Number(success.net_amount || 0))}</span>
           </div>
           <div className="flex justify-between text-xs pt-1">
-            <span className="text-stone-500">Método</span>
+            <span className="text-stone-500">{t('withdrawal.metodo', 'Método')}</span>
             <span className="text-stone-500">{(success.method === 'sepa' || success.method === 'bank_transfer') ? 'SEPA' : 'Stripe'}</span>
           </div>
         </div>
@@ -207,7 +207,7 @@ export default function WithdrawalPage() {
         <div className="p-5 mb-5 bg-white rounded-2xl shadow-sm">
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-stone-500">Comisión bruta</span>
+              <span className="text-stone-500">{t('withdrawal.comisionBruta', 'Comisión bruta')}</span>
               <span className="font-semibold text-stone-950">{convertAndFormatPrice(Number(gross || 0))}</span>
             </div>
 
@@ -222,7 +222,7 @@ export default function WithdrawalPage() {
 
             <div className="flex justify-between text-sm items-start">
               <div className="flex items-center gap-1">
-                <span className="text-stone-500" title="La comisión real puede variar según tu método de pago">Fee de transferencia (aprox.)</span>
+                <span className="text-stone-500" title={t('withdrawal.laComisionRealPuedeVariarSegunTuM', 'La comisión real puede variar según tu método de pago')}>Fee de transferencia (aprox.)</span>
               </div>
               <span className={`font-semibold ${transferFee > 0 ? 'text-stone-500' : 'text-stone-950'}`}>
                 {transferFee > 0 ? `−${convertAndFormatPrice(Number(transferFee || 0))}` : convertAndFormatPrice(0)}

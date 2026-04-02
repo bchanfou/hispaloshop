@@ -29,7 +29,7 @@ export default function SuperAdminLayoutResponsive() {
 
   const allNavItems = [
     { to: '/super-admin', icon: Shield, label: 'Global', shortLabel: 'Global', end: true },
-    { to: '/super-admin/markets', icon: Globe, label: 'Países', shortLabel: 'Países' },
+    { to: '/super-admin/markets', icon: Globe, label: t('breadcrumbs.countries', 'Países'), shortLabel: 'Países' },
     { to: '/super-admin/admins', icon: Users, label: 'Admins', shortLabel: 'Admins' },
     { to: '/super-admin/finance', icon: Wallet, label: 'Finanzas', shortLabel: 'Finanzas' },
     { to: '/admin/payouts', icon: Receipt, label: 'Payouts', shortLabel: 'Payouts' },
@@ -38,7 +38,7 @@ export default function SuperAdminLayoutResponsive() {
     { to: '/super-admin/content', icon: Package, label: 'Contenido', shortLabel: 'Contenido' },
     { to: '/super-admin/gdpr', icon: Lock, label: 'GDPR', shortLabel: 'GDPR' },
     { to: '/super-admin/infrastructure', icon: Settings, label: 'Infraestructura', shortLabel: 'Infra' },
-    { to: '/super-admin/insights', icon: BarChart3, label: 'Estadísticas', shortLabel: 'Stats' },
+    { to: '/super-admin/insights', icon: BarChart3, label: t('store.stats', 'Estadísticas'), shortLabel: 'Stats' },
     { to: '/super-admin/escalation', icon: ShieldAlert, label: 'Escalaciones', shortLabel: 'Escalar' },
   ];
 
@@ -195,7 +195,7 @@ export default function SuperAdminLayoutResponsive() {
       <BottomSheet
         isOpen={moreMenuOpen}
         onClose={() => setMoreMenuOpen(false)}
-        title="Más opciones"
+        title={t('common.moreOptions', 'Más opciones')}
       >
         <div className="p-4 space-y-2">
           {moreMenuItems.map((item) => (
@@ -222,7 +222,7 @@ export default function SuperAdminLayoutResponsive() {
             <div className="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center">
               <LogOut className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
             </div>
-            <p className="font-medium text-stone-700">Cerrar sesión</p>
+            <p className="font-medium text-stone-700">{t('common.logout', 'Cerrar sesión')}</p>
           </button>
         </div>
       </BottomSheet>

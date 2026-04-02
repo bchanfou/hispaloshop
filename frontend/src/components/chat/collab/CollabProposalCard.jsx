@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 function Badge({ label, variant }) {
   const styles = {
@@ -56,8 +57,8 @@ export default function CollabProposalCard({
           </span>
         </div>
 
-        <InfoRow label="Comisión especial" value={`${commission_percent}%`} />
-        <InfoRow label="Duración" value={`${duration_days} días`} />
+        <InfoRow label=t('collab_proposal.comisionEspecial', 'Comisión especial') value={`${commission_percent}%`} />
+        <InfoRow label=t('collab_proposal.duracion', 'Duración') value={`${duration_days} días`} />
         <InfoRow label="Entrega de muestra" value={include_sample ? 'Sí' : 'No'} />
       </div>
 

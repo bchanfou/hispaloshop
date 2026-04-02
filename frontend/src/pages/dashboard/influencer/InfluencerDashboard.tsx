@@ -19,6 +19,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { asNumber, firstToken } from '../../../utils/safe';
+import { useTranslation } from 'react-i18next';
 
 function InfluencerDashboard() {
   const navigate = useNavigate();
@@ -156,13 +157,13 @@ function InfluencerDashboard() {
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
           <h3 className="font-semibold text-stone-950">Ganancias semanales</h3>
-          <p className="text-xs text-stone-500">Evolución de tus comisiones</p>
+          <p className="text-xs text-stone-500">{t('influencer_dashboard.evolucionDeTusComisiones', 'Evolución de tus comisiones')}</p>
         </div>
         <AreaChart data={dashboardData.chart.data} labels={dashboardData.chart.labels} color="#1c1917" />
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-stone-950 mb-3">Acciones rápidas</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">{t('sellerAI.quickActions', 'Acciones rápidas')}</h3>
         <QuickActions actions={quickActions} />
       </div>
 

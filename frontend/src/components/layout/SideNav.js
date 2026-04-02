@@ -298,11 +298,11 @@ function MoreDropdown({ open, onClose, onLogout }) {
   if (!open) return null;
 
   const items = [
-    { icon: Settings, label: 'Configuración', action: () => navigate('/settings') },
+    { icon: Settings, label: t('community.configuracion', 'Configuración'), action: () => navigate('/settings') },
     { icon: Bookmark, label: 'Guardados', action: () => navigate('/saved') },
     { icon: Activity, label: 'Tu actividad', action: () => navigate('/activity') },
     { divider: true },
-    { icon: LogOut, label: 'Cerrar sesión', action: onLogout, danger: true },
+    { icon: LogOut, label: t('common.logout', 'Cerrar sesión'), action: onLogout, danger: true },
   ];
 
   return (

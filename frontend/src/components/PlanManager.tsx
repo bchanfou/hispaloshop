@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Zap, Crown, Star, ArrowRight, Loader2, Calendar, Shield, AlertTriangle, LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 type PlanName = 'FREE' | 'PRO' | 'ELITE';
 
@@ -102,7 +103,7 @@ export default function PlanManager() {
         <div className="flex items-center gap-2 text-xs text-stone-500">
           <Shield className="w-3.5 h-3.5" />
           {plan.plan === 'FREE'
-            ? 'Plan básico. Upgrade para reducir comisión y acceder a herramientas.'
+            ? t('plan_manager.planBasicoUpgradeParaReducirComisi', 'Plan básico. Upgrade para reducir comisión y acceder a herramientas.')
             : `Proximo cobro: ${plan.current_period_end ? new Date(plan.current_period_end).toLocaleDateString('es-ES') : 'N/A'}`
           }
         </div>

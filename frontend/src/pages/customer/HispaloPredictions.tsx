@@ -123,9 +123,9 @@ export default function HispaloPredictions() {
     setReordering(productId);
     try {
       await addToCart(productId, 1);
-      toast.success('Producto añadido al carrito');
+      toast.success(t('hispalo_predictions.productoAnadidoAlCarrito', 'Producto añadido al carrito'));
     } catch (err) {
-      toast.error(err?.message || 'Error al añadir al carrito');
+      toast.error(err?.message || t('hispalo_predictions.errorAlAnadirAlCarrito', 'Error al añadir al carrito'));
     } finally {
       setReordering(null);
     }

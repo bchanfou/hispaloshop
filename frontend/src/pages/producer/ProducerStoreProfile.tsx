@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { resolveApiAssetUrl } from '../../utils/api';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 import { 
   Store, Image, Upload, X, Loader2, Save, Eye, MapPin, 
   Phone, Mail, Globe, Clock, Instagram, Facebook, Trash2
@@ -20,7 +21,7 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Solo se permiten imágenes');
+      toast.error(t('social.imagesOnly', 'Solo se permiten imágenes'));
       return;
     }
 
@@ -117,7 +118,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
 
       const imageUrl = resolveApiAssetUrl(response.url);
       onChange([...images, imageUrl]);
-      toast.success('Imagen añadida a la galería');
+      toast.success(t('producer_store_profile.imagenAnadidaALaGaleria', 'Imagen añadida a la galería'));
     } catch (error) {
       toast.error('Error al subir imagen');
     } finally {
@@ -156,7 +157,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            aria-label="Añadir foto a la galería"
+            aria-label={t('producer_store_profile.anadirFotoALaGaleria', 'Añadir foto a la galería')}
             className="aspect-square rounded-2xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-950 hover:border-stone-950 transition-colors"
           >
             {uploading ? (
@@ -164,7 +165,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
             ) : (
               <>
                 <Upload className="w-6 h-6" />
-                <span className="text-xs">Añadir</span>
+                <span className="text-xs">{t('common.add', 'Añadir')}</span>
               </>
             )}
           </button>
@@ -177,7 +178,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
         onChange={handleUpload}
         className="hidden"
       />
-      <p className="text-xs text-stone-500">Fotos del obrador, equipo, proceso de elaboración</p>
+      <p className="text-xs text-stone-500">{t('producer_store_profile.fotosDelObradorEquipoProcesoDeEl', 'Fotos del obrador, equipo, proceso de elaboración')}</p>
     </div>
   );
 }
@@ -243,7 +244,7 @@ export default function ProducerStoreProfile() {
       setIsDirty(false);
     } catch (error) {
       if (error?.response?.status === 409) {
-        toast.error('Esta URL de tienda ya está en uso. Elige otra.');
+        toast.error(t('producer_store_profile.estaUrlDeTiendaYaEstaEnUsoElige', 'Esta URL de tienda ya está en uso. Elige otra.'));
       } else {
         toast.error('Error al guardar');
       }
@@ -299,8 +300,8 @@ export default function ProducerStoreProfile() {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Store className="w-12 h-12 text-stone-300 mb-4" />
-        <p className="text-stone-600 font-medium mb-2">Error al cargar el perfil de tienda</p>
-        <p className="text-stone-500 text-sm mb-4">Comprueba tu conexión e inténtalo de nuevo.</p>
+        <p className="text-stone-600 font-medium mb-2">{t('producer_store_profile.errorAlCargarElPerfilDeTienda', 'Error al cargar el perfil de tienda')}</p>
+        <p className="text-stone-500 text-sm mb-4">{t('producer_store_profile.compruebaTuConexionEIntentaloDeNue', 'Comprueba tu conexión e inténtalo de nuevo.')}</p>
         <button
           type="button"
           onClick={fetchStoreProfile}
@@ -321,7 +322,7 @@ export default function ProducerStoreProfile() {
             <Store className="w-6 h-6" />
             Perfil de Tienda
           </h1>
-          <p className="text-stone-600 mt-1">Personaliza la página pública de tu tienda</p>
+          <p className="text-stone-600 mt-1">{t('producer_store_profile.personalizaLaPaginaPublicaDeTuTien', 'Personaliza la página pública de tu tienda')}</p>
         </div>
         <div className="flex items-center gap-3">
           {profile.slug && (
@@ -346,7 +347,7 @@ export default function ProducerStoreProfile() {
       {profile.slug && (
         <div className="bg-stone-50 rounded-2xl p-3 border border-stone-200 flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm text-stone-500">URL de tu tienda:</p>
+            <p className="text-sm text-stone-500">{t('producer_store_profile.urlDeTuTienda', 'URL de tu tienda:')}</p>
             <p className="text-stone-950 font-medium">{window.location.origin}/store/{profile.slug}</p>
           </div>
           <Link to={`/store/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-full transition-colors">
@@ -384,10 +385,10 @@ export default function ProducerStoreProfile() {
 
           {/* Basic Info */}
           <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
-            <h2 className="font-semibold text-stone-950">Información básica</h2>
+            <h2 className="font-semibold text-stone-950">{t('producer_store_profile.informacionBasica', 'Información básica')}</h2>
             
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Nombre de la tienda</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('producer_store_profile.nombreDeLaTienda', 'Nombre de la tienda')}</label>
               <input
                 value={profile.name}
                 onChange={(e) => updateField('name', e.target.value)}
@@ -401,7 +402,7 @@ export default function ProducerStoreProfile() {
               <input
                 value={profile.tagline || ''}
                 onChange={(e) => updateField('tagline', e.target.value)}
-                placeholder="Aceites ecológicos desde 1985"
+                placeholder={t('producer_store_profile.aceitesEcologicosDesde1985', 'Aceites ecológicos desde 1985')}
                 maxLength={150}
                 className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
@@ -414,11 +415,11 @@ export default function ProducerStoreProfile() {
             <h2 className="font-semibold text-stone-950">Nuestra Historia</h2>
             
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Historia de la marca</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('producer_store_profile.historiaDeLaMarca', 'Historia de la marca')}</label>
               <textarea
                 value={profile.story || ''}
                 onChange={(e) => updateField('story', e.target.value)}
-                placeholder="Cuenta la historia de tu marca, cómo empezaste, tu filosofía..."
+                placeholder={t('producer_store_profile.cuentaLaHistoriaDeTuMarcaComoEmp', 'Cuenta la historia de tu marca, cómo empezaste, tu filosofía...')}
                 rows={5}
                 maxLength={500}
                 className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
@@ -432,7 +433,7 @@ export default function ProducerStoreProfile() {
                 <input
                   value={profile.founder_name || ''}
                   onChange={(e) => updateField('founder_name', e.target.value)}
-                  placeholder="Carlos Martínez"
+                  placeholder={t('producer_store_profile.carlosMartinez', 'Carlos Martínez')}
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
@@ -441,7 +442,7 @@ export default function ProducerStoreProfile() {
                 <input
                   value={profile.founder_quote || ''}
                   onChange={(e) => updateField('founder_quote', e.target.value)}
-                  placeholder="La calidad no es un accidente..."
+                  placeholder={t('producer_store_profile.laCalidadNoEsUnAccidente', 'La calidad no es un accidente...')}
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
@@ -455,7 +456,7 @@ export default function ProducerStoreProfile() {
             {/* Certifications visible */}
             <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4 space-y-1">
               <h3 className="text-sm font-semibold text-stone-950">Certificaciones visibles</h3>
-              <p className="text-sm text-stone-500">Tus certificados verificados aparecen automáticamente en tu tienda.</p>
+              <p className="text-sm text-stone-500">{t('producer_store_profile.tusCertificadosVerificadosAparecenAu', 'Tus certificados verificados aparecen automáticamente en tu tienda.')}</p>
               <Link to="/producer/certificates" className="inline-flex items-center gap-1 text-sm font-medium text-stone-950 hover:underline mt-1">
                 Gestionar certificados →
               </Link>
@@ -473,32 +474,32 @@ export default function ProducerStoreProfile() {
             </h2>
             
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Ubicación (ciudad, región)</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('producer_store_profile.ubicacionCiudadRegion', 'Ubicación (ciudad, región)')}</label>
               <input
                 value={profile.location || ''}
                 onChange={(e) => updateField('location', e.target.value)}
-                placeholder="Jaén, Andalucía, España"
+                placeholder={t('producer_store_profile.jaenAndaluciaEspana', 'Jaén, Andalucía, España')}
                 className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Dirección completa</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('producer_store_profile.direccionCompleta', 'Dirección completa')}</label>
               <input
                 value={profile.full_address || ''}
                 onChange={(e) => updateField('full_address', e.target.value)}
-                placeholder="Ctra. de los Olivares, km 12, 23001 Jaén"
+                placeholder={t('producer_store_profile.ctraDeLosOlivaresKm1223001Jaen', 'Ctra. de los Olivares, km 12, 23001 Jaén')}
                 className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Zona de envío</label>
+                <label className="block text-sm font-medium text-stone-600 mb-1">{t('store.shippingArea', 'Zona de envío')}</label>
                 <input
                   value={profile.coverage_area || ''}
                   onChange={(e) => updateField('coverage_area', e.target.value)}
-                  placeholder="Toda España peninsular"
+                  placeholder={t('producer_store_profile.todaEspanaPeninsular', 'Toda España peninsular')}
                   className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
@@ -533,7 +534,7 @@ export default function ProducerStoreProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Teléfono</label>
+                <label className="block text-sm font-medium text-stone-600 mb-1">{t('common.phone', 'Teléfono')}</label>
                 <input
                   value={profile.contact_phone || ''}
                   onChange={(e) => updateField('contact_phone', e.target.value)}
@@ -565,11 +566,11 @@ export default function ProducerStoreProfile() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Horario de atención</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('producer_store_profile.horarioDeAtencion', 'Horario de atención')}</label>
               <textarea
                 value={profile.business_hours || ''}
                 onChange={(e) => updateField('business_hours', e.target.value)}
-                placeholder="Lun-Vie: 9:00-18:00&#10;Sáb: 9:00-14:00"
+                placeholder={t('producer_store_profile.lun-vie900-180010sab900-1400', 'Lun-Vie: 9:00-18:00&#10;Sáb: 9:00-14:00')}
                 rows={2}
                 className="w-full px-3 py-2 border border-stone-200 rounded-2xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
               />

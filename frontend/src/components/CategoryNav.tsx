@@ -3,6 +3,7 @@ import * as HoverCard from '@radix-ui/react-hover-card';
 import { Link } from 'react-router-dom';
 import { Coffee, Droplets, Leaf, Milk, Package, Pill, Sparkles, Snowflake, Soup, Wine, Apple, Croissant, Cookie, LucideIcon } from 'lucide-react';
 import { CATEGORY_CONFIG, getProductsForCategory } from '../config/categories';
+import { useTranslation } from 'react-i18next';
 
 interface CategoryConfig {
   slug: string;
@@ -48,18 +49,18 @@ const isNewProduct = (product: Product): boolean => {
 };
 
 const HOME_MINIMAL_CATEGORY_CONFIG: CategoryConfig[] = [
-  { slug: 'aceites-vinagres', shortLabel: 'Aceites', label: 'Aceites', icon: Droplets, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Aceites y aliños con origen claro.', matchTerms: ['aceite', 'aove', 'oliva'] },
+  { slug: 'aceites-vinagres', shortLabel: 'Aceites', label: 'Aceites', icon: Droplets, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: t('category_nav.aceitesYAlinosConOrigenClaro', 'Aceites y aliños con origen claro.'), matchTerms: ['aceite', 'aove', 'oliva'] },
   { slug: 'lacteos', shortLabel: 'Lacteos', label: 'Lacteos', icon: Milk, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Mantequillas, yogures y elaboraciones lacteas.', matchTerms: ['leche', 'yogur', 'yogurt', 'mantequilla', 'lacteo'] },
   { slug: 'conservas-mermeladas', shortLabel: 'Conservas', label: 'Conservas', icon: Package, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Tarros, mermeladas y despensa artesana.', matchTerms: ['conserva', 'mermelada', 'tarro'] },
   { slug: 'snacks-frutos-secos', shortLabel: 'Snacks', label: 'Snacks', icon: Cookie, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Picoteo y frutos secos bien hechos.', matchTerms: ['snack', 'fruto seco', 'barrita'] },
   { slug: 'quesos', shortLabel: 'Quesos', label: 'Quesos', icon: Milk, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Curados, frescos y afinados con calma.', matchTerms: ['queso', 'manchego', 'curado', 'cabra'] },
   { slug: 'cafe-te', shortLabel: 'Cafe', label: 'Cafe', icon: Coffee, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Cafe, te e infusiones.', matchTerms: ['cafe', 'te', 'infusion'] },
-  { slug: 'panadería-dulces', shortLabel: 'Panadería', label: 'Panadería', icon: Croissant, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Panes, galletas y obrador.', matchTerms: ['pan', 'galleta', 'bizcocho', 'obrador'] },
+  { slug: 'panadería-dulces', shortLabel: t('onboarding.panaderia', 'Panadería'), label: 'Panadería', icon: Croissant, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Panes, galletas y obrador.', matchTerms: ['pan', 'galleta', 'bizcocho', 'obrador'] },
   { slug: 'frutas-verduras', shortLabel: 'Frutas', label: 'Frutas', icon: Apple, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Huerta y temporada.', matchTerms: ['fruta', 'verdura', 'huerta'] },
   { slug: 'vinos-bebidas', shortLabel: 'Bebidas', label: 'Bebidas', icon: Wine, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Vinos, kombuchas y bebidas de autor.', matchTerms: ['vino', 'bebida', 'kombucha', 'zumo'] },
   { slug: 'salsas', shortLabel: 'Salsas', label: 'Salsas', icon: Soup, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Salsas, pestos y condimentos.', matchTerms: ['salsa', 'alioli', 'pesto', 'condimento'] },
   { slug: 'congelados', shortLabel: 'Congelados', label: 'Congelados', icon: Snowflake, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Producto listo para frio y envio.', matchTerms: ['congelado'] },
-  { slug: 'orgánico-eco', shortLabel: 'Orgánico', label: 'Orgánico', icon: Leaf, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Seleccion orgánica y eco.', matchTerms: ['eco', 'orgánico', 'ecologico'] },
+  { slug: 'orgánico-eco', shortLabel: t('home.organic', 'Orgánico'), label: 'Orgánico', icon: Leaf, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Seleccion orgánica y eco.', matchTerms: ['eco', 'orgánico', 'ecologico'] },
   { slug: 'suplementos', shortLabel: 'Suplementos', label: 'Suplementos', icon: Pill, bg: 'bg-stone-100', color: 'text-stone-700', border: 'border-stone-200', description: 'Bienestar, proteinas y apoyo nutricional.', matchTerms: ['proteina', 'suplemento', 'colageno', 'vitamina'] },
 ];
 
@@ -105,14 +106,14 @@ export default function CategoryNav({
       <div className="mx-auto max-w-6xl px-4">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">Categorías</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">{t('home.categories', 'Categorías')}</p>
             <h2 className={`mt-2 font-semibold tracking-tight text-stone-950 ${isCatalog ? 'text-2xl' : 'text-3xl'}`}>{title}</h2>
           </div>
           {variant !== 'home-minimal' ? (
             <p className="hidden max-w-md text-sm leading-6 text-stone-500 md:block">
               {isCatalog
-                ? 'Explora el catálogo desde categorías claras y sin ruido visual.'
-                : 'Producto local e importado ya disponible en España, sin relatos inflados ni categorías de relleno.'}
+                ? t('category_nav.exploraElCatalogoDesdeCategoriasCla', 'Explora el catálogo desde categorías claras y sin ruido visual.')
+                : t('category_nav.productoLocalEImportadoYaDisponible', 'Producto local e importado ya disponible en España, sin relatos inflados ni categorías de relleno.')}
             </p>
           ) : null}
         </div>

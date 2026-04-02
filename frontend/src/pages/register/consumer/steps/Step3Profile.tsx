@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const DIETARY_OPTIONS = [
   { value: 'vegetarian', label: 'Vegetariano' },
@@ -15,7 +16,7 @@ const CATEGORY_OPTIONS = [
   'Aceites',
   'Miel',
   'Conservas',
-  'Panadería',
+  t('onboarding.panaderia', 'Panadería'),
   'Quesos',
   'Embutidos',
   'Salsas',
@@ -27,17 +28,17 @@ const CATEGORY_OPTIONS = [
 ];
 
 const COUNTRY_OPTIONS = [
-  { value: 'ES', label: 'España' },
+  { value: 'ES', label: t('admin.countries.ES', 'España') },
   { value: 'PT', label: 'Portugal' },
   { value: 'FR', label: 'Francia' },
   { value: 'DE', label: 'Alemania' },
   { value: 'IT', label: 'Italia' },
   { value: 'GB', label: 'Reino Unido' },
-  { value: 'NL', label: 'Países Bajos' },
-  { value: 'BE', label: 'Bélgica' },
+  { value: 'NL', label: t('countries.Netherlands', 'Países Bajos') },
+  { value: 'BE', label: t('countries.Belgium', 'Bélgica') },
   { value: 'CH', label: 'Suiza' },
   { value: 'AT', label: 'Austria' },
-  { value: 'MX', label: 'México' },
+  { value: 'MX', label: t('admin.countries.MX', 'México') },
   { value: 'AR', label: 'Argentina' },
   { value: 'CO', label: 'Colombia' },
 ];
@@ -55,7 +56,7 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
 
   const handleSubmit = () => {
     if (!country) {
-      setCountryError('Selecciona tu país');
+      setCountryError(t('register.selectCountry', 'Selecciona tu país'));
       return;
     }
     setCountryError('');
@@ -128,7 +129,7 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
           onChange={(e) => { setCountry(e.target.value); setCountryError(''); }}
           className={`mt-2 h-12 w-full rounded-xl border bg-white px-3 text-base md:h-11 md:text-sm ${countryError ? 'border-stone-950' : 'border-stone-200'}`}
         >
-          <option value="">Selecciona tu país</option>
+          <option value="">{t('register.selectCountry', 'Selecciona tu país')}</option>
           {COUNTRY_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
@@ -148,7 +149,7 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
           placeholder="41001"
           className="mt-2 h-12 w-full rounded-xl border border-stone-200 bg-white px-3 text-base md:h-11 md:text-sm"
         />
-        <p className="mt-1 text-xs text-stone-500">Nos ayuda a mostrar productores y envíos más relevantes.</p>
+        <p className="mt-1 text-xs text-stone-500">{t('step3_profile.nosAyudaAMostrarProductoresYEnvios', 'Nos ayuda a mostrar productores y envíos más relevantes.')}</p>
       </div>
 
       <button

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Loader2 } from 'lucide-react';
 import apiClient from '../../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_CONFIG = {
   draft:            { bg: 'bg-stone-50',  text: 'text-stone-500', label: 'Borrador' },
@@ -15,7 +16,7 @@ const STATUS_CONFIG = {
   contract_signed:  { bg: 'bg-stone-100', text: 'text-stone-950', label: 'Contrato firmado' },
   payment_pending:  { bg: 'bg-stone-50',  text: 'text-stone-500', label: 'Pago pendiente' },
   payment_confirmed:{ bg: 'bg-stone-100', text: 'text-stone-950', label: 'Pago confirmado' },
-  in_transit:       { bg: 'bg-blue-50',   text: 'text-blue-700',  label: 'En tránsito' },
+  in_transit:       { bg: 'bg-blue-50',   text: 'text-blue-700',  label: t('influencer_dashboard.enTransito', 'En tránsito') },
   delivered:        { bg: 'bg-stone-100', text: 'text-stone-950', label: 'Entregado' },
   completed:        { bg: 'bg-stone-100', text: 'text-stone-950', label: 'Completado' },
 };

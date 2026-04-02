@@ -5,6 +5,7 @@ import { X, Type, Tag, Check, Search, ShoppingBag, Pencil, Undo2, Redo2, MapPin,
 import { useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const BG_OPTIONS = [
   { id: 'camera', label: '📷', type: 'action' },
@@ -28,7 +29,7 @@ const EMOJI_CATEGORIES = {
 const EMOJI_CATEGORY_KEYS = Object.keys(EMOJI_CATEGORIES);
 
 const CERTIFICACIONES = [
-  { emoji: '🌿', label: 'Ecológico EU' },
+  { emoji: '🌿', label: t('create_story.ecologicoEu', 'Ecológico EU') },
   { emoji: '🏆', label: 'DOP' },
   { emoji: '🥇', label: 'IGP' },
   { emoji: '☪️', label: 'Halal' },
@@ -374,7 +375,7 @@ export default function CreateStoryPage() {
     setPublishing(true);
     try {
       if (!imageFile && !videoFile && !textOverlays.length && !stickerOverlays.length && !drawPaths.length) {
-        toast.error('Añade contenido a tu historia');
+        toast.error(t('create_story.anadeContenidoATuHistoria', 'Añade contenido a tu historia'));
         setPublishing(false);
         return;
       }
@@ -410,7 +411,7 @@ export default function CreateStoryPage() {
         const canvasEl = canvasRef.current;
         if (!canvasEl) { setPublishing(false); return; }
         const rect = canvasEl.getBoundingClientRect();
-        if (!rect.width || !rect.height) { setPublishing(false); toast.error('Error al exportar la historia'); return; }
+        if (!rect.width || !rect.height) { setPublishing(false); toast.error(t('create_story.errorAlExportarLaHistoria', 'Error al exportar la historia')); return; }
         const scale = 2; // 2x resolution for quality
         canvas.width = rect.width * scale;
         canvas.height = rect.height * scale;
@@ -578,7 +579,7 @@ export default function CreateStoryPage() {
 
         // Export canvas to blob
         const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92));
-        if (!blob) { setPublishing(false); toast.error('Error al exportar la historia'); return; }
+        if (!blob) { setPublishing(false); toast.error(t('create_story.errorAlExportarLaHistoria', 'Error al exportar la historia')); return; }
         const compositeFile = new File([blob], 'story.jpg', { type: 'image/jpeg' });
         fd.append('file', compositeFile);
       }
@@ -608,7 +609,7 @@ export default function CreateStoryPage() {
         navigate('/');
       }, 800);
     } catch (err) {
-      toast.error('Error al publicar la historia');
+      toast.error(t('create_story.errorAlPublicarLaHistoria', 'Error al publicar la historia'));
       setPublishing(false);
     }
   }, [imageFile, videoFile, background, textOverlays, stickerOverlays, drawPaths, imagePreviewUrl, selectedBg, navigate, queryClient]);
@@ -621,7 +622,7 @@ export default function CreateStoryPage() {
           <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
             <Check size={28} className="text-white" strokeWidth={2.5} />
           </div>
-          <span className="text-base font-semibold text-white">¡Historia publicada!</span>
+          <span className="text-base font-semibold text-white">{t('create_story.historiaPublicada', '¡Historia publicada!')}</span>
         </div>
       )}
       <style>{`
@@ -993,7 +994,7 @@ export default function CreateStoryPage() {
         }`}>
           <Trash2 size={20} className={overTrash ? 'text-white' : 'text-white/70'} />
           <span className={`text-sm font-medium ${overTrash ? 'text-white' : 'text-white/70'}`}>
-            {overTrash ? 'Soltar para eliminar' : 'Arrastra aquí para eliminar'}
+            {overTrash ? 'Soltar para eliminar' : t('create_story.arrastraAquiParaEliminar', 'Arrastra aquí para eliminar')}
           </span>
         </div>
       )}
@@ -1045,9 +1046,9 @@ export default function CreateStoryPage() {
               clearTimeout(textDraftDebounceRef.current);
               setTextDraft(e.target.value);
             }}
-            placeholder="Escribe aquí..."
+            placeholder={t('create_story.escribeAqui', 'Escribe aquí...')}
             rows={2}
-            aria-label="Texto para la historia"
+            aria-label={t('create_story.textoParaLaHistoria', 'Texto para la historia')}
             className="bg-transparent text-white border-none text-lg outline-none resize-none font-sans w-full placeholder:text-white/30"
             autoFocus
           />
@@ -1148,7 +1149,7 @@ export default function CreateStoryPage() {
               { key: 'encuesta', label: 'Encuesta' },
               { key: 'mencion', label: '@Mención' },
               { key: 'enlace', label: 'Enlace' },
-              { key: 'ubicacion', label: 'Ubicación' },
+              { key: 'ubicacion', label: t('store.location', 'Ubicación') },
               { key: 'pregunta', label: 'Pregunta' },
             ].map((tab) => (
               <button
@@ -1235,20 +1236,20 @@ export default function CreateStoryPage() {
               <input
                 value={pollQuestion}
                 onChange={(e) => setPollQuestion(e.target.value.slice(0, 80))}
-                placeholder="¿Qué prefieres?"
+                placeholder={t('create_story.quePrefieres', '¿Qué prefieres?')}
                 className="bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
               />
               <div className="flex gap-2">
                 <input
                   value={pollOption1}
                   onChange={(e) => setPollOption1(e.target.value.slice(0, 30))}
-                  placeholder="Opción 1"
+                  placeholder={t('create_story.opcion1', 'Opción 1')}
                   className="flex-1 bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
                 />
                 <input
                   value={pollOption2}
                   onChange={(e) => setPollOption2(e.target.value.slice(0, 30))}
-                  placeholder="Opción 2"
+                  placeholder={t('create_story.opcion2', 'Opción 2')}
                   className="flex-1 bg-white/10 text-white border border-white/20 rounded-2xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
                 />
               </div>
@@ -1334,7 +1335,7 @@ export default function CreateStoryPage() {
                 <input
                   value={locationDraft}
                   onChange={(e) => setLocationDraft(e.target.value.slice(0, 60))}
-                  placeholder="Sevilla, España"
+                  placeholder={t('create_story.sevillaEspana', 'Sevilla, España')}
                   className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
                 />
               </div>
@@ -1400,14 +1401,14 @@ export default function CreateStoryPage() {
               onChange={(e) => setProductQuery(e.target.value)}
               placeholder="Buscar producto..."
               autoFocus
-              aria-label="Buscar producto para etiquetar en la historia"
+              aria-label={t('create_story.buscarProductoParaEtiquetarEnLaHis', 'Buscar producto para etiquetar en la historia')}
               className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
             />
             {productQuery && (
               <button
                 onClick={() => { setProductQuery(''); setProductResults([]); }}
                 className="bg-transparent border-none cursor-pointer p-0"
-                aria-label="Limpiar búsqueda"
+                aria-label={t('search.limpiarBusqueda', 'Limpiar búsqueda')}
               >
                 <X size={14} className="text-white/40" />
               </button>

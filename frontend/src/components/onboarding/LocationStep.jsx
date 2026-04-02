@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { onboardingApi } from '../../lib/onboardingApi';
 import { useLocale } from '../../context/LocaleContext';
+import { useTranslation } from 'react-i18next';
 
 export default function LocationStep({ onNext, onBack, onError }) {
   const { countries: ctxCountries } = useLocale();
   const COUNTRIES = useMemo(() => {
     const list = Object.entries(ctxCountries || {}).map(([code, data]) => data.name || code);
-    return list.length > 0 ? [...list, 'Otro'] : ['España', 'Otro'];
+    return list.length > 0 ? [...list, 'Otro'] : [t('admin.countries.ES', 'España'), 'Otro'];
   }, [ctxCountries]);
 
   const [country, setCountry] = useState('');
@@ -16,11 +17,11 @@ export default function LocationStep({ onNext, onBack, onError }) {
 
   const handleContinue = async () => {
     if (!country) {
-      onError?.('Selecciona un país.');
+      onError?.(t('location.seleccionaUnPais', 'Selecciona un país.'));
       return;
     }
     if (!postalCode.trim()) {
-      onError?.('Introduce tu código postal.');
+      onError?.(t('location.introduceTuCodigoPostal', 'Introduce tu código postal.'));
       return;
     }
 
@@ -33,7 +34,7 @@ export default function LocationStep({ onNext, onBack, onError }) {
       });
       onNext();
     } catch (error) {
-      onError?.(error?.response?.data?.detail || 'No hemos podido guardar tu ubicación todavía.');
+      onError?.(error?.response?.data?.detail || t('location.noHemosPodidoGuardarTuUbicacionTod', 'No hemos podido guardar tu ubicación todavía.'));
     } finally {
       setLoading(false);
     }
@@ -54,7 +55,7 @@ export default function LocationStep({ onNext, onBack, onError }) {
         <div>
           <label htmlFor="location-country" className="text-sm font-medium text-stone-800">País *</label>
           <select id="location-country" value={country} onChange={(e) => setCountry(e.target.value)} className={inputClass}>
-            <option value="">Selecciona tu país</option>
+            <option value="">{t('register.selectCountry', 'Selecciona tu país')}</option>
             {COUNTRIES.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </div>

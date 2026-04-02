@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronRight, Sparkles, Store, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 export default function DesktopSidebar() {
   const { user } = useAuth();
@@ -119,7 +120,7 @@ export default function DesktopSidebar() {
         {[
           { label: 'Acerca de', to: '/que-es' },
           { label: 'Privacidad', to: '/privacy' },
-          { label: 'Términos', to: '/terms' },
+          { label: t('desktop_sidebar.terminos', 'Términos'), to: '/terms' },
           { label: 'Contacto', to: '/contacto' },
         ].map(link => (
           <Link key={link.to} to={link.to} className="text-[10px] text-stone-500 no-underline leading-8">

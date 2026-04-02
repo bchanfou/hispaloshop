@@ -62,7 +62,7 @@ function MonthlyChart({ data }) {
     return (
       <div className="flex flex-col items-center justify-center h-52 text-stone-500">
         <BarChart3 className="w-10 h-10 mb-2 opacity-30" />
-        <p className="text-sm">Sin datos de ventas aun</p>
+        <p className="text-sm">{t('producer_payments.sinDatosDeVentasAun', 'Sin datos de ventas aun')}</p>
       </div>
     );
   }
@@ -172,7 +172,7 @@ function PayoutMethodSection({ stripeConnected, onRefresh }) {
         payout_method: payoutMethod,
         bank_details: payoutMethod === 'bank_transfer' ? bankDetails : undefined,
       });
-      toast.success('Método de pago actualizado');
+      toast.success(t('producer_payments.metodoDePagoActualizado', 'Método de pago actualizado'));
       onRefresh?.();
     } catch (err) {
       toast.error(err.message || 'Error al guardar');
@@ -186,7 +186,7 @@ function PayoutMethodSection({ stripeConnected, onRefresh }) {
   const handleRequestPayout = async () => {
     if (requesting) return;
     if (payoutMethod === 'stripe') {
-      toast.info('Los pagos via Stripe se procesan automáticamente cada 15 días');
+      toast.info(t('producer_payments.losPagosViaStripeSeProcesanAutomat', 'Los pagos via Stripe se procesan automáticamente cada 15 días'));
       return;
     }
     setRequesting(true);
@@ -209,7 +209,7 @@ function PayoutMethodSection({ stripeConnected, onRefresh }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-      <h3 className="text-sm font-semibold text-stone-950">Método de cobro</h3>
+      <h3 className="text-sm font-semibold text-stone-950">{t('producer_payments.metodoDeCobro', 'Método de cobro')}</h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
@@ -223,7 +223,7 @@ function PayoutMethodSection({ stripeConnected, onRefresh }) {
             <CreditCard className="w-4 h-4" />
             <span className="font-semibold text-sm">Stripe Connect</span>
           </div>
-          <p className="text-xs text-stone-500">Cobro automático cada 15 días directo a tu banco.</p>
+          <p className="text-xs text-stone-500">{t('producer_payments.cobroAutomaticoCada15DiasDirectoA', 'Cobro automático cada 15 días directo a tu banco.')}</p>
           {stripeConnected && <span className="inline-block mt-2 text-[10px] bg-stone-950 text-white px-2 py-0.5 rounded-full">Conectado</span>}
         </button>
 
@@ -238,7 +238,7 @@ function PayoutMethodSection({ stripeConnected, onRefresh }) {
             <Wallet className="w-4 h-4" />
             <span className="font-semibold text-sm">Transferencia bancaria</span>
           </div>
-          <p className="text-xs text-stone-500">Solicitas el pago y el equipo lo transfiere a tu cuenta.</p>
+          <p className="text-xs text-stone-500">{t('producer_payments.solicitasElPagoYElEquipoLoTransfi', 'Solicitas el pago y el equipo lo transfiere a tu cuenta.')}</p>
         </button>
       </div>
 
@@ -300,7 +300,7 @@ function PayoutMethodSection({ stripeConnected, onRefresh }) {
       <div className="flex gap-3 pt-1">
         <button type="button" onClick={handleSave} disabled={saving}
           className="px-5 py-2 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 transition-colors disabled:opacity-50">
-          {saving ? 'Guardando...' : 'Guardar método'}
+          {saving ? 'Guardando...' : t('producer_payments.guardarMetodo', 'Guardar método')}
         </button>
         <button type="button" onClick={handleRequestPayout} disabled={requesting}
           className="px-5 py-2 border border-stone-200 rounded-full text-sm font-semibold text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50">
@@ -327,7 +327,7 @@ export default function ProducerPayments() {
       const data = await apiClient.get('/producer/payments');
       setData(data);
     } catch {
-      toast.error('Error al cargar datos de pagos');
+      toast.error(t('producer_payments.errorAlCargarDatosDePagos', 'Error al cargar datos de pagos'));
     } finally {
       setLoading(false);
     }
@@ -340,10 +340,10 @@ export default function ProducerPayments() {
       if (response?.url) {
         window.open(response.url, '_blank');
       } else {
-        toast.error('No se pudo obtener el enlace de Stripe');
+        toast.error(t('producer_payments.noSePudoObtenerElEnlaceDeStripe', 'No se pudo obtener el enlace de Stripe'));
       }
     } catch (error) {
-      toast.error('Error al abrir el dashboard de Stripe');
+      toast.error(t('producer_payments.errorAlAbrirElDashboardDeStripe', 'Error al abrir el dashboard de Stripe'));
     } finally {
       setOpeningDashboard(false);
     }
@@ -379,7 +379,7 @@ export default function ProducerPayments() {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <AlertCircle className="w-10 h-10 text-stone-400 mb-3" />
-        <p className="text-stone-500">Error al cargar datos de pagos</p>
+        <p className="text-stone-500">{t('producer_payments.errorAlCargarDatosDePagos', 'Error al cargar datos de pagos')}</p>
         <button type="button" onClick={fetchPayments} className="mt-4 px-4 py-2 border border-stone-200 rounded-2xl text-stone-700 hover:bg-stone-50 transition-colors">Reintentar</button>
       </div>
     );
@@ -427,7 +427,7 @@ export default function ProducerPayments() {
             <Receipt className="w-4 h-4 text-stone-600" />
           </div>
           <div>
-            <p className="text-sm font-medium text-stone-950">Retención fiscal aplicada</p>
+            <p className="text-sm font-medium text-stone-950">{t('producer_payments.retencionFiscalAplicada', 'Retención fiscal aplicada')}</p>
             <p className="text-xs text-stone-500">Se retiene el <strong className="text-stone-700">{data.tax_withholding_pct}%</strong> sobre tus ganancias netas según tu configuración fiscal.</p>
           </div>
         </div>
@@ -533,7 +533,7 @@ export default function ProducerPayments() {
             {(data.recent_orders || []).length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-stone-500">
                 <ShoppingBag className="w-10 h-10 mb-2 opacity-30" />
-                <p className="text-sm">Aún no tienes pedidos</p>
+                <p className="text-sm">{t('orders.noOrders', 'Aún no tienes pedidos')}</p>
               </div>
             ) : (
               <>
@@ -622,7 +622,7 @@ export default function ProducerPayments() {
       {/* Info footer */}
       <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 text-sm text-stone-500">
         <p>
-          <strong className="text-stone-600">Cómo funcionan los pagos:</strong> Cada venta se divide automáticamente.
+          <strong className="text-stone-600">{t('producer_payments.comoFuncionanLosPagos', 'Cómo funcionan los pagos:')}</strong> Cada venta se divide automáticamente.
           Tú recibes el <strong>{100 - commissionPct}%</strong> y la plataforma retiene el <strong>{commissionPct}%</strong> de comisión.
           {data.stripe_connected 
             ? ' Las transferencias se procesan automáticamente a tu cuenta bancaria vía Stripe.'

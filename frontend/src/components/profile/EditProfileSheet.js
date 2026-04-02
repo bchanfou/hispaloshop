@@ -8,6 +8,7 @@ import { useUserAvatar } from '../../features/user/hooks';
 import { resolveUserImage, userKeys } from '../../features/user/queries';
 import { getCloudinarySrcSet } from '../../utils/cloudinary';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 function useCheckUsername(username, currentUsername) {
   const [status, setStatus] = useState('idle'); // idle | checking | available | taken | invalid
@@ -112,11 +113,11 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
       const file = e.target.files?.[0];
       if (!file) return;
       if (!file.type.startsWith('image/')) {
-        toast.error('Solo se permiten imágenes');
+        toast.error(t('social.imagesOnly', 'Solo se permiten imágenes'));
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Máximo 5 MB');
+        toast.error(t('edit_profile.maximo5Mb', 'Máximo 5 MB'));
         return;
       }
       try {
@@ -124,7 +125,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
         queryClient.invalidateQueries({ queryKey: userKeys.profile(userId) });
         toast.success('Foto actualizada');
       } catch {
-        toast.error('Error al subir la foto');
+        toast.error(t('user_profile.errorAlSubirLaFoto', 'Error al subir la foto'));
       }
     },
     [uploadAvatar, queryClient, userId],
@@ -132,17 +133,17 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
 
   const handleSave = useCallback(() => {
     if (usernameStatus === 'taken') {
-      toast.error('Ese nombre de usuario ya está en uso');
+      toast.error(t('edit_profile.eseNombreDeUsuarioYaEstaEnUso', 'Ese nombre de usuario ya está en uso'));
       return;
     }
     if (usernameStatus === 'invalid') {
-      toast.error('El nombre de usuario debe tener al menos 3 caracteres');
+      toast.error(t('edit_profile.elNombreDeUsuarioDebeTenerAlMenos', 'El nombre de usuario debe tener al menos 3 caracteres'));
       return;
     }
     // Block dangerous protocols
     let website = draft.website.trim();
     if (website && /^(javascript|data|ftp|file):/i.test(website)) {
-      toast.error('URL no válida');
+      toast.error(t('edit_profile.urlNoValida', 'URL no válida'));
       return;
     }
     if (website && !/^https?:\/\//i.test(website)) {
@@ -173,7 +174,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
         toast.success('Perfil actualizado');
         onClose();
       },
-      onError: () => toast.error('No se pudo guardar. Inténtalo de nuevo.'),
+      onError: () => toast.error(t('edit_profile.noSePudoGuardarIntentaloDeNuevo', 'No se pudo guardar. Inténtalo de nuevo.')),
     });
   }, [draft, usernameStatus, mutate, queryClient, userId, onClose]);
 
@@ -350,7 +351,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                   <textarea
                     value={draft.bio}
                     onChange={set('bio')}
-                    placeholder="Cuéntanos algo sobre ti…"
+                    placeholder={t('edit_profile.cuentanosAlgoSobreTi…', 'Cuéntanos algo sobre ti…')}
                     rows={3}
                     maxLength={bioMax}
                     className="mt-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
@@ -376,7 +377,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                     type="text"
                     value={draft.location}
                     onChange={set('location')}
-                    placeholder="Ubicación"
+                    placeholder={t('store.location', 'Ubicación')}
                     maxLength={60}
                     className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
                   />
@@ -443,7 +444,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                     </div>
                     <div className="px-5 py-3.5">
                       <div className="flex items-center justify-between">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Descripción de tienda</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">{t('edit_profile.descripcionDeTienda', 'Descripción de tienda')}</p>
                         <p className={`text-[11px] tabular-nums ${draft.store_description.length > 450 ? 'font-bold text-stone-950' : 'text-stone-400'}`}>{draft.store_description.length}/500</p>
                       </div>
                       <textarea value={draft.store_description} onChange={set('store_description')} placeholder="Describe tu tienda…" rows={3} maxLength={500} className="mt-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-stone-950 outline-none placeholder:text-stone-400" />

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Plus, Trash2, X, Package, Edit2, Save, ChevronDown, ChevronRight } from 'lucide-react';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -73,7 +74,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
     const parsedStock = parseInt(newPack.stock, 10);
     const parsedUnits = parseInt(newPack.units, 10);
     if (!newPack.label.trim() || isNaN(parsedPrice) || parsedPrice <= 0 || isNaN(parsedStock) || parsedStock < 0) {
-      toast.error('Rellena todos los campos del pack con valores válidos');
+      toast.error(t('variant_pack_manager.rellenaTodosLosCamposDelPackConVa', 'Rellena todos los campos del pack con valores válidos'));
       return;
     }
 

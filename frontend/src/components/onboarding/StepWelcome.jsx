@@ -7,6 +7,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, ShoppingBag, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function StepWelcome({ userName }) {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function StepWelcome({ userName }) {
     {
       icon: User,
       title: 'Completar mi perfil',
-      description: 'Añade más información sobre ti',
+      description: t('step_welcome.anadeMasInformacionSobreTi', 'Añade más información sobre ti'),
       action: () => navigate('/dashboard/profile'),
       color: 'bg-stone-700',
     },

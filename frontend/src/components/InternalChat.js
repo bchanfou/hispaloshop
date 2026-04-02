@@ -25,6 +25,7 @@ import { getToken } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { useSwipeToReply } from '../hooks/useSwipeToReply';
+import { useTranslation } from 'react-i18next';
 
 const MAX_VISIBLE_MESSAGES = 150;
 
@@ -301,9 +302,9 @@ const MessageBubble = React.memo(function MessageBubble({ message, isOwn, onRepl
             <div className={`mb-1.5 overflow-hidden rounded-[18px] ${isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
               <img
                 src={message.image_url}
-                alt="Imagen compartida en el chat"
+                alt=t('internal_chat.imagenCompartidaEnElChat', 'Imagen compartida en el chat')
                 loading="lazy"
-                onError={(e) => { e.target.alt = 'No se pudo cargar la imagen'; e.target.className = 'hidden'; }}
+                onError={(e) => { e.target.alt = t('internal_chat.noSePudoCargarLaImagen', 'No se pudo cargar la imagen'); e.target.className = 'hidden'; }}
                 className="max-w-[260px] object-cover"
               />
             </div>
@@ -517,10 +518,10 @@ function ShareItemSheet({
 
   const hint =
     shareType === 'product'
-      ? 'Pega un enlace de producto o su ID.'
+      ? t('internal_chat.pegaUnEnlaceDeProductoOSuId', 'Pega un enlace de producto o su ID.')
       : shareType === 'recipe'
-        ? 'Pega un enlace de receta o su ID.'
-        : 'Pega un enlace de post o reel de Hispaloshop.';
+        ? t('internal_chat.pegaUnEnlaceDeRecetaOSuId', 'Pega un enlace de receta o su ID.')
+        : t('internal_chat.pegaUnEnlaceDePostOReelDeHispalo', 'Pega un enlace de post o reel de Hispaloshop.');
 
   return (
     <AnimatePresence>
@@ -588,7 +589,7 @@ function ShareItemSheet({
             ) : (
               <EmptyState
                 title="Carga una vista previa"
-                description="Pega un enlace válido de Hispaloshop para generar una tarjeta compacta."
+                description=t('internal_chat.pegaUnEnlaceValidoDeHispaloshopPar', 'Pega un enlace válido de Hispaloshop para generar una tarjeta compacta.')
               />
             )}
           </div>
@@ -692,7 +693,7 @@ function DirectorySheet({
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[14px] font-medium text-stone-950">{entry.name}</p>
                       <p className="truncate text-[12px] text-stone-400">
-                        {getRoleLabel(entry.role) || 'Miembro de la comunidad'}
+                        {getRoleLabel(entry.role) || t('internal_chat.miembroDeLaComunidad', 'Miembro de la comunidad')}
                       </p>
                     </div>
                     {startingConversation ? (
@@ -707,7 +708,7 @@ function DirectorySheet({
               <div className="py-8">
                 <EmptyState
                   title="No hay resultados"
-                  description="Prueba con otro nombre o cambia el filtro."
+                  description=t('internal_chat.pruebaConOtroNombreOCambiaElFiltr', 'Prueba con otro nombre o cambia el filtro.')
                 />
               </div>
             )}
@@ -1278,7 +1279,7 @@ export default function InternalChat({
       });
       scheduleReloadConversations();
     } catch (err) {
-      toast.error(err?.response?.data?.detail || 'No se pudo eliminar el mensaje');
+      toast.error(err?.response?.data?.detail || t('internal_chat.noSePudoEliminarElMensaje', 'No se pudo eliminar el mensaje'));
     }
   }, [selectedConversationId, setCacheWithEviction, scheduleReloadConversations]);
 
@@ -1292,9 +1293,9 @@ export default function InternalChat({
       setSelectedConversationId(null);
       setMessages([]);
       reloadConversations();
-      toast.success('Conversación eliminada');
+      toast.success(t('internal_chat.conversacionEliminada', 'Conversación eliminada'));
     } catch {
-      toast.error('Error al eliminar la conversación');
+      toast.error(t('internal_chat.errorAlEliminarLaConversacion', 'Error al eliminar la conversación'));
     }
   }, [selectedConversationId, deleteConversation, reloadConversations]);
 
@@ -1316,7 +1317,7 @@ export default function InternalChat({
   const handleLoadSharePreview = useCallback(async () => {
     const reference = resolveShareReference(shareInputValue, shareSheetType);
     if (!reference) {
-      toast.error('Pega un enlace o ID valido de Hispaloshop.');
+      toast.error(t('internal_chat.pegaUnEnlaceOIdValidoDeHispalosho', 'Pega un enlace o ID valido de Hispaloshop.'));
       return;
     }
 
@@ -1325,7 +1326,7 @@ export default function InternalChat({
       const data = await apiClient.get(reference.endpoint);
       const preview = buildSharedItemPreview(reference.kind, reference.id, data);
       if (!preview) {
-        throw new Error('No pudimos generar la vista previa.');
+        throw new Error(t('internal_chat.noPudimosGenerarLaVistaPrevia', 'No pudimos generar la vista previa.'));
       }
       setSharePreview(preview);
     } catch (error) {
@@ -1431,7 +1432,7 @@ export default function InternalChat({
       if (sharedItemToSend) {
         setPendingSharedItem(sharedItemToSend);
       }
-      toast.error(error?.message || 'No se pudo enviar el mensaje.');
+      toast.error(error?.message || t('internal_chat.noSePudoEnviarElMensaje', 'No se pudo enviar el mensaje.'));
     }
   }, [
     composerValue,
@@ -1460,7 +1461,7 @@ export default function InternalChat({
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('La imagen no puede superar 5 MB.');
+        toast.error(t('internal_chat.laImagenNoPuedeSuperar5Mb', 'La imagen no puede superar 5 MB.'));
         return;
       }
 
@@ -1496,7 +1497,7 @@ export default function InternalChat({
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('El archivo no puede superar 10 MB.');
+      toast.error(t('internal_chat.elArchivoNoPuedeSuperar10Mb', 'El archivo no puede superar 10 MB.'));
       return;
     }
 
@@ -1532,7 +1533,7 @@ export default function InternalChat({
       scheduleReloadConversations();
     } catch {
       setMessages(prev => { const next = prev.filter(m => m.message_id !== optimisticId); setCacheWithEviction(selectedConversationId, next); return next; });
-      toast.error('Error al subir el documento.');
+      toast.error(t('internal_chat.errorAlSubirElDocumento', 'Error al subir el documento.'));
     }
   }, [selectedConversationId, user?.user_id, user?.name, sendHttpMessage, setCacheWithEviction, scheduleReloadConversations]);
 
@@ -1610,7 +1611,7 @@ export default function InternalChat({
               onChange={(event) => setSearchValue(event.target.value)}
               placeholder="Buscar"
               className="w-full bg-transparent text-[13px] text-stone-950 outline-none placeholder:text-stone-400"
-              aria-label="Buscar conversación"
+              aria-label={t('internal_chat.buscarConversacion', 'Buscar conversación')}
             />
           </label>
         </div>
@@ -1673,7 +1674,7 @@ export default function InternalChat({
             <div className="space-y-4 px-4 py-8">
               <EmptyState
                 title="No tienes conversaciones"
-                description="Empieza un chat nuevo desde el botón superior y mantendrás el inbox mucho más limpio."
+                description=t('internal_chat.empiezaUnChatNuevoDesdeElBotonSup', 'Empieza un chat nuevo desde el botón superior y mantendrás el inbox mucho más limpio.')
               />
               <button
                 type="button"
@@ -1692,7 +1693,7 @@ export default function InternalChat({
         {!activeConversation ? (
           <EmptyState
             title="Tus mensajes"
-            description="Selecciona una conversación del panel izquierdo o inicia una nueva."
+            description=t('internal_chat.seleccionaUnaConversacionDelPanelIz', 'Selecciona una conversación del panel izquierdo o inicia una nueva.')
           />
         ) : (
           <>
@@ -1747,7 +1748,7 @@ export default function InternalChat({
                   type="button"
                   onClick={() => toast('Llamadas de voz próximamente', { icon: '📞' })}
                   className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100"
-                  aria-label="Llamada de voz (próximamente)"
+                  aria-label={t('internal_chat.llamadaDeVozProximamente', 'Llamada de voz (próximamente)')}
                 >
                   <Phone className="h-[18px] w-[18px]" strokeWidth={1.8} />
                 </button>
@@ -1755,7 +1756,7 @@ export default function InternalChat({
                   type="button"
                   onClick={() => toast('Videollamadas próximamente', { icon: '📹' })}
                   className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100"
-                  aria-label="Videollamada (próximamente)"
+                  aria-label={t('internal_chat.videollamadaProximamente', 'Videollamada (próximamente)')}
                 >
                   <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
                 </button>
@@ -1764,7 +1765,7 @@ export default function InternalChat({
                   type="button"
                   onClick={handleDeleteConversation}
                   className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 transition-colors active:bg-stone-100"
-                  aria-label="Eliminar conversación"
+                  aria-label={t('chat.eliminarConversacion', 'Eliminar conversación')}
                 >
                   <Trash2 className="h-[16px] w-[16px]" strokeWidth={1.8} />
                 </button>
@@ -1781,7 +1782,7 @@ export default function InternalChat({
               </div>
             </div>
 
-            <div className="relative flex-1 bg-white" role="log" aria-live="polite" aria-label="Mensajes de la conversación">
+            <div className="relative flex-1 bg-white" role="log" aria-live="polite" aria-label={t('internal_chat.mensajesDeLaConversacion', 'Mensajes de la conversación')}>
               {loadingMessages ? (
                 <LoadingConversationSkeleton />
               ) : visibleMessages.length > 0 ? (
@@ -1825,8 +1826,8 @@ export default function InternalChat({
                 />
               ) : (
                 <EmptyState
-                  title="Empieza la conversación"
-                  description="Escribe el primer mensaje y mantén la conversación dentro de un contexto claro."
+                  title={t('internal_chat.empiezaLaConversacion', 'Empieza la conversación')}
+                  description=t('internal_chat.escribeElPrimerMensajeYMantenLaCo', 'Escribe el primer mensaje y mantén la conversación dentro de un contexto claro.')
                 />
               )}
             </div>
@@ -1949,7 +1950,7 @@ export default function InternalChat({
                   >
                     <img
                       src={pendingImage.previewUrl}
-                      alt="Vista previa de la imagen adjunta"
+                      alt=t('internal_chat.vistaPreviaDeLaImagenAdjunta', 'Vista previa de la imagen adjunta')
                       className="h-12 w-12 rounded-[10px] object-cover"
                     />
                     <div className="min-w-0 flex-1">
@@ -1977,7 +1978,7 @@ export default function InternalChat({
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
                   onClick={() => setIsComposerActionsOpen((c) => !c)}
                   className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
-                  aria-label="Más opciones"
+                  aria-label={t('common.moreOptions', 'Más opciones')}
                 >
                   <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={2.3} strokeLinecap="round">
                     <path d="M12 5v14M5 12h14" />

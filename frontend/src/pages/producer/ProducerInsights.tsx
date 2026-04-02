@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { BarChart3, ChefHat, MousePointerClick, RefreshCw, ShoppingBag, ShoppingCart, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/api/client';
+import { useTranslation } from 'react-i18next';
 
 const PERIODS = [
   { label: '7 días', value: 7 },
@@ -58,7 +59,7 @@ export default function ProducerInsights() {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-stone-950">Insights de producto</h1>
-              <p className="text-sm text-stone-500">Descubrimiento y conversión de tu catálogo</p>
+              <p className="text-sm text-stone-500">{t('producer_insights.descubrimientoYConversionDeTuCatalo', 'Descubrimiento y conversión de tu catálogo')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -94,7 +95,7 @@ export default function ProducerInsights() {
           <KpiCard icon={ShoppingCart} label="Compras" value={overview.total_purchases ?? '—'} />
           <KpiCard
             icon={BarChart3}
-            label="Conversión desde contenido"
+            label=t('producer_insights.conversionDesdeContenido', 'Conversión desde contenido')
             value={overview.content_conversion_rate != null ? `${overview.content_conversion_rate}%` : '—'}
             sub="Clics / vistas"
           />
@@ -200,7 +201,7 @@ export default function ProducerInsights() {
         {!loading && recipes.length === 0 && (
           <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-8 text-center">
             <ChefHat className="mx-auto mb-3 h-8 w-8 text-stone-300" />
-            <p className="text-sm font-medium text-stone-950">Todavía no hay recetas con tus productos</p>
+            <p className="text-sm font-medium text-stone-950">{t('producer_insights.todaviaNoHayRecetasConTusProductos', 'Todavía no hay recetas con tus productos')}</p>
             <p className="mt-1 text-sm text-stone-500">
               Cuando creadores compartan recetas usando tus ingredientes, aparecerán aquí.
             </p>

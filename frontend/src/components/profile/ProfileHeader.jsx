@@ -34,6 +34,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getToken } from '../../lib/auth';
 import { useHaptics } from '../../hooks/useHaptics';
 import { InitialsAvatar } from '../ui/InitialsAvatar';
+import { useTranslation } from 'react-i18next';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -275,7 +276,7 @@ export default function ProfileHeader({
 
       toast.success('Cuenta eliminada del dispositivo');
     } catch (err) {
-      toast.error('No se pudo cerrar la cuenta. Intentalo de nuevo.');
+      toast.error(t('profile_header.noSePudoCerrarLaCuentaIntentaloD', 'No se pudo cerrar la cuenta. Intentalo de nuevo.'));
     } finally {
       setClosingAccount(false);
     }
@@ -361,7 +362,7 @@ export default function ProfileHeader({
       setArchivedStories(stories);
     } catch {
       setArchivedStories([]);
-      toast.error('No se pudieron cargar las historias');
+      toast.error(t('profile_header.noSePudieronCargarLasHistorias', 'No se pudieron cargar las historias'));
     } finally {
       setArchivedStoriesLoading(false);
     }
@@ -392,7 +393,7 @@ export default function ProfileHeader({
       queryClient.invalidateQueries({ queryKey: ['user', 'highlights', user?.user_id || user?.id] });
       onHighlightDeleted?.(); // refresh highlights list
     } catch {
-      toast.error('Error al crear el destacado');
+      toast.error(t('profile_header.errorAlCrearElDestacado', 'Error al crear el destacado'));
     } finally {
       setCreateHighlightSaving(false);
     }
@@ -473,7 +474,7 @@ export default function ProfileHeader({
             </span>
             <button
               onClick={() => setShowOptionsSheet(true)}
-              aria-label="Más opciones"
+              aria-label={t('common.moreOptions', 'Más opciones')}
               className="flex items-center justify-center p-2.5"
             >
               <MoreHorizontal size={22} className="text-stone-950" />
@@ -641,8 +642,8 @@ export default function ProfileHeader({
                 {String(accountToClose.user_id || accountToClose.id || '') === currentUserId
                   ? (hasAlternativeAccount
                       ? 'Se cerrara la sesion y se cambiara automaticamente a otra cuenta guardada.'
-                      : 'Se cerrara la sesion de esta cuenta y tendras que iniciar sesion de nuevo.')
-                  : 'Solo se elimina del selector de cuentas en este dispositivo.'}
+                      : t('profile_header.seCerraraLaSesionDeEstaCuentaYTe', 'Se cerrara la sesion de esta cuenta y tendras que iniciar sesion de nuevo.'))
+                  : t('profile_header.soloSeEliminaDelSelectorDeCuentas', 'Solo se elimina del selector de cuentas en este dispositivo.')}
               </p>
               <div className="flex gap-3">
                 <button
@@ -837,7 +838,7 @@ export default function ProfileHeader({
             {user?.discount_code && (
               <button
                 onClick={async () => {
-                  try { await navigator.clipboard.writeText(user.discount_code); toast.success('Código copiado: ' + user.discount_code); } catch { toast.error('No se pudo copiar'); }
+                  try { await navigator.clipboard.writeText(user.discount_code); toast.success(t('profile_header.codigoCopiado', 'Código copiado: ') + user.discount_code); } catch { toast.error('No se pudo copiar'); }
                 }}
                 className="inline-flex items-center gap-1 rounded-full bg-stone-950 px-3 py-1 text-[11px] font-semibold text-white"
               >
@@ -1095,7 +1096,7 @@ export default function ProfileHeader({
                         const data = await apiClient.get(`/users/${uid}/highlights/${hlId}`);
                         setHighlightCoverStories(data?.stories || data?.items || []);
                       } catch {
-                        toast.error('No se pudieron cargar las historias');
+                        toast.error(t('profile_header.noSePudieronCargarLasHistorias', 'No se pudieron cargar las historias'));
                       } finally {
                         setHighlightCoverLoading(false);
                       }
@@ -1183,7 +1184,7 @@ export default function ProfileHeader({
                       })}
                     </div>
                   ) : (
-                    <p className="py-6 text-center text-sm text-stone-500">No hay historias en este destacado</p>
+                    <p className="py-6 text-center text-sm text-stone-500">{t('profile_header.noHayHistoriasEnEsteDestacado', 'No hay historias en este destacado')}</p>
                   )}
                   <button
                     onClick={() => setHighlightEditMode(null)}
@@ -1278,8 +1279,8 @@ export default function ProfileHeader({
                     </div>
                   ) : archivedStories.length === 0 ? (
                     <div className="py-10 flex flex-col items-center gap-3">
-                      <p className="text-sm text-stone-500 text-center">No hay historias en tu archivo</p>
-                      <p className="text-xs text-stone-400 text-center">Publica una historia primero para poder crear un destacado</p>
+                      <p className="text-sm text-stone-500 text-center">{t('profile_header.noHayHistoriasEnTuArchivo', 'No hay historias en tu archivo')}</p>
+                      <p className="text-xs text-stone-400 text-center">{t('profile_header.publicaUnaHistoriaPrimeroParaPoder', 'Publica una historia primero para poder crear un destacado')}</p>
                       <button
                         onClick={() => {
                           setCreateHighlightOpen(false);
